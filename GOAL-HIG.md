@@ -1,6 +1,6 @@
 # GOAL-HIG — Mostrador claro
 
-> **Estado: PARKED hasta después del 7 de noviembre de 2026.** No ejecutar el rediseño completo antes del hackathon: compite con la demo y con la validación real. Si se retoma, empezar por F0/F1.
+> **Estado: F0 baseline y F1 auditoría completados el 31 de octubre de 2026.** F2+ queda **PARKED**: no se toca la UI antes del 7 de noviembre sin una decisión explícita. La evidencia base está en `HIG-AUDIT.md` y `demo/hig-before/`.
 >
 > Reescrito con **be-ambitious**: más profundo, no más grande.
 > Base de diseño: **apple-hig** de `AyushRajSinghParihar/apple-human-interface-skills`, commit `620071d8bae04bc18839fb3553d50aa5b8052f71` (snapshot del 25 de octubre de 2026, MIT, proyecto no afiliado a Apple).

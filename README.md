@@ -5,7 +5,7 @@
 Documento de trabajo para el hackathon **DevDay Exchange Community Hackathon: Mexico City** (sábado 7 de noviembre de 2026, UTOPÍA Elena Poniatowska, Coyoacán).
 
 **Contrato de profundidad:** [`GOAL.md`](./GOAL.md) — qué se construye, qué se prueba y qué cuenta como “ya está”.
-**Rediseño de interfaz (post-hackathon):** [`GOAL-HIG.md`](./GOAL-HIG.md) — “Mostrador claro”: Apple HIG adaptado a web. **Parked hasta después del 7 nov.**
+**Rediseño de interfaz (F2+ parked):** [`GOAL-HIG.md`](./GOAL-HIG.md) — “Mostrador claro”: Apple HIG adaptado a web. **F0/F1 completados; auditoría en [`HIG-AUDIT.md`](./HIG-AUDIT.md).**
 **Benchmark hiperlocal:** [`BENCHMARK-HIPERLOCAL.md`](./BENCHMARK-HIPERLOCAL.md) — qué aprender (y qué no copiar) de CoopCycle, Nearby Shops, Local Vendor App y otros.
 **Plan de skills:** [`GOAL-SKILLS.md`](./GOAL-SKILLS.md) — qué skills usar (UI/UX anti-slop, planificación, verificación), cuáles omitir y cómo se mide su efecto.
 
