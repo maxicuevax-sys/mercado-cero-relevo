@@ -228,8 +228,8 @@ Matriz obligatoria en `HIG-AUDIT.md`:
 
 | Fase | Fecha | Entregable | Gate |
 |---|---|---|---|
-| **F0 · Red de seguridad** | 31 oct | `git init`, baseline, tag `pre-hig`, skill instalada y fijada, capturas y métricas base | Sin baseline no se toca UI |
-| **F1 · Auditoría HIG** | 31 oct–1 nov | `HIG-AUDIT.md` con matriz, severidades, citas y evidencia 360/390/768/1280 | Revisión: ningún bloqueante sin corrección propuesta |
+| **F0 · Red de seguridad** ✅ | 31 oct | `git init`, baseline `4d33a46`, tag `pre-hig`, skill fijada, capturas y métricas base | Sin baseline no se toca UI |
+| **F1 · Auditoría HIG** ✅ | 31 oct–1 nov | `HIG-AUDIT.md` con matriz, severidades, citas y evidencia 360/390/768/1280 | Revisión: ningún bloqueante sin corrección propuesta |
 | **F2 · Contrato de diseño** | 1 nov | `HIG-DESIGN.md`: tokens, tipos, componentes, estados, copy, adaptación web | Aprobado antes de escribir componentes |
 | **F3 · Shell + Caja + cobro + checkout** | 2–3 nov | Nuevo shell, tabs/sidebar, Caja, sheet de cobro, éxito, checkout | Flujo completo en 360 y 1280; 27/27 intacto |
 | **F4 · Superficies secundarias** | 4 nov | Fiado, Corte, Meta, Verificar, Ayuda, demo reset, estados vacíos/error | Sin pantallas a medio migrar |
