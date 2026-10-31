@@ -1,0 +1,20 @@
+# Dependencias y builds
+web/node_modules/
+web/.next/
+web/out/
+web/build/
+web/.vercel/
+web/*.tsbuildinfo
+
+# Datos locales, secretos y logs
+web/data/
+web/.env.local
+web/.env.*.local
+*.log
+
+# Video crudo de Playwright (el MP4 es el entregable)
+demo/*.webm
+
+# Sistema / editor
+.DS_Store
+Thumbs.db

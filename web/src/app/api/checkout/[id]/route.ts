@@ -1,0 +1,57 @@
+import { MERCHANT, isDemoMode } from "@/lib/config";
+import { getOrderDetail } from "@/lib/orders";
+import { shortOrder } from "@/lib/format";
+
+export async function GET(
+  _request: Request,
+  ctx: { params: Promise<{ id: string }> },
+) {
+  const { id } = await ctx.params;
+  const detail = getOrderDetail(id);
+  if (!detail) {
+    return Response.json({ error: "Este cobro no existe." }, { status: 404 });
+  }
+
+  const { order, payments } = detail;
+  const paidPayment = payments
+    .filter((payment) => payment.status === "paid")
+    .at(-1);
+
+  return Response.json({
+    demoMode: isDemoMode(),
+    merchant: {
+      name: MERCHANT.name,
+      owner: MERCHANT.owner,
+      address: MERCHANT.address,
+    },
+    order: {
+      id: order.id,
+      shortRef: shortOrder(order.id),
+      status: order.status,
+      totalCents: order.totalCents,
+      paidCents: order.paidCents,
+      creditCents: order.creditCents,
+      amountDueCents: Math.max(
+        0,
+        order.totalCents - order.paidCents - order.creditCents,
+      ),
+      paymentMethod: order.paymentMethod,
+      createdAt: order.createdAt,
+      items: order.items.map((item) => ({
+        id: item.id,
+        description: item.description,
+        quantity: item.quantity,
+        unitPriceCents: item.unitPriceCents,
+        totalCents: item.totalCents,
+      })),
+    },
+    payment: paidPayment
+      ? {
+          method: paidPayment.method,
+          transactionId: paidPayment.transactionId,
+          amountCents: paidPayment.amountCents,
+          createdAt: paidPayment.createdAt,
+        }
+      : null,
+  });
+}

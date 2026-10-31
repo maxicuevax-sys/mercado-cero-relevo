@@ -1,0 +1,245 @@
+{
+  "runs": [
+    {
+      "iteration": 1,
+      "seconds": 4.9,
+      "steps": [
+        {
+          "name": "venta interpretada",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "total $90",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "cobro visible",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "link generado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "pago demo confirmado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "abono de fiado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "saldo de Juan en cero",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "consulta de ventas",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "comprobante falso rechazado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "dashboard visible",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "corte incluye abono de fiado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "conteo cuadra",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "corte guardado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "meta avanza",
+          "ok": true,
+          "detail": ""
+        }
+      ],
+      "consoleErrors": [],
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "iteration": 2,
+      "seconds": 4.7,
+      "steps": [
+        {
+          "name": "venta interpretada",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "total $90",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "cobro visible",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "link generado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "pago demo confirmado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "abono de fiado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "saldo de Juan en cero",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "consulta de ventas",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "comprobante falso rechazado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "dashboard visible",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "corte incluye abono de fiado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "conteo cuadra",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "corte guardado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "meta avanza",
+          "ok": true,
+          "detail": ""
+        }
+      ],
+      "consoleErrors": [],
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "iteration": 3,
+      "seconds": 4.8,
+      "steps": [
+        {
+          "name": "venta interpretada",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "total $90",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "cobro visible",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "link generado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "pago demo confirmado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "abono de fiado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "saldo de Juan en cero",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "consulta de ventas",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "comprobante falso rechazado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "dashboard visible",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "corte incluye abono de fiado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "conteo cuadra",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "corte guardado",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "meta avanza",
+          "ok": true,
+          "detail": ""
+        }
+      ],
+      "consoleErrors": [],
+      "passed": 14,
+      "failed": 0
+    }
+  ],
+  "fastestSeconds": 4.7,
+  "slowestSeconds": 4.9,
+  "averageSeconds": 4.8,
+  "allPassed": true
+}

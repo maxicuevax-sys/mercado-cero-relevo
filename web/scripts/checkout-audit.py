@@ -1,0 +1,235 @@
+"""
+Auditoría 360 px del checkout público y de la pantalla de éxito.
+
+Uso:
+  python scripts/checkout-audit.py
+
+Requiere el servidor en http://localhost:3000.
+No imprime secretos. Guarda capturas y un JSON en mercado-cero/demo/.
+"""
+
+from __future__ import annotations
+
+import json
+import sys
+import time
+from pathlib import Path
+
+from playwright.sync_api import sync_playwright
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+BASE = "http://localhost:3000"
+ROOT = Path(__file__).resolve().parents[2]
+OUT = ROOT / "demo"
+OUT.mkdir(parents=True, exist_ok=True)
+
+results: list[dict] = []
+
+
+def check(name: str, ok: bool, detail: str = "") -> None:
+    results.append({"name": name, "ok": bool(ok), "detail": detail})
+    print(f"{'PASS' if ok else 'FAIL'}  {name}{(' — ' + detail) if detail else ''}")
+
+
+def wait_text(page, text: str, timeout: int = 12000) -> bool:
+    try:
+        page.wait_for_selector(f"text={text}", timeout=timeout)
+        return True
+    except Exception:
+        return False
+
+
+def measure(page) -> dict:
+    return page.evaluate(
+        """() => {
+            const visible = (el) => {
+                const r = el.getBoundingClientRect();
+                const s = getComputedStyle(el);
+                return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none';
+            };
+            const textBlocks = Array.from(document.querySelectorAll('p, span, button, a, label, h1, h2, h3, h4, dt, dd'))
+                .filter(el => el.innerText && el.innerText.trim().length > 0 && visible(el))
+                .map(el => ({
+                    text: el.innerText.trim().replace(/\\s+/g, ' ').slice(0, 70),
+                    size: parseFloat(getComputedStyle(el).fontSize),
+                    tag: el.tagName,
+                }));
+            const targets = Array.from(document.querySelectorAll('button, a, input, [role="button"]'))
+                .filter(visible)
+                .map(el => {
+                    const r = el.getBoundingClientRect();
+                    return {
+                        text: (el.innerText || el.getAttribute('aria-label') || '').trim().replace(/\\s+/g, ' ').slice(0, 45),
+                        tag: el.tagName,
+                        width: Math.round(r.width),
+                        height: Math.round(r.height),
+                    };
+                });
+            return {
+                innerWidth: window.innerWidth,
+                scrollWidth: document.documentElement.scrollWidth,
+                bodyScrollWidth: document.body.scrollWidth,
+                smallText: textBlocks.filter(item => item.size < 12).slice(0, 20),
+                smallTextCount: textBlocks.filter(item => item.size < 12).length,
+                smallTargets: targets.filter(item => item.width < 44 || item.height < 44).slice(0, 20),
+                smallTargetCount: targets.filter(item => item.width < 44 || item.height < 44).length,
+                methods: Array.from(document.querySelectorAll('button[aria-pressed]')).filter(visible).length,
+            };
+        }"""
+    )
+
+
+def main() -> int:
+    console_errors: list[str] = []
+    page_errors: list[str] = []
+    started = time.time()
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(
+            viewport={"width": 360, "height": 800},
+            device_scale_factor=2,
+            is_mobile=True,
+            has_touch=True,
+            locale="es-MX",
+        )
+        page = context.new_page()
+        page.on(
+            "console",
+            lambda message: console_errors.append(message.text)
+            if message.type == "error"
+            else None,
+        )
+        page.on("pageerror", lambda error: page_errors.append(str(error)))
+
+        context.request.post(f"{BASE}/api/demo/reset")
+        dashboard = context.request.get(f"{BASE}/api/dashboard").json()
+        pending = next(
+            (
+                order
+                for order in dashboard["orders"]
+                if order["status"] == "payment_pending"
+            ),
+            None,
+        )
+        if not pending:
+            print("FAIL  no hay pedido pendiente en la demo")
+            return 1
+
+        order_id = pending["id"]
+        checkout_url = f"{BASE}/pay/{order_id}"
+        print(f"INFO  pedido {pending['totalCents'] / 100:.2f} MXN · {order_id[:12]}…")
+
+        # 1. Checkout.
+        page.goto(checkout_url, wait_until="domcontentloaded")
+        page.wait_for_selector("text=¿Cómo quieres pagar?", timeout=15000)
+        page.wait_for_timeout(500)
+        page.screenshot(path=str(OUT / "checkout-360-fold.png"))
+        page.screenshot(path=str(OUT / "checkout-360-full.png"), full_page=True)
+
+        metrics = measure(page)
+        check(
+            "Checkout: 360 px sin scroll horizontal",
+            metrics["scrollWidth"] <= metrics["innerWidth"] + 1,
+            f"scrollWidth={metrics['scrollWidth']} innerWidth={metrics['innerWidth']}",
+        )
+        check(
+            "Checkout: sin texto visible menor a 12 px",
+            metrics["smallTextCount"] == 0,
+            f"{metrics['smallTextCount']} bloques: {metrics['smallText'][:5]}",
+        )
+        check(
+            "Checkout: tres métodos de pago",
+            metrics["methods"] == 3,
+            f"{metrics['methods']} botones aria-pressed",
+        )
+        check(
+            "Checkout: objetivos táctiles >= 44 px",
+            metrics["smallTargetCount"] == 0,
+            f"{metrics['smallTargetCount']} menores: {metrics['smallTargets'][:6]}",
+        )
+
+        check("Checkout: total visible", wait_text(page, "$120.00", 5000))
+        check("Checkout: aviso de demo visible", wait_text(page, "Modo demo", 5000))
+
+        # 2. Pagar con CoDi en modo demo.
+        page.get_by_role("button", name="Pagar $120.00").click()
+        check(
+            "Checkout: pago demo confirmado",
+            wait_text(page, "Listo para entregar", 15000),
+        )
+        page.wait_for_timeout(500)
+        page.screenshot(path=str(OUT / "checkout-360-pagado.png"))
+        check(
+            "Checkout: explica que el pago fue simulado",
+            wait_text(page, "Pago simulado para la demo", 5000),
+        )
+
+        paid_metrics = measure(page)
+        check(
+            "Confirmación: sin texto visible menor a 12 px",
+            paid_metrics["smallTextCount"] == 0,
+            f"{paid_metrics['smallTextCount']} bloques: {paid_metrics['smallText'][:5]}",
+        )
+        check(
+            "Confirmación: sin scroll horizontal",
+            paid_metrics["scrollWidth"] <= paid_metrics["innerWidth"] + 1,
+            f"scrollWidth={paid_metrics['scrollWidth']}",
+        )
+
+        checkout_state = context.request.get(f"{BASE}/api/checkout/{order_id}").json()
+        check(
+            "Servidor: orden pagada tras la simulación",
+            checkout_state["order"]["status"] == "paid"
+            and checkout_state["payment"] is not None,
+            f"{checkout_state['order']['status']} · pago={checkout_state['payment'] is not None}",
+        )
+
+        # 3. Pantalla de éxito alternativa.
+        page.goto(f"{BASE}/pay/{order_id}/success", wait_until="domcontentloaded")
+        page.wait_for_selector("text=Pago confirmado", timeout=15000)
+        page.wait_for_timeout(400)
+        page.screenshot(path=str(OUT / "checkout-360-success.png"))
+        success_metrics = measure(page)
+        check(
+            "Éxito: sin texto visible menor a 12 px",
+            success_metrics["smallTextCount"] == 0,
+            f"{success_metrics['smallTextCount']} bloques: {success_metrics['smallText'][:5]}",
+        )
+        check(
+            "Éxito: sin scroll horizontal",
+            success_metrics["scrollWidth"] <= success_metrics["innerWidth"] + 1,
+            f"scrollWidth={success_metrics['scrollWidth']}",
+        )
+
+        elapsed = time.time() - started
+        check("Checkout: sin errores de consola", len(console_errors) == 0, "; ".join(console_errors[:3]))
+        check("Checkout: sin pageerrors", len(page_errors) == 0, "; ".join(page_errors[:3]))
+
+        context.request.post(f"{BASE}/api/demo/reset")
+        browser.close()
+
+    report = {
+        "viewport": "360x800",
+        "elapsedSeconds": round(elapsed, 1),
+        "checkout": metrics,
+        "confirmation": paid_metrics,
+        "success": success_metrics,
+        "consoleErrors": console_errors,
+        "pageErrors": page_errors,
+        "checks": results,
+        "passed": sum(1 for item in results if item["ok"]),
+        "failed": sum(1 for item in results if not item["ok"]),
+    }
+    path = OUT / "checkout-audit.json"
+    path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    print("")
+    print(f"{report['passed']}/{len(results)} checks en verde")
+    print(f"Reporte: {path}")
+    return 0 if report["failed"] == 0 else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
