@@ -6,7 +6,7 @@ Entrega: **domingo 8 de noviembre, 1:00 p.m.**
 
 > **Estado real al 30 oct:** scaffold, flujo demo end-to-end, endurecimiento del webhook (27/27 aserciones), conciliación contra pey, dashboard hoy/semana/mes, corte de caja y “Mi camino” implementados. La dirección visual **“Mercado de papel”** está aplicada; la auditoría móvil 360 px emulada pasó 25/25; el runbook, el video de respaldo y el QR imprimible están listos. Ver **`GOAL.md`** para el contrato y las fases. Este plan es la intención original; algunas decisiones cambiaron: el prototipo usa SQLite y Next.js 16, no Postgres ni Next 15.
 >
-> **Rediseño de interfaz (F2+ parked):** ver **`GOAL-HIG.md`** — “Mostrador claro”, Apple HIG adaptado a web. **F0/F1 completados; base en `HIG-AUDIT.md`.** No se toca la UI antes del 7 nov sin decisión explícita.
+> **Rediseño de interfaz (F3+ parked):** ver **`GOAL-HIG.md`** — “Mostrador claro”. **F0/F1 completados; F2 escrito en `HIG-DESIGN.md`, pendiente de aprobación.** No se toca la UI antes del 7 nov sin decisión explícita.
 
 ---
 

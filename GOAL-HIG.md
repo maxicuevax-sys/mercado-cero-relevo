@@ -1,6 +1,6 @@
 # GOAL-HIG — Mostrador claro
 
-> **Estado: F0 baseline y F1 auditoría completados el 31 de octubre de 2026.** F2+ queda **PARKED**: no se toca la UI antes del 7 de noviembre sin una decisión explícita. La evidencia base está en `HIG-AUDIT.md` y `demo/hig-before/`.
+> **Estado: F0 baseline y F1 auditoría completados el 31 de octubre de 2026. F2 contrato escrito en `HIG-DESIGN.md`, pendiente de aprobación. F3+ PARKED: no se toca la UI antes del 7 de noviembre sin una decisión explícita.** La evidencia base está en `HIG-AUDIT.md` y `demo/hig-before/`.
 >
 > Reescrito con **be-ambitious**: más profundo, no más grande.
 > Base de diseño: **apple-hig** de `AyushRajSinghParihar/apple-human-interface-skills`, commit `620071d8bae04bc18839fb3553d50aa5b8052f71` (snapshot del 25 de octubre de 2026, MIT, proyecto no afiliado a Apple).
@@ -141,7 +141,7 @@ Matriz obligatoria en `HIG-AUDIT.md`:
 |---|---|---|
 | **Shell / header** | Marca + ficha de comerciante + reset + ayuda compitiendo; hero editorial largo. | Barra de título clara: destino actual, comerciante, “Demo” y ayuda. El reset sale del header. El hero desaparece del camino de trabajo. |
 | **Navegación** | Bottom nav con anclas a una página larga; en desktop no hay navegación lateral. | 4 destinos reales: **Caja, Fiado, Corte, Meta** (hoy “Camino”). Compacto: tab bar inferior con estado conservado. Regular: sidebar. Help/Verify/Demo como sheets. |
-| **Caja / voz** | Micrófono grande, frases de ejemplo, draft, panel de cobro a la derecha; en móvil el cobro queda abajo. | Una tarea: “¿Qué vendiste?” + botón de voz con estados + texto alternativo. El pedido se confirma; el cobro se abre en **sheet** en compacto y en columna en regular. |
+| **Caja / voz** | Micrófono grande, frases de ejemplo, draft, panel de cobro a la derecha; en móvil el cobro queda abajo. | Una tarea: “¿Qué vendiste?” + botón de voz con estados + texto alternativo. El pedido se confirma; el cobro se abre en **sheet en todos los tamaños** (en wide, centrado a 560). |
 | **Payment sheet** | Panel largo con QR, link, aviso de espera, botones demo y “cerrar”. | Sheet scoped: monto, estado, QR/link, un primario, un secundario, salida clara. Demo y real visualmente distintos. |
 | **Checkout público** | Funciona, pero con microtipografía de 9–12 px y estética de papel. | Tarjeta clara: comercio, total, productos, métodos, botón primario, aviso de seguridad y demo. Apple Pay solo con botón/JS oficial si está habilitado; si no, “Wallet”. |
 | **Éxito** | Pantalla propia + overlay con sello; dos lenguajes. | Un solo patrón de confirmación: check, monto, pedido, método, “Listo para entregar”. Real vs demo distinto. |
@@ -230,7 +230,7 @@ Matriz obligatoria en `HIG-AUDIT.md`:
 |---|---|---|---|
 | **F0 · Red de seguridad** ✅ | 31 oct | `git init`, baseline `4d33a46`, tag `pre-hig`, skill fijada, capturas y métricas base | Sin baseline no se toca UI |
 | **F1 · Auditoría HIG** ✅ | 31 oct–1 nov | `HIG-AUDIT.md` con matriz, severidades, citas y evidencia 360/390/768/1280 | Revisión: ningún bloqueante sin corrección propuesta |
-| **F2 · Contrato de diseño** | 1 nov | `HIG-DESIGN.md`: tokens, tipos, componentes, estados, copy, adaptación web | Aprobado antes de escribir componentes |
+| **F2 · Contrato de diseño** 🟡 | 1 nov | `HIG-DESIGN.md`: tokens, tipos, componentes, estados, copy, adaptación web | Aprobado antes de escribir componentes |
 | **F3 · Shell + Caja + cobro + checkout** | 2–3 nov | Nuevo shell, tabs/sidebar, Caja, sheet de cobro, éxito, checkout | Flujo completo en 360 y 1280; 27/27 intacto |
 | **F4 · Superficies secundarias** | 4 nov | Fiado, Corte, Meta, Verificar, Ayuda, demo reset, estados vacíos/error | Sin pantallas a medio migrar |
 | **F5 · Accesibilidad y performance** | 5 nov | 200% texto, teclado, foco, contraste, reduced motion, Lighthouse/axe, performance | Must-pass de la sección 10 |
