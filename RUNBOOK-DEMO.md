@@ -1,7 +1,7 @@
 # Runbook de demo — Mercado Cero
 
 > **Estado:** demo mode con datos sembrados. El riel real de CoDi sigue bloqueado por BBVA; la demo se presenta como **modo demo** y el respaldo está grabado.
-> **Video:** `demo/mercado-cero-demo.mp4` (34 s, 1280×800, 1.4 MB).
+> **Video:** `demo/mercado-cero-demo.mp4` (36 s, 1280×800, 0.8 MB).
 > **Auditoría móvil:** `demo/mobile-audit.json` — 25/25 checks, 360 px emulado con Playwright, 10.2 s de flujo en producción (10–17 s en dev), 0 errores de consola. Falta la prueba en un teléfono físico.
 > **Checkout público:** `demo/checkout-audit.json` — 15/15 checks a 360 px, pago demo y pantalla de éxito; Lighthouse 100/100/100.
 > **Túnel HTTPS:** `demo/tunnel-smoke.json` — 8/8 checks por Cloudflare: reset, checkout, pago demo y estado pagado.
@@ -13,9 +13,9 @@
 - [ ] `mercado-cero/web/.env.local` tiene `DEMO_MODE=true`.
 - [ ] El servidor corre: `npm run build && npm start` (recomendado; es el modo validado) o `npm run dev`.
 - [ ] Abre `http://localhost:3000` y confirma:
-  - [ ] El hero dice “Cobra hablando. El banco confirma.”
-  - [ ] La línea de cuenta dice “Modo demo”.
-  - [ ] El botón **Cobrar ahora** está visible.
+  - [ ] La pantalla inicial es **Caja** y muestra **¿Qué vendiste?**.
+  - [ ] El pill **DEMO** está visible en la cabecera.
+  - [ ] El botón **Verificar** está visible en Caja.
 - [ ] Pulsa el icono de **reiniciar demo** en el header. Debe quedar:
   - [ ] Ventas de hoy: **$190.00**
   - [ ] Cobrado: **$70.00**
@@ -48,7 +48,7 @@ Señala la línea **“Cuenta receptora: Ana (hija) •••• 4812”** y el 
 
 ### 0:20–0:50 · La venta por voz
 
-- Pulsa **Cobrar ahora** o baja a **¿Qué vendiste?**
+- Caja es la pantalla inicial; **¿Qué vendiste?** está arriba.
 - Pulsa la frase de ejemplo **“Dos quesadillas de 35 y un agua de 20”**.
 - Si hay micrófono, mantén presionado y dilo tú.
 
@@ -71,14 +71,14 @@ Cuando aparezca el sello **DEMO** o **PAGADO**, señálalo.
 ### 1:20–1:50 · Anti-fraude
 
 - Cierra el overlay con **Listo para entregar**.
-- Baja a **Verificar comprobante**.
+- Pulsa **Verificar** en la cabecera de Caja.
 - Pulsa **Probar con un comprobante falso**.
 
 > “Si el ID no existe en la cuenta de pey, no es un pago verificable. La app no se impresiona con capturas.”
 
 ### 1:50–2:20 · Fiado y voz
 
-- Baja a **¿Qué vendiste?** y pulsa la frase **“Juan me pagó 50 del fiado”**.
+- Vuelve a **Caja** y pulsa la frase **“Juan me pagó 50 del fiado”**.
 - Muestra que el saldo de Juan baja de $50 a $0.
 - Pulsa **“¿Cuánto vendí hoy?”**.
 
@@ -86,10 +86,10 @@ Cuando aparezca el sello **DEMO** o **PAGADO**, señálalo.
 
 ### 2:20–2:40 · Mi negocio y corte
 
-- Baja a **Mi negocio**.
+- Abre **Corte**; la tarjeta **Así va la caja** está en la misma pantalla.
 - Cambia **Hoy / Semana / Mes**.
 - Muestra el total, el ticket promedio, efectivo vs digital y la gráfica.
-- Baja a **Corte de caja**.
+- En **Corte**, arriba está **Corte de caja**.
 - Pulsa **Actualizar corte**: el abono de Juan sumó **$50 en efectivo**, así que “Debería haber” pasa de $570 a **$620**.
 - Pulsa **Contar por billetes y monedas** y escribe: **5** de $100, **2** de $50 y **1** de $20. Muestra el sello **CUADRA**.
 
@@ -97,7 +97,7 @@ Cuando aparezca el sello **DEMO** o **PAGADO**, señálalo.
 
 ### 2:40–3:00 · Mi camino y cierre
 
-- Baja a **Mi camino**.
+- Abre **Meta**.
 - Escribe **25** y pulsa **Apartar**.
 - Muestra la meta en **$325.00** y el avance.
 
@@ -167,7 +167,7 @@ Comisión por transacción o suscripción. CoDi es el riel gratuito; la tarjeta 
 
 ## 7 · Archivos de respaldo
 
-- `demo/mercado-cero-demo.mp4` — video silencioso con subtítulos (34 s).
+- `demo/mercado-cero-demo.mp4` — video silencioso con subtítulos (36 s).
 - `demo/mercado-cero-demo.webm` — original.
 - `demo/mobile-360-fold.png` — primer viewport a 360 px.
 - `demo/mobile-360-full.png` — página completa a 360 px.
@@ -191,7 +191,7 @@ Comisión por transacción o suscripción. CoDi es el riel gratuito; la tarjeta 
 1. `node scripts/verify-env.mjs` — debe decir **REAL** y no tener fallas.
 2. Usa una `DATABASE_PATH` limpia o reinicia la demo; no mezcles historia simulada con un pago real.
 3. En `.env.local`: `DEMO_MODE=false`, `PEY_API_KEY` y `PEY_WEBHOOK_SECRET` vigentes, `APP_URL` con el túnel HTTPS vivo.
-4. Reinicia el servidor y recarga: la línea debe decir **pey conectado**, no “Modo demo”.
+4. Reinicia el servidor y recarga: el pill **DEMO** debe desaparecer y la app debe hablar de modo real.
 5. Cobra **$0.01** y paga desde el banco. Espera el webhook firmado; verifica el estado **pagado** y la conciliación.
 6. Si el webhook no llega en 2 minutos, la orden queda **pendiente**. No la marques pagada ni muestres una captura como prueba.
 7. Si el riel falla, vuelve a `DEMO_MODE=true`, reinicia y usa el sello **DEMO** y el video de respaldo.
