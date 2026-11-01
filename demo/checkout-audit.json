@@ -1,6 +1,6 @@
 {
   "viewport": "360x800",
-  "elapsedSeconds": 4.6,
+  "elapsedSeconds": 4.4,
   "checkout": {
     "innerWidth": 360,
     "scrollWidth": 360,
@@ -47,7 +47,7 @@
     {
       "name": "Checkout: tres métodos de pago",
       "ok": true,
-      "detail": "3 botones aria-pressed"
+      "detail": "3 radios de método"
     },
     {
       "name": "Checkout: objetivos táctiles >= 44 px",

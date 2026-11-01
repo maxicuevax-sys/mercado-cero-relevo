@@ -57,6 +57,7 @@ def measure(page) -> dict:
                     tag: el.tagName,
                 }));
             const targets = Array.from(document.querySelectorAll('button, a, input, [role="button"]'))
+                .filter(el => !(el.tagName === 'INPUT' && el.classList.contains('sr-only')))
                 .filter(visible)
                 .map(el => {
                     const r = el.getBoundingClientRect();
@@ -75,7 +76,7 @@ def measure(page) -> dict:
                 smallTextCount: textBlocks.filter(item => item.size < 12).length,
                 smallTargets: targets.filter(item => item.width < 44 || item.height < 44).slice(0, 20),
                 smallTargetCount: targets.filter(item => item.width < 44 || item.height < 44).length,
-                methods: Array.from(document.querySelectorAll('button[aria-pressed]')).filter(visible).length,
+                methods: document.querySelectorAll('input[name="checkout-method"]').length,
             };
         }"""
     )
@@ -143,7 +144,7 @@ def main() -> int:
         check(
             "Checkout: tres métodos de pago",
             metrics["methods"] == 3,
-            f"{metrics['methods']} botones aria-pressed",
+            f"{metrics['methods']} radios de método",
         )
         check(
             "Checkout: objetivos táctiles >= 44 px",
@@ -158,7 +159,7 @@ def main() -> int:
         page.get_by_role("button", name="Pagar $120.00").click()
         check(
             "Checkout: pago demo confirmado",
-            wait_text(page, "Listo para entregar", 15000),
+            wait_text(page, "Pago simulado para la demo", 15000),
         )
         page.wait_for_timeout(500)
         page.screenshot(path=str(OUT / "checkout-360-pagado.png"))
@@ -189,7 +190,7 @@ def main() -> int:
 
         # 3. Pantalla de éxito alternativa.
         page.goto(f"{BASE}/pay/{order_id}/success", wait_until="domcontentloaded")
-        page.wait_for_selector("text=Pago confirmado", timeout=15000)
+        page.wait_for_selector("h1:has-text('Pago simulado')", timeout=15000)
         page.wait_for_timeout(400)
         page.screenshot(path=str(OUT / "checkout-360-success.png"))
         success_metrics = measure(page)

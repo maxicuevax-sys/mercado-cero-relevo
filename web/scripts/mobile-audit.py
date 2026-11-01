@@ -94,8 +94,8 @@ def main() -> int:
         # Estado limpio de demo.
         context.request.post(f"{BASE}/api/demo/reset")
         page.goto(BASE, wait_until="domcontentloaded")
-        page.wait_for_selector("text=Cobra hablando", timeout=15000)
-        wait_text(page, "Modo demo", 15000)
+        page.wait_for_selector("h1:has-text('Caja')", timeout=15000)
+        page.wait_for_function("document.body.innerText.includes('Hoy $')", timeout=20000)
         page.wait_for_timeout(500)
 
         # 1. Medidas de layout.
@@ -135,7 +135,7 @@ def main() -> int:
                     smallTextCount: textBlocks.filter(item => item.size < 12).length,
                     smallTargets: targets.filter(item => item.width < 44 || item.height < 44).slice(0, 20),
                     smallTargetCount: targets.filter(item => item.width < 44 || item.height < 44).length,
-                    primaryTargets: targets.filter(item => /Cobrar ahora|Confirmar venta|Link de pago|QR CoDi|Simular CoDi|Guardar corte|Apartar|Guía|Reiniciar demo|Caja|Fiado|Corte|Camino/.test(item.text)),
+                    primaryTargets: targets.filter(item => /Confirmar venta|Link de pago|QR CoDi|Simular CoDi|Guardar corte|Apartar|Verificar|Caja|Fiado|Corte|Meta/.test(item.text)),
                 };
             }"""
         )
@@ -163,10 +163,7 @@ def main() -> int:
         )
 
         # 2. Walkthrough del flujo.
-        page.get_by_role("link", name="Cobrar ahora").click()
-        page.wait_for_timeout(400)
-        check("CTA lleva a la caja", page.evaluate("location.hash") == "#caja")
-
+        check("Caja es el destino inicial", page.get_by_role("heading", name="Caja", exact=True).is_visible())
         page.get_by_role(
             "button", name="Dos quesadillas de 35 y un agua de 20"
         ).click()
@@ -188,7 +185,7 @@ def main() -> int:
         page.screenshot(path=str(OUT / "mobile-360-link.png"))
 
         page.get_by_role("button", name="Simular CoDi").click()
-        check("Pago demo confirmado", wait_text(page, "Pago simulado", 12000))
+        check("Pago demo confirmado", wait_text(page, "Pago simulado · demo", 12000))
         page.wait_for_timeout(600)
         ok, detail = no_horizontal_scroll(page)
         check("Sin scroll horizontal tras el pago", ok, detail)
@@ -197,7 +194,6 @@ def main() -> int:
         page.wait_for_timeout(300)
 
         # 3. Fiado en efectivo y anti-fraude, también a 360 px.
-        page.locator("#caja").scroll_into_view_if_needed()
         page.get_by_role("button", name="Juan me pagó 50 del fiado").click()
         check("Abono de fiado visible", wait_text(page, "Abono de", 12000))
         check("Saldo de Juan en cero", wait_text(page, "Saldo: $0.00", 12000))
@@ -205,27 +201,30 @@ def main() -> int:
         ok, detail = no_horizontal_scroll(page)
         check("Sin scroll horizontal tras el abono", ok, detail)
 
-        page.locator("#verificar").scroll_into_view_if_needed()
+        page.get_by_role("button", name="Verificar", exact=True).first.click()
+        page.wait_for_selector("text=Verificar comprobante", timeout=12000)
         page.get_by_role("button", name="Probar con un comprobante falso").click()
         check("Comprobante falso rechazado", wait_text(page, "No verificado", 12000))
         page.wait_for_timeout(500)
         ok, detail = no_horizontal_scroll(page)
         check("Sin scroll horizontal en anti-fraude", ok, detail)
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(400)
 
-        page.locator("nav a", has_text="Corte").click()
+        page.get_by_role("button", name="Corte", exact=True).first.click()
         page.wait_for_timeout(600)
         check(
             "Corte visible",
-            page.locator("#corte").is_visible(),
-            "sección #corte",
+            page.get_by_text("Corte de caja", exact=False).first.is_visible(),
+            "pantalla Corte",
         )
         page.locator('button[title="Actualizar corte"]').click()
         check("Corte incluye el abono de fiado", wait_text(page, "$620.00", 12000))
         page.screenshot(path=str(OUT / "mobile-360-corte.png"))
 
-        page.locator("nav a", has_text="Camino").click()
+        page.get_by_role("button", name="Meta", exact=True).first.click()
         page.wait_for_timeout(600)
-        check("Meta visible", page.locator("#meta").is_visible(), "sección #meta")
+        check("Meta visible", page.get_by_text("Mi camino", exact=False).first.is_visible(), "pantalla Meta")
         page.get_by_placeholder("¿Cuánto apartaste?").fill("25")
         page.get_by_role("button", name="Apartar", exact=True).click()
         check("Aportación actualiza la meta", wait_text(page, "$325.00", 12000))

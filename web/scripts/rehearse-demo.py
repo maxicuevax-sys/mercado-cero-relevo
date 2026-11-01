@@ -1,5 +1,6 @@
 """
-Ensayo cronometrado del guion de demo. Corre 3 veces y guarda demo/rehearsal.json.
+Ensayo cronometrado del guion de demo sobre la UI nueva.
+Corre 3 veces y guarda demo/rehearsal.json.
 
 Uso:
   python scripts/rehearse-demo.py
@@ -37,18 +38,21 @@ def wait_text(page, text: str, timeout: int = 12000) -> bool:
         return False
 
 
-def fill_denomination(page, label: str, quantity: str) -> None:
-    span = page.get_by_text(label, exact=True)
-    span.locator("xpath=..").locator("input").fill(quantity)
-
-
 def run_once(page, iteration: int) -> dict:
     errors: list[str] = []
-    page.on("console", lambda message: errors.append(message.text) if message.type == "error" else None)
+    page.on(
+        "console",
+        lambda message: errors.append(message.text)
+        if message.type == "error"
+        else None,
+    )
     page.on("pageerror", lambda error: errors.append(str(error)))
 
     page.goto(BASE, wait_until="domcontentloaded")
-    page.wait_for_selector("text=Modo demo", timeout=15000)
+    page.wait_for_selector("h1:has-text('Caja')", timeout=15000)
+    page.wait_for_function(
+        "document.body.innerText.includes('Hoy $')", timeout=20000
+    )
     page.wait_for_timeout(400)
     started = time.time()
     steps: list[dict] = []
@@ -58,8 +62,10 @@ def run_once(page, iteration: int) -> dict:
         print(f"  {'PASS' if ok else 'FAIL'}  {name}{(' — ' + detail) if detail else ''}")
 
     # 1. Venta por texto.
-    page.locator("#caja").scroll_into_view_if_needed()
-    page.get_by_role("button", name="Dos quesadillas de 35 y un agua de 20").click()
+    page.get_by_role("heading", name="Caja", exact=True).wait_for()
+    page.get_by_role(
+        "button", name="Dos quesadillas de 35 y un agua de 20"
+    ).click()
     step("venta interpretada", wait_text(page, "2 productos"))
     step("total $90", wait_text(page, "$90.00"))
     page.get_by_role("button", name="Confirmar venta").click()
@@ -74,7 +80,6 @@ def run_once(page, iteration: int) -> dict:
     page.wait_for_timeout(350)
 
     # 3. Fiado.
-    page.locator("#caja").scroll_into_view_if_needed()
     page.get_by_role("button", name="Juan me pagó 50 del fiado").click()
     step("abono de fiado", wait_text(page, "Abono de"))
     step("saldo de Juan en cero", wait_text(page, "Saldo: $0.00"))
@@ -84,30 +89,32 @@ def run_once(page, iteration: int) -> dict:
     step("consulta de ventas", wait_text(page, "Hoy llevas"))
 
     # 5. Anti-fraude.
-    page.locator("#verificar").scroll_into_view_if_needed()
+    page.get_by_role("button", name="Verificar", exact=True).first.click()
+    page.wait_for_selector("text=Verificar comprobante", timeout=12000)
     page.get_by_role("button", name="Probar con un comprobante falso").click()
     step("comprobante falso rechazado", wait_text(page, "No verificado"))
+    page.keyboard.press("Escape")
+    page.wait_for_timeout(350)
 
-    # 6. Mi negocio.
-    page.locator("#corte").scroll_into_view_if_needed()
-    page.wait_for_timeout(500)
-    step("dashboard visible", page.locator("#corte").is_visible())
-
-    # 7. Corte de caja: refrescar, contar $620 y guardar.
+    # 6. Corte de caja: refrescar, contar $620 y guardar.
+    page.get_by_role("button", name="Corte", exact=True).first.click()
+    page.wait_for_selector("text=Corte de caja", timeout=12000)
+    step("corte visible", page.get_by_text("Corte de caja", exact=False).first.is_visible())
     page.locator('button[title="Actualizar corte"]').click()
     step("corte incluye abono de fiado", wait_text(page, "$620.00"))
     page.get_by_role("button", name="Contar por billetes y monedas").click()
     page.wait_for_timeout(250)
-    fill_denomination(page, "$100", "5")
-    fill_denomination(page, "$50", "2")
-    fill_denomination(page, "$20", "1")
+    page.get_by_label("Cantidad de $100", exact=True).fill("5")
+    page.get_by_label("Cantidad de $50", exact=True).fill("2")
+    page.get_by_label("Cantidad de $20", exact=True).fill("1")
     step("conteo cuadra", wait_text(page, "Cuadra"))
     page.get_by_role("button", name="Guardar corte").click()
     step("corte guardado", wait_text(page, "Corte guardado"))
 
-    # 8. Meta.
-    page.locator("#meta").scroll_into_view_if_needed()
+    # 7. Meta.
+    page.get_by_role("button", name="Meta", exact=True).first.click()
     page.wait_for_timeout(400)
+    step("meta visible", page.get_by_text("Mi camino", exact=False).first.is_visible())
     page.get_by_placeholder("¿Cuánto apartaste?").fill("25")
     page.get_by_role("button", name="Apartar", exact=True).click()
     step("meta avanza", wait_text(page, "$325.00"))
@@ -143,12 +150,16 @@ def main() -> int:
         "fastestSeconds": min(durations),
         "slowestSeconds": max(durations),
         "averageSeconds": round(sum(durations) / len(durations), 1),
-        "allPassed": all(item["failed"] == 0 and not item["consoleErrors"] for item in results),
+        "allPassed": all(
+            item["failed"] == 0 and not item["consoleErrors"] for item in results
+        ),
     }
     path = OUT / "rehearsal.json"
     path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print("\nRESUMEN")
-    print(f"  rápido: {report['fastestSeconds']}s · lento: {report['slowestSeconds']}s · promedio: {report['averageSeconds']}s")
+    print(
+        f"  rápido: {report['fastestSeconds']}s · lento: {report['slowestSeconds']}s · promedio: {report['averageSeconds']}s"
+    )
     print(f"  todo en verde: {report['allPassed']}")
     print(f"  reporte: {path}")
     return 0 if report["allPassed"] else 1

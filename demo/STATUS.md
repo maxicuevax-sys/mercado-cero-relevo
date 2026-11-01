@@ -1,33 +1,33 @@
-# Estado de demo — 30 de octubre de 2026
+# Estado de demo — 1 de noviembre de 2026
 
 ## Verde
 
 | Check | Resultado | Evidencia |
 |---|---|---|
 | Build de producción | ✅ limpio | `npm run build` |
-| Servidor de producción | ✅ `next start` estable | auditorías corridas contra producción |
+| Servidor de producción | ✅ `next start` estable en `:3000` | auditorías contra producción |
+| UI nueva “Mostrador claro” | ✅ F3 aprobado por verificación independiente | `VERIFICACION-F3-FINAL-5.md` |
 | Preflight de demo | ✅ 18/18 | `node scripts/preflight.mjs` |
 | Webhook firmado | ✅ 27/27 | `scripts/webhook-contract.mjs` |
-| Lighthouse caja | ✅ 100 accesibilidad · 100 best practices · 100 SEO | producción |
-| Lighthouse checkout | ✅ 100 accesibilidad · 100 best practices · 100 SEO | producción |
+| Auditoría HIG | ✅ 360/390/768/1280, axe 0, 200% | `scripts/hig-after-audit.py` |
 | 360 px caja | ✅ 25/25 checks | `demo/mobile-audit.json` |
-| Flujo completo 360 px | ✅ 10.2 s en producción (10–17 s en dev), 0 errores | `scripts/mobile-audit.py` |
-| Checkout público 360 px | ✅ 15/15 checks: 3 métodos, pago demo, éxito | `demo/checkout-audit.json` |
-| Túnel público | ✅ 8/8 checks por Cloudflare | `demo/tunnel-smoke.json` |
-| Ensayo del guion | ✅ 3/3 corridas, 14/14 pasos, promedio 4.8 s | `demo/rehearsal.json` |
-| Video de respaldo | ✅ 34 s, 1280×800, 1.4 MB | `demo/mercado-cero-demo.mp4` |
-| QR imprimible | ✅ PNG + SVG + HTML + PDF | `demo/qr-demo.*` |
+| Flujo completo 360 px | ✅ 9.3 s, 0 errores | `scripts/mobile-audit.py` |
+| Checkout público 360 px | ✅ 15/15 checks | `demo/checkout-audit.json` |
+| Túnel público | ✅ 8/8 checks | `demo/tunnel-smoke.json` |
+| Ensayo del guion | ✅ 3/3 corridas, 15/15 pasos, promedio 3.6 s | `demo/rehearsal.json` |
+| Video de respaldo | ✅ 36 s, 1280×800, 0.8 MB | `demo/mercado-cero-demo.mp4` |
+| QR imprimible | ✅ PNG + SVG + HTML + PDF, URL nueva | `demo/qr-demo.*` |
+| Voz del demo | ✅ Kokoro `ef_dora` pre-renderizada + fallback | `web/public/tts/` |
 | Runbook | ✅ guion, fallas y Q&A | `RUNBOOK-DEMO.md` |
 | Prueba de usuario | ✅ protocolo listo | `TEST-USUARIO.md` |
 | Guion narrado | ✅ 311 palabras + versión de 60 s | `GUION-3-MIN.md` |
-| Créditos de fotos | ✅ autores, licencias y enlaces | `web/CREDITS.md` |
 
 ## Amarillo
 
 - Probar en un **teléfono físico** de 360 px; la auditoría actual es Playwright.
 - Prueba con una **persona ajena** siguiendo `TEST-USUARIO.md`.
-- El túnel actual es temporal; el QR debe regenerarse con la URL final.
-- La cuarta foto no se agregó: 3 imágenes cubren hero, meta y cierre; una más solo decoraría.
+- El túnel actual es temporal; si cambia, hay que regenerar `APP_URL` y el QR.
+- La voz dinámica que no está pre-renderizada usa la voz del navegador; las frases fijas del demo usan Kokoro.
 
 ## Rojo
 
@@ -69,5 +69,5 @@ Para repetir la evidencia:
 python scripts/mobile-audit.py
 python scripts/checkout-audit.py
 python scripts/rehearse-demo.py
-node scripts/webhook-contract.mjs
+BASE_URL=http://localhost:3000 node scripts/webhook-contract.mjs
 ```

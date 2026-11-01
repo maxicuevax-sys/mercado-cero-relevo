@@ -2,7 +2,7 @@
   "runs": [
     {
       "iteration": 1,
-      "seconds": 4.9,
+      "seconds": 3.7,
       "steps": [
         {
           "name": "venta interpretada",
@@ -50,7 +50,7 @@
           "detail": ""
         },
         {
-          "name": "dashboard visible",
+          "name": "corte visible",
           "ok": true,
           "detail": ""
         },
@@ -70,18 +70,23 @@
           "detail": ""
         },
         {
+          "name": "meta visible",
+          "ok": true,
+          "detail": ""
+        },
+        {
           "name": "meta avanza",
           "ok": true,
           "detail": ""
         }
       ],
       "consoleErrors": [],
-      "passed": 14,
+      "passed": 15,
       "failed": 0
     },
     {
       "iteration": 2,
-      "seconds": 4.7,
+      "seconds": 3.6,
       "steps": [
         {
           "name": "venta interpretada",
@@ -129,7 +134,7 @@
           "detail": ""
         },
         {
-          "name": "dashboard visible",
+          "name": "corte visible",
           "ok": true,
           "detail": ""
         },
@@ -149,18 +154,23 @@
           "detail": ""
         },
         {
+          "name": "meta visible",
+          "ok": true,
+          "detail": ""
+        },
+        {
           "name": "meta avanza",
           "ok": true,
           "detail": ""
         }
       ],
       "consoleErrors": [],
-      "passed": 14,
+      "passed": 15,
       "failed": 0
     },
     {
       "iteration": 3,
-      "seconds": 4.8,
+      "seconds": 3.6,
       "steps": [
         {
           "name": "venta interpretada",
@@ -208,7 +218,7 @@
           "detail": ""
         },
         {
-          "name": "dashboard visible",
+          "name": "corte visible",
           "ok": true,
           "detail": ""
         },
@@ -228,18 +238,23 @@
           "detail": ""
         },
         {
+          "name": "meta visible",
+          "ok": true,
+          "detail": ""
+        },
+        {
           "name": "meta avanza",
           "ok": true,
           "detail": ""
         }
       ],
       "consoleErrors": [],
-      "passed": 14,
+      "passed": 15,
       "failed": 0
     }
   ],
-  "fastestSeconds": 4.7,
-  "slowestSeconds": 4.9,
-  "averageSeconds": 4.8,
+  "fastestSeconds": 3.6,
+  "slowestSeconds": 3.7,
+  "averageSeconds": 3.6,
   "allPassed": true
 }

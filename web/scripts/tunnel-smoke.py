@@ -98,7 +98,7 @@ def main() -> int:
         page.get_by_role("button", name="Pagar $120.00").click()
         paid = True
         try:
-            page.wait_for_selector("text=Listo para entregar", timeout=20000)
+            page.wait_for_selector("h1:has-text('Pago simulado')", timeout=20000)
         except Exception:
             paid = False
         check("Pago demo por el túnel confirmado", paid)
