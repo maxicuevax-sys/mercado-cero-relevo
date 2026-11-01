@@ -32,7 +32,7 @@
 ## Última corrida del harness
 
 - Fecha: **1 nov 2026, 19:59 UTC**
-- Commit: **`999848f`** (`gitAtStart.dirty: false`)
+- Commit de código verificado: **`999848f`** (`gitAtStart.dirty: false`); evidencia commiteada después en `3c9a287`.
 - Modo: **full**, 11/11 en verde
 - Evidencia: `harness/evidence/latest.json`
 - No ejecutados en esa corrida: `build` (corre con `verify:static`), `film` (corre con `--with-film`)

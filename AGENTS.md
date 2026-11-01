@@ -23,7 +23,7 @@ Los pagos simulados usan `demo_paid`, nunca `paid`. `/api/verify` solo considera
 
 ## Harness (contexto, gates y evidencia)
 
-Lee **`HARNESS.md`** antes de una tarea larga. `harness/STATE.md` es el handoff vivo; `harness/EVALS.md` explica qué prueba cada gate. No declares listo sin `harness/evidence/latest.json` con `ok: true` para el commit actual.
+Lee **`HARNESS.md`** antes de una tarea larga. `harness/STATE.md` es el handoff vivo; `harness/EVALS.md` explica qué prueba cada gate. No declares listo sin `harness/evidence/latest.json` con `ok: true` y `gitAtStart.sha` igual al commit de código entregado.
 
 ```bash
 cd web

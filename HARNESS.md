@@ -79,7 +79,7 @@ El detalle de cada eval, incluyendo las que son **solo humanas**, está en `harn
 - `resets[]`: cuándo se reinició la demo
 - `ok` global
 
-**Regla de honestidad:** un gate que no se ejecutó no está verde. Un output viejo no cuenta. No se declara “listo” sin `latest.json` con `ok: true` para el commit actual.
+**Regla de honestidad:** un gate que no se ejecutó no está verde. Un output viejo no cuenta. No se declara “listo” sin `latest.json` con `ok: true` y `gitAtStart.sha` igual al commit de código que se está entregando.
 
 `harness/STATE.md` es el handoff vivo: qué está verde, qué falta, qué está bloqueado y cuál es la siguiente acción. Se actualiza al cerrar una tarea; no se reconstruye de memoria.
 
@@ -136,7 +136,7 @@ El criterio no es “cuánto puede hacer el agente”, sino **cuánto puede hace
 
 - `verify:static` en verde.
 - `verify:full` en verde, o los gates no aplicables justificados en `STATE.md`.
-- `harness/evidence/latest.json` con `ok: true` y el commit actual.
+- `harness/evidence/latest.json` con `ok: true` y `gitAtStart.sha` igual al commit de código entregado.
 - Sin secretos en el diff.
 - Si tocó dinero: webhook 27/27 y truth PASS.
 - Si tocó UI: HIG/WCAG + móvil/checkout.
