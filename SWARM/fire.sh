@@ -38,10 +38,10 @@ TIMEOUT="${SWARM_TIMEOUT:-1800}"   # 30 min por defecto
 
 # nombre | ruta_relativa | rama | prompt
 lanes=(
-  "ui|../mercado-cero-ui|swarm/ui|web/src: pulido UI/acc o responsive, sin romper el diseno 'Mostrador claro'. Revisa contraste y botones grandes. Commit al terminar."
-  "api|../mercado-cero-api|swarm/api|web/src/app/api: audita webhook, maquina de estados, fiado y corte contra README seccion 4 (seguridad minima). Corrige gaps. No toques secretos. Commit al terminar."
-  "payments|../mercado-cero-payments|swarm/payments|Integracion pey y anti-fraude: revisa el flujo 'Verificar comprobante' y scripts/reconcile.mjs. No toques secretos. Commit al terminar."
-  "canary|../mercado-cero-canary|swarm/canary|Crea el archivo SWARM/CANARY.md con una linea 'canary ok <fecha UTC>' y haz commit. No toques ningun otro archivo."
+  "ui|../mercado-cero-ui|swarm/ui|Lee SWARM/skills/ui.md y siguete al pie de la letra: es tu skill, define alcance, reglas duras, skills vendorizadas que debes aplicar y verificacion obligatoria. Tarea: pulido de UI, accesibilidad y responsive a 360px sin romper la direccion 'Mostrador claro'. No toques web/src/app/api."
+  "api|../mercado-cero-api|swarm/api|Lee SWARM/skills/api.md y siguete al pie de la letra: es tu skill, define alcance, reglas duras, skills vendorizadas que debes aplicar y verificacion obligatoria. Tarea: audita webhook, maquina de estados, fiado y corte contra README seccion 4 y corrige los gaps reales."
+  "payments|../mercado-cero-payments|swarm/payments|Lee SWARM/skills/payments.md y siguete al pie de la letra: es tu skill, define alcance, reglas duras, skills vendorizadas que debes aplicar y verificacion obligatoria. Tarea: integracion pey, flujo 'Verificar comprobante' y anti-fraude."
+  "canary|../mercado-cero-canary|swarm/canary|Lee SWARM/skills/_shared/verification-before-completion.md y confirma en una linea que pudiste leerlo. Crea el archivo SWARM/CANARY.md con una linea 'canary ok <fecha UTC>' y haz commit. No toques ningun otro archivo."
 )
 
 # Filtro opcional: SWARM_LANES="ui,api" (por defecto los tres carriles reales, sin canary)
@@ -55,6 +55,18 @@ for lane in "${lanes[@]}"; do
 done
 [ ${#picked[@]} -gt 0 ] || { echo "✗ SWARM_LANES='$selected' no coincide con ningún carril"; exit 1; }
 lanes=("${picked[@]}")
+
+# Preflight de skills: un carril sin pack arranca a ciegas. Mejor no arrancarlo.
+missing=0
+for lane in "${lanes[@]}"; do
+  name="${lane%%|*}"
+  [ "$name" = "canary" ] && continue
+  if [ ! -f "$ROOT/SWARM/skills/$name.md" ]; then
+    echo "✗ Falta SWARM/skills/$name.md (pack de skills del carril)"
+    missing=1
+  fi
+done
+[ "$missing" = "0" ] || { echo "  Commitea los packs antes de disparar: git add SWARM/skills && git commit"; exit 1; }
 
 mkdir -p "$ROOT/SWARM/logs"
 
