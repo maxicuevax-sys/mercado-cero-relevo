@@ -14,7 +14,7 @@ export async function GET(
 
   const { order, payments } = detail;
   const paidPayment = payments
-    .filter((payment) => payment.status === "paid")
+    .filter((payment) => payment.status === "paid" && payment.method !== "cash")
     .at(-1);
 
   return Response.json({
@@ -30,12 +30,14 @@ export async function GET(
       status: order.status,
       totalCents: order.totalCents,
       paidCents: order.paidCents,
+      digitalPaidCents: order.digitalPaidCents,
       creditCents: order.creditCents,
       amountDueCents: Math.max(
         0,
         order.totalCents - order.paidCents - order.creditCents,
       ),
       paymentMethod: order.paymentMethod,
+      paymentUrl: order.paymentUrl,
       createdAt: order.createdAt,
       items: order.items.map((item) => ({
         id: item.id,
@@ -47,6 +49,7 @@ export async function GET(
     },
     payment: paidPayment
       ? {
+          provider: paidPayment.provider,
           method: paidPayment.method,
           transactionId: paidPayment.transactionId,
           amountCents: paidPayment.amountCents,

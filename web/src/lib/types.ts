@@ -29,6 +29,7 @@ export interface Order {
   paidCents: number;
   digitalPaidCents: number;
   paymentMethod: PaymentMethod | null;
+  lastPaymentProvider: string | null;
   customerName: string | null;
   creditId: string | null;
   creditCents: number;

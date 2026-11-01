@@ -4,13 +4,14 @@ import { recordCreditPayment } from "@/lib/orders";
 const bodySchema = z.object({
   amountCents: z.number().int().positive(),
   method: z.enum(["codi", "card", "wallet", "cash", "mixed"]).default("cash"),
+  note: z.string().trim().max(280).optional(),
 });
 
 export async function POST(request: Request, ctx: RouteContext<"/api/credits/[id]/pay">) {
   try {
     const { id } = await ctx.params;
     const body = bodySchema.parse(await request.json());
-    const credit = recordCreditPayment(id, body.amountCents, body.method);
+    const credit = recordCreditPayment(id, body.amountCents, body.method, body.note ?? null);
     return Response.json({ credit });
   } catch (error) {
     if (error instanceof z.ZodError) {

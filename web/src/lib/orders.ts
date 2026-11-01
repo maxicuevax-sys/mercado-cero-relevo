@@ -234,6 +234,7 @@ export function recordCreditPayment(
   creditId: string,
   amountCents: number,
   method: PaymentMethod = "cash",
+  note: string | null = null,
 ): Credit {
   const database = getDb();
   const credit = getCredit(creditId);
@@ -244,17 +245,38 @@ export function recordCreditPayment(
 
   database
     .prepare(
-      "INSERT INTO credit_payments (id, credit_id, amount_cents, method, created_at) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO credit_payments (id, credit_id, amount_cents, method, note, created_at) VALUES (?, ?, ?, ?, ?, ?)",
     )
-    .run(newId("cp"), creditId, amount, method, nowIso());
+    .run(newId("cp"), creditId, amount, method, note?.trim() || null, nowIso());
 
   const newBalance = credit.balanceCents - amount;
   database
     .prepare("UPDATE credits SET balance_cents = ?, status = ? WHERE id = ?")
     .run(newBalance, newBalance === 0 ? "settled" : "partial", creditId);
 
-  audit("credit.payment", "credit", creditId, { amount, method, newBalance });
+  audit("credit.payment", "credit", creditId, {
+    amount,
+    method,
+    note: note?.trim() || null,
+    newBalance,
+  });
   return getCredit(creditId)!;
+}
+
+export function fulfillOrder(orderId: string): Order | null {
+  const order = getOrder(orderId);
+  if (!order) return null;
+  if (order.status === "fulfilled") return order;
+  if (order.status !== "paid") {
+    throw new Error("Solo un pedido pagado puede marcarse como entregado.");
+  }
+
+  const database = getDb();
+  database
+    .prepare("UPDATE orders SET status = 'fulfilled', updated_at = ? WHERE id = ?")
+    .run(nowIso(), orderId);
+  audit("order.fulfilled", "order", orderId, { previousStatus: order.status });
+  return getOrder(orderId);
 }
 
 export function getOrderDetail(orderId: string): OrderDetail | null {
