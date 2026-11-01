@@ -7,7 +7,7 @@
 
 ## 1 · Resultado
 
-La Caja permite iniciar una venta manual con el draft vacío, validar cada producto antes de enviar, aceptar un billete mayor al total y mostrar el cambio, recuperar el borrador tras una recarga y reabrir un cobro pendiente con “Continuar/Descartar” sin duplicar la orden ni abrir el cobro automáticamente. La venta por texto/voz, el ejemplo de $90, el fiado, el corte (vía resumen del dashboard) y el reinicio de demo siguen funcionando.
+La Caja permite iniciar una venta manual con el draft vacío, validar cada producto antes de enviar, aceptar un billete mayor al total y mostrar el cambio, recuperar el borrador tras una recarga y reabrir un cobro pendiente con “Continuar/Descartar” sin duplicar la orden ni abrir el cobro automáticamente. La venta por texto, el ejemplo de $90, el fiado, el resumen del dashboard (base del corte) y el reinicio de demo siguen funcionando; el camino de voz comparte `interpretText`, pero no se probó con micrófono real.
 
 **Archivos de producto:** `web/src/components/caja-app.tsx` y `web/scripts/p0-venta-e2e.py` (nuevo, reproducible).
 **Reporte:** este archivo.
@@ -125,6 +125,7 @@ También se corrieron los casos previos con el build nuevo: parser 500 + escritu
 ## 6 · Riesgos y lo que no probé
 
 - **No probé con personas**, lector de pantalla, teléfono físico, zoom real al 200 %, alto contraste ni daltonismo. No corrí `verify:full`, `hig-after-audit.py`, `mobile-audit.py` ni `checkout-audit.py`.
+- **No probé la grabación de micrófono real** (`MediaRecorder`/`/api/voice/transcribe`). La venta por texto y el parser local sí se probaron; el camino de voz comparte `interpretText`.
 - **No probé OpenAI ni pey reales**, webhook real, checkout público ni `/api/verify`. El parser 500 se simuló; la venta por texto usó `mockParse`.
 - **No probé concurrencia de dos pestañas** ni `localStorage` en modo privado/cuota. El aviso de pendiente se resuelve al recargar o al abrir la caja; no hay polling del aviso mientras está inactivo.
 - **El cambio mostrado tras confirmar es de sesión.** Si se recarga y se reabre una orden pagada, el cambio no se vuelve a mostrar porque no se guardó en el ledger ni en SQLite. El ledger es correcto; es una limitación de presentación.
@@ -134,6 +135,8 @@ También se corrieron los casos previos con el build nuevo: parser 500 + escritu
 
 ## 7 · Estado de entrega
 
+- Commit de código + script + reporte: `003de04` (`fix(caja): cerrar hallazgos p0 de venta durable`).
+- Evidencia de harness: `harness/evidence/latest.json` en el commit siguiente, con `ok: true` y `gitAtStart.sha = 003de04`.
 - Cambios de producto: `web/src/components/caja-app.tsx`.
 - Prueba reproducible: `web/scripts/p0-venta-e2e.py`.
 - Sin cambios en SQLite, webhook, pey, `/api/verify`, `paymentTruth`, `PaidSheet` (lógica de verdad) ni en la dirección visual.
