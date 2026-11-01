@@ -11,6 +11,7 @@ web/data/
 web/.env.local
 web/.env.*.local
 *.log
+SWARM/logs/
 
 # Video crudo de Playwright (el MP4 es el entregable)
 demo/*.webm
