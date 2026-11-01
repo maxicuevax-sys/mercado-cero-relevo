@@ -149,3 +149,28 @@ El shell, la Caja task-first y el flujo demo ya funcionan, pero la app todavía 
 2. Pago real de $0.01 por pey/CoDi: sigue bloqueado por BBVA/CoDi; el redirect real está implementado pero **no probado en runtime**.
 3. Validación en teléfono físico de 360 px y prueba con persona desconocida.
 4. Regenerar video/QR y revalidar la demo completa solo después del merge.
+
+---
+
+## Segunda ronda tras la verificación independiente
+
+> El verificador independiente revisó el commit `efb8145` y emitió **NO LISTO** en `VERIFICACION-F3-FINAL.md` (B1 efectivo/demo, B2 foco, B3 200% móvil, M1 audit falso negativo, M2 fiado digital, M3 pérdida de datos en Fiado). Esta sección documenta la segunda reparación; **tampoco sustituye** una nueva verificación independiente.
+
+### Correcciones de la segunda ronda
+
+- **B1:** `paymentTruth()` distingue efectivo, demo, pey y fiado. Efectivo dice “Efectivo recibido / cobrado en caja”, demo dice “Pago simulado” también en Actividad y encabezado, y los mixtos muestran recibido + saldo fiado. `lastPaymentProvider` prioriza el pago digital y el checkout ya no trata efectivo como pago pey.
+- **B2:** la trampa de foco intercepta todos los `Tab`/`Shift+Tab` con índice explícito; el backdrop hace `preventDefault` y devuelve el foco al disparador o al `h1` de respaldo.
+- **B3:** checkout con padding físico, total 80 px sin recorte; badge y tiles del cobro con wrap; encabezado del sheet con `min-w-0`; Corte apilado, inputs de 172 px y analítica sin clipping; Meta apilado.
+- **M1:** el audit ahora detecta `text-overflow`, `collapsed-control`, `ancestor-clip` (respetando scroll y `.truncate`) y mide sheets al 200% en 360/390/768/1280.
+- **M2:** el checkout mixto digital+fiado muestra “Recibiste $X … + $Y a fiado”.
+- **M3:** cerrar el sheet de Fiado con cambios pide confirmación explícita (“Seguir editando / Descartar abono”).
+- **Menores:** subtítulos a 15 px, `line-height: 24px`, TopBar con wrap, `h1` “Corte de caja”, `aria-busy` en pago/entrega/apartar, foto de Meta fuera de la tarjeta de progreso.
+
+### Evidencia de la segunda ronda
+
+- `python scripts/hig-after-audit.py` → **PASÓ** con los nuevos detectores y sheets 200%.
+- Regresión propia: verdad efectivo/demo/mixto, foco en 5 sheets (Tab, Shift+Tab, backdrop, retorno), Fiado con descarte, checkout 80 px, Corte 200%, todo en verde.
+- `npm run lint`, `npx tsc --noEmit`, `npm run build` → limpios.
+- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27/27**.
+
+**Pendiente:** nueva verificación independiente de este segundo commit. No hay gate F4 hasta que pase.
