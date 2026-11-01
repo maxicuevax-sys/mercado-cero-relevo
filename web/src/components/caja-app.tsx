@@ -494,6 +494,7 @@ export default function CajaApp() {
           const message = `Abono de ${formatMxn(parsed.creditCents)} a ${credit.customerName}. Saldo: ${formatMxn(
             payData.credit.balanceCents,
           )}.`;
+          setTranscript(`${clean}\n\n${message}`);
           speak(message);
           await loadDashboard();
           return;
