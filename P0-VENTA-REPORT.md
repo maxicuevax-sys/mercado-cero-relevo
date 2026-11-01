@@ -81,7 +81,8 @@ La Caja ya permite iniciar una venta manual con el draft vacío, validar cada pr
 | `npm run lint` | **PASS** · sin errores ni warnings |
 | `npx tsc --noEmit` | **PASS** · sin salida |
 | `npm run build` | **PASS** · Next.js 16.4.3, compilación y TypeScript OK, 21 páginas generadas |
-| `npm run verify:fast` | **PASS** · 3/3: guard, lint, types (21 s) |
+| `npm run verify:fast` | **PASS** · 3/3: guard, lint, types |
+| `npm run verify:static` | **PASS** · 4/4: guard, lint, types y build |
 
 Nota de tooling: el worktree recién creado no tenía `next-env.d.ts`; el primer `tsc --noEmit` falló en tipos generados de Next 16 (`RouteContext`, `LayoutProps`). `next build` generó `next-env.d.ts` y el `tsc` posterior pasó limpio. No es un error del cambio.
 
@@ -119,7 +120,9 @@ No se creó ni modificó ninguna orden en la base del repo principal; todas las 
 
 ## 6 · Estado de entrega
 
+- Commit de código + reporte: `fabae3c` (`feat(caja): vender sin IA, cambio y borrador durable`).
+- Evidencia de harness: `harness/evidence/latest.json` en el commit siguiente de la rama, con `ok: true` y `gitAtStart.sha = fabae3c`.
 - Cambios de producto: `web/src/components/caja-app.tsx`.
-- Pruebas: `npm ci`, `npm run lint`, `npx tsc --noEmit`, `npm run build`, `npm run verify:fast` y Playwright E2E aislado.
+- Pruebas: `npm ci`, `npm run lint`, `npx tsc --noEmit`, `npm run build`, `npm run verify:fast`, `npm run verify:static` y Playwright E2E aislado.
 - Sin cambios en SQLite, webhook, pey, `/api/verify`, `paymentTruth`, `PaidSheet` ni en la dirección visual.
 - Sin merge a `master`.
