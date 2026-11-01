@@ -25,7 +25,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
-const BASE = (process.env.BASE_URL ?? "http://localhost:3000").replace(/\/+$/, "");
 const ROOT = process.cwd();
 const DB_PATH = process.env.DATABASE_PATH ?? path.join(ROOT, "data", "mercado-cero.db");
 
@@ -51,6 +50,12 @@ function loadEnv(file) {
 }
 
 const env = loadEnv(path.join(ROOT, ".env.local"));
+const BASE = (
+  process.env.BASE_URL ??
+  process.env.APP_URL ??
+  env.APP_URL ??
+  "http://localhost:3000"
+).replace(/\/+$/, "");
 const SECRET = process.env.PEY_WEBHOOK_SECRET ?? env.PEY_WEBHOOK_SECRET ?? "";
 const WRONG_SECRET = `whsec_${Buffer.from("wrong-secret-for-contract-tests").toString("base64")}`;
 

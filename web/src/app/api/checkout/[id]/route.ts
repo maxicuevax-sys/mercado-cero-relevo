@@ -36,6 +36,7 @@ export async function GET(
         order.totalCents - order.paidCents - order.creditCents,
       ),
       paymentMethod: order.paymentMethod,
+      paymentUrl: order.paymentUrl,
       createdAt: order.createdAt,
       items: order.items.map((item) => ({
         id: item.id,
@@ -47,6 +48,7 @@ export async function GET(
     },
     payment: paidPayment
       ? {
+          provider: paidPayment.provider,
           method: paidPayment.method,
           transactionId: paidPayment.transactionId,
           amountCents: paidPayment.amountCents,

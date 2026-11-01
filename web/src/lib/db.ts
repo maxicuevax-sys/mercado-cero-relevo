@@ -125,6 +125,7 @@ function migrate(database: DatabaseSync) {
       credit_id TEXT NOT NULL,
       amount_cents INTEGER NOT NULL,
       method TEXT NOT NULL DEFAULT 'cash',
+      note TEXT,
       created_at TEXT NOT NULL,
       FOREIGN KEY (credit_id) REFERENCES credits(id) ON DELETE CASCADE
     );
@@ -197,6 +198,13 @@ function migrate(database: DatabaseSync) {
   }
   if (!eventColumns.some((column) => column.name === "error")) {
     database.exec("ALTER TABLE payment_events ADD COLUMN error TEXT;");
+  }
+
+  const creditPaymentColumns = database
+    .prepare("PRAGMA table_info(credit_payments)")
+    .all() as Array<{ name: string }>;
+  if (!creditPaymentColumns.some((column) => column.name === "note")) {
+    database.exec("ALTER TABLE credit_payments ADD COLUMN note TEXT;");
   }
 }
 
@@ -400,6 +408,11 @@ function mapOrder(row: Record<string, unknown>): Order {
       "SELECT COALESCE(SUM(amount_cents), 0) AS total FROM payments WHERE order_id = ? AND status = 'paid' AND method != 'cash'",
     )
     .get(row.id as string) as { total: number };
+  const lastPayment = database
+    .prepare(
+      "SELECT provider FROM payments WHERE order_id = ? AND status = 'paid' ORDER BY created_at DESC LIMIT 1",
+    )
+    .get(row.id as string) as { provider: string } | undefined;
 
   return {
     id: row.id as string,
@@ -409,6 +422,7 @@ function mapOrder(row: Record<string, unknown>): Order {
     paidCents: Number(row.paid_cents),
     digitalPaidCents: Number(digital.total),
     paymentMethod: (row.payment_method as Order["paymentMethod"]) ?? null,
+    lastPaymentProvider: lastPayment?.provider ?? null,
     customerName: (row.customer_name as string) ?? null,
     creditId: (row.credit_id as string) ?? null,
     creditCents: Number(row.credit_cents ?? 0),

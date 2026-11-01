@@ -1,17 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   ArrowLeft,
-  BadgeCheck,
   Check,
   CreditCard,
   Loader2,
   Lock,
+  NotebookPen,
   ShieldCheck,
   Smartphone,
+  Sparkles,
   Store,
   Wallet,
 } from "lucide-react";
@@ -35,6 +36,7 @@ interface CheckoutData {
     creditCents: number;
     amountDueCents: number;
     paymentMethod: string | null;
+    paymentUrl: string | null;
     createdAt: string;
     items: Array<{
       id: string;
@@ -45,6 +47,7 @@ interface CheckoutData {
     }>;
   };
   payment: {
+    provider: string;
     method: string;
     transactionId: string | null;
     amountCents: number;
@@ -74,8 +77,8 @@ const METHODS: Array<{
   },
   {
     id: "wallet",
-    title: "Apple Pay / Google Pay",
-    subtitle: "Un toque desde tu teléfono",
+    title: "Wallet",
+    subtitle: "Apple Pay o Google Pay si tu banco lo permite",
     icon: Wallet,
   },
 ];
@@ -83,20 +86,10 @@ const METHODS: Array<{
 const METHOD_LABEL: Record<string, string> = {
   codi: "CoDi",
   card: "Tarjeta",
-  wallet: "Apple Pay / Google Pay",
+  wallet: "Wallet",
   cash: "Efectivo",
   mixed: "Pago mixto",
 };
-
-function merchantInitials(name: string): string {
-  return name
-    .replace(/^(Antojitos|Tienda|Abarrotes|Fonda|Cocina)\s+de\s+/i, "")
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join("");
-}
 
 export default function CheckoutPage() {
   const params = useParams<{ id: string }>();
@@ -148,10 +141,23 @@ export default function CheckoutPage() {
     return () => window.clearInterval(interval);
   }, [data, load]);
 
+  const isCredit = useMemo(() => {
+    if (!data) return false;
+    return !data.payment && data.order.creditCents > 0 && data.order.amountDueCents <= 0;
+  }, [data]);
+
   const isPaid = useMemo(() => {
     if (!data) return false;
-    return Boolean(data.payment) || data.order.amountDueCents <= 0;
-  }, [data]);
+    return Boolean(data.payment) || (data.order.amountDueCents <= 0 && !isCredit);
+  }, [data, isCredit]);
+
+  const resultHeadingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (!isPaid && !isCredit) return;
+    const timer = window.setTimeout(() => resultHeadingRef.current?.focus(), 80);
+    return () => window.clearTimeout(timer);
+  }, [isPaid, isCredit]);
 
   async function pay() {
     if (!data || paying || isPaid) return;
@@ -173,9 +179,13 @@ export default function CheckoutPage() {
           throw new Error(body?.error ?? "No se pudo simular el pago.");
         }
       } else {
-        throw new Error(
-          "Este prototipo no procesa pagos reales desde esta pantalla. Abre el link de pey.",
-        );
+        if (!data.order.paymentUrl) {
+          throw new Error(
+            "Este cobro todavía no tiene un link de pago. Pide a la comerciante que lo genere de nuevo.",
+          );
+        }
+        window.location.assign(data.order.paymentUrl);
+        return;
       }
 
       const next = await load();
@@ -191,8 +201,8 @@ export default function CheckoutPage() {
 
   if (loading) {
     return (
-      <main className="grid min-h-dvh place-items-center px-4">
-        <div className="flex items-center gap-3 rounded-2xl border border-line bg-card px-5 py-4 text-sm text-muted shadow-card">
+      <main className="grid min-h-dvh place-items-center bg-canvas px-4">
+        <div className="flex items-center gap-3 rounded-2xl border border-separator bg-surface px-5 py-4 text-sm text-ink-2 shadow-card">
           <Loader2 className="h-4 w-4 animate-spin text-green" />
           Abriendo tu cobro…
         </div>
@@ -202,20 +212,18 @@ export default function CheckoutPage() {
 
   if (!data) {
     return (
-      <main className="grid min-h-dvh place-items-center px-4">
-        <div className="w-full max-w-md rounded-[28px] border border-line bg-card p-7 text-center shadow-card">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-terracotta-soft text-terracotta-deep">
+      <main className="grid min-h-dvh place-items-center bg-canvas px-4">
+        <div className="w-full max-w-md rounded-2xl border border-separator bg-surface p-7 text-center shadow-card">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-terracotta-soft text-attention">
             <Store className="h-6 w-6" />
           </div>
-          <h1 className="mt-4 font-display text-2xl text-ink">
-            Este cobro no existe
-          </h1>
-          <p className="mt-2 text-sm leading-relaxed text-muted">
+          <h1 className="mt-4 text-[1.5rem] font-semibold text-ink">Este cobro no existe</h1>
+          <p className="mt-2 text-sm leading-relaxed text-ink-2">
             {error ?? "Pide a la comerciante que genere un link nuevo."}
           </p>
           <Link
             href="/"
-            className="mt-5 inline-flex items-center gap-2 rounded-full bg-green px-5 py-2.5 text-sm font-semibold text-paper"
+            className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent px-5 text-sm font-semibold text-white"
           >
             <ArrowLeft className="h-4 w-4" />
             Volver a la caja
@@ -227,69 +235,112 @@ export default function CheckoutPage() {
 
   const { merchant, order, payment, demoMode } = data;
   const methodLabel = payment ? METHOD_LABEL[payment.method] ?? payment.method : null;
+  const isDemoPayment = payment?.provider === "demo";
+
+  if (isCredit) {
+    return (
+      <main className="grid min-h-dvh place-items-center bg-canvas px-4 py-8">
+        <section role="status" aria-live="polite" className="w-full max-w-md overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
+          <div className="px-5 pb-7 pt-8 text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-terracotta-soft text-attention">
+              <NotebookPen className="h-7 w-7" />
+            </div>
+            <p className="mt-4 text-sm font-semibold text-ink-2">Venta a fiado</p>
+            <h1 ref={resultHeadingRef} tabIndex={-1} className="mt-1 text-[1.75rem] font-semibold tracking-tight text-ink outline-none">
+              Quedó anotado
+            </h1>
+            <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
+              {formatMxn(order.totalCents)}
+            </p>
+            <p className="mt-2 text-sm text-ink-2">
+              Pedido {order.shortRef} · {merchant.name}
+            </p>
+          </div>
+          <div className="border-t border-separator px-5 py-4">
+            <div className="rounded-xl bg-surface-2 px-3.5 py-3">
+              <p className="text-sm leading-relaxed text-ink-2">
+                Saldo pendiente: <strong>{formatMxn(order.creditCents)}</strong>. Está en la
+                libreta de fiado; no es dinero recibido ni un pago confirmado.
+              </p>
+            </div>
+            <Link
+              href="/"
+              className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Volver a la caja
+            </Link>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   if (isPaid) {
+    const demo = isDemoPayment;
     return (
-      <main className="grid min-h-dvh place-items-center px-4 py-10">
-        <section className="pop w-full max-w-md overflow-hidden rounded-[32px] border border-line bg-card shadow-lift">
-          <div className="relative overflow-hidden bg-gradient-to-br from-green-soft via-card to-yellow-soft/60 px-6 pb-8 pt-10 text-center">
-            <div className="pointer-events-none absolute -right-12 -top-14 h-40 w-40 rounded-full border border-green/10" />
-            <div className="pointer-events-none absolute -left-16 top-20 h-48 w-48 rounded-full border border-green/10" />
-            <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green text-paper shadow-lift">
-              <Check className="h-10 w-10" strokeWidth={2.4} />
+      <main className="grid min-h-dvh place-items-center bg-canvas px-4 py-8">
+        <section role="status" aria-live="polite" className="w-full max-w-md overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
+          <div className="px-5 pb-7 pt-8 text-center">
+            <div
+              className={cn(
+                "mx-auto flex h-16 w-16 items-center justify-center rounded-full",
+                demo ? "bg-terracotta-soft text-attention" : "bg-green-soft text-green",
+              )}
+            >
+              {demo ? <Sparkles className="h-7 w-7" /> : <Check className="h-8 w-8" />}
             </div>
-            <p className="relative mt-5 text-xs font-bold uppercase tracking-[0.22em] text-green">
-              Pago confirmado
+            <p className="mt-4 text-sm font-semibold text-ink-2">
+              {demo ? "Pago simulado · demo" : "Pago confirmado"}
             </p>
-            <h1 className="relative mt-1 font-display text-[2rem] leading-tight tracking-tight text-ink">
-              Listo para entregar
+            <h1 ref={resultHeadingRef} tabIndex={-1} className="mt-1 text-[1.75rem] font-semibold tracking-tight text-ink outline-none">
+              {demo ? "Pago simulado" : "Listo para entregar"}
             </h1>
-            <p className="tabular relative mt-3 font-display text-[2.8rem] leading-none text-ink">
+            <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
               {formatMxn(payment?.amountCents ?? order.totalCents)}
             </p>
-            <p className="relative mt-2 text-sm text-muted">
+            <p className="mt-2 text-sm text-ink-2">
               Pedido {order.shortRef} · {merchant.name}
             </p>
           </div>
 
-          <div className="px-6 py-5">
+          <div className="border-t border-separator px-5 py-4">
             <dl className="space-y-3 text-sm">
-              <div className="flex items-center justify-between gap-4">
-                <dt className="text-muted">Método</dt>
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                <dt className="text-ink-2">Método</dt>
                 <dd className="font-semibold text-ink">{methodLabel}</dd>
               </div>
-              <div className="flex items-center justify-between gap-4">
-                <dt className="text-muted">Comercio</dt>
-                <dd className="font-semibold text-ink">{merchant.name}</dd>
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                <dt className="text-ink-2">Comercio</dt>
+                <dd className="min-w-0 max-w-full break-words text-right font-semibold text-ink">{merchant.name}</dd>
               </div>
               {payment?.transactionId ? (
-                <div className="flex items-start justify-between gap-4">
-                  <dt className="text-muted">Transacción</dt>
-                  <dd className="max-w-[15rem] break-all text-right font-mono text-xs leading-relaxed text-ink-soft">
+                <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+                  <dt className="text-ink-2">Transacción</dt>
+                  <dd className="max-w-full break-all text-right font-mono text-xs leading-relaxed text-ink-2">
                     {payment.transactionId}
                   </dd>
                 </div>
               ) : null}
             </dl>
 
-            <div className="mt-4 flex items-start gap-2.5 rounded-2xl border border-green/15 bg-green-soft/50 px-3.5 py-3">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-green" />
-              <p className="text-xs leading-relaxed text-green-deep">
-                {demoMode
-                  ? "Pago simulado para la demo. En producción, Mercado Cero solo muestra este estado después del webhook firmado de pey."
-                  : "Este pago fue confirmado por pey. La comerciante ya puede entregar el pedido."}
+            <div className="mt-4 rounded-xl bg-surface-2 px-3.5 py-3">
+              <p className="text-sm leading-relaxed text-ink-2">
+                {demo
+                  ? "Pago simulado para la demo. En producción, este estado solo aparece con la confirmación firmada de pey."
+                  : "pey confirmó este pago. La comerciante ya puede entregar el pedido."}
               </p>
             </div>
 
             <Link
               href="/"
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-green px-5 py-3.5 text-sm font-bold text-paper transition hover:bg-green-deep"
+              className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press"
             >
               <ArrowLeft className="h-4 w-4" />
               Volver a la caja
             </Link>
             {justPaid ? (
-              <p className="mt-3 text-center text-xs text-muted">
+              <p className="mt-3 text-center text-xs text-ink-2">
                 La caja de la comerciante ya recibió la confirmación.
               </p>
             ) : null}
@@ -300,150 +351,137 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-dvh px-4 py-6 sm:py-10">
-      <div className="mx-auto w-full max-w-md">
-        <header className="flex items-center justify-between px-1">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green text-paper">
-              <Store className="h-4.5 w-4.5" />
+    <main className="min-h-dvh bg-canvas px-4 py-8">
+      <div className="mx-auto w-full max-w-[480px]">
+        <header className="flex flex-wrap items-center justify-between gap-3 px-1">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent font-display text-xl font-bold text-white">
+              0
             </div>
             <div>
-              <p className="font-display text-[1.05rem] leading-none text-ink">
+              <p className="font-display text-[1.15rem] leading-none tracking-tight text-ink">
                 Mercado Cero
               </p>
-              <p className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-muted">
-                Pago seguro
+              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-ink-2">
+                Pago protegido
               </p>
             </div>
           </div>
-          <span className="flex items-center gap-1.5 rounded-full border border-line bg-card/80 px-2.5 py-1.5 text-xs font-semibold text-muted">
-            <Lock className="h-3 w-3 text-green" />
-            Pago protegido
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-2">
+            <Lock className="h-3.5 w-3.5 text-green" />
+            Seguro
           </span>
         </header>
 
-        <section className="rise mt-4 overflow-hidden rounded-[32px] border border-line bg-card shadow-card">
-          <div className="border-b border-line/70 bg-paper/50 px-6 py-5">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-terracotta-soft font-display text-lg text-terracotta-deep">
-                {merchantInitials(merchant.name)}
-              </div>
-              <div className="min-w-0">
-                <p className="truncate font-semibold text-ink">{merchant.name}</p>
-                <p className="mt-0.5 text-xs text-muted">
-                  {merchant.address} · Pedido {order.shortRef}
-                </p>
-              </div>
-              <BadgeCheck className="ml-auto h-5 w-5 shrink-0 text-green" />
-            </div>
-
-            <div className="mt-5">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted">
+        <section className="mt-4 overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
+          <div className="border-b border-separator bg-surface-2/60 px-5 py-4">
+            <h1 className="text-[1.625rem] font-semibold leading-tight tracking-tight text-ink">
+              Pagar a {merchant.name}
+            </h1>
+            <p className="mt-1 text-sm text-ink-2">
+              {merchant.address} · Pedido {order.shortRef}
+            </p>
+            <div className="mt-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-2">
                 Total a pagar
               </p>
-              <p className="tabular mt-1 font-display text-[3rem] leading-none tracking-tight text-ink">
+              <p className="tabular mt-1 text-[2.5rem] font-semibold leading-none tracking-tight text-ink">
                 {formatMxn(order.amountDueCents)}
               </p>
-              <p className="mt-1.5 text-xs text-muted">
-                {order.items.length}{" "}
-                {order.items.length === 1 ? "producto" : "productos"} · incluye
-                todo
+              <p className="mt-1 text-sm text-ink-2">
+                {order.items.length} {order.items.length === 1 ? "producto" : "productos"} · incluye todo
               </p>
             </div>
           </div>
 
-          <div className="px-6 py-5">
-            <div className="rounded-2xl border border-line/70 bg-paper/40 px-3.5 py-2">
+          <div className="px-5 py-4">
+            <div className="rounded-xl bg-surface-2 px-3.5 py-2">
               {order.items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-baseline justify-between gap-3 border-b border-line/50 py-2 text-sm last:border-0"
+                  className="flex flex-col gap-1 border-b border-separator/70 py-2 text-sm last:border-0"
                 >
-                  <span className="min-w-0 text-ink-soft">
-                    <span className="tabular mr-1.5 text-muted">
-                      {item.quantity}×
-                    </span>
+                  <span className="min-w-0 break-words text-ink-2">
+                    <span className="tabular mr-1.5 text-ink-2">{item.quantity}×</span>
                     {item.description}
                   </span>
-                  <span className="tabular shrink-0 font-semibold text-ink">
+                  <span className="tabular self-end font-semibold text-ink">
                     {formatMxn(item.totalCents)}
                   </span>
                 </div>
               ))}
             </div>
 
-            <p className="mt-5 text-xs font-bold uppercase tracking-[0.2em] text-muted">
-              ¿Cómo quieres pagar?
-            </p>
-            <div className="mt-2 space-y-2">
-              {METHODS.map((option) => {
-                const Icon = option.icon;
-                const selected = method === option.id;
-                return (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={() => setMethod(option.id)}
-                    aria-pressed={selected}
-                    className={cn(
-                      "flex w-full items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition",
-                      selected
-                        ? "border-green/40 bg-green-soft/40 shadow-sm"
-                        : "border-line bg-card hover:border-green/25",
-                    )}
-                  >
-                    <span
+            <fieldset className="mt-5 min-w-0">
+              <legend className="text-sm font-semibold text-ink">¿Cómo quieres pagar?</legend>
+              <div className="mt-2 min-w-0 space-y-2">
+                {METHODS.map((option) => {
+                  const Icon = option.icon;
+                  const selected = method === option.id;
+                  return (
+                    <label
+                      key={option.id}
                       className={cn(
-                        "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
+                        "relative block w-full min-w-0 rounded-xl border p-[14px] pr-[44px] transition focus-within:ring-2 focus-within:ring-accent/30",
                         selected
-                          ? "bg-green text-paper"
-                          : "bg-paper-deep text-ink-soft",
+                          ? "border-accent/40 bg-green-soft/50"
+                          : "border-separator bg-surface hover:border-accent/30",
                       )}
                     >
-                      <Icon className="h-4.5 w-4.5" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-                        {option.title}
-                        {option.tag ? (
-                          <span className="rounded-full bg-yellow-soft px-2 py-0.5 text-xs font-bold uppercase tracking-[0.04em] text-terracotta-deep">
-                            {option.tag}
-                          </span>
-                        ) : null}
+                      <input
+                        type="radio"
+                        name="checkout-method"
+                        value={option.id}
+                        checked={selected}
+                        onChange={() => setMethod(option.id)}
+                        className="sr-only"
+                      />
+                      <span
+                        className={cn(
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+                          selected ? "bg-accent text-white" : "bg-surface-2 text-ink-2",
+                        )}
+                      >
+                        <Icon className="h-4.5 w-4.5" />
                       </span>
-                      <span className="mt-0.5 block text-xs text-muted">
-                        {option.subtitle}
+                      <span className="mt-2 block min-w-0">
+                        <span className="flex flex-wrap items-center gap-1.5 text-sm font-semibold text-ink">
+                          {option.title}
+                          {option.tag ? (
+                            <span className="rounded-full bg-green-soft px-2 py-0.5 text-xs font-bold text-green">
+                              {option.tag}
+                            </span>
+                          ) : null}
+                        </span>
+                        <span className="mt-0.5 block break-words text-xs leading-relaxed text-ink-2">
+                          {option.subtitle}
+                        </span>
                       </span>
-                    </span>
-                    <span
-                      className={cn(
-                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
-                        selected
-                          ? "border-green bg-green text-paper"
-                          : "border-line bg-card",
-                      )}
-                    >
-                      {selected ? <Check className="h-3 w-3" /> : null}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+                      <span
+                        className={cn(
+                          "absolute right-[14px] top-[14px] flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
+                          selected ? "border-accent bg-accent text-white" : "border-separator bg-surface",
+                        )}
+                      >
+                        {selected ? <Check className="h-3 w-3" /> : null}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
 
             {demoMode ? (
-              <div className="mt-4 rounded-2xl border border-yellow/70 bg-yellow-soft/60 px-3.5 py-2.5">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-terracotta-deep">
-                  Modo demo
-                </p>
-                <p className="mt-1 text-xs leading-relaxed text-ink-soft">
-                  Este pago se simula y no mueve dinero real. En producción, el
-                  botón abre el checkout de pey con CoDi, tarjeta o wallet.
+              <div className="mt-4 rounded-xl border border-attention/25 bg-terracotta-soft/60 px-3.5 py-2.5">
+                <p className="text-xs font-bold uppercase tracking-[0.08em] text-attention">Modo demo</p>
+                <p className="mt-1 text-sm leading-relaxed text-ink-2">
+                  Este pago se simula y no mueve dinero real. En producción, el botón abre el checkout de pey.
                 </p>
               </div>
             ) : null}
 
             {error ? (
-              <p className="mt-3 rounded-xl bg-terracotta-soft px-3 py-2 text-xs font-medium text-terracotta-deep">
+              <p role="alert" className="mt-3 rounded-xl bg-terracotta-soft px-3 py-2.5 text-sm font-medium text-danger">
                 {error}
               </p>
             ) : null}
@@ -452,12 +490,12 @@ export default function CheckoutPage() {
               type="button"
               onClick={pay}
               disabled={paying}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-green px-5 py-4 text-[0.95rem] font-bold text-paper shadow-card transition hover:bg-green-deep disabled:cursor-wait disabled:opacity-80"
+              className="on-accent mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-[0.9375rem] font-bold text-white shadow-card transition hover:bg-accent-press disabled:cursor-wait disabled:opacity-80"
             >
               {paying ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Confirmando con el banco…
+                  {demoMode ? "Simulando el pago…" : "Conectando con el banco…"}
                 </>
               ) : (
                 <>
@@ -467,18 +505,17 @@ export default function CheckoutPage() {
               )}
             </button>
 
-            <p className="mt-3 text-center text-xs leading-relaxed text-muted">
-              Al pagar aceptas el cobro de {merchant.name}. No guardamos datos
-              de tu tarjeta.
+            <p className="mt-3 text-center text-xs leading-relaxed text-ink-2">
+              Al pagar aceptas el cobro de {merchant.name}. No guardamos datos de tu tarjeta.
             </p>
           </div>
         </section>
 
-        <footer className="mt-4 flex items-center justify-center gap-2 px-4 text-center text-xs text-muted">
-          <ShieldCheck className="h-3.5 w-3.5 text-green" />
+        <footer className="mt-4 flex items-center justify-center gap-2 px-4 text-center text-xs text-ink-2">
+          <ShieldCheck className="h-4 w-4 text-green" />
           {demoMode
             ? "Demo de Mercado Cero · pago simulado, sin cargo real"
-            : "Procesado por pey · confirmación verificada por webhook firmado"}
+            : "Procesado por pey · confirmación bancaria verificada"}
         </footer>
       </div>
     </main>

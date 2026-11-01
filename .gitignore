@@ -15,6 +15,9 @@ web/.env.*.local
 # Video crudo de Playwright (el MP4 es el entregable)
 demo/*.webm
 
+# Capturas y JSON regenerables de la auditoría HIG
+demo/hig-after/
+
 # Sistema / editor
 .DS_Store
 Thumbs.db
