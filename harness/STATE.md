@@ -31,10 +31,10 @@
 
 ## Última corrida del harness
 
-- Fecha: **1 nov 2026, 19:59 UTC**
-- Commit de código verificado: **`999848f`** (`gitAtStart.dirty: false`); evidencia commiteada después en `3c9a287`.
+- Fecha: **1 nov 2026, 23:12 UTC**
+- Commit de código verificado: **`c22e85d`** (merge P0-A/B); `gitAtStart.dirty` puede ser `true` por artefactos de evidencia/demo, no por código.
 - Modo: **full**, 11/11 en verde
-- Evidencia: `harness/evidence/latest.json`
+- Evidencia: `harness/evidence/latest.json`; E2E P0: 43 PASS / 1 KNOWN
 - No ejecutados en esa corrida: `build` (corre con `verify:static`), `film` (corre con `--with-film`)
 - Estado de datos: demo reiniciada antes de `truth` y antes de `preflight`
 
@@ -48,9 +48,16 @@
 - Stageshow: `demo/stageshow/` + `web/scripts/film-check.py`.
 - Harness: `HARNESS.md`, `harness/EVALS.md`, `harness-gate.mjs`, `harness-guard.mjs`, `verify-truth.mjs`.
 
+## F0 y P0-A/B
+
+- **F0 completado:** `AUDITORIA-COGNITIVA.md` + `harness/f0-venta.md`, `f0-dinero.md`, `f0-shell.md`.
+- **P0-A/B mergeado:** `c22e85d` — venta manual, cambio, validación inline, borrador durable y pendiente de cobro durable.
+- **Evidencia:** `web/scripts/p0-venta-e2e.py` → 43 PASS · 0 FAIL · 1 KNOWN; `harness/evidence/p0-venta-e2e.json`.
+- **KNOWN:** venta mixta con fiado + saldo digital no ofrece cobrar el remanente desde `PaymentPanel` (P0-C/E).
+
 ## Siguiente tarea
 
-**F0 de `GOAL-ACOMPANAMIENTO.md`:** auditoría de carga cognitiva de los flujos actuales (venta, caja, fiado, corte, meta, verificación), con pasos/campos/decisiones/interrupciones/errores. Entregable: `AUDITORIA-COGNITIVA.md` con hallazgos priorizados y propuesta P0. **No** implementar P0 antes de revisar los hallazgos.
+**P0-C/E/F:** confirmar abono + saldo vivo; cobros pendientes visibles con fechas/refresh; shell 200 % + estados de error. El módulo completo de “Pendientes” de negocio va después de estos cortes.
 
 ## Bloqueos reales
 
