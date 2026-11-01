@@ -174,3 +174,26 @@ El shell, la Caja task-first y el flujo demo ya funcionan, pero la app todavía 
 - `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27/27**.
 
 **Pendiente:** nueva verificación independiente de este segundo commit. No hay gate F4 hasta que pase.
+
+---
+
+## Tercera ronda tras la segunda verificación independiente
+
+> `VERIFICACION-F3-FINAL-2.md` volvió a dictaminar **NO LISTO** por: mixto efectivo+digital presentado como solo demo, entrega no disponible al reabrir un pedido pagado desde Actividad, Fiado con 4 clientes desbordando al 200%, audit sin Demo/`/success` al 200% ni detección de contenido totalmente recortado, y cierre del sheet durante un pago demo en curso.
+
+### Correcciones
+
+- **Mixto efectivo+digital:** `paymentTruth.isMixedSources` distingue efectivo + demo / efectivo + pey. Checkout, éxito, Actividad, encabezado y cuerpo del sheet muestran “Pago mixto”, el desglose real y no dicen “no se movió dinero real” cuando sí hubo efectivo.
+- **Entrega desde Actividad:** `PaymentPanel` incluye “Listo para entregar” para pedidos `paid`; usa la misma transición `PATCH fulfill`, cierra el sheet y refresca.
+- **Fiado 200% con 4+ clientes:** el resumen y las filas envuelven; “N clientes” ya no expande el viewport.
+- **Pago en curso:** el sheet de cobro no se puede cerrar mientras `paymentLoading`; un demo pay ya no reaparece solo robando foco.
+- **Audit:** mide Demo y `/success` al 200%, sheets en 768/200%, y detecta `fully-clipped` además de text-overflow, ancestor-clip y controles colapsados. Probado con DOM sintético: las cuatro categorías se detectan.
+
+### Evidencia
+
+- `python scripts/hig-after-audit.py` → **PASÓ** en 360/390/768/1280, con sheets, Demo y `/success` al 200%.
+- Pruebas propias: mixto efectivo+demo, entrega desde Actividad (`paid→fulfilled`), Fiado con 5 clientes al 200%, cierre durante demo pay y auditoría sintética, todo en verde.
+- `npm run lint`, `npx tsc --noEmit`, `npm run build` → limpios.
+- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27/27**.
+
+**Pendiente:** tercera verificación independiente. Sin ella no hay gate F4.
