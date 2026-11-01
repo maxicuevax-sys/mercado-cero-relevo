@@ -8,13 +8,13 @@
     "python -m playwright install chromium",
     "servidor aislado en P0_BASE_URL (por defecto http://localhost:3101)"
   ],
-  "startedAt": "2026-11-01T22:43:44.781876+00:00",
-  "finishedAt": "2026-11-01T22:44:19.047218+00:00",
+  "startedAt": "2026-11-01T22:49:42.643774+00:00",
+  "finishedAt": "2026-11-01T22:50:17.885428+00:00",
   "summary": {
-    "pass": 30,
+    "pass": 31,
     "fail": 0,
     "known": 1,
-    "total": 31
+    "total": 32
   },
   "results": [
     {
@@ -45,7 +45,7 @@
     {
       "name": "el draft nuevo no guarda dinero sin ítems",
       "ok": true,
-      "detail": "{\"version\": 1, \"items\": [{\"id\": \"draft_1793573029077_6q4ccv\", \"description\": \"\", \"quantity\": 1, \"unitPriceCents\": 0}], \"cashCents\": 0, \"creditCents\": 0, \"customerName\": \"\", \"textInput\": \"\", \"transcript\": \"\", \"updatedAt\": \"2026-11-01T22:43:49.083Z\"}"
+      "detail": "{\"version\": 1, \"items\": [{\"id\": \"draft_1793573387895_ky6s92\", \"description\": \"\", \"quantity\": 1, \"unitPriceCents\": 0}], \"cashCents\": 0, \"creditCents\": 0, \"customerName\": \"\", \"textInput\": \"\", \"transcript\": \"\", \"updatedAt\": \"2026-11-01T22:49:47.900Z\"}"
     },
     {
       "name": "un parseo nuevo oculta el banner de recuperación",
@@ -80,12 +80,12 @@
     {
       "name": "efectivo $100 sobre $90 conserva cambio $10",
       "ok": true,
-      "detail": "orden=ord_da3b2b5d197a484e8d32"
+      "detail": "orden=ord_51a904e0d99640c99160"
     },
     {
       "name": "efectivo $100 con $30 fiado conserva cambio $40",
       "ok": true,
-      "detail": "orden=ord_de1398b26f3341cc85e1"
+      "detail": "orden=ord_2ee80911b57146abacf2"
     },
     {
       "name": "Sí, limpiar enfoca Agregar producto",
@@ -100,7 +100,7 @@
     {
       "name": "el pendiente se guarda en localStorage",
       "ok": true,
-      "detail": "{\"version\": 1, \"orderId\": \"ord_520d749cec4b4ee8abe4\", \"updatedAt\": \"2026-11-01T22:44:01.607Z\"}"
+      "detail": "{\"version\": 1, \"orderId\": \"ord_49a24756006141979d19\", \"updatedAt\": \"2026-11-01T22:50:00.362Z\"}"
     },
     {
       "name": "el aviso del pendiente usa Descartar aviso",
@@ -130,7 +130,12 @@
     {
       "name": "crear otra venta pagada no borra el pendiente ajeno",
       "ok": true,
-      "detail": "{\"version\": 1, \"orderId\": \"ord_75797f8c302e46eaacb0\", \"updatedAt\": \"2026-11-01T22:44:05.257Z\"}"
+      "detail": "{\"version\": 1, \"orderId\": \"ord_296ca2efe88f4543b350\", \"updatedAt\": \"2026-11-01T22:50:04.185Z\"}"
+    },
+    {
+      "name": "abrir y cerrar otra orden pagada conserva el aviso",
+      "ok": true,
+      "detail": "{\"version\": 1, \"orderId\": \"ord_296ca2efe88f4543b350\", \"updatedAt\": \"2026-11-01T22:50:04.185Z\"}"
     },
     {
       "name": "pagar el pendiente lo borra del aviso",

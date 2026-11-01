@@ -353,6 +353,22 @@ def main() -> int:
         )
         close_dialog(page)
         expect(page.get_by_text("Tienes un cobro pendiente de $60.00")).to_be_visible()
+        page.get_by_role("button", name=re.compile("Venta pagada")).first.click()
+        expect(page.get_by_role("dialog")).to_be_visible()
+        close_dialog(page)
+        page.wait_for_timeout(120)
+        stored_after_open = page.evaluate(
+            f"JSON.parse(localStorage.getItem('{PENDING_KEY}') || 'null')"
+        )
+        check(
+            "abrir y cerrar otra orden pagada conserva el aviso",
+            page.get_by_text("Tienes un cobro pendiente de $60.00").count() == 1
+            and bool(stored_after_open)
+            and stored_after_open.get("orderId") == pending_id,
+            json.dumps(stored_after_open, ensure_ascii=False)
+            if stored_after_open
+            else "sin clave",
+        )
         page.reload(wait_until="networkidle")
         expect(page.get_by_text("Tienes un cobro pendiente de $60.00")).to_be_visible()
         page.get_by_role("button", name="Continuar el cobro pendiente").click()

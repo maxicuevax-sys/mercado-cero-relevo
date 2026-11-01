@@ -48,7 +48,8 @@ La Caja permite iniciar una venta manual con el draft vacío, validar cada produ
 
 - Se persistió el pendiente en una clave separada, `mercado-cero:pending-order:v1`, con `orderId` y `updatedAt`. No se mezcla con el draft pagable.
 - **El borrado es por id.** `clearStoredPendingOrder(orderId?)` solo elimina la clave si no se pasa id o si coincide con el `orderId` guardado. Así, crear o abrir una orden pagada/fulfilled **distinta** no borra el pendiente ajeno.
-- Se borra al pagar, entregar o cancelar **la misma** orden, al reiniciar demo, o al abrir/crear esa misma orden. `closeActiveOrder` conserva el aviso si la orden cerrada es otra y solo lo limpia si la orden cerrada es la misma.
+- Se borra cuando la orden del slot se paga, se entrega o se cancela, al reiniciar demo, o al abrir/crear esa misma orden si ya no es pendiente. Abrir o crear una orden pagada/fulfilled **distinta** no lo borra.
+- `closeActiveOrder` conserva el aviso si la orden cerrada es otra y solo lo limpia si la orden cerrada es la misma.
 - Al recargar, se consulta la orden y se muestra un aviso discreto: “Tienes un cobro pendiente de $X · Pedido ####” con **Continuar cobro** y **Descartar aviso** (aria-labels “Continuar el cobro pendiente” y “Descartar el aviso de cobro pendiente”). No se abre el cobro automáticamente y **no se crea otra orden**.
 - “Continuar cobro” abre el mismo pedido. “Descartar aviso” quita el aviso y el almacenamiento, deja la orden en Actividad y enfoca el H1 de Caja (`caja-heading`).
 - **Solo hay un slot de pendiente:** si se crea otro pendiente, reemplaza al anterior. No hay polling del aviso mientras está inactivo; eso pertenece a **P0-E**.
@@ -114,7 +115,7 @@ npm start
 python scripts\p0-venta-e2e.py
 ```
 
-Último resultado: **30 PASS · 0 FAIL · 1 KNOWN**. El script escribe `harness/evidence/p0-venta-e2e.json` con resultados, base URL, comandos y requisitos.
+Último resultado: **31 PASS · 0 FAIL · 1 KNOWN**. El script escribe `harness/evidence/p0-venta-e2e.json` con resultados, base URL, comandos y requisitos.
 
 Cubre:
 1. Parser en 500: “Escribir productos” crea una fila manual.
@@ -125,7 +126,7 @@ Cubre:
 6. $100 con $30 fiado conserva “Cambio $40.00” en el resultado y la orden queda `paidCents=6000`, `creditCents=3000`.
 7. “Sí, limpiar” enfoca `draft-add-empty`.
 8. `activeOrderId`: el pendiente se guarda, recargar muestra el aviso sin abrir el cobro, Continuar reabre el mismo id sin duplicar, Descartar aviso no borra la orden, enfoca `caja-heading` y el aviso no reaparece.
-9. **Pendiente ajeno:** $60 pendientes → crear una venta pagada de $10 → la clave y el aviso siguen → recargar → Continuar abre el mismo id → pagar el pendiente borra el aviso.
+9. **Pendiente ajeno:** $60 pendientes → crear una venta pagada de $10 → la clave y el aviso siguen → abrir y cerrar otra orden pagada → el aviso sigue → recargar → Continuar abre el mismo id → pagar el pendiente borra el aviso.
 10. La orden mixta conserva $30 efectivo, $20 fiado y $40 digitales; se marca el hueco de UI como `KNOWN` de P0-C/E.
 11. 51 ítems se restauran sin truncar.
 12. `aria-invalid` solo en descripción o precio, según el error.
@@ -149,9 +150,10 @@ Con el build final también se probaron: precio 0 con foco en el precio, cantida
 
 ## 7 · Estado de entrega
 
-- Commit de código + script + reporte: el commit de esta revisión en `git log --oneline` (antes del commit de evidencia).
-- Evidencia de harness: `harness/evidence/latest.json` en el commit de evidencia, con `ok: true` y `gitAtStart.sha` igual al commit de código.
-- Evidencia E2E: `harness/evidence/p0-venta-e2e.json` (30 PASS · 0 FAIL · 1 KNOWN).
+- Commit de código: `37286fe` (`fix(caja): aislar pendiente por id y aclarar avisos`).
+- Commit final de evidencia + script/reporte: el tip de la rama (`chore(harness): record p0 revision 3 evidence`).
+- Evidencia de harness: `harness/evidence/latest.json` con `ok: true` y `gitAtStart.sha = 37286fe`.
+- Evidencia E2E: `harness/evidence/p0-venta-e2e.json` (31 PASS · 0 FAIL · 1 KNOWN).
 - Cambios de producto: `web/src/components/caja-app.tsx`.
 - Prueba reproducible: `web/scripts/p0-venta-e2e.py`.
 - Sin cambios en SQLite, webhook, pey, `/api/verify`, `paymentTruth`, `PaidSheet` (lógica de verdad) ni en la dirección visual.
