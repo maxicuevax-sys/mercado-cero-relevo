@@ -293,6 +293,7 @@ export default function CheckoutPage() {
     const demo = isDemoPayment;
     const cashPaid = Math.max(0, order.paidCents - order.digitalPaidCents);
     const cashOnly = !payment && cashPaid > 0;
+    const sourceMixed = Boolean(payment) && cashPaid > 0;
 
     return (
       <main className="grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
@@ -301,11 +302,15 @@ export default function CheckoutPage() {
             <div
               className={cn(
                 "mx-auto flex h-16 w-16 items-center justify-center rounded-full",
-                demo
-                  ? "bg-terracotta-soft text-attention"
-                  : cashOnly
-                    ? "bg-surface-2 text-ink"
-                    : "bg-green-soft text-green",
+                sourceMixed
+                  ? demo
+                    ? "bg-terracotta-soft text-attention"
+                    : "bg-green-soft text-green"
+                  : demo
+                    ? "bg-terracotta-soft text-attention"
+                    : cashOnly
+                      ? "bg-surface-2 text-ink"
+                      : "bg-green-soft text-green",
               )}
             >
               {demo ? (
@@ -317,13 +322,31 @@ export default function CheckoutPage() {
               )}
             </div>
             <p className="mt-4 text-sm font-semibold text-ink-2">
-              {demo ? "Pago simulado · demo" : cashOnly ? "Cobrado en caja" : "Pago confirmado"}
+              {sourceMixed
+                ? demo
+                  ? "Efectivo + demo"
+                  : "Efectivo + verificado"
+                : demo
+                  ? "Pago simulado · demo"
+                  : cashOnly
+                    ? "Cobrado en caja"
+                    : "Pago confirmado"}
             </p>
             <h1 ref={resultHeadingRef} tabIndex={-1} className="mt-1 text-[1.75rem] font-semibold tracking-tight text-ink outline-none">
-              {demo ? "Pago simulado" : cashOnly ? "Efectivo recibido" : "Listo para entregar"}
+              {sourceMixed
+                ? "Pago mixto"
+                : demo
+                  ? "Pago simulado"
+                  : cashOnly
+                    ? "Efectivo recibido"
+                    : "Listo para entregar"}
             </h1>
             <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
-              {formatMxn(payment?.amountCents ?? (cashPaid || order.totalCents))}
+              {formatMxn(
+                sourceMixed
+                  ? order.totalCents
+                  : payment?.amountCents ?? (cashPaid || order.totalCents),
+              )}
             </p>
             <p className="mt-2 text-sm text-ink-2">
               Pedido {order.shortRef} · {merchant.name}
@@ -334,7 +357,9 @@ export default function CheckoutPage() {
             <dl className="space-y-3 text-sm">
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                 <dt className="text-ink-2">Método</dt>
-                <dd className="font-semibold text-ink">{payment ? methodLabel : "Efectivo"}</dd>
+                <dd className="font-semibold text-ink">
+                  {sourceMixed ? `Efectivo + ${methodLabel}` : payment ? methodLabel : "Efectivo"}
+                </dd>
               </div>
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                 <dt className="text-ink-2">Comercio</dt>
@@ -352,11 +377,15 @@ export default function CheckoutPage() {
 
             <div className="mt-4 rounded-xl bg-surface-2 px-3.5 py-3">
               <p className="text-sm leading-relaxed text-ink-2">
-                {demo
-                  ? "Pago simulado para la demo. En producción, este estado solo aparece con la confirmación firmada de pey."
-                  : cashOnly
-                    ? "Recibiste el efectivo en la caja. No pasó por pey ni es un pago verificado por el banco."
-                    : "pey confirmó este pago. La comerciante ya puede entregar el pedido."}
+                {sourceMixed
+                  ? demo
+                    ? `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(payment?.amountCents ?? 0)} en un pago simulado. El efectivo sí es dinero real; el digital es demo.`
+                    : `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(payment?.amountCents ?? 0)} verificados por pey.`
+                  : demo
+                    ? "Pago simulado para la demo. En producción, este estado solo aparece con la confirmación firmada de pey."
+                    : cashOnly
+                      ? "Recibiste el efectivo en la caja. No pasó por pey ni es un pago verificado por el banco."
+                      : "pey confirmó este pago. La comerciante ya puede entregar el pedido."}
               </p>
             </div>
 

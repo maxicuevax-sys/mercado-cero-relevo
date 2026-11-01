@@ -152,6 +152,36 @@ def measure(page, label: str) -> dict:
                 if (ancestorClip) addClip(ancestorClip);
             }
 
+            // Fully clipped text: a visible element completely outside an
+            // overflow-hidden/clip ancestor (not reachable by scrolling).
+            for (const el of root.querySelectorAll('p, span, h1, h2, h3, h4, dt, dd, li, button, a, label')) {
+                if (!(el.innerText || '').trim() || el.getClientRects().length === 0) continue;
+                const s = getComputedStyle(el);
+                if (s.display === 'none' || s.visibility === 'hidden') continue;
+                const r = el.getBoundingClientRect();
+                let node = el.parentElement;
+                let insideScroller = false;
+                let fully = null;
+                while (node && node !== document.body && !fully) {
+                    const ns = getComputedStyle(node);
+                    if (ns.overflowY === 'auto' || ns.overflowY === 'scroll' || ns.overflowX === 'auto' || ns.overflowX === 'scroll') insideScroller = true;
+                    if (!insideScroller && !node.classList.contains('truncate') && (ns.overflowX === 'hidden' || ns.overflowX === 'clip' || ns.overflowY === 'hidden' || ns.overflowY === 'clip')) {
+                        const a = node.getBoundingClientRect();
+                        if (r.bottom <= a.top + 1 || r.top >= a.bottom - 1 || r.right <= a.left + 1 || r.left >= a.right - 1) {
+                            fully = {
+                                reason: 'fully-clipped',
+                                tag: el.tagName,
+                                text: el.innerText.trim().replace(/\\s+/g, ' ').slice(0, 50),
+                                cls: (el.className || '').toString().slice(0, 60),
+                                intentional: Boolean(el.closest('.truncate')),
+                            };
+                        }
+                    }
+                    node = node.parentElement;
+                }
+                if (fully) addClip(fully);
+            }
+
             // Collapsed controls: a visible input/textarea with ~zero size is
             // unusable even if it technically has a client rect.
             for (const el of root.querySelectorAll('input, select, textarea')) {
@@ -336,6 +366,7 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
     page.wait_for_selector("text=Estás en modo demo", timeout=10000)
     page.wait_for_timeout(200)
     record["demoSheet"] = measure(page, "demo-sheet")
+    record["demoSheetText200"] = measure_text200(page, "demo-sheet-text-200", f"demo-{w}-text200")
     shot(page, f"demo-{w}")
     page.keyboard.press("Escape")
     page.wait_for_timeout(200)
@@ -450,6 +481,14 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
         shot(page, f"checkout-{w}-paid-text200")
         style.evaluate("el => el.remove()")
 
+        page.goto(f"{BASE}/pay/{pending['id']}/success", wait_until="domcontentloaded", timeout=45000)
+        page.wait_for_selector("section[role=status]", timeout=20000)
+        page.wait_for_timeout(500)
+        record["successPage"] = measure(page, "success-page")
+        record["successPageAxe"] = run_axe(page)
+        record["successPageText200"] = measure_text200(page, "success-page-text-200", f"success-{w}-text200")
+        shot(page, f"success-{w}")
+
     context.request.post(f"{BASE}/api/demo/reset")
     return record
 
@@ -472,7 +511,7 @@ def main() -> int:
             page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
             page.on("pageerror", lambda e: errors.append(str(e)))
             try:
-                record = audit_viewport(page, context, w, h, full_flow=w in (360, 390, 1280))
+                record = audit_viewport(page, context, w, h, full_flow=w in (360, 390, 768, 1280))
                 record["consoleErrors"] = errors
                 results.append(record)
                 home = record["home"]

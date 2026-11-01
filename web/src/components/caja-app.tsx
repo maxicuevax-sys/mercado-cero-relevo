@@ -234,6 +234,12 @@ export default function CajaApp() {
   }, [tab]);
 
   useEffect(() => {
+    // Al abrir otro pedido, el error de entrega anterior deja de aplicar.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDeliverError(null);
+  }, [activeOrder?.id]);
+
+  useEffect(() => {
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current);
       streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -716,31 +722,44 @@ export default function CajaApp() {
     [creditPayAmount, creditPayMethod, creditPayNote, loadDashboard, showToast],
   );
 
-  const deliverOrder = useCallback(async () => {
-    if (!paidOverlay) return;
-    setDelivering(true);
-    setDeliverError(null);
-    try {
-      const response = await fetch(`/api/orders/${paidOverlay.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "fulfill" }),
-      });
-      const data = (await response.json()) as { order?: Order; error?: string };
-      if (!response.ok || !data.order) {
-        throw new Error(data.error ?? "No pude marcar el pedido como entregado.");
+  const fulfillOrder = useCallback(
+    async (orderId: string | undefined, onDone: () => void) => {
+      if (!orderId) return;
+      setDelivering(true);
+      setDeliverError(null);
+      try {
+        const response = await fetch(`/api/orders/${orderId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "fulfill" }),
+        });
+        const data = (await response.json()) as { order?: Order; error?: string };
+        if (!response.ok || !data.order) {
+          throw new Error(data.error ?? "No pude marcar el pedido como entregado.");
+        }
+        onDone();
+        await loadDashboard();
+        showToast("ok", "Pedido entregado.");
+      } catch (error) {
+        setDeliverError(
+          error instanceof Error ? error.message : "No pude marcar el pedido como entregado.",
+        );
+      } finally {
+        setDelivering(false);
       }
-      setPaidOverlay(null);
-      await loadDashboard();
-      showToast("ok", "Pedido entregado.");
-    } catch (error) {
-      setDeliverError(
-        error instanceof Error ? error.message : "No pude marcar el pedido como entregado.",
-      );
-    } finally {
-      setDelivering(false);
-    }
-  }, [loadDashboard, paidOverlay, showToast]);
+    },
+    [loadDashboard, showToast],
+  );
+
+  const deliverOrder = useCallback(
+    () => fulfillOrder(paidOverlay?.id, () => setPaidOverlay(null)),
+    [fulfillOrder, paidOverlay?.id],
+  );
+
+  const deliverActiveOrder = useCallback(
+    () => fulfillOrder(activeOrder?.id, () => setActiveOrder(null)),
+    [activeOrder?.id, fulfillOrder],
+  );
 
   const resetDemo = useCallback(async () => {
     try {
@@ -954,7 +973,11 @@ export default function CajaApp() {
 
       <Sheet
         open={Boolean(activeOrder)}
-        onClose={() => setActiveOrder(null)}
+        onClose={() => {
+          if (paymentLoading) return;
+          setActiveOrder(null);
+          setDeliverError(null);
+        }}
         title={activeOrder ? paymentSheetTitle(activeOrder) : "Cobro"}
         size="md"
       >
@@ -965,11 +988,18 @@ export default function CajaApp() {
           mode={paymentMode}
           onGenerate={(mode) => void generatePayment(mode)}
           onDemoPay={(method) => void demoPay(method)}
-          onClose={() => setActiveOrder(null)}
+          onClose={() => {
+            if (paymentLoading) return;
+            setActiveOrder(null);
+            setDeliverError(null);
+          }}
           onNew={() => {
             setActiveOrder(null);
             setTab("caja");
           }}
+          onDeliver={() => void deliverActiveOrder()}
+          delivering={delivering}
+          error={deliverError}
           onCopy={async (value) => {
             try {
               await navigator.clipboard.writeText(value);
@@ -1530,8 +1560,11 @@ function PaymentPanel(props: {
   onNew: () => void;
   onCopy: (value: string) => void;
   onShare: (value: string) => void;
+  onDeliver: () => void;
+  delivering: boolean;
+  error: string | null;
 }) {
-  const { order, demoMode, loading, mode, onGenerate, onDemoPay, onClose, onNew, onCopy, onShare } = props;
+  const { order, demoMode, loading, mode, onGenerate, onDemoPay, onClose, onNew, onCopy, onShare, onDeliver, delivering, error } = props;
 
   if (!order) return null;
 
@@ -1552,6 +1585,7 @@ function PaymentPanel(props: {
     ]
       .filter(Boolean)
       .join(" + ");
+    const sourceMixed = truth.isMixedSources && !truth.hasCredit;
 
     return (
       <div className="space-y-4">
@@ -1559,15 +1593,25 @@ function PaymentPanel(props: {
           <div
             className={cn(
               "mx-auto flex h-14 w-14 items-center justify-center rounded-full",
-              truth.hasCredit || truth.isDemo
+              truth.hasCredit || (truth.isDemo && !sourceMixed)
                 ? "bg-terracotta-soft text-attention"
-                : truth.isCash
-                  ? "bg-surface-2 text-ink"
-                  : "bg-green-soft text-green",
+                : sourceMixed
+                  ? truth.isDemo
+                    ? "bg-terracotta-soft text-attention"
+                    : "bg-green-soft text-green"
+                  : truth.isCash
+                    ? "bg-surface-2 text-ink"
+                    : "bg-green-soft text-green",
             )}
           >
             {truth.hasCredit ? (
               <NotebookPen className="h-6 w-6" />
+            ) : sourceMixed ? (
+              truth.isDemo ? (
+                <Sparkles className="h-6 w-6" />
+              ) : (
+                <Check className="h-6 w-6" />
+              )
             ) : truth.isDemo ? (
               <Sparkles className="h-6 w-6" />
             ) : truth.isCash ? (
@@ -1581,23 +1625,33 @@ function PaymentPanel(props: {
               ? mixed
                 ? "Cobro mixto"
                 : "Venta a fiado"
-              : truth.isDemo
-                ? "Pago simulado · demo"
-                : truth.isCash
-                  ? "Cobrado en caja"
-                  : "Pago verificado"}
+              : sourceMixed
+                ? truth.isDemo
+                  ? "Efectivo + demo"
+                  : "Efectivo + verificado"
+                : truth.isDemo
+                  ? "Pago simulado · demo"
+                  : truth.isCash
+                    ? "Cobrado en caja"
+                    : "Pago verificado"}
           </p>
           <h2 className="mt-1 text-[1.625rem] font-semibold tracking-tight text-ink">
             {truth.hasCredit
               ? "Quedó anotado"
-              : truth.isDemo
-                ? "Pago simulado"
-                : truth.isCash
-                  ? "Efectivo recibido"
-                  : "Pedido pagado"}
+              : sourceMixed
+                ? "Pago mixto"
+                : truth.isDemo
+                  ? "Pago simulado"
+                  : truth.isCash
+                    ? "Efectivo recibido"
+                    : "Pedido pagado"}
           </h2>
           <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
-            {formatMxn(truth.hasCredit ? order.totalCents : truth.receivedCents || order.totalCents)}
+            {formatMxn(
+              truth.hasCredit || sourceMixed
+                ? order.totalCents
+                : truth.receivedCents || order.totalCents,
+            )}
           </p>
           <p className="mt-2 text-sm text-ink-2">
             Pedido {shortOrder(order.id)} ·{" "}
@@ -1605,17 +1659,27 @@ function PaymentPanel(props: {
               ? mixed
                 ? `${source} + ${formatMxn(order.creditCents)} a fiado`
                 : `fiado con ${order.customerName ?? "el cliente"}`
-              : truth.isDemo
-                ? "simulado en modo demo"
-                : truth.isCash
-                  ? "recibido en efectivo, sin pasar por pey"
-                  : "confirmado por pey"}
+              : sourceMixed
+                ? source
+                : truth.isDemo
+                  ? "simulado en modo demo"
+                  : truth.isCash
+                    ? "recibido en efectivo, sin pasar por pey"
+                    : "confirmado por pey"}
           </p>
           {truth.hasCredit ? (
             <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
               {mixed ? `Recibiste ${source}. ` : null}
               Saldo pendiente: <strong>{formatMxn(order.creditCents)}</strong>. Aparece en la
               libreta de fiado; no es dinero recibido.
+            </p>
+          ) : sourceMixed ? (
+            <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
+              Recibiste {formatMxn(truth.cashPaidCents)} en efectivo y{" "}
+              {formatMxn(order.digitalPaidCents)}{" "}
+              {truth.isDemo
+                ? "en un pago simulado. El efectivo sí es dinero real; el digital es demo."
+                : "verificados por pey."}
             </p>
           ) : truth.isDemo ? (
             <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
@@ -1635,13 +1699,26 @@ function PaymentPanel(props: {
           )}
         </div>
         <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="on-accent flex min-h-11 flex-1 items-center justify-center rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press"
-          >
-            Cerrar
-          </button>
+          {order.status === "paid" ? (
+            <button
+              type="button"
+              onClick={onDeliver}
+              disabled={delivering}
+              aria-busy={delivering}
+              className="on-accent flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-60"
+            >
+              {delivering ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              {delivering ? "Entregando…" : "Listo para entregar"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onClose}
+              className="on-accent flex min-h-11 flex-1 items-center justify-center rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press"
+            >
+              {truth.hasCredit ? "Entendido" : "Cerrar"}
+            </button>
+          )}
           <button
             type="button"
             onClick={onNew}
@@ -1650,6 +1727,11 @@ function PaymentPanel(props: {
             Nuevo cobro
           </button>
         </div>
+        {error ? (
+          <p role="alert" className="rounded-xl bg-terracotta-soft px-3 py-2 text-sm font-medium text-danger">
+            {error}
+          </p>
+        ) : null}
       </div>
     );
   }
@@ -2923,20 +3005,25 @@ function ActivityList({
           visibleOrders.map((order) => {
             const truth = paymentTruth(order);
             const mixed = truth.hasCredit && truth.receivedCents > 0;
-            const demo = !truth.hasCredit && truth.isDemo;
-            const cash = !truth.hasCredit && truth.isCash;
-            const pending = !truth.hasCredit && !demo && !cash && order.status === "payment_pending";
+            const sourceMixed = !truth.hasCredit && truth.isMixedSources;
+            const demo = !truth.hasCredit && !sourceMixed && truth.isDemo;
+            const cash = !truth.hasCredit && !sourceMixed && truth.isCash;
+            const pending = !truth.hasCredit && !demo && !cash && !sourceMixed && order.status === "payment_pending";
             const Icon = truth.hasCredit
               ? NotebookPen
-              : demo
-                ? Sparkles
-                : cash
-                  ? Banknote
-                  : order.status === "paid" || order.status === "fulfilled"
-                    ? Check
-                    : pending
-                      ? Clock3
-                      : ReceiptText;
+              : sourceMixed
+                ? truth.isDemo
+                  ? Sparkles
+                  : Check
+                : demo
+                  ? Sparkles
+                  : cash
+                    ? Banknote
+                    : order.status === "paid" || order.status === "fulfilled"
+                      ? Check
+                      : pending
+                        ? Clock3
+                        : ReceiptText;
             return (
               <button
                 key={order.id}
@@ -2949,11 +3036,15 @@ function ActivityList({
                     "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
                     truth.hasCredit || demo || pending
                       ? "bg-terracotta-soft text-attention"
-                      : cash
-                        ? "bg-surface-2 text-ink"
-                        : order.status === "paid" || order.status === "fulfilled"
-                          ? "bg-green-soft text-green"
-                          : "bg-surface-2 text-ink-2",
+                      : sourceMixed
+                        ? truth.isDemo
+                          ? "bg-terracotta-soft text-attention"
+                          : "bg-green-soft text-green"
+                        : cash
+                          ? "bg-surface-2 text-ink"
+                          : order.status === "paid" || order.status === "fulfilled"
+                            ? "bg-green-soft text-green"
+                            : "bg-surface-2 text-ink-2",
                   )}
                 >
                   <Icon className="h-4 w-4" />
@@ -2975,11 +3066,15 @@ function ActivityList({
                         ? mixed
                           ? "Pago mixto"
                           : "Fiado"
-                        : demo
-                          ? "Demo"
-                          : cash
-                            ? "Efectivo"
-                            : statusLabel(order.status)}
+                        : sourceMixed
+                          ? truth.isDemo
+                            ? "Efectivo + demo"
+                            : "Efectivo + pey"
+                          : demo
+                            ? "Demo"
+                            : cash
+                              ? "Efectivo"
+                              : statusLabel(order.status)}
                     </span>
                   </p>
                 </div>
@@ -3021,14 +3116,14 @@ function CreditList({
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-separator bg-surface p-4 shadow-card">
-        <div className="flex items-end justify-between gap-3">
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-ink-2">Saldo pendiente</p>
             <p className="tabular mt-1 text-[1.75rem] font-semibold leading-none tracking-tight text-ink">
               {formatMxn(total)}
             </p>
           </div>
-          <p className="text-sm text-ink-2">
+          <p className="break-words text-sm text-ink-2">
             {credits.length} {credits.length === 1 ? "cliente" : "clientes"}
           </p>
         </div>
@@ -3546,6 +3641,9 @@ function paymentTruth(order: Order) {
     receivedCents,
     provider,
     hasCredit: order.creditCents > 0,
+    hasCash: cashPaidCents > 0,
+    hasDigital: order.digitalPaidCents > 0,
+    isMixedSources: cashPaidCents > 0 && order.digitalPaidCents > 0,
     isDemo: provider === "demo",
     isCash: provider === "cash",
     isVerified: provider === "pey",
@@ -3556,6 +3654,7 @@ function paymentTruth(order: Order) {
 function paymentSheetTitle(order: Order): string {
   const truth = paymentTruth(order);
   if (truth.hasCredit) return truth.receivedCents > 0 ? "Pago mixto" : "Pedido a fiado";
+  if (truth.isMixedSources) return truth.isDemo ? "Efectivo + demo" : "Efectivo + verificado";
   if (truth.isDemo) return "Pago simulado";
   if (truth.isCash) return "Efectivo recibido";
   if (truth.isVerified) return order.status === "fulfilled" ? "Pedido entregado" : "Pago verificado";
@@ -3928,6 +4027,7 @@ function PaidSheet({
   ]
     .filter(Boolean)
     .join(" + ");
+  const sourceMixed = truth.isMixedSources && !truth.hasCredit;
 
   return (
     <Sheet open={Boolean(order)} onClose={onClose} title={paymentSheetTitle(order)} size="sm">
@@ -3935,15 +4035,25 @@ function PaidSheet({
         <div
           className={cn(
             "mx-auto flex h-16 w-16 items-center justify-center rounded-full",
-            truth.hasCredit || truth.isDemo
+            truth.hasCredit || (truth.isDemo && !sourceMixed)
               ? "bg-terracotta-soft text-attention"
-              : truth.isCash
-                ? "bg-surface-2 text-ink"
-                : "bg-green-soft text-green",
+              : sourceMixed
+                ? truth.isDemo
+                  ? "bg-terracotta-soft text-attention"
+                  : "bg-green-soft text-green"
+                : truth.isCash
+                  ? "bg-surface-2 text-ink"
+                  : "bg-green-soft text-green",
           )}
         >
           {truth.hasCredit ? (
             <NotebookPen className="h-7 w-7" />
+          ) : sourceMixed ? (
+            truth.isDemo ? (
+              <Sparkles className="h-7 w-7" />
+            ) : (
+              <Check className="h-7 w-7" />
+            )
           ) : truth.isDemo ? (
             <Sparkles className="h-7 w-7" />
           ) : truth.isCash ? (
@@ -3957,23 +4067,33 @@ function PaidSheet({
             ? mixed
               ? "Cobro mixto"
               : "Venta a fiado"
-            : truth.isDemo
-              ? "Pago simulado · demo"
-              : truth.isCash
-                ? "Cobrado en caja"
-                : "Confirmado por el banco"}
+            : sourceMixed
+              ? truth.isDemo
+                ? "Efectivo + demo"
+                : "Efectivo + verificado"
+              : truth.isDemo
+                ? "Pago simulado · demo"
+                : truth.isCash
+                  ? "Cobrado en caja"
+                  : "Confirmado por el banco"}
         </p>
         <h2 className="mt-1 text-[1.75rem] font-semibold tracking-tight text-ink">
           {truth.hasCredit
             ? "Quedó anotado"
-            : truth.isDemo
-              ? "Pago simulado"
-              : truth.isCash
-                ? "Efectivo recibido"
-                : "Ya llegó"}
+            : sourceMixed
+              ? "Pago mixto"
+              : truth.isDemo
+                ? "Pago simulado"
+                : truth.isCash
+                  ? "Efectivo recibido"
+                  : "Ya llegó"}
         </h2>
         <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
-          {formatMxn(truth.hasCredit ? order.totalCents : truth.receivedCents || order.totalCents)}
+          {formatMxn(
+            truth.hasCredit || sourceMixed
+              ? order.totalCents
+              : truth.receivedCents || order.totalCents,
+          )}
         </p>
         <p className="mt-2 text-sm text-ink-2">
           Pedido {shortOrder(order.id)} ·{" "}
@@ -3981,11 +4101,13 @@ function PaidSheet({
             ? mixed
               ? `${source} + ${formatMxn(order.creditCents)} a fiado`
               : `fiado con ${order.customerName ?? "el cliente"}`
-            : truth.isDemo
-              ? "simulado en modo demo"
-              : truth.isCash
-                ? "recibido en efectivo, sin pasar por pey"
-                : "confirmado por pey"}
+            : sourceMixed
+              ? source
+              : truth.isDemo
+                ? "simulado en modo demo"
+                : truth.isCash
+                  ? "recibido en efectivo, sin pasar por pey"
+                  : "confirmado por pey"}
         </p>
         <p className="mt-4 rounded-xl bg-surface-2 px-3 py-2.5 text-left text-sm leading-relaxed text-ink-2">
           {truth.hasCredit ? (
@@ -3993,6 +4115,14 @@ function PaidSheet({
               {mixed ? `Recibiste ${source}. ` : null}
               Saldo pendiente: <strong>{formatMxn(order.creditCents)}</strong>. Aparece en Fiado;
               no es dinero recibido.
+            </>
+          ) : sourceMixed ? (
+            <>
+              Recibiste {formatMxn(truth.cashPaidCents)} en efectivo y{" "}
+              {formatMxn(order.digitalPaidCents)}{" "}
+              {truth.isDemo
+                ? "en un pago simulado. El efectivo sí es dinero real; el digital es demo."
+                : "verificados por pey."}
             </>
           ) : truth.isDemo ? (
             "En producción, este estado solo se actualiza con la confirmación firmada de pey. No se movió dinero real."

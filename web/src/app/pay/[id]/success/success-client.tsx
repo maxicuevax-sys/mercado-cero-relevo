@@ -134,6 +134,7 @@ export default function CheckoutSuccessPage() {
 
   const cashPaid = data ? Math.max(0, data.order.paidCents - data.order.digitalPaidCents) : 0;
   const cashOnly = Boolean(data) && paid && !data?.payment && cashPaid > 0;
+  const sourceMixed = Boolean(data?.payment) && paid && cashPaid > 0;
 
   return (
     <main className="grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
@@ -142,13 +143,17 @@ export default function CheckoutSuccessPage() {
           <div
             className={cn(
               "mx-auto flex h-16 w-16 items-center justify-center rounded-full",
-              paid && !demo && !cashOnly
-                ? "bg-green-soft text-green"
-                : paid && cashOnly
-                  ? "bg-surface-2 text-ink"
-                  : paid && demo
-                    ? "bg-terracotta-soft text-attention"
-                    : "bg-surface-2 text-ink-2",
+              paid && sourceMixed
+                ? demo
+                  ? "bg-terracotta-soft text-attention"
+                  : "bg-green-soft text-green"
+                : paid && !demo && !cashOnly
+                  ? "bg-green-soft text-green"
+                  : paid && cashOnly
+                    ? "bg-surface-2 text-ink"
+                    : paid && demo
+                      ? "bg-terracotta-soft text-attention"
+                      : "bg-surface-2 text-ink-2",
             )}
           >
             {paid ? (
@@ -165,25 +170,35 @@ export default function CheckoutSuccessPage() {
           </div>
           <p className="mt-4 text-sm font-semibold text-ink-2">
             {paid
-              ? demo
-                ? "Modo demo"
-                : cashOnly
-                  ? "Cobrado en caja"
-                  : "Pago confirmado"
+              ? sourceMixed
+                ? demo
+                  ? "Efectivo + demo"
+                  : "Efectivo + verificado"
+                : demo
+                  ? "Modo demo"
+                  : cashOnly
+                    ? "Cobrado en caja"
+                    : "Pago confirmado"
               : "Verificando pago"}
           </p>
           <h1 ref={headingRef} tabIndex={-1} className="mt-1 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none">
             {paid
-              ? demo
-                ? "Pago simulado"
-                : cashOnly
-                  ? "Efectivo recibido"
-                  : "Listo para entregar"
+              ? sourceMixed
+                ? "Pago mixto"
+                : demo
+                  ? "Pago simulado"
+                  : cashOnly
+                    ? "Efectivo recibido"
+                    : "Listo para entregar"
               : "Estamos confirmando con el banco"}
           </h1>
           {data ? (
             <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
-              {formatMxn(data.payment?.amountCents ?? (cashPaid || data.order.totalCents))}
+              {formatMxn(
+                sourceMixed
+                  ? data.order.totalCents
+                  : data.payment?.amountCents ?? (cashPaid || data.order.totalCents),
+              )}
             </p>
           ) : null}
           {data ? (
@@ -200,7 +215,9 @@ export default function CheckoutSuccessPage() {
                 <div className="flex items-center justify-between gap-4">
                   <dt className="text-ink-2">Método</dt>
                   <dd className="font-semibold text-ink">
-                    {METHOD_LABEL[data.payment.method] ?? data.payment.method}
+                    {sourceMixed
+                      ? `Efectivo + ${METHOD_LABEL[data.payment.method] ?? data.payment.method}`
+                      : METHOD_LABEL[data.payment.method] ?? data.payment.method}
                   </dd>
                 </div>
                 {data.payment.transactionId ? (
@@ -214,9 +231,13 @@ export default function CheckoutSuccessPage() {
               </dl>
               <div className="mt-4 rounded-xl bg-surface-2 px-3.5 py-3">
                 <p className="text-sm leading-relaxed text-ink-2">
-                  {demo
-                    ? "Pago simulado para la demo. En producción, este estado solo aparece con la confirmación firmada de pey."
-                    : "pey confirmó este pago con una confirmación firmada. Ya puedes mostrar esta pantalla."}
+                  {sourceMixed
+                    ? demo
+                      ? `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(data.payment.amountCents)} en un pago simulado. El efectivo sí es dinero real; el digital es demo.`
+                      : `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(data.payment.amountCents)} verificados por pey.`
+                    : demo
+                      ? "Pago simulado para la demo. En producción, este estado solo aparece con la confirmación firmada de pey."
+                      : "pey confirmó este pago con una confirmación firmada. Ya puedes mostrar esta pantalla."}
                 </p>
               </div>
             </>
