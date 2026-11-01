@@ -107,6 +107,20 @@ const SAMPLE_LABELS: Record<string, string> = {
   "¿Cuánto vendí hoy?": "¿Cuánto vendí?",
 };
 
+// Frases fijas del demo, pre-renderizadas con Kokoro (Apache 2.0, voz ef_dora).
+// Si el texto no está aquí, se usa la voz del navegador como fallback.
+const TTS_FILES: Record<string, string> = {
+  "Son 90.00 pesos. ¿Genero el cobro?": "/tts/son-90-genero-el-cobro.wav",
+  "Venta cobrada. $90.00.": "/tts/venta-cobrada-90.wav",
+  "Pago recibido. $90.00.": "/tts/pago-recibido-90.wav",
+  "Abono de $50.00 a Juan. Saldo: $0.00.": "/tts/abono-50-juan.wav",
+  "Venta lista para confirmar.": "/tts/venta-lista.wav",
+  "Comprobante verificado en la caja. En producción se valida contra pey.":
+    "/tts/comprobante-verificado-demo.wav",
+  "Ese comprobante no está verificado. No entregues el pedido.":
+    "/tts/comprobante-no-verificado.wav",
+};
+
 function parseMoney(value: string): number {
   const clean = value.replace(/[^0-9.,-]/g, "").replace(",", ".");
   const amount = Number(clean);
@@ -195,6 +209,7 @@ export default function CajaApp() {
   const speechIdRef = useRef(0);
   const lastSpeechRef = useRef({ text: "", at: 0 });
   const mutedRef = useRef(muted);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const showToast = useCallback((tone: ToastTone, text: string) => {
     setToast({ tone, text });
@@ -270,26 +285,21 @@ export default function CajaApp() {
     };
   }, []);
 
-  const speak = useCallback((text: string) => {
-    if (mutedRef.current) return;
+  const stopAudio = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
+    audioRef.current = null;
+  }, []);
+
+  const speakBrowser = useCallback((text: string, speechId: number) => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    if (typeof document !== "undefined" && document.hidden) return;
-
-    const now = Date.now();
-    if (
-      lastSpeechRef.current.text === text &&
-      now - lastSpeechRef.current.at < 8000
-    ) {
-      return;
-    }
-    lastSpeechRef.current = { text, at: now };
-
-    const speechId = ++speechIdRef.current;
-    if (speechTimerRef.current) window.clearTimeout(speechTimerRef.current);
     window.speechSynthesis.cancel();
 
     // Chrome puede atorar o repetir una utterance si se encola justo después
     // de cancel(). Damos un tick y protegemos cada utterance con un límite.
+    if (speechTimerRef.current) window.clearTimeout(speechTimerRef.current);
     speechTimerRef.current = window.setTimeout(() => {
       if (speechIdRef.current !== speechId) return;
       if (mutedRef.current || document.hidden) return;
@@ -313,17 +323,65 @@ export default function CajaApp() {
     }, 80);
   }, []);
 
+  const speak = useCallback(
+    (text: string) => {
+      if (mutedRef.current) return;
+      if (typeof window === "undefined") return;
+      if (typeof document !== "undefined" && document.hidden) return;
+
+      const now = Date.now();
+      if (
+        lastSpeechRef.current.text === text &&
+        now - lastSpeechRef.current.at < 8000
+      ) {
+        return;
+      }
+      lastSpeechRef.current = { text, at: now };
+
+      const speechId = ++speechIdRef.current;
+      if (speechTimerRef.current) window.clearTimeout(speechTimerRef.current);
+      stopAudio();
+
+      const file = TTS_FILES[text];
+      if (file) {
+        window.speechSynthesis?.cancel();
+        const audio = new Audio(file);
+        audio.preload = "auto";
+        audioRef.current = audio;
+        audio.onended = () => {
+          if (audioRef.current === audio) audioRef.current = null;
+        };
+        audio.onerror = () => {
+          if (audioRef.current === audio) audioRef.current = null;
+          speakBrowser(text, speechId);
+        };
+        void audio.play().catch(() => {
+          if (audioRef.current === audio) audioRef.current = null;
+          speakBrowser(text, speechId);
+        });
+        return;
+      }
+
+      speakBrowser(text, speechId);
+    },
+    [speakBrowser, stopAudio],
+  );
+
   useEffect(() => {
     mutedRef.current = muted;
-    if (muted && typeof window !== "undefined" && "speechSynthesis" in window) {
+    if (muted) {
       speechIdRef.current += 1;
-      window.speechSynthesis.cancel();
+      stopAudio();
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
     }
-  }, [muted]);
+  }, [muted, stopAudio]);
 
   useEffect(() => {
     const stopSpeech = () => {
       speechIdRef.current += 1;
+      stopAudio();
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
       }
@@ -339,7 +397,7 @@ export default function CajaApp() {
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("beforeunload", stopSpeech);
     };
-  }, []);
+  }, [stopAudio]);
 
   const playChime = useCallback(() => {
     if (muted) return;
@@ -685,7 +743,7 @@ export default function CajaApp() {
         setDeliverError(null);
         setPaidOverlay(data.order);
         playChime();
-        speak(`Pago recibido. ${formatMxn(data.order.totalCents)}. Pedido ${shortOrder(data.order.id)}.`);
+        speak(`Pago recibido. ${formatMxn(data.order.totalCents)}.`);
         await loadDashboard();
       } catch (error) {
         showToast("error", error instanceof Error ? error.message : "No pude simular el pago.");
@@ -712,7 +770,7 @@ export default function CajaApp() {
           setDeliverError(null);
           setPaidOverlay(order);
           playChime();
-          speak(`Pago recibido. ${formatMxn(order.totalCents)}. Pedido ${shortOrder(order.id)}.`);
+          speak(`Pago recibido. ${formatMxn(order.totalCents)}.`);
           await loadDashboard();
         } else {
           setActiveOrder(order);
