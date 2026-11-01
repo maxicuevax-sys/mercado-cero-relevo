@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """E2E reproducible del carril P0 · venta durable.
 
+Requisitos:
+  pip install playwright
+  python -m playwright install chromium
+
 Uso:
   # terminal 1, desde web/
   $env:PORT="3101"
@@ -13,7 +17,8 @@ Uso:
   # o: $env:P0_BASE_URL="http://localhost:3101"; python scripts/p0-venta-e2e.py
 
 El script reinicia la demo antes de cada caso. No toca la base del repo
-principal ni el servidor de :3000 si se apunta a :3101.
+principal ni el servidor de :3000 si se apunta a :3101. Escribe el resultado
+en harness/evidence/p0-venta-e2e.json.
 """
 
 from __future__ import annotations
@@ -23,6 +28,7 @@ import os
 import re
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
 
 from playwright.sync_api import sync_playwright, expect
 
@@ -32,6 +38,7 @@ if hasattr(sys.stdout, "reconfigure"):
 BASE = os.environ.get("P0_BASE_URL", "http://localhost:3101").rstrip("/")
 DRAFT_KEY = "mercado-cero:draft:v1"
 PENDING_KEY = "mercado-cero:pending-order:v1"
+OUT = Path(__file__).resolve().parents[2] / "harness" / "evidence" / "p0-venta-e2e.json"
 
 results: list[dict] = []
 
@@ -93,10 +100,33 @@ def stored_draft(page) -> dict | None:
 
 
 def main() -> int:
+    started_at = datetime.now(timezone.utc)
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(viewport={"width": 1280, "height": 1000})
         page = context.new_page()
+
+        # 0 · Parser caído: la venta manual sigue disponible.
+        reset(page)
+        page.route(
+            "**/api/voice/parse",
+            lambda route: route.fulfill(
+                status=500,
+                content_type="application/json",
+                body=json.dumps({"error": "La IA no está disponible."}),
+            ),
+        )
+        page.get_by_role("button", name="Dos quesadillas de 35 y un agua de 20").click()
+        expect(page.get_by_text("La IA no está disponible.")).to_be_visible()
+        page.get_by_role("button", name="Escribir productos").click()
+        expect(page.get_by_role("textbox", name="Producto")).to_have_count(1)
+        check(
+            "con el parser en 500 se puede escribir un producto a mano",
+            page.get_by_role("textbox", name="Producto").count() == 1,
+        )
+        page.get_by_role("button", name="Limpiar").click()
+        page.get_by_role("button", name="Sí, limpiar").click()
+        page.unroute("**/api/voice/parse")
 
         # 1 · Borrar todos los ítems limpia dinero, cliente, banner y confirmación.
         reset(page)
@@ -153,7 +183,7 @@ def main() -> int:
         )
         check(
             "Descartar ya no está disponible sobre la venta nueva",
-            page.get_by_role("button", name="Descartar").count() == 0,
+            page.get_by_role("button", name=re.compile("^Descartar")).count() == 0,
         )
 
         # 2b · El banner también desaparece si el borrador recuperado queda sin ítems.
@@ -168,6 +198,25 @@ def main() -> int:
             "quedar sin ítems oculta el banner y elimina el draft pagable",
             page.get_by_text(re.compile(r"Recuperé tu venta")).count() == 0
             and page.evaluate(f"localStorage.getItem('{DRAFT_KEY}')") is None,
+        )
+
+        # 2c · "Continuar venta" mantiene el draft y oculta el banner.
+        reset(page)
+        add_item(page, "Continuar borrador", 1, 25)
+        page.wait_for_function(f"localStorage.getItem('{DRAFT_KEY}') !== null")
+        page.reload(wait_until="networkidle")
+        expect(page.get_by_text(re.compile(r"Recuperé tu venta de las \d{2}:\d{2}"))).to_be_visible()
+        check(
+            "el banner del draft usa Descartar borrador",
+            page.get_by_role("button", name="Descartar el borrador de venta").count() == 1,
+        )
+        page.get_by_role("button", name="Continuar la venta recuperada").click()
+        page.wait_for_timeout(120)
+        check(
+            "Continuar venta conserva el draft y oculta el banner",
+            page.get_by_text(re.compile(r"Recuperé tu venta")).count() == 0
+            and page.get_by_role("textbox", name="Producto").input_value() == "Continuar borrador"
+            and page.evaluate(f"localStorage.getItem('{DRAFT_KEY}')") is not None,
         )
 
         # 3 · El cambio se conserva después de confirmar.
@@ -228,9 +277,15 @@ def main() -> int:
         check("la venta con saldo digital queda confirmada", created[0]["status"] == "confirmed")
         close_dialog(page)
         expect(page.get_by_text("Tienes un cobro pendiente de $60.00")).to_be_visible()
+        stored_pending = page.evaluate(f"JSON.parse(localStorage.getItem('{PENDING_KEY}') || 'null')")
         check(
             "el pendiente se guarda en localStorage",
-            page.evaluate(f"localStorage.getItem('{PENDING_KEY}')") is not None,
+            bool(stored_pending) and stored_pending.get("orderId") == pending_id,
+            json.dumps(stored_pending, ensure_ascii=False) if stored_pending else "sin clave",
+        )
+        check(
+            "el aviso del pendiente usa Descartar aviso",
+            page.get_by_role("button", name="Descartar el aviso de cobro pendiente").count() == 1,
         )
         before_reload = order_ids(page)
         page.reload(wait_until="networkidle")
@@ -239,7 +294,7 @@ def main() -> int:
             "recargar muestra el aviso sin abrir el cobro solo",
             page.get_by_role("dialog").count() == 0,
         )
-        page.get_by_role("button", name="Continuar").click()
+        page.get_by_role("button", name="Continuar el cobro pendiente").click()
         expect(page.get_by_role("dialog")).to_be_visible()
         expect(page.get_by_role("dialog")).to_contain_text("$60.00")
         check(
@@ -248,18 +303,74 @@ def main() -> int:
         )
         close_dialog(page)
         expect(page.get_by_text("Tienes un cobro pendiente de $60.00")).to_be_visible()
-        page.get_by_role("button", name="Descartar").click()
+        page.get_by_role("button", name="Descartar el aviso de cobro pendiente").click()
+        page.wait_for_timeout(120)
+        focused = page.evaluate("document.activeElement && document.activeElement.id")
         check(
-            "Descartar el aviso no borra la orden",
+            "Descartar el aviso no borra la orden y enfoca Caja",
             page.get_by_text("Tienes un cobro pendiente").count() == 0
             and page.evaluate(f"localStorage.getItem('{PENDING_KEY}')") is None
-            and any(order["id"] == pending_id for order in orders(page)),
+            and any(order["id"] == pending_id for order in orders(page))
+            and focused == "caja-heading",
+            f"foco={focused}",
         )
         page.reload(wait_until="networkidle")
         check(
             "el aviso descartado no reaparece al recargar",
             page.get_by_text("Tienes un cobro pendiente").count() == 0,
         )
+
+        # 5b · Un pendiente ajeno sobrevive a crear y abrir otra orden pagada.
+        reset(page)
+        add_item(page, "Pendiente ajeno", 1, 90)
+        page.get_by_label("Efectivo recibido en pesos").fill("30")
+        before = order_ids(page)
+        page.get_by_role("button", name="Confirmar venta").click()
+        expect(page.get_by_role("dialog")).to_be_visible()
+        created = new_orders(page, before)
+        assert len(created) == 1, created
+        pending_id = created[0]["id"]
+        close_dialog(page)
+        expect(page.get_by_text("Tienes un cobro pendiente de $60.00")).to_be_visible()
+
+        add_item(page, "Venta pagada", 1, 10)
+        page.get_by_label("Efectivo recibido en pesos").fill("10")
+        before = order_ids(page)
+        page.get_by_role("button", name="Confirmar venta").click()
+        expect(page.get_by_role("dialog")).to_be_visible()
+        expect(page.get_by_role("dialog")).to_contain_text("Efectivo recibido")
+        paid_created = new_orders(page, before)
+        stored_after = page.evaluate(
+            f"JSON.parse(localStorage.getItem('{PENDING_KEY}') || 'null')"
+        )
+        check(
+            "crear otra venta pagada no borra el pendiente ajeno",
+            len(paid_created) == 1
+            and paid_created[0]["id"] != pending_id
+            and bool(stored_after)
+            and stored_after.get("orderId") == pending_id,
+            json.dumps(stored_after, ensure_ascii=False) if stored_after else "sin clave",
+        )
+        close_dialog(page)
+        expect(page.get_by_text("Tienes un cobro pendiente de $60.00")).to_be_visible()
+        page.reload(wait_until="networkidle")
+        expect(page.get_by_text("Tienes un cobro pendiente de $60.00")).to_be_visible()
+        page.get_by_role("button", name="Continuar el cobro pendiente").click()
+        expect(page.get_by_role("dialog")).to_be_visible()
+        expect(page.get_by_role("dialog")).to_contain_text("$60.00")
+        page.get_by_role("button", name="Link de pago").click()
+        expect(page.get_by_role("button", name="Simular CoDi")).to_be_visible()
+        page.get_by_role("button", name="Simular CoDi").click()
+        expect(page.get_by_text("Pago mixto")).to_be_visible()
+        page.wait_for_timeout(600)
+        paid_pending = next(order for order in orders(page) if order["id"] == pending_id)
+        check(
+            "pagar el pendiente lo borra del aviso",
+            paid_pending["status"] == "demo_paid"
+            and page.evaluate(f"localStorage.getItem('{PENDING_KEY}')") is None
+            and page.get_by_text("Tienes un cobro pendiente").count() == 0,
+        )
+        close_dialog(page)
 
         # 6 · Venta mixta con saldo digital: hueco conocido de P0-C/E, no de este carril.
         reset(page)
@@ -384,7 +495,26 @@ def main() -> int:
     passed = sum(1 for item in results if item["ok"] is True)
     failed = sum(1 for item in results if item["ok"] is False)
     known = sum(1 for item in results if item["ok"] is None)
+    summary = {"pass": passed, "fail": failed, "known": known, "total": len(results)}
+    payload = {
+        "schemaVersion": 1,
+        "suite": "p0-venta-e2e",
+        "baseUrl": BASE,
+        "command": "python web/scripts/p0-venta-e2e.py",
+        "requires": [
+            "pip install playwright",
+            "python -m playwright install chromium",
+            "servidor aislado en P0_BASE_URL (por defecto http://localhost:3101)",
+        ],
+        "startedAt": started_at.isoformat(),
+        "finishedAt": datetime.now(timezone.utc).isoformat(),
+        "summary": summary,
+        "results": results,
+    }
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"\nP0 VENTA E2E · {passed} PASS · {failed} FAIL · {known} KNOWN")
+    print(f"EVIDENCIA {OUT}")
     return 0 if failed == 0 else 1
 
 

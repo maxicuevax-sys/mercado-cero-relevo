@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "suite": "p0-venta-e2e",
+  "baseUrl": "http://localhost:3101",
+  "command": "python web/scripts/p0-venta-e2e.py",
+  "requires": [
+    "pip install playwright",
+    "python -m playwright install chromium",
+    "servidor aislado en P0_BASE_URL (por defecto http://localhost:3101)"
+  ],
+  "startedAt": "2026-11-01T22:43:44.781876+00:00",
+  "finishedAt": "2026-11-01T22:44:19.047218+00:00",
+  "summary": {
+    "pass": 30,
+    "fail": 0,
+    "known": 1,
+    "total": 31
+  },
+  "results": [
+    {
+      "name": "con el parser en 500 se puede escribir un producto a mano",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "borrar el último ítem limpia efectivo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "borrar el último ítem limpia fiado",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "borrar el último ítem limpia cliente",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "borrar el último ítem cancela la confirmación de Limpiar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el draft nuevo no guarda dinero sin ítems",
+      "ok": true,
+      "detail": "{\"version\": 1, \"items\": [{\"id\": \"draft_1793573029077_6q4ccv\", \"description\": \"\", \"quantity\": 1, \"unitPriceCents\": 0}], \"cashCents\": 0, \"creditCents\": 0, \"customerName\": \"\", \"textInput\": \"\", \"transcript\": \"\", \"updatedAt\": \"2026-11-01T22:43:49.083Z\"}"
+    },
+    {
+      "name": "un parseo nuevo oculta el banner de recuperación",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el parseo nuevo conserva su venta",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Descartar ya no está disponible sobre la venta nueva",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "quedar sin ítems oculta el banner y elimina el draft pagable",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el banner del draft usa Descartar borrador",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Continuar venta conserva el draft y oculta el banner",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "efectivo $100 sobre $90 conserva cambio $10",
+      "ok": true,
+      "detail": "orden=ord_da3b2b5d197a484e8d32"
+    },
+    {
+      "name": "efectivo $100 con $30 fiado conserva cambio $40",
+      "ok": true,
+      "detail": "orden=ord_de1398b26f3341cc85e1"
+    },
+    {
+      "name": "Sí, limpiar enfoca Agregar producto",
+      "ok": true,
+      "detail": "draft-add-empty"
+    },
+    {
+      "name": "la venta con saldo digital queda confirmada",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el pendiente se guarda en localStorage",
+      "ok": true,
+      "detail": "{\"version\": 1, \"orderId\": \"ord_520d749cec4b4ee8abe4\", \"updatedAt\": \"2026-11-01T22:44:01.607Z\"}"
+    },
+    {
+      "name": "el aviso del pendiente usa Descartar aviso",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "recargar muestra el aviso sin abrir el cobro solo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Continuar reabre el mismo pendiente sin duplicar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Descartar el aviso no borra la orden y enfoca Caja",
+      "ok": true,
+      "detail": "foco=caja-heading"
+    },
+    {
+      "name": "el aviso descartado no reaparece al recargar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "crear otra venta pagada no borra el pendiente ajeno",
+      "ok": true,
+      "detail": "{\"version\": 1, \"orderId\": \"ord_75797f8c302e46eaacb0\", \"updatedAt\": \"2026-11-01T22:44:05.257Z\"}"
+    },
+    {
+      "name": "pagar el pendiente lo borra del aviso",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "la orden mixta conserva $30 efectivo, $20 fiado y $40 digitales",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "HUECO CONOCIDO P0-C/E: el PaymentPanel con fiado no ofrece cobrar el saldo digital",
+      "ok": null,
+      "detail": "La orden queda correcta; la acción de cobro del remanente no existe en esta UI."
+    },
+    {
+      "name": "51 ítems se restauran sin truncar",
+      "ok": true,
+      "detail": "contador=51"
+    },
+    {
+      "name": "aria-invalid marca solo la descripción inválida",
+      "ok": true,
+      "detail": "desc=true qty=false price=false"
+    },
+    {
+      "name": "aria-invalid marca solo el precio inválido",
+      "ok": true,
+      "detail": "price=true"
+    },
+    {
+      "name": "un draft corrupto se elimina",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "reiniciar demo limpia el borrador",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

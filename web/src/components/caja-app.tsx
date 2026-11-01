@@ -315,8 +315,12 @@ function writeStoredPendingOrder(orderId: string) {
   }
 }
 
-function clearStoredPendingOrder() {
+function clearStoredPendingOrder(orderId?: string) {
   if (typeof window === "undefined") return;
+  if (orderId) {
+    const stored = readStoredPendingOrder();
+    if (!stored || stored.orderId !== orderId) return;
+  }
   try {
     window.localStorage.removeItem(PENDING_ORDER_KEY);
   } catch {
@@ -595,14 +599,14 @@ export default function CajaApp() {
       try {
         const response = await fetch(`/api/orders/${stored.orderId}`, { cache: "no-store" });
         if (response.status === 404) {
-          clearStoredPendingOrder();
+          clearStoredPendingOrder(stored.orderId);
           return;
         }
         if (!response.ok) return;
         const data = (await response.json()) as { order?: Order };
         const order = data.order;
         if (!order || !isPendingOrderStatus(order.status)) {
-          clearStoredPendingOrder();
+          clearStoredPendingOrder(stored.orderId);
           return;
         }
         if (!cancelled) setResumableOrder(order);
@@ -624,7 +628,7 @@ export default function CajaApp() {
     if (isPendingOrderStatus(activeOrderStatus)) {
       writeStoredPendingOrder(activeOrderId);
     } else {
-      clearStoredPendingOrder();
+      clearStoredPendingOrder(activeOrderId);
     }
   }, [activeOrderId, activeOrderStatus]);
 
@@ -1192,6 +1196,22 @@ export default function CajaApp() {
     });
   }, [cashCents, clearDraft, creditCents, customerName, draftItems, showToast, textInput, transcript]);
 
+  const keepRestoredDraft = useCallback(() => {
+    restoredDraftSignatureRef.current = null;
+    setRestoredDraftAt(null);
+    const firstItem = draftItems[0];
+    window.requestAnimationFrame(() => {
+      const target = firstItem
+        ? document.getElementById(`draft-description-${firstItem.id}`)
+        : document.getElementById("draft-add-empty");
+      target?.focus();
+    });
+  }, [draftItems]);
+
+  const clearResumableIfMatches = useCallback((orderId: string) => {
+    setResumableOrder((current) => (current?.id === orderId ? null : current));
+  }, []);
+
   useEffect(() => {
     // Al corregir la venta, el error inline deja de aplicar.
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -1253,14 +1273,14 @@ export default function CajaApp() {
 
       const order = data.order;
       setLastChange(changeForOrder > 0 ? { orderId: order.id, cents: changeForOrder } : null);
-      setResumableOrder(null);
       setActiveOrder(order);
       clearDraft();
       await loadDashboard();
 
       if (order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled") {
         if (order.status === "paid") {
-          clearStoredPendingOrder();
+          clearStoredPendingOrder(order.id);
+          clearResumableIfMatches(order.id);
           setActiveOrder(null);
           setDeliverError(null);
           setPaidOverlay(order);
@@ -1268,7 +1288,8 @@ export default function CajaApp() {
           vibrate([30, 50, 30]);
           speak(`Venta cobrada. ${formatMxn(order.totalCents)}.`);
         } else {
-          clearStoredPendingOrder();
+          clearStoredPendingOrder(order.id);
+          clearResumableIfMatches(order.id);
           const changeNote = changeForOrder > 0 ? ` Cambio ${formatMxn(changeForOrder)}.` : "";
           showToast(
             "ok",
@@ -1286,6 +1307,7 @@ export default function CajaApp() {
     appliedCreditCents,
     changeCents,
     clearDraft,
+    clearResumableIfMatches,
     creditCents,
     customerName,
     draftItems,
@@ -1334,8 +1356,8 @@ export default function CajaApp() {
         });
         const data = (await response.json()) as { order?: Order; error?: string };
         if (!response.ok || !data.order) throw new Error(data.error ?? "No pude simular el pago.");
-        clearStoredPendingOrder();
-        setResumableOrder(null);
+        clearStoredPendingOrder(data.order.id);
+        clearResumableIfMatches(data.order.id);
         setActiveOrder(null);
         setDeliverError(null);
         setPaidOverlay(data.order);
@@ -1349,7 +1371,7 @@ export default function CajaApp() {
         setPaymentLoading(false);
       }
     },
-    [activeOrder, loadDashboard, playChime, showToast, speak, vibrate],
+    [activeOrder, clearResumableIfMatches, loadDashboard, playChime, showToast, speak, vibrate],
   );
 
   useEffect(() => {
@@ -1364,8 +1386,8 @@ export default function CajaApp() {
         const data = (await response.json()) as { order: Order };
         const order = data.order;
         if (order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled") {
-          clearStoredPendingOrder();
-          setResumableOrder(null);
+          clearStoredPendingOrder(order.id);
+          clearResumableIfMatches(order.id);
           setActiveOrder(null);
           setDeliverError(null);
           setPaidOverlay(order);
@@ -1386,7 +1408,7 @@ export default function CajaApp() {
     return () => window.clearInterval(interval);
     // El polling solo se reinicia cuando cambia el pedido o su estado.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeOrder?.id, activeOrder?.status, loadDashboard, playChime, speak]);
+  }, [activeOrder?.id, activeOrder?.status, clearResumableIfMatches, loadDashboard, playChime, speak]);
 
   const verify = useCallback(
     async (value?: string) => {
@@ -1477,8 +1499,8 @@ export default function CajaApp() {
         if (!response.ok || !data.order) {
           throw new Error(data.error ?? "No pude marcar el pedido como entregado.");
         }
-        clearStoredPendingOrder();
-        setResumableOrder(null);
+        clearStoredPendingOrder(orderId);
+        clearResumableIfMatches(orderId);
         onDone();
         await loadDashboard();
         showToast("ok", "Pedido entregado.");
@@ -1490,7 +1512,7 @@ export default function CajaApp() {
         setDelivering(false);
       }
     },
-    [loadDashboard, showToast],
+    [clearResumableIfMatches, loadDashboard, showToast],
   );
 
   const deliverOrder = useCallback(
@@ -1504,11 +1526,11 @@ export default function CajaApp() {
   );
 
   const closeActiveOrder = useCallback(() => {
-    if (activeOrder && isPendingOrderStatus(activeOrder.status)) {
-      setResumableOrder(activeOrder);
-    } else {
-      setResumableOrder(null);
-    }
+    setResumableOrder((current) => {
+      if (!activeOrder) return current;
+      if (isPendingOrderStatus(activeOrder.status)) return activeOrder;
+      return current?.id === activeOrder.id ? null : current;
+    });
     setActiveOrder(null);
     setDeliverError(null);
   }, [activeOrder]);
@@ -1521,10 +1543,14 @@ export default function CajaApp() {
   }, [resumableOrder]);
 
   const discardPendingOrder = useCallback(() => {
+    const pendingId = resumableOrder?.id;
     setResumableOrder(null);
-    clearStoredPendingOrder();
+    if (pendingId) clearStoredPendingOrder(pendingId);
     showToast("info", "El cobro sigue en Actividad.");
-  }, [showToast]);
+    window.requestAnimationFrame(() => {
+      document.getElementById("caja-heading")?.focus();
+    });
+  }, [resumableOrder, showToast]);
 
   const resetDemo = useCallback(async () => {
     try {
@@ -1581,6 +1607,7 @@ export default function CajaApp() {
               <section className="min-w-0">
                 <ScreenHeading
                   title="Caja"
+                  headingId="caja-heading"
                   subtitle={
                     dashboard
                       ? `Hoy ${formatMxn(
@@ -1628,16 +1655,18 @@ export default function CajaApp() {
                       <button
                         type="button"
                         onClick={resumePendingOrder}
+                        aria-label="Continuar el cobro pendiente"
                         className="flex min-h-12 items-center rounded-xl px-3 text-sm font-semibold text-green transition hover:text-accent"
                       >
-                        Continuar
+                        Continuar cobro
                       </button>
                       <button
                         type="button"
                         onClick={discardPendingOrder}
+                        aria-label="Descartar el aviso de cobro pendiente"
                         className="flex min-h-12 items-center rounded-xl px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
                       >
-                        Descartar
+                        Descartar aviso
                       </button>
                     </div>
                   </div>
@@ -1651,13 +1680,24 @@ export default function CajaApp() {
                       <Clock3 className="h-4 w-4 shrink-0 text-accent" />
                       {restoredDraftLabel(restoredDraftAt)}
                     </p>
-                    <button
-                      type="button"
-                      onClick={discardRestoredDraft}
-                      className="flex min-h-12 shrink-0 items-center rounded-xl px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
-                    >
-                      Descartar
-                    </button>
+                    <div className="flex flex-wrap gap-1">
+                      <button
+                        type="button"
+                        onClick={keepRestoredDraft}
+                        aria-label="Continuar la venta recuperada"
+                        className="flex min-h-12 items-center rounded-xl px-3 text-sm font-semibold text-green transition hover:text-accent"
+                      >
+                        Continuar venta
+                      </button>
+                      <button
+                        type="button"
+                        onClick={discardRestoredDraft}
+                        aria-label="Descartar el borrador de venta"
+                        className="flex min-h-12 shrink-0 items-center rounded-xl px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
+                      >
+                        Descartar borrador
+                      </button>
+                    </div>
                   </div>
                 ) : null}
                 <CajaPanel
@@ -4709,15 +4749,18 @@ function ScreenHeading({
   title,
   subtitle,
   action,
+  headingId,
 }: {
   title: string;
   subtitle: string;
   action?: ReactNode;
+  headingId?: string;
 }) {
   return (
     <div className="mb-5 min-w-0">
       <div className="flex items-center justify-between gap-3">
         <h1
+          id={headingId}
           data-sheet-fallback
           tabIndex={-1}
           className="min-w-0 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none"
