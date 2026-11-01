@@ -11,6 +11,7 @@ No modifica la UI. Guarda capturas y JSON en mercado-cero/demo/hig-after/.
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -20,12 +21,17 @@ from playwright.sync_api import sync_playwright
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-BASE = "http://localhost:3001"
+BASE = os.environ.get("BASE_URL", "http://localhost:3001")
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "demo" / "hig-after"
 OUT.mkdir(parents=True, exist_ok=True)
 AXE = Path(r"C:\Users\Elitebook 840 G8\AppData\Local\Temp\opencode\axe.min.js")
 VIEWPORTS = [(360, 800), (390, 844), (768, 1024), (1280, 800)]
+if os.environ.get("VIEWPORTS"):
+    VIEWPORTS = [
+        tuple(int(value) for value in pair.lower().split("x"))
+        for pair in os.environ["VIEWPORTS"].split(",")
+    ]
 results: list[dict] = []
 
 
