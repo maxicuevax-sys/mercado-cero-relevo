@@ -3,6 +3,7 @@
 > Reformulado con la skill **be-ambitious** (`DannyMac180/skills/be-ambitious`): *más profundo, no más grande.*
 > El rediseño de interfaz vive en **`GOAL-HIG.md`** (“Mostrador claro”). Este archivo conserva los invariantes de dinero y producto.
 > El plan día a día vive en **`PLAN-8-DIAS.md`**. El plan de skills (UI/UX anti-slop, planificación y verificación) vive en **`GOAL-SKILLS.md`**. Este archivo es el contrato de profundidad: qué se construye, qué se prueba y qué cuenta como “ya está”.
+> La reducción de carga cognitiva y el acompañamiento responsable viven en **`GOAL-ACOMPANAMIENTO.md`**.
 
 ---
 
