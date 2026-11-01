@@ -197,3 +197,25 @@ El shell, la Caja task-first y el flujo demo ya funcionan, pero la app todavía 
 - `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27/27**.
 
 **Pendiente:** tercera verificación independiente. Sin ella no hay gate F4.
+
+---
+
+## Cuarta ronda tras la tercera verificación independiente
+
+> `VERIFICACION-F3-FINAL-3.md` dictaminó **NO LISTO** por B4 (line-height fijo en textos grandes al 200%), B5 (analítica de Corte con montos de 4 cifras recortada) y B6 (nombres de Fiado truncados).
+
+### Correcciones
+
+- **B4:** se retiró el `line-height: 24px` global; el body vuelve a 1.45 relativo y `text-sm` conserva 17/24. Los títulos y montos con tamaños arbitrarios escalan proporcionalmente; se verificó `h2` de 44 px con línea de 63.8 px.
+- **B5:** el bloque de ventas de analítica ahora tiene `min-w-0`, `break-words` y `leading-[1.05]`. Con `$2,292.00` a 360/390 al 200% no hay recorte ni scroll horizontal.
+- **B6:** los nombres de Fiado ya no usan `truncate`; envuelven en varias líneas. Con 4+ clientes y nombres largos a 360/390 no se cortan.
+- **Audit:** nuevo detector `tight-line-height` (font-size ≥ 24 px y line-height/font-size < 1); probado con un `h2` sintético de 44/24 y detectado.
+
+### Evidencia
+
+- `python scripts/hig-after-audit.py` → **PASÓ** en 360/390/768/1280, con sheets, Demo y `/success` al 200%.
+- Prueba con datos grandes: ventas de $2,292.00, etiqueta “Ventas registradas · Hoy”, 4+ clientes de Fiado con nombres largos; todo sin clipping ni truncado.
+- `npm run lint`, `npx tsc --noEmit`, `npm run build` → limpios.
+- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27/27**.
+
+**Pendiente:** cuarta verificación independiente. Sin ella no hay gate F4.

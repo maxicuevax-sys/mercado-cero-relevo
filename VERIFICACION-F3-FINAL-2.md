@@ -5,6 +5,8 @@
 > **Servidor:** `http://localhost:3001` · **DEMO_MODE:** activo
 > **Fecha:** 31 de octubre de 2026
 >
+> **Nota de alcance posterior:** al terminar esta verificación, el worktree avanzó a `0355307` (`36064d4` + `0355307`), que incluyen supuestos fixes y una “Tercera ronda” en `VERIFICACION-INDEPENDIENTE.md`. No verifiqué esos commits ni acepto esa evidencia como prueba. **Este veredicto aplica a `a13270f`.** Un HEAD nuevo exige una verificación independiente nueva; no se hereda este resultado ni se declara LISTO por los commits posteriores.
+>
 > **VEREDICTO: NO LISTO para F4.**
 >
 > No se aceptó como prueba `VERIFICACION-INDEPENDIENTE.md` ni la sección “Segunda ronda”. Todas las afirmaciones de este informe se midieron de nuevo contra la API, la base SQLite, el navegador y el script de auditoría de este HEAD. No se modificó `src`, API, libs, CSS ni scripts.
