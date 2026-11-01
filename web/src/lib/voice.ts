@@ -227,6 +227,7 @@ export function answerQuery(
   transcript: string,
   summary: {
     verifiedDigitalCents: number;
+    demoDigitalCents: number;
     cashCents: number;
     pendingCents: number;
     creditCents: number;
@@ -251,6 +252,11 @@ export function answerQuery(
     return `Tienes ${(summary.pendingCents / 100).toFixed(2)} pesos esperando confirmación.`;
   }
 
-  const total = summary.verifiedDigitalCents + summary.cashCents;
-  return `Hoy llevas ${(total / 100).toFixed(2)} pesos en ${summary.paidOrderCount} ventas cobradas. ${(summary.verifiedDigitalCents / 100).toFixed(2)} digitales verificados y ${(summary.cashCents / 100).toFixed(2)} en efectivo.`;
+  const total =
+    summary.verifiedDigitalCents + summary.demoDigitalCents + summary.cashCents;
+  const demo =
+    summary.demoDigitalCents > 0
+      ? `, ${(summary.demoDigitalCents / 100).toFixed(2)} en demo`
+      : "";
+  return `Hoy llevas ${(total / 100).toFixed(2)} pesos en ${summary.paidOrderCount} ventas. ${(summary.verifiedDigitalCents / 100).toFixed(2)} verificados por pey${demo} y ${(summary.cashCents / 100).toFixed(2)} en efectivo.`;
 }

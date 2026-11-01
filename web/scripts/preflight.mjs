@@ -71,6 +71,7 @@ if (!pubDash.error) {
   const sales =
     (summary.cashCents ?? 0) +
     (summary.verifiedDigitalCents ?? 0) +
+    (summary.demoDigitalCents ?? 0) +
     (summary.pendingCents ?? 0);
   check("Ventas de hoy = $190.00", sales === 19000, `$${(sales / 100).toFixed(2)}`);
   check("Cobrado = $70.00", summary.cashCents === 7000, `$${((summary.cashCents ?? 0) / 100).toFixed(2)}`);

@@ -314,12 +314,14 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 2. Línea de contexto: “Hoy $190 · Por cobrar $120 · Fiado $50” (una línea, 15 px; no tarjetas).
 3. **VoiceSaleCard**:
    - Título “¿Qué vendiste?”.
-   - Micrófono 64 px, label “Mantén presionado para hablar”; estados: idle, grabando (ring + timer), transcribiendo (spinner + “Escuchando…”), error.
+   - Micrófono 80 px, label “Mantén para hablar” (aria-label completo); estados: idle, grabando (ring + timer), transcribiendo (spinner + “Escuchando…”), error.
    - Texto alternativo **siempre visible**: “o escribe la venta” + campo + “Interpretar”.
    - Frases de ejemplo como chips secundarios (no compiten con el mic).
 4. **DraftTicket**:
    - Lista de productos, cantidades, total.
-   - “Efectivo recibido” y “A fiado” con labels persistentes.
+   - Confirmación visible “Escuché $90.00. ¿Confirmas?” cuando la venta viene de voz/texto.
+   - “Efectivo recibido” y “A fiado” con labels persistentes; se ocultan hasta que hay productos.
+   - Vacío: mensaje compacto “La caja está lista”, sin campos de cobro.
    - “Confirmar venta” primario; deshabilitado con razón si falta total/nombre de fiado.
 5. **Actividad reciente**: 3–5 filas; “Ver todo” si hay más.
 6. **Acciones secundarias**: “Verificar comprobante” como enlace/texto, no como card.
@@ -388,7 +390,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 
 ### 6.5 Corte
 
-- Título “Corte de caja”; subtítulo “Cuenta el efectivo de hoy.”
+- Título “Corte de caja”; subtítulo “Compara lo contado con lo esperado.”
 - Resumen: base, ventas en efectivo, abonos de fiado, gastos, retiros, **debería haber**.
 - “Contar por billetes y monedas” es un disclosure; al abrirlo, inputs de denominaciones.
 - Total contado + diferencia; si diferencia ≠ 0, banner attention/danger con “Falta” o “Sobra”.

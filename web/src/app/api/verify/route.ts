@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     .prepare(
       `SELECT p.id, p.order_id, p.method, p.amount_cents, p.transaction_id, p.created_at
        FROM payments p
-       WHERE p.transaction_id = ? AND p.status = 'paid'
+       WHERE p.transaction_id = ? AND p.status = 'paid' AND p.provider = 'pey'
        LIMIT 1`,
     )
     .get(transactionId) as

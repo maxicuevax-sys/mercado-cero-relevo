@@ -114,7 +114,7 @@ def main() -> int:
         page.wait_for_timeout(600)
 
         card(page, "Mercado Cero", "La caja que habla · demo de respaldo")
-        page.screenshot(path=str(OUT / "demo-poster.png"))
+        page.screenshot(path=str(OUT / "demo-title.png"))
         page.wait_for_timeout(1800)
         remove_card(page)
 
@@ -142,7 +142,10 @@ def main() -> int:
         page.wait_for_timeout(2400)
 
         page.get_by_role("button", name="Simular CoDi").click()
-        page.wait_for_selector("[role=dialog] h2:has-text('Pago simulado')", timeout=12000)
+        page.wait_for_selector("[role=dialog] p:has-text('Pago simulado')", timeout=12000)
+        page.wait_for_timeout(400)
+        page.evaluate("document.getElementById('demo-caption')?.remove()")
+        page.screenshot(path=str(OUT / "demo-poster.png"))
         caption(page, "5. Pago simulado: en producción, solo el webhook firmado marca pagado")
         page.screenshot(path=str(OUT / "demo-step-3-pagado.png"))
         page.wait_for_timeout(2800)
@@ -152,6 +155,13 @@ def main() -> int:
         page.get_by_role("button", name="Corte", exact=True).first.click()
         page.wait_for_selector("text=Corte de caja", timeout=12000)
         page.wait_for_timeout(700)
+        cash = context.request.get(f"{BASE}/api/cash").json()
+        page.get_by_label("Total contado en pesos").fill(
+            f"{cash['expectedCents'] / 100:.2f}"
+        )
+        page.wait_for_selector("text=El efectivo cuadra con lo esperado.", timeout=5000)
+        page.evaluate("document.activeElement instanceof HTMLElement && document.activeElement.blur()")
+        page.wait_for_timeout(120)
         caption(page, "6. Corte: cuenta el efectivo")
         page.screenshot(path=str(OUT / "demo-step-4-corte.png"))
         page.wait_for_timeout(1800)

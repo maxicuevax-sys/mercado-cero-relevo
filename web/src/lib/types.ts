@@ -4,6 +4,7 @@ export type OrderStatus =
   | "payment_pending"
   | "partially_paid"
   | "paid"
+  | "demo_paid"
   | "fulfilled"
   | "cancelled";
 
@@ -86,6 +87,7 @@ export interface CreditPayment {
 export interface DailySummary {
   date: string;
   verifiedDigitalCents: number;
+  demoDigitalCents: number;
   cashCents: number;
   pendingCents: number;
   creditCents: number;

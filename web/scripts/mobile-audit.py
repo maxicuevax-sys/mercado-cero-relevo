@@ -185,7 +185,7 @@ def main() -> int:
         page.screenshot(path=str(OUT / "mobile-360-link.png"))
 
         page.get_by_role("button", name="Simular CoDi").click()
-        check("Pago demo confirmado", wait_text(page, "Pago simulado · demo", 12000))
+        check("Pago demo confirmado", wait_text(page, "Pago simulado", 12000))
         page.wait_for_timeout(600)
         ok, detail = no_horizontal_scroll(page)
         check("Sin scroll horizontal tras el pago", ok, detail)

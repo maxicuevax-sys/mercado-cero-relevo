@@ -86,7 +86,13 @@ export default function CheckoutSuccessPage() {
     const source = [
       cashPaid > 0 ? `${formatMxn(cashPaid)} en efectivo` : null,
       data.payment
-        ? `${formatMxn(data.payment.amountCents)} ${data.payment.provider === "demo" ? "demo" : "verificado por pey"}`
+        ? `${formatMxn(data.payment.amountCents)} ${
+            data.payment.provider === "demo"
+              ? "demo"
+              : data.payment.provider === "pey"
+                ? "verificado por pey"
+                : "sin verificar"
+          }`
         : null,
     ]
       .filter(Boolean)
@@ -237,7 +243,9 @@ export default function CheckoutSuccessPage() {
                       : `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(data.payment.amountCents)} verificados por pey.`
                     : demo
                       ? "Pago simulado para la demo. En producción, este estado solo aparece con la confirmación firmada de pey."
-                      : "pey confirmó este pago con una confirmación firmada. Ya puedes mostrar esta pantalla."}
+                      : data.payment.provider === "pey"
+                      ? "pey confirmó este pago con una confirmación firmada. Ya puedes mostrar esta pantalla."
+                      : "Este pago no tiene una confirmación firmada de pey. No lo presentes como verificado."}
                 </p>
               </div>
             </>

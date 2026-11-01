@@ -121,7 +121,10 @@ export function getAnalytics(period: AnalyticsPeriod): AnalyticsReport {
   const previousSalesCents = salesOf(previous);
   const orderCount = current.length;
   const paidOrderCount = current.filter(
-    (row) => row.status === "paid" || row.status === "fulfilled",
+    (row) =>
+      row.status === "paid" ||
+      row.status === "demo_paid" ||
+      row.status === "fulfilled",
   ).length;
   const pendingCents = current.reduce(
     (sum, row) =>

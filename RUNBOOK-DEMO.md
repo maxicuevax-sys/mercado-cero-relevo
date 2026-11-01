@@ -2,7 +2,8 @@
 
 > **Estado:** demo mode con datos sembrados. El riel real de CoDi sigue bloqueado por BBVA; la demo se presenta como **modo demo** y el respaldo está grabado.
 > **Video:** `demo/mercado-cero-demo.mp4` (36 s, 1280×800, 0.8 MB).
-> **Auditoría móvil:** `demo/mobile-audit.json` — 25/25 checks, 360 px emulado con Playwright, 10.2 s de flujo en producción (10–17 s en dev), 0 errores de consola. Falta la prueba en un teléfono físico.
+> **Verdad:** los pagos demo usan `demo_paid`; `/api/verify` solo marca `pey`. Comprobación: `node scripts/verify-truth.mjs`.
+> **Auditoría móvil:** `demo/mobile-audit.json` — 25/25 checks, 360 px emulado con Playwright, ≈9 s de flujo en producción (10–17 s en dev), 0 errores de consola. Falta la prueba en un teléfono físico.
 > **Checkout público:** `demo/checkout-audit.json` — 15/15 checks a 360 px, pago demo y pantalla de éxito; Lighthouse 100/100/100.
 > **Túnel HTTPS:** `demo/tunnel-smoke.json` — 8/8 checks por Cloudflare: reset, checkout, pago demo y estado pagado.
 
@@ -185,16 +186,19 @@ Comisión por transacción o suscripción. CoDi es el riel gratuito; la tarjeta 
 
 - `demo/mercado-cero-demo.mp4` — video silencioso con subtítulos (36 s).
 - `demo/mercado-cero-demo.webm` — original.
+- `demo/stageshow/contact-sheet-1280.png` — 8 beats del flujo real.
+- `demo/stageshow/motion-sheet.png` — revisión de movimiento a 2 fps.
 - `demo/mobile-360-fold.png` — primer viewport a 360 px.
 - `demo/mobile-360-full.png` — página completa a 360 px.
 - `demo/mobile-360-cobro.png`, `-link.png`, `-pagado.png`, `-corte.png`, `-meta.png`.
-- `demo/mobile-audit.json` — 25/25 checks, 10.2 s en producción, 0 errores.
+- `demo/mobile-audit.json` — 25/25 checks, ≈9 s en producción, 0 errores.
 - `demo/checkout-audit.json` — 15/15 checks del checkout público a 360 px.
 - `demo/tunnel-smoke.json` — 8/8 checks a través del túnel HTTPS.
 - `scripts/checkout-audit.py` — valida checkout, pago demo y pantalla de éxito.
 - `scripts/tunnel-smoke.py` — valida el camino público por Cloudflare.
 - `scripts/verify-env.mjs` — revisa demo/real sin imprimir secretos.
 - `scripts/preflight.mjs` — 18/18: servidor, túnel, datos, QR y respaldos.
+- `scripts/verify-truth.mjs` — un `transactionId` demo no se verifica.
 - `scripts/make-demo-qr.mjs` + `scripts/print-qr-pdf.py` — regeneran el QR.
 - `demo/feedback.md` — registro de pruebas con personas.
 - `demo/qr-demo.png` — QR del túnel actual (regenerar si cambia la URL).

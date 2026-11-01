@@ -15,6 +15,7 @@ import {
   Clock3,
   Copy,
   CreditCard,
+  FlaskConical,
   Link2,
   Loader2,
   Mic,
@@ -560,10 +561,19 @@ export default function CajaApp() {
       if (/(pendiente|por cobrar|esperando)/.test(lower)) {
         return `Tienes ${formatMxn(dashboard.summary.pendingCents)} esperando confirmación.`;
       }
-      const total = dashboard.summary.verifiedDigitalCents + dashboard.summary.cashCents;
-      return `Hoy llevas ${formatMxn(total)} en ${dashboard.summary.paidOrderCount} ventas cobradas. ${formatMxn(
-        dashboard.summary.verifiedDigitalCents,
-      )} digitales verificados y ${formatMxn(dashboard.summary.cashCents)} en efectivo.`;
+      const total =
+        dashboard.summary.verifiedDigitalCents +
+        dashboard.summary.demoDigitalCents +
+        dashboard.summary.cashCents;
+      const detail =
+        dashboard.summary.demoDigitalCents > 0
+          ? `${formatMxn(dashboard.summary.verifiedDigitalCents)} verificados por pey, ${formatMxn(
+              dashboard.summary.demoDigitalCents,
+            )} en demo y ${formatMxn(dashboard.summary.cashCents)} en efectivo.`
+          : `${formatMxn(dashboard.summary.verifiedDigitalCents)} digitales verificados y ${formatMxn(
+              dashboard.summary.cashCents,
+            )} en efectivo.`;
+      return `Hoy llevas ${formatMxn(total)} en ${dashboard.summary.paidOrderCount} ventas. ${detail}`;
     },
     [dashboard],
   );
@@ -633,7 +643,7 @@ export default function CajaApp() {
           setCashCents(parsed.cashCents);
           setCreditCents(parsed.creditCents);
           setCustomerName(parsed.customerName ?? "");
-          setTranscript(`${clean}\n\n${parsed.reply || "Venta lista para confirmar."}`);
+          setTranscript(clean);
           setTab("caja");
           window.setTimeout(() => {
             document.getElementById("pedido")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -793,9 +803,10 @@ export default function CajaApp() {
       setCreditCents(0);
       setCustomerName("");
       setTranscript("");
+      setTextInput("");
       await loadDashboard();
 
-      if (order.status === "paid" || order.status === "fulfilled") {
+      if (order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled") {
         if (order.status === "paid") {
           setActiveOrder(null);
           setDeliverError(null);
@@ -893,7 +904,7 @@ export default function CajaApp() {
         if (!response.ok) return;
         const data = (await response.json()) as { order: Order };
         const order = data.order;
-        if (order.status === "paid" || order.status === "fulfilled") {
+        if (order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled") {
           setActiveOrder(null);
           setDeliverError(null);
           setPaidOverlay(order);
@@ -1040,6 +1051,7 @@ export default function CajaApp() {
       setCreditCents(0);
       setCustomerName("");
       setTranscript("");
+      setTextInput("");
       setVerifyResult(null);
       setVerifyId("");
       await loadDashboard();
@@ -1090,6 +1102,7 @@ export default function CajaApp() {
                       ? `Hoy ${formatMxn(
                           dashboard.summary.cashCents +
                             dashboard.summary.verifiedDigitalCents +
+                            dashboard.summary.demoDigitalCents +
                             dashboard.summary.pendingCents,
                         )} · Por cobrar ${formatMxn(dashboard.summary.pendingCents)} · Fiado ${formatMxn(
                           dashboard.summary.creditCents,
@@ -1151,6 +1164,7 @@ export default function CajaApp() {
                     setCreditCents(0);
                     setCustomerName("");
                     setTranscript("");
+                    setTextInput("");
                   }}
                 />
               </section>
@@ -1211,7 +1225,7 @@ export default function CajaApp() {
           <section hidden={tab !== "corte"} className="mx-auto max-w-[1000px]">
               <ScreenHeading
                 title="Corte de caja"
-                subtitle="Cuenta el efectivo de hoy."
+                subtitle="Compara lo contado con lo esperado."
               />
               <div className="space-y-5">
                 <CashCloseCard showToast={showToast} />
@@ -1467,7 +1481,7 @@ function CajaPanel(props: {
         </div>
 
         <div className="mt-4 flex flex-wrap items-start gap-4">
-          <div className="flex w-24 shrink-0 flex-col items-center gap-1.5">
+          <div className="flex w-36 shrink-0 flex-col items-center gap-1.5">
             <div className="relative flex h-20 w-20 items-center justify-center">
               {listening ? (
                 <>
@@ -1532,12 +1546,18 @@ function CajaPanel(props: {
                 )}
               </button>
             </div>
-            <span className="w-full break-words text-center text-sm font-semibold text-ink-2" aria-live="polite">
+            <span
+              aria-hidden="true"
+              className="w-full break-words text-center text-sm font-semibold text-ink-2"
+            >
               {listening
                 ? `${recordingSeconds}s`
                 : transcribing
                   ? "Interpretando…"
-                  : "Mantén presionado para hablar"}
+                  : "Mantén y habla"}
+            </span>
+            <span role="status" className="sr-only">
+              {listening ? "Grabando" : transcribing ? "Interpretando" : ""}
             </span>
           </div>
 
@@ -1550,7 +1570,7 @@ function CajaPanel(props: {
               <p className="text-sm leading-relaxed text-ink-2">
                 {listening
                   ? "Di productos, cantidades y precios. Suelta para terminar."
-                  : "Presiona y habla. Si hay ruido, escribe la venta."}
+                  : "Mantén y habla. Si hay ruido, escribe la venta."}
               </p>
             )}
             <p className="mt-1 text-xs text-ink-2">La IA interpreta; tú confirmas.</p>
@@ -1629,92 +1649,105 @@ function CajaPanel(props: {
           ) : null}
         </div>
 
+        {draftItems.length > 0 && transcript ? (
+          <p
+            role="status"
+            className="mt-4 rounded-xl bg-surface-2 px-3 py-2 text-sm font-semibold text-ink"
+          >
+            Escuché {formatMxn(draftTotal)}. ¿Confirmas?
+          </p>
+        ) : null}
+
         {draftItems.length > 0 ? (
           <div className="mt-4 space-y-2.5">
-            {draftItems.map((item, index) => (
-              <div key={item.id} className="draft-item rounded-xl border border-separator bg-surface-2 p-3">
-                <div className="flex items-start gap-2">
-                  <input
-                    value={item.description}
-                    onChange={(event) => {
-                      const next = [...draftItems];
-                      next[index] = { ...item, description: event.target.value };
-                      onDraftItems(next);
-                    }}
-                    className="min-h-12 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
-                    aria-label="Producto"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => onDraftItems(draftItems.filter((candidate) => candidate.id !== item.id))}
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg text-ink-2 transition hover:bg-surface hover:text-danger"
-                    aria-label="Quitar producto"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-                <div className="mt-1 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const next = [...draftItems];
-                        next[index] = { ...item, quantity: Math.max(0.25, item.quantity - 1) };
-                        onDraftItems(next);
-                      }}
-                      className="flex h-12 w-12 items-center justify-center rounded-lg border border-separator bg-surface text-ink-2"
-                      aria-label="Menos cantidad"
-                    >
-                      <span className="text-lg leading-none">−</span>
-                    </button>
+            {draftItems.map((item, index) => {
+              const priceText = (item.unitPriceCents / 100).toFixed(2);
+              return (
+                <div key={item.id} className="draft-item rounded-xl border border-separator bg-surface-2 p-3">
+                  <div className="flex items-start gap-2">
                     <input
-                      type="number"
-                      min={0.25}
-                      step={0.25}
-                      value={item.quantity}
+                      value={item.description}
                       onChange={(event) => {
                         const next = [...draftItems];
-                        next[index] = { ...item, quantity: Math.max(0.25, Number(event.target.value)) };
+                        next[index] = { ...item, description: event.target.value };
                         onDraftItems(next);
                       }}
-                      className="tabular h-12 w-14 rounded-lg border border-transparent bg-transparent text-center text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
-                      aria-label="Cantidad"
+                      className="min-h-12 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
+                      aria-label="Producto"
                     />
                     <button
                       type="button"
-                      onClick={() => {
-                        const next = [...draftItems];
-                        next[index] = { ...item, quantity: item.quantity + 1 };
-                        onDraftItems(next);
-                      }}
-                      className="flex h-12 w-12 items-center justify-center rounded-lg border border-separator bg-surface text-ink-2"
-                      aria-label="Más cantidad"
+                      onClick={() => onDraftItems(draftItems.filter((candidate) => candidate.id !== item.id))}
+                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg text-ink-2 transition hover:bg-surface hover:text-danger"
+                      aria-label="Quitar producto"
                     >
-                      <span className="text-lg leading-none">+</span>
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
-                  <label className="flex items-center gap-1 text-sm font-medium text-ink-2">
-                    $
-                    <input
-                      type="number"
-                      min={0}
-                      step={0.5}
-                      value={(item.unitPriceCents / 100).toFixed(2)}
-                      onChange={(event) => {
-                        const next = [...draftItems];
-                        next[index] = {
-                          ...item,
-                          unitPriceCents: Math.max(0, Math.round(Number(event.target.value) * 100)),
-                        };
-                        onDraftItems(next);
-                      }}
-                      className="tabular h-12 w-24 rounded-lg border border-transparent bg-transparent px-1 text-right text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
-                      aria-label="Precio unitario"
-                    />
-                  </label>
+                  <div className="mt-1 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = [...draftItems];
+                          next[index] = { ...item, quantity: Math.max(0.25, item.quantity - 1) };
+                          onDraftItems(next);
+                        }}
+                        className="flex h-12 w-12 items-center justify-center rounded-lg border border-separator bg-surface text-ink-2"
+                        aria-label="Menos cantidad"
+                      >
+                        <span className="text-lg leading-none">−</span>
+                      </button>
+                      <input
+                        type="number"
+                        min={0.25}
+                        step={0.25}
+                        value={item.quantity}
+                        onChange={(event) => {
+                          const next = [...draftItems];
+                          next[index] = { ...item, quantity: Math.max(0.25, Number(event.target.value)) };
+                          onDraftItems(next);
+                        }}
+                        className="tabular h-12 w-14 rounded-lg border border-transparent bg-transparent text-center text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
+                        aria-label="Cantidad"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = [...draftItems];
+                          next[index] = { ...item, quantity: item.quantity + 1 };
+                          onDraftItems(next);
+                        }}
+                        className="flex h-12 w-12 items-center justify-center rounded-lg border border-separator bg-surface text-ink-2"
+                        aria-label="Más cantidad"
+                      >
+                        <span className="text-lg leading-none">+</span>
+                      </button>
+                    </div>
+                    <label className="flex items-center gap-1 text-sm font-medium text-ink-2">
+                      $
+                      <input
+                        type="number"
+                        min={0}
+                        step={0.5}
+                        value={priceText}
+                        onChange={(event) => {
+                          const next = [...draftItems];
+                          next[index] = {
+                            ...item,
+                            unitPriceCents: Math.max(0, Math.round(Number(event.target.value) * 100)),
+                          };
+                          onDraftItems(next);
+                        }}
+                        style={{ width: `${Math.max(7, priceText.length + 1)}ch` }}
+                        className="tabular h-12 rounded-lg border border-transparent bg-transparent px-1 text-right text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
+                        aria-label="Precio unitario"
+                      />
+                    </label>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             <button
               type="button"
               onClick={() =>
@@ -1735,111 +1768,117 @@ function CajaPanel(props: {
             </button>
           </div>
         ) : (
-          <div className="mt-4 flex flex-col items-center justify-center rounded-xl border border-dashed border-separator px-4 py-7 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-soft text-green">
+          <div className="mt-4 flex items-center gap-3 rounded-xl border border-dashed border-separator px-4 py-3 text-left">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-soft text-green">
               <ReceiptText className="h-5 w-5" />
             </div>
-            <p className="mt-2 text-sm font-semibold text-ink">La caja está lista</p>
-            <p className="mt-1 max-w-xs text-sm leading-relaxed text-ink-2">
-              Habla o escribe una venta. Si el cliente paga con tarjeta, CoDi o wallet, se genera un solo link.
-            </p>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-ink">La caja está lista</p>
+              <p className="mt-0.5 text-sm leading-relaxed text-ink-2">
+                Habla o escribe arriba; el pedido aparece aquí.
+              </p>
+            </div>
           </div>
         )}
 
-        <div className="split-fields mt-4 grid gap-2.5">
-          <label className="rounded-xl bg-surface-2 p-3">
-            <span className="flex items-center gap-1.5 text-sm font-semibold text-ink-2">
-              <Banknote className="h-4 w-4" />
-              Efectivo recibido
-            </span>
-            <div className="mt-1 flex items-center gap-1">
-              <span className="text-sm text-ink-2">$</span>
-              <input
-                type="number"
-                min={0}
-                step={0.5}
-                value={cashCents === 0 ? "" : (cashCents / 100).toFixed(2)}
-                onChange={(event) => onCash(Math.max(0, Math.round(Number(event.target.value) * 100)))}
-                placeholder="0.00"
-                aria-label="Efectivo recibido en pesos"
-                className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-ink-2/40"
-              />
+        {draftItems.length > 0 ? (
+          <>
+            <div className="split-fields mt-4 grid gap-2.5">
+              <label className="rounded-xl bg-surface-2 p-3">
+                <span className="flex items-center gap-1.5 text-sm font-semibold text-ink-2">
+                  <Banknote className="h-4 w-4" />
+                  Efectivo recibido
+                </span>
+                <div className="mt-1 flex items-center gap-1">
+                  <span className="text-sm text-ink-2">$</span>
+                  <input
+                    type="number"
+                    min={0}
+                    step={0.5}
+                    value={cashCents === 0 ? "" : (cashCents / 100).toFixed(2)}
+                    onChange={(event) => onCash(Math.max(0, Math.round(Number(event.target.value) * 100)))}
+                    placeholder="0.00"
+                    aria-label="Efectivo recibido en pesos"
+                    className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-ink-2/40"
+                  />
+                </div>
+              </label>
+
+              <label className="rounded-xl bg-surface-2 p-3">
+                <span className="flex items-center gap-1.5 text-sm font-semibold text-ink-2">
+                  <NotebookPen className="h-4 w-4" />
+                  A fiado
+                </span>
+                <div className="mt-1 flex items-center gap-1">
+                  <span className="text-sm text-ink-2">$</span>
+                  <input
+                    type="number"
+                    min={0}
+                    step={0.5}
+                    value={creditCents === 0 ? "" : (creditCents / 100).toFixed(2)}
+                    onChange={(event) => onCredit(Math.max(0, Math.round(Number(event.target.value) * 100)))}
+                    placeholder="0.00"
+                    aria-label="Monto a fiado en pesos"
+                    className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-ink-2/40"
+                  />
+                </div>
+              </label>
             </div>
-          </label>
 
-          <label className="rounded-xl bg-surface-2 p-3">
-            <span className="flex items-center gap-1.5 text-sm font-semibold text-ink-2">
-              <NotebookPen className="h-4 w-4" />
-              A fiado
-            </span>
-            <div className="mt-1 flex items-center gap-1">
-              <span className="text-sm text-ink-2">$</span>
-              <input
-                type="number"
-                min={0}
-                step={0.5}
-                value={creditCents === 0 ? "" : (creditCents / 100).toFixed(2)}
-                onChange={(event) => onCredit(Math.max(0, Math.round(Number(event.target.value) * 100)))}
-                placeholder="0.00"
-                aria-label="Monto a fiado en pesos"
-                className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-ink-2/40"
-              />
+            {creditCents > 0 ? (
+              <label className="mt-2.5 flex min-h-12 items-center gap-2 rounded-xl border border-attention/25 bg-terracotta-soft/60 px-3">
+                <UserRound className="h-4 w-4 shrink-0 text-attention" />
+                <input
+                  id="fiado-customer"
+                  value={customerName}
+                  onChange={(event) => onCustomer(event.target.value)}
+                  placeholder="¿Quién queda a deber? Ej. Juan"
+                  aria-label="Nombre del cliente para el fiado"
+                  aria-invalid={Boolean(saleError) && creditCents > 0 && !customerName.trim()}
+                  aria-describedby={saleError ? "sale-error" : undefined}
+                  className="min-w-0 flex-1 bg-transparent text-[1rem] font-semibold text-ink outline-none placeholder:text-ink-2/70"
+                />
+              </label>
+            ) : null}
+
+            {saleError ? (
+              <p
+                id="sale-error"
+                role="alert"
+                className="mt-3 rounded-xl bg-terracotta-soft px-3 py-2 text-sm font-medium text-danger"
+              >
+                {saleError}
+              </p>
+            ) : null}
+
+            <div id="confirmar" className="mt-4 scroll-mt-20 flex flex-col gap-3 border-t border-separator pt-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+              <div>
+                <p className="tabular text-[1.75rem] font-semibold leading-none tracking-tight text-ink">
+                  <AnimatedAmount cents={draftTotal} />
+                </p>
+                <p className="mt-1 text-sm text-ink-2">
+                  {digitalDue > 0
+                    ? `${formatMxn(digitalDue)} por cobrar con link`
+                    : creditCents > 0
+                      ? "Todo queda registrado como fiado"
+                      : "Sin saldo digital pendiente"}
+                  {overpay ? " · revisa el efectivo/fiado" : ""}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onCreate}
+                disabled={draftItems.length === 0 || draftTotal <= 0 || overpay || savingOrder}
+                aria-busy={savingOrder}
+                aria-describedby={saleError ? "sale-error" : undefined}
+                className="on-accent flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto"
+              >
+                {savingOrder ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}
+                Confirmar venta
+              </button>
             </div>
-          </label>
-        </div>
-
-        {creditCents > 0 ? (
-          <label className="mt-2.5 flex min-h-12 items-center gap-2 rounded-xl border border-attention/25 bg-terracotta-soft/60 px-3">
-            <UserRound className="h-4 w-4 shrink-0 text-attention" />
-            <input
-              id="fiado-customer"
-              value={customerName}
-              onChange={(event) => onCustomer(event.target.value)}
-              placeholder="¿Quién queda a deber? Ej. Juan"
-              aria-label="Nombre del cliente para el fiado"
-              aria-invalid={Boolean(saleError) && creditCents > 0 && !customerName.trim()}
-              aria-describedby={saleError ? "sale-error" : undefined}
-              className="min-w-0 flex-1 bg-transparent text-[1rem] font-semibold text-ink outline-none placeholder:text-ink-2/70"
-            />
-          </label>
+          </>
         ) : null}
-
-        {saleError ? (
-          <p
-            id="sale-error"
-            role="alert"
-            className="mt-3 rounded-xl bg-terracotta-soft px-3 py-2 text-sm font-medium text-danger"
-          >
-            {saleError}
-          </p>
-        ) : null}
-
-        <div id="confirmar" className="mt-4 scroll-mt-20 flex flex-col gap-3 border-t border-separator pt-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
-          <div>
-            <p className="tabular text-[1.75rem] font-semibold leading-none tracking-tight text-ink">
-              <AnimatedAmount cents={draftTotal} />
-            </p>
-            <p className="mt-1 text-sm text-ink-2">
-              {digitalDue > 0
-                ? `${formatMxn(digitalDue)} por cobrar con link`
-                : creditCents > 0
-                  ? "Todo queda registrado como fiado"
-                  : "Sin saldo digital pendiente"}
-              {overpay ? " · revisa el efectivo/fiado" : ""}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onCreate}
-            disabled={draftItems.length === 0 || draftTotal <= 0 || overpay || savingOrder}
-            aria-busy={savingOrder}
-            aria-describedby={saleError ? "sale-error" : undefined}
-            className="on-accent flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto"
-          >
-            {savingOrder ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}
-            Confirmar venta
-          </button>
-        </div>
       </section>
     </div>
   );
@@ -1870,7 +1909,7 @@ function PaymentPanel(props: {
   if (!order) return null;
 
   const due = Math.max(0, order.totalCents - order.paidCents - order.creditCents);
-  const isPaid = order.status === "paid" || order.status === "fulfilled";
+  const isPaid = order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled";
   const isCredit = order.creditCents > 0;
   const waiting = order.status === "payment_pending" || order.status === "confirmed";
   const qrValue = order.qrImage ? null : order.qrString ?? order.paymentUrl;
@@ -1881,7 +1920,9 @@ function PaymentPanel(props: {
     const source = [
       truth.cashPaidCents > 0 ? `${formatMxn(truth.cashPaidCents)} en efectivo` : null,
       order.digitalPaidCents > 0
-        ? `${formatMxn(order.digitalPaidCents)} ${truth.isDemo ? "demo" : "verificado por pey"}`
+        ? `${formatMxn(order.digitalPaidCents)} ${
+            truth.isDemo ? "demo" : truth.isVerified ? "verificado por pey" : "sin verificar"
+          }`
         : null,
     ]
       .filter(Boolean)
@@ -1909,34 +1950,19 @@ function PaymentPanel(props: {
               <NotebookPen className="h-6 w-6" />
             ) : sourceMixed ? (
               truth.isDemo ? (
-                <Sparkles className="h-6 w-6" />
+                <FlaskConical className="h-6 w-6" />
               ) : (
                 <Check className="h-6 w-6" />
               )
             ) : truth.isDemo ? (
-              <Sparkles className="h-6 w-6" />
+              <FlaskConical className="h-6 w-6" />
             ) : truth.isCash ? (
               <Banknote className="h-6 w-6" />
             ) : (
               <Check className="h-7 w-7" />
             )}
           </div>
-          <p className="mt-4 text-sm font-semibold text-ink-2">
-            {truth.hasCredit
-              ? mixed
-                ? "Cobro mixto"
-                : "Venta a fiado"
-              : sourceMixed
-                ? truth.isDemo
-                  ? "Efectivo + demo"
-                  : "Efectivo + verificado"
-                : truth.isDemo
-                  ? "Pago simulado · demo"
-                  : truth.isCash
-                    ? "Cobrado en caja"
-                    : "Pago verificado"}
-          </p>
-          <h2 className="mt-1 text-[1.625rem] font-semibold tracking-tight text-ink">
+          <p className="mt-4 text-[1.625rem] font-semibold tracking-tight text-ink">
             {truth.hasCredit
               ? "Quedó anotado"
               : sourceMixed
@@ -1945,8 +1971,10 @@ function PaymentPanel(props: {
                   ? "Pago simulado"
                   : truth.isCash
                     ? "Efectivo recibido"
-                    : "Pago verificado"}
-          </h2>
+                    : truth.isVerified
+                      ? "Pago verificado"
+                      : "Pago sin confirmar"}
+          </p>
           <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
             <AnimatedAmount
               cents={
@@ -1968,7 +1996,9 @@ function PaymentPanel(props: {
                   ? "simulado en modo demo"
                   : truth.isCash
                     ? "recibido en efectivo, sin pasar por pey"
-                    : "confirmado por pey"}
+                    : truth.isVerified
+                      ? "confirmado por pey"
+                      : "sin confirmar"}
           </p>
           {truth.hasCredit ? (
             <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
@@ -1982,7 +2012,7 @@ function PaymentPanel(props: {
               {formatMxn(order.digitalPaidCents)}{" "}
               {truth.isDemo
                 ? "en un pago simulado. El efectivo sí es dinero real; el digital es demo."
-                : "verificados por pey."}
+                : truth.isVerified ? "verificados por pey." : "sin verificar."}
             </p>
           ) : truth.isDemo ? (
             <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
@@ -2002,7 +2032,7 @@ function PaymentPanel(props: {
           )}
         </div>
         <div className="flex gap-2">
-          {order.status === "paid" ? (
+          {order.status === "paid" || order.status === "demo_paid" ? (
             <button
               type="button"
               onClick={onDeliver}
@@ -2110,6 +2140,41 @@ function PaymentPanel(props: {
         </div>
       ) : null}
 
+      {demoMode ? (
+        order.paymentUrl || order.qrString ? (
+          <div className="rounded-xl border border-dashed border-attention/40 bg-surface p-3.5">
+            <p className="text-sm font-bold text-attention">Modo demo</p>
+            <p className="mt-1 text-sm leading-relaxed text-ink-2">
+              Simula la confirmación para probar la demo. No se mueve dinero real.
+            </p>
+            <div className="mt-2.5 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => onDemoPay("codi")}
+                disabled={loading}
+                className="flex min-h-12 items-center justify-center gap-1.5 rounded-lg border border-separator bg-surface px-2 text-sm font-semibold text-ink-2 transition hover:text-accent disabled:opacity-50"
+              >
+                <QrCode className="h-4 w-4" />
+                Simular CoDi
+              </button>
+              <button
+                type="button"
+                onClick={() => onDemoPay("card")}
+                disabled={loading}
+                className="flex min-h-12 items-center justify-center gap-1.5 rounded-lg border border-separator bg-surface px-2 text-sm font-semibold text-ink-2 transition hover:text-accent disabled:opacity-50"
+              >
+                <CreditCard className="h-4 w-4" />
+                Simular tarjeta
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p className="rounded-xl bg-surface-2 px-3 py-2.5 text-sm leading-relaxed text-ink-2">
+            Genera el link o el QR para simular la confirmación del banco.
+          </p>
+        )
+      ) : null}
+
       {order.paymentUrl ? (
         <div className="space-y-3">
           <div className="flex justify-center rounded-xl border border-separator bg-white p-4">
@@ -2176,41 +2241,6 @@ function PaymentPanel(props: {
             Esta pantalla se actualiza sola cuando pey confirma el pago. No entregues antes.
           </p>
         </div>
-      ) : null}
-
-      {demoMode ? (
-        order.paymentUrl || order.qrString ? (
-          <div className="rounded-xl border border-dashed border-attention/40 bg-surface p-3.5">
-            <p className="text-sm font-bold text-attention">Modo demo</p>
-            <p className="mt-1 text-sm leading-relaxed text-ink-2">
-              Simula la confirmación para probar la demo. No se mueve dinero real.
-            </p>
-            <div className="mt-2.5 grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => onDemoPay("codi")}
-                disabled={loading}
-                className="flex min-h-12 items-center justify-center gap-1.5 rounded-lg border border-separator bg-surface px-2 text-sm font-semibold text-ink-2 transition hover:text-accent disabled:opacity-50"
-              >
-                <QrCode className="h-4 w-4" />
-                Simular CoDi
-              </button>
-              <button
-                type="button"
-                onClick={() => onDemoPay("card")}
-                disabled={loading}
-                className="flex min-h-12 items-center justify-center gap-1.5 rounded-lg border border-separator bg-surface px-2 text-sm font-semibold text-ink-2 transition hover:text-accent disabled:opacity-50"
-              >
-                <CreditCard className="h-4 w-4" />
-                Simular tarjeta
-              </button>
-            </div>
-          </div>
-        ) : (
-          <p className="rounded-xl bg-surface-2 px-3 py-2.5 text-sm leading-relaxed text-ink-2">
-            Genera el link o el QR para simular la confirmación del banco.
-          </p>
-        )
       ) : null}
 
       <button
@@ -2630,12 +2660,9 @@ function CashCloseCard({
   return (
     <div className="rounded-2xl border border-separator bg-surface p-[20px] shadow-card sm:p-6">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-ink-2">Corte de caja</p>
-          <h2 className="mt-1 text-[1.375rem] font-semibold tracking-tight text-ink">
-            Cuenta el efectivo de hoy
-          </h2>
-        </div>
+        <h2 className="text-[1.375rem] font-semibold tracking-tight text-ink">
+          Cuenta el efectivo de hoy
+        </h2>
         <button
           type="button"
           onClick={() => void load()}
@@ -2716,18 +2743,23 @@ function CashCloseCard({
                       : "Hay más dinero del esperado."}
                 </p>
               </div>
-              <p
-                className={cn(
-                  "tabular text-[1.5rem] font-semibold leading-none",
-                  differenceCents === 0
-                    ? "text-green"
-                    : differenceCents < 0
-                      ? "text-danger"
-                      : "text-attention",
-                )}
-              >
-                {formatMxn(differenceAbsCents)}
-              </p>
+              <div className="text-right">
+                <p className="text-xs font-semibold uppercase tracking-wide text-ink-2">
+                  Diferencia
+                </p>
+                <p
+                  className={cn(
+                    "tabular mt-1 text-[1.5rem] font-semibold leading-none",
+                    differenceCents === 0
+                      ? "text-green"
+                      : differenceCents < 0
+                        ? "text-danger"
+                        : "text-attention",
+                  )}
+                >
+                  {formatMxn(differenceAbsCents)}
+                </p>
+              </div>
             </div>
           ) : (
             <p className="rounded-xl bg-surface-2 px-3 py-2.5 text-sm text-ink-2">
@@ -3033,10 +3065,7 @@ function GoalCard({
 
       <div className="rounded-2xl border border-separator bg-surface p-[20px] shadow-card sm:p-5">
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-ink-2">Mi camino</p>
-            <h2 className="mt-0.5 text-[1.5rem] font-semibold tracking-tight text-ink">Una meta a la vez</h2>
-          </div>
+          <p className="text-sm font-semibold text-ink-2">Mi camino</p>
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-soft text-green">
             <Umbrella className="h-6 w-6" strokeWidth={1.6} />
           </div>
@@ -3045,7 +3074,7 @@ function GoalCard({
         <div className="mt-4 space-y-3">
         <div className="flex items-end justify-between gap-3">
           <div>
-            <p className="text-[1.25rem] font-semibold tracking-tight text-ink">{goal.title}</p>
+            <h2 className="text-[1.25rem] font-semibold tracking-tight text-ink">{goal.title}</h2>
             <p className="text-sm text-ink-2">
               {formatMxn(goal.savedCents)} de {formatMxn(goal.targetCents)}
             </p>
@@ -3328,7 +3357,7 @@ function ActivityList({
                   ? Sparkles
                   : cash
                     ? Banknote
-                    : order.status === "paid" || order.status === "fulfilled"
+                    : order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled"
                       ? Check
                       : pending
                         ? Clock3
@@ -3351,7 +3380,7 @@ function ActivityList({
                           : "bg-green-soft text-green"
                         : cash
                           ? "bg-surface-2 text-ink"
-                          : order.status === "paid" || order.status === "fulfilled"
+                          : order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled"
                             ? "bg-green-soft text-green"
                             : "bg-surface-2 text-ink-2",
                   )}
@@ -3898,6 +3927,7 @@ function StatusBadge({ status }: { status: Order["status"] }) {
     payment_pending: "bg-terracotta-soft text-attention",
     partially_paid: "bg-terracotta-soft text-attention",
     paid: "bg-green-soft text-green",
+    demo_paid: "bg-terracotta-soft text-attention",
     fulfilled: "bg-green-soft text-green",
     cancelled: "bg-surface-2 text-ink-2",
   };
@@ -3907,6 +3937,7 @@ function StatusBadge({ status }: { status: Order["status"] }) {
     payment_pending: Clock3,
     partially_paid: Clock3,
     paid: Check,
+    demo_paid: FlaskConical,
     fulfilled: Check,
     cancelled: CircleAlert,
   };
@@ -3931,6 +3962,7 @@ function statusLabel(status: Order["status"]): string {
     payment_pending: "Esperando al banco",
     partially_paid: "Pago parcial",
     paid: "Pagado",
+    demo_paid: "Pago demo",
     fulfilled: "Entregado",
     cancelled: "Cancelado",
   };
@@ -3956,18 +3988,25 @@ function paymentTruth(order: Order) {
     isDemo: provider === "demo",
     isCash: provider === "cash",
     isVerified: provider === "pey",
-    isPaid: order.status === "paid" || order.status === "fulfilled",
+    isPaid:
+      order.status === "paid" ||
+      order.status === "demo_paid" ||
+      order.status === "fulfilled",
   };
 }
 
 function paymentSheetTitle(order: Order): string {
   const truth = paymentTruth(order);
-  if (truth.hasCredit) return truth.receivedCents > 0 ? "Pago mixto" : "Pedido a fiado";
-  if (truth.isMixedSources) return truth.isDemo ? "Efectivo + demo" : "Efectivo + verificado";
-  if (truth.isDemo) return "Pago simulado";
-  if (truth.isCash) return "Efectivo recibido";
-  if (truth.isVerified) return order.status === "fulfilled" ? "Pedido entregado" : "Pago verificado";
   if (order.status === "fulfilled") return "Pedido entregado";
+  if (
+    truth.hasCredit ||
+    truth.isMixedSources ||
+    truth.isDemo ||
+    truth.isCash ||
+    truth.isVerified
+  ) {
+    return "Resultado del cobro";
+  }
   if (order.paymentUrl || order.qrString) return "Cobro pendiente";
   return `Cobrar ${formatMxn(order.totalCents)}`;
 }
@@ -4048,7 +4087,7 @@ function AppSidebar({
               )}
             >
               <Icon className="h-5 w-5 shrink-0" strokeWidth={active ? 2.2 : 1.8} />
-              <span className="min-w-0 break-all">{item.label}</span>
+              <span className="min-w-0 break-words">{item.label}</span>
             </button>
           );
         })}
@@ -4062,7 +4101,7 @@ function AppSidebar({
             className="flex min-h-12 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
             <RefreshCw className="h-5 w-5 shrink-0" />
-            <span className="min-w-0 break-all">Modo demo</span>
+            <span className="min-w-0 break-words">Modo demo</span>
           </button>
         ) : null}
         <button
@@ -4071,7 +4110,7 @@ function AppSidebar({
           className="flex min-h-12 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
         >
           <CircleHelp className="h-5 w-5 shrink-0" />
-          <span className="min-w-0 break-all">Ayuda y accesibilidad</span>
+          <span className="min-w-0 break-words">Ayuda y accesibilidad</span>
         </button>
       </div>
     </aside>
@@ -4333,7 +4372,9 @@ function PaidSheet({
   const source = [
     truth.cashPaidCents > 0 ? `${formatMxn(truth.cashPaidCents)} en efectivo` : null,
     order.digitalPaidCents > 0
-      ? `${formatMxn(order.digitalPaidCents)} ${truth.isDemo ? "demo" : "verificado por pey"}`
+      ? `${formatMxn(order.digitalPaidCents)} ${
+            truth.isDemo ? "demo" : truth.isVerified ? "verificado por pey" : "sin verificar"
+          }`
       : null,
   ]
     .filter(Boolean)
@@ -4361,34 +4402,19 @@ function PaidSheet({
             <NotebookPen className="h-7 w-7" />
           ) : sourceMixed ? (
             truth.isDemo ? (
-              <Sparkles className="h-7 w-7" />
+              <FlaskConical className="h-7 w-7" />
             ) : (
               <Check className="h-7 w-7" />
             )
           ) : truth.isDemo ? (
-            <Sparkles className="h-7 w-7" />
+            <FlaskConical className="h-7 w-7" />
           ) : truth.isCash ? (
             <Banknote className="h-7 w-7" />
           ) : (
             <Check className="h-8 w-8" />
           )}
         </div>
-        <p className="mt-4 text-sm font-semibold text-ink-2">
-          {truth.hasCredit
-            ? mixed
-              ? "Cobro mixto"
-              : "Venta a fiado"
-            : sourceMixed
-              ? truth.isDemo
-                ? "Efectivo + demo"
-                : "Efectivo + verificado"
-              : truth.isDemo
-                ? "Pago simulado · demo"
-                : truth.isCash
-                  ? "Cobrado en caja"
-                  : "Confirmado por el banco"}
-        </p>
-        <h2 className="mt-1 text-[1.75rem] font-semibold tracking-tight text-ink">
+        <p className="mt-4 text-[1.75rem] font-semibold tracking-tight text-ink">
           {truth.hasCredit
             ? "Quedó anotado"
             : sourceMixed
@@ -4397,8 +4423,10 @@ function PaidSheet({
                 ? "Pago simulado"
                 : truth.isCash
                   ? "Efectivo recibido"
-                  : "Pago verificado"}
-        </h2>
+                  : truth.isVerified
+                    ? "Pago verificado"
+                    : "Pago sin confirmar"}
+        </p>
         <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
           <AnimatedAmount
             cents={
@@ -4420,7 +4448,9 @@ function PaidSheet({
                 ? "simulado en modo demo"
                 : truth.isCash
                   ? "recibido en efectivo, sin pasar por pey"
-                  : "confirmado por pey"}
+                  : truth.isVerified
+                    ? "confirmado por pey"
+                    : "sin confirmar"}
         </p>
         <p className="mt-4 rounded-xl bg-surface-2 px-3 py-2.5 text-left text-sm leading-relaxed text-ink-2">
           {truth.hasCredit ? (
@@ -4435,7 +4465,7 @@ function PaidSheet({
               {formatMxn(order.digitalPaidCents)}{" "}
               {truth.isDemo
                 ? "en un pago simulado. El efectivo sí es dinero real; el digital es demo."
-                : "verificados por pey."}
+                : truth.isVerified ? "verificados por pey." : "sin verificar."}
             </>
           ) : truth.isDemo ? (
             "En producción, este estado solo se actualiza con la confirmación firmada de pey. No se movió dinero real."

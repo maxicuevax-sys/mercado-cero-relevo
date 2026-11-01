@@ -108,7 +108,7 @@ def main() -> int:
         state = context.request.get(f"{BASE}/api/checkout/{order_id}", timeout=30000).json()
         check(
             "Servidor público: orden pagada",
-            state["order"]["status"] == "paid" and state["payment"] is not None,
+            state["order"]["status"] in ("paid", "demo_paid") and state["payment"] is not None,
             state["order"]["status"],
         )
         check("Sin errores de consola", len(console_errors) == 0, "; ".join(console_errors[:3]))

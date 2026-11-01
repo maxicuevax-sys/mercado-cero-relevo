@@ -36,6 +36,8 @@ Estado verificado + audio + registro
 
 Regla: la IA **propone**; la comerciante **confirma**; el webhook **verifica**. Ningún TTS puede decir “Pago verificado” si el proveedor del pago no es `pey`.
 
+Los pagos demo se guardan como `demo_paid` y `/api/verify` solo acepta `provider = 'pey'`: un comprobante demo nunca se muestra como verificado.
+
 ## 3 · Microcopy
 
 - “Escuché $185. ¿Confirmas?”

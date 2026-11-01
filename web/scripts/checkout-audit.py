@@ -182,8 +182,8 @@ def main() -> int:
 
         checkout_state = context.request.get(f"{BASE}/api/checkout/{order_id}").json()
         check(
-            "Servidor: orden pagada tras la simulación",
-            checkout_state["order"]["status"] == "paid"
+            "Servidor: orden demo pagada tras la simulación",
+            checkout_state["order"]["status"] in ("paid", "demo_paid")
             and checkout_state["payment"] is not None,
             f"{checkout_state['order']['status']} · pago={checkout_state['payment'] is not None}",
         )

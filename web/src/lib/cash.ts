@@ -63,7 +63,7 @@ export function getCashStatus(): CashStatus {
     .prepare(
       `SELECT COALESCE(SUM(amount_cents), 0) AS total
        FROM payments
-       WHERE status = 'paid' AND method = 'cash'
+       WHERE status IN ('paid', 'demo_paid') AND method = 'cash'
          AND date(created_at, '-6 hours') = ?`,
     )
     .get(date) as unknown as { total: number };

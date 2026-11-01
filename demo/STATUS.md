@@ -9,15 +9,17 @@
 | UI nueva “Mostrador claro” | ✅ F3 aprobado por verificación independiente | `VERIFICACION-F3-FINAL-5.md` |
 | Preflight de demo | ✅ 18/18 | `node scripts/preflight.mjs` |
 | Webhook firmado | ✅ 27/27 | `scripts/webhook-contract.mjs` |
-| Auditoría HIG | ✅ 360/390/768/1280, axe 0, 200% | `scripts/hig-after-audit.py` |
+| Verdad del comprobante | ✅ demo nunca verificado | `scripts/verify-truth.mjs` |
+| Auditoría HIG | ✅ 360/390/768/1280, axe 0, WCAG 2.2 AA, targets 48 px, 200% | `scripts/hig-after-audit.py` |
 | 360 px caja | ✅ 25/25 checks | `demo/mobile-audit.json` |
-| Flujo completo 360 px | ✅ 9.3 s, 0 errores | `scripts/mobile-audit.py` |
+| Flujo completo 360 px | ✅ ≈9 s, 0 errores | `scripts/mobile-audit.py` |
 | Checkout público 360 px | ✅ 15/15 checks | `demo/checkout-audit.json` |
 | Túnel público | ✅ 8/8 checks | `demo/tunnel-smoke.json` |
-| Ensayo del guion | ✅ 3/3 corridas, 15/15 pasos, promedio 3.6 s | `demo/rehearsal.json` |
+| Ensayo del guion | ✅ 3/3 corridas, 15/15 pasos, promedio 3.9 s | `demo/rehearsal.json` |
 | Video de respaldo | ✅ 36 s, 1280×800, 0.8 MB | `demo/mercado-cero-demo.mp4` |
+| Film check Stageshow | ✅ 8 beats + contact sheet + motion sheet | `demo/stageshow/` |
 | QR imprimible | ✅ PNG + SVG + HTML + PDF, URL nueva | `demo/qr-demo.*` |
-| Voz del demo | ✅ Kokoro `ef_dora` pre-renderizada + fallback | `web/public/tts/` |
+| Voz del demo | ✅ Kokoro `em_santa` para frases fijas + Piper es-MX dinámico | `web/public/tts/` |
 | Accesibilidad | ✅ texto grande, alto contraste, voz lenta, leer pantalla | `verify-a11y` |
 | Runbook | ✅ guion, fallas y Q&A | `RUNBOOK-DEMO.md` |
 | Prueba de usuario | ✅ protocolo listo | `TEST-USUARIO.md` |
@@ -28,7 +30,9 @@
 - Probar en un **teléfono físico** de 360 px; la auditoría actual es Playwright.
 - Prueba con una **persona ajena** siguiendo `TEST-USUARIO.md`.
 - El túnel actual es temporal; si cambia, hay que regenerar `APP_URL` y el QR.
-- La voz dinámica que no está pre-renderizada usa la voz del navegador; las frases fijas del demo usan Kokoro.
+- La voz dinámica usa Piper es-MX; la primera frase puede tardar ~3 s si carga el modelo. Las frases fijas usan Kokoro `em_santa`.
+- Faltan pruebas reales con **TalkBack/VoiceOver** en teléfono físico; la evidencia actual es Playwright + axe.
+- Faltan **6–8 comerciantes** y SUS; el protocolo está en `TEST-USUARIO.md`.
 
 ## Rojo
 

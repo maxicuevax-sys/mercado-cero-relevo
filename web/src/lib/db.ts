@@ -306,7 +306,7 @@ function seedDemoHistory(database: DatabaseSync) {
       .prepare(
         `INSERT INTO orders
          (id, merchant_id, status, total_cents, paid_cents, payment_method, created_at, updated_at)
-         VALUES (?, ?, 'paid', ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, 'demo_paid', ?, ?, ?, ?, ?)`,
       )
       .run(
         id,
@@ -580,13 +580,14 @@ export function getDailySummary(): DailySummary {
 
   const payments = database
     .prepare(
-      `SELECT p.method, p.amount_cents
+      `SELECT p.method, p.provider, p.amount_cents
        FROM payments p JOIN orders o ON o.id = p.order_id
        WHERE p.status = 'paid' AND o.created_at >= ?`,
     )
-    .all(startIso) as Array<{ method: string; amount_cents: number }>;
+    .all(startIso) as Array<{ method: string; provider: string; amount_cents: number }>;
 
   let verifiedDigitalCents = 0;
+  let demoDigitalCents = 0;
   let cashCents = 0;
   const methods: Record<string, number> = {};
 
@@ -594,7 +595,8 @@ export function getDailySummary(): DailySummary {
     const amount = Number(payment.amount_cents);
     methods[payment.method] = (methods[payment.method] ?? 0) + amount;
     if (payment.method === "cash") cashCents += amount;
-    else verifiedDigitalCents += amount;
+    else if (payment.provider === "pey") verifiedDigitalCents += amount;
+    else if (payment.provider === "demo") demoDigitalCents += amount;
   }
 
   const orderRow = database
@@ -603,7 +605,7 @@ export function getDailySummary(): DailySummary {
 
   const paidRow = database
     .prepare(
-      "SELECT COUNT(*) AS n FROM orders WHERE created_at >= ? AND status IN ('paid', 'fulfilled')",
+      "SELECT COUNT(*) AS n FROM orders WHERE created_at >= ? AND status IN ('paid', 'demo_paid', 'fulfilled')",
     )
     .get(startIso) as { n: number };
 
@@ -620,6 +622,7 @@ export function getDailySummary(): DailySummary {
   return {
     date: mexicoDateKey(),
     verifiedDigitalCents,
+    demoDigitalCents,
     cashCents,
     pendingCents: Number(pendingRow.total),
     creditCents: Number(creditRow.total),

@@ -212,7 +212,9 @@ export function recordPayment(
     coveredCents >= order.totalCents
       ? order.creditCents > 0
         ? "fulfilled"
-        : "paid"
+        : input.provider === "demo"
+          ? "demo_paid"
+          : "paid"
       : "partially_paid";
   database
     .prepare(
@@ -267,7 +269,7 @@ export function fulfillOrder(orderId: string): Order | null {
   const order = getOrder(orderId);
   if (!order) return null;
   if (order.status === "fulfilled") return order;
-  if (order.status !== "paid") {
+  if (order.status !== "paid" && order.status !== "demo_paid") {
     throw new Error("Solo un pedido pagado puede marcarse como entregado.");
   }
 

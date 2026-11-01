@@ -6,6 +6,8 @@ Instrucciones de trabajo para **todo** agente (opencode, codex, claude, subagent
 
 Ningún pedido se marca `paid` por lógica del cliente, captura de pantalla, ni webhook sin firma válida. **Solo** el webhook firmado de pey (Standard Webhooks) transiciona `payment_pending → paid`. Idempotencia por `transactionId`/`eventId`; valida monto, moneda y `clientReferenceId` contra la orden.
 
+Los pagos simulados usan `demo_paid`, nunca `paid`. `/api/verify` solo considera comprobantes con `provider = 'pey'`; un `transactionId` demo debe responder `verified: false`.
+
 ## Secretos
 
 - `.env.local` **nunca** se commitea.
