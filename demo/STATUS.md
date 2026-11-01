@@ -18,6 +18,7 @@
 | Video de respaldo | ✅ 36 s, 1280×800, 0.8 MB | `demo/mercado-cero-demo.mp4` |
 | QR imprimible | ✅ PNG + SVG + HTML + PDF, URL nueva | `demo/qr-demo.*` |
 | Voz del demo | ✅ Kokoro `ef_dora` pre-renderizada + fallback | `web/public/tts/` |
+| Accesibilidad | ✅ texto grande, alto contraste, voz lenta, leer pantalla | `verify-a11y` |
 | Runbook | ✅ guion, fallas y Q&A | `RUNBOOK-DEMO.md` |
 | Prueba de usuario | ✅ protocolo listo | `TEST-USUARIO.md` |
 | Guion narrado | ✅ 311 palabras + versión de 60 s | `GUION-3-MIN.md` |

@@ -105,6 +105,22 @@ Cuando aparezca el sello **DEMO** o **PAGADO**, señálalo.
 
 ---
 
+## Accesibilidad para personas mayores o con vista disminuida
+
+La app está pensada para usarse sin leer letras pequeñas:
+
+- Abre **Ayuda y accesibilidad** (el icono **?**) y ajusta:
+  - **Texto:** Normal, Grande o Muy grande.
+  - **Contraste:** alto contraste para fondo blanco y texto negro.
+  - **Voz:** lenta, normal o rápida.
+- **Leer esta pantalla** lee los títulos y estados visibles.
+- **Repetir último aviso** repite la última frase de la app.
+- En Caja, el botón **Escuchar** da las instrucciones en voz alta.
+- El micrófono mide **80 px** y el texto alternativo para escribir siempre está visible.
+- Las preferencias se guardan en el dispositivo.
+
+Para una persona mayor, antes de empezar: activa **Texto grande** y **Alto contraste**, y deja la voz en **Lenta** si hace falta.
+
 ## 3 · Qué no decir
 
 - **No** digas que el pago simulado es real. Di “modo demo” y señala el sello.
