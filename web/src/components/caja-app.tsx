@@ -91,7 +91,8 @@ interface DraftItem {
 
 const DRAFT_STORAGE_KEY = "mercado-cero:draft:v1";
 const DRAFT_VERSION = 1;
-const MAX_RESTORED_ITEMS = 50;
+const PENDING_ORDER_KEY = "mercado-cero:pending-order:v1";
+const PENDING_ORDER_VERSION = 1;
 
 interface StoredDraft {
   version: number;
@@ -101,6 +102,12 @@ interface StoredDraft {
   customerName: string;
   textInput: string;
   transcript: string;
+  updatedAt: string;
+}
+
+interface StoredPendingOrder {
+  version: number;
+  orderId: string;
   updatedAt: string;
 }
 
@@ -116,6 +123,11 @@ interface DraftContent {
   customerName: string;
   textInput: string;
   transcript: string;
+}
+
+interface OrderChange {
+  orderId: string;
+  cents: number;
 }
 
 interface VerifyResult {
@@ -220,7 +232,6 @@ function readStoredDraft(): StoredDraft | null {
     }
     const items = parsed.items
       .filter((item): item is DraftItem => Boolean(item) && typeof item === "object")
-      .slice(0, MAX_RESTORED_ITEMS)
       .map((item) => ({
         id: typeof item.id === "string" && item.id ? item.id : newDraftItemId(),
         description: typeof item.description === "string" ? item.description : "",
@@ -229,11 +240,14 @@ function readStoredDraft(): StoredDraft | null {
           ? Math.max(0, Math.round(Number(item.unitPriceCents)))
           : 0,
       }));
+    const hasItems = items.length > 0;
     const content: DraftContent = {
       items,
-      cashCents: safeCents(parsed.cashCents),
-      creditCents: safeCents(parsed.creditCents),
-      customerName: typeof parsed.customerName === "string" ? parsed.customerName : "",
+      // Un draft sin productos no es pagable: nunca restauramos dinero suelto.
+      cashCents: hasItems ? safeCents(parsed.cashCents) : 0,
+      creditCents: hasItems ? safeCents(parsed.creditCents) : 0,
+      customerName:
+        hasItems && typeof parsed.customerName === "string" ? parsed.customerName : "",
       textInput: typeof parsed.textInput === "string" ? parsed.textInput : "",
       transcript: typeof parsed.transcript === "string" ? parsed.transcript : "",
     };
@@ -247,8 +261,71 @@ function readStoredDraft(): StoredDraft | null {
         : new Date().toISOString();
     return { version: DRAFT_VERSION, ...content, updatedAt };
   } catch {
+    try {
+      window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {
+      // Sin almacenamiento no hay nada que limpiar.
+    }
     return null;
   }
+}
+
+function readStoredPendingOrder(): StoredPendingOrder | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(PENDING_ORDER_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<StoredPendingOrder>;
+    if (
+      parsed.version !== PENDING_ORDER_VERSION ||
+      typeof parsed.orderId !== "string" ||
+      !parsed.orderId
+    ) {
+      window.localStorage.removeItem(PENDING_ORDER_KEY);
+      return null;
+    }
+    const updatedAt =
+      typeof parsed.updatedAt === "string" && !Number.isNaN(Date.parse(parsed.updatedAt))
+        ? parsed.updatedAt
+        : new Date().toISOString();
+    return { version: PENDING_ORDER_VERSION, orderId: parsed.orderId, updatedAt };
+  } catch {
+    try {
+      window.localStorage.removeItem(PENDING_ORDER_KEY);
+    } catch {
+      // Sin almacenamiento no hay nada que limpiar.
+    }
+    return null;
+  }
+}
+
+function writeStoredPendingOrder(orderId: string) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      PENDING_ORDER_KEY,
+      JSON.stringify({
+        version: PENDING_ORDER_VERSION,
+        orderId,
+        updatedAt: new Date().toISOString(),
+      } satisfies StoredPendingOrder),
+    );
+  } catch {
+    // Sin almacenamiento local, el cobro sigue disponible en Actividad.
+  }
+}
+
+function clearStoredPendingOrder() {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(PENDING_ORDER_KEY);
+  } catch {
+    // Sin almacenamiento local no hay nada que limpiar.
+  }
+}
+
+function isPendingOrderStatus(status: Order["status"]): boolean {
+  return status === "confirmed" || status === "payment_pending" || status === "partially_paid";
 }
 
 function validateDraftItems(items: DraftItem[]): Map<string, DraftItemError> {
@@ -331,6 +408,8 @@ export default function CajaApp() {
   const [savingOrder, setSavingOrder] = useState(false);
 
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
+  const [resumableOrder, setResumableOrder] = useState<Order | null>(null);
+  const [lastChange, setLastChange] = useState<OrderChange | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentMode, setPaymentMode] = useState<"link" | "qr">("link");
 
@@ -362,6 +441,7 @@ export default function CajaApp() {
   });
 
   const lastSavedDraftRef = useRef("");
+  const restoredDraftSignatureRef = useRef<string | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -437,7 +517,8 @@ export default function CajaApp() {
       setCustomerName(stored.customerName);
       setTextInput(stored.textInput);
       setTranscript(stored.transcript);
-      setRestoredDraftAt(stored.updatedAt);
+      setRestoredDraftAt(stored.items.length > 0 ? stored.updatedAt : null);
+      restoredDraftSignatureRef.current = draftSignature(stored);
       lastSavedDraftRef.current = draftSignature(stored);
     } else {
       lastSavedDraftRef.current = draftSignature({
@@ -454,11 +535,13 @@ export default function CajaApp() {
 
   useEffect(() => {
     if (!draftReady) return;
+    const hasItems = draftItems.length > 0;
     const content: DraftContent = {
       items: draftItems,
-      cashCents,
-      creditCents,
-      customerName,
+      // Un draft sin productos nunca guarda dinero ni cliente: no es pagable.
+      cashCents: hasItems ? cashCents : 0,
+      creditCents: hasItems ? creditCents : 0,
+      customerName: hasItems ? customerName : "",
       textInput,
       transcript,
     };
@@ -482,6 +565,68 @@ export default function CajaApp() {
       // Sin almacenamiento local, la venta sigue en memoria.
     }
   }, [draftReady, draftItems, cashCents, creditCents, customerName, textInput, transcript]);
+
+  useEffect(() => {
+    // El banner solo corresponde al borrador intacto. Cualquier edición o una
+    // venta nueva lo vuelve obsoleto; "Descartar" no debe borrar trabajo nuevo.
+    if (!restoredDraftAt) return;
+    const signature = draftSignature({
+      items: draftItems,
+      cashCents,
+      creditCents,
+      customerName,
+      textInput,
+      transcript,
+    });
+    if (
+      restoredDraftSignatureRef.current &&
+      signature !== restoredDraftSignatureRef.current
+    ) {
+      setRestoredDraftAt(null);
+    }
+  }, [restoredDraftAt, draftItems, cashCents, creditCents, customerName, textInput, transcript]);
+
+  useEffect(() => {
+    // Reabre el pendiente solo como aviso; nunca abre el cobro ni crea órdenes.
+    const stored = readStoredPendingOrder();
+    if (!stored) return;
+    let cancelled = false;
+    const restore = async () => {
+      try {
+        const response = await fetch(`/api/orders/${stored.orderId}`, { cache: "no-store" });
+        if (response.status === 404) {
+          clearStoredPendingOrder();
+          return;
+        }
+        if (!response.ok) return;
+        const data = (await response.json()) as { order?: Order };
+        const order = data.order;
+        if (!order || !isPendingOrderStatus(order.status)) {
+          clearStoredPendingOrder();
+          return;
+        }
+        if (!cancelled) setResumableOrder(order);
+      } catch {
+        // Sin red, el aviso se reintenta al volver a abrir la caja.
+      }
+    };
+    void restore();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const activeOrderId = activeOrder?.id;
+  const activeOrderStatus = activeOrder?.status;
+
+  useEffect(() => {
+    if (!activeOrderId || !activeOrderStatus) return;
+    if (isPendingOrderStatus(activeOrderStatus)) {
+      writeStoredPendingOrder(activeOrderId);
+    } else {
+      clearStoredPendingOrder();
+    }
+  }, [activeOrderId, activeOrderStatus]);
 
   useEffect(() => {
     document.documentElement.dataset.textSize = textSize;
@@ -864,6 +1009,10 @@ export default function CajaApp() {
           setCreditCents(parsed.creditCents);
           setCustomerName(parsed.customerName ?? "");
           setTranscript(clean);
+          // El parseo nuevo reemplaza al borrador recuperado: su banner ya no aplica.
+          setRestoredDraftAt(null);
+          setItemErrors({});
+          setSaleError(null);
           setTab("caja");
           window.setTimeout(() => {
             document.getElementById("pedido")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1010,7 +1159,38 @@ export default function CajaApp() {
   const updateDraftItems = useCallback((items: DraftItem[]) => {
     setDraftItems(items);
     setItemErrors({});
+    if (items.length === 0) {
+      setCashCents(0);
+      setCreditCents(0);
+      setCustomerName("");
+      setRestoredDraftAt(null);
+    }
   }, []);
+
+  const discardRestoredDraft = useCallback(() => {
+    const currentSignature = draftSignature({
+      items: draftItems,
+      cashCents,
+      creditCents,
+      customerName,
+      textInput,
+      transcript,
+    });
+    if (
+      restoredDraftSignatureRef.current &&
+      currentSignature !== restoredDraftSignatureRef.current
+    ) {
+      // La venta ya no es la recuperada: no la borramos desde un banner viejo.
+      setRestoredDraftAt(null);
+      showToast("info", "La venta cambió. Revisa y usa Limpiar si quieres descartarla.");
+      return;
+    }
+    restoredDraftSignatureRef.current = null;
+    clearDraft();
+    window.requestAnimationFrame(() => {
+      document.getElementById("draft-add-empty")?.focus();
+    });
+  }, [cashCents, clearDraft, creditCents, customerName, draftItems, showToast, textInput, transcript]);
 
   useEffect(() => {
     // Al corregir la venta, el error inline deja de aplicar.
@@ -1052,6 +1232,7 @@ export default function CajaApp() {
     }
 
     setSavingOrder(true);
+    const changeForOrder = changeCents;
     try {
       const response = await fetch("/api/orders", {
         method: "POST",
@@ -1071,12 +1252,15 @@ export default function CajaApp() {
       if (!response.ok || !data.order) throw new Error(data.error ?? "No pude crear la venta.");
 
       const order = data.order;
+      setLastChange(changeForOrder > 0 ? { orderId: order.id, cents: changeForOrder } : null);
+      setResumableOrder(null);
       setActiveOrder(order);
       clearDraft();
       await loadDashboard();
 
       if (order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled") {
         if (order.status === "paid") {
+          clearStoredPendingOrder();
           setActiveOrder(null);
           setDeliverError(null);
           setPaidOverlay(order);
@@ -1084,9 +1268,11 @@ export default function CajaApp() {
           vibrate([30, 50, 30]);
           speak(`Venta cobrada. ${formatMxn(order.totalCents)}.`);
         } else {
+          clearStoredPendingOrder();
+          const changeNote = changeForOrder > 0 ? ` Cambio ${formatMxn(changeForOrder)}.` : "";
           showToast(
             "ok",
-            `Venta registrada. ${formatMxn(order.creditCents)} quedaron a fiado con ${order.customerName ?? "el cliente"}.`,
+            `Venta registrada. ${formatMxn(order.creditCents)} quedaron a fiado con ${order.customerName ?? "el cliente"}.${changeNote}`,
           );
         }
       }
@@ -1098,6 +1284,7 @@ export default function CajaApp() {
   }, [
     appliedCashCents,
     appliedCreditCents,
+    changeCents,
     clearDraft,
     creditCents,
     customerName,
@@ -1147,6 +1334,8 @@ export default function CajaApp() {
         });
         const data = (await response.json()) as { order?: Order; error?: string };
         if (!response.ok || !data.order) throw new Error(data.error ?? "No pude simular el pago.");
+        clearStoredPendingOrder();
+        setResumableOrder(null);
         setActiveOrder(null);
         setDeliverError(null);
         setPaidOverlay(data.order);
@@ -1175,6 +1364,8 @@ export default function CajaApp() {
         const data = (await response.json()) as { order: Order };
         const order = data.order;
         if (order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled") {
+          clearStoredPendingOrder();
+          setResumableOrder(null);
           setActiveOrder(null);
           setDeliverError(null);
           setPaidOverlay(order);
@@ -1286,6 +1477,8 @@ export default function CajaApp() {
         if (!response.ok || !data.order) {
           throw new Error(data.error ?? "No pude marcar el pedido como entregado.");
         }
+        clearStoredPendingOrder();
+        setResumableOrder(null);
         onDone();
         await loadDashboard();
         showToast("ok", "Pedido entregado.");
@@ -1310,10 +1503,36 @@ export default function CajaApp() {
     [activeOrder?.id, fulfillOrder],
   );
 
+  const closeActiveOrder = useCallback(() => {
+    if (activeOrder && isPendingOrderStatus(activeOrder.status)) {
+      setResumableOrder(activeOrder);
+    } else {
+      setResumableOrder(null);
+    }
+    setActiveOrder(null);
+    setDeliverError(null);
+  }, [activeOrder]);
+
+  const resumePendingOrder = useCallback(() => {
+    if (!resumableOrder) return;
+    setActiveOrder(resumableOrder);
+    setResumableOrder(null);
+    setTab("caja");
+  }, [resumableOrder]);
+
+  const discardPendingOrder = useCallback(() => {
+    setResumableOrder(null);
+    clearStoredPendingOrder();
+    showToast("info", "El cobro sigue en Actividad.");
+  }, [showToast]);
+
   const resetDemo = useCallback(async () => {
     try {
       const response = await fetch("/api/demo/reset", { method: "POST" });
       if (!response.ok) throw new Error("No pude reiniciar la demo.");
+      clearStoredPendingOrder();
+      setResumableOrder(null);
+      setLastChange(null);
       setActiveOrder(null);
       setPaidOverlay(null);
       clearDraft();
@@ -1385,6 +1604,44 @@ export default function CajaApp() {
                     </button>
                   }
                 />
+                {resumableOrder && !activeOrder ? (
+                  <div
+                    role="status"
+                    className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-separator bg-surface-2 px-3 py-2 text-sm text-ink-2"
+                  >
+                    <p className="flex min-w-0 items-center gap-2 font-medium text-ink">
+                      <Clock3 className="h-4 w-4 shrink-0 text-accent" />
+                      <span>
+                        Tienes un cobro pendiente de{" "}
+                        {formatMxn(
+                          Math.max(
+                            0,
+                            resumableOrder.totalCents -
+                              resumableOrder.paidCents -
+                              resumableOrder.creditCents,
+                          ),
+                        )}{" "}
+                        · Pedido {shortOrder(resumableOrder.id)}
+                      </span>
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      <button
+                        type="button"
+                        onClick={resumePendingOrder}
+                        className="flex min-h-12 items-center rounded-xl px-3 text-sm font-semibold text-green transition hover:text-accent"
+                      >
+                        Continuar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={discardPendingOrder}
+                        className="flex min-h-12 items-center rounded-xl px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
+                      >
+                        Descartar
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
                 {restoredDraftAt ? (
                   <div
                     role="status"
@@ -1396,12 +1653,7 @@ export default function CajaApp() {
                     </p>
                     <button
                       type="button"
-                      onClick={() => {
-                        clearDraft();
-                        window.requestAnimationFrame(() => {
-                          document.getElementById("draft-add-empty")?.focus();
-                        });
-                      }}
+                      onClick={discardRestoredDraft}
                       className="flex min-h-12 shrink-0 items-center rounded-xl px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
                     >
                       Descartar
@@ -1554,8 +1806,7 @@ export default function CajaApp() {
         open={Boolean(activeOrder)}
         onClose={() => {
           if (paymentLoading) return;
-          setActiveOrder(null);
-          setDeliverError(null);
+          closeActiveOrder();
         }}
         title={activeOrder ? paymentSheetTitle(activeOrder) : "Cobro"}
         size="md"
@@ -1563,17 +1814,17 @@ export default function CajaApp() {
         <PaymentPanel
           order={activeOrder}
           demoMode={dashboard?.demoMode ?? false}
+          changeCents={lastChange && lastChange.orderId === activeOrder?.id ? lastChange.cents : 0}
           loading={paymentLoading}
           mode={paymentMode}
           onGenerate={(mode) => void generatePayment(mode)}
           onDemoPay={(method) => void demoPay(method)}
           onClose={() => {
             if (paymentLoading) return;
-            setActiveOrder(null);
-            setDeliverError(null);
+            closeActiveOrder();
           }}
           onNew={() => {
-            setActiveOrder(null);
+            closeActiveOrder();
             setTab("caja");
           }}
           onDeliver={() => void deliverActiveOrder()}
@@ -1612,6 +1863,7 @@ export default function CajaApp() {
 
       <PaidSheet
         order={paidOverlay}
+        changeCents={lastChange && lastChange.orderId === paidOverlay?.id ? lastChange.cents : 0}
         onClose={() => {
           setPaidOverlay(null);
           setDeliverError(null);
@@ -1754,6 +2006,15 @@ function CajaPanel(props: {
   } = props;
 
   const [confirmingClear, setConfirmingClear] = useState(false);
+
+  useEffect(() => {
+    // Si la venta queda vacía por otra vía (recuperación, demo, descarte),
+    // la confirmación de limpiar deja de aplicar.
+    if (draftItems.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setConfirmingClear(false);
+    }
+  }, [draftItems.length]);
 
   const commitItems = (items: DraftItem[]) => {
     onDraftItems(items);
@@ -1988,6 +2249,9 @@ function CajaPanel(props: {
                 onClick={() => {
                   setConfirmingClear(false);
                   onClear();
+                  window.requestAnimationFrame(() => {
+                    document.getElementById("draft-add-empty")?.focus();
+                  });
                 }}
                 className="flex min-h-12 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-danger"
               >
@@ -2030,7 +2294,7 @@ function CajaPanel(props: {
                         commitItems(next);
                       }}
                       placeholder="Producto"
-                      aria-invalid={Boolean(itemError)}
+                      aria-invalid={itemError?.field === "description"}
                       aria-describedby={itemError ? `item-error-${item.id}` : undefined}
                       className="min-h-12 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 text-[1rem] font-semibold text-ink outline-none placeholder:text-ink-2/50 focus:border-separator focus:bg-surface"
                       aria-label="Producto"
@@ -2075,7 +2339,7 @@ function CajaPanel(props: {
                           };
                           commitItems(next);
                         }}
-                        aria-invalid={Boolean(itemError)}
+                        aria-invalid={itemError?.field === "quantity"}
                         aria-describedby={itemError ? `item-error-${item.id}` : undefined}
                         className="tabular h-12 w-14 rounded-lg border border-transparent bg-transparent text-center text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
                         aria-label="Cantidad"
@@ -2112,7 +2376,7 @@ function CajaPanel(props: {
                           };
                           commitItems(next);
                         }}
-                        aria-invalid={Boolean(itemError)}
+                        aria-invalid={itemError?.field === "price"}
                         aria-describedby={itemError ? `item-error-${item.id}` : undefined}
                         style={{ width: `${Math.max(7, priceText.length + 1)}ch` }}
                         className="tabular h-12 rounded-lg border border-transparent bg-transparent px-1 text-right text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
@@ -2305,6 +2569,7 @@ function CajaPanel(props: {
 function PaymentPanel(props: {
   order: Order | null;
   demoMode: boolean;
+  changeCents: number;
   loading: boolean;
   mode: "link" | "qr";
   onGenerate: (mode: "link" | "qr") => void;
@@ -2317,7 +2582,7 @@ function PaymentPanel(props: {
   delivering: boolean;
   error: string | null;
 }) {
-  const { order, demoMode, loading, mode, onGenerate, onDemoPay, onClose, onNew, onCopy, onShare, onDeliver, delivering, error } = props;
+  const { order, demoMode, changeCents, loading, mode, onGenerate, onDemoPay, onClose, onNew, onCopy, onShare, onDeliver, delivering, error } = props;
 
   if (!order) return null;
 
@@ -2443,6 +2708,14 @@ function PaymentPanel(props: {
               pedido.
             </p>
           )}
+          {changeCents > 0 ? (
+            <p
+              role="status"
+              className="mt-3 rounded-xl bg-green-soft px-3 py-2 text-left text-sm font-semibold text-green"
+            >
+              Cambio {formatMxn(changeCents)}
+            </p>
+          ) : null}
         </div>
         <div className="flex gap-2">
           {order.status === "paid" || order.status === "demo_paid" ? (
@@ -2495,6 +2768,14 @@ function PaymentPanel(props: {
           <p className="mt-1.5 text-sm text-ink-2">
             {order.items.map((item) => `${item.quantity} ${item.description}`).join(" · ")}
           </p>
+          {changeCents > 0 ? (
+            <p
+              role="status"
+              className="mt-2 rounded-xl bg-green-soft px-3 py-2 text-sm font-semibold text-green"
+            >
+              Cambio {formatMxn(changeCents)}
+            </p>
+          ) : null}
         </div>
         <StatusBadge status={order.status} />
       </div>
@@ -4768,12 +5049,14 @@ function Sheet({
 
 function PaidSheet({
   order,
+  changeCents,
   onClose,
   onDeliver,
   delivering,
   error,
 }: {
   order: Order | null;
+  changeCents: number;
   onClose: () => void;
   onDeliver: () => void;
   delivering: boolean;
@@ -4865,6 +5148,11 @@ function PaidSheet({
                     ? "confirmado por pey"
                     : "sin confirmar"}
         </p>
+        {changeCents > 0 ? (
+          <p className="mt-3 rounded-xl bg-green-soft px-3 py-2 text-sm font-semibold text-green">
+            Cambio {formatMxn(changeCents)}
+          </p>
+        ) : null}
         <p className="mt-4 rounded-xl bg-surface-2 px-3 py-2.5 text-left text-sm leading-relaxed text-ink-2">
           {truth.hasCredit ? (
             <>
