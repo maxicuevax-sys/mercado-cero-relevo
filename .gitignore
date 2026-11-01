@@ -23,3 +23,6 @@ demo/hig-after/
 .DS_Store
 Thumbs.db
 demo/video/
+
+# Harness: runs locales; latest.json sí se versiona
+harness/evidence/runs/

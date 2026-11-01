@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "verify:fast": "node scripts/harness-gate.mjs --fast",
+    "verify:static": "node scripts/harness-gate.mjs --static",
+    "verify:full": "node scripts/harness-gate.mjs --full",
+    "verify:list": "node scripts/harness-gate.mjs --list"
   },
   "dependencies": {
     "lucide-react": "^1.65.0",
