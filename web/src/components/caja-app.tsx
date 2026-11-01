@@ -89,6 +89,35 @@ interface DraftItem {
   unitPriceCents: number;
 }
 
+const DRAFT_STORAGE_KEY = "mercado-cero:draft:v1";
+const DRAFT_VERSION = 1;
+const MAX_RESTORED_ITEMS = 50;
+
+interface StoredDraft {
+  version: number;
+  items: DraftItem[];
+  cashCents: number;
+  creditCents: number;
+  customerName: string;
+  textInput: string;
+  transcript: string;
+  updatedAt: string;
+}
+
+interface DraftItemError {
+  message: string;
+  field: "description" | "quantity" | "price";
+}
+
+interface DraftContent {
+  items: DraftItem[];
+  cashCents: number;
+  creditCents: number;
+  customerName: string;
+  textInput: string;
+  transcript: string;
+}
+
 interface VerifyResult {
   verified: boolean;
   reason?: string;
@@ -143,6 +172,135 @@ function friendlyError(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
 }
 
+function draftSignature(content: DraftContent): string {
+  return JSON.stringify({
+    items: content.items.map(({ id, description, quantity, unitPriceCents }) => ({
+      id,
+      description,
+      quantity,
+      unitPriceCents,
+    })),
+    cashCents: content.cashCents,
+    creditCents: content.creditCents,
+    customerName: content.customerName,
+    textInput: content.textInput,
+    transcript: content.transcript,
+  });
+}
+
+function hasDraftContent(content: DraftContent): boolean {
+  return (
+    content.items.length > 0 ||
+    content.cashCents > 0 ||
+    content.creditCents > 0 ||
+    content.customerName.trim().length > 0 ||
+    content.textInput.trim().length > 0 ||
+    content.transcript.trim().length > 0
+  );
+}
+
+function safeCents(value: unknown): number {
+  const amount = Number(value);
+  return Number.isFinite(amount) && amount > 0 ? Math.round(amount) : 0;
+}
+
+function newDraftItemId(): string {
+  return `draft_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function readStoredDraft(): StoredDraft | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<StoredDraft>;
+    if (parsed.version !== DRAFT_VERSION || !Array.isArray(parsed.items)) {
+      window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+      return null;
+    }
+    const items = parsed.items
+      .filter((item): item is DraftItem => Boolean(item) && typeof item === "object")
+      .slice(0, MAX_RESTORED_ITEMS)
+      .map((item) => ({
+        id: typeof item.id === "string" && item.id ? item.id : newDraftItemId(),
+        description: typeof item.description === "string" ? item.description : "",
+        quantity: Number.isFinite(Number(item.quantity)) ? Number(item.quantity) : 0,
+        unitPriceCents: Number.isFinite(Number(item.unitPriceCents))
+          ? Math.max(0, Math.round(Number(item.unitPriceCents)))
+          : 0,
+      }));
+    const content: DraftContent = {
+      items,
+      cashCents: safeCents(parsed.cashCents),
+      creditCents: safeCents(parsed.creditCents),
+      customerName: typeof parsed.customerName === "string" ? parsed.customerName : "",
+      textInput: typeof parsed.textInput === "string" ? parsed.textInput : "",
+      transcript: typeof parsed.transcript === "string" ? parsed.transcript : "",
+    };
+    if (!hasDraftContent(content)) {
+      window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+      return null;
+    }
+    const updatedAt =
+      typeof parsed.updatedAt === "string" && !Number.isNaN(Date.parse(parsed.updatedAt))
+        ? parsed.updatedAt
+        : new Date().toISOString();
+    return { version: DRAFT_VERSION, ...content, updatedAt };
+  } catch {
+    return null;
+  }
+}
+
+function validateDraftItems(items: DraftItem[]): Map<string, DraftItemError> {
+  const errors = new Map<string, DraftItemError>();
+  for (const item of items) {
+    const descriptionIssue = item.description.trim() ? null : "Escribe el producto.";
+    const quantityIssue =
+      Number.isFinite(item.quantity) && item.quantity > 0
+        ? null
+        : "La cantidad debe ser mayor a cero.";
+    const priceIssue =
+      Number.isFinite(item.unitPriceCents) && item.unitPriceCents > 0
+        ? null
+        : "El precio debe ser mayor a cero.";
+    const messages = [descriptionIssue, quantityIssue, priceIssue].filter(Boolean);
+    if (messages.length === 0) continue;
+    errors.set(item.id, {
+      message: messages.join(" "),
+      field: descriptionIssue ? "description" : quantityIssue ? "quantity" : "price",
+    });
+  }
+  return errors;
+}
+
+function focusDraftField(itemId: string, field: DraftItemError["field"]) {
+  window.requestAnimationFrame(() => {
+    document.getElementById(`draft-${field}-${itemId}`)?.focus();
+  });
+}
+
+function restoredDraftLabel(iso: string): string {
+  const updated = new Date(iso);
+  const now = new Date();
+  const sameDay =
+    updated.getFullYear() === now.getFullYear() &&
+    updated.getMonth() === now.getMonth() &&
+    updated.getDate() === now.getDate();
+  const time = formatTime(iso);
+  if (sameDay) return `Recuperé tu venta de las ${time}`;
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const wasYesterday =
+    updated.getFullYear() === yesterday.getFullYear() &&
+    updated.getMonth() === yesterday.getMonth() &&
+    updated.getDate() === yesterday.getDate();
+  if (wasYesterday) return `Recuperé tu venta de ayer a las ${time}`;
+  const date = new Intl.DateTimeFormat("es-MX", { day: "2-digit", month: "2-digit" }).format(
+    updated,
+  );
+  return `Recuperé tu venta del ${date} a las ${time}`;
+}
+
 export default function CajaApp() {
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -167,6 +325,9 @@ export default function CajaApp() {
   const [cashCents, setCashCents] = useState(0);
   const [creditCents, setCreditCents] = useState(0);
   const [customerName, setCustomerName] = useState("");
+  const [itemErrors, setItemErrors] = useState<Record<string, DraftItemError>>({});
+  const [restoredDraftAt, setRestoredDraftAt] = useState<string | null>(null);
+  const [draftReady, setDraftReady] = useState(false);
   const [savingOrder, setSavingOrder] = useState(false);
 
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
@@ -199,6 +360,8 @@ export default function CajaApp() {
     corte: 0,
     meta: 0,
   });
+
+  const lastSavedDraftRef = useRef("");
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -262,6 +425,63 @@ export default function CajaApp() {
     }
     void loadDashboard();
   }, [loadDashboard]);
+
+  useEffect(() => {
+    // El borrador se restaura después del montaje para no romper la hidratación.
+    const stored = readStoredDraft();
+    if (stored) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDraftItems(stored.items);
+      setCashCents(stored.cashCents);
+      setCreditCents(stored.creditCents);
+      setCustomerName(stored.customerName);
+      setTextInput(stored.textInput);
+      setTranscript(stored.transcript);
+      setRestoredDraftAt(stored.updatedAt);
+      lastSavedDraftRef.current = draftSignature(stored);
+    } else {
+      lastSavedDraftRef.current = draftSignature({
+        items: [],
+        cashCents: 0,
+        creditCents: 0,
+        customerName: "",
+        textInput: "",
+        transcript: "",
+      });
+    }
+    setDraftReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!draftReady) return;
+    const content: DraftContent = {
+      items: draftItems,
+      cashCents,
+      creditCents,
+      customerName,
+      textInput,
+      transcript,
+    };
+    const signature = draftSignature(content);
+    if (signature === lastSavedDraftRef.current) return;
+    lastSavedDraftRef.current = signature;
+    try {
+      if (!hasDraftContent(content)) {
+        window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+      } else {
+        window.localStorage.setItem(
+          DRAFT_STORAGE_KEY,
+          JSON.stringify({
+            version: DRAFT_VERSION,
+            ...content,
+            updatedAt: new Date().toISOString(),
+          } satisfies StoredDraft),
+        );
+      }
+    } catch {
+      // Sin almacenamiento local, la venta sigue en memoria.
+    }
+  }, [draftReady, draftItems, cashCents, creditCents, customerName, textInput, transcript]);
 
   useEffect(() => {
     document.documentElement.dataset.textSize = textSize;
@@ -740,20 +960,57 @@ export default function CajaApp() {
 
   const draftTotal = useMemo(
     () =>
-      draftItems.reduce(
-        (sum, item) => sum + Math.round(Number(item.quantity) * Number(item.unitPriceCents)),
-        0,
-      ),
+      draftItems.reduce((sum, item) => {
+        const quantity = Number(item.quantity);
+        const price = Number(item.unitPriceCents);
+        if (!Number.isFinite(quantity) || !Number.isFinite(price) || quantity <= 0 || price <= 0) {
+          return sum;
+        }
+        return sum + Math.round(quantity * price);
+      }, 0),
     [draftItems],
   );
-  const digitalDue = Math.max(0, draftTotal - cashCents - creditCents);
-  const overpay = cashCents + creditCents > draftTotal;
-  const canCharge =
-    draftItems.length > 0 &&
-    draftTotal > 0 &&
-    !overpay &&
-    !savingOrder &&
-    (creditCents === 0 || customerName.trim().length > 0);
+  const appliedCreditCents = Math.min(Math.max(0, creditCents), draftTotal);
+  const appliedCashCents = Math.min(
+    Math.max(0, cashCents),
+    Math.max(0, draftTotal - appliedCreditCents),
+  );
+  const changeCents = Math.max(0, cashCents - appliedCashCents);
+  const digitalDue = Math.max(0, draftTotal - appliedCashCents - appliedCreditCents);
+  // El exceso de efectivo no bloquea: se devuelve como cambio. El fiado sí debe
+  // caber dentro del total para no crear un crédito mayor que la venta.
+  const overpay = creditCents > draftTotal;
+
+  const clearDraft = useCallback(() => {
+    setDraftItems([]);
+    setCashCents(0);
+    setCreditCents(0);
+    setCustomerName("");
+    setTextInput("");
+    setTranscript("");
+    setItemErrors({});
+    setSaleError(null);
+    setVoiceError(null);
+    setRestoredDraftAt(null);
+    lastSavedDraftRef.current = draftSignature({
+      items: [],
+      cashCents: 0,
+      creditCents: 0,
+      customerName: "",
+      textInput: "",
+      transcript: "",
+    });
+    try {
+      window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {
+      // Sin almacenamiento local no hay borrador que limpiar.
+    }
+  }, []);
+
+  const updateDraftItems = useCallback((items: DraftItem[]) => {
+    setDraftItems(items);
+    setItemErrors({});
+  }, []);
 
   useEffect(() => {
     // Al corregir la venta, el error inline deja de aplicar.
@@ -763,17 +1020,34 @@ export default function CajaApp() {
 
   const createOrder = useCallback(async () => {
     setSaleError(null);
-    if (!canCharge) {
-      if (creditCents > 0 && !customerName.trim()) {
-        setSaleError("Para fiado necesito el nombre del cliente.");
-        window.requestAnimationFrame(() => {
-          document.getElementById("fiado-customer")?.focus();
-        });
-      } else if (overpay) {
-        setSaleError("El efectivo y el fiado no pueden superar el total.");
-      } else {
-        setSaleError("Agrega al menos un producto con precio.");
-      }
+    if (draftItems.length === 0) {
+      setSaleError("Agrega al menos un producto.");
+      return;
+    }
+
+    const issues = validateDraftItems(draftItems);
+    if (issues.size > 0) {
+      setItemErrors(Object.fromEntries(issues));
+      setSaleError("Revisa los productos marcados.");
+      const firstItem = draftItems.find((item) => issues.has(item.id));
+      const issue = firstItem ? issues.get(firstItem.id) : undefined;
+      if (firstItem && issue) focusDraftField(firstItem.id, issue.field);
+      return;
+    }
+
+    if (overpay) {
+      setSaleError("El fiado no puede superar el total de la venta.");
+      window.requestAnimationFrame(() => {
+        document.getElementById("fiado-amount")?.focus();
+      });
+      return;
+    }
+
+    if (creditCents > 0 && !customerName.trim()) {
+      setSaleError("Para fiado necesito el nombre del cliente.");
+      window.requestAnimationFrame(() => {
+        document.getElementById("fiado-customer")?.focus();
+      });
       return;
     }
 
@@ -784,12 +1058,12 @@ export default function CajaApp() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: draftItems.map(({ description, quantity, unitPriceCents }) => ({
-            description,
+            description: description.trim(),
             quantity,
             unitPriceCents,
           })),
-          cashCents,
-          creditCents,
+          cashCents: appliedCashCents,
+          creditCents: appliedCreditCents,
           customerName: customerName.trim() || null,
         }),
       });
@@ -798,12 +1072,7 @@ export default function CajaApp() {
 
       const order = data.order;
       setActiveOrder(order);
-      setDraftItems([]);
-      setCashCents(0);
-      setCreditCents(0);
-      setCustomerName("");
-      setTranscript("");
-      setTextInput("");
+      clearDraft();
       await loadDashboard();
 
       if (order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled") {
@@ -827,8 +1096,9 @@ export default function CajaApp() {
       setSavingOrder(false);
     }
   }, [
-    canCharge,
-    cashCents,
+    appliedCashCents,
+    appliedCreditCents,
+    clearDraft,
     creditCents,
     customerName,
     draftItems,
@@ -1046,12 +1316,7 @@ export default function CajaApp() {
       if (!response.ok) throw new Error("No pude reiniciar la demo.");
       setActiveOrder(null);
       setPaidOverlay(null);
-      setDraftItems([]);
-      setCashCents(0);
-      setCreditCents(0);
-      setCustomerName("");
-      setTranscript("");
-      setTextInput("");
+      clearDraft();
       setVerifyResult(null);
       setVerifyId("");
       await loadDashboard();
@@ -1059,7 +1324,7 @@ export default function CajaApp() {
     } catch (error) {
       showToast("error", error instanceof Error ? error.message : "No pude reiniciar la demo.");
     }
-  }, [loadDashboard, showToast]);
+  }, [clearDraft, loadDashboard, showToast]);
 
   const merchant = dashboard?.merchant;
   const pendingCredits = dashboard?.credits.filter((credit) => credit.status !== "settled") ?? [];
@@ -1120,6 +1385,29 @@ export default function CajaApp() {
                     </button>
                   }
                 />
+                {restoredDraftAt ? (
+                  <div
+                    role="status"
+                    className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-separator bg-surface-2 px-3 py-2 text-sm text-ink-2"
+                  >
+                    <p className="flex min-w-0 items-center gap-2 font-medium text-ink">
+                      <Clock3 className="h-4 w-4 shrink-0 text-accent" />
+                      {restoredDraftLabel(restoredDraftAt)}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        clearDraft();
+                        window.requestAnimationFrame(() => {
+                          document.getElementById("draft-add-empty")?.focus();
+                        });
+                      }}
+                      className="flex min-h-12 shrink-0 items-center rounded-xl px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
+                    >
+                      Descartar
+                    </button>
+                  </div>
+                ) : null}
                 <CajaPanel
                   listening={listening}
                   transcribing={transcribing}
@@ -1132,8 +1420,12 @@ export default function CajaApp() {
                   creditCents={creditCents}
                   customerName={customerName}
                   draftTotal={draftTotal}
+                  appliedCashCents={appliedCashCents}
+                  appliedCreditCents={appliedCreditCents}
+                  changeCents={changeCents}
                   digitalDue={digitalDue}
                   overpay={overpay}
+                  itemErrors={itemErrors}
                   savingOrder={savingOrder}
                   saleError={saleError}
                   voiceError={voiceError}
@@ -1153,19 +1445,12 @@ export default function CajaApp() {
                     setShowTextInput(true);
                     void interpretText(phrase);
                   }}
-                  onDraftItems={setDraftItems}
+                  onDraftItems={updateDraftItems}
                   onCash={setCashCents}
                   onCredit={setCreditCents}
                   onCustomer={setCustomerName}
                   onCreate={() => void createOrder()}
-                  onClear={() => {
-                    setDraftItems([]);
-                    setCashCents(0);
-                    setCreditCents(0);
-                    setCustomerName("");
-                    setTranscript("");
-                    setTextInput("");
-                  }}
+                  onClear={clearDraft}
                 />
               </section>
 
@@ -1411,8 +1696,12 @@ function CajaPanel(props: {
   creditCents: number;
   customerName: string;
   draftTotal: number;
+  appliedCashCents: number;
+  appliedCreditCents: number;
+  changeCents: number;
   digitalDue: number;
   overpay: boolean;
+  itemErrors: Record<string, DraftItemError>;
   savingOrder: boolean;
   saleError: string | null;
   voiceError: string | null;
@@ -1441,8 +1730,12 @@ function CajaPanel(props: {
     creditCents,
     customerName,
     draftTotal,
+    appliedCashCents,
+    appliedCreditCents,
+    changeCents,
     digitalDue,
     overpay,
+    itemErrors,
     savingOrder,
     saleError,
     voiceError,
@@ -1459,6 +1752,24 @@ function CajaPanel(props: {
     onCreate,
     onClear,
   } = props;
+
+  const [confirmingClear, setConfirmingClear] = useState(false);
+
+  const commitItems = (items: DraftItem[]) => {
+    onDraftItems(items);
+    setConfirmingClear(false);
+  };
+
+  const addDraftItem = () => {
+    const id = newDraftItemId();
+    commitItems([
+      ...draftItems,
+      { id, description: "", quantity: 1, unitPriceCents: 0 },
+    ]);
+    window.requestAnimationFrame(() => {
+      document.getElementById(`draft-description-${id}`)?.focus();
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -1618,12 +1929,19 @@ function CajaPanel(props: {
         </div>
 
         {voiceError ? (
-          <p
-            role="alert"
-            className="mt-3 rounded-xl bg-terracotta-soft px-3 py-2 text-sm font-medium text-danger"
-          >
-            {voiceError}
-          </p>
+          <div className="mt-3 rounded-xl bg-terracotta-soft px-3 py-2">
+            <p role="alert" className="text-sm font-medium text-danger">
+              {voiceError}
+            </p>
+            <button
+              type="button"
+              onClick={addDraftItem}
+              className="mt-1 flex min-h-12 items-center gap-1.5 text-sm font-semibold text-danger underline underline-offset-2"
+            >
+              <Plus className="h-4 w-4" />
+              Escribir productos
+            </button>
+          </div>
         ) : null}
       </section>
 
@@ -1640,7 +1958,9 @@ function CajaPanel(props: {
           {draftItems.length > 0 ? (
             <button
               type="button"
-              onClick={onClear}
+              onClick={() => setConfirmingClear(true)}
+              aria-expanded={confirmingClear}
+              aria-controls="clear-confirmation"
               className="flex min-h-12 items-center gap-1.5 rounded-xl px-2.5 text-sm font-semibold text-ink-2 transition hover:text-danger"
             >
               <Trash2 className="h-4 w-4" />
@@ -1648,6 +1968,35 @@ function CajaPanel(props: {
             </button>
           ) : null}
         </div>
+
+        {confirmingClear && draftItems.length > 0 ? (
+          <div
+            id="clear-confirmation"
+            className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-danger/25 bg-terracotta-soft px-3 py-2"
+          >
+            <p className="text-sm font-semibold text-ink">¿Descartar la venta sin confirmar?</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmingClear(false)}
+                className="flex min-h-12 items-center rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-ink"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmingClear(false);
+                  onClear();
+                }}
+                className="flex min-h-12 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-danger"
+              >
+                <Trash2 className="h-4 w-4" />
+                Sí, limpiar
+              </button>
+            </div>
+          </div>
+        ) : null}
 
         {draftItems.length > 0 && transcript ? (
           <p
@@ -1662,22 +2011,35 @@ function CajaPanel(props: {
           <div className="mt-4 space-y-2.5">
             {draftItems.map((item, index) => {
               const priceText = (item.unitPriceCents / 100).toFixed(2);
+              const itemError = itemErrors[item.id];
               return (
-                <div key={item.id} className="draft-item rounded-xl border border-separator bg-surface-2 p-3">
+                <div
+                  key={item.id}
+                  className={cn(
+                    "draft-item rounded-xl border bg-surface-2 p-3",
+                    itemError ? "border-danger/50" : "border-separator",
+                  )}
+                >
                   <div className="flex items-start gap-2">
                     <input
+                      id={`draft-description-${item.id}`}
                       value={item.description}
                       onChange={(event) => {
                         const next = [...draftItems];
                         next[index] = { ...item, description: event.target.value };
-                        onDraftItems(next);
+                        commitItems(next);
                       }}
-                      className="min-h-12 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
+                      placeholder="Producto"
+                      aria-invalid={Boolean(itemError)}
+                      aria-describedby={itemError ? `item-error-${item.id}` : undefined}
+                      className="min-h-12 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 text-[1rem] font-semibold text-ink outline-none placeholder:text-ink-2/50 focus:border-separator focus:bg-surface"
                       aria-label="Producto"
                     />
                     <button
                       type="button"
-                      onClick={() => onDraftItems(draftItems.filter((candidate) => candidate.id !== item.id))}
+                      onClick={() =>
+                        commitItems(draftItems.filter((candidate) => candidate.id !== item.id))
+                      }
                       className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg text-ink-2 transition hover:bg-surface hover:text-danger"
                       aria-label="Quitar producto"
                     >
@@ -1691,7 +2053,7 @@ function CajaPanel(props: {
                         onClick={() => {
                           const next = [...draftItems];
                           next[index] = { ...item, quantity: Math.max(0.25, item.quantity - 1) };
-                          onDraftItems(next);
+                          commitItems(next);
                         }}
                         className="flex h-12 w-12 items-center justify-center rounded-lg border border-separator bg-surface text-ink-2"
                         aria-label="Menos cantidad"
@@ -1699,15 +2061,22 @@ function CajaPanel(props: {
                         <span className="text-lg leading-none">−</span>
                       </button>
                       <input
+                        id={`draft-quantity-${item.id}`}
                         type="number"
                         min={0.25}
                         step={0.25}
                         value={item.quantity}
                         onChange={(event) => {
                           const next = [...draftItems];
-                          next[index] = { ...item, quantity: Math.max(0.25, Number(event.target.value)) };
-                          onDraftItems(next);
+                          const value = Number(event.target.value);
+                          next[index] = {
+                            ...item,
+                            quantity: Number.isFinite(value) ? Math.max(0.25, value) : 0.25,
+                          };
+                          commitItems(next);
                         }}
+                        aria-invalid={Boolean(itemError)}
+                        aria-describedby={itemError ? `item-error-${item.id}` : undefined}
                         className="tabular h-12 w-14 rounded-lg border border-transparent bg-transparent text-center text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
                         aria-label="Cantidad"
                       />
@@ -1716,7 +2085,7 @@ function CajaPanel(props: {
                         onClick={() => {
                           const next = [...draftItems];
                           next[index] = { ...item, quantity: item.quantity + 1 };
-                          onDraftItems(next);
+                          commitItems(next);
                         }}
                         className="flex h-12 w-12 items-center justify-center rounded-lg border border-separator bg-surface text-ink-2"
                         aria-label="Más cantidad"
@@ -1727,40 +2096,46 @@ function CajaPanel(props: {
                     <label className="flex items-center gap-1 text-sm font-medium text-ink-2">
                       $
                       <input
+                        id={`draft-price-${item.id}`}
                         type="number"
                         min={0}
                         step={0.5}
                         value={priceText}
                         onChange={(event) => {
                           const next = [...draftItems];
+                          const value = Number(event.target.value);
                           next[index] = {
                             ...item,
-                            unitPriceCents: Math.max(0, Math.round(Number(event.target.value) * 100)),
+                            unitPriceCents: Number.isFinite(value)
+                              ? Math.max(0, Math.round(value * 100))
+                              : 0,
                           };
-                          onDraftItems(next);
+                          commitItems(next);
                         }}
+                        aria-invalid={Boolean(itemError)}
+                        aria-describedby={itemError ? `item-error-${item.id}` : undefined}
                         style={{ width: `${Math.max(7, priceText.length + 1)}ch` }}
                         className="tabular h-12 rounded-lg border border-transparent bg-transparent px-1 text-right text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
                         aria-label="Precio unitario"
                       />
                     </label>
                   </div>
+                  {itemError ? (
+                    <p
+                      id={`item-error-${item.id}`}
+                      role="alert"
+                      className="mt-2 text-sm font-medium text-danger"
+                    >
+                      {itemError.message}
+                    </p>
+                  ) : null}
                 </div>
               );
             })}
             <button
               type="button"
-              onClick={() =>
-                onDraftItems([
-                  ...draftItems,
-                  {
-                    id: `draft_${Date.now()}`,
-                    description: "Producto",
-                    quantity: 1,
-                    unitPriceCents: 0,
-                  },
-                ])
-              }
+              id="draft-add"
+              onClick={addDraftItem}
               className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-separator text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
             >
               <Plus className="h-4 w-4" />
@@ -1768,16 +2143,27 @@ function CajaPanel(props: {
             </button>
           </div>
         ) : (
-          <div className="mt-4 flex items-center gap-3 rounded-xl border border-dashed border-separator px-4 py-3 text-left">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-soft text-green">
-              <ReceiptText className="h-5 w-5" />
+          <div className="mt-4 space-y-2.5">
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-separator px-4 py-3 text-left">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-soft text-green">
+                <ReceiptText className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-ink">La caja está lista</p>
+                <p className="mt-0.5 text-sm leading-relaxed text-ink-2">
+                  Habla o escribe arriba, o agrega un producto a mano.
+                </p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-ink">La caja está lista</p>
-              <p className="mt-0.5 text-sm leading-relaxed text-ink-2">
-                Habla o escribe arriba; el pedido aparece aquí.
-              </p>
-            </div>
+            <button
+              type="button"
+              id="draft-add-empty"
+              onClick={addDraftItem}
+              className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-separator text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
+            >
+              <Plus className="h-4 w-4" />
+              Agregar producto
+            </button>
           </div>
         )}
 
@@ -1792,16 +2178,31 @@ function CajaPanel(props: {
                 <div className="mt-1 flex items-center gap-1">
                   <span className="text-sm text-ink-2">$</span>
                   <input
+                    id="cash-received"
                     type="number"
                     min={0}
                     step={0.5}
                     value={cashCents === 0 ? "" : (cashCents / 100).toFixed(2)}
-                    onChange={(event) => onCash(Math.max(0, Math.round(Number(event.target.value) * 100)))}
+                    onChange={(event) => {
+                      const value = Number(event.target.value);
+                      onCash(Number.isFinite(value) ? Math.max(0, Math.round(value * 100)) : 0);
+                    }}
                     placeholder="0.00"
                     aria-label="Efectivo recibido en pesos"
+                    aria-describedby={changeCents > 0 ? "cash-change" : undefined}
                     className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-ink-2/40"
                   />
                 </div>
+                {changeCents > 0 ? (
+                  <p id="cash-change" role="status" className="mt-1 text-sm font-semibold text-green">
+                    Cambio {formatMxn(changeCents)}
+                    <span className="mt-0.5 block text-xs font-normal leading-relaxed text-ink-2">
+                      {appliedCashCents > 0
+                        ? `Se aplican ${formatMxn(appliedCashCents)} al cobro.`
+                        : "No se aplica efectivo al cobro."}
+                    </span>
+                  </p>
+                ) : null}
               </label>
 
               <label className="rounded-xl bg-surface-2 p-3">
@@ -1812,18 +2213,30 @@ function CajaPanel(props: {
                 <div className="mt-1 flex items-center gap-1">
                   <span className="text-sm text-ink-2">$</span>
                   <input
+                    id="fiado-amount"
                     type="number"
                     min={0}
                     step={0.5}
                     value={creditCents === 0 ? "" : (creditCents / 100).toFixed(2)}
-                    onChange={(event) => onCredit(Math.max(0, Math.round(Number(event.target.value) * 100)))}
+                    onChange={(event) => {
+                      const value = Number(event.target.value);
+                      onCredit(Number.isFinite(value) ? Math.max(0, Math.round(value * 100)) : 0);
+                    }}
                     placeholder="0.00"
                     aria-label="Monto a fiado en pesos"
+                    aria-invalid={overpay}
+                    aria-describedby={overpay ? "fiado-overpay" : undefined}
                     className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-ink-2/40"
                   />
                 </div>
               </label>
             </div>
+
+            {overpay ? (
+              <p id="fiado-overpay" role="alert" className="mt-1.5 text-sm font-medium text-danger">
+                El fiado no puede superar el total de la venta.
+              </p>
+            ) : null}
 
             {creditCents > 0 ? (
               <label className="mt-2.5 flex min-h-12 items-center gap-2 rounded-xl border border-attention/25 bg-terracotta-soft/60 px-3">
@@ -1859,16 +2272,16 @@ function CajaPanel(props: {
                 <p className="mt-1 text-sm text-ink-2">
                   {digitalDue > 0
                     ? `${formatMxn(digitalDue)} por cobrar con link`
-                    : creditCents > 0
-                      ? "Todo queda registrado como fiado"
+                    : appliedCreditCents > 0
+                      ? `${formatMxn(appliedCreditCents)} a fiado`
                       : "Sin saldo digital pendiente"}
-                  {overpay ? " · revisa el efectivo/fiado" : ""}
+                  {overpay ? " · el fiado supera el total" : ""}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={onCreate}
-                disabled={draftItems.length === 0 || draftTotal <= 0 || overpay || savingOrder}
+                disabled={draftItems.length === 0 || savingOrder}
                 aria-busy={savingOrder}
                 aria-describedby={saleError ? "sale-error" : undefined}
                 className="on-accent flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto"
