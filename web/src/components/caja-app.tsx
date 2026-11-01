@@ -2036,11 +2036,11 @@ function BusinessOverview({
       ) : report ? (
         <>
           <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="tabular text-[2.5rem] font-semibold leading-none tracking-tight text-ink">
+            <div className="min-w-0 max-w-full">
+              <p className="tabular max-w-full break-words text-[2.5rem] font-semibold leading-[1.05] tracking-tight text-ink">
                 {formatMxn(report.salesCents)}
               </p>
-              <p className="mt-1 text-sm font-semibold text-ink-2">
+              <p className="mt-1 break-words text-sm font-semibold text-ink-2">
                 Ventas registradas · {report.label}
               </p>
             </div>
@@ -3149,7 +3149,7 @@ function CreditList({
                   {initials(credit.customerName ?? "Cliente")}
                 </div>
                 <div className="min-w-0 flex-1 basis-[6rem]">
-                  <p className="truncate text-[1rem] font-semibold text-ink">
+                  <p className="break-words text-[1rem] font-semibold text-ink">
                     {credit.customerName ?? "Cliente"}
                   </p>
                   <p className="break-words text-sm text-ink-2">

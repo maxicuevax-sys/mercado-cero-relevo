@@ -150,6 +150,19 @@ def measure(page, label: str) -> dict:
                     node = node.parentElement;
                 }
                 if (ancestorClip) addClip(ancestorClip);
+
+                const fontSize = parseFloat(s.fontSize);
+                const lineHeight = parseFloat(s.lineHeight);
+                if (fontSize >= 24 && Number.isFinite(lineHeight) && lineHeight / fontSize < 1) {
+                    addClip({
+                        reason: 'tight-line-height',
+                        tag: el.tagName,
+                        text: el.innerText.trim().replace(/\\s+/g, ' ').slice(0, 50),
+                        fontSize,
+                        lineHeight,
+                        intentional: false,
+                    });
+                }
             }
 
             // Fully clipped text: a visible element completely outside an

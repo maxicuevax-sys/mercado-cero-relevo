@@ -64,7 +64,7 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: 17px;
-  line-height: 24px;
+  line-height: 1.45;
   overflow-wrap: break-word;
   font-feature-settings: "ss01" on, "cv11" on;
 }
