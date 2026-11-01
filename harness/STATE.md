@@ -29,6 +29,15 @@
 
 **Nota:** esta tabla es histórica. Para el commit actual, manda `harness/evidence/latest.json` con `ok: true`.
 
+## Última corrida del harness
+
+- Fecha: **1 nov 2026, 19:59 UTC**
+- Commit: **`999848f`** (`gitAtStart.dirty: false`)
+- Modo: **full**, 11/11 en verde
+- Evidencia: `harness/evidence/latest.json`
+- No ejecutados en esa corrida: `build` (corre con `verify:static`), `film` (corre con `--with-film`)
+- Estado de datos: demo reiniciada antes de `truth` y antes de `preflight`
+
 ## Qué está construido
 
 - Caja: venta por voz/texto, draft, efectivo, fiado, link/QR, verificación de comprobante.
