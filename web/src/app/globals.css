@@ -63,10 +63,44 @@ body {
   background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
-  font-size: 17px;
+  font-size: 1.0625rem;
   line-height: 1.45;
   overflow-wrap: break-word;
   font-feature-settings: "ss01" on, "cv11" on;
+}
+
+html[data-text-size="large"] {
+  font-size: 18.5px;
+}
+
+html[data-text-size="xlarge"] {
+  font-size: 20px;
+}
+
+html[data-contrast="high"] {
+  --color-canvas: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-2: #f2f2f2;
+  --color-ink: #000000;
+  --color-ink-2: #1a1a1a;
+  --color-separator: #5c5c5c;
+  --color-accent: #004d38;
+  --color-accent-press: #003326;
+  --color-success: #004d38;
+  --color-attention: #7a2e12;
+  --color-danger: #8a0000;
+  --color-info: #1f3f5c;
+  --color-focus: #000000;
+  --color-green: #004d38;
+  --color-green-soft: #e6f5ee;
+  --color-terracotta: #7a2e12;
+  --color-terracotta-deep: #5c220d;
+  --color-terracotta-soft: #f7e8e2;
+  --color-blue-soft: #e6eef7;
+}
+
+html[data-contrast="high"] *:focus-visible {
+  outline-color: #000000;
 }
 
 :focus-visible {

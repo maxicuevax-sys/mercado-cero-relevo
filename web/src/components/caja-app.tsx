@@ -56,6 +56,9 @@ import type {
 
 type Tab = "caja" | "fiado" | "corte" | "meta";
 type ToastTone = "ok" | "error" | "info";
+type TextSize = "normal" | "large" | "xlarge";
+type ContrastMode = "normal" | "high";
+type VoiceRate = "slow" | "normal" | "fast";
 
 interface Toast {
   tone: ToastTone;
@@ -156,6 +159,9 @@ export default function CajaApp() {
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [textSize, setTextSize] = useState<TextSize>("normal");
+  const [contrast, setContrast] = useState<ContrastMode>("normal");
+  const [voiceRate, setVoiceRate] = useState<VoiceRate>("normal");
 
   const [listening, setListening] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
@@ -209,6 +215,9 @@ export default function CajaApp() {
   const speechIdRef = useRef(0);
   const lastSpeechRef = useRef({ text: "", at: 0 });
   const mutedRef = useRef(muted);
+  const voiceRateRef = useRef(
+    voiceRate === "slow" ? 0.85 : voiceRate === "fast" ? 1.15 : 1,
+  );
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const ttsAbortRef = useRef<AbortController | null>(null);
   const audioCacheRef = useRef<Map<string, string>>(new Map());
@@ -240,11 +249,54 @@ export default function CajaApp() {
     setToday(formatLongDate());
     try {
       setMuted(window.localStorage.getItem("mercado-cero:muted") === "1");
+      const storedSize = window.localStorage.getItem(
+        "mercado-cero:text-size",
+      ) as TextSize | null;
+      if (storedSize === "large" || storedSize === "xlarge") {
+        setTextSize(storedSize);
+      }
+      if (window.localStorage.getItem("mercado-cero:contrast") === "high") {
+        setContrast("high");
+      }
+      const storedRate = window.localStorage.getItem(
+        "mercado-cero:voice-rate",
+      ) as VoiceRate | null;
+      if (storedRate === "slow" || storedRate === "fast") {
+        setVoiceRate(storedRate);
+      }
     } catch {
       // Sin almacenamiento local, la voz queda activa.
     }
     void loadDashboard();
   }, [loadDashboard]);
+
+  useEffect(() => {
+    document.documentElement.dataset.textSize = textSize;
+    try {
+      window.localStorage.setItem("mercado-cero:text-size", textSize);
+    } catch {
+      // La preferencia no es esencial.
+    }
+  }, [textSize]);
+
+  useEffect(() => {
+    document.documentElement.dataset.contrast = contrast;
+    try {
+      window.localStorage.setItem("mercado-cero:contrast", contrast);
+    } catch {
+      // La preferencia no es esencial.
+    }
+  }, [contrast]);
+
+  useEffect(() => {
+    voiceRateRef.current =
+      voiceRate === "slow" ? 0.85 : voiceRate === "fast" ? 1.15 : 1;
+    try {
+      window.localStorage.setItem("mercado-cero:voice-rate", voiceRate);
+    } catch {
+      // La preferencia no es esencial.
+    }
+  }, [voiceRate]);
 
   const toggleMuted = useCallback(() => {
     setMuted((current) => {
@@ -308,7 +360,7 @@ export default function CajaApp() {
 
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "es-MX";
-      utterance.rate = 1.02;
+      utterance.rate = voiceRateRef.current;
       utterance.pitch = 1;
       const voice = window.speechSynthesis
         .getVoices()
@@ -331,6 +383,7 @@ export default function CajaApp() {
       stopAudio();
       const audio = new Audio(src);
       audio.preload = "auto";
+      audio.playbackRate = voiceRateRef.current;
       audioRef.current = audio;
       audio.onended = () => {
         if (audioRef.current === audio) audioRef.current = null;
@@ -386,13 +439,14 @@ export default function CajaApp() {
   );
 
   const speak = useCallback(
-    (text: string) => {
+    (text: string, force = false) => {
       if (mutedRef.current) return;
       if (typeof window === "undefined") return;
       if (typeof document !== "undefined" && document.hidden) return;
 
       const now = Date.now();
       if (
+        !force &&
         lastSpeechRef.current.text === text &&
         now - lastSpeechRef.current.at < 8000
       ) {
@@ -414,6 +468,23 @@ export default function CajaApp() {
     },
     [playAudio, speakPiper],
   );
+
+  const readScreen = useCallback(() => {
+    const main = document.querySelector("main");
+    if (!main) return;
+    const parts = Array.from(
+      main.querySelectorAll<HTMLElement>("h1, h2, [role='status'], [role='alert']"),
+    )
+      .filter((element) => element.getClientRects().length > 0)
+      .map((element) => element.innerText.trim())
+      .filter(Boolean);
+    const text = Array.from(new Set(parts)).join(". ").slice(0, 700);
+    speak(text || "No hay texto para leer en esta pantalla.", true);
+  }, [speak]);
+
+  const repeatLast = useCallback(() => {
+    speak(lastSpeechRef.current.text || "Todavía no he dicho nada.", true);
+  }, [speak]);
 
   useEffect(() => {
     mutedRef.current = muted;
@@ -971,6 +1042,12 @@ export default function CajaApp() {
 
   return (
     <div className="min-h-dvh bg-canvas">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-accent focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-white"
+      >
+        Saltar al contenido
+      </a>
       <AppSidebar
         tab={tab}
         onTab={selectTab}
@@ -990,7 +1067,7 @@ export default function CajaApp() {
           onDemo={() => setDemoOpen(true)}
         />
 
-        <main className="main-container mx-auto w-full max-w-[1200px] px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:pb-10">
+        <main id="main" className="main-container mx-auto w-full max-w-[1200px] px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:pb-10">
           <div hidden={tab !== "caja"}>
             <div className="caja-layout">
               <section className="min-w-0">
@@ -1037,6 +1114,12 @@ export default function CajaApp() {
                   voiceError={voiceError}
                   onStart={startRecording}
                   onStop={stopRecording}
+                  onVoiceHelp={() =>
+                    speak(
+                      "Mantén presionado el micrófono y di qué vendiste. También puedes escribir la venta y tocar Interpretar.",
+                      true,
+                    )
+                  }
                   onTextInput={setTextInput}
                   onToggleText={() => setShowTextInput((value) => !value)}
                   onInterpret={() => void interpretText(textInput)}
@@ -1233,7 +1316,16 @@ export default function CajaApp() {
         title="Guía"
         size="md"
       >
-        <HelpContent />
+        <HelpContent
+          textSize={textSize}
+          onTextSize={setTextSize}
+          contrast={contrast}
+          onContrast={setContrast}
+          voiceRate={voiceRate}
+          onVoiceRate={setVoiceRate}
+          onReadScreen={readScreen}
+          onRepeat={repeatLast}
+        />
       </Sheet>
 
       <Sheet
@@ -1300,6 +1392,7 @@ function CajaPanel(props: {
   voiceError: string | null;
   onStart: () => void;
   onStop: () => void;
+  onVoiceHelp: () => void;
   onTextInput: (value: string) => void;
   onToggleText: () => void;
   onInterpret: () => void;
@@ -1329,6 +1422,7 @@ function CajaPanel(props: {
     voiceError,
     onStart,
     onStop,
+    onVoiceHelp,
     onTextInput,
     onInterpret,
     onSample,
@@ -1343,16 +1437,26 @@ function CajaPanel(props: {
   return (
     <div className="space-y-4">
       <section className="rounded-2xl border border-separator bg-surface p-4 shadow-card sm:p-6">
-        <div>
-          <h2 className="text-[1.375rem] font-semibold tracking-tight text-ink">¿Qué vendiste?</h2>
-          <p className="mt-1 text-sm leading-relaxed text-ink-2">
-            Habla o escribe; tú confirmas.
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h2 className="text-[1.375rem] font-semibold tracking-tight text-ink">¿Qué vendiste?</h2>
+            <p className="mt-1 text-sm leading-relaxed text-ink-2">
+              Habla o escribe; tú confirmas.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onVoiceHelp}
+            className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
+          >
+            <Volume2 className="h-4 w-4" />
+            Escuchar
+          </button>
         </div>
 
         <div className="mt-4 flex flex-wrap items-start gap-4">
-          <div className="flex w-20 shrink-0 flex-col items-center gap-1.5">
-            <div className="relative flex h-16 w-16 items-center justify-center">
+          <div className="flex w-24 shrink-0 flex-col items-center gap-1.5">
+            <div className="relative flex h-20 w-20 items-center justify-center">
               {listening ? (
                 <>
                   <span className="mic-ring absolute inset-0 rounded-full bg-accent/15" />
@@ -1390,7 +1494,7 @@ function CajaPanel(props: {
                 }}
                 disabled={transcribing}
                 className={cn(
-                  "on-accent relative flex h-16 w-16 touch-none select-none items-center justify-center rounded-full transition-colors disabled:opacity-60",
+                  "on-accent relative flex h-20 w-20 touch-none select-none items-center justify-center rounded-full transition-colors disabled:opacity-60",
                   listening
                     ? "bg-danger text-white ring-4 ring-danger/20"
                     : "bg-accent text-white hover:bg-accent-press",
@@ -1412,16 +1516,16 @@ function CajaPanel(props: {
                     ))}
                   </span>
                 ) : (
-                  <Mic className="h-7 w-7" strokeWidth={1.8} />
+                  <Mic className="h-8 w-8" strokeWidth={1.8} />
                 )}
               </button>
             </div>
-            <span className="w-full break-words text-center text-xs font-medium text-ink-2" aria-live="polite">
+            <span className="w-full break-words text-center text-sm font-semibold text-ink-2" aria-live="polite">
               {listening
                 ? `${recordingSeconds}s`
                 : transcribing
                   ? "Interpretando…"
-                  : "Mantén presionado"}
+                  : "Mantén presionado para hablar"}
             </span>
           </div>
 
@@ -1698,7 +1802,7 @@ function CajaPanel(props: {
           </p>
         ) : null}
 
-        <div id="confirmar" className="mt-4 scroll-mt-20 flex flex-col gap-3 border-t border-separator pt-4 sm:flex-row sm:items-end sm:justify-between">
+        <div id="confirmar" className="mt-4 scroll-mt-20 flex flex-col gap-3 border-t border-separator pt-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
           <div>
             <p className="tabular text-[1.75rem] font-semibold leading-none tracking-tight text-ink">
               {formatMxn(draftTotal)}
@@ -2690,9 +2794,9 @@ function CashCloseCard({
                 </div>
               </label>
             </div>
-            <div className="flex items-end justify-between gap-3 border-t border-separator pt-2">
-              <span className="font-semibold text-ink">Debería haber</span>
-              <span className="tabular text-[1.375rem] font-semibold leading-none text-ink">
+            <div className="flex flex-wrap items-end justify-between gap-3 border-t border-separator pt-2">
+              <span className="min-w-0 break-words font-semibold text-ink">Debería haber</span>
+              <span className="tabular break-words text-[1.375rem] font-semibold leading-none text-ink">
                 {formatMxn(expectedCents)}
               </span>
             </div>
@@ -3895,7 +3999,7 @@ function AppSidebar({
   onDemo: () => void;
 }) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[220px] flex-col border-r border-separator bg-surface px-5 py-6 md:flex lg:w-[240px]">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[220px] flex-col border-r border-separator bg-surface px-4 py-6 md:flex lg:w-[240px]">
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent font-display text-xl font-bold text-white">
           0
@@ -3917,14 +4021,14 @@ function AppSidebar({
               onClick={() => onTab(item.id)}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition",
+                "flex min-h-11 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold transition",
                 active
                   ? "bg-green-soft text-green"
                   : "text-ink-2 hover:bg-surface-2 hover:text-ink",
               )}
             >
-              <Icon className="h-5 w-5" strokeWidth={active ? 2.2 : 1.8} />
-              {item.label}
+              <Icon className="h-5 w-5 shrink-0" strokeWidth={active ? 2.2 : 1.8} />
+              <span className="min-w-0 break-all">{item.label}</span>
             </button>
           );
         })}
@@ -3935,19 +4039,19 @@ function AppSidebar({
           <button
             type="button"
             onClick={onDemo}
-            className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+            className="flex min-h-11 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
-            <RefreshCw className="h-5 w-5" />
-            Modo demo
+            <RefreshCw className="h-5 w-5 shrink-0" />
+            <span className="min-w-0 break-all">Modo demo</span>
           </button>
         ) : null}
         <button
           type="button"
           onClick={onHelp}
-          className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+          className="flex min-h-11 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
         >
-          <CircleHelp className="h-5 w-5" />
-          Ayuda
+          <CircleHelp className="h-5 w-5 shrink-0" />
+          <span className="min-w-0 break-all">Ayuda y accesibilidad</span>
         </button>
       </div>
     </aside>
@@ -3984,7 +4088,7 @@ function TopBar({
           </p>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1.5">
+        <div className="flex max-w-full shrink-0 flex-wrap items-center justify-end gap-1.5">
           {demoMode ? (
             <button
               type="button"
@@ -4008,6 +4112,7 @@ function TopBar({
             type="button"
             onClick={onHelp}
             aria-label="Abrir guía"
+            title="Ayuda y accesibilidad"
             className="flex h-11 w-11 items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
             <CircleHelp className="h-5 w-5" />
@@ -4041,7 +4146,7 @@ function MobileTabBar({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
             >
               {active ? <span className="absolute inset-x-7 top-0 h-0.5 rounded-full bg-accent" /> : null}
               <Icon className="h-5 w-5" strokeWidth={active ? 2.2 : 1.8} />
-              {item.label}
+              <span className="max-w-full break-words text-center">{item.label}</span>
             </button>
           );
         })}
@@ -4338,8 +4443,36 @@ function PaidSheet({
   );
 }
 
-function HelpContent() {
+function HelpContent({
+  textSize,
+  onTextSize,
+  contrast,
+  onContrast,
+  voiceRate,
+  onVoiceRate,
+  onReadScreen,
+  onRepeat,
+}: {
+  textSize: TextSize;
+  onTextSize: (value: TextSize) => void;
+  contrast: ContrastMode;
+  onContrast: (value: ContrastMode) => void;
+  voiceRate: VoiceRate;
+  onVoiceRate: (value: VoiceRate) => void;
+  onReadScreen: () => void;
+  onRepeat: () => void;
+}) {
   const [expanded, setExpanded] = useState<number | null>(0);
+  const textOptions: Array<{ id: TextSize; label: string }> = [
+    { id: "normal", label: "Normal" },
+    { id: "large", label: "Grande" },
+    { id: "xlarge", label: "Muy grande" },
+  ];
+  const rateOptions: Array<{ id: VoiceRate; label: string }> = [
+    { id: "slow", label: "Lenta" },
+    { id: "normal", label: "Normal" },
+    { id: "fast", label: "Rápida" },
+  ];
   const faqs = [
     ["¿Cómo cobro?", "Dicta o escribe la venta, confirma el total y genera un link o QR. El cliente paga desde su banco o wallet."],
     ["¿Cuándo está pagado?", "Solo cuando la app muestra “Pago confirmado” después de un webhook firmado de pey. Mientras diga pendiente, no entregues el pedido."],
@@ -4351,6 +4484,98 @@ function HelpContent() {
 
   return (
     <div className="space-y-4">
+      <div className="rounded-xl border border-separator bg-surface p-4">
+        <p className="text-base font-bold text-ink">Accesibilidad</p>
+        <p className="mt-1 text-sm leading-relaxed text-ink-2">
+          Ajusta el texto, el contraste y la voz. Se guarda en este dispositivo.
+        </p>
+
+        <div className="mt-4 space-y-3">
+          <div>
+            <p className="text-sm font-semibold text-ink">Tamaño del texto</p>
+            <div role="group" aria-label="Tamaño del texto" className="mt-1.5 grid grid-cols-3 gap-2">
+              {textOptions.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  aria-pressed={textSize === option.id}
+                  onClick={() => onTextSize(option.id)}
+                  className={cn(
+                    "min-h-11 rounded-xl border px-2 text-sm font-semibold transition",
+                    textSize === option.id
+                      ? "border-accent bg-accent text-white"
+                      : "border-separator bg-surface-2 text-ink-2 hover:text-ink",
+                  )}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold text-ink">Contraste</p>
+            <button
+              type="button"
+              aria-pressed={contrast === "high"}
+              onClick={() =>
+                onContrast(contrast === "high" ? "normal" : "high")
+              }
+              className={cn(
+                "mt-1.5 flex min-h-11 w-full items-center justify-between rounded-xl border px-3 text-sm font-semibold transition",
+                contrast === "high"
+                  ? "border-accent bg-accent text-white"
+                  : "border-separator bg-surface-2 text-ink-2 hover:text-ink",
+              )}
+            >
+              Alto contraste
+              <span aria-hidden="true">{contrast === "high" ? "Activado" : "Desactivado"}</span>
+            </button>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold text-ink">Velocidad de la voz</p>
+            <div role="group" aria-label="Velocidad de la voz" className="mt-1.5 grid grid-cols-3 gap-2">
+              {rateOptions.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  aria-pressed={voiceRate === option.id}
+                  onClick={() => onVoiceRate(option.id)}
+                  className={cn(
+                    "min-h-11 rounded-xl border px-2 text-sm font-semibold transition",
+                    voiceRate === option.id
+                      ? "border-accent bg-accent text-white"
+                      : "border-separator bg-surface-2 text-ink-2 hover:text-ink",
+                  )}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={onReadScreen}
+              className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
+            >
+              <Volume2 className="h-4 w-4" />
+              Leer esta pantalla
+            </button>
+            <button
+              type="button"
+              onClick={onRepeat}
+              className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Repetir último aviso
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="rounded-xl bg-green-soft p-4 text-green">
         <p className="text-sm font-semibold">Primeros pasos</p>
         <ol className="mt-2 space-y-1.5 text-sm leading-relaxed">
