@@ -241,3 +241,32 @@ El shell, la Caja task-first y el flujo demo ya funcionan, pero la app todavía 
 - `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27/27**.
 
 **Pendiente:** quinta verificación independiente. Sin ella no hay gate F4.
+
+---
+
+## Cierre de F3 — quinta verificación independiente
+
+> `VERIFICACION-F3-FINAL-5.md` emitió **LISTO para F4** sobre HEAD `7aa250b` (código `504e824`).
+
+### Resultado independiente
+
+- B7 reparado y reproducido; descripciones largas completas a 360/390/768/1280 al 200%.
+- 200%: 56/56 estados (14 pantallas × 4 viewports), sin recortes, solapes, line-height roto, viewport expandido, controles colapsados ni targets <44.
+- Verdad de pago: 36/36 (9 estados × API, Actividad, sheet, `/pay` y `/success`).
+- Entrega: 5/5; `PaidSheet`, Actividad, efectivo y API 409/idempotente.
+- Foco: 10/10 secuencias, 300/300 pulsaciones, 0 `BODY`.
+- Contrato: 30/30.
+- Audit oficial: exit 0; DOM sintético 8/8 categorías detectadas.
+- `lint`, `tsc`, build (20 rutas) y webhook 27/27.
+- `:3000` intacto; `:3001` restaurado. Sin secretos.
+
+### Observaciones residuales no bloqueantes
+
+- El monto de Corte ocupa dos líneas a 360/390 (completo, sin recorte).
+- Token `attention` distinto del contrato original (se oscureció por contraste).
+- Actividad no muestra una insignia “Entregado” separada.
+- Footer de sheets no fijo.
+- Dos acciones verdes en Caja.
+- “Comprobante” se parte a 360/200%.
+
+**F3 cerrado. Gate F4 habilitado.**
