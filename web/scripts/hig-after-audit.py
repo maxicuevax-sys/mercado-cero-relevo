@@ -103,20 +103,74 @@ def measure(page, label: str) -> dict:
                 .filter(visible)
                 .filter(el => !(el.innerText || '').trim() && !el.getAttribute('aria-label') && !el.getAttribute('title'));
 
-            // Clipping: text that is cut off by an overflow-hidden ancestor or by the viewport.
+            // Clipping: text that is cut off by the viewport, by an
+            // overflow-hidden ancestor, or by its own box (scrollWidth).
             const clipped = [];
+            const addClip = (entry) => clipped.push(entry);
             for (const el of root.querySelectorAll('p, span, h1, h2, h3, h4, dt, dd, li, button, a, label')) {
                 if (!visible(el) || !(el.innerText || '').trim()) continue;
                 const r = el.getBoundingClientRect();
                 if (r.right > window.innerWidth + 1 || r.left < -1 || r.width > window.innerWidth + 1) {
-                    clipped.push({ reason: 'viewport', tag: el.tagName, text: el.innerText.trim().replace(/\\s+/g, ' ').slice(0, 50), left: Math.round(r.left), right: Math.round(r.right), intentional: el.classList.contains('truncate') });
+                    addClip({ reason: 'viewport', tag: el.tagName, text: el.innerText.trim().replace(/\\s+/g, ' ').slice(0, 50), left: Math.round(r.left), right: Math.round(r.right), intentional: el.classList.contains('truncate') });
                     continue;
                 }
                 const s = getComputedStyle(el);
                 const hiddenX = s.overflowX === 'hidden' || s.overflowX === 'clip';
                 const hiddenY = s.overflowY === 'hidden' || s.overflowY === 'clip';
                 if ((hiddenX && el.scrollWidth > el.clientWidth + 1) || (hiddenY && el.scrollHeight > el.clientHeight + 1)) {
-                    clipped.push({ reason: hiddenX ? 'overflow-x' : 'overflow-y', tag: el.tagName, text: el.innerText.trim().replace(/\\s+/g, ' ').slice(0, 50), scroll: el.scrollWidth + 'x' + el.scrollHeight, client: el.clientWidth + 'x' + el.clientHeight, cls: (el.className || '').toString().slice(0, 60), intentional: el.classList.contains('truncate') });
+                    addClip({ reason: hiddenX ? 'overflow-x' : 'overflow-y', tag: el.tagName, text: el.innerText.trim().replace(/\\s+/g, ' ').slice(0, 50), scroll: el.scrollWidth + 'x' + el.scrollHeight, client: el.clientWidth + 'x' + el.clientHeight, cls: (el.className || '').toString().slice(0, 60), intentional: el.classList.contains('truncate') });
+                    continue;
+                }
+                if (el.clientWidth > 0 && el.scrollWidth > el.clientWidth + 1) {
+                    addClip({ reason: 'text-overflow', tag: el.tagName, text: el.innerText.trim().replace(/\\s+/g, ' ').slice(0, 50), scrollWidth: el.scrollWidth, clientWidth: el.clientWidth, cls: (el.className || '').toString().slice(0, 60), intentional: el.classList.contains('truncate') });
+                    continue;
+                }
+                // Partial clipping by an overflow-hidden/clip ancestor. Content
+                // inside a scrollable ancestor is reachable, and .truncate is
+                // an intentional single-line ellipsis.
+                let node = el.parentElement;
+                let ancestorClip = null;
+                let insideScroller = false;
+                while (node && node !== document.body && !ancestorClip) {
+                    const ns = getComputedStyle(node);
+                    const scrolls = ns.overflowY === 'auto' || ns.overflowY === 'scroll' || ns.overflowX === 'auto' || ns.overflowX === 'scroll';
+                    if (scrolls) insideScroller = true;
+                    if ((ns.overflowX === 'hidden' || ns.overflowX === 'clip' || ns.overflowY === 'hidden' || ns.overflowY === 'clip')) {
+                        const a = node.getBoundingClientRect();
+                        if (!insideScroller && !node.classList.contains('truncate') && (r.right > a.right + 2 || r.left < a.left - 2 || r.bottom > a.bottom + 2 || r.top < a.top - 2)) {
+                            ancestorClip = {
+                                reason: 'ancestor-clip',
+                                tag: el.tagName,
+                                text: el.innerText.trim().replace(/\\s+/g, ' ').slice(0, 50),
+                                cls: (el.className || '').toString().slice(0, 60),
+                                intentional: Boolean(el.closest('.truncate')),
+                            };
+                        }
+                    }
+                    node = node.parentElement;
+                }
+                if (ancestorClip) addClip(ancestorClip);
+            }
+
+            // Collapsed controls: a visible input/textarea with ~zero size is
+            // unusable even if it technically has a client rect.
+            for (const el of root.querySelectorAll('input, select, textarea')) {
+                if (el.type === 'hidden' || el.type === 'radio' || el.type === 'checkbox') continue;
+                if (el.classList.contains('sr-only')) continue;
+                if (el.closest('[hidden]')) continue;
+                if (el.getClientRects().length === 0) continue;
+                const s = getComputedStyle(el);
+                if (s.display === 'none' || s.visibility === 'hidden') continue;
+                const r = el.getBoundingClientRect();
+                if (r.width < 8 || r.height < 8) {
+                    addClip({
+                        reason: 'collapsed-control',
+                        tag: el.tagName,
+                        text: (el.getAttribute('aria-label') || el.getAttribute('placeholder') || '').slice(0, 50),
+                        width: Math.round(r.width),
+                        height: Math.round(r.height),
+                        intentional: false,
+                    });
                 }
             }
 
@@ -206,6 +260,16 @@ def measure(page, label: str) -> dict:
     return data
 
 
+def measure_text200(page, label: str, shot_name: str) -> dict:
+    style = page.add_style_tag(content="html { font-size: 200% !important; }")
+    page.wait_for_timeout(500)
+    data = measure(page, label)
+    shot(page, shot_name)
+    style.evaluate("el => el.remove()")
+    page.wait_for_timeout(300)
+    return data
+
+
 def focus_sequence(page, steps: int = 6) -> list[dict]:
     seq = []
     for _ in range(steps):
@@ -254,6 +318,7 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
     page.wait_for_timeout(300)
     record["help"] = measure(page, "help")
     record["helpAxe"] = run_axe(page)
+    record["helpText200"] = measure_text200(page, "help-text-200", f"help-{w}-text200")
     record["helpInitialFocus"] = page.evaluate(
         "Boolean(document.activeElement?.closest('[role=dialog]'))"
     )
@@ -283,6 +348,7 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
     page.wait_for_timeout(300)
     record["verify"] = measure(page, "verify-sheet")
     record["verifyAxe"] = run_axe(page)
+    record["verifyText200"] = measure_text200(page, "verify-text-200", f"verify-{w}-text200")
     shot(page, f"verify-{w}")
     page.keyboard.press("Escape")
     page.wait_for_timeout(200)
@@ -298,6 +364,7 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
         page.wait_for_timeout(500)
         record["payment"] = measure(page, "payment-sheet")
         record["paymentAxe"] = run_axe(page)
+        record["paymentText200"] = measure_text200(page, "payment-text-200", f"payment-{w}-text200")
         shot(page, f"payment-{w}")
         page.get_by_role("button", name="Link de pago").click()
         page.wait_for_selector("text=Simular CoDi", timeout=15000)
@@ -305,10 +372,11 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
         record["link"] = measure(page, "link")
         shot(page, f"link-{w}")
         page.get_by_role("button", name="Simular CoDi").click()
-        page.wait_for_selector("text=Ya llegó", timeout=15000)
+        page.wait_for_selector("text=Pago simulado", timeout=15000)
         page.wait_for_timeout(400)
         record["paid"] = measure(page, "paid-sheet")
         record["paidAxe"] = run_axe(page)
+        record["paidText200"] = measure_text200(page, "paid-text-200", f"paid-{w}-text200")
         record["paidDialogs"] = page.locator('[role="dialog"]').count()
         shot(page, f"paid-{w}")
         page.get_by_role("button", name="Listo para entregar").click()
@@ -325,6 +393,30 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
             shot(page, f"{tab.lower()}-{w}-text200")
             tab_style.evaluate("el => el.remove()")
             page.wait_for_timeout(300)
+
+        # Sheets de Fiado y confirmación de Corte al 200%.
+        page.locator("button:visible", has_text="Fiado").first.click()
+        page.wait_for_timeout(500)
+        page.get_by_role("button", name="Registrar abono").first.click()
+        page.wait_for_timeout(400)
+        record["fiadoSheet"] = measure(page, "fiado-sheet")
+        record["fiadoSheetText200"] = measure_text200(page, "fiado-sheet-text-200", f"fiado-sheet-{w}-text200")
+        shot(page, f"fiado-sheet-{w}")
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(300)
+
+        page.locator("button:visible", has_text="Corte").first.click()
+        page.wait_for_timeout(500)
+        page.get_by_label("Total contado en pesos").fill("1")
+        page.wait_for_timeout(200)
+        page.get_by_role("button", name="Guardar corte").first.click()
+        page.wait_for_timeout(400)
+        record["corteConfirm"] = measure(page, "corte-confirm")
+        record["corteConfirmText200"] = measure_text200(page, "corte-confirm-text-200", f"corte-confirm-{w}-text200")
+        shot(page, f"corte-confirm-{w}")
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(300)
+
         page.locator("button:visible", has_text="Caja").first.click()
         page.wait_for_timeout(400)
 
@@ -380,7 +472,7 @@ def main() -> int:
             page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
             page.on("pageerror", lambda e: errors.append(str(e)))
             try:
-                record = audit_viewport(page, context, w, h, full_flow=w in (360, 1280))
+                record = audit_viewport(page, context, w, h, full_flow=w in (360, 390, 1280))
                 record["consoleErrors"] = errors
                 results.append(record)
                 home = record["home"]

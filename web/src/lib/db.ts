@@ -410,7 +410,7 @@ function mapOrder(row: Record<string, unknown>): Order {
     .get(row.id as string) as { total: number };
   const lastPayment = database
     .prepare(
-      "SELECT provider FROM payments WHERE order_id = ? AND status = 'paid' ORDER BY created_at DESC LIMIT 1",
+      "SELECT provider FROM payments WHERE order_id = ? AND status = 'paid' ORDER BY CASE WHEN method != 'cash' THEN 0 ELSE 1 END, created_at DESC LIMIT 1",
     )
     .get(row.id as string) as { provider: string } | undefined;
 

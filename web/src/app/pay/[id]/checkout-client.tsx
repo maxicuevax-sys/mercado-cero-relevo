@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   ArrowLeft,
+  Banknote,
   Check,
   CreditCard,
   Loader2,
@@ -33,6 +34,7 @@ interface CheckoutData {
     status: string;
     totalCents: number;
     paidCents: number;
+    digitalPaidCents: number;
     creditCents: number;
     amountDueCents: number;
     paymentMethod: string | null;
@@ -143,7 +145,7 @@ export default function CheckoutPage() {
 
   const isCredit = useMemo(() => {
     if (!data) return false;
-    return !data.payment && data.order.creditCents > 0 && data.order.amountDueCents <= 0;
+    return data.order.creditCents > 0 && data.order.amountDueCents <= 0;
   }, [data]);
 
   const isPaid = useMemo(() => {
@@ -238,14 +240,24 @@ export default function CheckoutPage() {
   const isDemoPayment = payment?.provider === "demo";
 
   if (isCredit) {
+    const cashPaid = Math.max(0, order.paidCents - order.digitalPaidCents);
+    const source = [
+      cashPaid > 0 ? `${formatMxn(cashPaid)} en efectivo` : null,
+      payment ? `${formatMxn(payment.amountCents)} ${isDemoPayment ? "demo" : "verificado por pey"}` : null,
+    ]
+      .filter(Boolean)
+      .join(" + ");
+
     return (
-      <main className="grid min-h-dvh place-items-center bg-canvas px-4 py-8">
+      <main className="grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
         <section role="status" aria-live="polite" className="w-full max-w-md overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
-          <div className="px-5 pb-7 pt-8 text-center">
+          <div className="px-[18px] pb-7 pt-8 text-center sm:px-5">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-terracotta-soft text-attention">
               <NotebookPen className="h-7 w-7" />
             </div>
-            <p className="mt-4 text-sm font-semibold text-ink-2">Venta a fiado</p>
+            <p className="mt-4 text-sm font-semibold text-ink-2">
+              {order.paidCents > 0 ? "Cobro mixto" : "Venta a fiado"}
+            </p>
             <h1 ref={resultHeadingRef} tabIndex={-1} className="mt-1 text-[1.75rem] font-semibold tracking-tight text-ink outline-none">
               Quedó anotado
             </h1>
@@ -256,10 +268,11 @@ export default function CheckoutPage() {
               Pedido {order.shortRef} · {merchant.name}
             </p>
           </div>
-          <div className="border-t border-separator px-5 py-4">
+          <div className="border-t border-separator px-[18px] py-4 sm:px-5">
             <div className="rounded-xl bg-surface-2 px-3.5 py-3">
               <p className="text-sm leading-relaxed text-ink-2">
-                Saldo pendiente: <strong>{formatMxn(order.creditCents)}</strong>. Está en la
+                {source ? <>Recibiste {source}. </> : null}
+                Quedó a fiado: <strong>{formatMxn(order.creditCents)}</strong>. Está en la
                 libreta de fiado; no es dinero recibido ni un pago confirmado.
               </p>
             </div>
@@ -278,37 +291,50 @@ export default function CheckoutPage() {
 
   if (isPaid) {
     const demo = isDemoPayment;
+    const cashPaid = Math.max(0, order.paidCents - order.digitalPaidCents);
+    const cashOnly = !payment && cashPaid > 0;
+
     return (
-      <main className="grid min-h-dvh place-items-center bg-canvas px-4 py-8">
+      <main className="grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
         <section role="status" aria-live="polite" className="w-full max-w-md overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
-          <div className="px-5 pb-7 pt-8 text-center">
+          <div className="px-[18px] pb-7 pt-8 text-center sm:px-5">
             <div
               className={cn(
                 "mx-auto flex h-16 w-16 items-center justify-center rounded-full",
-                demo ? "bg-terracotta-soft text-attention" : "bg-green-soft text-green",
+                demo
+                  ? "bg-terracotta-soft text-attention"
+                  : cashOnly
+                    ? "bg-surface-2 text-ink"
+                    : "bg-green-soft text-green",
               )}
             >
-              {demo ? <Sparkles className="h-7 w-7" /> : <Check className="h-8 w-8" />}
+              {demo ? (
+                <Sparkles className="h-7 w-7" />
+              ) : cashOnly ? (
+                <Banknote className="h-7 w-7" />
+              ) : (
+                <Check className="h-8 w-8" />
+              )}
             </div>
             <p className="mt-4 text-sm font-semibold text-ink-2">
-              {demo ? "Pago simulado · demo" : "Pago confirmado"}
+              {demo ? "Pago simulado · demo" : cashOnly ? "Cobrado en caja" : "Pago confirmado"}
             </p>
             <h1 ref={resultHeadingRef} tabIndex={-1} className="mt-1 text-[1.75rem] font-semibold tracking-tight text-ink outline-none">
-              {demo ? "Pago simulado" : "Listo para entregar"}
+              {demo ? "Pago simulado" : cashOnly ? "Efectivo recibido" : "Listo para entregar"}
             </h1>
             <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
-              {formatMxn(payment?.amountCents ?? order.totalCents)}
+              {formatMxn(payment?.amountCents ?? (cashPaid || order.totalCents))}
             </p>
             <p className="mt-2 text-sm text-ink-2">
               Pedido {order.shortRef} · {merchant.name}
             </p>
           </div>
 
-          <div className="border-t border-separator px-5 py-4">
+          <div className="border-t border-separator px-[18px] py-4 sm:px-5">
             <dl className="space-y-3 text-sm">
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                 <dt className="text-ink-2">Método</dt>
-                <dd className="font-semibold text-ink">{methodLabel}</dd>
+                <dd className="font-semibold text-ink">{payment ? methodLabel : "Efectivo"}</dd>
               </div>
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                 <dt className="text-ink-2">Comercio</dt>
@@ -328,7 +354,9 @@ export default function CheckoutPage() {
               <p className="text-sm leading-relaxed text-ink-2">
                 {demo
                   ? "Pago simulado para la demo. En producción, este estado solo aparece con la confirmación firmada de pey."
-                  : "pey confirmó este pago. La comerciante ya puede entregar el pedido."}
+                  : cashOnly
+                    ? "Recibiste el efectivo en la caja. No pasó por pey ni es un pago verificado por el banco."
+                    : "pey confirmó este pago. La comerciante ya puede entregar el pedido."}
               </p>
             </div>
 
@@ -341,7 +369,9 @@ export default function CheckoutPage() {
             </Link>
             {justPaid ? (
               <p className="mt-3 text-center text-xs text-ink-2">
-                La caja de la comerciante ya recibió la confirmación.
+                {cashOnly
+                  ? "La caja ya registró el efectivo."
+                  : "La caja de la comerciante ya recibió la confirmación."}
               </p>
             ) : null}
           </div>
@@ -351,7 +381,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-dvh bg-canvas px-4 py-8">
+    <main className="min-h-dvh bg-canvas px-[16px] py-8">
       <div className="mx-auto w-full max-w-[480px]">
         <header className="flex flex-wrap items-center justify-between gap-3 px-1">
           <div className="flex min-w-0 items-center gap-2.5">
@@ -374,7 +404,7 @@ export default function CheckoutPage() {
         </header>
 
         <section className="mt-4 overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
-          <div className="border-b border-separator bg-surface-2/60 px-5 py-4">
+          <div className="border-b border-separator bg-surface-2/60 px-[18px] py-4 sm:px-5">
             <h1 className="text-[1.625rem] font-semibold leading-tight tracking-tight text-ink">
               Pagar a {merchant.name}
             </h1>
@@ -394,7 +424,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <div className="px-5 py-4">
+          <div className="px-[18px] py-4 sm:px-5">
             <div className="rounded-xl bg-surface-2 px-3.5 py-2">
               {order.items.map((item) => (
                 <div
@@ -490,6 +520,7 @@ export default function CheckoutPage() {
               type="button"
               onClick={pay}
               disabled={paying}
+              aria-busy={paying}
               className="on-accent mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-[0.9375rem] font-bold text-white shadow-card transition hover:bg-accent-press disabled:cursor-wait disabled:opacity-80"
             >
               {paying ? (

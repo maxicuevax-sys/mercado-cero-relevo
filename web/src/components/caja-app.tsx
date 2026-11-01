@@ -911,7 +911,7 @@ export default function CajaApp() {
 
           <section hidden={tab !== "corte"} className="mx-auto max-w-[1000px]">
               <ScreenHeading
-                title="Corte"
+                title="Corte de caja"
                 subtitle="Cuenta el efectivo de hoy."
               />
               <div className="space-y-5">
@@ -955,17 +955,7 @@ export default function CajaApp() {
       <Sheet
         open={Boolean(activeOrder)}
         onClose={() => setActiveOrder(null)}
-        title={
-          activeOrder
-            ? activeOrder.status === "paid"
-              ? "Pedido pagado"
-              : activeOrder.status === "fulfilled"
-                ? "Pedido a fiado"
-                : activeOrder.paymentUrl || activeOrder.qrString
-                  ? "Cobro pendiente"
-                  : `Cobrar ${formatMxn(activeOrder.totalCents)}`
-            : "Cobro"
-        }
+        title={activeOrder ? paymentSheetTitle(activeOrder) : "Cobro"}
         size="md"
       >
         <PaymentPanel
@@ -1546,65 +1536,103 @@ function PaymentPanel(props: {
   if (!order) return null;
 
   const due = Math.max(0, order.totalCents - order.paidCents - order.creditCents);
-  const isPaid = order.status === "paid";
-  const isCredit = order.status === "fulfilled" && order.creditCents > 0;
-  const isMixed = isCredit && order.digitalPaidCents > 0;
+  const isPaid = order.status === "paid" || order.status === "fulfilled";
+  const isCredit = order.creditCents > 0;
   const waiting = order.status === "payment_pending" || order.status === "confirmed";
   const qrValue = order.qrImage ? null : order.qrString ?? order.paymentUrl;
 
   if (isPaid || isCredit) {
-    const demo = isPaid && order.lastPaymentProvider === "demo";
+    const truth = paymentTruth(order);
+    const mixed = truth.hasCredit && truth.receivedCents > 0;
+    const source = [
+      truth.cashPaidCents > 0 ? `${formatMxn(truth.cashPaidCents)} en efectivo` : null,
+      order.digitalPaidCents > 0
+        ? `${formatMxn(order.digitalPaidCents)} ${truth.isDemo ? "demo" : "verificado por pey"}`
+        : null,
+    ]
+      .filter(Boolean)
+      .join(" + ");
+
     return (
       <div className="space-y-4">
         <div className="rounded-2xl border border-separator bg-surface p-5 text-center">
           <div
             className={cn(
               "mx-auto flex h-14 w-14 items-center justify-center rounded-full",
-              isPaid && !demo ? "bg-green-soft text-green" : "bg-terracotta-soft text-attention",
+              truth.hasCredit || truth.isDemo
+                ? "bg-terracotta-soft text-attention"
+                : truth.isCash
+                  ? "bg-surface-2 text-ink"
+                  : "bg-green-soft text-green",
             )}
           >
-            {isPaid ? (
-              demo ? <Sparkles className="h-6 w-6" /> : <Check className="h-7 w-7" />
-            ) : (
+            {truth.hasCredit ? (
               <NotebookPen className="h-6 w-6" />
+            ) : truth.isDemo ? (
+              <Sparkles className="h-6 w-6" />
+            ) : truth.isCash ? (
+              <Banknote className="h-6 w-6" />
+            ) : (
+              <Check className="h-7 w-7" />
             )}
           </div>
           <p className="mt-4 text-sm font-semibold text-ink-2">
-            {isPaid
-              ? demo
+            {truth.hasCredit
+              ? mixed
+                ? "Cobro mixto"
+                : "Venta a fiado"
+              : truth.isDemo
                 ? "Pago simulado · demo"
-                : "Pago verificado"
-              : isMixed
-                ? "Pago mixto"
-                : "Venta a fiado"}
+                : truth.isCash
+                  ? "Cobrado en caja"
+                  : "Pago verificado"}
           </p>
           <h2 className="mt-1 text-[1.625rem] font-semibold tracking-tight text-ink">
-            {isPaid ? "Pedido pagado" : isMixed ? "Cobro mixto registrado" : "Quedó anotado"}
+            {truth.hasCredit
+              ? "Quedó anotado"
+              : truth.isDemo
+                ? "Pago simulado"
+                : truth.isCash
+                  ? "Efectivo recibido"
+                  : "Pedido pagado"}
           </h2>
           <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
-            {formatMxn(order.totalCents)}
+            {formatMxn(truth.hasCredit ? order.totalCents : truth.receivedCents || order.totalCents)}
           </p>
           <p className="mt-2 text-sm text-ink-2">
             Pedido {shortOrder(order.id)} ·{" "}
-            {isPaid
-              ? demo
+            {truth.hasCredit
+              ? mixed
+                ? `${source} + ${formatMxn(order.creditCents)} a fiado`
+                : `fiado con ${order.customerName ?? "el cliente"}`
+              : truth.isDemo
                 ? "simulado en modo demo"
-                : "confirmado por pey"
-              : isMixed
-                ? `${formatMxn(order.digitalPaidCents)} digitales + ${formatMxn(order.creditCents)} a fiado`
-                : `fiado con ${order.customerName ?? "el cliente"}`}
+                : truth.isCash
+                  ? "recibido en efectivo, sin pasar por pey"
+                  : "confirmado por pey"}
           </p>
-          {isCredit ? (
+          {truth.hasCredit ? (
             <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
-              {isMixed ? (
-                <>
-                  Digital verificado: <strong>{formatMxn(order.digitalPaidCents)}</strong>.{" "}
-                </>
-              ) : null}
+              {mixed ? `Recibiste ${source}. ` : null}
               Saldo pendiente: <strong>{formatMxn(order.creditCents)}</strong>. Aparece en la
               libreta de fiado; no es dinero recibido.
             </p>
-          ) : null}
+          ) : truth.isDemo ? (
+            <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
+              En producción, este estado solo se actualiza con la confirmación firmada de pey. No
+              se movió dinero real.
+            </p>
+          ) : truth.isCash ? (
+            <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
+              Recibiste el efectivo en la caja. No pasó por pey ni es un pago verificado por el
+              banco.
+            </p>
+          ) : (
+            <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
+              El pago fue confirmado con una confirmación firmada de pey. Puedes entregar el
+              pedido.
+            </p>
+          )}
         </div>
         <div className="flex gap-2">
           <button
@@ -1628,7 +1656,7 @@ function PaymentPanel(props: {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-ink-2">
             Cobro · Pedido {shortOrder(order.id)}
@@ -1651,13 +1679,13 @@ function PaymentPanel(props: {
             disabled={loading}
             className="on-accent flex min-h-14 w-full items-center justify-between gap-3 rounded-xl bg-accent px-4 text-left text-white transition hover:bg-accent-press disabled:opacity-60"
           >
-            <span className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/15">
+            <span className="flex min-w-0 flex-1 items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/15">
                 <Link2 className="h-5 w-5" />
               </span>
-              <span>
-                <span className="block text-sm font-bold">Link de pago</span>
-                <span className="block text-sm text-white/90">CoDi + tarjeta + wallets</span>
+              <span className="min-w-0">
+                <span className="block break-words text-sm font-bold">Link de pago</span>
+                <span className="block break-words text-sm text-white/90">CoDi + tarjeta + wallets</span>
               </span>
             </span>
             {loading && mode === "link" ? (
@@ -1673,13 +1701,13 @@ function PaymentPanel(props: {
             disabled={loading}
             className="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border border-separator bg-surface px-4 text-left text-ink transition hover:border-accent/40 disabled:opacity-60"
           >
-            <span className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-soft text-green">
+            <span className="flex min-w-0 flex-1 items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-soft text-green">
                 <QrCode className="h-5 w-5" />
               </span>
-              <span>
-                <span className="block text-sm font-bold">QR CoDi directo</span>
-                <span className="block text-sm text-ink-2">Solo transferencia CoDi</span>
+              <span className="min-w-0">
+                <span className="block break-words text-sm font-bold">QR CoDi directo</span>
+                <span className="block break-words text-sm text-ink-2">Solo transferencia CoDi</span>
               </span>
             </span>
             {loading && mode === "qr" ? (
@@ -1868,7 +1896,7 @@ function BusinessOverview({
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
-      <div className="border-b border-separator bg-surface-2/50 px-5 py-4 sm:px-6">
+      <div className="border-b border-separator bg-surface-2/50 px-[18px] py-4 sm:px-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <div className="flex flex-wrap items-center gap-2">
@@ -1913,7 +1941,7 @@ function BusinessOverview({
         </div>
       </div>
 
-      <div className="p-5 sm:p-6">
+      <div className="p-[20px] sm:p-6">
       {loading && !report ? (
         <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
           <div className="shimmer h-28 rounded-2xl" />
@@ -1959,23 +1987,16 @@ function BusinessOverview({
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 border-t border-separator/60">
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {[
               { label: "Cobrado", value: report.collectedCents, note: "De las ventas del periodo" },
               { label: "Por cobrar", value: report.pendingCents, note: "De las ventas del periodo" },
               { label: "Ticket promedio", value: report.averageTicketCents, note: `${report.orderCount} ventas` },
               { label: "Fiado", value: report.creditCents, note: "Saldo pendiente total" },
-            ].map((item, index) => (
-              <div
-                key={item.label}
-                className={cn(
-                  "py-3.5",
-                  index % 2 === 0 ? "border-r border-separator/60 pr-3" : "pl-3",
-                  index < 2 && "border-b border-separator/60",
-                )}
-              >
+            ].map((item) => (
+              <div key={item.label} className="rounded-xl bg-surface-2 px-3 py-3">
                 <p className="text-sm font-semibold text-ink-2">{item.label}</p>
-                <p className="tabular mt-1 text-xl font-bold text-ink">{formatMxn(item.value)}</p>
+                <p className="tabular mt-1 break-words text-xl font-bold text-ink">{formatMxn(item.value)}</p>
                 <p className="mt-0.5 text-sm text-ink-2">{item.note}</p>
               </div>
             ))}
@@ -2216,7 +2237,7 @@ function CashCloseCard({
   }
 
   return (
-    <div className="rounded-2xl border border-separator bg-surface p-5 shadow-card sm:p-6">
+    <div className="rounded-2xl border border-separator bg-surface p-[20px] shadow-card sm:p-6">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-ink-2">Corte de caja</p>
@@ -2255,7 +2276,7 @@ function CashCloseCard({
 
           <label className="block">
             <span className="text-sm font-semibold text-ink-2">Total contado</span>
-            <div className="mt-1 flex items-center gap-1 rounded-xl border border-separator bg-surface-2 px-3 py-2">
+            <div className="mt-1 flex items-center gap-1 rounded-xl border border-separator bg-surface-2 px-[12px] py-2">
               <span className="text-sm text-ink-2">$</span>
               <input
                 value={counted}
@@ -2360,7 +2381,7 @@ function CashCloseCard({
             </div>
           ) : null}
 
-          <div className="space-y-2 rounded-xl border border-separator bg-surface px-4 py-3">
+          <div className="space-y-2 rounded-xl border border-separator bg-surface px-[16px] py-3">
             <p className="text-sm font-semibold text-ink">De dónde sale el esperado</p>
             <div className="space-y-1.5 text-sm">
               {[
@@ -2374,10 +2395,10 @@ function CashCloseCard({
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               <label className="block">
                 <span className="text-sm font-semibold text-ink-2">Gastos de caja</span>
-                <div className="mt-1 flex items-center gap-1 rounded-xl border border-separator bg-surface-2 px-2.5 py-2">
+                <div className="mt-1 flex items-center gap-1 rounded-xl border border-separator bg-surface-2 px-[10px] py-2">
                   <span className="text-sm text-ink-2">$</span>
                   <input
                     value={expenses}
@@ -2390,7 +2411,7 @@ function CashCloseCard({
               </label>
               <label className="block">
                 <span className="text-sm font-semibold text-ink-2">Retiros</span>
-                <div className="mt-1 flex items-center gap-1 rounded-xl border border-separator bg-surface-2 px-2.5 py-2">
+                <div className="mt-1 flex items-center gap-1 rounded-xl border border-separator bg-surface-2 px-[10px] py-2">
                   <span className="text-sm text-ink-2">$</span>
                   <input
                     value={withdrawals}
@@ -2412,7 +2433,7 @@ function CashCloseCard({
 
           <label className="block">
             <span className="text-sm font-semibold text-ink-2">Base para mañana</span>
-            <div className="mt-1 flex items-center gap-1 rounded-xl border border-separator bg-surface-2 px-2.5 py-2">
+            <div className="mt-1 flex items-center gap-1 rounded-xl border border-separator bg-surface-2 px-[10px] py-2">
               <span className="text-sm text-ink-2">$</span>
               <input
                 value={baseNext}
@@ -2603,31 +2624,34 @@ function GoalCard({
   }
 
   return (
-    <div className="rounded-2xl border border-separator bg-surface p-4 shadow-card sm:p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-ink-2">Mi camino</p>
-          <h2 className="mt-0.5 text-[1.5rem] font-semibold tracking-tight text-ink">Una meta a la vez</h2>
+    <>
+      <figure className="mb-4 overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
+        <div className="relative h-[160px] bg-surface-2 sm:h-44">
+          <Image
+            src="/puesto-flores.jpg"
+            alt="Puesto de flores en un tianguis de la Ciudad de México"
+            fill
+            sizes="(max-width: 1024px) 100vw, 420px"
+            className="object-cover"
+          />
         </div>
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-soft text-green">
-          <Umbrella className="h-6 w-6" strokeWidth={1.6} />
+        <figcaption className="px-4 py-2.5 text-xs leading-relaxed text-ink-2">
+          Lo que estás construyendo · Foto: Ehécatl Cabrera / CC BY-SA 4.0.
+        </figcaption>
+      </figure>
+
+      <div className="rounded-2xl border border-separator bg-surface p-[20px] shadow-card sm:p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-ink-2">Mi camino</p>
+            <h2 className="mt-0.5 text-[1.5rem] font-semibold tracking-tight text-ink">Una meta a la vez</h2>
+          </div>
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-soft text-green">
+            <Umbrella className="h-6 w-6" strokeWidth={1.6} />
+          </div>
         </div>
-      </div>
 
-      <div className="relative mt-4 h-32 overflow-hidden rounded-xl bg-surface-2">
-        <Image
-          src="/puesto-flores.jpg"
-          alt="Puesto de flores en un tianguis de la Ciudad de México"
-          fill
-          sizes="(max-width: 1024px) 100vw, 420px"
-          className="object-cover"
-        />
-      </div>
-      <p className="mt-1.5 text-xs text-ink-2">
-        Lo que estás construyendo · Foto: Ehécatl Cabrera / CC BY-SA 4.0.
-      </p>
-
-      <div className="mt-4 space-y-3">
+        <div className="mt-4 space-y-3">
         <div className="flex items-end justify-between gap-3">
           <div>
             <p className="text-[1.25rem] font-semibold tracking-tight text-ink">{goal.title}</p>
@@ -2658,7 +2682,7 @@ function GoalCard({
             : "Sin fecha límite"}
         </p>
 
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           <div className="rounded-xl bg-surface-2 px-3 py-2.5">
             <p className="text-xs text-ink-2">Falta</p>
             <p className="tabular mt-0.5 text-[1rem] font-semibold text-ink">{formatMxn(goal.remainingCents)}</p>
@@ -2671,7 +2695,7 @@ function GoalCard({
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <div className="flex min-h-11 flex-1 items-center gap-1 rounded-xl border border-separator bg-surface-2 px-3">
             <span className="text-sm text-ink-2">$</span>
             <input
@@ -2687,7 +2711,8 @@ function GoalCard({
             type="button"
             onClick={() => void contribute()}
             disabled={saving}
-            className="on-accent flex min-h-11 items-center gap-1.5 rounded-xl bg-accent px-3 text-sm font-semibold text-white transition hover:bg-accent-press disabled:opacity-60"
+            aria-busy={saving}
+            className="on-accent flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 text-sm font-semibold text-white transition hover:bg-accent-press disabled:opacity-60 sm:w-auto"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             Apartar
@@ -2705,7 +2730,8 @@ function GoalCard({
           resguardo.
         </p>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -2806,7 +2832,7 @@ function ReconcileCard({ demoMode }: { demoMode: boolean }) {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             <div className="rounded-xl bg-surface/60 p-3">
               <p className="text-sm font-semibold text-ink-2">
                 Local
@@ -2894,62 +2920,76 @@ function ActivityList({
             Aún no hay ventas. Habla para crear la primera.
           </p>
         ) : (
-          visibleOrders.map((order) => (
-            <button
-              key={order.id}
-              type="button"
-              onClick={() => onSelect(order)}
-              className="group flex min-h-14 w-full items-center gap-3 rounded-xl px-2 py-2.5 text-left transition hover:bg-surface-2"
-            >
-              <div
-                className={cn(
-                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
-                  order.creditCents > 0
-                    ? "bg-terracotta-soft text-attention"
-                    : order.status === "paid" || order.status === "fulfilled"
-                      ? "bg-green-soft text-green"
-                      : order.status === "payment_pending"
-                        ? "bg-terracotta-soft text-attention"
-                        : "bg-surface-2 text-ink-2",
-                )}
+          visibleOrders.map((order) => {
+            const truth = paymentTruth(order);
+            const mixed = truth.hasCredit && truth.receivedCents > 0;
+            const demo = !truth.hasCredit && truth.isDemo;
+            const cash = !truth.hasCredit && truth.isCash;
+            const pending = !truth.hasCredit && !demo && !cash && order.status === "payment_pending";
+            const Icon = truth.hasCredit
+              ? NotebookPen
+              : demo
+                ? Sparkles
+                : cash
+                  ? Banknote
+                  : order.status === "paid" || order.status === "fulfilled"
+                    ? Check
+                    : pending
+                      ? Clock3
+                      : ReceiptText;
+            return (
+              <button
+                key={order.id}
+                type="button"
+                onClick={() => onSelect(order)}
+                className="group flex min-h-14 w-full flex-wrap items-center gap-3 rounded-xl px-2 py-2.5 text-left transition hover:bg-surface-2"
               >
-                {order.creditCents > 0 ? (
-                  <NotebookPen className="h-4 w-4" />
-                ) : order.status === "paid" || order.status === "fulfilled" ? (
-                  <Check className="h-4 w-4" />
-                ) : order.status === "payment_pending" ? (
-                  <Clock3 className="h-4 w-4" />
-                ) : (
-                  <ReceiptText className="h-4 w-4" />
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-ink">
-                  {order.items.map((item) => `${item.quantity} ${item.description}`).join(" · ") ||
-                    `Pedido ${shortOrder(order.id)}`}
-                </p>
-                <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs text-ink-2">
-                  <span>{formatTime(order.createdAt)}</span>
-                  <span className="h-0.5 w-0.5 rounded-full bg-ink-2/50" />
-                  <span
-                    className={cn(
-                      order.creditCents > 0 && "font-semibold text-attention",
-                    )}
-                  >
-                    {order.creditCents > 0
-                      ? order.digitalPaidCents > 0
-                        ? "Pago mixto"
-                        : "Fiado"
-                      : statusLabel(order.status)}
-                  </span>
-                </p>
-              </div>
-              <div className="shrink-0 text-right">
-                <p className="tabular text-sm font-semibold text-ink">{formatMxn(order.totalCents)}</p>
-                <ChevronRight className="ml-auto mt-0.5 h-4 w-4 text-ink-2/60 transition group-hover:translate-x-0.5" />
-              </div>
-            </button>
-          ))
+                <div
+                  className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+                    truth.hasCredit || demo || pending
+                      ? "bg-terracotta-soft text-attention"
+                      : cash
+                        ? "bg-surface-2 text-ink"
+                        : order.status === "paid" || order.status === "fulfilled"
+                          ? "bg-green-soft text-green"
+                          : "bg-surface-2 text-ink-2",
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                </div>
+                <div className="min-w-0 flex-1 basis-[10rem]">
+                  <p className="truncate text-sm font-semibold text-ink">
+                    {order.items.map((item) => `${item.quantity} ${item.description}`).join(" · ") ||
+                      `Pedido ${shortOrder(order.id)}`}
+                  </p>
+                  <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs text-ink-2">
+                    <span>{formatTime(order.createdAt)}</span>
+                    <span className="h-0.5 w-0.5 rounded-full bg-ink-2/50" />
+                    <span
+                      className={cn(
+                        (truth.hasCredit || demo) && "font-semibold text-attention",
+                      )}
+                    >
+                      {truth.hasCredit
+                        ? mixed
+                          ? "Pago mixto"
+                          : "Fiado"
+                        : demo
+                          ? "Demo"
+                          : cash
+                            ? "Efectivo"
+                            : statusLabel(order.status)}
+                    </span>
+                  </p>
+                </div>
+                <div className="ml-auto shrink-0 text-right">
+                  <p className="tabular text-sm font-semibold text-ink">{formatMxn(order.totalCents)}</p>
+                  <ChevronRight className="ml-auto mt-0.5 h-4 w-4 text-ink-2/60 transition group-hover:translate-x-0.5" />
+                </div>
+              </button>
+            );
+          })
         )}
       </div>
       {orders.length > 5 ? (
@@ -3009,20 +3049,20 @@ function CreditList({
         <div className="space-y-2.5">
           {credits.map((credit) => (
             <div key={credit.id} className="rounded-2xl border border-separator bg-surface p-4">
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-terracotta-soft text-sm font-bold text-attention">
                   {initials(credit.customerName ?? "Cliente")}
                 </div>
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 flex-1 basis-[6rem]">
                   <p className="truncate text-[1rem] font-semibold text-ink">
                     {credit.customerName ?? "Cliente"}
                   </p>
-                  <p className="text-sm text-ink-2">
+                  <p className="break-words text-sm text-ink-2">
                     {credit.status === "partial" ? "Abono parcial" : "Pendiente"} · desde{" "}
                     {formatTime(credit.createdAt)}
                   </p>
                 </div>
-                <div className="shrink-0 text-right">
+                <div className="ml-auto shrink-0 text-right">
                   <p className="tabular text-[1rem] font-semibold text-attention">
                     {formatMxn(credit.balanceCents)}
                   </p>
@@ -3078,15 +3118,56 @@ function CreditPaySheet({
 }) {
   const amountCents = Math.round(Number(amount) * 100);
   const valid = Number.isFinite(amountCents) && amountCents > 0;
+  const [discardOpen, setDiscardOpen] = useState(false);
+  const initialAmount = credit ? (credit.balanceCents / 100).toFixed(2) : "";
+  const dirty =
+    Boolean(credit) &&
+    (amount !== initialAmount || note.trim().length > 0 || method !== "cash");
+
+  useEffect(() => {
+    // Al abrir otro fiado, la confirmación de descarte deja de aplicar.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDiscardOpen(false);
+  }, [credit?.id]);
+
+  function requestClose() {
+    if (dirty) {
+      setDiscardOpen(true);
+      return;
+    }
+    onClose();
+  }
 
   return (
     <Sheet
       open={Boolean(credit)}
-      onClose={onClose}
+      onClose={requestClose}
       title="Registrar abono"
       size="sm"
     >
       {credit ? (
+        discardOpen ? (
+          <div className="space-y-4">
+            <p role="alert" className="rounded-xl bg-terracotta-soft px-4 py-3 text-sm leading-relaxed text-ink">
+              Tienes un abono sin guardar. Si cierras ahora se pierden el monto y la nota.
+            </p>
+            <button
+              type="button"
+              onClick={() => setDiscardOpen(false)}
+              autoFocus
+              className="flex min-h-12 w-full items-center justify-center rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press"
+            >
+              Seguir editando
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex min-h-11 w-full items-center justify-center rounded-xl border border-separator bg-surface text-sm font-semibold text-ink-2 transition hover:text-danger"
+            >
+              Descartar abono
+            </button>
+          </div>
+        ) : (
         <div className="space-y-4">
           <div className="rounded-xl bg-surface-2 px-4 py-3">
             <p className="text-sm font-semibold text-ink">
@@ -3183,6 +3264,7 @@ function CreditPaySheet({
             Un abono reduce la deuda; no crea una venta nueva ni cuenta como dinero cobrado hoy.
           </p>
         </div>
+        )
       ) : null}
     </Sheet>
   );
@@ -3428,12 +3510,12 @@ function StatusBadge({ status }: { status: Order["status"] }) {
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-[0.04em]",
+        "inline-flex max-w-full flex-wrap items-center gap-1.5 break-words rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-[0.04em]",
         styles[status],
       )}
     >
-      <Icon className="h-3.5 w-3.5" />
-      {statusLabel(status)}
+      <Icon className="h-3.5 w-3.5 shrink-0" />
+      <span className="min-w-0 break-words">{statusLabel(status)}</span>
     </span>
   );
 }
@@ -3449,6 +3531,37 @@ function statusLabel(status: Order["status"]): string {
     cancelled: "Cancelado",
   };
   return labels[status];
+}
+
+/**
+ * Fuente real del dinero de un pedido. No infiere demo del flag global:
+ * demo, efectivo, pey y fiado son estados distintos.
+ */
+function paymentTruth(order: Order) {
+  const cashPaidCents = Math.max(0, order.paidCents - order.digitalPaidCents);
+  const receivedCents = Math.min(order.totalCents, order.paidCents);
+  const provider = order.lastPaymentProvider;
+  return {
+    cashPaidCents,
+    receivedCents,
+    provider,
+    hasCredit: order.creditCents > 0,
+    isDemo: provider === "demo",
+    isCash: provider === "cash",
+    isVerified: provider === "pey",
+    isPaid: order.status === "paid" || order.status === "fulfilled",
+  };
+}
+
+function paymentSheetTitle(order: Order): string {
+  const truth = paymentTruth(order);
+  if (truth.hasCredit) return truth.receivedCents > 0 ? "Pago mixto" : "Pedido a fiado";
+  if (truth.isDemo) return "Pago simulado";
+  if (truth.isCash) return "Efectivo recibido";
+  if (truth.isVerified) return order.status === "fulfilled" ? "Pedido entregado" : "Pago verificado";
+  if (order.status === "fulfilled") return "Pedido entregado";
+  if (order.paymentUrl || order.qrString) return "Cobro pendiente";
+  return `Cobrar ${formatMxn(order.totalCents)}`;
 }
 
 function ScreenHeading({
@@ -3472,7 +3585,7 @@ function ScreenHeading({
         </h1>
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>
-      <p className="mt-1 text-[0.8125rem] leading-relaxed text-ink-2">{subtitle}</p>
+      <p className="mt-1 text-[0.9375rem] leading-relaxed text-ink-2">{subtitle}</p>
     </div>
   );
 }
@@ -3504,7 +3617,7 @@ function AppSidebar({
           0
         </div>
         <div className="min-w-0">
-          <p className="font-display text-xl leading-none tracking-tight text-ink">Mercado Cero</p>
+          <p className="break-words font-display text-xl leading-none tracking-tight text-ink">Mercado Cero</p>
           <p className="mt-1 text-xs font-medium text-ink-2">La caja que habla</p>
         </div>
       </div>
@@ -3578,10 +3691,10 @@ function TopBar({
     <header className="sticky top-0 z-30 border-b border-separator bg-canvas/95 backdrop-blur-sm">
       <div className="mx-auto flex min-h-14 max-w-[1200px] flex-wrap items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8">
         <div className="min-w-[8rem] flex-1">
-          <p className="truncate text-sm font-semibold text-ink">
+          <p className="break-words text-sm font-semibold text-ink">
             {merchant?.name ?? "Antojitos de Lupita"}
           </p>
-          <p className="truncate text-xs text-ink-2">
+          <p className="break-words text-xs text-ink-2">
             {merchant?.address ?? "Coyoacán, CDMX"}
             <span className="hidden sm:inline"> · {today || "Hoy"}</span>
           </p>
@@ -3706,15 +3819,19 @@ function Sheet({
         event.preventDefault();
         return;
       }
-      const first = items[0];
-      const last = items[items.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
+      // Trap every Tab/Shift+Tab, not only the first and last nodes. The
+      // title is programmatically focusable and sits before the close button.
+      const current = document.activeElement as HTMLElement | null;
+      const index = current ? items.indexOf(current) : -1;
+      event.preventDefault();
+      const nextIndex = event.shiftKey
+        ? index <= 0
+          ? items.length - 1
+          : index - 1
+        : index === -1 || index === items.length - 1
+          ? 0
+          : index + 1;
+      items[nextIndex].focus();
     };
 
     const timer = window.setTimeout(() => titleRef.current?.focus(), 30);
@@ -3744,7 +3861,10 @@ function Sheet({
     <div
       className="fixed inset-0 z-[60] flex items-end justify-center bg-ink/40 p-0 backdrop-blur-[2px] sm:items-center sm:p-4"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
+        if (event.target === event.currentTarget) {
+          event.preventDefault();
+          onClose();
+        }
       }}
     >
       <div
@@ -3757,12 +3877,12 @@ function Sheet({
           size === "sm" ? "sm:max-w-md" : "sm:max-w-[560px]",
         )}
       >
-        <div className="flex items-start justify-between gap-3 border-b border-separator px-5 py-4">
+        <div className="flex items-start justify-between gap-3 border-b border-separator px-[18px] py-4 sm:px-5">
           <h2
             ref={titleRef}
             id={titleId}
             tabIndex={-1}
-            className="text-[1.375rem] font-semibold leading-tight tracking-tight text-ink outline-none"
+            className="min-w-0 flex-1 break-words text-[1.375rem] font-semibold leading-tight tracking-tight text-ink outline-none"
           >
             {title}
           </h2>
@@ -3775,7 +3895,7 @@ function Sheet({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="overflow-y-auto px-5 py-4 pb-[max(20px,env(safe-area-inset-bottom))]">
+        <div className="overflow-y-auto px-[18px] py-4 pb-[max(20px,env(safe-area-inset-bottom))] sm:px-5">
           {children}
         </div>
       </div>
@@ -3798,46 +3918,89 @@ function PaidSheet({
   error: string | null;
 }) {
   if (!order) return null;
-  const isCredit = order.status === "fulfilled" && order.creditCents > 0;
-  const isMixed = isCredit && order.digitalPaidCents > 0;
-  const demo = !isCredit && order.lastPaymentProvider === "demo";
+  const truth = paymentTruth(order);
+  const mixed = truth.hasCredit && truth.receivedCents > 0;
+  const source = [
+    truth.cashPaidCents > 0 ? `${formatMxn(truth.cashPaidCents)} en efectivo` : null,
+    order.digitalPaidCents > 0
+      ? `${formatMxn(order.digitalPaidCents)} ${truth.isDemo ? "demo" : "verificado por pey"}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(" + ");
 
   return (
-    <Sheet open={Boolean(order)} onClose={onClose} title={isCredit ? "Fiado" : "Pago"} size="sm">
+    <Sheet open={Boolean(order)} onClose={onClose} title={paymentSheetTitle(order)} size="sm">
       <div className="text-center" aria-live="polite">
         <div
           className={cn(
             "mx-auto flex h-16 w-16 items-center justify-center rounded-full",
-            isCredit || demo ? "bg-terracotta-soft text-attention" : "bg-green-soft text-green",
+            truth.hasCredit || truth.isDemo
+              ? "bg-terracotta-soft text-attention"
+              : truth.isCash
+                ? "bg-surface-2 text-ink"
+                : "bg-green-soft text-green",
           )}
         >
-          {isCredit ? <NotebookPen className="h-7 w-7" /> : demo ? <Sparkles className="h-7 w-7" /> : <Check className="h-8 w-8" />}
+          {truth.hasCredit ? (
+            <NotebookPen className="h-7 w-7" />
+          ) : truth.isDemo ? (
+            <Sparkles className="h-7 w-7" />
+          ) : truth.isCash ? (
+            <Banknote className="h-7 w-7" />
+          ) : (
+            <Check className="h-8 w-8" />
+          )}
         </div>
         <p className="mt-4 text-sm font-semibold text-ink-2">
-          {isCredit ? (isMixed ? "Pago mixto" : "Venta a fiado") : demo ? "Pago simulado · demo" : "Confirmado por el banco"}
+          {truth.hasCredit
+            ? mixed
+              ? "Cobro mixto"
+              : "Venta a fiado"
+            : truth.isDemo
+              ? "Pago simulado · demo"
+              : truth.isCash
+                ? "Cobrado en caja"
+                : "Confirmado por el banco"}
         </p>
         <h2 className="mt-1 text-[1.75rem] font-semibold tracking-tight text-ink">
-          {isCredit ? (isMixed ? "Cobro mixto registrado" : "Quedó anotado") : "Ya llegó"}
+          {truth.hasCredit
+            ? "Quedó anotado"
+            : truth.isDemo
+              ? "Pago simulado"
+              : truth.isCash
+                ? "Efectivo recibido"
+                : "Ya llegó"}
         </h2>
         <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
-          {formatMxn(order.totalCents)}
+          {formatMxn(truth.hasCredit ? order.totalCents : truth.receivedCents || order.totalCents)}
         </p>
         <p className="mt-2 text-sm text-ink-2">
           Pedido {shortOrder(order.id)} ·{" "}
-          {isCredit
-            ? isMixed
-              ? `${formatMxn(order.digitalPaidCents)} digitales + ${formatMxn(order.creditCents)} a fiado`
+          {truth.hasCredit
+            ? mixed
+              ? `${source} + ${formatMxn(order.creditCents)} a fiado`
               : `fiado con ${order.customerName ?? "el cliente"}`
-            : demo
+            : truth.isDemo
               ? "simulado en modo demo"
-              : "confirmado por pey"}
+              : truth.isCash
+                ? "recibido en efectivo, sin pasar por pey"
+                : "confirmado por pey"}
         </p>
         <p className="mt-4 rounded-xl bg-surface-2 px-3 py-2.5 text-left text-sm leading-relaxed text-ink-2">
-          {isCredit
-            ? `Saldo pendiente: ${formatMxn(order.creditCents)}. Aparece en Fiado; no es dinero recibido.`
-            : demo
-              ? "En producción, este estado solo se actualiza con la confirmación firmada de pey. No se movió dinero real."
-              : "El pago fue confirmado con una confirmación firmada de pey. Puedes entregar el pedido."}
+          {truth.hasCredit ? (
+            <>
+              {mixed ? `Recibiste ${source}. ` : null}
+              Saldo pendiente: <strong>{formatMxn(order.creditCents)}</strong>. Aparece en Fiado;
+              no es dinero recibido.
+            </>
+          ) : truth.isDemo ? (
+            "En producción, este estado solo se actualiza con la confirmación firmada de pey. No se movió dinero real."
+          ) : truth.isCash ? (
+            "Recibiste el efectivo en la caja. No pasó por pey ni es un pago verificado por el banco."
+          ) : (
+            "El pago fue confirmado con una confirmación firmada de pey. Puedes entregar el pedido."
+          )}
         </p>
         {error ? (
           <p role="alert" className="mt-3 rounded-xl bg-terracotta-soft px-3 py-2 text-left text-sm text-danger">
@@ -3846,12 +4009,13 @@ function PaidSheet({
         ) : null}
         <button
           type="button"
-          onClick={isCredit ? onClose : onDeliver}
+          onClick={truth.hasCredit ? onClose : onDeliver}
           disabled={delivering}
+          aria-busy={delivering}
           className="on-accent mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-70"
         >
           {delivering ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-          {isCredit ? "Entendido" : delivering ? "Entregando…" : "Listo para entregar"}
+          {truth.hasCredit ? "Entendido" : delivering ? "Entregando…" : "Listo para entregar"}
         </button>
       </div>
     </Sheet>

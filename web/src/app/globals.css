@@ -64,7 +64,8 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: 17px;
-  line-height: 1.45;
+  line-height: 24px;
+  overflow-wrap: break-word;
   font-feature-settings: "ss01" on, "cv11" on;
 }
 
@@ -134,7 +135,7 @@ button {
   gap: 0.625rem;
 }
 
-@media (min-width: 40rem) {
+@media (min-width: 64rem) {
   .split-fields {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

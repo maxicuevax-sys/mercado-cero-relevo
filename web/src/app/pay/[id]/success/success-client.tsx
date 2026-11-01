@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Check, Loader2, NotebookPen, Sparkles, Store } from "lucide-react";
+import { Banknote, Check, Loader2, NotebookPen, Sparkles, Store } from "lucide-react";
 import { cn, formatMxn } from "@/lib/format";
 
 interface CheckoutData {
@@ -14,6 +14,8 @@ interface CheckoutData {
     shortRef: string;
     status: string;
     totalCents: number;
+    paidCents: number;
+    digitalPaidCents: number;
     amountDueCents: number;
     creditCents: number;
   };
@@ -65,7 +67,6 @@ export default function CheckoutSuccessPage() {
 
   const isCredit =
     Boolean(data) &&
-    !data?.payment &&
     (data?.order.creditCents ?? 0) > 0 &&
     (data?.order.amountDueCents ?? 1) <= 0;
   const paid =
@@ -81,14 +82,26 @@ export default function CheckoutSuccessPage() {
   }, [paid, isCredit]);
 
   if (isCredit && data) {
+    const cashPaid = Math.max(0, data.order.paidCents - data.order.digitalPaidCents);
+    const source = [
+      cashPaid > 0 ? `${formatMxn(cashPaid)} en efectivo` : null,
+      data.payment
+        ? `${formatMxn(data.payment.amountCents)} ${data.payment.provider === "demo" ? "demo" : "verificado por pey"}`
+        : null,
+    ]
+      .filter(Boolean)
+      .join(" + ");
+
     return (
-      <main className="grid min-h-dvh place-items-center bg-canvas px-4 py-8">
+      <main className="grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
         <section role="status" aria-live="polite" className="w-full max-w-md overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
-          <div className="px-5 pb-7 pt-8 text-center">
+          <div className="px-[18px] pb-7 pt-8 text-center sm:px-5">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-terracotta-soft text-attention">
               <NotebookPen className="h-7 w-7" />
             </div>
-            <p className="mt-4 text-sm font-semibold text-ink-2">Venta a fiado</p>
+            <p className="mt-4 text-sm font-semibold text-ink-2">
+              {data.order.paidCents > 0 ? "Cobro mixto" : "Venta a fiado"}
+            </p>
             <h1 ref={headingRef} tabIndex={-1} className="mt-1 text-[1.75rem] font-semibold tracking-tight text-ink outline-none">
               Quedó anotado
             </h1>
@@ -99,10 +112,11 @@ export default function CheckoutSuccessPage() {
               Pedido {data.order.shortRef} · {data.merchant.name}
             </p>
           </div>
-          <div className="border-t border-separator px-5 py-4">
+          <div className="border-t border-separator px-[18px] py-4 sm:px-5">
             <div className="rounded-xl bg-surface-2 px-3.5 py-3">
               <p className="text-sm leading-relaxed text-ink-2">
-                Saldo pendiente: <strong>{formatMxn(data.order.creditCents)}</strong>. Está en la
+                {source ? <>Recibiste {source}. </> : null}
+                Quedó a fiado: <strong>{formatMxn(data.order.creditCents)}</strong>. Está en la
                 libreta de fiado; no es dinero recibido ni un pago confirmado.
               </p>
             </div>
@@ -118,23 +132,30 @@ export default function CheckoutSuccessPage() {
     );
   }
 
+  const cashPaid = data ? Math.max(0, data.order.paidCents - data.order.digitalPaidCents) : 0;
+  const cashOnly = Boolean(data) && paid && !data?.payment && cashPaid > 0;
+
   return (
-    <main className="grid min-h-dvh place-items-center bg-canvas px-4 py-8">
+    <main className="grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
       <section role="status" aria-live="polite" className="w-full max-w-md overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
-        <div className="px-5 pb-7 pt-8 text-center">
+        <div className="px-[18px] pb-7 pt-8 text-center sm:px-5">
           <div
             className={cn(
               "mx-auto flex h-16 w-16 items-center justify-center rounded-full",
-              paid && !demo
+              paid && !demo && !cashOnly
                 ? "bg-green-soft text-green"
-                : paid && demo
-                  ? "bg-terracotta-soft text-attention"
-                  : "bg-surface-2 text-ink-2",
+                : paid && cashOnly
+                  ? "bg-surface-2 text-ink"
+                  : paid && demo
+                    ? "bg-terracotta-soft text-attention"
+                    : "bg-surface-2 text-ink-2",
             )}
           >
             {paid ? (
               demo ? (
                 <Sparkles className="h-7 w-7" />
+              ) : cashOnly ? (
+                <Banknote className="h-7 w-7" />
               ) : (
                 <Check className="h-8 w-8" strokeWidth={2.4} />
               )
@@ -143,14 +164,26 @@ export default function CheckoutSuccessPage() {
             )}
           </div>
           <p className="mt-4 text-sm font-semibold text-ink-2">
-            {paid ? (demo ? "Modo demo" : "Pago confirmado") : "Verificando pago"}
+            {paid
+              ? demo
+                ? "Modo demo"
+                : cashOnly
+                  ? "Cobrado en caja"
+                  : "Pago confirmado"
+              : "Verificando pago"}
           </p>
           <h1 ref={headingRef} tabIndex={-1} className="mt-1 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none">
-            {paid ? (demo ? "Pago simulado" : "Listo para entregar") : "Estamos confirmando con el banco"}
+            {paid
+              ? demo
+                ? "Pago simulado"
+                : cashOnly
+                  ? "Efectivo recibido"
+                  : "Listo para entregar"
+              : "Estamos confirmando con el banco"}
           </h1>
           {data ? (
             <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
-              {formatMxn(data.payment?.amountCents ?? data.order.totalCents)}
+              {formatMxn(data.payment?.amountCents ?? (cashPaid || data.order.totalCents))}
             </p>
           ) : null}
           {data ? (
@@ -160,7 +193,7 @@ export default function CheckoutSuccessPage() {
           ) : null}
         </div>
 
-        <div className="border-t border-separator px-5 py-4">
+        <div className="border-t border-separator px-[18px] py-4 sm:px-5">
           {paid && data?.payment ? (
             <>
               <dl className="space-y-3 text-sm">
@@ -184,6 +217,20 @@ export default function CheckoutSuccessPage() {
                   {demo
                     ? "Pago simulado para la demo. En producción, este estado solo aparece con la confirmación firmada de pey."
                     : "pey confirmó este pago con una confirmación firmada. Ya puedes mostrar esta pantalla."}
+                </p>
+              </div>
+            </>
+          ) : cashOnly ? (
+            <>
+              <p className="text-center text-sm leading-relaxed text-ink-2">
+                Recibiste {formatMxn(cashPaid)} en efectivo en la caja. No pasó por pey ni es un
+                pago verificado por el banco.
+              </p>
+              <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-surface-2 px-3.5 py-3">
+                <Store className="mt-0.5 h-4 w-4 shrink-0 text-ink-2" />
+                <p className="text-sm leading-relaxed text-ink-2">
+                  La comerciante ya puede entregar el pedido. El efectivo queda registrado en el
+                  corte de caja.
                 </p>
               </div>
             </>
