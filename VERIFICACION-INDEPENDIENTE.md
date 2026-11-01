@@ -219,3 +219,25 @@ El shell, la Caja task-first y el flujo demo ya funcionan, pero la app todavía 
 - `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27/27**.
 
 **Pendiente:** cuarta verificación independiente. Sin ella no hay gate F4.
+
+---
+
+## Quinta ronda tras la cuarta verificación independiente
+
+> `VERIFICACION-F3-FINAL-4.md` confirmó B4/B5/B6 y dejó un solo bloqueante: **B7**, la descripción de la venta en Actividad seguía con `truncate` al 200%.
+
+### Correcciones
+
+- **B7:** se eliminó `truncate` de la descripción de Actividad; ahora usa `break-words`. Probado con “CASO Cobro General” a 360/390/768/1280 al 200%: texto completo, `scrollWidth = clientWidth`.
+- **Legibilidad del monto:** el monto grande de analítica inserta un `<wbr>` antes de los centavos, así `$2,182.00` se parte como `$2,182` / `.00` en vez de `$2,182.` / `00`.
+- **Error de red de Verificar:** se traduce “Failed to fetch” a “No pude verificar el comprobante. Revisa tu conexión e intenta de nuevo.”
+- **Audit:** se mantiene el detector `tight-line-height` y el gate completo; pasó en 360/390/768/1280 con sheets, Demo y `/success` al 200%.
+
+### Evidencia
+
+- `python scripts/hig-after-audit.py` → **PASÓ**.
+- Prueba B7 + monto + error de red → todo en verde a 360/390.
+- `npm run lint`, `npx tsc --noEmit`, `npm run build` → limpios.
+- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27/27**.
+
+**Pendiente:** quinta verificación independiente. Sin ella no hay gate F4.
