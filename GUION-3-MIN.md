@@ -10,13 +10,13 @@
 
 Lupita vende quesadillas en Coyoacán. Casi todo es efectivo, pero cuando le transfieren, el dinero cae en la cuenta de su hija Ana. Para saber si ya le pagaron, Lupita tiene que llamarle, esperar una captura y confiar. Si la captura es falsa, pierde la venta.
 
-[Señala la línea **“Cuenta receptora: Ana (hija) •••• 4812”**.]
+[Señala la cabecera con **Antojitos de Lupita**.]
 
 Mercado Cero convierte esa duda en un estado claro: **pendiente, pagado o fiado**.
 
 ## 0:20–0:50 · La venta
 
-[Pulsa **Cobrar ahora**.]
+[Caja es la pantalla inicial.]
 
 Lupita no navega menús: habla.
 
@@ -44,7 +44,7 @@ La caja no dice “pagado” hasta que llega el webhook firmado de pey. Una capt
 
 ## 1:20–1:50 · Anti-fraude
 
-[Cierra el overlay con **Listo para entregar**. Baja a **Verificar comprobante**. Pulsa **Probar con un comprobante falso**.]
+[Cierra el overlay con **Listo para entregar**. Pulsa **Verificar** en la cabecera y luego **Probar con un comprobante falso**.]
 
 Si el ID no existe en la cuenta de pey, no es un pago verificable. La app no se impresiona con capturas.
 
@@ -52,7 +52,7 @@ Si el ID no existe en la cuenta de pey, no es un pago verificable. La app no se 
 
 ## 1:50–2:20 · Fiado y voz
 
-[Baja a **¿Qué vendiste?** y pulsa **“Juan me pagó 50 del fiado”**.]
+[Vuelve a **Caja** y pulsa **“Juan me pagó 50 del fiado”**.]
 
 El fiado no es una venta nueva: es un abono. El saldo de Juan baja de cincuenta a cero.
 
@@ -62,11 +62,11 @@ La voz también sirve para consultar, pero el dinero verificado y la deuda viven
 
 ## 2:20–2:40 · Mi negocio y corte
 
-[Baja a **Mi negocio**. Cambia **Hoy / Semana / Mes**.]
+[Abre **Corte** y baja a **Así va la caja**. Cambia **Hoy / Semana / Mes**.]
 
 La comerciante ve cuánto vendió, cuánto cobró de verdad, cuánto le deben y su ticket promedio.
 
-[Baja a **Corte de caja**. Pulsa **Actualizar corte**.]
+[En **Corte**, arriba, pulsa **Actualizar corte**.]
 
 El abono de Juan sumó cincuenta pesos en efectivo: debería haber seiscientos veinte.
 
@@ -76,7 +76,7 @@ Cuadra. Todo sale del mismo registro.
 
 ## 2:40–3:00 · Mi camino y cierre
 
-[Baja a **Mi camino**. Escribe **25** y pulsa **Apartar**.]
+[Abre **Meta**. Escribe **25** y pulsa **Apartar**.]
 
 Aparta veinticinco pesos para su sombrilla. No es una cuenta de ahorro: es un apartado declarado.
 

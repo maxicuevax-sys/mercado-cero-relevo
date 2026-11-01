@@ -44,7 +44,7 @@ Lee la tarea en voz alta y deja que la persona la resuelva. No des pistas.
    - Si el abono de Juan fue en efectivo, el esperado es $620.
 
 5. **“Quieres apartar $25 para una sombrilla.”**
-   - Debe encontrar **Mi camino** y registrar la aportación.
+   - Debe encontrar **Meta** y registrar la aportación.
 
 ## 4 · Qué medir
 
@@ -87,13 +87,13 @@ Además:
 
 No sustituyen la prueba con una persona real; son hipótesis para observar.
 
-- El CTA **Cobrar ahora** y las frases de ejemplo hacen obvio el primer paso.
+- La pantalla **Caja** y las frases de ejemplo hacen obvio el primer paso.
 - Los estados **pendiente / pagado / fiado** se distinguen por color, sello y copy.
 - El **corte** está en una sección aparte; el tab **Corte** ayuda, pero la persona puede no asociarlo con “cerrar caja”.
 - El abono de fiado en efectivo cambia el esperado del corte; hay que pulsar **Actualizar corte**. Es el punto más probable de confusión.
 - El link largo es menos natural que el QR; en el teléfono, el QR es el camino.
 - La **Guía** existe, pero una persona no la busca si no sabe que está.
-- **Mi camino** es la parte más emocional; la gente entiende rápido “apartar para la sombrilla”.
+- **Meta** es la parte más emocional; la gente entiende rápido “apartar para la sombrilla”.
 
 ## 8 · Registro
 
