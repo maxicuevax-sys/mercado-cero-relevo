@@ -113,6 +113,26 @@ function parseMoney(value: string): number {
   return Number.isFinite(amount) ? Math.round(amount * 100) : 0;
 }
 
+function friendlyError(error: unknown, fallback: string): string {
+  if (
+    error instanceof TypeError ||
+    (error instanceof Error && /failed to fetch|networkerror|load failed/i.test(error.message))
+  ) {
+    return `${fallback} Revisa tu conexión e intenta de nuevo.`;
+  }
+  return error instanceof Error && error.message ? error.message : fallback;
+}
+
+function Money({ cents }: { cents: number }) {
+  const [whole, decimals] = formatMxn(cents).split(".");
+  return (
+    <>
+      {whole}
+      <wbr />.{decimals}
+    </>
+  );
+}
+
 export default function CajaApp() {
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -547,7 +567,7 @@ export default function CajaApp() {
         }
       }
     } catch (error) {
-      setSaleError(error instanceof Error ? error.message : "No pude crear la venta.");
+      setSaleError(friendlyError(error, "No pude crear la venta."));
     } finally {
       setSavingOrder(false);
     }
@@ -672,9 +692,7 @@ export default function CajaApp() {
           speak("Ese comprobante no está verificado. No entregues el pedido.");
         }
       } catch (error) {
-        setVerifyError(
-          error instanceof Error ? error.message : "No pude verificar el comprobante.",
-        );
+        setVerifyError(friendlyError(error, "No pude verificar el comprobante."));
       } finally {
         setVerifying(false);
       }
@@ -712,9 +730,7 @@ export default function CajaApp() {
         setCreditPayNote("");
         await loadDashboard();
       } catch (error) {
-        setCreditPayError(
-          error instanceof Error ? error.message : "No pude registrar el abono.",
-        );
+        setCreditPayError(friendlyError(error, "No pude registrar el abono."));
       } finally {
         setCreditPaying(false);
       }
@@ -2038,7 +2054,7 @@ function BusinessOverview({
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div className="min-w-0 max-w-full">
               <p className="tabular max-w-full break-words text-[2.5rem] font-semibold leading-[1.05] tracking-tight text-ink">
-                {formatMxn(report.salesCents)}
+                <Money cents={report.salesCents} />
               </p>
               <p className="mt-1 break-words text-sm font-semibold text-ink-2">
                 Ventas registradas · {report.label}
@@ -3050,7 +3066,7 @@ function ActivityList({
                   <Icon className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1 basis-[10rem]">
-                  <p className="truncate text-sm font-semibold text-ink">
+                  <p className="break-words text-sm font-semibold text-ink">
                     {order.items.map((item) => `${item.quantity} ${item.description}`).join(" · ") ||
                       `Pedido ${shortOrder(order.id)}`}
                   </p>
