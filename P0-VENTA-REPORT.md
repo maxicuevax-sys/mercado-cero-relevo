@@ -154,9 +154,9 @@ Precio 0 con foco, cantidad 0 restaurada (foco y sin POST) y banners de ayer/var
 
 ## 7 · Estado de entrega
 
-- Commit de código: el commit de esta revisión en `git log --oneline` (se fija en el commit de evidencia).
-- Evidencia de harness: `harness/evidence/latest.json` con `ok: true` y `gitAtStart.sha` igual al commit de código.
-- Evidencia E2E: `harness/evidence/p0-venta-e2e.json` (43 PASS · 0 FAIL · 1 KNOWN; incluye `code.commit`, `code.dirty` y `build.next`).
+- Commit de código: `8ca16c9` (`fix(caja): conservar banner editable y ampliar evidencia p0`).
+- Evidencia de harness: `harness/evidence/latest.json` con `ok: true`, `mode: static` y `gitAtStart.sha = 8ca16c9` (`dirty: false`).
+- Evidencia E2E: `harness/evidence/p0-venta-e2e.json` (43 PASS · 0 FAIL · 1 KNOWN; `code.commit = 8ca16c9`, `code.dirty = false`, `build.next = 16.4.3`).
 - Cambios de producto: `web/src/components/caja-app.tsx`.
 - Prueba reproducible: `web/scripts/p0-venta-e2e.py`.
 - Sin cambios en SQLite, webhook, pey, `/api/verify`, `paymentTruth`, `PaidSheet` (lógica de verdad) ni en la dirección visual.
