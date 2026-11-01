@@ -1,7 +1,7 @@
 {
   "base": "https://financial-warcraft-sensitive-sufficient.trycloudflare.com",
   "viewport": "360x800",
-  "elapsedSeconds": 5.7,
+  "elapsedSeconds": 8.7,
   "consoleErrors": [],
   "pageErrors": [],
   "checks": [
@@ -33,7 +33,7 @@
     {
       "name": "Servidor público: orden pagada",
       "ok": true,
-      "detail": "paid"
+      "detail": "demo_paid"
     },
     {
       "name": "Sin errores de consola",

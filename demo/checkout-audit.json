@@ -1,6 +1,6 @@
 {
   "viewport": "360x800",
-  "elapsedSeconds": 4.4,
+  "elapsedSeconds": 4.7,
   "checkout": {
     "innerWidth": 360,
     "scrollWidth": 360,
@@ -85,9 +85,9 @@
       "detail": "scrollWidth=360"
     },
     {
-      "name": "Servidor: orden pagada tras la simulación",
+      "name": "Servidor: orden demo pagada tras la simulación",
       "ok": true,
-      "detail": "paid · pago=True"
+      "detail": "demo_paid · pago=True"
     },
     {
       "name": "Éxito: sin texto visible menor a 12 px",
