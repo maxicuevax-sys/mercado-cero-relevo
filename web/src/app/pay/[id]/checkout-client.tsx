@@ -225,7 +225,7 @@ export default function CheckoutPage() {
           </p>
           <Link
             href="/"
-            className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent px-5 text-sm font-semibold text-white"
+            className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-xl bg-accent px-5 text-sm font-semibold text-white"
           >
             <ArrowLeft className="h-4 w-4" />
             Volver a la caja
@@ -278,7 +278,7 @@ export default function CheckoutPage() {
             </div>
             <Link
               href="/"
-              className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white"
+              className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white"
             >
               <ArrowLeft className="h-4 w-4" />
               Volver a la caja
@@ -391,7 +391,7 @@ export default function CheckoutPage() {
 
             <Link
               href="/"
-              className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press"
+              className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press"
             >
               <ArrowLeft className="h-4 w-4" />
               Volver a la caja

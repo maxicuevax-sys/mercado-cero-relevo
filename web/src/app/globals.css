@@ -44,7 +44,7 @@
 :root {
   --background: var(--color-canvas);
   --foreground: var(--color-ink);
-  --mc-tap: 44px;
+  --mc-tap: 48px;
   --mc-motion-fast: 160ms;
   --mc-motion-base: 220ms;
   --mc-motion-slow: 300ms;
@@ -161,6 +161,36 @@ button {
 
 .sheet-in {
   animation: sheet-in 220ms var(--mc-ease) both;
+}
+
+@keyframes draft-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.draft-item {
+  animation: draft-in 240ms var(--mc-ease) both;
+}
+
+@keyframes result-in {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.result-in {
+  animation: result-in 260ms var(--mc-ease) both;
 }
 
 .split-fields {

@@ -7,11 +7,13 @@
 
 ## 1 · Participantes
 
-Mínimo 3, ideal 6:
+Mínimo 6, ideal 8. Debe incluir:
 
-- 2 puestos de comida.
-- 2 tiendas de abarrotes.
-- 2 comerciantes de tianguis o mercado.
+- 1 persona con baja visión.
+- 1 persona mayor (65+).
+- 1 persona con limitación motora (manos, temblor o movilidad reducida).
+- 1 persona con limitación auditiva.
+- 2–4 comerciantes sin discapacidad, como control.
 
 No invites a alguien que ya vio la demo ni a alguien que te ayude a “quedar bien”. La prueba sirve si la persona se atora.
 
@@ -46,6 +48,10 @@ Lee la tarea en voz alta y deja que la persona la resuelva. No des pistas.
 5. **“Quieres apartar $25 para una sombrilla.”**
    - Debe encontrar **Meta** y registrar la aportación.
 
+6. **“Ajusta la app para ver mejor y escuchar más despacio.”**
+   - Debe abrir **Ayuda y accesibilidad**, activar **Muy grande** y **Alto contraste**, y probar **Leer esta pantalla**.
+
+
 ## 4 · Qué medir
 
 | Tarea | Tiempo | ¿Necesitó ayuda? | ¿Dónde se atoró? |
@@ -66,7 +72,22 @@ Además:
 - ¿Qué botón tocó primero?
 - ¿Qué parte le dio desconfianza?
 
-## 5 · Criterio de pase
+## 5 · SUS (System Usability Scale)
+
+Al terminar, aplica las 10 preguntas estándar (1 = totalmente en desacuerdo, 5 = totalmente de acuerdo). Calcula: `(suma - 5) × 2.5`. Objetivo: **≥ 75**.
+
+1. Creo que me gustaría usar esta app con frecuencia.
+2. Encontré la app innecesariamente compleja.
+3. Pensé que la app era fácil de usar.
+4. Creo que necesitaría ayuda técnica para usar esta app.
+5. Encontré las funciones de la app bien integradas.
+6. Pensé que había demasiada inconsistencia en la app.
+7. Imagino que la mayoría de la gente aprendería a usar esta app muy rápido.
+8. Encontré la app muy incómoda de usar.
+9. Me sentí muy seguro usando la app.
+10. Necesité aprender muchas cosas antes de poder usar la app.
+
+## 6 · Criterio de pase
 
 - [ ] Tarea 1 en **menos de 60 s**, sin ayuda.
 - [ ] Las 5 tareas en **menos de 3 min**, sin ayuda.
@@ -75,7 +96,7 @@ Además:
 - [ ] No hay scroll horizontal a 360 px.
 - [ ] La persona puede repetir la venta sin que le expliques.
 
-## 6 · Qué hacer si se atora
+## 7 · Qué hacer si se atora
 
 - Espera **60 s** antes de ayudar.
 - Anota el punto exacto y la frase que dijo.
@@ -83,7 +104,7 @@ Además:
 - No defiendas la app ni expliques la arquitectura.
 - Al final, pregunta: “¿Qué fue lo más confuso?” y “¿Qué te haría usarla mañana?”.
 
-## 7 · Hallazgos heurísticos de la revisión interna
+## 8 · Hallazgos heurísticos
 
 No sustituyen la prueba con una persona real; son hipótesis para observar.
 
@@ -95,7 +116,7 @@ No sustituyen la prueba con una persona real; son hipótesis para observar.
 - La **Guía** existe, pero una persona no la busca si no sabe que está.
 - **Meta** es la parte más emocional; la gente entiende rápido “apartar para la sombrilla”.
 
-## 8 · Registro
+## 9 · Registro
 
 Guarda cada sesión en `demo/feedback.md`:
 

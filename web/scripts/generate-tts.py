@@ -24,9 +24,10 @@ import soundfile as sf
 from kokoro_onnx import Kokoro
 
 LINES = {
-    "son-90-genero-el-cobro": "Son 90.00 pesos. ¿Genero el cobro?",
+    "son-90-genero-el-cobro": "Escuché 90.00 pesos. ¿Confirmas?",
     "venta-cobrada-90": "Venta cobrada. $90.00.",
-    "pago-recibido-90": "Pago recibido. $90.00.",
+    "pago-simulado-90": "Pago simulado. $90.00.",
+    "pago-verificado-90": "Pago verificado: $90.00.",
     "abono-50-juan": "Abono de $50.00 a Juan. Saldo: $0.00.",
     "venta-lista": "Venta lista para confirmar.",
     "comprobante-verificado-demo": "Comprobante verificado en la caja. En producción se valida contra pey.",

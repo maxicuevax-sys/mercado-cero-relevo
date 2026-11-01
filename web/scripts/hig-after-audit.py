@@ -53,7 +53,7 @@ def run_axe(page) -> dict:
     return page.evaluate(
         """async () => {
             const r = await axe.run(document, {
-                runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'] }
+                runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] }
             });
             return {
                 violations: r.violations.map(v => ({
@@ -299,8 +299,8 @@ def measure(page, label: str) -> dict:
                 under12: textEls.filter(t => t.size < 12).slice(0, 8),
                 under14Count: textEls.filter(t => t.size < 14).length,
                 under17Count: textEls.filter(t => t.size < 17).length,
-                under44Count: targets.filter(t => t.width < 44 || t.height < 44).length,
-                under44: targets.filter(t => t.width < 44 || t.height < 44).slice(0, 10),
+                under48Count: targets.filter(t => t.width < 48 || t.height < 48).length,
+                under48: targets.filter(t => t.width < 48 || t.height < 48).slice(0, 10),
                 unnamedCount: unnamed.length
             };
         }"""
@@ -536,7 +536,7 @@ def main() -> int:
                 home = record["home"]
                 print(
                     f"  scroll={home['documentScrollWidth']}/{home['innerWidth']} "
-                    f"under12={home['under12Count']} under44={home['under44Count']} "
+                    f"under12={home['under12Count']} under48={home['under48Count']} "
                     f"axe={len(record['homeAxe']['violations'])} "
                     f"200={record['homeText200']['documentScrollWidth']} "
                     f"focus={record['helpInitialFocus']} escape={record['helpClosedWithEscape']} "
@@ -590,8 +590,8 @@ def main() -> int:
                         failures.append(
                             f"{view} {key}: overlap {overlap['ratio']}% “{overlap['a']}” / “{overlap['b']}”"
                         )
-                if value.get("under44Count", 0) > 0:
-                    failures.append(f"{view} {key}: {value['under44Count']} targets under 44px")
+                if value.get("under48Count", 0) > 0:
+                    failures.append(f"{view} {key}: {value['under48Count']} targets under 44px")
         if record.get("consoleErrors"):
             failures.append(f"{view}: {len(record['consoleErrors'])} console errors: {record['consoleErrors'][:2]}")
 

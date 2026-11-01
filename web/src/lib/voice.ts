@@ -215,7 +215,7 @@ export function mockParse(transcript: string): ParsedSale {
     creditCents,
     query: null,
     confidence: 0.75,
-    reply: `Son ${(total / 100).toFixed(2)} pesos. ¿Genero el cobro?`,
+    reply: `Escuché ${(total / 100).toFixed(2)} pesos. ¿Confirmas?`,
   };
 }
 

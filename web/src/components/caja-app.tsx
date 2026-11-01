@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { AnimatedAmount } from "@/components/animated-amount";
 import {
   ArrowUpRight,
   Banknote,
@@ -113,9 +114,10 @@ const SAMPLE_LABELS: Record<string, string> = {
 // Frases fijas del demo, pre-renderizadas con Kokoro (Apache 2.0, voz ef_dora).
 // Si el texto no está aquí, se usa la voz del navegador como fallback.
 const TTS_FILES: Record<string, string> = {
-  "Son 90.00 pesos. ¿Genero el cobro?": "/tts/son-90-genero-el-cobro.wav",
+  "Escuché 90.00 pesos. ¿Confirmas?": "/tts/son-90-genero-el-cobro.wav",
   "Venta cobrada. $90.00.": "/tts/venta-cobrada-90.wav",
-  "Pago recibido. $90.00.": "/tts/pago-recibido-90.wav",
+  "Pago simulado. $90.00.": "/tts/pago-simulado-90.wav",
+  "Pago verificado: $90.00.": "/tts/pago-verificado-90.wav",
   "Abono de $50.00 a Juan. Saldo: $0.00.": "/tts/abono-50-juan.wav",
   "Venta lista para confirmar.": "/tts/venta-lista.wav",
   "Comprobante verificado en la caja. En producción se valida contra pey.":
@@ -138,16 +140,6 @@ function friendlyError(error: unknown, fallback: string): string {
     return `${fallback} Revisa tu conexión e intenta de nuevo.`;
   }
   return error instanceof Error && error.message ? error.message : fallback;
-}
-
-function Money({ cents }: { cents: number }) {
-  const [whole, decimals] = formatMxn(cents).split(".");
-  return (
-    <>
-      {whole}
-      <wbr />.{decimals}
-    </>
-  );
 }
 
 export default function CajaApp() {
@@ -486,6 +478,14 @@ export default function CajaApp() {
     speak(lastSpeechRef.current.text || "Todavía no he dicho nada.", true);
   }, [speak]);
 
+  const vibrate = useCallback((pattern: number | number[]) => {
+    try {
+      navigator.vibrate?.(pattern);
+    } catch {
+      // La vibración no está disponible en este dispositivo.
+    }
+  }, []);
+
   useEffect(() => {
     mutedRef.current = muted;
     if (muted) {
@@ -633,6 +633,7 @@ export default function CajaApp() {
           setCashCents(parsed.cashCents);
           setCreditCents(parsed.creditCents);
           setCustomerName(parsed.customerName ?? "");
+          setTranscript(`${clean}\n\n${parsed.reply || "Venta lista para confirmar."}`);
           setTab("caja");
           window.setTimeout(() => {
             document.getElementById("pedido")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -701,6 +702,7 @@ export default function CajaApp() {
         }
       };
       recorder.start();
+      vibrate(20);
       mediaRecorderRef.current = recorder;
       setListening(true);
       setRecordingSeconds(0);
@@ -711,19 +713,20 @@ export default function CajaApp() {
       setVoiceError("No pude acceder al micrófono. Revisa los permisos o escribe la venta.");
       setShowTextInput(true);
     }
-  }, [interpretText, listening, transcribing]);
+  }, [interpretText, listening, transcribing, vibrate]);
 
   const stopRecording = useCallback(() => {
     const recorder = mediaRecorderRef.current;
     if (!recorder || recorder.state === "inactive") return;
     recorder.stop();
+    vibrate([12, 35, 12]);
     mediaRecorderRef.current = null;
     setListening(false);
     if (timerRef.current) {
       window.clearInterval(timerRef.current);
       timerRef.current = null;
     }
-  }, []);
+  }, [vibrate]);
 
   const draftTotal = useMemo(
     () =>
@@ -798,6 +801,7 @@ export default function CajaApp() {
           setDeliverError(null);
           setPaidOverlay(order);
           playChime();
+          vibrate([30, 50, 30]);
           speak(`Venta cobrada. ${formatMxn(order.totalCents)}.`);
         } else {
           showToast(
@@ -822,6 +826,7 @@ export default function CajaApp() {
     playChime,
     showToast,
     speak,
+    vibrate,
   ]);
 
   const generatePayment = useCallback(
@@ -865,7 +870,8 @@ export default function CajaApp() {
         setDeliverError(null);
         setPaidOverlay(data.order);
         playChime();
-        speak(`Pago recibido. ${formatMxn(data.order.totalCents)}.`);
+        vibrate([30, 50, 30]);
+        speak(`Pago simulado. ${formatMxn(data.order.totalCents)}.`);
         await loadDashboard();
       } catch (error) {
         showToast("error", error instanceof Error ? error.message : "No pude simular el pago.");
@@ -873,7 +879,7 @@ export default function CajaApp() {
         setPaymentLoading(false);
       }
     },
-    [activeOrder, loadDashboard, playChime, showToast, speak],
+    [activeOrder, loadDashboard, playChime, showToast, speak, vibrate],
   );
 
   useEffect(() => {
@@ -892,7 +898,11 @@ export default function CajaApp() {
           setDeliverError(null);
           setPaidOverlay(order);
           playChime();
-          speak(`Pago recibido. ${formatMxn(order.totalCents)}.`);
+          speak(
+            order.lastPaymentProvider === "pey"
+              ? `Pago verificado: ${formatMxn(order.totalCents)}.`
+              : `Pago simulado. ${formatMxn(order.totalCents)}.`,
+          );
           await loadDashboard();
         } else {
           setActiveOrder(order);
@@ -922,6 +932,7 @@ export default function CajaApp() {
         const data = (await response.json()) as VerifyResult & { error?: string };
         if (!response.ok) throw new Error(data.error ?? "No pude verificar el comprobante.");
         setVerifyResult(data);
+        vibrate(data.verified ? 25 : [15, 50, 15]);
         if (data.verified) {
           speak(
             dashboard?.demoMode
@@ -937,7 +948,7 @@ export default function CajaApp() {
         setVerifying(false);
       }
     },
-    [dashboard, speak, verifyId],
+    [dashboard, speak, verifyId, vibrate],
   );
 
   const payCredit = useCallback(
@@ -968,6 +979,7 @@ export default function CajaApp() {
         setCreditPayId(null);
         setCreditPayAmount("");
         setCreditPayNote("");
+        vibrate(30);
         await loadDashboard();
       } catch (error) {
         setCreditPayError(friendlyError(error, "No pude registrar el abono."));
@@ -975,7 +987,7 @@ export default function CajaApp() {
         setCreditPaying(false);
       }
     },
-    [creditPayAmount, creditPayMethod, creditPayNote, loadDashboard, showToast],
+    [creditPayAmount, creditPayMethod, creditPayNote, loadDashboard, showToast, vibrate],
   );
 
   const fulfillOrder = useCallback(
@@ -1088,7 +1100,7 @@ export default function CajaApp() {
                     <button
                       type="button"
                       onClick={() => setVerifyOpen(true)}
-                      className="flex min-h-11 items-center gap-2 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
+                      className="flex min-h-12 items-center gap-2 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
                     >
                       <ShieldCheck className="h-4 w-4" />
                       Verificar
@@ -1222,7 +1234,7 @@ export default function CajaApp() {
           <footer className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-separator pt-5 text-sm text-ink-2 sm:flex-row sm:items-center">
             <p>
               Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + OpenAI ·{" "}
-              <a href="/credits.txt" className="inline-flex min-h-11 items-center underline underline-offset-2 hover:text-ink">
+              <a href="/credits.txt" className="inline-flex min-h-12 items-center underline underline-offset-2 hover:text-ink">
                 Fotos: créditos
               </a>
             </p>
@@ -1447,7 +1459,7 @@ function CajaPanel(props: {
           <button
             type="button"
             onClick={onVoiceHelp}
-            className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
+            className="flex min-h-12 shrink-0 items-center gap-1.5 rounded-xl border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
           >
             <Volume2 className="h-4 w-4" />
             Escuchar
@@ -1557,14 +1569,14 @@ function CajaPanel(props: {
               if (event.key === "Enter") onInterpret();
             }}
             placeholder="Ej. 2 quesadillas $35"
-            className="min-h-11 min-w-0 flex-1 rounded-xl border border-separator bg-surface-2 px-3 text-[1rem] text-ink outline-none placeholder:text-ink-2/70 focus:border-accent/40"
+            className="min-h-12 min-w-0 flex-1 rounded-xl border border-separator bg-surface-2 px-3 text-[1rem] text-ink outline-none placeholder:text-ink-2/70 focus:border-accent/40"
           />
           <button
             type="button"
             onClick={onInterpret}
             disabled={!textInput.trim() || transcribing}
             aria-busy={transcribing}
-            className="flex min-h-11 w-full shrink-0 items-center justify-center gap-1.5 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-green transition hover:border-accent/40 disabled:opacity-50 sm:w-auto"
+            className="flex min-h-12 w-full shrink-0 items-center justify-center gap-1.5 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-green transition hover:border-accent/40 disabled:opacity-50 sm:w-auto"
           >
             {transcribing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             Interpretar
@@ -1578,7 +1590,7 @@ function CajaPanel(props: {
               type="button"
               onClick={() => onSample(phrase)}
               aria-label={phrase}
-              className="inline-flex max-w-full min-h-11 shrink-0 items-center rounded-full border border-separator bg-surface px-3 text-left text-sm font-medium text-ink-2 transition hover:border-accent/40 hover:text-accent"
+              className="inline-flex max-w-full min-h-12 shrink-0 items-center rounded-full border border-separator bg-surface px-3 text-left text-sm font-medium text-ink-2 transition hover:border-accent/40 hover:text-accent"
             >
               {SAMPLE_LABELS[phrase] ?? phrase}
             </button>
@@ -1609,7 +1621,7 @@ function CajaPanel(props: {
             <button
               type="button"
               onClick={onClear}
-              className="flex min-h-11 items-center gap-1.5 rounded-xl px-2.5 text-sm font-semibold text-ink-2 transition hover:text-danger"
+              className="flex min-h-12 items-center gap-1.5 rounded-xl px-2.5 text-sm font-semibold text-ink-2 transition hover:text-danger"
             >
               <Trash2 className="h-4 w-4" />
               Limpiar
@@ -1620,7 +1632,7 @@ function CajaPanel(props: {
         {draftItems.length > 0 ? (
           <div className="mt-4 space-y-2.5">
             {draftItems.map((item, index) => (
-              <div key={item.id} className="rounded-xl border border-separator bg-surface-2 p-3">
+              <div key={item.id} className="draft-item rounded-xl border border-separator bg-surface-2 p-3">
                 <div className="flex items-start gap-2">
                   <input
                     value={item.description}
@@ -1629,13 +1641,13 @@ function CajaPanel(props: {
                       next[index] = { ...item, description: event.target.value };
                       onDraftItems(next);
                     }}
-                    className="min-h-11 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
+                    className="min-h-12 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
                     aria-label="Producto"
                   />
                   <button
                     type="button"
                     onClick={() => onDraftItems(draftItems.filter((candidate) => candidate.id !== item.id))}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-ink-2 transition hover:bg-surface hover:text-danger"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg text-ink-2 transition hover:bg-surface hover:text-danger"
                     aria-label="Quitar producto"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -1650,7 +1662,7 @@ function CajaPanel(props: {
                         next[index] = { ...item, quantity: Math.max(0.25, item.quantity - 1) };
                         onDraftItems(next);
                       }}
-                      className="flex h-11 w-11 items-center justify-center rounded-lg border border-separator bg-surface text-ink-2"
+                      className="flex h-12 w-12 items-center justify-center rounded-lg border border-separator bg-surface text-ink-2"
                       aria-label="Menos cantidad"
                     >
                       <span className="text-lg leading-none">−</span>
@@ -1665,7 +1677,7 @@ function CajaPanel(props: {
                         next[index] = { ...item, quantity: Math.max(0.25, Number(event.target.value)) };
                         onDraftItems(next);
                       }}
-                      className="tabular h-11 w-14 rounded-lg border border-transparent bg-transparent text-center text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
+                      className="tabular h-12 w-14 rounded-lg border border-transparent bg-transparent text-center text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
                       aria-label="Cantidad"
                     />
                     <button
@@ -1675,7 +1687,7 @@ function CajaPanel(props: {
                         next[index] = { ...item, quantity: item.quantity + 1 };
                         onDraftItems(next);
                       }}
-                      className="flex h-11 w-11 items-center justify-center rounded-lg border border-separator bg-surface text-ink-2"
+                      className="flex h-12 w-12 items-center justify-center rounded-lg border border-separator bg-surface text-ink-2"
                       aria-label="Más cantidad"
                     >
                       <span className="text-lg leading-none">+</span>
@@ -1696,7 +1708,7 @@ function CajaPanel(props: {
                         };
                         onDraftItems(next);
                       }}
-                      className="tabular h-11 w-24 rounded-lg border border-transparent bg-transparent px-1 text-right text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
+                      className="tabular h-12 w-24 rounded-lg border border-transparent bg-transparent px-1 text-right text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
                       aria-label="Precio unitario"
                     />
                   </label>
@@ -1716,7 +1728,7 @@ function CajaPanel(props: {
                   },
                 ])
               }
-              className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-separator text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
+              className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-separator text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
             >
               <Plus className="h-4 w-4" />
               Agregar producto
@@ -1750,7 +1762,7 @@ function CajaPanel(props: {
                 onChange={(event) => onCash(Math.max(0, Math.round(Number(event.target.value) * 100)))}
                 placeholder="0.00"
                 aria-label="Efectivo recibido en pesos"
-                className="tabular min-h-11 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-ink-2/40"
+                className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-ink-2/40"
               />
             </div>
           </label>
@@ -1770,14 +1782,14 @@ function CajaPanel(props: {
                 onChange={(event) => onCredit(Math.max(0, Math.round(Number(event.target.value) * 100)))}
                 placeholder="0.00"
                 aria-label="Monto a fiado en pesos"
-                className="tabular min-h-11 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-ink-2/40"
+                className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-ink-2/40"
               />
             </div>
           </label>
         </div>
 
         {creditCents > 0 ? (
-          <label className="mt-2.5 flex min-h-11 items-center gap-2 rounded-xl border border-attention/25 bg-terracotta-soft/60 px-3">
+          <label className="mt-2.5 flex min-h-12 items-center gap-2 rounded-xl border border-attention/25 bg-terracotta-soft/60 px-3">
             <UserRound className="h-4 w-4 shrink-0 text-attention" />
             <input
               id="fiado-customer"
@@ -1805,7 +1817,7 @@ function CajaPanel(props: {
         <div id="confirmar" className="mt-4 scroll-mt-20 flex flex-col gap-3 border-t border-separator pt-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
           <div>
             <p className="tabular text-[1.75rem] font-semibold leading-none tracking-tight text-ink">
-              {formatMxn(draftTotal)}
+              <AnimatedAmount cents={draftTotal} />
             </p>
             <p className="mt-1 text-sm text-ink-2">
               {digitalDue > 0
@@ -1881,7 +1893,7 @@ function PaymentPanel(props: {
         <div className="rounded-2xl border border-separator bg-surface p-5 text-center">
           <div
             className={cn(
-              "mx-auto flex h-14 w-14 items-center justify-center rounded-full",
+              "mx-auto flex h-14 w-14 items-center justify-center rounded-full result-in",
               truth.hasCredit || (truth.isDemo && !sourceMixed)
                 ? "bg-terracotta-soft text-attention"
                 : sourceMixed
@@ -1933,14 +1945,16 @@ function PaymentPanel(props: {
                   ? "Pago simulado"
                   : truth.isCash
                     ? "Efectivo recibido"
-                    : "Pedido pagado"}
+                    : "Pago verificado"}
           </h2>
           <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
-            {formatMxn(
-              truth.hasCredit || sourceMixed
-                ? order.totalCents
-                : truth.receivedCents || order.totalCents,
-            )}
+            <AnimatedAmount
+              cents={
+                truth.hasCredit || sourceMixed
+                  ? order.totalCents
+                  : truth.receivedCents || order.totalCents
+              }
+            />
           </p>
           <p className="mt-2 text-sm text-ink-2">
             Pedido {shortOrder(order.id)} ·{" "}
@@ -1994,7 +2008,7 @@ function PaymentPanel(props: {
               onClick={onDeliver}
               disabled={delivering}
               aria-busy={delivering}
-              className="on-accent flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-60"
+              className="on-accent flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-60"
             >
               {delivering ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {delivering ? "Entregando…" : "Listo para entregar"}
@@ -2003,7 +2017,7 @@ function PaymentPanel(props: {
             <button
               type="button"
               onClick={onClose}
-              className="on-accent flex min-h-11 flex-1 items-center justify-center rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press"
+              className="on-accent flex min-h-12 flex-1 items-center justify-center rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press"
             >
               {truth.hasCredit ? "Entendido" : "Cerrar"}
             </button>
@@ -2011,7 +2025,7 @@ function PaymentPanel(props: {
           <button
             type="button"
             onClick={onNew}
-            className="min-h-11 rounded-xl border border-separator bg-surface px-4 text-sm font-semibold text-ink-2 transition hover:text-ink"
+            className="min-h-12 rounded-xl border border-separator bg-surface px-4 text-sm font-semibold text-ink-2 transition hover:text-ink"
           >
             Nuevo cobro
           </button>
@@ -2033,7 +2047,7 @@ function PaymentPanel(props: {
             Cobro · Pedido {shortOrder(order.id)}
           </p>
           <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
-            {formatMxn(due)}
+            <AnimatedAmount cents={due} />
           </p>
           <p className="mt-1.5 text-sm text-ink-2">
             {order.items.map((item) => `${item.quantity} ${item.description}`).join(" · ")}
@@ -2041,6 +2055,12 @@ function PaymentPanel(props: {
         </div>
         <StatusBadge status={order.status} />
       </div>
+
+      {waiting ? (
+        <p role="status" className="rounded-xl bg-surface-2 px-3 py-2 text-sm font-semibold text-ink-2">
+          Pago pendiente; aún no entregues.
+        </p>
+      ) : null}
 
       {!order.paymentUrl && !order.qrString ? (
         <div className="space-y-2.5">
@@ -2101,7 +2121,7 @@ function PaymentPanel(props: {
             <button
               type="button"
               onClick={() => onCopy(order.paymentUrl ?? "")}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-surface text-ink-2 transition hover:text-accent"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-surface text-ink-2 transition hover:text-accent"
               aria-label="Copiar link"
             >
               <Copy className="h-4 w-4" />
@@ -2110,7 +2130,7 @@ function PaymentPanel(props: {
           <button
             type="button"
             onClick={() => onShare(order.paymentUrl ?? "")}
-            className="on-accent flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press"
+            className="on-accent flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press"
           >
             <Share2 className="h-4 w-4" />
             Compartir link
@@ -2119,7 +2139,7 @@ function PaymentPanel(props: {
             href={order.paymentUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-separator bg-surface px-4 text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-separator bg-surface px-4 text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
           >
             {demoMode ? "Abrir checkout de demostración" : "Abrir checkout de pey"}
             <ArrowUpRight className="h-4 w-4" />
@@ -2170,7 +2190,7 @@ function PaymentPanel(props: {
                 type="button"
                 onClick={() => onDemoPay("codi")}
                 disabled={loading}
-                className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-separator bg-surface px-2 text-sm font-semibold text-ink-2 transition hover:text-accent disabled:opacity-50"
+                className="flex min-h-12 items-center justify-center gap-1.5 rounded-lg border border-separator bg-surface px-2 text-sm font-semibold text-ink-2 transition hover:text-accent disabled:opacity-50"
               >
                 <QrCode className="h-4 w-4" />
                 Simular CoDi
@@ -2179,7 +2199,7 @@ function PaymentPanel(props: {
                 type="button"
                 onClick={() => onDemoPay("card")}
                 disabled={loading}
-                className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-separator bg-surface px-2 text-sm font-semibold text-ink-2 transition hover:text-accent disabled:opacity-50"
+                className="flex min-h-12 items-center justify-center gap-1.5 rounded-lg border border-separator bg-surface px-2 text-sm font-semibold text-ink-2 transition hover:text-accent disabled:opacity-50"
               >
                 <CreditCard className="h-4 w-4" />
                 Simular tarjeta
@@ -2196,7 +2216,7 @@ function PaymentPanel(props: {
       <button
         type="button"
         onClick={onClose}
-        className="min-h-11 w-full rounded-xl py-2 text-center text-sm font-semibold text-ink-2 transition hover:text-ink"
+        className="min-h-12 w-full rounded-xl py-2 text-center text-sm font-semibold text-ink-2 transition hover:text-ink"
       >
         Cerrar cobro
       </button>
@@ -2290,7 +2310,7 @@ function BusinessOverview({
                   type="button"
                   onClick={() => setPeriod(value)}
                   className={cn(
-                    "min-h-11 min-w-11 border-b-2 pb-1 text-center text-sm font-semibold transition",
+                    "min-h-12 min-w-12 border-b-2 pb-1 text-center text-sm font-semibold transition",
                     period === value
                       ? "border-green text-ink"
                       : "border-transparent text-ink-2 hover:text-ink",
@@ -2303,7 +2323,7 @@ function BusinessOverview({
             <button
               type="button"
               onClick={speakReport}
-              className="flex min-h-11 items-center gap-1.5 rounded-xl bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:text-green"
+              className="flex min-h-12 items-center gap-1.5 rounded-xl bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:text-green"
             >
               <Volume2 className="h-3.5 w-3.5" />
               Escuchar
@@ -2327,7 +2347,7 @@ function BusinessOverview({
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div className="min-w-0 max-w-full">
               <p className="tabular max-w-full break-words text-[2.5rem] font-semibold leading-[1.05] tracking-tight text-ink">
-                <Money cents={report.salesCents} />
+                <AnimatedAmount cents={report.salesCents} />
               </p>
               <p className="mt-1 break-words text-sm font-semibold text-ink-2">
                 Ventas registradas · {report.label}
@@ -2620,7 +2640,7 @@ function CashCloseCard({
           type="button"
           onClick={() => void load()}
           disabled={loading}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-ink-2 transition hover:text-ink disabled:opacity-50"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-ink-2 transition hover:text-ink disabled:opacity-50"
           title="Actualizar corte"
           aria-label="Actualizar corte"
         >
@@ -2658,7 +2678,7 @@ function CashCloseCard({
                 inputMode="decimal"
                 placeholder="0.00"
                 aria-label="Total contado en pesos"
-                className="tabular min-h-11 w-full bg-transparent text-lg font-bold text-ink outline-none placeholder:text-ink-2/40"
+                className="tabular min-h-12 w-full bg-transparent text-lg font-bold text-ink outline-none placeholder:text-ink-2/40"
               />
             </div>
           </label>
@@ -2720,7 +2740,7 @@ function CashCloseCard({
             onClick={() => setShowCounts((value) => !value)}
             aria-expanded={showCounts}
             aria-controls="corte-denominaciones"
-            className="min-h-11 text-left text-sm font-semibold text-green underline-offset-2 hover:underline"
+            className="min-h-12 text-left text-sm font-semibold text-green underline-offset-2 hover:underline"
           >
             {showCounts ? "Ocultar conteo por billetes y monedas" : "Contar por billetes y monedas"}
           </button>
@@ -2744,7 +2764,7 @@ function CashCloseCard({
                         updateCount(denomination, Number(event.target.value))
                       }
                       aria-label={`Cantidad de ${denominationLabel(denomination)}`}
-                      className="tabular mt-1 min-h-11 w-full rounded-xl border border-separator bg-surface px-2 py-1.5 text-center text-sm text-ink outline-none focus:border-green"
+                      className="tabular mt-1 min-h-12 w-full rounded-xl border border-separator bg-surface px-2 py-1.5 text-center text-sm text-ink outline-none focus:border-green"
                     />
                   </label>
                 ))}
@@ -2776,7 +2796,7 @@ function CashCloseCard({
                     onChange={(event) => setExpenses(event.target.value)}
                     inputMode="decimal"
                     aria-label="Gastos de caja en pesos"
-                    className="tabular min-h-11 w-full bg-transparent text-sm text-ink outline-none"
+                    className="tabular min-h-12 w-full bg-transparent text-sm text-ink outline-none"
                   />
                 </div>
               </label>
@@ -2789,7 +2809,7 @@ function CashCloseCard({
                     onChange={(event) => setWithdrawals(event.target.value)}
                     inputMode="decimal"
                     aria-label="Retiros en pesos"
-                    className="tabular min-h-11 w-full bg-transparent text-sm text-ink outline-none"
+                    className="tabular min-h-12 w-full bg-transparent text-sm text-ink outline-none"
                   />
                 </div>
               </label>
@@ -2811,7 +2831,7 @@ function CashCloseCard({
                 onChange={(event) => setBaseNext(event.target.value)}
                 inputMode="decimal"
                 aria-label="Base para mañana en pesos"
-                className="tabular min-h-11 w-full bg-transparent text-sm text-ink outline-none"
+                className="tabular min-h-12 w-full bg-transparent text-sm text-ink outline-none"
               />
             </div>
           </label>
@@ -2908,7 +2928,7 @@ function CashCloseCard({
           <button
             type="button"
             onClick={() => setConfirmOpen(false)}
-            className="flex min-h-11 w-full items-center justify-center rounded-xl border border-separator bg-surface text-sm font-semibold text-ink-2 transition hover:text-ink"
+            className="flex min-h-12 w-full items-center justify-center rounded-xl border border-separator bg-surface text-sm font-semibold text-ink-2 transition hover:text-ink"
           >
             Volver a contar
           </button>
@@ -3067,7 +3087,7 @@ function GoalCard({
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="flex min-h-11 flex-1 items-center gap-1 rounded-xl border border-separator bg-surface-2 px-3">
+          <div className="flex min-h-12 flex-1 items-center gap-1 rounded-xl border border-separator bg-surface-2 px-3">
             <span className="text-sm text-ink-2">$</span>
             <input
               value={amount}
@@ -3075,7 +3095,7 @@ function GoalCard({
               inputMode="decimal"
               placeholder="¿Cuánto apartaste?"
               aria-label="¿Cuánto apartaste?"
-              className="tabular min-h-11 w-full bg-transparent text-[1rem] text-ink outline-none placeholder:text-ink-2/60"
+              className="tabular min-h-12 w-full bg-transparent text-[1rem] text-ink outline-none placeholder:text-ink-2/60"
             />
           </div>
           <button
@@ -3083,7 +3103,7 @@ function GoalCard({
             onClick={() => void contribute()}
             disabled={saving}
             aria-busy={saving}
-            className="on-accent flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 text-sm font-semibold text-white transition hover:bg-accent-press disabled:opacity-60 sm:w-auto"
+            className="on-accent flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 text-sm font-semibold text-white transition hover:bg-accent-press disabled:opacity-60 sm:w-auto"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             Apartar
@@ -3152,7 +3172,7 @@ function ReconcileCard({ demoMode }: { demoMode: boolean }) {
           type="button"
           onClick={() => void reconcile()}
           disabled={loading || demoMode}
-          className="flex h-11 shrink-0 items-center gap-1.5 rounded-xl bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:text-green disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex h-12 shrink-0 items-center gap-1.5 rounded-xl bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:text-green disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -3380,7 +3400,7 @@ function ActivityList({
         <button
           type="button"
           onClick={() => setShowAll((value) => !value)}
-          className="mt-2 flex min-h-11 w-full items-center justify-center rounded-xl text-sm font-semibold text-green underline-offset-2 hover:underline"
+          className="mt-2 flex min-h-12 w-full items-center justify-center rounded-xl text-sm font-semibold text-green underline-offset-2 hover:underline"
         >
           {showAll ? "Ver menos" : `Ver todo (${orders.length})`}
         </button>
@@ -3457,7 +3477,7 @@ function CreditList({
               <button
                 type="button"
                 onClick={() => onStart(credit)}
-                className="mt-3 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-surface-2 text-sm font-semibold text-ink-2 transition hover:bg-green-soft hover:text-green"
+                className="mt-3 flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-surface-2 text-sm font-semibold text-ink-2 transition hover:bg-green-soft hover:text-green"
               >
                 <Banknote className="h-4 w-4" />
                 Registrar abono
@@ -3546,7 +3566,7 @@ function CreditPaySheet({
             <button
               type="button"
               onClick={onClose}
-              className="flex min-h-11 w-full items-center justify-center rounded-xl border border-separator bg-surface text-sm font-semibold text-ink-2 transition hover:text-danger"
+              className="flex min-h-12 w-full items-center justify-center rounded-xl border border-separator bg-surface text-sm font-semibold text-ink-2 transition hover:text-danger"
             >
               Descartar abono
             </button>
@@ -3574,7 +3594,7 @@ function CreditPaySheet({
                 onChange={(event) => onAmount(event.target.value)}
                 inputMode="decimal"
                 aria-label="Monto del abono en pesos"
-                className="tabular min-h-11 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none"
+                className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none"
               />
             </div>
           </label>
@@ -3594,7 +3614,7 @@ function CreditPaySheet({
                   <label
                     key={option.id}
                     className={cn(
-                      "flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-xl border text-sm font-semibold transition",
+                      "flex min-h-12 cursor-pointer items-center justify-center gap-1.5 rounded-xl border text-sm font-semibold transition",
                       selected
                         ? "border-accent/40 bg-green-soft text-green"
                         : "border-separator bg-surface text-ink-2 hover:border-accent/30",
@@ -3701,14 +3721,14 @@ function VerifyCard({
           }}
           placeholder="Ej. 01HXYZTXN1234567890RSTUVWX"
           aria-label="ID de la transacción a verificar"
-          className="min-h-11 min-w-0 flex-1 rounded-xl border border-separator bg-surface-2 px-3 text-[1rem] text-ink outline-none placeholder:text-ink-2/60 focus:border-accent/40"
+          className="min-h-12 min-w-0 flex-1 rounded-xl border border-separator bg-surface-2 px-3 text-[1rem] text-ink outline-none placeholder:text-ink-2/60 focus:border-accent/40"
         />
         <button
           type="button"
           onClick={onVerify}
           disabled={verifying || !value.trim()}
           aria-busy={verifying}
-          className="on-accent flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-50"
+          className="on-accent flex min-h-12 items-center justify-center gap-1.5 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-50"
         >
           {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
           Verificar
@@ -3718,7 +3738,7 @@ function VerifyCard({
       <button
         type="button"
         onClick={onFake}
-        className="inline-flex min-h-11 items-center text-sm font-semibold text-attention underline decoration-attention/30 underline-offset-4 transition hover:decoration-attention"
+        className="inline-flex min-h-12 items-center text-sm font-semibold text-attention underline decoration-attention/30 underline-offset-4 transition hover:decoration-attention"
       >
         Probar con un comprobante falso
       </button>
@@ -3823,7 +3843,7 @@ function Toast({ toast, onClose }: { toast: Toast | null; onClose: () => void })
           type="button"
           onClick={onClose}
           aria-label="Cerrar aviso"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg text-ink-2 transition hover:bg-surface-2 hover:text-ink"
         >
           <X className="h-4 w-4" />
         </button>
@@ -4021,7 +4041,7 @@ function AppSidebar({
               onClick={() => onTab(item.id)}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex min-h-11 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold transition",
+                "flex min-h-12 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold transition",
                 active
                   ? "bg-green-soft text-green"
                   : "text-ink-2 hover:bg-surface-2 hover:text-ink",
@@ -4039,7 +4059,7 @@ function AppSidebar({
           <button
             type="button"
             onClick={onDemo}
-            className="flex min-h-11 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+            className="flex min-h-12 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
             <RefreshCw className="h-5 w-5 shrink-0" />
             <span className="min-w-0 break-all">Modo demo</span>
@@ -4048,7 +4068,7 @@ function AppSidebar({
         <button
           type="button"
           onClick={onHelp}
-          className="flex min-h-11 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+          className="flex min-h-12 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
         >
           <CircleHelp className="h-5 w-5 shrink-0" />
           <span className="min-w-0 break-all">Ayuda y accesibilidad</span>
@@ -4093,7 +4113,7 @@ function TopBar({
             <button
               type="button"
               onClick={onDemo}
-              className="inline-flex min-h-11 items-center rounded-full border border-attention/30 bg-terracotta-soft/70 px-2.5 text-[0.75rem] font-bold uppercase tracking-[0.06em] text-attention transition hover:border-attention/50"
+              className="inline-flex min-h-12 items-center rounded-full border border-attention/30 bg-terracotta-soft/70 px-2.5 text-[0.75rem] font-bold uppercase tracking-[0.06em] text-attention transition hover:border-attention/50"
             >
               Demo
             </button>
@@ -4104,7 +4124,7 @@ function TopBar({
             aria-pressed={muted}
             aria-label={muted ? "Activar voz" : "Silenciar voz"}
             title={muted ? "Activar voz" : "Silenciar voz"}
-            className="flex h-11 w-11 items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+            className="flex h-12 w-12 items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
             {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
           </button>
@@ -4113,7 +4133,7 @@ function TopBar({
             onClick={onHelp}
             aria-label="Abrir guía"
             title="Ayuda y accesibilidad"
-            className="flex h-11 w-11 items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+            className="flex h-12 w-12 items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
             <CircleHelp className="h-5 w-5" />
           </button>
@@ -4280,7 +4300,7 @@ function Sheet({
             type="button"
             onClick={onClose}
             aria-label="Cerrar"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
             <X className="h-5 w-5" />
           </button>
@@ -4325,7 +4345,7 @@ function PaidSheet({
       <div className="text-center" aria-live="polite">
         <div
           className={cn(
-            "mx-auto flex h-16 w-16 items-center justify-center rounded-full",
+            "mx-auto flex h-16 w-16 items-center justify-center rounded-full result-in",
             truth.hasCredit || (truth.isDemo && !sourceMixed)
               ? "bg-terracotta-soft text-attention"
               : sourceMixed
@@ -4377,14 +4397,16 @@ function PaidSheet({
                 ? "Pago simulado"
                 : truth.isCash
                   ? "Efectivo recibido"
-                  : "Ya llegó"}
+                  : "Pago verificado"}
         </h2>
         <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
-          {formatMxn(
-            truth.hasCredit || sourceMixed
-              ? order.totalCents
-              : truth.receivedCents || order.totalCents,
-          )}
+          <AnimatedAmount
+            cents={
+              truth.hasCredit || sourceMixed
+                ? order.totalCents
+                : truth.receivedCents || order.totalCents
+            }
+          />
         </p>
         <p className="mt-2 text-sm text-ink-2">
           Pedido {shortOrder(order.id)} ·{" "}
@@ -4501,7 +4523,7 @@ function HelpContent({
                   aria-pressed={textSize === option.id}
                   onClick={() => onTextSize(option.id)}
                   className={cn(
-                    "min-h-11 rounded-xl border px-2 text-sm font-semibold transition",
+                    "min-h-12 rounded-xl border px-2 text-sm font-semibold transition",
                     textSize === option.id
                       ? "border-accent bg-accent text-white"
                       : "border-separator bg-surface-2 text-ink-2 hover:text-ink",
@@ -4522,7 +4544,7 @@ function HelpContent({
                 onContrast(contrast === "high" ? "normal" : "high")
               }
               className={cn(
-                "mt-1.5 flex min-h-11 w-full items-center justify-between rounded-xl border px-3 text-sm font-semibold transition",
+                "mt-1.5 flex min-h-12 w-full items-center justify-between rounded-xl border px-3 text-sm font-semibold transition",
                 contrast === "high"
                   ? "border-accent bg-accent text-white"
                   : "border-separator bg-surface-2 text-ink-2 hover:text-ink",
@@ -4543,7 +4565,7 @@ function HelpContent({
                   aria-pressed={voiceRate === option.id}
                   onClick={() => onVoiceRate(option.id)}
                   className={cn(
-                    "min-h-11 rounded-xl border px-2 text-sm font-semibold transition",
+                    "min-h-12 rounded-xl border px-2 text-sm font-semibold transition",
                     voiceRate === option.id
                       ? "border-accent bg-accent text-white"
                       : "border-separator bg-surface-2 text-ink-2 hover:text-ink",
@@ -4559,7 +4581,7 @@ function HelpContent({
             <button
               type="button"
               onClick={onReadScreen}
-              className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
+              className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
             >
               <Volume2 className="h-4 w-4" />
               Leer esta pantalla
@@ -4567,7 +4589,7 @@ function HelpContent({
             <button
               type="button"
               onClick={onRepeat}
-              className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
+              className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
             >
               <RefreshCw className="h-4 w-4" />
               Repetir último aviso
@@ -4597,7 +4619,7 @@ function HelpContent({
                 onClick={() => setExpanded(open ? null : index)}
                 aria-expanded={open}
                 aria-controls={panelId}
-                className="flex min-h-11 w-full items-center justify-between gap-3 px-3.5 py-3 text-left text-sm font-semibold text-ink"
+                className="flex min-h-12 w-full items-center justify-between gap-3 px-3.5 py-3 text-left text-sm font-semibold text-ink"
               >
                 {question}
                 <ChevronRight className={cn("h-4 w-4 shrink-0 text-ink-2 transition-transform", open && "rotate-90")} />
@@ -4642,14 +4664,14 @@ function DemoContent({ demoMode, onReset }: { demoMode: boolean; onReset: () => 
               <button
                 type="button"
                 onClick={onReset}
-                className="flex min-h-11 flex-1 items-center justify-center rounded-xl bg-danger px-4 text-sm font-bold text-white"
+                className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-danger px-4 text-sm font-bold text-white"
               >
                 Sí, reiniciar
               </button>
               <button
                 type="button"
                 onClick={() => setConfirming(false)}
-                className="min-h-11 rounded-xl border border-separator bg-surface px-4 text-sm font-semibold text-ink-2"
+                className="min-h-12 rounded-xl border border-separator bg-surface px-4 text-sm font-semibold text-ink-2"
               >
                 Cancelar
               </button>
@@ -4659,7 +4681,7 @@ function DemoContent({ demoMode, onReset }: { demoMode: boolean; onReset: () => 
           <button
             type="button"
             onClick={() => setConfirming(true)}
-            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-danger/30 px-4 text-sm font-semibold text-danger transition hover:bg-danger/5"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-danger/30 px-4 text-sm font-semibold text-danger transition hover:bg-danger/5"
           >
             <RefreshCw className="h-4 w-4" />
             Reiniciar datos de demo

@@ -122,7 +122,7 @@ export default function CheckoutSuccessPage() {
             </div>
             <Link
               href="/"
-              className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white"
+              className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white"
             >
               Volver a Mercado Cero
             </Link>
@@ -278,7 +278,7 @@ export default function CheckoutSuccessPage() {
 
           <Link
             href="/"
-            className="mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-separator bg-surface px-5 text-sm font-semibold text-ink-2 transition hover:border-accent/30 hover:text-accent"
+            className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-separator bg-surface px-5 text-sm font-semibold text-ink-2 transition hover:border-accent/30 hover:text-accent"
           >
             Volver a Mercado Cero
           </Link>
