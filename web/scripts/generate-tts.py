@@ -45,7 +45,7 @@ def main() -> None:
     kokoro = Kokoro(model, voices)
 
     for slug, text in LINES.items():
-        samples, rate = kokoro.create(text, voice="ef_dora", speed=1.0, lang="es")
+        samples, rate = kokoro.create(text, voice="em_santa", speed=1.0, lang="es")
         path = out_dir / f"{slug}.wav"
         sf.write(path, samples, rate)
         print(f"{slug}: {len(samples) / rate:.2f}s -> {path}")

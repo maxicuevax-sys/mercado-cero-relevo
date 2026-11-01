@@ -210,6 +210,8 @@ export default function CajaApp() {
   const lastSpeechRef = useRef({ text: "", at: 0 });
   const mutedRef = useRef(muted);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const ttsAbortRef = useRef<AbortController | null>(null);
+  const audioCacheRef = useRef<Map<string, string>>(new Map());
 
   const showToast = useCallback((tone: ToastTone, text: string) => {
     setToast({ tone, text });
@@ -323,6 +325,66 @@ export default function CajaApp() {
     }, 80);
   }, []);
 
+  const playAudio = useCallback(
+    (src: string, speechId: number, fallbackText: string) => {
+      window.speechSynthesis?.cancel();
+      stopAudio();
+      const audio = new Audio(src);
+      audio.preload = "auto";
+      audioRef.current = audio;
+      audio.onended = () => {
+        if (audioRef.current === audio) audioRef.current = null;
+      };
+      audio.onerror = () => {
+        if (audioRef.current === audio) audioRef.current = null;
+        speakBrowser(fallbackText, speechId);
+      };
+      void audio.play().catch(() => {
+        if (audioRef.current === audio) audioRef.current = null;
+        speakBrowser(fallbackText, speechId);
+      });
+    },
+    [speakBrowser, stopAudio],
+  );
+
+  const speakPiper = useCallback(
+    async (text: string, speechId: number) => {
+      const cached = audioCacheRef.current.get(text);
+      if (cached) {
+        playAudio(cached, speechId, text);
+        return;
+      }
+
+      ttsAbortRef.current?.abort();
+      const controller = new AbortController();
+      ttsAbortRef.current = controller;
+      try {
+        const response = await fetch("/api/tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error("No se pudo generar la voz.");
+        const blob = await response.blob();
+        if (
+          speechIdRef.current !== speechId ||
+          mutedRef.current ||
+          document.hidden
+        ) {
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        audioCacheRef.current.set(text, url);
+        playAudio(url, speechId, text);
+      } catch {
+        if (controller.signal.aborted) return;
+        speakBrowser(text, speechId);
+      }
+    },
+    [playAudio, speakBrowser],
+  );
+
   const speak = useCallback(
     (text: string) => {
       if (mutedRef.current) return;
@@ -340,37 +402,24 @@ export default function CajaApp() {
 
       const speechId = ++speechIdRef.current;
       if (speechTimerRef.current) window.clearTimeout(speechTimerRef.current);
-      stopAudio();
+      ttsAbortRef.current?.abort();
 
       const file = TTS_FILES[text];
       if (file) {
-        window.speechSynthesis?.cancel();
-        const audio = new Audio(file);
-        audio.preload = "auto";
-        audioRef.current = audio;
-        audio.onended = () => {
-          if (audioRef.current === audio) audioRef.current = null;
-        };
-        audio.onerror = () => {
-          if (audioRef.current === audio) audioRef.current = null;
-          speakBrowser(text, speechId);
-        };
-        void audio.play().catch(() => {
-          if (audioRef.current === audio) audioRef.current = null;
-          speakBrowser(text, speechId);
-        });
+        playAudio(file, speechId, text);
         return;
       }
 
-      speakBrowser(text, speechId);
+      void speakPiper(text, speechId);
     },
-    [speakBrowser, stopAudio],
+    [playAudio, speakPiper],
   );
 
   useEffect(() => {
     mutedRef.current = muted;
     if (muted) {
       speechIdRef.current += 1;
+      ttsAbortRef.current?.abort();
       stopAudio();
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
@@ -381,6 +430,7 @@ export default function CajaApp() {
   useEffect(() => {
     const stopSpeech = () => {
       speechIdRef.current += 1;
+      ttsAbortRef.current?.abort();
       stopAudio();
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();

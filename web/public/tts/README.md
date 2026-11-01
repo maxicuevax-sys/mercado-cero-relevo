@@ -1,12 +1,21 @@
 # Voces del demo
 
-Frases fijas pre-renderizadas con **Kokoro-82M** (`ef_dora`, español), licencia
+Frases fijas pre-renderizadas con **Kokoro-82M** (`em_santa`, español), licencia
 **Apache 2.0**. Se sirven como WAV de 24 kHz para que el demo tenga una voz
 consistente y sin latencia de modelo.
 
-Si el texto no está en el mapa `TTS_FILES` de `src/components/caja-app.tsx`, la
-app cae a la voz del navegador. Si el audio no puede reproducirse, también cae
-al navegador.
+Las frases dinámicas usan **Piper** (`es_MX-claude-high`, MIT) a través de
+`/api/tts`; si Piper no está instalado, la app cae a la voz del navegador.
+
+## Piper
+
+Coloca en `web/data/piper/`:
+
+- `piper.exe` y sus DLLs / `espeak-ng-data` (release de rhasspy/piper).
+- `es_MX-claude-high.onnx` y `.onnx.json` (rhasspy/piper-voices).
+
+Opcionalmente define `PIPER_DIR`, `PIPER_BIN` y `PIPER_MODEL`. El endpoint
+cachea cada frase en `web/data/tts-cache/` y usa single-flight por hash.
 
 ## Regenerar
 
@@ -18,11 +27,5 @@ python scripts/generate-tts.py
 ```
 
 Voces disponibles en Kokoro para español: `ef_dora` (femenina), `em_alex` y
-`em_santa` (masculinas). Para cambiar de voz, edita `generate-tts.py` y el mapa
-`TTS_FILES` si cambian los slugs.
-
-## Alternativa
-
-**Piper** (`es_MX-claude-high`, MIT) es más rápido en CPU y puede usarse como
-fallback o para frases dinámicas. No se incluye en el repo para no arrastrar
-63 MB de modelo.
+`em_santa` (masculinas). La app usa `em_santa`; para cambiarla, edita
+`generate-tts.py` y vuelve a generar.
