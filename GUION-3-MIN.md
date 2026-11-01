@@ -54,7 +54,11 @@ Si el ID no existe en la cuenta de pey, no es un pago verificable. La app no se 
 
 [Vuelve a **Caja** y pulsa **“Juan me pagó 50 del fiado”**.]
 
-El fiado no es una venta nueva: es un abono. El saldo de Juan baja de cincuenta a cero.
+La voz abre la hoja con el saldo vivo y el monto; no escribe nada sola.
+
+[Revisa el monto y pulsa **Registrar abono**.]
+
+El fiado no es una venta nueva: es un abono. El saldo de Juan baja de cincuenta a cero solo al confirmar.
 
 [Pulsa **“¿Cuánto vendí hoy?”**.]
 

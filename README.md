@@ -167,7 +167,7 @@ Regla de oro: **ningún estado `paid` se alcanza por lógica del cliente, ni por
 | 0:20–0:50 | Dice: «Cóbrale dos quesadillas de 35 y un agua de 20». La app muestra el desglose y pide confirmar. | Voz → estructura → control |
 | 0:50–1:20 | Se genera **un link/QR**. El juez paga $90 (o $0.01) con tarjeta o CoDi. La app muestra «esperando pago». Llega el webhook y dice: «Pago recibido. Noventa pesos. Pedido 18». | Pago real + certeza |
 | 1:20–1:50 | Alguien muestra una captura de transferencia. La app la verifica y responde: «No verificado». | Anti-fraude |
-| 1:50–2:20 | «Juan me pagó cincuenta del fiado y se llevó veinte más». La app actualiza el saldo. «¿Cuánto vendí hoy?» → desglose. | Fiado y corte por voz |
+| 1:50–2:20 | «Juan me pagó cincuenta del fiado». La app abre la hoja con saldo vivo y monto; al confirmar actualiza el saldo. «¿Cuánto vendí hoy?» → desglose. | Fiado confirmado y corte por voz |
 | 2:20–2:40 | Abre **«Mi negocio»**: hoy/semana/mes, ticket promedio y métodos. Cuenta el efectivo y muestra una diferencia de $20. | Analítica y corte de caja |
 | 2:40–3:00 | **«Mi camino»**: aparta $150 para la sombrilla; la meta avanza. Visión: cuenta familiar autorizada y piloto con 10 comerciantes. | Progreso y siguiente paso |
 

@@ -195,8 +195,9 @@ def main() -> int:
 
         # 3. Fiado en efectivo y anti-fraude, también a 360 px.
         page.get_by_role("button", name="Juan me pagó 50 del fiado").click()
-        check("Abono de fiado visible", wait_text(page, "Abono de", 12000))
-        check("Saldo de Juan en cero", wait_text(page, "Saldo: $0.00", 12000))
+        check("Hoja de abono visible", wait_text(page, "Saldo vivo:", 12000))
+        page.get_by_role("dialog").get_by_role("button", name="Registrar abono").click()
+        check("Abono de fiado registrado", wait_text(page, "debe $0.00", 12000))
         page.wait_for_timeout(500)
         ok, detail = no_horizontal_scroll(page)
         check("Sin scroll horizontal tras el abono", ok, detail)

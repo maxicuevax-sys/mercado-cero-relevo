@@ -79,10 +79,11 @@ def run_once(page, iteration: int) -> dict:
     page.get_by_role("button", name="Listo para entregar").click()
     page.wait_for_timeout(350)
 
-    # 3. Fiado.
+    # 3. Fiado: la voz abre la hoja; el abono se confirma.
     page.get_by_role("button", name="Juan me pagó 50 del fiado").click()
-    step("abono de fiado", wait_text(page, "Abono de"))
-    step("saldo de Juan en cero", wait_text(page, "Saldo: $0.00"))
+    step("hoja de abono visible", wait_text(page, "Saldo vivo:"))
+    page.get_by_role("dialog").get_by_role("button", name="Registrar abono").click()
+    step("abono confirmado", wait_text(page, "debe $0.00"))
 
     # 4. Consulta por voz.
     page.get_by_role("button", name="¿Cuánto vendí hoy?").click()

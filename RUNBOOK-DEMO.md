@@ -80,7 +80,8 @@ Cuando aparezca el sello **DEMO** o **PAGADO**, señálalo.
 ### 1:50–2:20 · Fiado y voz
 
 - Vuelve a **Caja** y pulsa la frase **“Juan me pagó 50 del fiado”**.
-- Muestra que el saldo de Juan baja de $50 a $0.
+- La app abre la hoja con el saldo vivo y el monto interpretado; **no ejecuta** el abono.
+- Pulsa **Registrar abono** y muestra que el saldo de Juan baja de $50 a $0.
 - Pulsa **“¿Cuánto vendí hoy?”**.
 
 > “El fiado no es una venta nueva: es un abono. La voz sirve para cobrar, consultar y cerrar, pero el dinero verificado y el fiado viven separados.”
