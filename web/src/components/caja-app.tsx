@@ -191,6 +191,10 @@ export default function CajaApp() {
   const chunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<number | null>(null);
+  const speechTimerRef = useRef<number | null>(null);
+  const speechIdRef = useRef(0);
+  const lastSpeechRef = useRef({ text: "", at: 0 });
+  const mutedRef = useRef(muted);
 
   const showToast = useCallback((tone: ToastTone, text: string) => {
     setToast({ tone, text });
@@ -267,19 +271,75 @@ export default function CajaApp() {
   }, []);
 
   const speak = useCallback((text: string) => {
-    if (muted) return;
+    if (mutedRef.current) return;
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    if (typeof document !== "undefined" && document.hidden) return;
+
+    const now = Date.now();
+    if (
+      lastSpeechRef.current.text === text &&
+      now - lastSpeechRef.current.at < 8000
+    ) {
+      return;
+    }
+    lastSpeechRef.current = { text, at: now };
+
+    const speechId = ++speechIdRef.current;
+    if (speechTimerRef.current) window.clearTimeout(speechTimerRef.current);
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "es-MX";
-    utterance.rate = 1.02;
-    utterance.pitch = 1;
-    const voice = window.speechSynthesis
-      .getVoices()
-      .find((candidate) => candidate.lang.toLowerCase().startsWith("es"));
-    if (voice) utterance.voice = voice;
-    window.speechSynthesis.speak(utterance);
+
+    // Chrome puede atorar o repetir una utterance si se encola justo después
+    // de cancel(). Damos un tick y protegemos cada utterance con un límite.
+    speechTimerRef.current = window.setTimeout(() => {
+      if (speechIdRef.current !== speechId) return;
+      if (mutedRef.current || document.hidden) return;
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "es-MX";
+      utterance.rate = 1.02;
+      utterance.pitch = 1;
+      const voice = window.speechSynthesis
+        .getVoices()
+        .find((candidate) => candidate.lang.toLowerCase().startsWith("es"));
+      if (voice) utterance.voice = voice;
+
+      const guard = window.setTimeout(() => {
+        if (speechIdRef.current === speechId) window.speechSynthesis.cancel();
+      }, Math.min(20000, 5000 + text.length * 120));
+
+      utterance.onend = () => window.clearTimeout(guard);
+      utterance.onerror = () => window.clearTimeout(guard);
+      window.speechSynthesis.speak(utterance);
+    }, 80);
+  }, []);
+
+  useEffect(() => {
+    mutedRef.current = muted;
+    if (muted && typeof window !== "undefined" && "speechSynthesis" in window) {
+      speechIdRef.current += 1;
+      window.speechSynthesis.cancel();
+    }
   }, [muted]);
+
+  useEffect(() => {
+    const stopSpeech = () => {
+      speechIdRef.current += 1;
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+    const onVisibility = () => {
+      if (document.hidden) stopSpeech();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("beforeunload", stopSpeech);
+    return () => {
+      stopSpeech();
+      if (speechTimerRef.current) window.clearTimeout(speechTimerRef.current);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("beforeunload", stopSpeech);
+    };
+  }, []);
 
   const playChime = useCallback(() => {
     if (muted) return;
@@ -3830,6 +3890,7 @@ function TopBar({
             onClick={onToggleMuted}
             aria-pressed={muted}
             aria-label={muted ? "Activar voz" : "Silenciar voz"}
+            title={muted ? "Activar voz" : "Silenciar voz"}
             className="flex h-11 w-11 items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
             {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
