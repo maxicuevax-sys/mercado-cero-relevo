@@ -1,4 +1,4 @@
-# P0 · Venta durable — reporte de carril (revisión 2)
+# P0 · Venta durable — reporte de carril (revisión 3)
 
 > **Rama:** `p0/venta-durable` · **Worktree:** `mercado-cero-p0` · **Fecha:** 1 de noviembre de 2026.
 > **Alcance:** P0-A (vender sin IA, validación inline, efectivo con cambio) + P0-B (borrador durable, `activeOrderId` y reanudación).
@@ -24,12 +24,11 @@ La Caja permite iniciar una venta manual con el draft vacío, validar cada produ
 ### 2.2 · Banner de recuperación: Continuar o descartar
 
 - El banner solo se muestra si el draft restaurado tiene ítems.
-- Un parseo nuevo (`sale`) limpia `restoredDraftAt` de forma explícita.
-- Un efecto compara la firma del draft actual con la firma restaurada; cualquier edición, venta nueva o borrado de ítems oculta el banner.
-- **“Continuar venta”** mantiene el draft y oculta el banner; enfoca el primer producto.
-- **“Descartar borrador”** compara firmas: si el draft cambió, no borra nada; oculta el banner y avisa que se use “Limpiar”. Así no puede borrar una venta nueva sin confirmación.
+- Un parseo nuevo (`sale`) o quedar sin ítems limpia `restoredDraftAt` de forma explícita.
+- **“Continuar venta”** mantiene el draft y oculta el banner; enfoca el primer producto. **El acuse es solo de la sesión:** tras recargar, el draft sigue y el banner puede reaparecer. No se persiste un acuse.
+- **“Descartar borrador”** compara firmas. Si el draft está intacto, borra draft y storage. Si el usuario ya lo editó, **no borra la edición**: oculta el banner y avisa que se use “Limpiar” para descartarla explícitamente.
 - Las etiquetas accesibles son distintas: “Continuar la venta recuperada” y “Descartar el borrador de venta”.
-- Prueba: recargar un draft → “Continuar venta” → el banner desaparece, el ítem y el `localStorage` siguen. Un parseo nuevo también oculta el banner y conserva la venta nueva.
+- Pruebas: recargar un draft → “Continuar venta” → banner oculto, ítem y `localStorage` siguen; recargar de nuevo → banner reaparece. “Descartar borrador” intacto borra; editado conserva la edición y el storage.
 
 ### 2.3 · El cambio se conserva después de confirmar
 
@@ -53,7 +52,7 @@ La Caja permite iniciar una venta manual con el draft vacío, validar cada produ
 - Al recargar, se consulta la orden y se muestra un aviso discreto: “Tienes un cobro pendiente de $X · Pedido ####” con **Continuar cobro** y **Descartar aviso** (aria-labels “Continuar el cobro pendiente” y “Descartar el aviso de cobro pendiente”). No se abre el cobro automáticamente y **no se crea otra orden**.
 - “Continuar cobro” abre el mismo pedido. “Descartar aviso” quita el aviso y el almacenamiento, deja la orden en Actividad y enfoca el H1 de Caja (`caja-heading`).
 - **Solo hay un slot de pendiente:** si se crea otro pendiente, reemplaza al anterior. No hay polling del aviso mientras está inactivo; eso pertenece a **P0-E**.
-- Pruebas Playwright: (a) pendiente $60 → crear una venta pagada de $10 → la clave y el aviso siguen → recargar → Continuar abre el mismo id → pagar el pendiente borra el aviso; (b) flujo pendiente → recargar → Continuar/Descartar sin duplicar y con foco en Caja.
+- Pruebas Playwright: (a) pendiente $60 → crear una venta pagada de $10 → abrir/cerrar otra orden pagada → la clave y el aviso siguen → recargar → Continuar abre el mismo id y el diálogo muestra `Pedido ####` calculado con `shortOrder(pending_id)` → pagar el pendiente borra el aviso; (b) pendiente $60 → crear una venta `fulfilled` de crédito completo → abrir/cerrar esa orden → la clave y el aviso siguen; (c) Continuar/Descartar sin duplicar y con foco en Caja.
 - **No se modificó `AUDITORIA-COGNITIVA.md`:** la enmienda condicional no aplica porque `activeOrderId` + “Continuar/Descartar” se implementó y probó. Además, ese archivo no está versionado en este worktree; vive como archivo no rastreado en el repo principal, que no se debía tocar.
 
 ### 2.6 · Venta mixta con saldo digital — hueco conocido
@@ -115,27 +114,32 @@ npm start
 python scripts\p0-venta-e2e.py
 ```
 
-Último resultado: **31 PASS · 0 FAIL · 1 KNOWN**. El script escribe `harness/evidence/p0-venta-e2e.json` con resultados, base URL, comandos y requisitos.
+Último resultado: **43 PASS · 0 FAIL · 1 KNOWN**. El script escribe `harness/evidence/p0-venta-e2e.json` con resultados, `code.commit`, `code.dirty`, `build.next` y requisitos.
 
 Cubre:
 1. Parser en 500: “Escribir productos” crea una fila manual.
 2. Borrar el último ítem limpia efectivo, fiado, cliente, banner y confirmación de “Limpiar”; el draft nuevo no guarda dinero sin ítems.
 3. Un parseo nuevo oculta el banner de recuperación y conserva la venta nueva; quedar sin ítems también elimina el draft pagable.
-4. “Continuar venta” mantiene el draft y oculta el banner; las etiquetas “Descartar borrador” y “Descartar aviso” son distintas.
-5. $90/$100 conserva “Cambio $10.00” en el `PaidSheet` y la orden queda `paidCents=9000`.
-6. $100 con $30 fiado conserva “Cambio $40.00” en el resultado y la orden queda `paidCents=6000`, `creditCents=3000`.
-7. “Sí, limpiar” enfoca `draft-add-empty`.
-8. `activeOrderId`: el pendiente se guarda, recargar muestra el aviso sin abrir el cobro, Continuar reabre el mismo id sin duplicar, Descartar aviso no borra la orden, enfoca `caja-heading` y el aviso no reaparece.
-9. **Pendiente ajeno:** $60 pendientes → crear una venta pagada de $10 → la clave y el aviso siguen → abrir y cerrar otra orden pagada → el aviso sigue → recargar → Continuar abre el mismo id → pagar el pendiente borra el aviso.
-10. La orden mixta conserva $30 efectivo, $20 fiado y $40 digitales; se marca el hueco de UI como `KNOWN` de P0-C/E.
-11. 51 ítems se restauran sin truncar.
-12. `aria-invalid` solo en descripción o precio, según el error.
-13. JSON corrupto se elimina y no bloquea la caja.
-14. Reiniciar demo limpia draft y pendiente.
+4. “Continuar venta” mantiene el draft y oculta el banner; tras recargar el banner puede reaparecer y el draft sigue (acuse solo de sesión).
+5. “Descartar borrador” intacto borra draft/storage; editado no borra la edición, oculta el banner y conserva el storage.
+6. $90/$100 conserva “Cambio $10.00” en el `PaidSheet` y la orden queda `paidCents=9000`.
+7. $100 con $30 fiado conserva “Cambio $40.00” en el resultado y la orden queda `paidCents=6000`, `creditCents=3000`.
+8. “Sí, limpiar” enfoca `draft-add-empty`.
+9. `activeOrderId`: el pendiente se guarda, recargar muestra el aviso sin abrir el cobro, Continuar reabre el mismo id y el diálogo muestra `Pedido ####` de `shortOrder(pending_id)`, Descartar aviso no borra la orden, enfoca `caja-heading` y el aviso no reaparece.
+10. **Pendiente ajeno pagado:** $60 pendientes → crear una venta pagada de $10 → abrir y cerrar otra orden pagada → la clave y el aviso siguen → recargar → Continuar abre el mismo id → pagar el pendiente borra el aviso.
+11. **Pendiente ajeno fulfilled:** $60 pendientes → crear una venta de crédito completo (`fulfilled`) → abrir y cerrar esa orden → la clave y el aviso siguen → recargar → aviso.
+12. La orden mixta conserva $30 efectivo, $20 fiado y $40 digitales; se marca el hueco de UI como `KNOWN` de P0-C/E.
+13. 51 ítems se restauran sin truncar.
+14. `aria-invalid` solo en descripción o precio, según el error.
+15. Precio 0 con descripción válida enfoca el precio.
+16. Cantidad 0 restaurada enfoca cantidad y no envía POST.
+17. Banners de un draft de ayer y de varios días muestran “ayer” o la fecha.
+18. JSON corrupto se elimina y no bloquea la caja.
+19. Reiniciar demo limpia draft y pendiente.
 
-### 5.3 · Regresión adicional
+### 5.3 · Casos antes manuales, ahora automatizados
 
-Con el build final también se probaron: precio 0 con foco en el precio, cantidad 0 restaurada con foco y sin POST, y banners de un draft de ayer y de varios días. Todos pasaron. El caso de parser 500 + escritura manual está ahora en el script E2E.
+Precio 0 con foco, cantidad 0 restaurada (foco y sin POST) y banners de ayer/varios días ya están en `p0-venta-e2e.py`. No quedan casos manuales de esas reglas; las únicas pruebas no automatizadas son las que dependen de hardware o servicios reales (micrófono, OpenAI, pey, lector de pantalla, teléfono físico).
 
 ## 6 · Riesgos y lo que no probé
 
@@ -150,10 +154,9 @@ Con el build final también se probaron: precio 0 con foco en el precio, cantida
 
 ## 7 · Estado de entrega
 
-- Commit de código: `37286fe` (`fix(caja): aislar pendiente por id y aclarar avisos`).
-- Commit final de evidencia + script/reporte: el tip de la rama (`chore(harness): record p0 revision 3 evidence`).
-- Evidencia de harness: `harness/evidence/latest.json` con `ok: true` y `gitAtStart.sha = 37286fe`.
-- Evidencia E2E: `harness/evidence/p0-venta-e2e.json` (31 PASS · 0 FAIL · 1 KNOWN).
+- Commit de código: el commit de esta revisión en `git log --oneline` (se fija en el commit de evidencia).
+- Evidencia de harness: `harness/evidence/latest.json` con `ok: true` y `gitAtStart.sha` igual al commit de código.
+- Evidencia E2E: `harness/evidence/p0-venta-e2e.json` (43 PASS · 0 FAIL · 1 KNOWN; incluye `code.commit`, `code.dirty` y `build.next`).
 - Cambios de producto: `web/src/components/caja-app.tsx`.
 - Prueba reproducible: `web/scripts/p0-venta-e2e.py`.
 - Sin cambios en SQLite, webhook, pey, `/api/verify`, `paymentTruth`, `PaidSheet` (lógica de verdad) ni en la dirección visual.

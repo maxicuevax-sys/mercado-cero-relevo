@@ -571,26 +571,6 @@ export default function CajaApp() {
   }, [draftReady, draftItems, cashCents, creditCents, customerName, textInput, transcript]);
 
   useEffect(() => {
-    // El banner solo corresponde al borrador intacto. Cualquier edición o una
-    // venta nueva lo vuelve obsoleto; "Descartar" no debe borrar trabajo nuevo.
-    if (!restoredDraftAt) return;
-    const signature = draftSignature({
-      items: draftItems,
-      cashCents,
-      creditCents,
-      customerName,
-      textInput,
-      transcript,
-    });
-    if (
-      restoredDraftSignatureRef.current &&
-      signature !== restoredDraftSignatureRef.current
-    ) {
-      setRestoredDraftAt(null);
-    }
-  }, [restoredDraftAt, draftItems, cashCents, creditCents, customerName, textInput, transcript]);
-
-  useEffect(() => {
     // Reabre el pendiente solo como aviso; nunca abre el cobro ni crea órdenes.
     const stored = readStoredPendingOrder();
     if (!stored) return;

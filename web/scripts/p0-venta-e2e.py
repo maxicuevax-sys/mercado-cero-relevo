@@ -26,8 +26,9 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright, expect
@@ -38,7 +39,27 @@ if hasattr(sys.stdout, "reconfigure"):
 BASE = os.environ.get("P0_BASE_URL", "http://localhost:3101").rstrip("/")
 DRAFT_KEY = "mercado-cero:draft:v1"
 PENDING_KEY = "mercado-cero:pending-order:v1"
-OUT = Path(__file__).resolve().parents[2] / "harness" / "evidence" / "p0-venta-e2e.json"
+ROOT = Path(__file__).resolve().parents[2]
+OUT = ROOT / "harness" / "evidence" / "p0-venta-e2e.json"
+
+
+def git_value(*args: str) -> str:
+    try:
+        result = subprocess.run(
+            ["git", *args],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        return result.stdout.strip() if result.returncode == 0 else ""
+    except Exception:
+        return ""
+
+
+def short_order(order_id: str) -> str:
+    return order_id[-4:].upper()
 
 results: list[dict] = []
 
@@ -76,7 +97,8 @@ def summary(page) -> dict:
 
 
 def reset(page) -> None:
-    page.request.post(f"{BASE}/api/demo/reset")
+    response = page.request.post(f"{BASE}/api/demo/reset")
+    assert response.ok, f"demo/reset falló: {response.status} {response.text()}"
     page.goto(BASE, wait_until="networkidle")
     page.evaluate("localStorage.clear()")
     page.reload(wait_until="networkidle")
@@ -218,6 +240,52 @@ def main() -> int:
             and page.get_by_role("textbox", name="Producto").input_value() == "Continuar borrador"
             and page.evaluate(f"localStorage.getItem('{DRAFT_KEY}')") is not None,
         )
+        page.reload(wait_until="networkidle")
+        check(
+            "Continuar venta oculta el banner solo en la sesión; el draft sigue",
+            page.get_by_text(re.compile(r"Recuperé tu venta de las \d{2}:\d{2}")).count() == 1
+            and page.get_by_role("textbox", name="Producto").input_value() == "Continuar borrador"
+            and page.evaluate(f"localStorage.getItem('{DRAFT_KEY}')") is not None,
+        )
+
+        # 2d · "Descartar borrador" intacto borra; editado no borra.
+        reset(page)
+        add_item(page, "Borrador intacto", 1, 15)
+        page.wait_for_function(f"localStorage.getItem('{DRAFT_KEY}') !== null")
+        page.reload(wait_until="networkidle")
+        expect(page.get_by_text(re.compile(r"Recuperé tu venta de las \d{2}:\d{2}"))).to_be_visible()
+        page.get_by_role("button", name="Descartar el borrador de venta").click()
+        page.wait_for_timeout(120)
+        check(
+            "Descartar borrador intacto borra el draft y el storage",
+            page.get_by_role("textbox", name="Producto").count() == 0
+            and page.get_by_text(re.compile(r"Recuperé tu venta")).count() == 0
+            and page.evaluate(f"localStorage.getItem('{DRAFT_KEY}')") is None,
+        )
+
+        reset(page)
+        add_item(page, "Borrador editable", 1, 15)
+        page.wait_for_function(f"localStorage.getItem('{DRAFT_KEY}') !== null")
+        page.reload(wait_until="networkidle")
+        expect(page.get_by_text(re.compile(r"Recuperé tu venta de las \d{2}:\d{2}"))).to_be_visible()
+        page.get_by_role("textbox", name="Producto").fill("Borrador editado")
+        page.wait_for_function(
+            f"JSON.parse(localStorage.getItem('{DRAFT_KEY}')).items[0].description === 'Borrador editado'"
+        )
+        check(
+            "editar el draft no oculta el banner antes de decidir",
+            page.get_by_text(re.compile(r"Recuperé tu venta")).count() == 1,
+        )
+        page.get_by_role("button", name="Descartar el borrador de venta").click()
+        page.wait_for_timeout(120)
+        edited = page.evaluate(f"JSON.parse(localStorage.getItem('{DRAFT_KEY}') || 'null')")
+        check(
+            "Descartar borrador editado no borra la edición",
+            page.get_by_text(re.compile(r"Recuperé tu venta")).count() == 0
+            and page.get_by_role("textbox", name="Producto").input_value() == "Borrador editado"
+            and bool(edited)
+            and edited["items"][0]["description"] == "Borrador editado",
+        )
 
         # 3 · El cambio se conserva después de confirmar.
         reset(page)
@@ -297,9 +365,14 @@ def main() -> int:
         page.get_by_role("button", name="Continuar el cobro pendiente").click()
         expect(page.get_by_role("dialog")).to_be_visible()
         expect(page.get_by_role("dialog")).to_contain_text("$60.00")
+        expect(page.get_by_role("dialog")).to_contain_text(f"Pedido {short_order(pending_id)}")
         check(
             "Continuar reabre el mismo pendiente sin duplicar",
-            order_ids(page) == before_reload and pending_id in before_reload,
+            order_ids(page) == before_reload
+            and pending_id in before_reload
+            and f"Pedido {short_order(pending_id)}"
+            in page.get_by_role("dialog").inner_text(),
+            f"pedido={short_order(pending_id)}",
         )
         close_dialog(page)
         expect(page.get_by_text("Tienes un cobro pendiente de $60.00")).to_be_visible()
@@ -374,6 +447,12 @@ def main() -> int:
         page.get_by_role("button", name="Continuar el cobro pendiente").click()
         expect(page.get_by_role("dialog")).to_be_visible()
         expect(page.get_by_role("dialog")).to_contain_text("$60.00")
+        expect(page.get_by_role("dialog")).to_contain_text(f"Pedido {short_order(pending_id)}")
+        check(
+            "Continuar cobro muestra el Pedido #### correcto",
+            f"Pedido {short_order(pending_id)}" in page.get_by_role("dialog").inner_text(),
+            f"pedido={short_order(pending_id)}",
+        )
         page.get_by_role("button", name="Link de pago").click()
         expect(page.get_by_role("button", name="Simular CoDi")).to_be_visible()
         page.get_by_role("button", name="Simular CoDi").click()
@@ -387,6 +466,61 @@ def main() -> int:
             and page.get_by_text("Tienes un cobro pendiente").count() == 0,
         )
         close_dialog(page)
+
+        # 5c · El pendiente sobrevive a una orden fulfilled ajena (crédito completo).
+        reset(page)
+        add_item(page, "Pendiente ante fiado", 1, 90)
+        page.get_by_label("Efectivo recibido en pesos").fill("30")
+        before = order_ids(page)
+        page.get_by_role("button", name="Confirmar venta").click()
+        expect(page.get_by_role("dialog")).to_be_visible()
+        created = new_orders(page, before)
+        assert len(created) == 1, created
+        pending_id = created[0]["id"]
+        close_dialog(page)
+        expect(page.get_by_text("Tienes un cobro pendiente de $60.00")).to_be_visible()
+
+        add_item(page, "Fiado ajeno", 1, 20)
+        page.get_by_label("Monto a fiado en pesos").fill("20")
+        page.get_by_label("Nombre del cliente para el fiado").fill("Cliente fiado")
+        before = order_ids(page)
+        page.get_by_role("button", name="Confirmar venta").click()
+        expect(page.get_by_role("dialog")).to_be_visible()
+        fulfilled_created = new_orders(page, before)
+        assert len(fulfilled_created) == 1, fulfilled_created
+        check(
+            "la venta de crédito completo queda fulfilled",
+            fulfilled_created[0]["status"] == "fulfilled"
+            and fulfilled_created[0]["creditCents"] == 2000,
+        )
+        close_dialog(page)
+        expect(page.get_by_text("Tienes un cobro pendiente de $60.00")).to_be_visible()
+        stored_fulfilled = page.evaluate(
+            f"JSON.parse(localStorage.getItem('{PENDING_KEY}') || 'null')"
+        )
+        check(
+            "crear una orden fulfilled ajena no borra el pendiente",
+            bool(stored_fulfilled) and stored_fulfilled.get("orderId") == pending_id,
+            json.dumps(stored_fulfilled, ensure_ascii=False)
+            if stored_fulfilled
+            else "sin clave",
+        )
+
+        page.get_by_role("button", name=re.compile("Fiado ajeno")).first.click()
+        expect(page.get_by_role("dialog")).to_be_visible()
+        close_dialog(page)
+        page.wait_for_timeout(120)
+        expect(page.get_by_text("Tienes un cobro pendiente de $60.00")).to_be_visible()
+        stored_open_fulfilled = page.evaluate(
+            f"JSON.parse(localStorage.getItem('{PENDING_KEY}') || 'null')"
+        )
+        check(
+            "abrir y cerrar la orden fulfilled ajena conserva el pendiente",
+            bool(stored_open_fulfilled)
+            and stored_open_fulfilled.get("orderId") == pending_id,
+        )
+        page.reload(wait_until="networkidle")
+        expect(page.get_by_text("Tienes un cobro pendiente de $60.00")).to_be_visible()
 
         # 6 · Venta mixta con saldo digital: hueco conocido de P0-C/E, no de este carril.
         reset(page)
@@ -477,6 +611,115 @@ def main() -> int:
             price_invalid == "true",
             f"price={price_invalid}",
         )
+        page.wait_for_timeout(120)
+        focused = page.evaluate("document.activeElement && document.activeElement.id")
+        check(
+            "precio 0 enfoca el campo de precio",
+            str(focused).startswith("draft-price-"),
+            f"foco={focused}",
+        )
+
+        # 8b · Cantidad 0 restaurada: error, foco y sin POST.
+        reset(page)
+        quantity_payload = {
+            "version": 1,
+            "items": [
+                {
+                    "id": "cantidad_cero",
+                    "description": "Cantidad cero",
+                    "quantity": 0,
+                    "unitPriceCents": 5000,
+                }
+            ],
+            "cashCents": 0,
+            "creditCents": 0,
+            "customerName": "",
+            "textInput": "",
+            "transcript": "",
+            "updatedAt": datetime.now(timezone.utc).isoformat(),
+        }
+        page.evaluate(
+            "([key, value]) => localStorage.setItem(key, value)",
+            [DRAFT_KEY, json.dumps(quantity_payload)],
+        )
+        page.reload(wait_until="networkidle")
+        expect(page.get_by_text(re.compile(r"Recuperé tu venta"))).to_be_visible()
+        quantity_posts: list[str] = []
+        page.on(
+            "request",
+            lambda request: quantity_posts.append(request.url)
+            if request.method == "POST"
+            and "/api/orders" in request.url
+            and "/pay" not in request.url
+            else None,
+        )
+        page.get_by_role("button", name="Confirmar venta").click()
+        expect(page.get_by_text("La cantidad debe ser mayor a cero.")).to_be_visible()
+        page.wait_for_timeout(120)
+        focused = page.evaluate("document.activeElement && document.activeElement.id")
+        check(
+            "cantidad 0 restaurada enfoca cantidad y no envía POST",
+            focused == "draft-quantity-cantidad_cero" and quantity_posts == [],
+            f"foco={focused} posts={quantity_posts}",
+        )
+
+        # 8c · Banners de ayer y de varios días.
+        reset(page)
+        yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).replace(microsecond=0)
+        yesterday_payload = {
+            "version": 1,
+            "items": [
+                {
+                    "id": "ayer",
+                    "description": "Ayer",
+                    "quantity": 1,
+                    "unitPriceCents": 5000,
+                }
+            ],
+            "cashCents": 0,
+            "creditCents": 0,
+            "customerName": "",
+            "textInput": "",
+            "transcript": "",
+            "updatedAt": yesterday.isoformat(),
+        }
+        page.evaluate(
+            "([key, value]) => localStorage.setItem(key, value)",
+            [DRAFT_KEY, json.dumps(yesterday_payload)],
+        )
+        page.reload(wait_until="networkidle")
+        check(
+            "un draft de ayer muestra 'ayer' y la hora",
+            page.get_by_text(re.compile(r"Recuperé tu venta de ayer a las \d{2}:\d{2}")).count()
+            == 1,
+        )
+        page.get_by_role("button", name="Descartar el borrador de venta").click()
+        page.wait_for_timeout(120)
+
+        old_payload = dict(yesterday_payload)
+        old_payload["items"] = [
+            {
+                "id": "viejo",
+                "description": "Viejo",
+                "quantity": 1,
+                "unitPriceCents": 5000,
+            }
+        ]
+        old_payload["updatedAt"] = (
+            datetime.now(timezone.utc) - timedelta(days=3)
+        ).replace(microsecond=0).isoformat()
+        page.evaluate(
+            "([key, value]) => localStorage.setItem(key, value)",
+            [DRAFT_KEY, json.dumps(old_payload)],
+        )
+        page.reload(wait_until="networkidle")
+        check(
+            "un draft de varios días muestra la fecha",
+            page.get_by_text(re.compile(r"Recuperé tu venta del \d{2}/\d{2} a las \d{2}:\d{2}")).count()
+            == 1,
+        )
+        page.get_by_role("button", name="Descartar el borrador de venta").click()
+        page.wait_for_timeout(120)
 
         # 9 · JSON corrupto se elimina y no bloquea la caja.
         reset(page)
@@ -512,6 +755,12 @@ def main() -> int:
     failed = sum(1 for item in results if item["ok"] is False)
     known = sum(1 for item in results if item["ok"] is None)
     summary = {"pass": passed, "fail": failed, "known": known, "total": len(results)}
+    try:
+        next_version = json.loads(
+            (ROOT / "web" / "package.json").read_text(encoding="utf-8")
+        )["dependencies"]["next"]
+    except Exception:
+        next_version = "desconocida"
     payload = {
         "schemaVersion": 1,
         "suite": "p0-venta-e2e",
@@ -522,6 +771,15 @@ def main() -> int:
             "python -m playwright install chromium",
             "servidor aislado en P0_BASE_URL (por defecto http://localhost:3101)",
         ],
+        "code": {
+            "commit": git_value("rev-parse", "HEAD"),
+            "branch": git_value("rev-parse", "--abbrev-ref", "HEAD"),
+            "dirty": bool(git_value("status", "--porcelain")),
+        },
+        "build": {
+            "next": next_version,
+            "command": "npm run build",
+        },
         "startedAt": started_at.isoformat(),
         "finishedAt": datetime.now(timezone.utc).isoformat(),
         "summary": summary,
