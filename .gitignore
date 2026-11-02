@@ -26,6 +26,7 @@ demo/hig-after/
 demo/mobile-*
 demo/checkout-*
 demo/rehearsal.json
+demo/rehearsal-error.*
 demo/tunnel-*
 demo/stageshow/film-check.json
 demo/stageshow/*-sheet*.png
