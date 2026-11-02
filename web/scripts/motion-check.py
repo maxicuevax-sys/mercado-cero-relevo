@@ -84,6 +84,13 @@ def scale_x(transform: str) -> float:
 
 
 def main() -> int:
+    # Se captura antes de escribir capturas/JSON; si no, el propio reporte
+    # aparecería como árbol sucio.
+    start_code = {
+        "commit": git_value("rev-parse", "HEAD"),
+        "branch": git_value("rev-parse", "--abbrev-ref", "HEAD"),
+        "dirty": bool(git_value("status", "--porcelain")),
+    }
     SHOTS.mkdir(parents=True, exist_ok=True)
     errors: list[str] = []
 
@@ -251,11 +258,7 @@ def main() -> int:
     failed = len(results) - passed
     report = {
         "baseUrl": BASE,
-        "code": {
-            "commit": git_value("rev-parse", "HEAD"),
-            "branch": git_value("rev-parse", "--abbrev-ref", "HEAD"),
-            "dirty": bool(git_value("status", "--porcelain")),
-        },
+        "code": start_code,
         "passed": passed,
         "failed": failed,
         "results": results,
