@@ -1,7 +1,7 @@
 # STATE — Mercado Cero
 
 > Handoff vivo para agentes. Última actualización: **2 de noviembre de 2026**.
-> No reconstruyas el estado de memoria: si un dato no está aquí ni en `latest.json`, no lo asumas.
+> No reconstruyas el estado de memoria: si un dato no está aquí ni en `latest.json`/`latest-static.json`, no lo asumas.
 
 ## Identidad
 
@@ -11,12 +11,12 @@
 - URL local: `http://localhost:3000` (o `BASE_URL`)
 - URL pública (2 nov 2026): `https://timing-brought-lamp-aberdeen.trycloudflare.com` — quick tunnel efímero. Si cambia, regenerar `APP_URL`, QR y PDF (ver `demo/STATUS.md`).
 - Base de datos: `web/data/mercado-cero.db` (ignorada por git)
-- Evidencia: `harness/evidence/latest.json` (local, ignorado; solo `full`/`static` con `ok:true`)
-- Reporte: `npm run harness:report` genera la tabla desde `latest.json`
+- Evidencia: `harness/evidence/latest.json` (full) o `latest-static.json` (static), locales e ignorados; solo con `ok:true`
+- Reporte: `npm run harness:report` genera la tabla desde el latest correspondiente
 
 ## Último estado verde conocido
 
-> **Histórico, no handoff.** Esta tabla mezcla corridas de días distintos y no prueba el commit actual. El handoff vigente es `harness/evidence/latest.json` + `npm run verify:evidence` contra HEAD.
+> **Histórico, no handoff.** Esta tabla mezcla corridas de días distintos y no prueba el commit actual. El handoff vigente es `harness/evidence/latest.json` (full) o `latest-static.json` (static) + `npm run verify:evidence` contra HEAD.
 
 | Gate | Resultado | Fecha |
 |---|---|---|
@@ -30,7 +30,7 @@
 | Ensayo | 3/3, 19/19 pasos, ~8.1 s, `todo en verde: True` (master `75179c7`) | 2 nov 2026 |
 | Preflight | 18/18 | 2 nov 2026 |
 | Motion | 19 PASS · 0 FAIL | 2 nov 2026 |
-| Alto contraste | 7/7 PASS · 0 FAIL | 2 nov 2026 |
+| Alto contraste | 7 PASS · 0 FAIL | 2 nov 2026 |
 | P0 venta | 65 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
 | P0 fiado | 51 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
 | P0 corte | 69 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
@@ -42,13 +42,13 @@
 | Performance | `PERF BUDGET OK` | 2 nov 2026 |
 | Film check | 8 beats + contact sheet + motion sheet | 2 nov 2026 |
 
-**Nota:** para el commit actual manda `latest.json`; si `verify:evidence` falla, la tabla no se usa como prueba.
+**Nota:** para el commit actual manda el latest correspondiente (`latest.json` para full, `latest-static.json` para static); si `verify:evidence` falla, la tabla no se usa como prueba.
 
 ## Corte actual (2 nov 2026)
 
 - **SHA de partida (base auditada):** `3fe1cc9` (`p0/fix-demo-docs`).
 - **Servidor `:3000` observado:** `665d72e` — build anterior, **no coincide con la base**.
-- **Evidencia atada a la base/HEAD:** ❌ pendiente. `latest.json` es local y no está en el árbol; `full` no se corrió contra `3fe1cc9`.
+- **Evidencia atada a la base/HEAD:** ❌ pendiente. `latest.json`/`latest-static.json` son locales y no están en el árbol; `full` no se corrió contra `3fe1cc9`.
 - **Video:** `demo/mercado-cero-demo.mp4` es **histórico** (39.8 s, 1,704,744 B, UI vieja, muestra $570); se regrabará tras el rediseño. No es respaldo actual.
 - **Pruebas humanas:** **0/6–8**; TalkBack/VoiceOver y teléfono físico pendientes.
 - **Pago real:** ❌ no hubo; BBVA/CoDi bloqueado; demo `demo_paid`.
@@ -56,14 +56,14 @@
 
 ## Última corrida del harness
 
-- **El SHA de la tabla de gates no se hardcodea.** El código verificado es el `gitAtStart.sha` de `harness/evidence/latest.json`; `npm run verify:evidence` lo compara con HEAD y exige árbol limpio, `serverBuildSha === gitAtStart.sha` y artefactos con hash. El corte actual de arriba referencia `3fe1cc9` para orientar, no como evidencia.
+- **El SHA de la tabla de gates no se hardcodea.** El código verificado es el `gitAtStart.sha` de `harness/evidence/latest.json` (full) o `latest-static.json` (static); `npm run verify:evidence` lo compara con HEAD y exige árbol limpio, `serverBuildSha === gitAtStart.sha`, `buildSha` por gate runtime, set canónico de artefactos y hashes. El corte actual de arriba referencia `3fe1cc9` para orientar, no como evidencia.
 - **Catálogo actual:** **25 gates**. `fast` 3, `static` 5, `full` **23** por defecto (build fuera, film opcional) y `full --with-film` **24**.
-- **Esta rama debe cerrar con `static` 5/5** sobre árbol limpio y `verify:evidence` PASS. El archivo manda sobre este texto; la corrida se hace después del commit final y **aún no está en el árbol**.
+- **Cierre de este carril de harness:** `npm run test:harness` (58/58), `node scripts/harness-gate.mjs --list`, `node scripts/checkout-gate.mjs` y el gate `p0-dinero` aislado sobre build de HEAD. No se corrió `verify:full` contra `:3000`; el full queda para el orquestador con servidor y túnel.
 - **`full` no se ejecutó en este worktree.** Este carril no toca `mercado-cero`, `:3000` ni `:3101`. El full requiere que el orquestador arranque el servidor **construido desde HEAD** y el túnel fuera de este carril. No se cita como verde actual.
 - **Build identity:** `npm run build` sella `BUILD_SHA`/`.next/BUILD_SHA` y `/api/health` devuelve el SHA. Un servidor de otro commit se rechaza antes de correr runtime.
-- **Artefactos:** los JSON/PNG de mobile, checkout, motion, contraste, mobile-320, p0, rehearsal, tunnel y film están ignorados; escribirlos no ensucia `gitAtEnd`. `latest.json` y `runs/` también son locales. El QR y el video siguen siendo entregables versionados; el MP4 existente es histórico y se regrabará.
+- **Artefactos:** los JSON/PNG de mobile, checkout, motion, contraste, mobile-320, p0, rehearsal, tunnel y film están ignorados; escribirlos no ensucia `gitAtEnd`. El JSON de `p0-dinero` está ignorado y **no trackeado**; correr ese gate deja `git status` limpio. `latest.json`/`latest-static.json` y `runs/` también son locales. El QR y el video siguen siendo entregables versionados; el MP4 existente es histórico y se regrabará.
 - **Exactitud:** los markers se validan con límites de palabra. `0 FAIL` no acepta `10 FAIL`; `lint` exige `LINT OK`, no la palabra `eslint`.
-- **Cobertura nueva del full:** `security`, `data`, `perf`, `p0-venta`, `p0-fiado`, `p0-corte`, `p0-integracion`, `p0-dinero` y `mobile-320`.
+- **Cobertura nueva del full:** `security`, `data`, `perf`, `p0-venta`, `p0-fiado`, `p0-corte`, `p0-integracion`, `p0-dinero`, `checkout` (aislado 3215) y `mobile-320`.
 - **Voz:** el botón de $50 reproduce Kokoro `em_santa` (SHA-256 `24EF2C9F…`), 0 llamadas a `speechSynthesis`; las dinámicas van a Piper y los montos se normalizan (`70.00 pesos` → “70 pesos”). **No hay fallback a la voz del navegador**.
 - **Movimiento:** barrido de papel ASLI de 300 ms entre tabs, tabs 160 ms, títulos 240 ms, listas 180 ms con stagger ≤84 ms, hojas 220 ms, marcador 180 ms, sello 240 ms y veta de scroll nativa.
 
@@ -110,10 +110,10 @@
 
 ## Corrida final (instrucciones)
 
-1. Commitear código y docs en `p0/fix-harness-evidence` y verificar `git status --porcelain --untracked-files=all` vacío.
-2. `cd web && npm run test:harness` → 48/48.
-3. `npm run verify:static` → 5/5, `ok:true`, `serverBuildSha === gitAtStart.sha`, `gitAtEnd.dirty:false`.
-4. `npm run verify:evidence` → PASS contra HEAD. `latest.json` es local y no se versiona; no lo commitees.
+1. Commitear código y docs en `p0/fix-harness-p0` y verificar `git status --porcelain --untracked-files=all` vacío.
+2. `cd web && npm run test:harness` → 58/58.
+3. `npm run verify:static` → 5/5, `ok:true`, `serverBuildSha === gitAtStart.sha`, `gitAtEnd.dirty:false`, y `latest-static.json` (sin pisar `latest.json`).
+4. `npm run verify:evidence -- --static` → PASS contra HEAD. `latest.json`/`latest-static.json` son locales y no se versionan; no los commitees.
 5. Para el full: construir (`npm run build`), arrancar servidor y túnel **explícitamente** fuera de este worktree/carril, luego `npm run verify:full` → 23/23, o `npm run verify:full -- --with-film` → 24/24. Correr `npm run verify:evidence` otra vez.
 6. `npm run harness:report` y pegar la tabla en este archivo solo si la corrida es de este HEAD.
 
@@ -131,9 +131,9 @@
 
 ```bash
 cd web
-npm run test:harness      # 48 tests
+npm run test:harness      # 58 tests
 npm run verify:static     # 5/5, árbol limpio, buildSha === HEAD
-npm run verify:evidence   # latest.json contra HEAD
+npm run verify:evidence   # latest.json (full) o latest-static.json (--static) contra HEAD
 npm run harness:report    # tabla para este archivo
 ```
 

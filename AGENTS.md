@@ -23,7 +23,7 @@ Los pagos simulados usan `demo_paid`, nunca `paid`. `/api/verify` solo considera
 
 ## Harness (contexto, gates y evidencia)
 
-Lee **`HARNESS.md`** antes de una tarea larga. `harness/STATE.md` es el handoff vivo; `harness/EVALS.md` explica qué prueba cada gate. No declares listo sin `harness/evidence/latest.json` con `ok: true`, `gitAtStart.sha` igual al commit de código entregado, `gitAtStart.dirty:false` y `npm run verify:evidence` PASS.
+Lee **`HARNESS.md`** antes de una tarea larga. `harness/STATE.md` es el handoff vivo; `harness/EVALS.md` explica qué prueba cada gate. No declares listo sin `harness/evidence/latest.json` (full) o `latest-static.json` (static) con `ok: true`, `gitAtStart.sha` igual al commit de código entregado, `gitAtStart.dirty:false` y `npm run verify:evidence` PASS.
 
 ```bash
 cd web
@@ -35,9 +35,9 @@ npm run verify:fast      # 3 gates: guardrails + lint + tipos
 npm run verify:static    # 5 gates: fast + deps + build con identidad
 npm run verify:full      # 23 gates: runtime + guard/lint/types/deps + p0 (build fuera; film opcional: 24)
 npm run verify:list
-npm run verify:evidence  # latest.json contra HEAD, árbol y buildSha
-npm run harness:report   # tabla Markdown desde latest.json
-npm run test:harness     # 48 tests del gate y de la evidencia
+npm run verify:evidence  # latest.json (full) o latest-static.json (--static) contra HEAD, árbol y buildSha
+npm run harness:report   # tabla Markdown desde el latest correspondiente
+npm run test:harness     # 58 tests del gate y de la evidencia
 ```
 
 Los comandos individuales se corren **desde `web/`**; no desde la raíz con `node web/scripts/...`.
@@ -56,5 +56,5 @@ Nada se considera listo si rompe el contrato del webhook, la verdad demo/pey o b
 
 - Cada carril trabaja en su worktree (`../mercado-cero-<lane>`, rama `swarm/<lane>`).
 - Commit al terminar y escribe `<lane>-report.md` en la raíz del worktree: cambios, verificación corrida y resultado, pendientes. Plantilla: `harness/templates/LANE-REPORT.md`.
-- Antes del reporte, corre `npm run verify:fast` como mínimo; si el carril toca runtime, adjunta `harness/evidence/latest.json`.
+- Antes del reporte, corre `npm run verify:fast` como mínimo; si el carril toca runtime, adjunta el latest correspondiente (`latest.json` full o `latest-static.json` static).
 - El merge lo hace **solo el orquestador** (Hermes), previa revisión humana. Un worker nunca hace merge a `master`.
