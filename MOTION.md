@@ -45,7 +45,7 @@
 ```powershell
 cd web
 $env:MOTION_BASE_URL="http://localhost:3000"
-python scripts/motion-check.py   # 14/14; gate `motion` del harness full (12/12)
+python scripts/motion-check.py   # 14/14; gate `motion` del harness full (13/13)
 python scripts/hig-after-audit.py
 ```
 

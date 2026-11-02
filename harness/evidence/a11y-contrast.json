@@ -1,0 +1,37 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "code": {
+    "commit": "ce36e6270bbcd12a70567dbfca1553f488b19c9b",
+    "branch": "master",
+    "dirty": true
+  },
+  "passed": 5,
+  "failed": 0,
+  "results": [
+    {
+      "name": "el alto contraste está activo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "sin overflow horizontal a 360 px",
+      "ok": true,
+      "detail": "[360, 360]"
+    },
+    {
+      "name": "axe sin violaciones serias en alto contraste",
+      "ok": true,
+      "detail": "[]"
+    },
+    {
+      "name": "el foco es visible en alto contraste",
+      "ok": true,
+      "detail": "{\"tag\": \"A\", \"text\": \"Saltar al contenido\", \"outlineStyle\": \"solid\", \"outlineWidth\": \"3px\", \"outlineColor\": \"rgb(0, 0, 0)\"}"
+    },
+    {
+      "name": "sin errores de consola",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}
