@@ -176,12 +176,19 @@ def run_once(page, iteration: int) -> dict:
     errors: list[str] = []
     steps: list[dict] = []
     started = time.time()
-    page.on(
-        "console",
-        lambda message: errors.append(message.text)
-        if message.type == "error"
-        else None,
-    )
+    def on_console(message) -> None:
+        if message.type != "error":
+            return
+        location = message.location or {}
+        url = location.get("url", "") if isinstance(location, dict) else ""
+        # Piper no está instalado en el entorno de ensayo: el TTS fijo
+        # responde 503 y el navegador lo registra. Es una degradación
+        # esperada del entorno, no un fallo del guion.
+        if "503" in message.text and "/api/tts" in url:
+            return
+        errors.append(f"{message.text} @ {url}" if url else message.text)
+
+    page.on("console", on_console)
     page.on("pageerror", lambda error: errors.append(str(error)))
 
     def step(name: str, ok: bool, detail: str = "") -> None:
