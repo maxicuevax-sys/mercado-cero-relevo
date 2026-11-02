@@ -1,4 +1,4 @@
-# Estado de demo — 1 de noviembre de 2026
+# Estado de demo — 2 de noviembre de 2026
 
 ## Verde
 
@@ -15,7 +15,13 @@
 | Flujo completo 360 px | ✅ ≈9 s, 0 errores | `scripts/mobile-audit.py` |
 | Checkout público 360 px | ✅ 15/15 checks | `demo/checkout-audit.json` |
 | Túnel público | ✅ 8/8 checks | `demo/tunnel-smoke.json` |
-| Ensayo del guion | ✅ 3/3 corridas, 15/15 pasos, promedio 3.9 s | `demo/rehearsal.json` |
+| Ensayo del guion | ✅ 3/3 corridas, 15/15 pasos, promedio 4.9 s | `demo/rehearsal.json` |
+| P0-E cobros pendientes | ✅ franja, fechas, refresh y polling visible | `harness/evidence/p0-integracion-e2e.json` |
+| P0-G pendientes de negocio | ✅ quinto tab, crear/completar/reabrir/posponer/eliminar | `harness/evidence/p0-integracion-e2e.json` |
+| Venta mixta | ✅ efectivo + fiado + remanente digital, “Pago mixto” | `harness/evidence/p0-integracion-e2e.json` |
+| Carrera de refresco | ✅ un poll viejo no revive el saldo cobrado | `harness/evidence/p0-integracion-e2e.json` |
+| Voz del abono de $50 | ✅ Kokoro `em_santa`, dice “50 pesos”, 0 `speechSynthesis` | `VOZ-50-KOKORO.md` |
+| Harness final | ✅ full 11/11 en `3f95307`, `dirty: false` | `harness/evidence/latest.json` |
 | Video de respaldo | ✅ 36 s, 1280×800, 0.8 MB | `demo/mercado-cero-demo.mp4` |
 | Film check Stageshow | ✅ 8 beats + contact sheet + motion sheet | `demo/stageshow/` |
 | QR imprimible | ✅ PNG + SVG + HTML + PDF, URL nueva | `demo/qr-demo.*` |
@@ -33,6 +39,7 @@
 - La voz dinámica usa Piper es-MX; la primera frase puede tardar ~3 s si carga el modelo. Las frases fijas usan Kokoro `em_santa`.
 - Faltan pruebas reales con **TalkBack/VoiceOver** en teléfono físico; la evidencia actual es Playwright + axe.
 - Faltan **6–8 comerciantes** y SUS; el protocolo está en `TEST-USUARIO.md`.
+- **P0-D · Corte no destructivo + cierre versionado** sigue en construcción; el corte actual guarda, pero un refresh puede pisar el conteo y no hay historial de versiones.
 
 ## Rojo
 
