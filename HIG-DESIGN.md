@@ -136,7 +136,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 | `--color-control-border` | `#7A7165` | Bordes de inputs, selects, textareas, botones secundarios y radios | 3.77:1 en surface-2 · 4.72:1 en surface |
 | `--color-accent` | `#0A5B42` | Acción primaria, marca | 6.91:1 en canvas · 8.11:1 blanco |
 | `--color-accent-press` | `#074433` | Pressed | — |
-| `--color-success` | `#0A5B42` | **Solo pago real confirmado** | 8.11:1 blanco |
+| `--color-success` | `#0A5B42` | **Solo pago pey confirmado por webhook** | 8.11:1 blanco |
 | `--color-attention` | `#9C4E2B` | Fiado, pendiente, demo | 5.94:1 blanco · 5.05:1 en canvas |
 | `--color-danger` | `#A9241C` | Error/destructivo | 7.10:1 blanco |
 | `--color-info` | `#2F5D8A` | Información neutral | 6.88:1 blanco |

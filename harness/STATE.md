@@ -9,7 +9,7 @@
 - App: `web/` (Next.js 16, TypeScript, Tailwind, SQLite `node:sqlite`)
 - Modo actual: **demo** (`demo_paid` para simulación; en el camino digital `paid` solo por webhook pey firmado; el efectivo se registra `paid` al crear la venta)
 - URL local: `http://localhost:3000` (o `BASE_URL`)
-- URL pública: túnel temporal de Cloudflare (ver `demo/STATUS.md`; si cambió, regenerar QR)
+- URL pública (2 nov 2026): `https://timing-brought-lamp-aberdeen.trycloudflare.com` — quick tunnel efímero. Si cambia, regenerar `APP_URL`, QR y PDF (ver `demo/STATUS.md`).
 - Base de datos: `web/data/mercado-cero.db` (ignorada por git)
 - Evidencia: `harness/evidence/latest.json` (local, ignorado; solo `full`/`static` con `ok:true`)
 - Reporte: `npm run harness:report` genera la tabla desde `latest.json`
@@ -27,10 +27,10 @@
 | Móvil 320/360 (3 motores) | 42 PASS · 0 FAIL (nuevo gate) | 2 nov 2026 |
 | Checkout público | 19/19, `demo_paid` | 2 nov 2026 |
 | Túnel | 8/8 | 2 nov 2026 |
-| Ensayo | 3/3, 15 pasos por corrida, promedio 4.8 s | 2 nov 2026 |
+| Ensayo | 3/3, 19/19 pasos, ~8.1 s, `todo en verde: True` (master `75179c7`) | 2 nov 2026 |
 | Preflight | 18/18 | 2 nov 2026 |
 | Motion | 19 PASS · 0 FAIL | 2 nov 2026 |
-| Alto contraste | 0 FAIL | 2 nov 2026 |
+| Alto contraste | 7/7 PASS · 0 FAIL | 2 nov 2026 |
 | P0 venta | 65 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
 | P0 fiado | 51 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
 | P0 corte | 69 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
@@ -44,14 +44,24 @@
 
 **Nota:** para el commit actual manda `latest.json`; si `verify:evidence` falla, la tabla no se usa como prueba.
 
+## Corte actual (2 nov 2026)
+
+- **SHA de partida (base auditada):** `3fe1cc9` (`p0/fix-demo-docs`).
+- **Servidor `:3000` observado:** `665d72e` — build anterior, **no coincide con la base**.
+- **Evidencia atada a la base/HEAD:** ❌ pendiente. `latest.json` es local y no está en el árbol; `full` no se corrió contra `3fe1cc9`.
+- **Video:** `demo/mercado-cero-demo.mp4` es **histórico** (39.8 s, 1,704,744 B, UI vieja, muestra $570); se regrabará tras el rediseño. No es respaldo actual.
+- **Pruebas humanas:** **0/6–8**; TalkBack/VoiceOver y teléfono físico pendientes.
+- **Pago real:** ❌ no hubo; BBVA/CoDi bloqueado; demo `demo_paid`.
+- **Veredicto:** cierre pendiente; no declarar el cierre.
+
 ## Última corrida del harness
 
-- **No se hardcodea el SHA aquí.** El código verificado es el `gitAtStart.sha` de `harness/evidence/latest.json`; `npm run verify:evidence` lo compara con HEAD y exige árbol limpio, `serverBuildSha === gitAtStart.sha` y artefactos con hash.
+- **El SHA de la tabla de gates no se hardcodea.** El código verificado es el `gitAtStart.sha` de `harness/evidence/latest.json`; `npm run verify:evidence` lo compara con HEAD y exige árbol limpio, `serverBuildSha === gitAtStart.sha` y artefactos con hash. El corte actual de arriba referencia `3fe1cc9` para orientar, no como evidencia.
 - **Catálogo actual:** **25 gates**. `fast` 3, `static` 5, `full` **23** por defecto (build fuera, film opcional) y `full --with-film` **24**.
-- **Esta rama cierra con `static` 5/5** sobre árbol limpio y `verify:evidence` PASS. El archivo manda sobre este texto; la corrida se hace después del commit final.
+- **Esta rama debe cerrar con `static` 5/5** sobre árbol limpio y `verify:evidence` PASS. El archivo manda sobre este texto; la corrida se hace después del commit final y **aún no está en el árbol**.
 - **`full` no se ejecutó en este worktree.** Este carril no toca `mercado-cero`, `:3000` ni `:3101`. El full requiere que el orquestador arranque el servidor **construido desde HEAD** y el túnel fuera de este carril. No se cita como verde actual.
 - **Build identity:** `npm run build` sella `BUILD_SHA`/`.next/BUILD_SHA` y `/api/health` devuelve el SHA. Un servidor de otro commit se rechaza antes de correr runtime.
-- **Artefactos:** los JSON/PNG de mobile, checkout, motion, contraste, mobile-320, p0, rehearsal, tunnel y film están ignorados; escribirlos no ensucia `gitAtEnd`. `latest.json` y `runs/` también son locales. El QR y el video siguen siendo entregables versionados.
+- **Artefactos:** los JSON/PNG de mobile, checkout, motion, contraste, mobile-320, p0, rehearsal, tunnel y film están ignorados; escribirlos no ensucia `gitAtEnd`. `latest.json` y `runs/` también son locales. El QR y el video siguen siendo entregables versionados; el MP4 existente es histórico y se regrabará.
 - **Exactitud:** los markers se validan con límites de palabra. `0 FAIL` no acepta `10 FAIL`; `lint` exige `LINT OK`, no la palabra `eslint`.
 - **Cobertura nueva del full:** `security`, `data`, `perf`, `p0-venta`, `p0-fiado`, `p0-corte`, `p0-integracion`, `p0-dinero` y `mobile-320`.
 - **Voz:** el botón de $50 reproduce Kokoro `em_santa` (SHA-256 `24EF2C9F…`), 0 llamadas a `speechSynthesis`; las dinámicas van a Piper y los montos se normalizan (`70.00 pesos` → “70 pesos”). **No hay fallback a la voz del navegador**.
@@ -69,7 +79,7 @@
 - Dirección visual: “papel editorial” con Manrope + Fraunces, grano fijo, doble marco, Caja a dos columnas desde 1280, nota de mercado en sidebar y botones tipo sello. Contrato actualizado en `HIG-DESIGN.md` §16.
 - Meta: apartado declarado, progreso.
 - Accesibilidad: 48 px, 200%, alto contraste, voz, repetir, leer pantalla, movimiento reducido.
-- Demo: `demo_paid`, sellos, video, QR, runbook.
+- Demo: `demo_paid`, sellos, video histórico, QR, runbook.
 - Stageshow: `demo/stageshow/` + `web/scripts/film-check.py`.
 - Harness v2: `HARNESS.md`, `harness/EVALS.md`, `harness-gate.mjs`, `harness-guard.mjs`, `check-deps.mjs`, `run-types.mjs`, `build-gate.mjs`, `lint-gate.mjs`, `verify-evidence.mjs`, `harness-report.mjs`, tests del gate y `/api/health`.
 
@@ -92,11 +102,11 @@
 - **Evidencia corte:** `web/scripts/p0-corte-e2e.py` → 69 PASS · 0 FAIL · 0 KNOWN.
 - **Evidencia dinero:** `web/scripts/p0-dinero-e2e.py` → 45 PASS · 0 FAIL · 3 KNOWN.
 - **Evidencia shell:** `web/scripts/p0-shell-e2e.py` → 68 PASS · 0 FAIL; HIG/axe 0. Es carril aparte, no gate del full.
-- **Pagos intactos:** `orders.ts`, `pey-events.ts`, `/api/webhooks/pey` y `/api/verify` no cambiaron desde `586f1a6`; `truth` y webhook 34/34 siguen verdes.
+- **Pagos intactos:** `orders.ts`, `pey-events.ts`, `/api/webhooks/pey` y `/api/verify` no cambiaron desde `586f1a6`; `truth` y webhook 34/34 siguen como última corrida conocida, no re-corridos contra HEAD.
 
 ## Siguiente tarea
 
-**Corrida final y pruebas humanas.** El harness actual exige `static` 5/5 y `full` 23/23 (24 con film) sobre árbol limpio y servidor con `buildSha` del mismo commit. En este worktree solo se corre `static`; el full requiere que el orquestador arranque servidor y túnel fuera de este carril. Siguiente: construir desde HEAD, arrancar servidor con la DB correcta, `npm run verify:full`, `npm run verify:evidence`, y ensayar `GUION-3-MIN.md` con cronómetro. Las pruebas humanas (6–8 comerciantes, SUS/NASA-TLX, TalkBack/VoiceOver, teléfono físico, zoom real) siguen pendientes y no se sustituyen con gates automáticos.
+**Corrida final y pruebas humanas.** El ensayo del guion ya pasó en master `75179c7`: 3/3 corridas, 19/19 pasos, ~8.1 s, `todo en verde: True`. El harness actual exige `static` 5/5 y `full` 23/23 (24 con film) sobre árbol limpio y servidor con `buildSha` del mismo commit. En este worktree solo se corre `static`; el full requiere que el orquestador arranque servidor y túnel fuera de este carril. Siguiente: construir desde HEAD, arrancar servidor con la DB correcta, `npm run verify:full`, `npm run verify:evidence`, y ensayar `GUION-3-MIN.md` con cronómetro. Las pruebas humanas (0/6–8 comerciantes, SUS/NASA-TLX, TalkBack/VoiceOver, teléfono físico, zoom real) siguen pendientes y no se sustituyen con gates automáticos.
 
 ## Corrida final (instrucciones)
 
@@ -109,13 +119,13 @@
 
 ## Bloqueos reales
 
-- **Pago real de $0.01:** BBVA/CoDi se traba al seleccionar cuenta. No presentar demo como real.
+- **Pago real de $0.01:** no hubo pago real. BBVA/CoDi se traba al seleccionar cuenta. No presentar demo como real; la demo usa `demo_paid`.
 - **Teléfono físico 360/320 px + TalkBack/VoiceOver:** no probado.
-- **6–8 comerciantes + SUS/NASA-TLX:** protocolo listo en `TEST-USUARIO.md`; no ejecutado.
-- **Full runtime:** no ejecutado en este worktree; `:3000` y `:3101` son de otros carriles y no se tocan aquí. Falta la corrida final 23/23 (24 con film) con servidor y túnel controlados por el orquestador.
+- **6–8 comerciantes + SUS/NASA-TLX:** protocolo disponible en `TEST-USUARIO.md`; **0/6–8 ejecutadas**.
+- **Full runtime:** no ejecutado contra HEAD (`3fe1cc9`); el servidor observado es `665d72e`. `:3000` y `:3101` son de otros carriles y no se tocan aquí. Falta la corrida final 23/23 (24 con film) con servidor y túnel controlados por el orquestador.
 - **Offline para ventas no bancarias:** no implementado.
 - **Hermes:** capa separada; no iniciada en este repo.
-- **Túnel:** temporal; si cambia, actualizar `APP_URL`, QR y preflight.
+- **Túnel:** quick tunnel efímero; vigente al 2 nov 2026: `https://timing-brought-lamp-aberdeen.trycloudflare.com`. Si cambia, actualizar `APP_URL`, QR, PDF y preflight.
 
 ## Cómo refrescar este estado
 
@@ -140,5 +150,5 @@ npm run verify:evidence
 - `GOAL.md`: invariantes de dinero.
 - `web/src/lib/orders.ts`, `web/src/app/api/webhooks/pey/route.ts`, `web/src/lib/pey-events.ts`.
 - `.env.local` (no versionado).
-- `demo/` generado: se regenera con scripts, no se edita a mano. El QR y el video son entregables; los JSON/PNG de auditorías están ignorados.
+- `demo/` generado: se regenera con scripts, no se edita a mano. El QR y el video son entregables; el MP4 existente es histórico (UI vieja) y se regrabará. Los JSON/PNG de auditorías están ignorados.
 - `SWARM/`: puede ser trabajo del usuario/orquestador; leer antes de modificar.

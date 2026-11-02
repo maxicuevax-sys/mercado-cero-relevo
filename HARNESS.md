@@ -91,7 +91,7 @@ Markers exactos: el harness no acepta substrings. `0 FAIL` no coincide con `10 F
 | `motion` | Duraciones, scroll trigger, reduced-motion | `MOTION OK` + `19 PASS` + `0 FAIL` | `harness/evidence/motion*` |
 | `contrast` | Alto contraste: axe, foco visible y 360 px | `CONTRAST OK` + `0 FAIL` | `harness/evidence/a11y-contrast*` |
 | `mobile-320` | HIG móvil 320/360 en Chromium, Firefox y WebKit | `MOBILE 320/360 E2E` + `42 PASS` + `0 FAIL` | `mobile-320-e2e.json` + capturas 320/360 |
-| `rehearsal` | Guion completo, 3 corridas, 15 pasos por corrida | `REHEARSAL OK` + `todo en verde: True` | `demo/rehearsal.json` |
+| `rehearsal` | Guion completo, 3 corridas, 19 pasos por corrida | `REHEARSAL OK` + `todo en verde: True` | `demo/rehearsal.json` |
 | `security` | CSRF, token de reset, límites, rate limit, headers, backups | `SEGURIDAD OK` | — |
 | `data` | Idempotencia, transacciones, migraciones y enlaces; **85 checks (58+20+7)** | `DATOS OK` + `P0 FIX DATOS` + `P0 DB GUARDS` + `P0 ORDERS ATOMIC` | - |
 | `perf` | Presupuesto de JS, CSS, fuentes, fotos e iconos | `PERF BUDGET OK` | — |

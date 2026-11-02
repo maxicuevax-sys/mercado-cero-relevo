@@ -1,5 +1,7 @@
 # P0 · Fix de diseño — reporte de carril
 
+> **Nota de vigencia (2 nov 2026):** cifras históricas de esta fase (base `7bb0dc5`). El gate `checkout` hoy reporta **19/19** y `motion` **19/19**; el ensayo, **3/3 y 19/19**. Estado actual: `harness/STATE.md` y `demo/STATUS.md`.
+
 - Worktree: `mercado-cero-fix-diseno`
 - Rama: `p0/fix-diseno`
 - Base: `7bb0dc5`
@@ -44,7 +46,7 @@
 | `npm run lint` | PASS |
 | `npx tsc --noEmit` | PASS |
 | `npm run build` | PASS |
-| `checkout-audit.py` | **15/15 checks en verde** |
+| `checkout-audit.py` | **15 checks en verde (de esa fase)** |
 | `mobile-audit.py` | **25/25 checks en verde** |
 | `motion-check.py` | **15 comprobaciones de esa fase** |
 | `p0-shell-e2e.py` | **52 PASS · 0 FAIL** |
@@ -53,7 +55,7 @@
 Última línea de salida de `checkout-audit.py`:
 
 ```text
-15/15 checks en verde
+15 checks en verde (de esa fase)
 ```
 
 La aserción nueva de CTA en escritorio está integrada sin cambiar el marcador de 15 checks.
@@ -80,7 +82,7 @@ En `harness/evidence/fix-diseno/`:
 ## KNOWN / notas
 
 - `p0-shell-e2e.py` y `motion-check.py` se ejecutaron con `P0_BASE_URL` / `MOTION_BASE_URL` apuntando a `:3125`; no se editaron.
-- `motion-check.py` tuvo un fallo transitorio de timing en la primera corrida contra `next dev` (“hay animación en curso a 80 ms”); contra el build de producción pasó **15/15**.
+- `motion-check.py` tuvo un fallo transitorio de timing en la primera corrida contra `next dev` (“hay animación en curso a 80 ms”); contra el build de producción pasó **15 checks**.
 - `p0-shell-e2e.py` también tuvo un fallo de hidratación contra `next dev` al hacer clic inmediato en Meta; contra el build de producción pasó **52/52**.
 - “Footer de prototipo duplicado” no se reprodujo: hay exactamente un `<footer>` en el DOM. “Rail derecho 20 px” tampoco se reprodujo: el borde derecho medido es 1248 (gutter 32) en el shell y el aside.
 - El focus visible del H1 ahora se muestra (se quitó `outline-none`), que es el comportamiento accesible esperado.

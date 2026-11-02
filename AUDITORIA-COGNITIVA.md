@@ -4,6 +4,7 @@
 > **Método:** tres auditorías de carril en paralelo (venta/cobro, fiado/corte, shell/meta/verificación), lectura de código y artefactos, GETs de solo lectura. Sin mutar la demo, sin Playwright y sin gates.
 > **Límite:** auditoría estructural. No mide carga percibida con personas ni sustituye TalkBack/VoiceOver, teléfono físico o estudio de comerciantes.
 > **Evidencia de carril:** `harness/f0-venta.md`, `harness/f0-dinero.md`, `harness/f0-shell.md`.
+> **Nota de vigencia (2 nov 2026):** este documento es un snapshot del 1 nov (commit `26d06ce`). Los conteos de gates y la ausencia de pago real son **históricos**; el estado actual está en `harness/STATE.md` y `demo/STATUS.md`. No usar los conteos de esta fase como cifras actuales.
 
 ---
 
@@ -253,7 +254,7 @@ Si `/api/dashboard` falla, se muestra el comercio hardcodeado, desaparece DEMO, 
 - `p0-fiado-e2e.py` — **50 PASS · 0 FAIL · 0 KNOWN**.
 - `p0-venta-e2e.py` — **43 PASS · 0 FAIL · 0 KNOWN**.
 - `p0-shell-e2e.py` — **52 PASS · 0 FAIL**; HIG/axe 0 a 360/390/768/1280 y 200 %.
-- `mobile` 25/25, `checkout` 15/15, `truth`, `webhook` 27 aserciones de esa fase, `rehearsal` 3/3, `tunnel` 8/8, `preflight` 18/18.
+- `mobile` 25/25, `checkout` 15 checks (de esa fase), `truth`, `webhook` 27 aserciones de esa fase, `rehearsal` 3/3, `tunnel` 8/8, `preflight` 18/18.
 - Stageshow regenerado: `demo/stageshow/contact-sheet-1280.png`, `motion-sheet.png` y `flow-1280.webm`.
 
 **KNOWN / siguiente:**
