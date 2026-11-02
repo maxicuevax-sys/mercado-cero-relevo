@@ -52,4 +52,5 @@ python scripts/hig-after-audit.py
 
 Última evidencia: `harness/evidence/motion-check.json` y
 `harness/evidence/motion/`. El HIG/axe se mantiene en 0 a 360/390/768/1280 y
-200 %.
+200 %. Reel de las transiciones: `demo/stageshow/tab-wipe.mp4` (5.5 s) y
+`tab-wipe-sheet.png`.

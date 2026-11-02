@@ -22,7 +22,8 @@
 | Venta mixta | ✅ efectivo + fiado + remanente digital, “Pago mixto” | `harness/evidence/p0-integracion-e2e.json` |
 | Carrera de refresco | ✅ un poll viejo no revive el saldo cobrado | `harness/evidence/p0-integracion-e2e.json` |
 | Voz del abono de $50 | ✅ Kokoro `em_santa`, dice “50 pesos”, 0 `speechSynthesis` | `VOZ-50-KOKORO.md` |
-| Movimiento | ✅ tabs/hojas/listas 140–240 ms, scroll trigger, reduced-motion | `MOTION.md` · `harness/evidence/motion-check.json` |
+| Movimiento | ✅ tabs/hojas/listas 140–300 ms, barrido ASLI, scroll trigger, reduced-motion | `MOTION.md` · `demo/stageshow/tab-wipe.mp4` |
+| Reel de transiciones | ✅ 5.5 s, tabs + hoja de verificación | `demo/stageshow/tab-wipe.mp4` · `tab-wipe-sheet.png` |
 | Harness final | ✅ full 13/13 en `219b26f`, `dirty: false` | `harness/evidence/latest.json` |
 | Alto contraste | ✅ axe 0, foco 3 px negro y 360 px sin overflow | `harness/evidence/a11y-contrast.json` |
 | Dirección visual | ✅ papel editorial, Manrope/Fraunces, doble marco, dos columnas desde 1280 | `HIG-DESIGN.md` §16 · `MOTION.md` |
