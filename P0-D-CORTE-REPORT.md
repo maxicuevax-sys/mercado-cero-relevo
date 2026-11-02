@@ -3,7 +3,7 @@
 **Carril:** `p0/corte`  
 **Worktree:** `mercado-cero-corte`  
 **Base:** `db47540` (`master` con P0-A/B/C/C.1/E/F/G y voz mergeados)  
-**Commit de código verificado:** se completa en el commit de evidencia
+**Commit de código verificado:** `efd1539b41a9032a864411475220a9af209c59fb`
 **Estado:** correcciones de la revisión independiente aplicadas; **sin merge**.
 
 ---
@@ -234,7 +234,9 @@ Resultado: **69 PASS · 0 FAIL · 0 KNOWN**.
 
 El script levanta su propio `npm start` en `:3101` con DB temporal y, para la
 migración, un segundo servidor aislado en `:3102` (o el siguiente puerto libre).
-Nunca usa `:3000`. Al final detiene ambos y borra las DB temporales.
+Nunca usa `:3000`. Al final detiene ambos y borra las DB temporales. La
+evidencia quedó generada con `code.commit = efd1539b41a9032a864411475220a9af209c59fb`
+y `dirty: false`.
 
 Casos:
 
