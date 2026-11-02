@@ -31,13 +31,13 @@
 
 ## Última corrida del harness
 
-- Fecha: **2 nov 2026, 13:17 UTC**
-- Código verificado: **`00216e3`** (capa editorial + gates de motion y alto contraste; app `9f7d02d`); `latest.json` sobre el mismo commit, `gitAtStart.dirty: false`.
+- Fecha: **2 nov 2026, 13:32 UTC**
+- Código verificado: **`219b26f`** (capa editorial + barrido ASLI + gates de motion y alto contraste; app `9f7d02d`); `latest.json` sobre el mismo commit, `gitAtStart.dirty: false`.
 - Modo: **full**, **13/13** en verde; `latest.json` con `ok: true`.
 - Gates: `guard`, `lint`, `types`, `truth`, `webhook` 27/27, `mobile` 25/25, `checkout` 15/15, `hig` axe 0, `motion` 14/14, `contrast` axe 0, `rehearsal` 3/3 (4.6 s promedio), `tunnel` 8/8, `preflight` 18/18.
 - E2E de carril: corte **69/0/0**, integración **51/0/0**, fiado **50/0/0**, venta **43/0/0**, shell **52/0/0**, motion **14/0**.
 - Voz: el botón de $50 reproduce Kokoro `em_santa` (SHA-256 `24EF2C9F…`), 0 llamadas a `speechSynthesis`; las dinámicas van a Piper y los montos se normalizan (`70.00 pesos` → “70 pesos”). **No hay fallback a la voz del navegador**.
-- Movimiento: tabs 160 ms, títulos 240 ms, listas 180 ms con stagger ≤84 ms, hojas 220 ms, marcador 180 ms, sello 240 ms y veta de scroll nativa. `motion-check.py` 14/14 y gate `motion` dentro del harness.
+- Movimiento: barrido de papel ASLI de 300 ms entre tabs, tabs 160 ms, títulos 240 ms, listas 180 ms con stagger ≤84 ms, hojas 220 ms, marcador 180 ms, sello 240 ms y veta de scroll nativa. `motion-check.py` 15/15 y gate `motion` dentro del harness.
 - `film` regenerado: 8 beats + contact sheet + motion sheet. El pago real de $0.01 sigue bloqueado.
 
 ## Qué está construido

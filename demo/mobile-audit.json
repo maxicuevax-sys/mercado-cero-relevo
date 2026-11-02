@@ -1,6 +1,6 @@
 {
   "viewport": "360x800",
-  "elapsedSeconds": 10.7,
+  "elapsedSeconds": 10.8,
   "metrics": {
     "innerWidth": 360,
     "scrollWidth": 360,
@@ -165,7 +165,7 @@
     {
       "name": "Flujo completo en menos de 3 minutos",
       "ok": true,
-      "detail": "10.7s"
+      "detail": "10.8s"
     },
     {
       "name": "Sin errores de consola",

@@ -336,7 +336,7 @@ Casos:
 
 - **Merge:** `9c85107`; endurecimientos posteriores en `9f7d02d` (`requestId` seguro fuera de contexto seguro, conteo inválido y checkbox tras 409).
 - **E2E:** `p0-corte-e2e.py` **69/0/0** en `:3101` sobre `9f7d02d`.
-- **Harness:** `latest.json` **full 13/13** en `00216e3` (capa editorial; app `9f7d02d`; `gitAtStart.dirty: false`).
+- **Harness:** `latest.json` **full 13/13** en `219b26f` (capa editorial + barrido ASLI; app `9f7d02d`; `gitAtStart.dirty: false`).
 - **Motion:** `motion-check.py` **14/0**, ya como gate `motion`; `contrast` axe 0; HIG axe 0, `under12=0`.
 - **Residuales:** migración pensada para un solo proceso `next start`; `requestId` no está atado al payload (la UI genera uno por apertura); los tests de dos contextos reales, 6 versiones en UI y migración parcial quedan como huecos de cobertura.
 - **Fallback probado:** con `crypto.randomUUID = undefined` (contexto no seguro), el cierre guarda con `requestId` `close_…` y responde “Corte #1 guardado”.

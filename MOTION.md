@@ -6,9 +6,10 @@
 
 ## Tesis
 
-- **Momento autoral:** cambiar de tab se siente como una hoja que se asienta:
-  el panel aparece en 160 ms, el título se descubre con un clip-path de 240 ms y
-  la lista entra en 180 ms con un stagger máximo de 84 ms.
+- **Momento autoral:** cambiar de tab es una hoja que cruza la pantalla:
+  un barrido de papel de 300 ms pasa por debajo de la navegación y encima del
+  contenido; el panel aparece en 160 ms, el título se descubre con un clip-path
+  de 240 ms y la lista entra en 180 ms con un stagger máximo de 84 ms.
 - **Continuidad:** las hojas suben 18 px y escalan 0.985 → 1 en 220 ms; el fondo
   entra en 140 ms. El resultado de un cobro se estampa en 240 ms (escala 1.08 →
   0.98 → 1, con una rotación mínima).
@@ -45,7 +46,7 @@
 ```powershell
 cd web
 $env:MOTION_BASE_URL="http://localhost:3000"
-python scripts/motion-check.py   # 14/14; gate `motion` del harness full (13/13)
+python scripts/motion-check.py   # 15/15; gate `motion` del harness full (13/13)
 python scripts/hig-after-audit.py
 ```
 
