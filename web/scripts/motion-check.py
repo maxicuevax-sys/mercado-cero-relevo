@@ -141,6 +141,21 @@ def main() -> int:
             fiado["panel"]["name"] == "tab-panel-in"
             and seconds(fiado["panel"]["duration"]) <= 0.3,
         )
+        wipe = page.evaluate(
+            """() => {
+              const el = document.querySelector('.tab-wipe');
+              if (!el) return null;
+              const s = getComputedStyle(el);
+              return { name: s.animationName, duration: s.animationDuration };
+            }"""
+        )
+        check(
+            "el barrido de papel cruza en 300 ms",
+            wipe is not None
+            and wipe["name"] == "tab-wipe"
+            and seconds(wipe["duration"]) <= 0.35,
+            json.dumps(wipe, ensure_ascii=False),
+        )
         page.screenshot(path=str(SHOTS / "1280-fiado.png"))
 
         page.locator("button:visible", has_text="Caja").first.click()

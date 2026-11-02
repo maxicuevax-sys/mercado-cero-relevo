@@ -356,6 +356,25 @@ button {
   padding: 0 0.5rem 1.25rem;
 }
 
+@keyframes keepsake-drift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-14px);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .sidebar-keepsake {
+      animation: keepsake-drift linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 700px;
+    }
+  }
+}
+
 .sidebar-keepsake__rule {
   display: block;
   width: 28px;
@@ -468,6 +487,7 @@ button.bg-accent:active {
   flex: 1 1 10rem;
   min-width: 0;
   overflow-wrap: normal;
+  text-wrap: balance;
 }
 
 .screen-heading__action {
@@ -788,6 +808,39 @@ select {
 
 .tab-panel {
   animation: tab-panel-in 160ms linear both;
+}
+
+/* Barrido de papel entre destinos: cubre el contenido, nunca la navegación,
+   y no intercepta clics. Es el gesto de página de ASLI, en 260 ms. */
+@keyframes tab-wipe {
+  from {
+    transform: translateX(-104%);
+  }
+  to {
+    transform: translateX(104%);
+  }
+}
+
+.tab-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 253, 248, 0) 0%,
+    rgba(255, 253, 248, 0.97) 9%,
+    rgba(255, 253, 248, 0.97) 91%,
+    rgba(255, 253, 248, 0) 100%
+  );
+  border-right: 2px solid rgba(156, 78, 43, 0.28);
+  animation: tab-wipe 300ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-wipe {
+    display: none;
+  }
 }
 
 @keyframes heading-in {

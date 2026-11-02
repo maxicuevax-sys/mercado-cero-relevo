@@ -482,6 +482,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const [pendingCheckedAt, setPendingCheckedAt] = useState<string | null>(null);
   const [tasksResetKey, setTasksResetKey] = useState(0);
   const [tab, setTab] = useState<Tab>("caja");
+  const [tabWipe, setTabWipe] = useState(0);
   const [today, setToday] = useState("");
   const [helpOpen, setHelpOpen] = useState(false);
   const [verifyOpen, setVerifyOpen] = useState(false);
@@ -868,6 +869,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     (next: Tab) => {
       scrollPositions.current[tab] = window.scrollY;
       setToast(null);
+      if (next !== tab) setTabWipe((key) => key + 1);
       setTab(next);
       // Al cambiar de destino, el foco va al título para que un lector de
       // pantalla anuncie la sección sin recorrer toda la página.
@@ -1860,6 +1862,14 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
 
   return (
     <div className="app-shell min-h-dvh">
+      {tabWipe > 0 ? (
+        <div
+          key={tabWipe}
+          className="tab-wipe"
+          aria-hidden="true"
+          onAnimationEnd={() => setTabWipe(0)}
+        />
+      ) : null}
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-accent focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-white"
