@@ -1,7 +1,7 @@
 {
   "baseUrl": "http://localhost:3000",
   "code": {
-    "commit": "219b26f664119433e39c39feb1d9247ca184767f",
+    "commit": "91ad4ee67148753d79fde7dc094f5f938ea5091c",
     "branch": "master",
     "dirty": true
   },
@@ -26,7 +26,7 @@
     {
       "name": "cambiar de tab no espera: hay animación en curso a 80 ms",
       "ok": true,
-      "detail": "opacity=0.62485"
+      "detail": "opacity=0.52125"
     },
     {
       "name": "el cambio de tab conserva la misma velocidad",
@@ -41,12 +41,12 @@
     {
       "name": "la hoja entra en 220 ms",
       "ok": true,
-      "detail": "{\"name\": \"sheet-in\", \"duration\": \"0.22s\", \"opacity\": \"0.929837\"}"
+      "detail": "{\"name\": \"sheet-in\", \"duration\": \"0.22s\", \"opacity\": \"0.879995\"}"
     },
     {
       "name": "el fondo de la hoja entra en 140 ms",
       "ok": true,
-      "detail": "{\"name\": \"sheet-backdrop-in\", \"duration\": \"0.14s\", \"opacity\": \"0.5955\"}"
+      "detail": "{\"name\": \"sheet-backdrop-in\", \"duration\": \"0.14s\", \"opacity\": \"0.476629\"}"
     },
     {
       "name": "el marcador del tab entra en 180 ms",
