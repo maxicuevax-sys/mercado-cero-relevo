@@ -37,7 +37,7 @@ def main() -> int:
             page = context.new_page()
             context.request.post(f"{BASE}/api/demo/reset")
             page.goto(BASE, wait_until="networkidle", timeout=60000)
-            page.wait_for_function("document.body.innerText.includes('Hoy $')", timeout=20000)
+            page.wait_for_function("() => document.body.innerText.includes('Hoy $')", timeout=20000)
             page.wait_for_timeout(500)
 
             for label in ("Fiado", "Corte", "Meta", "Caja"):

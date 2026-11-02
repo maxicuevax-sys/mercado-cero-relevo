@@ -302,7 +302,7 @@ Construir de inmediato el agente inteligente, diez tipos de notificaciones, reco
 - [ ] Las recomendaciones explican su origen, se pueden descartar y configurar; no diagnostican emociones.
 - [ ] La operación principal sigue si falla la IA o la red; los límites se muestran.
 - [ ] Los registros se pueden exportar y entender.
-- [ ] No hay regresiones: webhook 27/27, HIG/WCAG, móvil/checkout, build limpio.
+- [ ] No hay regresiones: webhook 34/34, HIG/WCAG, móvil/checkout, build limpio.
 
 ### Should-pass
 

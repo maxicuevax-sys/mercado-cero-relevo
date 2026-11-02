@@ -60,7 +60,7 @@ Todos los scripts viven en `C:\Users\Elitebook 840 G8\AppData\Local\Temp\opencod
 | `npm run lint` | **pass** |
 | `npx tsc --noEmit` | **pass** |
 | `npm run build` | **pass** (se detuvo el dev server, se compiló y se restauró `next dev -p 3001`) |
-| `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` | **27/27**, exit 0 |
+| `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` | **27 aserciones de esa fase**, exit 0 |
 | `python scripts/hig-after-audit.py` | **exit 1**, 2 fallos (ver B3) |
 | `http://localhost:3000` | sigue respondiendo 200; proceso `mercado-cero\web` `next start`, PID 49176, sin cambios |
 | `http://localhost:3001` | restaurado y respondiendo 200; dashboard `demoMode=true` |

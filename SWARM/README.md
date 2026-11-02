@@ -12,8 +12,8 @@ La mayor parte **ya está hecha y verificada** (ver `README.md` §10–11):
 
 - F3 "Mostrador claro" implementado, verificado de forma independiente y desplegado en producción.
 - Lighthouse 100 accesibilidad · 100 best practices · 100 SEO.
-- Webhook pey: 27/27 aserciones (pago válido, replay, firma falsa, monto alterado, etc.).
-- Auditorías: móvil 25/25 · checkout 15/15 · túnel 8/8 · ensayo 14/14.
+- Webhook pey: 34/34 aserciones (pago válido, replay, firma falsa, monto alterado, etc.).
+- Auditorías: móvil 25/25 · checkout 15/15 · túnel 8/8 · ensayo 15/15.
 - Video de respaldo, QR imprimible, guion, pitch y runbook listos.
 
 Por eso el swarm aquí **no reescribe el producto**: hace estas 4 cosas.

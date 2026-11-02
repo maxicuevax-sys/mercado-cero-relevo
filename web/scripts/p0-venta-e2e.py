@@ -36,7 +36,10 @@ from playwright.sync_api import sync_playwright, expect
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-BASE = os.environ.get("P0_BASE_URL", "http://localhost:3101").rstrip("/")
+BASE = os.environ.get(
+    "P0_BASE_URL",
+    os.environ.get("RUNTIME_BASE_URL", os.environ.get("BASE_URL", "http://localhost:3101")),
+).rstrip("/")
 DRAFT_KEY = "mercado-cero:draft:v1"
 PENDING_KEY = "mercado-cero:pending-order:v1"
 ROOT = Path(__file__).resolve().parents[2]
@@ -172,7 +175,7 @@ def main() -> int:
         expect(page.get_by_role("textbox", name="Producto")).to_have_count(0)
         page.get_by_role("button", name="Agregar producto", exact=True).click()
         expect(page.get_by_role("textbox", name="Producto")).to_have_count(1)
-        page.wait_for_function(f"localStorage.getItem('{DRAFT_KEY}') !== null")
+        page.wait_for_function(f"() => localStorage.getItem('{DRAFT_KEY}') !== null")
         cash_value = page.get_by_label("Efectivo recibido en pesos").input_value()
         credit_value = page.get_by_label("Monto a fiado en pesos").input_value()
         draft = stored_draft(page)
@@ -198,7 +201,7 @@ def main() -> int:
         # 2 · Un parseo nuevo hace obsoleto el banner de recuperación.
         reset(page)
         add_item(page, "Recuperada", 1, 50)
-        page.wait_for_function(f"localStorage.getItem('{DRAFT_KEY}') !== null")
+        page.wait_for_function(f"() => localStorage.getItem('{DRAFT_KEY}') !== null")
         page.reload(wait_until="networkidle")
         expect(page.get_by_text(re.compile(r"Recuperé tu venta de las \d{2}:\d{2}"))).to_be_visible()
         page.get_by_label("Escribe la venta").fill("Dos quesadillas de 35 y un agua de 20")
@@ -221,7 +224,7 @@ def main() -> int:
         # 2b · El banner también desaparece si el borrador recuperado queda sin ítems.
         reset(page)
         add_item(page, "Recuperada sin ítems", 1, 50)
-        page.wait_for_function(f"localStorage.getItem('{DRAFT_KEY}') !== null")
+        page.wait_for_function(f"() => localStorage.getItem('{DRAFT_KEY}') !== null")
         page.reload(wait_until="networkidle")
         expect(page.get_by_text(re.compile(r"Recuperé tu venta de las \d{2}:\d{2}"))).to_be_visible()
         page.get_by_role("button", name="Quitar producto").click()
@@ -235,7 +238,7 @@ def main() -> int:
         # 2c · "Continuar venta" mantiene el draft y oculta el banner.
         reset(page)
         add_item(page, "Continuar borrador", 1, 25)
-        page.wait_for_function(f"localStorage.getItem('{DRAFT_KEY}') !== null")
+        page.wait_for_function(f"() => localStorage.getItem('{DRAFT_KEY}') !== null")
         page.reload(wait_until="networkidle")
         expect(page.get_by_text(re.compile(r"Recuperé tu venta de las \d{2}:\d{2}"))).to_be_visible()
         check(
@@ -261,7 +264,7 @@ def main() -> int:
         # 2d · "Descartar borrador" intacto borra; editado no borra.
         reset(page)
         add_item(page, "Borrador intacto", 1, 15)
-        page.wait_for_function(f"localStorage.getItem('{DRAFT_KEY}') !== null")
+        page.wait_for_function(f"() => localStorage.getItem('{DRAFT_KEY}') !== null")
         page.reload(wait_until="networkidle")
         expect(page.get_by_text(re.compile(r"Recuperé tu venta de las \d{2}:\d{2}"))).to_be_visible()
         page.get_by_role("button", name="Descartar borrador de venta").click()
@@ -275,12 +278,12 @@ def main() -> int:
 
         reset(page)
         add_item(page, "Borrador editable", 1, 15)
-        page.wait_for_function(f"localStorage.getItem('{DRAFT_KEY}') !== null")
+        page.wait_for_function(f"() => localStorage.getItem('{DRAFT_KEY}') !== null")
         page.reload(wait_until="networkidle")
         expect(page.get_by_text(re.compile(r"Recuperé tu venta de las \d{2}:\d{2}"))).to_be_visible()
         page.get_by_role("textbox", name="Producto").fill("Borrador editado")
         page.wait_for_function(
-            f"JSON.parse(localStorage.getItem('{DRAFT_KEY}')).items[0].description === 'Borrador editado'"
+            f"() => JSON.parse(localStorage.getItem('{DRAFT_KEY}')).items[0].description === 'Borrador editado'"
         )
         check(
             "editar el draft no oculta el banner antes de decidir",

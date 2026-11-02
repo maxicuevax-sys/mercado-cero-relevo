@@ -23,7 +23,8 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 BASE = os.environ.get(
-    "MOBILE_BASE_URL", os.environ.get("P0_BASE_URL", "http://localhost:3000")
+    "MOBILE_BASE_URL",
+    os.environ.get("BASE_URL", os.environ.get("P0_BASE_URL", "http://localhost:3000")),
 ).rstrip("/")
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "demo"
@@ -265,7 +266,10 @@ def main() -> int:
     print("")
     print(f"{report['passed']}/{len(results)} checks en verde")
     print(f"Reporte: {report_path}")
-    return 0 if report["failed"] == 0 else 1
+    if report["failed"] == 0:
+        print(f"MOBILE OK: {report['passed']}/{len(results)} checks")
+        return 0
+    return 1
 
 
 if __name__ == "__main__":

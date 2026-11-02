@@ -104,13 +104,13 @@ def main() -> int:
         page = context.new_page()
         page.goto(BASE, wait_until="domcontentloaded")
         page.wait_for_selector("h1:has-text('Caja')", timeout=15000)
-        page.wait_for_function("document.body.innerText.includes('Hoy $')", timeout=20000)
+        page.wait_for_function("() => document.body.innerText.includes('Hoy $')", timeout=20000)
         page.wait_for_timeout(500)
 
         context.request.post(f"{BASE}/api/demo/reset")
         page.reload(wait_until="domcontentloaded")
         page.wait_for_selector("h1:has-text('Caja')", timeout=15000)
-        page.wait_for_function("document.body.innerText.includes('Hoy $')", timeout=20000)
+        page.wait_for_function("() => document.body.innerText.includes('Hoy $')", timeout=20000)
         page.wait_for_timeout(600)
 
         card(page, "Mercado Cero", "La caja que habla · demo de respaldo")

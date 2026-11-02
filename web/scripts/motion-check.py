@@ -22,7 +22,9 @@ from playwright.sync_api import sync_playwright
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-BASE = os.environ.get("MOTION_BASE_URL", "http://localhost:3000").rstrip("/")
+BASE = os.environ.get(
+    "MOTION_BASE_URL", os.environ.get("BASE_URL", "http://localhost:3000")
+).rstrip("/")
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "harness" / "evidence" / "motion-check.json"
 SHOTS = ROOT / "harness" / "evidence" / "motion"
@@ -101,7 +103,7 @@ def main() -> int:
         page = desktop.new_page()
         page.on("console", lambda msg: errors.append(msg.text) if msg.type == "error" else None)
         page.goto(BASE, wait_until="networkidle", timeout=60000)
-        page.wait_for_function("document.body.innerText.includes('Hoy $')", timeout=20000)
+        page.wait_for_function("() => document.body.innerText.includes('Hoy $')", timeout=20000)
         page.wait_for_timeout(250)
 
         home = read_motion(page)
@@ -207,7 +209,7 @@ def main() -> int:
         )
         page = mobile.new_page()
         page.goto(BASE, wait_until="networkidle", timeout=60000)
-        page.wait_for_function("document.body.innerText.includes('Hoy $')", timeout=20000)
+        page.wait_for_function("() => document.body.innerText.includes('Hoy $')", timeout=20000)
         page.wait_for_timeout(250)
         page.screenshot(path=str(SHOTS / "360-home.png"))
         marker = page.evaluate(
@@ -329,7 +331,7 @@ def main() -> int:
         )
         page = reduced.new_page()
         page.goto(BASE, wait_until="networkidle", timeout=60000)
-        page.wait_for_function("document.body.innerText.includes('Hoy $')", timeout=20000)
+        page.wait_for_function("() => document.body.innerText.includes('Hoy $')", timeout=20000)
         page.wait_for_timeout(250)
         calm = read_motion(page)
         check(
@@ -360,7 +362,10 @@ def main() -> int:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n{passed} PASS · {failed} FAIL · {OUT}")
-    return 0 if failed == 0 else 1
+    if failed == 0:
+        print(f"MOTION OK: {passed} PASS · 0 FAIL")
+        return 0
+    return 1
 
 
 if __name__ == "__main__":

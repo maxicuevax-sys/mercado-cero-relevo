@@ -134,7 +134,7 @@ adicional a retirar = max(0, contado - base para mañana)
 1. La diferencia se calcula en vivo con `counted - expected`. Se etiqueta “Cuadra”, “Sobra” o “Falta” (`caja-app.tsx:2592-2594`).
 2. Si `counted` está vacío, bloquea con “Escribe el total contado antes de guardar el corte” (`caja-app.tsx:2646-2651`). Pero `hasCounted` solo comprueba que el texto no esté vacío (`2582`): “abc” pasa y se interpreta como $0.00.
 3. Si la diferencia es 0, `requestSave` llama a `saveClose` directamente; no hay confirmación. Si no es 0, abre la hoja “Confirmar corte” (`caja-app.tsx:2906-2968`).
-4. La hoja muestra **solo** total contado, “Debería haber”, base para mañana y diferencia. **No muestra gastos ni retiros**, no muestra el desglose, no pide motivo y no distingue una diferencia de $1 de una de $569. La captura `corte-confirm-360.png` muestra $1.00 contado contra $570.00 esperado con el botón “Guardar corte” habilitado.
+4. La hoja muestra **solo** total contado, “Debería haber”, base para mañana y diferencia. **No muestra gastos ni retiros**, no muestra el desglose, no pide motivo y no distingue una diferencia de $1 de una diferencia grande. La captura `corte-confirm-360.png` muestra $1.00 contado contra el esperado de la UI con el botón “Guardar corte” habilitado.
 5. El `POST /api/cash/close` recalcula el esperado en el servidor con las ventas y abonos **del momento** (`cash.ts:105-115`), pero el aviso y el toast usan la diferencia calculada en el cliente antes del `POST` (`caja-app.tsx:2631-2638`). Si entró una venta entre la carga y el guardado, lo guardado y lo anunciado pueden no coincidir.
 6. El servidor hace `INSERT ... ON CONFLICT(date) DO UPDATE` (`cash.ts:119-138`): una sola fila por fecha, todos los campos de contenido reemplazados, incluido `created_at`. No hay versión, historial ni `audit()`; el corte no deja rastro en `audit_log`.
 7. La `openingCents` que se guarda viene del cliente (`caja-app.tsx:2615`, `cash.ts:108`), no se deriva del servidor en el momento de guardar. La UI no la expone, pero una pestaña vieja o un cliente distinto puede mandar otra base.
@@ -290,7 +290,7 @@ El mismo problema aparece con un pago digital de un pedido creado ayer y confirm
 | “Un cobro no se reintenta ni se duplica sin que la persona lo sepa” (`GOAL-ACOMPANAMIENTO.md:81`) | El abono no tiene idempotencia; un reintento tras una respuesta perdida puede insertar otro abono. | E2, E15 |
 | “Continuidad… recuperar una operación interrumpida… corregir con trazabilidad” (`GOAL-ACOMPANAMIENTO.md:177-179`) | El conteo se borra con el refresh; el abono no tiene reversa; el corte se corrige sobrescribiendo. | E7, E20 |
 | “El resumen de cierre usa solo movimientos registrados y marca lo que falta” (`GOAL-ACOMPANAMIENTO.md:301`) | No hay resumen de cierre; el corte no marca fiado, pendiente de cobro digital ni movimientos faltantes. | E16, S7 |
-| “Corte de caja… probado; el corte cuadra” (`GOAL.md:120`) | El caso feliz cuadra; también se puede guardar $1.00 contra $570.00 sin motivo y reemplazar el día. | S7, S9 |
+| “Corte de caja… probado; el corte cuadra” (`GOAL.md:120`) | El caso feliz cuadra; también se puede guardar $1.00 contra el esperado de la UI sin motivo y reemplazar el día. | S7, S9 |
 
 Estas no son diferencias de redacción: son funciones que el documento da por resueltas y el flujo no resuelve. El estado “probado” del corte debe leerse como “el caso feliz del ensayo se ve bien”, no como “el corte es confiable”.
 
@@ -463,11 +463,11 @@ El chip de muestra puede seguir prellenando la hoja, pero **no ejecuta**. El `PO
 | S2 | `demo/hig-after/fiado-1280.png` | Una deuda de Juan, “Pendiente · desde 02:01 p.m.”, “1 cliente”, solo saldo. No hay fecha, original ni historial. |
 | S3 | `demo/hig-after/fiado-360.png` | Lo mismo a 360 px; el texto largo de la libreta empuja el contenido y la deuda sigue sin fecha. |
 | S4 | `demo/hig-after/fiado-sheet-360.png` | Monto precargado al saldo completo; efectivo seleccionado; “Digital” como alternativa; copy “no cuenta como dinero cobrado hoy”. |
-| S5 | `demo/hig-after/corte-1280.png` | “Total contado” vacío; base $500 + ventas $70 = $570; “Contar por billetes” y el desglose debajo. |
+| S5 | `demo/hig-after/corte-1280.png` | “Total contado” vacío; base $500 + ventas $70 = esperado de la UI; “Contar por billetes” y el desglose debajo. |
 | S6 | `demo/mobile-360-corte.png` | El esperado incluye “Abonos de fiado en efectivo $50.00”; el desglose queda debajo del pliegue y la nav inferior tapa parte del contenido. |
-| S7 | `demo/hig-after/corte-confirm-1280.png` | $1.00 contado contra $570.00 esperado, “Falta $569.00”, botón “Guardar corte” habilitado; no se ven gastos/retiros ni un motivo. |
+| S7 | `demo/hig-after/corte-confirm-1280.png` | $1.00 contado contra el esperado de la UI, con una diferencia visible, bot?n ?Guardar corte? habilitado; no se ven gastos/retiros ni un motivo. |
 | S8 | `demo/hig-after/corte-confirm-360.png` | La misma confirmación en 360 px; el desglose del esperado queda detrás de la hoja, invisible. |
-| S9 | `demo/demo-step-4-corte.png` | $570.00 contado, “Cuadra”, esperado $570.00; el caso feliz del ensayo. |
+| S9 | `demo/demo-step-4-corte.png` | El conteo del caso feliz, ?Cuadra?, contra el esperado de la UI; el caso feliz del ensayo. |
 
 ### 6.3 Lecturas read-only del servidor y la base
 

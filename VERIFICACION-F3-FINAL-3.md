@@ -42,7 +42,7 @@ El audit oficial ahora **sí** detecta recortes por ancestro, contenido totalmen
 | `npm run lint` | **pass** |
 | `npx tsc --noEmit` | **pass** |
 | `npm run build` | **pass** (20 rutas generadas; servidor 3001 detenido y restaurado) |
-| `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` | **27/27**, exit 0 |
+| `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` | **27 aserciones de esa fase**, exit 0 |
 | `python scripts/hig-after-audit.py` | **exit 1**, 2 hallazgos (Corte 360 al 200%) |
 | `http://localhost:3000` | 200; mismo proceso `next start` PID 49176, misma respuesta (len 38145, hash `D6055C…361C`), no se tocó |
 | `http://localhost:3001` | 200; dev server restaurado (PID 38072) |
@@ -57,7 +57,7 @@ Durante la verificación apareció una nota de dos líneas en `VERIFICACION-F3-F
 - Para el 200%: `html { font-size: 200% !important; }`, el mismo método que usa el audit oficial.
 - Suite de verdad de pago: **162/163** aserciones en verde. La única roja fue una expectativa mía de copy (`$30.00 a fiado` frente a `Quedó a fiado: $30.00`), no un fallo de la app.
 - Foco: **130/130**.
-- Entrega: **13/13** en la suite dedicada, más `PATCH` 409/idempotente por API.
+- Entrega: **13 de 13** en la suite dedicada, más `PATCH` 409/idempotente por API.
 - Fiado: **15** comprobaciones; el cierre del sheet tarda ~2.5 s con el servidor de desarrollo, pero cierra y persiste el abono.
 - Corte normal: **10/10**.
 - Contrato básico (tabs, sidebar, subtítulos, TopBar, foto de Meta, h1): **25/25**.
@@ -287,7 +287,7 @@ El seed de `$190.00` pasa; un día de ~20 ventas produce `$1,810–$2,092` y fal
 - **Corte normal:** task-first; “Falta” y “Sobra” con explicación; confirmación; guardado durable con `role=status`; API `/api/cash` con el corte; denominaciones y disclosure.
 - **Contrato:** tabs conservan estado y scroll; sidebar 220 a 768 y 240 a 1280; subtítulos de 15 px; TopBar sin `.truncate` y sin overflow a 200%; foto de Meta fuera de la tarjeta; `aria-busy` en pago, abono y entrega; `h1` “Corte de caja”; errores inline de venta y verificación; “No entregues el pedido”.
 - **Checkout:** total 40 px normal y 80 px al 200%; `h1`; `aria-busy`; éxito con `h1` enfocado y `role=status`; redirect real a `order.paymentUrl` con respuesta de API interceptada; no se ejecutó un pago real.
-- **Calidad:** lint, `tsc`, build; webhook 27/27; axe serious/critical 0 en las pantallas y sheets normales; `:3000` intacto.
+- **Calidad:** lint, `tsc`, build; webhook 27 aserciones de esa fase; axe serious/critical 0 en las pantallas y sheets normales; `:3000` intacto.
 
 ---
 

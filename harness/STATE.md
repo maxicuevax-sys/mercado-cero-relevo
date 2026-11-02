@@ -8,10 +8,11 @@
 - Repo: `mercado-cero`
 - App: `web/` (Next.js 16, TypeScript, Tailwind, SQLite `node:sqlite`)
 - Modo actual: **demo** (`demo_paid` para simulación; en el camino digital `paid` solo por webhook pey firmado; el efectivo se registra `paid` al crear la venta)
-- URL local: `http://localhost:3000`
+- URL local: `http://localhost:3000` (o `BASE_URL`)
 - URL pública: túnel temporal de Cloudflare (ver `demo/STATUS.md`; si cambió, regenerar QR)
 - Base de datos: `web/data/mercado-cero.db` (ignorada por git)
-- Evidencia: `harness/evidence/latest.json`
+- Evidencia: `harness/evidence/latest.json` (local, ignorado; solo `full`/`static` con `ok:true`)
+- Reporte: `npm run harness:report` genera la tabla desde `latest.json`
 
 ## Último estado verde conocido
 
@@ -19,30 +20,42 @@
 
 | Gate | Resultado | Fecha |
 |---|---|---|
-| Webhook firmado | 27/27 | 1 nov 2026 |
-| Verdad del comprobante | demo no verificado | 1 nov 2026 |
-| HIG/WCAG 2.2 AA | 360/390/768/1280, axe 0, 48 px, 200% | 1 nov 2026 |
-| Móvil 360 px | 25/25 | 1 nov 2026 |
-| Checkout público | 15/15, `demo_paid` | 1 nov 2026 |
-| Túnel | 8/8 | 1 nov 2026 |
+| Webhook firmado | 34/34 | 2 nov 2026 |
+| Verdad del comprobante | demo no verificado | 2 nov 2026 |
+| HIG/WCAG 2.2 AA | 5 viewports: 320/360/390/768/1280, axe 0, 48 px, 200% | 2 nov 2026 |
+| Móvil 360 px | 25/25 | 2 nov 2026 |
+| Móvil 320/360 (3 motores) | 42 PASS · 0 FAIL (nuevo gate) | 2 nov 2026 |
+| Checkout público | 19/19, `demo_paid` | 2 nov 2026 |
+| Túnel | 8/8 | 2 nov 2026 |
 | Ensayo | 3/3, 15 pasos por corrida, promedio 4.8 s | 2 nov 2026 |
-| Preflight | 18/18 | 1 nov 2026 |
-| Motion | 15 PASS · 0 FAIL (artefacto de 91ad4ee con `code.dirty:true`) | 2 nov 2026 |
-| Film check | 8 beats + contact sheet + motion sheet | 1 nov 2026 |
+| Preflight | 18/18 | 2 nov 2026 |
+| Motion | 19 PASS · 0 FAIL | 2 nov 2026 |
+| Alto contraste | 0 FAIL | 2 nov 2026 |
+| P0 venta | 65 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
+| P0 fiado | 51 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
+| P0 corte | 69 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
+| P0 integración | 51 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
+| P0 dinero | 45 PASS · 0 FAIL · 3 KNOWN | 2 nov 2026 |
+| P0 shell (carril aparte) | 68 PASS · 0 FAIL; HIG/axe 0 | 2 nov 2026 |
+| Seguridad | contrato `SEGURIDAD OK` | 2 nov 2026 |
+| Datos | 85 checks (58+20+7), `DATOS OK` | 2 nov 2026 |
+| Performance | `PERF BUDGET OK` | 2 nov 2026 |
+| Film check | 8 beats + contact sheet + motion sheet | 2 nov 2026 |
 
 **Nota:** para el commit actual manda `latest.json`; si `verify:evidence` falla, la tabla no se usa como prueba.
 
 ## Última corrida del harness
 
-- **No se hardcodea el SHA aquí.** El código verificado es el `gitAtStart.sha` de `harness/evidence/latest.json` (artefacto local, no versionado); `npm run verify:evidence` lo compara con HEAD y exige `gitAtStart.dirty:false` y `gitAtEnd.sha` igual.
-- **Corrida vigente:** `static` **5/5** (`guard`, `lint`, `types`, `deps`, `build`) con `ok:true`, sobre árbol limpio, y `verify:evidence` PASS. El archivo manda sobre este texto.
-- **`full` no se ejecutó en este worktree.** Este carril no toca `mercado-cero`, `:3000` ni `:3101`. El full histórico de `91ad4ee` registró **13/13** (catálogo anterior, sin `deps`) pero terminó con `git.dirty:true`; **no es handoff** y no se cita como verde actual.
-- **Catálogo actual:** 16 gates. `fast` 3, `static` 5, `full` **14** por defecto (build fuera, film opcional) y `full --with-film` **15**. Cualquier “13/13” o “13/15” es histórico.
-- **Motion:** `motion-check.py` da **15 PASS · 0 FAIL**. El artefacto `harness/evidence/motion-check.json` de 91ad4ee declara `code.dirty:true`, así que `verify:evidence` no lo aceptaría como artefacto limpio de un full. El carril a11y es quien debe corregir `motion-check.py`/`a11y-contrast.py`; este carril no los edita.
-- **E2E de carril:** los JSON de corte/integración/fiado/venta/shell son de commits anteriores (shell, por ejemplo, apunta a `:3101` y `27d42c8`). Se conservan como histórico; no son evidencia del HEAD actual.
+- **No se hardcodea el SHA aquí.** El código verificado es el `gitAtStart.sha` de `harness/evidence/latest.json`; `npm run verify:evidence` lo compara con HEAD y exige árbol limpio, `serverBuildSha === gitAtStart.sha` y artefactos con hash.
+- **Catálogo actual:** **25 gates**. `fast` 3, `static` 5, `full` **23** por defecto (build fuera, film opcional) y `full --with-film` **24**.
+- **Esta rama cierra con `static` 5/5** sobre árbol limpio y `verify:evidence` PASS. El archivo manda sobre este texto; la corrida se hace después del commit final.
+- **`full` no se ejecutó en este worktree.** Este carril no toca `mercado-cero`, `:3000` ni `:3101`. El full requiere que el orquestador arranque el servidor **construido desde HEAD** y el túnel fuera de este carril. No se cita como verde actual.
+- **Build identity:** `npm run build` sella `BUILD_SHA`/`.next/BUILD_SHA` y `/api/health` devuelve el SHA. Un servidor de otro commit se rechaza antes de correr runtime.
+- **Artefactos:** los JSON/PNG de mobile, checkout, motion, contraste, mobile-320, p0, rehearsal, tunnel y film están ignorados; escribirlos no ensucia `gitAtEnd`. `latest.json` y `runs/` también son locales. El QR y el video siguen siendo entregables versionados.
+- **Exactitud:** los markers se validan con límites de palabra. `0 FAIL` no acepta `10 FAIL`; `lint` exige `LINT OK`, no la palabra `eslint`.
+- **Cobertura nueva del full:** `security`, `data`, `perf`, `p0-venta`, `p0-fiado`, `p0-corte`, `p0-integracion`, `p0-dinero` y `mobile-320`.
 - **Voz:** el botón de $50 reproduce Kokoro `em_santa` (SHA-256 `24EF2C9F…`), 0 llamadas a `speechSynthesis`; las dinámicas van a Piper y los montos se normalizan (`70.00 pesos` → “70 pesos”). **No hay fallback a la voz del navegador**.
 - **Movimiento:** barrido de papel ASLI de 300 ms entre tabs, tabs 160 ms, títulos 240 ms, listas 180 ms con stagger ≤84 ms, hojas 220 ms, marcador 180 ms, sello 240 ms y veta de scroll nativa.
-- **Film:** regenerado con 8 beats + contact sheet + motion sheet; sigue siendo opcional (`--with-film`). El pago real de $0.01 sigue bloqueado.
 
 ## Qué está construido
 
@@ -50,7 +63,7 @@
 - Cobros pendientes (P0-E): franja en Caja, 3→50, fechas Hoy/Ayer, refresh en focus/visibility y polling de 45 s visible.
 - Pendientes de negocio (P0-G): quinto tab, crear/completar/reabrir/posponer/eliminar, reset de demo sin tareas fantasma.
 - Venta mixta: efectivo + fiado + remanente digital con Link/QR/demo; resultado “Pago mixto”.
-- Voz: Kokoro `em_santa` para frases fijas, Piper para dinámicas, montos hablados (“50 pesos”, no “cincuenta punto cero cero”).
+- Voz: Kokoro `em_santa` para frases fijas, Piper para dinámicas, montos hablados.
 - Corte (P0-D mergeado): borrador no destructivo, cierre versionado `cash_closes` con `snapshot_known`, retiro previo explícito, idempotencia `requestId`/`expectedVersion` 409, historial con v1, migración transaccional con recovery y `requestId` seguro también fuera de contexto seguro.
 - Movimiento: sistema “papel que se asienta” en `MOTION.md`, CSS nativo, scroll trigger y reduced-motion.
 - Dirección visual: “papel editorial” con Manrope + Fraunces, grano fijo, doble marco, Caja a dos columnas desde 1280, nota de mercado en sidebar y botones tipo sello. Contrato actualizado en `HIG-DESIGN.md` §16.
@@ -58,14 +71,14 @@
 - Accesibilidad: 48 px, 200%, alto contraste, voz, repetir, leer pantalla, movimiento reducido.
 - Demo: `demo_paid`, sellos, video, QR, runbook.
 - Stageshow: `demo/stageshow/` + `web/scripts/film-check.py`.
-- Harness: `HARNESS.md`, `harness/EVALS.md`, `harness-gate.mjs`, `harness-guard.mjs`, `check-deps.mjs`, `run-types.mjs`, `verify-evidence.mjs`, tests del gate.
+- Harness v2: `HARNESS.md`, `harness/EVALS.md`, `harness-gate.mjs`, `harness-guard.mjs`, `check-deps.mjs`, `run-types.mjs`, `build-gate.mjs`, `lint-gate.mjs`, `verify-evidence.mjs`, `harness-report.mjs`, tests del gate y `/api/health`.
 
 ## Matiz sobre `paid` (no simplificar)
 
 - El **webhook firmado de pey** es el único camino que transiciona un pago digital `payment_pending → paid` y valida firma, monto, moneda y `clientReferenceId`.
 - El **efectivo** no pasa por `payment_pending`: `orders.ts` inserta el pago `cash` con `payments.status='paid'` y cierra la orden como `paid` (o `fulfilled` si hay fiado) al crear la venta. Eso es deliberado y no es un webhook.
 - El **demo** usa `demo_paid`, nunca `paid` como estado de pago simulado.
-- `paid` también aparece en **lecturas/consultas** (`WHERE status IN ('paid','demo_paid')`) y en `payments.status` del efectivo. Por tanto, “no hay `paid` fuera del webhook” es falso si se lee literalmente. La invariante correcta es: **ningún pago digital pendiente pasa a `paid` sin webhook firmado; el efectivo se registra como `paid` al crear la venta; el demo usa `demo_paid`**.
+- `paid` también aparece en **lecturas/consultas** (`WHERE status IN ('paid','demo_paid')`) y en `payments.status` del efectivo. La invariante correcta es: **ningún pago digital pendiente pasa a `paid` sin webhook firmado; el efectivo se registra como `paid` al crear la venta; el demo usa `demo_paid`**.
 
 ## F0 y P0-A/B
 
@@ -73,65 +86,59 @@
 - **P0-A/B mergeado:** `c22e85d` — venta manual, cambio, validación inline, borrador durable y pendiente de cobro durable.
 - **P0-C mergeado:** `586f1a6` — abono confirmado, saldo vivo, idempotencia durable y migración de `request_id`.
 - **P0-C.1/E/G integrados:** `96381b9` + `76bfbc3` — cobros pendientes, tareas de negocio, método de abono, venta mixta, carrera de refresco, WCAG 2.5.3 y voz de $50.
-- **Evidencia P0-A/B:** `web/scripts/p0-venta-e2e.py` → 43 PASS · 0 FAIL · 0 KNOWN.
-- **Evidencia P0-C:** `web/scripts/p0-fiado-e2e.py` → 50 PASS · 0 FAIL · 0 KNOWN.
-- **Evidencia integración:** `web/scripts/p0-integracion-e2e.py` → 51 PASS · 0 FAIL · 0 KNOWN (incluye el guard de voz de $50).
-- **Evidencia shell:** `web/scripts/p0-shell-e2e.py` → 52 PASS · 0 FAIL; HIG/axe 0.
-- **Resuelto:** la venta mixta ya ofrece cobrar el remanente digital y muestra “Pago mixto”; el fiado conserva su saldo vivo.
-- **Pagos intactos:** `orders.ts`, `pey-events.ts`, `/api/webhooks/pey` y `/api/verify` no cambiaron desde `586f1a6`; `truth` y `webhook` 27/27 siguen verdes.
+- **Evidencia P0-A/B:** `web/scripts/p0-venta-e2e.py` → 65 PASS · 0 FAIL · 0 KNOWN.
+- **Evidencia P0-C:** `web/scripts/p0-fiado-e2e.py` → 51 PASS · 0 FAIL · 0 KNOWN.
+- **Evidencia integración:** `web/scripts/p0-integracion-e2e.py` → 51 PASS · 0 FAIL · 0 KNOWN.
+- **Evidencia corte:** `web/scripts/p0-corte-e2e.py` → 69 PASS · 0 FAIL · 0 KNOWN.
+- **Evidencia dinero:** `web/scripts/p0-dinero-e2e.py` → 45 PASS · 0 FAIL · 3 KNOWN.
+- **Evidencia shell:** `web/scripts/p0-shell-e2e.py` → 68 PASS · 0 FAIL; HIG/axe 0. Es carril aparte, no gate del full.
+- **Pagos intactos:** `orders.ts`, `pey-events.ts`, `/api/webhooks/pey` y `/api/verify` no cambiaron desde `586f1a6`; `truth` y webhook 34/34 siguen verdes.
 
 ## Siguiente tarea
 
-**Corrida final y pruebas humanas.** P0-A/B/C/C.1/D/E/F/G están mergeados; el harness actual exige `static` 5/5 y `full` 14/14 (15 con film) sobre árbol limpio. En este worktree solo se corrió `static`; el full requiere que el orquestador arranque el servidor y el túnel fuera de este carril. Siguiente: ensayar `GUION-3-MIN.md` con cronómetro, revisar el contact sheet/motion sheet, preflight y túnel el día del evento. Las pruebas humanas (6–8 comerciantes, SUS/NASA-TLX, TalkBack/VoiceOver, teléfono físico, zoom real) siguen pendientes y no se sustituyen con gates automáticos. Endurecimientos opcionales de P0-D: migración multi-proceso, atar `requestId` al payload y tests de 6 versiones en UI.
+**Corrida final y pruebas humanas.** El harness actual exige `static` 5/5 y `full` 23/23 (24 con film) sobre árbol limpio y servidor con `buildSha` del mismo commit. En este worktree solo se corre `static`; el full requiere que el orquestador arranque servidor y túnel fuera de este carril. Siguiente: construir desde HEAD, arrancar servidor con la DB correcta, `npm run verify:full`, `npm run verify:evidence`, y ensayar `GUION-3-MIN.md` con cronómetro. Las pruebas humanas (6–8 comerciantes, SUS/NASA-TLX, TalkBack/VoiceOver, teléfono físico, zoom real) siguen pendientes y no se sustituyen con gates automáticos.
 
 ## Corrida final (instrucciones)
 
-1. Commitear código y docs en `p0/fix-harness` y verificar `git status --porcelain --untracked-files=all` vacío.
-2. `cd web && npm run test:harness` → 44/44.
-3. `npm run verify:static` → 5/5, `ok:true`, `gitAtStart.dirty:false`, `gitAtEnd.sha` igual.
-4. `npm run verify:evidence` → PASS contra HEAD. `latest.json` es local y no se versiona; no lo commitees (si lo haces, HEAD cambia y la evidencia deja de ser válida para ese HEAD).
-5. Para el full: arrancar servidor y túnel **explícitamente** (fuera de este worktree/carril), luego `npm run verify:full` → 14/14, o `npm run verify:full -- --with-film` → 15/15. Correr `npm run verify:evidence` otra vez.
-6. Antes de un full, coordinar con el carril a11y para que `motion-check.json` y `a11y-contrast.json` registren `code.dirty:false` y el mismo SHA. No editar esos scripts desde este carril.
+1. Commitear código y docs en `p0/fix-harness-evidence` y verificar `git status --porcelain --untracked-files=all` vacío.
+2. `cd web && npm run test:harness` → 48/48.
+3. `npm run verify:static` → 5/5, `ok:true`, `serverBuildSha === gitAtStart.sha`, `gitAtEnd.dirty:false`.
+4. `npm run verify:evidence` → PASS contra HEAD. `latest.json` es local y no se versiona; no lo commitees.
+5. Para el full: construir (`npm run build`), arrancar servidor y túnel **explícitamente** fuera de este worktree/carril, luego `npm run verify:full` → 23/23, o `npm run verify:full -- --with-film` → 24/24. Correr `npm run verify:evidence` otra vez.
+6. `npm run harness:report` y pegar la tabla en este archivo solo si la corrida es de este HEAD.
 
 ## Bloqueos reales
 
 - **Pago real de $0.01:** BBVA/CoDi se traba al seleccionar cuenta. No presentar demo como real.
-- **Teléfono físico 360 px + TalkBack/VoiceOver:** no probado.
+- **Teléfono físico 360/320 px + TalkBack/VoiceOver:** no probado.
 - **6–8 comerciantes + SUS/NASA-TLX:** protocolo listo en `TEST-USUARIO.md`; no ejecutado.
-- **Full runtime:** no ejecutado en este worktree; `:3000` y `:3101` son de otros carriles y no se tocan aquí. Falta la corrida final 14/14 (15 con film) con servidor y túnel controlados por el orquestador.
-- **Artefactos motion/contraste:** sus JSON de 91ad4ee registran `code.dirty:true`; el full no puede cruzar como evidencia limpia hasta que el carril a11y lo corrija.
+- **Full runtime:** no ejecutado en este worktree; `:3000` y `:3101` son de otros carriles y no se tocan aquí. Falta la corrida final 23/23 (24 con film) con servidor y túnel controlados por el orquestador.
 - **Offline para ventas no bancarias:** no implementado.
 - **Hermes:** capa separada; no iniciada en este repo.
-- **Túnel:** temporal; si cambia, actualizar `APP_URL`, QR y `preflight`.
+- **Túnel:** temporal; si cambia, actualizar `APP_URL`, QR y preflight.
 
 ## Cómo refrescar este estado
 
 ```bash
 cd web
-npm run test:harness      # tests del gate
-npm run verify:static     # 5/5, árbol limpio
+npm run test:harness      # 48 tests
+npm run verify:static     # 5/5, árbol limpio, buildSha === HEAD
 npm run verify:evidence   # latest.json contra HEAD
+npm run harness:report    # tabla para este archivo
 ```
 
 Para el full (servidor y túnel ya vivos, fuera de este carril):
 
 ```bash
-npm run verify:full                 # 14/14
-npm run verify:full -- --with-film  # 15/15
+npm run verify:full                 # 23/23
+npm run verify:full -- --with-film  # 24/24
 npm run verify:evidence
 ```
-
-Después:
-
-1. Revisa `harness/evidence/latest.json` y corre `npm run verify:evidence`.
-2. Actualiza esta tabla solo con los gates que corriste; no copies un SHA que no sea el de `latest.json`.
-3. Registra riesgos nuevos y la siguiente acción.
-4. No borres bloqueos humanos; se cierran con evidencia, no con optimismo.
 
 ## Archivos que no se deben tocar sin contexto
 
 - `GOAL.md`: invariantes de dinero.
 - `web/src/lib/orders.ts`, `web/src/app/api/webhooks/pey/route.ts`, `web/src/lib/pey-events.ts`.
 - `.env.local` (no versionado).
-- `demo/` generado: se regenera con scripts, no se edita a mano.
+- `demo/` generado: se regenera con scripts, no se edita a mano. El QR y el video son entregables; los JSON/PNG de auditorías están ignorados.
 - `SWARM/`: puede ser trabajo del usuario/orquestador; leer antes de modificar.

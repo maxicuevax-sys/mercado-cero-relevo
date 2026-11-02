@@ -42,7 +42,10 @@ from playwright.sync_api import sync_playwright
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-BASE = os.environ.get("P0_BASE_URL", "http://localhost:3101").rstrip("/")
+BASE = os.environ.get(
+    "P0_BASE_URL",
+    os.environ.get("RUNTIME_BASE_URL", os.environ.get("BASE_URL", "http://localhost:3101")),
+).rstrip("/")
 PORT = urlparse(BASE).port or 80
 if PORT == 3000:
     raise SystemExit("P0-CORTE E2E se niega a correr contra :3000.")
@@ -96,7 +99,7 @@ def port_in_use(port: int) -> bool:
 
 
 MIGRATION_PORT = int(os.environ.get("P0_MIGRATION_PORT", "0")) or next(
-    (port for port in (3131, 3133, 3199) if port != PORT and not port_in_use(port)),
+    (port for port in (3296, 3297, 3298) if port != PORT and not port_in_use(port)),
     0,
 )
 if MIGRATION_PORT == 0:

@@ -214,7 +214,7 @@ Pero la interfaz actual **no pasa una adaptación HIG seria** por cinco razones:
 - **`prefers-reduced-motion`** existe y desactiva animaciones/scroll suave.
 - **Privacidad del micrófono:** `getUserMedia` se pide al pulsar, no al cargar.
 - **Targets del checkout:** 0 menores a 44 px (tras la corrección de tipografía).
-- **Flujo de dinero:** no se tocó; el contrato 27/27 se re-ejecuta en F5/F6, no en esta fase.
+- **Flujo de dinero:** no se tocó; el contrato 27 aserciones de esa fase se re-ejecuta en F5/F6, no en esta fase.
 
 ---
 
@@ -237,7 +237,7 @@ Pero la interfaz actual **no pasa una adaptación HIG seria** por cinco razones:
 - Flujo completo de teclado más allá de 10–12 Tabs por pantalla.
 - Performance en un Android de gama media real.
 - Prueba con persona ajena (F6).
-- Webhook 27/27 en esta fase (se re-ejecuta en F5/F6).
+- Webhook 27 aserciones de esa fase en esta fase (se re-ejecuta en F5/F6).
 
 Estos puntos se reportan como **NOT EXECUTED**, no como aprobados. La ausencia de evidencia no es evidencia de que estén bien.
 

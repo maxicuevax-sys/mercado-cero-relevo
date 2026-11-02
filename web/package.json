@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/build-gate.mjs",
     "start": "next start",
     "postinstall": "next typegen",
     "typecheck": "next typegen && tsc --noEmit",
     "lint": "eslint",
+    "lint:gate": "node scripts/lint-gate.mjs",
     "assets:optimize": "node scripts/optimize-assets.mjs",
     "test:perf-budget": "node scripts/perf-budget.mjs",
     "lighthouse:mobile": "node scripts/lighthouse-mobile.mjs",
@@ -24,7 +25,9 @@
     "verify:static": "node scripts/harness-gate.mjs --static",
     "verify:full": "node scripts/harness-gate.mjs --full",
     "verify:list": "node scripts/harness-gate.mjs --list",
-    "verify:evidence": "node scripts/verify-evidence.mjs"
+    "verify:evidence": "node scripts/verify-evidence.mjs",
+    "harness:report": "node scripts/harness-report.mjs",
+    "test:contracts": "npm run test:security && npm run test:fix-datos && npm run test:perf-budget && npm run test:perf-data"
   },
   "dependencies": {
     "lucide-react": "^1.65.0",

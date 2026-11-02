@@ -40,7 +40,7 @@ No acepté `VERIFICACION-INDEPENDIENTE.md` ni sus secciones de reparación como 
 | `npm run lint` | **pass** |
 | `npx tsc --noEmit` | **pass** |
 | `npm run build` | **pass** (20 rutas; servidor 3001 detenido y restaurado con `npm run dev -- -p 3001`) |
-| `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` | **27/27**, exit 0 |
+| `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` | **27 aserciones de esa fase**, exit 0 |
 | `python scripts/hig-after-audit.py` | **exit 0**, sin hallazgos |
 | `http://localhost:3000` | 200; mismo proceso `next start` y mismo hash `D6055C…361C` antes y después; no se tocó |
 | `http://localhost:3001` | 200 tras restaurar el dev server; `demoMode=true` |
@@ -201,7 +201,7 @@ Preparé **7 clientes**: Juan (seed) + 6 nombres largos, incluidos `María Ferna
 | Efectivo + pey | `paid`, `paid=9000`, `digital=6000`, `credit=0`, `provider=pey` | “Efectivo + pey”; “Efectivo + verificado”; “$60.00 verificados por pey” | “Pago mixto / Efectivo + verificado”; sin “simulado” | **Pasa** |
 | Efectivo + demo + fiado | `fulfilled`, `paid=9000`, `digital=6000`, `credit=3000`, `provider=demo` | “Pago mixto”; “Cobro mixto”; “Recibiste $30.00 en efectivo + $60.00 demo.”; saldo $30.00 | “Quedó anotado”; separa las tres fuentes | **Pasa** |
 
-El webhook firmado devolvió `200 processed`; el replay del contrato devolvió `200 duplicate` y no duplicó pagos (suite 27/27). Ningún caso demo usa verde de “Pagado” ni el copy de pago verificado.
+El webhook firmado devolvió `200 processed`; el replay del contrato devolvió `200 duplicate` y no duplicó pagos (suite 27 aserciones de esa fase). Ningún caso demo usa verde de “Pagado” ni el copy de pago verificado.
 
 ### 6.2 Entrega
 
@@ -405,7 +405,7 @@ PASÓ: sin violaciones serias, recortes, solapes ni overflow.
 - Corte: task-first, Falta/Sobra, confirmación y guardado durable.
 - Checkout 40→80 px, `aria-busy`, error inline, redirect por código.
 - Tabs/scroll, sidebar, subtítulos 15, TopBar, foto de Meta, `h1`, `aria-busy`.
-- Lint, TypeScript, build, webhook 27/27; `:3000` intacto; 3001 restaurado.
+- Lint, TypeScript, build, webhook 27 aserciones de esa fase; `:3000` intacto; 3001 restaurado.
 
 ---
 

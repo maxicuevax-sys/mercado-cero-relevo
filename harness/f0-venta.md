@@ -415,7 +415,7 @@ La Caja muestra “Hoy $190.00 · Por cobrar $120.00 · Fiado $50.00”. El dine
 | La operación principal sigue si falla la IA o la red; los límites se muestran (`303`) | **No** | Parser bloquea la venta; polling silencioso (`921-923`); carga inicial se ve como vacío |
 | Las recomendaciones explican su origen y no diagnostican (`302`) | **Fuera de alcance de venta** | No se auditaron; el parser no expone confianza |
 | Los registros se exportan y entienden (`304`) | **No auditado** | Fuera de este corte |
-| No regresiones: webhook 27/27, HIG/WCAG, móvil/checkout, build (`305`) | **No ejecutado** | Instrucción de no correr gates; `STATE.md` es histórico |
+| No regresiones: webhook 27 aserciones de esa fase, HIG/WCAG, móvil/checkout, build (`305`) | **No ejecutado** | Instrucción de no correr gates; `STATE.md` es histórico |
 
 **Conclusión de cumplimiento:** de los must-pass que tocan venta/cobro, hoy no se cumple completo ninguno; el más cercano es la verdad por pedido/demo, que es sólida en el resultado pero se diluye en la Caja y la Actividad. Fallan venta sin IA, recuperación de interrupción, Pendientes y operación con red/IA caída. No se puede afirmar que el flujo de venta y cobro esté listo para el P0 sin al menos P0-1, P0-2 y P0-3.
 

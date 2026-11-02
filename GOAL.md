@@ -75,7 +75,7 @@ Los cálculos financieros son deterministas; la IA solo explica, guía o propone
 | Método | Qué demuestra | Pase |
 |---|---|---|
 | HMAC SHA-256 de Standard Webhooks sobre el **body crudo**, tolerancia de 300 s, comparación en tiempo constante | autenticidad e integridad | firma válida aceptada; firma falsa o timestamp viejo → 401 |
-| `scripts/webhook-contract.mjs` con matriz adversarial | que el invariante se cumple en código | 9 escenarios / 27 aserciones; **ningún** evento inválido marca pagado |
+| `scripts/webhook-contract.mjs` con matriz adversarial | que el invariante se cumple en código | 34/34 aserciones; **ningún** evento inválido marca pagado |
 | Validación de monto / moneda / referencia contra la orden | que un evento real no se aplica a otra orden | mismatch → 409, orden intacta |
 | Idempotencia por `webhook-id` + `transactionId` | que un replay no duplica dinero | segundo POST → 200, una sola fila en `payments` |
 | Pago real de $0.01 por CoDi con la cuenta de pruebas de pey | que el riel funciona de verdad | webhook 200 en el portal; orden `paid` exactamente una vez |
@@ -111,7 +111,7 @@ Requiere el servidor en `localhost:3000` y `PEY_WEBHOOK_SECRET` en `.env.local`.
 | **F0 · Scaffold Next.js + SQLite + UI** | ✅ build limpio |
 | **F1 · Flujo demo de venta por voz/texto, link, QR, efectivo, fiado y corte** | ✅ probado localmente |
 | **F2 · Checkout público del cliente (`/pay/[id]`) con simulación** | ✅ probado |
-| **F3 · Endurecer webhook: firma siempre, monto/referencia, auditoría, arnés adversarial** | ✅ **27/27 aserciones en verde** |
+| **F3 · Endurecer webhook: firma siempre, monto/referencia, auditoría, arnés adversarial** | ✅ **34/34 aserciones en verde** |
 | **F4 · Pago real de $0.01 con pey + webhook HTTPS público** | 🔴 pendiente de credenciales rotadas en `.env.local` |
 | **F5 · Reconciliación contra `GET /transaction/{id}` y corte que cuadra** | 🟡 implementado y probado en demo; falta la prueba con pey real |
 | **F6 · Runbook de demo, video de respaldo, QR impreso** | 🔴 |
@@ -121,7 +121,7 @@ Requiere el servidor en `localhost:3000` y `PEY_WEBHOOK_SECRET` en `.env.local`.
 | **F10 · Mi camino: meta, progreso y aportaciones** | ✅ probado; no duplica ventas |
 | **F11 · Guía/FAQ contextual y primeros pasos** | ✅ probada |
 | **F12 · Dirección visual “Mercado de papel”** | ✅ Lighthouse 100/100/100; build limpio |
-| **F13 · Auditoría 360 px, checkout, túnel, ensayo, runbook, video y QR** | 🟡 Caja 25/25 y checkout 15/15; Lighthouse 100; túnel 8/8; video y QR listos; falta teléfono físico y persona ajena |
+| **F13 · Auditoría 360 px, checkout, túnel, ensayo, runbook, video y QR** | 🟡 Caja 25/25 y checkout 19/19; Lighthouse 100; túnel 8/8; video y QR listos; falta teléfono físico y persona ajena |
 
 ### 5.b · Prioridades del hackathon (nueva perspectiva)
 

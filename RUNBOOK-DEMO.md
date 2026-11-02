@@ -4,7 +4,7 @@
 > **Video:** `demo/mercado-cero-demo.mp4` (36 s, 1280×800, 0.8 MB).
 > **Verdad:** los pagos demo usan `demo_paid`; `/api/verify` solo marca `pey`. Comprobación: `node scripts/verify-truth.mjs`.
 > **Auditoría móvil:** `demo/mobile-audit.json` — 25/25 checks, 360 px emulado con Playwright, ≈9 s de flujo en producción (10–17 s en dev), 0 errores de consola. Falta la prueba en un teléfono físico.
-> **Checkout público:** `demo/checkout-audit.json` — 15/15 checks a 360 px, pago demo y pantalla de éxito; Lighthouse 100/100/100.
+> **Checkout público:** `demo/checkout-audit.json` - 19/19 checks a 360 px, pago demo y pantalla de éxito; Lighthouse 100/100/100.
 > **Túnel HTTPS:** `demo/tunnel-smoke.json` — 8/8 checks por Cloudflare: reset, checkout, pago demo y estado pagado.
 
 ---
@@ -22,7 +22,7 @@
   - [ ] Cobrado: **$70.00**
   - [ ] Por cobrar: **$120.00**
   - [ ] Fiado: **$50.00**
-  - [ ] Corte: base **$500.00**, debería haber **$570.00**
+  - [ ] Corte: base **$500.00** y esperado **$500.00** (el efectivo demo no cuenta como real)
   - [ ] Meta: **$300.00 de $1,800.00**
 - [ ] Batería, cargador, hotspot y cable.
 - [ ] Video de respaldo **descargado en el teléfono**, no solo en la nube.
@@ -92,7 +92,7 @@ Cuando aparezca el sello **DEMO** o **PAGADO**, señálalo.
 - Cambia **Hoy / Semana / Mes**.
 - Muestra el total, el ticket promedio, efectivo vs digital y la gráfica.
 - En **Corte**, arriba está **Corte de caja**.
-- Pulsa **Actualizar corte**: el abono de Juan sumó **$50 en efectivo**, así que “Debería haber” pasa de $570 a **$620**.
+- Pulsa **Actualizar corte**: el abono de Juan sumó **$50 en efectivo**, así que “Debería haber” sube a **$620** en la demostración.
 - Pulsa **Contar por billetes y monedas** y escribe: **5** de $100, **2** de $50 y **1** de $20. Muestra el sello **CUADRA**.
 - Pulsa **Guardar corte**, revisa la hoja de confirmación (gastos, retiros, debería haber) y confirma. Queda **Corte #1**; la foto no cambia con ventas o cobros posteriores.
 
@@ -130,7 +130,7 @@ Para una persona mayor, antes de empezar: activa **Texto grande** y **Alto contr
 - **No** prometas tarjeta/Apple Pay/Google Pay si el checkout real solo muestra CoDi. Di: “CoDi funciona hoy; tarjeta y wallets dependen de la cuenta Stripe.”
 - **No** digas que la app ve el saldo o los movimientos de la cuenta de Ana. Solo ve los cobros generados por el negocio.
 - **No** digas que los apartados son una cuenta de ahorro o dinero custodiado. Son **declarados**.
-- **No** inventes un pago real de $0.01 si no ocurrió. Puedes decir: “El contrato del webhook está en 27/27; el riel bancario es lo que estamos esperando.”
+- **No** inventes un pago real de $0.01 si no ocurrió. Puedes decir: “El contrato del webhook está en 34/34; el riel bancario es lo que estamos esperando.”
 
 ---
 
@@ -193,9 +193,10 @@ Comisión por transacción o suscripción. CoDi es el riel gratuito; la tarjeta 
 - `demo/mobile-360-fold.png` — primer viewport a 360 px.
 - `demo/mobile-360-full.png` — página completa a 360 px.
 - `demo/mobile-360-cobro.png`, `-link.png`, `-pagado.png`, `-corte.png`, `-meta.png`.
-- `demo/mobile-audit.json` — 25/25 checks, ≈9 s en producción, 0 errores.
-- `demo/checkout-audit.json` — 15/15 checks del checkout público a 360 px.
-- `demo/tunnel-smoke.json` — 8/8 checks a través del túnel HTTPS.
+- `demo/mobile-audit.json` — 25/25 checks, ≈9 s en producción, 0 errores. Generado e ignorado por git.
+- `demo/checkout-audit.json` — 19/19 checks del checkout público a 360 px. Generado e ignorado.
+- `demo/tunnel-smoke.json` — 8/8 checks a través del túnel HTTPS. Generado e ignorado.
+- `harness/evidence/mobile-320-e2e.json` - 42/42 checks HIG a 320/360 px en 3 motores. Generado e ignorado.
 - `scripts/checkout-audit.py` — valida checkout, pago demo y pantalla de éxito.
 - `scripts/tunnel-smoke.py` — valida el camino público por Cloudflare.
 - `scripts/verify-env.mjs` — revisa demo/real sin imprimir secretos.
@@ -218,4 +219,4 @@ Comisión por transacción o suscripción. CoDi es el riel gratuito; la tarjeta 
 6. Si el webhook no llega en 2 minutos, la orden queda **pendiente**. No la marques pagada ni muestres una captura como prueba.
 7. Si el riel falla, vuelve a `DEMO_MODE=true`, reinicia y usa el sello **DEMO** y el video de respaldo.
 
-> El contrato del webhook está en 27/27; lo que falta es el riel bancario, no la app.
+> El contrato del webhook está en 34/34; lo que falta es el riel bancario, no la app.

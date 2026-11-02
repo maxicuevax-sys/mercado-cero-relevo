@@ -21,9 +21,10 @@ import { fileURLToPath } from "node:url";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const WEB = path.resolve(HERE, "..");
 const NEXT_BIN = path.join(WEB, "node_modules", "next", "dist", "bin", "next");
-const FAIL_PORT = 3141;
-const DEMO_PORT = 3142;
-const REAL_PORT = 3143;
+const usedPorts = new Set();
+const FAIL_PORT = await pickPort(3293, "DB_GUARDS_FAIL_PORT");
+const DEMO_PORT = await pickPort(3294, "DB_GUARDS_DEMO_PORT");
+const REAL_PORT = await pickPort(3295, "DB_GUARDS_REAL_PORT");
 
 let checks = 0;
 let failures = 0;
@@ -60,6 +61,32 @@ function portInUse(port) {
     socket.once("timeout", () => done(false));
     socket.once("error", () => done(false));
   });
+}
+
+function portFree(port) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once("error", () => resolve(false));
+    server.listen({ port, host: "::" }, () => {
+      server.close(() => resolve(true));
+    });
+  });
+}
+
+async function pickPort(start, envName) {
+  const fromEnv = Number(process.env[envName] ?? 0);
+  if (fromEnv) {
+    usedPorts.add(fromEnv);
+    return fromEnv;
+  }
+  for (let port = start; port < start + 50; port += 1) {
+    if (usedPorts.has(port)) continue;
+    if (await portFree(port)) {
+      usedPorts.add(port);
+      return port;
+    }
+  }
+  throw new Error(`No encontré puerto libre desde ${start}.`);
 }
 
 async function waitForPort(port, timeoutMs = 90_000) {

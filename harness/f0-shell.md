@@ -211,7 +211,7 @@ Con el servidor caído, esto es un **bucle de fetch y toasts**, no un estado de 
 | Sin pagos digitales en conciliación | “No hay pagos digitales hoy.” | Correcto y explicativo |
 | Sin comprobante | Campo vacío; `Verificar` deshabilitado | Aceptable, pero no explica de dónde obtener el ID |
 | Corte sin conteo | “Escribe el total contado para ver si cuadra.” | Correcto |
-| Corte ya guardado | `counted` se precarga con el valor guardado y puede mostrar “Cuadra” antes de volver a contar; el aviso “Último corte guardado” está más abajo, y el `savedNotice` desaparece al recargar | **Riesgo:** parece que ya contaste hoy. Debe decir “Corte ya guardado hoy: $570” junto al campo, o dejar el conteo vacío y exigir “Volver a contar” |
+| Corte ya guardado | `counted` se precarga con el valor guardado y puede mostrar “Cuadra” antes de volver a contar; el aviso “Último corte guardado” está más abajo, y el `savedNotice` desaparece al recargar | **Riesgo:** parece que ya contaste hoy. Debe decir “Corte ya guardado hoy: el esperado de la UI” junto al campo, o dejar el conteo vacío y exigir “Volver a contar” |
 
 ### 3.5 Toasts
 
@@ -330,7 +330,7 @@ Además, el control de la app “Muy grande” pone la raíz en 20 px (`globals.
 
 **Impacto:** el encabezado principal mezcla facturado, cobrado, pendiente y fiado histórico; la voz dice otra cifra para “Hoy”. “Por cobrar” se confunde con fiado y el estado `paid` incluye efectivo, aunque el pie diga que ningún pedido se marca pagado sin pey. La persona no puede explicar cuánto tiene, cuánto le deben y cuánto vendió. Es el corazón de “sé qué pasó con mi dinero”.
 
-**Esfuerzo:** M (solo copy + derivación de labels; no cambiar cálculos de dinero). **Riesgo:** medio (muchas superficies; validar con `preflight` y webhook 27/27, que no se tocan).
+**Esfuerzo:** M (solo copy + derivación de labels; no cambiar cálculos de dinero). **Riesgo:** medio (muchas superficies; validar con `preflight` y webhook 27 aserciones de esa fase, que no se tocan).
 
 **Primer corte:**
 1. Encabezado: `Ventas de hoy $190 · Cobrado $70 · Por cobrar $120` y `Fiado pendiente total $50` (o “Te deben $50”), con una línea que explique que “Por cobrar” es digital y “Fiado” es libreta.
@@ -436,7 +436,7 @@ Además, el control de la app “Muy grande” pone la raíz en 20 px (`globals.
 - `demo/hig-after/fiado-1280.png` — “desde 02:01 p.m.” sin fecha.
 - `demo/stageshow/03-cobro-pendiente.png` — “Cobrar $90” + badge “POR COBRAR”.
 - `demo/stageshow/05-pago-simulado.png` — “Pago simulado” y CTA verde “Listo para entregar”.
-- `demo/stageshow/07-corte.png` — corte precargado $570 y “Cuadra”.
+- `demo/stageshow/07-corte.png` — corte precargado con el esperado de la UI y “Cuadra”.
 - `demo/stageshow/08-meta.png` — meta normal a 1280.
 
 ### 6.3 Evidencia automatizada existente

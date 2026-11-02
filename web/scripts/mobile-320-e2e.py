@@ -31,7 +31,10 @@ from playwright.sync_api import sync_playwright
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-BASE = os.environ.get("P0_BASE_URL", "http://localhost:3101").rstrip("/")
+BASE = os.environ.get(
+    "P0_BASE_URL",
+    os.environ.get("RUNTIME_BASE_URL", os.environ.get("BASE_URL", "http://localhost:3101")),
+).rstrip("/")
 PORT = urlparse(BASE).port or 80
 if PORT == 3000:
     raise SystemExit("mobile-320-e2e se niega a correr contra :3000.")

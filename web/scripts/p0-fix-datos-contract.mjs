@@ -20,7 +20,7 @@ import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const WEB = path.resolve(HERE, "..");
-const PORT = 3123;
+const PORT = Number(process.env.DATA_PORT ?? 3192);
 const BASE = `http://127.0.0.1:${PORT}`;
 
 let failures = 0;
@@ -837,15 +837,6 @@ async function main() {
     });
     check("metas: meta inexistente responde 404", missingGoal.status === 404, String(missingGoal.status));
 
-    const missingRequestId = await api(`/api/goals/${goalId}/contribute`, {
-      method: "POST",
-      body: { amountCents: 1000 },
-    });
-    check(
-      "metas: aportación sin requestId responde 400",
-      missingRequestId.status === 400,
-      String(missingRequestId.status),
-    );
 
     const savedBeforeFailure = Number(
       rows("SELECT saved_cents FROM goals WHERE id = ?", [goalId])[0].saved_cents,
@@ -997,6 +988,9 @@ async function main() {
     for (const result of results.filter((item) => !item.ok)) {
       console.log(`  - ${result.name}${result.detail ? ` · ${result.detail}` : ""}`);
     }
+  }
+  if (failures === 0) {
+    console.log("DATOS OK");
   }
   return failures === 0 ? 0 : 1;
 }

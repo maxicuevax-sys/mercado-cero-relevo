@@ -19,7 +19,9 @@ from playwright.sync_api import sync_playwright
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-BASE = os.environ.get("CONTRAST_BASE_URL", "http://localhost:3000").rstrip("/")
+BASE = os.environ.get(
+    "CONTRAST_BASE_URL", os.environ.get("BASE_URL", "http://localhost:3000")
+).rstrip("/")
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "harness" / "evidence" / "a11y-contrast.json"
 SHOT = ROOT / "harness" / "evidence" / "a11y-contrast-360.png"
@@ -119,9 +121,9 @@ def main() -> int:
         page.on("console", lambda msg: errors.append(msg.text) if msg.type == "error" else None)
         page.goto(BASE, wait_until="networkidle", timeout=60000)
         page.wait_for_function(
-            "document.documentElement.dataset.contrast === 'high'", timeout=20000
+            "() => document.documentElement.dataset.contrast === 'high'", timeout=20000
         )
-        page.wait_for_function("document.body.innerText.includes('Hoy $')", timeout=20000)
+        page.wait_for_function("() => document.body.innerText.includes('Hoy $')", timeout=20000)
         page.wait_for_timeout(350)
 
         check(
@@ -198,7 +200,7 @@ def main() -> int:
         normal_page = normal.new_page()
         normal_page.goto(BASE, wait_until="networkidle", timeout=60000)
         normal_page.wait_for_function(
-            "document.body.innerText.includes('Hoy $')", timeout=20000
+            "() => document.body.innerText.includes('Hoy $')", timeout=20000
         )
         normal_page.wait_for_timeout(300)
         check_placeholders(normal_page, "tema normal")
@@ -217,7 +219,10 @@ def main() -> int:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n{passed} PASS · {failed} FAIL · {OUT}")
-    return 0 if failed == 0 else 1
+    if failed == 0:
+        print(f"CONTRAST OK: {passed} PASS · 0 FAIL")
+        return 0
+    return 1
 
 
 if __name__ == "__main__":

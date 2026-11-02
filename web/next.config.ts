@@ -1,6 +1,27 @@
+import { spawnSync } from "node:child_process";
+
 import type { NextConfig } from "next";
 
 const isProduction = process.env.NODE_ENV === "production";
+
+/**
+ * Identidad del build. El harness exige que el servidor que responde en
+ * BASE_URL haya sido construido desde el mismo commit que gitAtStart.
+ * `build-gate.mjs` pasa BUILD_SHA; si se corre `next build` a mano, se usa
+ * el HEAD actual como respaldo.
+ */
+function resolveBuildSha(): string {
+  const fromEnv = (process.env.BUILD_SHA ?? process.env.NEXT_PUBLIC_BUILD_SHA ?? "").trim();
+  if (fromEnv) return fromEnv;
+  const result = spawnSync("git", ["rev-parse", "HEAD"], {
+    encoding: "utf8",
+    timeout: 15_000,
+  });
+  const sha = result.status === 0 ? result.stdout.trim() : "";
+  return sha || "unknown";
+}
+
+const buildSha = resolveBuildSha();
 
 /**
  * CSP conservadora: Next inyecta scripts inline para hidratar, así que
@@ -73,6 +94,13 @@ const privateHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // `BUILD_SHA` queda disponible en el servidor y `NEXT_PUBLIC_BUILD_SHA`
+  // en el cliente. /api/health lo devuelve para que el harness compare el
+  // SHA servido con el SHA de git sin adivinar.
+  env: {
+    BUILD_SHA: buildSha,
+    NEXT_PUBLIC_BUILD_SHA: buildSha,
+  },
   // gzip de respuestas y assets en `next start`. Si un proxy/túnel comprime
   // por su cuenta, este valor no desactiva esa capa; se verifica con
   // `Accept-Encoding: gzip` y `Content-Encoding` en el contrato de perf.

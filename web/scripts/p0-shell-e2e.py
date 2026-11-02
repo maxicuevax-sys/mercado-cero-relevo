@@ -24,7 +24,10 @@ from playwright.sync_api import sync_playwright
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-BASE = os.environ.get("P0_BASE_URL", "http://localhost:3101").rstrip("/")
+BASE = os.environ.get(
+    "P0_BASE_URL",
+    os.environ.get("RUNTIME_BASE_URL", os.environ.get("BASE_URL", "http://localhost:3101")),
+).rstrip("/")
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "harness" / "evidence" / "p0-shell"
 OUT.mkdir(parents=True, exist_ok=True)
