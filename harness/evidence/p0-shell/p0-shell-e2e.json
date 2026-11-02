@@ -1,12 +1,12 @@
 {
   "baseUrl": "http://localhost:3101",
-  "started": "2026-11-01T20:24:49",
-  "elapsedSeconds": 20.3,
+  "started": "2026-11-01T21:15:25",
+  "elapsedSeconds": 26.7,
   "code": {
-    "commit": "81c7918211ce353936f8c6d11585b3a7a8c64f15",
+    "commit": "27d42c82d57728a2d49b03ac8995d1c698e63397",
     "dirty": false
   },
-  "passed": 32,
+  "passed": 52,
   "failed": 0,
   "results": [
     {
@@ -45,6 +45,11 @@
       "detail": ""
     },
     {
+      "name": "una sola carga inicial de /api/dashboard",
+      "ok": true,
+      "detail": "1 llamada(s)"
+    },
+    {
       "name": "sin bucle de /api/dashboard",
       "ok": true,
       "detail": "1 llamada(s) y se mantiene"
@@ -80,6 +85,51 @@
       "detail": ""
     },
     {
+      "name": "la actividad recuperada tiene pedidos reales",
+      "ok": true,
+      "detail": "6 pedido(s)"
+    },
+    {
+      "name": "carga buena inicial con pedidos",
+      "ok": true,
+      "detail": "6 pedido(s)"
+    },
+    {
+      "name": "fallo tardío muestra aviso persistente",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "fallo tardío explica que los datos son viejos",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "fallo tardío conserva el comercio de la última carga",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "fallo tardío conserva DEMO",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "fallo tardío no borra la actividad vieja",
+      "ok": true,
+      "detail": "6 pedido(s)"
+    },
+    {
+      "name": "fallo tardío no muestra body crudo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "reintento tardío limpia el aviso",
+      "ok": true,
+      "detail": ""
+    },
+    {
       "name": "GoalCard muestra error si goal=null",
       "ok": true,
       "detail": ""
@@ -91,6 +141,31 @@
     },
     {
       "name": "GoalCard ofrece Reintentar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard no muestra Unexpected token",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard no muestra el body crudo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard muestra 'No pude aportar' en 500",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard no muestra Unexpected token al aportar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard no muestra el body crudo al aportar",
       "ok": true,
       "detail": ""
     },
@@ -116,6 +191,31 @@
     },
     {
       "name": "home-360-200: sin overflow horizontal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-768-200: campo de venta por encima de la tab bar",
+      "ok": true,
+      "detail": "saleTop=679 tabTop=899"
+    },
+    {
+      "name": "home-768-200: sin palabras partidas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-768-200: sin overflow horizontal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-1280-200: medida registrada (campo bajo el pliegue documentado)",
+      "ok": true,
+      "detail": "saleTop=899 viewport=800"
+    },
+    {
+      "name": "home-1280-200: sin overflow horizontal",
       "ok": true,
       "detail": ""
     },
