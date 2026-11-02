@@ -139,6 +139,7 @@ export interface ParsedSale {
   cashCents: number;
   customerName: string | null;
   creditCents: number;
+  creditMethod: "cash" | "codi" | "card" | null;
   query: string | null;
   confidence: number;
   reply: string;

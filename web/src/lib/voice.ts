@@ -32,6 +32,7 @@ const saleSchema = z.object({
   cashCents: z.number().int().nonnegative().default(0),
   customerName: z.string().nullable().default(null),
   creditCents: z.number().int().nonnegative().default(0),
+  creditMethod: z.enum(["cash", "codi", "card"]).nullable().default(null),
   query: z.string().nullable().default(null),
   confidence: z.number().min(0).max(1).default(0.5),
   reply: z.string().default(""),
@@ -86,7 +87,8 @@ REGLAS:
 - Si dice "le di / pagó con / efectivo", llena cashCents.
 - Si dice "fiado / me debe / a deber / apunta", llena creditCents y customerName.
 - Si dice "me pagó / abonó / liquidó" y menciona un cliente, intent="credit_payment", customerName y creditCents.
-- Si es una pregunta ("cuánto vendí", "cuánto me debe", "corte"), intent="query" y query con la pregunta.
+- Para credit_payment, llena creditMethod solo si el método es explícito: "efectivo/billetes" => "cash"; "transferencia/transfirió/CoDi/depósito/digital" => "codi"; "tarjeta/débito/crédito" => "card"; si no se dice, null.
+- Si es una pregunta ("cuánto vendí", "cuánto me debe", "quién me debe", "corte"), intent="query" y query con la pregunta.
 - Si no entiendes, intent="unknown", confidence baja y reply pidiendo repetir.
 - reply debe ser una frase corta para confirmar en voz alta, en español mexicano, sin sonar robótica.
 - No agregues texto fuera del JSON.`,
@@ -138,12 +140,33 @@ function catalogPrice(name: string): number {
   return found?.priceCents ?? 0;
 }
 
+function detectCreditMethod(text: string): ParsedSale["creditMethod"] {
+  if (/(transfer|transfir|deposit|codi|digital)/.test(text)) return "codi";
+  if (/(tarjeta|d[eé]bito|cr[eé]dito)/.test(text)) return "card";
+  if (/(efectivo|billete|efectivo)/.test(text)) return "cash";
+  return null;
+}
+
 /**
  * Parser local para que la demo funcione sin OPENAI_API_KEY.
  * No pretende ser perfecto: cubre las frases del guion y vocabulario de tienda.
  */
 export function mockParse(transcript: string): ParsedSale {
   const text = transcript.toLowerCase();
+
+  if (/(cu[aá]nto (me )?debe|qui[eé]n me debe|cu[aá]nto me deben)/.test(text)) {
+    return {
+      intent: "query",
+      items: [],
+      cashCents: 0,
+      customerName: null,
+      creditCents: 0,
+      creditMethod: null,
+      query: transcript,
+      confidence: 0.9,
+      reply: "Reviso lo que te deben.",
+    };
+  }
 
   if (/(cu[aá]nto vend[ií]|corte|cuenta del d[ií]a|resumen)/.test(text)) {
     return {
@@ -152,13 +175,14 @@ export function mockParse(transcript: string): ParsedSale {
       cashCents: 0,
       customerName: null,
       creditCents: 0,
+      creditMethod: null,
       query: transcript,
       confidence: 0.9,
       reply: "Te doy el corte del día.",
     };
   }
 
-  if (/(me pag[oó]|abon[oó]|liquid[oó])/.test(text) && /(fiado|debe|deuda)/.test(text)) {
+  if (/(me pag[oó]|abon[oó]|liquid[oó]|transfir[ií][oó]|transfiri[oó]|deposit[oó])/.test(text) && /(fiado|debe|deuda)/.test(text)) {
     const nameMatch = text.match(/(?:que|a|de)\s+([a-záéíóúñ]+)/);
     const amountMatch = text.match(/(\d+(?:\.\d+)?)/);
     const amount = amountMatch ? Math.round(Number(amountMatch[1]) * 100) : 0;
@@ -168,6 +192,7 @@ export function mockParse(transcript: string): ParsedSale {
       cashCents: 0,
       customerName: nameMatch ? capitalize(nameMatch[1]) : null,
       creditCents: amount,
+      creditMethod: detectCreditMethod(text),
       query: null,
       confidence: 0.8,
       reply: amount > 0 ? `Abono de ${amount / 100} pesos registrado.` : "¿De cuánto fue el abono?",
@@ -200,6 +225,7 @@ export function mockParse(transcript: string): ParsedSale {
       cashCents,
       customerName: null,
       creditCents,
+      creditMethod: null,
       query: null,
       confidence: 0.2,
       reply: "No entendí la venta. ¿Me la repites?",
@@ -213,6 +239,7 @@ export function mockParse(transcript: string): ParsedSale {
     cashCents,
     customerName: null,
     creditCents,
+    creditMethod: null,
     query: null,
     confidence: 0.75,
     reply: `Escuché ${(total / 100).toFixed(2)} pesos. ¿Confirmas?`,
