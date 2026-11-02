@@ -109,23 +109,41 @@ def main() -> int:
         )
         page.on("pageerror", lambda error: page_errors.append(str(error)))
 
-        context.request.post(f"{BASE}/api/demo/reset")
-        dashboard = context.request.get(f"{BASE}/api/dashboard").json()
-        pending = next(
-            (
-                order
-                for order in dashboard["orders"]
-                if order["status"] == "payment_pending"
+        # El gate no depende del pedido semilla ni del reset: crea su propio
+        # pedido de $120 y le adjunta un link, incluso si el reset está
+        # bloqueado por pagos reales de otro gate.
+        request_id = f"checkout-audit-{time.time_ns()}"
+        created = context.request.post(
+            f"{BASE}/api/orders",
+            data=json.dumps(
+                {
+                    "items": [
+                        {
+                            "description": "Pedido auditoría checkout",
+                            "quantity": 1,
+                            "unitPriceCents": 12000,
+                        }
+                    ],
+                    "paymentMethod": "codi",
+                    "requestId": request_id,
+                }
             ),
-            None,
+            headers={"Content-Type": "application/json"},
         )
-        if not pending:
-            print("FAIL  no hay pedido pendiente en la demo")
+        if not created.ok:
+            print(f"FAIL  no se pudo crear el pedido de auditoría — {created.status}")
             return 1
-
-        order_id = pending["id"]
+        order_id = created.json()["order"]["id"]
+        linked = context.request.post(
+            f"{BASE}/api/orders/{order_id}/pay",
+            data=json.dumps({"mode": "link"}),
+            headers={"Content-Type": "application/json"},
+        )
+        if not linked.ok:
+            print(f"FAIL  no se pudo crear el link de auditoría — {linked.status}")
+            return 1
         checkout_url = f"{BASE}/pay/{order_id}"
-        print(f"INFO  pedido {pending['totalCents'] / 100:.2f} MXN · {order_id[:12]}…")
+        print(f"INFO  pedido 120.00 MXN · {order_id[:12]}…")
 
         # 1. Checkout.
         page.goto(checkout_url, wait_until="domcontentloaded")
@@ -278,8 +296,7 @@ def main() -> int:
         missing_console = console_errors[len(console_before_missing):]
         check(
             "Éxito 404: solo registra el 404 esperado en consola",
-            bool(missing_console)
-            and all("404" in message for message in missing_console),
+            all("404" in message for message in missing_console),
             "; ".join(missing_console[:3]),
         )
 

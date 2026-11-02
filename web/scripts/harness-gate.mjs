@@ -1263,12 +1263,11 @@ async function main() {
           artifacts: [],
           outputTail: "reset de demo falló",
         });
-        break;
+        continue;
       }
     }
     const result = runGate(gate, { serverBuildSha });
     results.push(result);
-    if (!result.ok) break;
   }
 
   if (!serverBuildSha) {
