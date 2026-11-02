@@ -2,7 +2,7 @@
   "runs": [
     {
       "iteration": 1,
-      "seconds": 3.9,
+      "seconds": 4.3,
       "steps": [
         {
           "name": "venta interpretada",
@@ -30,12 +30,12 @@
           "detail": ""
         },
         {
-          "name": "abono de fiado",
+          "name": "hoja de abono visible",
           "ok": true,
           "detail": ""
         },
         {
-          "name": "saldo de Juan en cero",
+          "name": "abono confirmado",
           "ok": true,
           "detail": ""
         },
@@ -86,7 +86,7 @@
     },
     {
       "iteration": 2,
-      "seconds": 3.8,
+      "seconds": 4.5,
       "steps": [
         {
           "name": "venta interpretada",
@@ -114,12 +114,12 @@
           "detail": ""
         },
         {
-          "name": "abono de fiado",
+          "name": "hoja de abono visible",
           "ok": true,
           "detail": ""
         },
         {
-          "name": "saldo de Juan en cero",
+          "name": "abono confirmado",
           "ok": true,
           "detail": ""
         },
@@ -170,7 +170,7 @@
     },
     {
       "iteration": 3,
-      "seconds": 3.8,
+      "seconds": 5.2,
       "steps": [
         {
           "name": "venta interpretada",
@@ -198,12 +198,12 @@
           "detail": ""
         },
         {
-          "name": "abono de fiado",
+          "name": "hoja de abono visible",
           "ok": true,
           "detail": ""
         },
         {
-          "name": "saldo de Juan en cero",
+          "name": "abono confirmado",
           "ok": true,
           "detail": ""
         },
@@ -253,8 +253,8 @@
       "failed": 0
     }
   ],
-  "fastestSeconds": 3.8,
-  "slowestSeconds": 3.9,
-  "averageSeconds": 3.8,
+  "fastestSeconds": 4.3,
+  "slowestSeconds": 5.2,
+  "averageSeconds": 4.7,
   "allPassed": true
 }
