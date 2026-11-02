@@ -20,6 +20,7 @@ Nunca apunta a :3000. Escribe harness/evidence/p0-integracion-e2e.json.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -605,6 +606,44 @@ def main() -> int:
             )
             dialog.get_by_role("button", name="Cerrar", exact=True).click()
             page.wait_for_timeout(300)
+
+            # ------------------------------------------------------------------
+            # 4a · La frase fija de $50 usa Kokoro, no Piper ni la voz del
+            # navegador. Es la regresión que reportó el usuario.
+            # ------------------------------------------------------------------
+            reset(page)
+            page.evaluate(
+                """() => {
+                  window.__audio = [];
+                  window.__speech = [];
+                  HTMLMediaElement.prototype.play = function () {
+                    window.__audio.push(this.src);
+                    return Promise.resolve();
+                  };
+                  window.speechSynthesis.speak = (u) => { window.__speech.push(u.text); };
+                  window.speechSynthesis.cancel = () => {};
+                }"""
+            )
+            page.get_by_role("button", name="Juan me pagó 50 del fiado").click()
+            page.wait_for_timeout(1600)
+            audio_srcs = page.evaluate("window.__audio")
+            speech_calls = page.evaluate("window.__speech")
+            wav = ROOT / "web" / "public" / "tts" / "revisa-abono-50-juan.wav"
+            served = page.request.get(f"{BASE}/tts/revisa-abono-50-juan.wav?v=2")
+            wav_ok = (
+                served.ok
+                and hashlib.sha256(served.body()).hexdigest()
+                == hashlib.sha256(wav.read_bytes()).hexdigest()
+            )
+            check(
+                "el botón de $50 usa el WAV Kokoro y no la voz del navegador",
+                any("/tts/revisa-abono-50-juan.wav?v=2" in src for src in audio_srcs)
+                and wav_ok
+                and len(speech_calls) == 0,
+                f"audio={audio_srcs} · speech={speech_calls} · wav={wav_ok}",
+            )
+            page.keyboard.press("Escape")
+            page.wait_for_timeout(400)
 
             # ------------------------------------------------------------------
             # 4b · Carrera: una lectura vieja del dashboard no puede revivir
