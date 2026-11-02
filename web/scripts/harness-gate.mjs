@@ -122,6 +122,15 @@ const GATES = [
     expected: "0 FAIL",
   },
   {
+    id: "contrast",
+    name: "Alto contraste",
+    command: "python",
+    args: ["scripts/a11y-contrast.py"],
+    mode: "runtime",
+    timeout: 180_000,
+    expected: "0 FAIL",
+  },
+  {
     id: "rehearsal",
     name: "Ensayo del guion",
     command: "python",
