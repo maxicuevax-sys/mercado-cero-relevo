@@ -31,8 +31,8 @@
 
 ## Última corrida del harness
 
-- Fecha: **2 nov 2026, 12:43 UTC**
-- Código verificado: **`ce36e62`** (gates de motion y alto contraste; app `9f7d02d` con P0-D endurecido, motion y voz); `latest.json` sobre el mismo commit, `gitAtStart.dirty: false`.
+- Fecha: **2 nov 2026, 13:17 UTC**
+- Código verificado: **`00216e3`** (capa editorial + gates de motion y alto contraste; app `9f7d02d`); `latest.json` sobre el mismo commit, `gitAtStart.dirty: false`.
 - Modo: **full**, **13/13** en verde; `latest.json` con `ok: true`.
 - Gates: `guard`, `lint`, `types`, `truth`, `webhook` 27/27, `mobile` 25/25, `checkout` 15/15, `hig` axe 0, `motion` 14/14, `contrast` axe 0, `rehearsal` 3/3 (4.6 s promedio), `tunnel` 8/8, `preflight` 18/18.
 - E2E de carril: corte **69/0/0**, integración **51/0/0**, fiado **50/0/0**, venta **43/0/0**, shell **52/0/0**, motion **14/0**.
@@ -49,6 +49,7 @@
 - Voz: Kokoro `em_santa` para frases fijas, Piper para dinámicas, montos hablados (“50 pesos”, no “cincuenta punto cero cero”).
 - Corte (P0-D mergeado): borrador no destructivo, cierre versionado `cash_closes` con `snapshot_known`, retiro previo explícito, idempotencia `requestId`/`expectedVersion` 409, historial con v1, migración transaccional con recovery y `requestId` seguro también fuera de contexto seguro.
 - Movimiento: sistema “papel que se asienta” en `MOTION.md`, CSS nativo, scroll trigger y reduced-motion.
+- Dirección visual: “papel editorial” con Manrope + Fraunces, grano fijo, doble marco, Caja a dos columnas desde 1280, nota de mercado en sidebar y botones tipo sello. Contrato actualizado en `HIG-DESIGN.md` §16.
 - Meta: apartado declarado, progreso.
 - Accesibilidad: 48 px, 200%, alto contraste, voz, repetir, leer pantalla, movimiento reducido.
 - Demo: `demo_paid`, sellos, video, QR, runbook.

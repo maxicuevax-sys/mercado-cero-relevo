@@ -577,3 +577,16 @@ Si alguna decisión cambia, se anota aquí antes de F3.
 5. Estados, accesibilidad y performance; luego F5/F6.
 
 **Gate:** no se escribe F3 hasta que este contrato esté aprobado. La app sigue intacta y el demo sigue limpio.
+
+---
+
+## 16 · Actualización de dirección visual (2 de noviembre de 2026)
+
+La revisión de diseño pidió una capa más editorial, manteniendo la claridad transaccional:
+
+- **Tipografía:** Manrope para UI y Fraunces para títulos/marca; las cifras siguen en tabular sans.
+- **Papel:** canvas cálido, grano fijo al 3.5 % (se apaga en alto contraste), doble marco sutil en cards y sombras cálidas.
+- **Composición:** Caja a dos columnas desde 1280 (venta + actividad), sidebar con nota “Cuaderno de mercado”, topbar compacto y botones primarios tipo sello/pill.
+- **Movimiento:** el sistema de `MOTION.md`; 140–240 ms, scroll trigger nativo y reduced-motion.
+
+Lo que **no** cambia: 48 px, 200 %, axe 0, foco visible, teclado, estados error≠vacío, distinción demo/efectivo/fiado/pey y la regla de `paid` solo por webhook. Esta sección reemplaza la prohibición absoluta de grano/display de §1 para la capa visual; no autoriza halftone, borde de recibo ni sellos rotados en la ruta transaccional.

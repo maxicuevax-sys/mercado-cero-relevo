@@ -2,7 +2,7 @@
   "runs": [
     {
       "iteration": 1,
-      "seconds": 4.8,
+      "seconds": 5.3,
       "steps": [
         {
           "name": "venta interpretada",
@@ -86,7 +86,7 @@
     },
     {
       "iteration": 2,
-      "seconds": 4.8,
+      "seconds": 4.5,
       "steps": [
         {
           "name": "venta interpretada",
@@ -170,7 +170,7 @@
     },
     {
       "iteration": 3,
-      "seconds": 5.0,
+      "seconds": 4.4,
       "steps": [
         {
           "name": "venta interpretada",
@@ -253,8 +253,8 @@
       "failed": 0
     }
   ],
-  "fastestSeconds": 4.8,
-  "slowestSeconds": 5.0,
-  "averageSeconds": 4.9,
+  "fastestSeconds": 4.4,
+  "slowestSeconds": 5.3,
+  "averageSeconds": 4.7,
   "allPassed": true
 }
