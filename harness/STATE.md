@@ -31,10 +31,10 @@
 
 ## Última corrida del harness
 
-- Fecha: **1 nov 2026, 23:12 UTC**
-- Commit de código verificado: **`c22e85d`** (merge P0-A/B); `gitAtStart.dirty` puede ser `true` por artefactos de evidencia/demo, no por código.
+- Fecha: **2 nov 2026, 01:13 UTC**
+- Código verificado: **`586f1a6`** (merge P0-C); última corrida full sobre artefactos `446f2f7`, `gitAtStart.dirty: false`.
 - Modo: **full**, 11/11 en verde
-- Evidencia: `harness/evidence/latest.json`; E2E P0: 43 PASS / 1 KNOWN
+- Evidencia: `harness/evidence/latest.json`; E2E P0-C: 50 PASS / 0 KNOWN; P0-A/B: 43 PASS / 1 KNOWN
 - No ejecutados en esa corrida: `build` (corre con `verify:static`), `film` (corre con `--with-film`)
 - Estado de datos: demo reiniciada antes de `truth` y antes de `preflight`
 
