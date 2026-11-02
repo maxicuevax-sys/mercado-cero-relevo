@@ -175,12 +175,27 @@ function migrate(database: DatabaseSync) {
       FOREIGN KEY (goal_id) REFERENCES goals(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS tasks (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      note TEXT,
+      status TEXT NOT NULL DEFAULT 'open',
+      due_at TEXT,
+      postponed_until TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      completed_at TEXT,
+      deleted_at TEXT
+    );
+
     CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at);
     CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
     CREATE INDEX IF NOT EXISTS idx_payments_order ON payments(order_id);
     CREATE INDEX IF NOT EXISTS idx_credits_customer ON credits(customer_id);
     CREATE INDEX IF NOT EXISTS idx_cash_closes_date ON cash_closes(date);
     CREATE INDEX IF NOT EXISTS idx_goal_contributions_goal ON goal_contributions(goal_id);
+    CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
+    CREATE INDEX IF NOT EXISTS idx_tasks_due ON tasks(due_at);
   `);
 
   const columns = database.prepare("PRAGMA table_info(orders)").all() as Array<{ name: string }>;
@@ -662,6 +677,7 @@ export function resetDemoData() {
   const database = getDb();
   database.exec(`
     DELETE FROM payment_events;
+    DELETE FROM tasks;
     DELETE FROM goal_contributions;
     DELETE FROM goals;
     DELETE FROM cash_closes;
