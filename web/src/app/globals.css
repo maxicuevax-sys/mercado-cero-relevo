@@ -49,6 +49,14 @@
   --mc-motion-base: 220ms;
   --mc-motion-slow: 300ms;
   --mc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* El sidebar crece con la raíz tipográfica: a 200 % no comprime sus labels. */
+  --sidebar-width: 13.75rem;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --sidebar-width: max(13.75rem, min(18.75vw, 15rem));
+  }
 }
 
 * {
@@ -65,9 +73,12 @@ body {
   font-family: var(--font-sans);
   font-size: 1.0625rem;
   line-height: 1.45;
-  overflow-wrap: break-word;
+  /* Las palabras cortas (Caja, Fiado, Corte) nunca se parten. El contenido
+     que sí puede necesitar un corte explícito lo declara en su componente. */
+  overflow-wrap: normal;
   font-feature-settings: "ss01" on, "cv11" on;
 }
+
 
 html[data-text-size="large"] {
   font-size: 18.5px;
@@ -207,6 +218,195 @@ button {
 
 .main-container {
   container-type: inline-size;
+}
+
+.app-sidebar {
+  width: var(--sidebar-width);
+}
+
+@media (min-width: 1024px) {
+  .app-main {
+    padding-left: var(--sidebar-width);
+  }
+}
+
+.screen-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.screen-heading__title {
+  flex: 1 1 10rem;
+  min-width: 0;
+  overflow-wrap: normal;
+}
+
+.screen-heading__action {
+  flex: 0 0 auto;
+}
+
+.screen-heading__subtitle {
+  margin-top: 0.25rem;
+}
+
+.topbar {
+  container-type: inline-size;
+}
+
+.sheet-panel {
+  container-type: inline-size;
+}
+
+/* Controles de la guía: 3 columnas con texto normal, 1–2 al ampliar. */
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 6rem), 1fr));
+  gap: 0.5rem;
+}
+
+.caja-entry {
+  display: flex;
+  flex-direction: column;
+}
+
+/* En tablet (768–1023) la tab bar inferior comparte el primer viewport. El
+   campo de texto sube para no quedar debajo de ella cuando el texto crece. */
+@media (min-width: 640px) and (max-width: 1023.98px) {
+  .caja-text-entry {
+    order: -1;
+  }
+}
+
+/* A 200 % el contenedor mide ~10 em: el campo de texto sube antes de la voz
+   para que siga apareciendo en el primer viewport sin reducir el texto. */
+@container (max-width: 15em) {
+  .caja-text-entry {
+    order: -1;
+  }
+
+  /* A 200 % en 360 px, el encabezado y la tarjeta de venta se compactan sin
+     reducir la tipografía: el campo de texto debe seguir en el primer viewport. */
+  .screen-heading {
+    gap: 0.25rem;
+    margin-bottom: 4px;
+  }
+
+  .screen-heading__title {
+    flex: 1 1 auto;
+  }
+
+  .screen-heading__action .verify-label {
+    display: none;
+  }
+
+  .screen-heading__subtitle {
+    line-height: 1.25;
+    margin-top: 4px;
+  }
+
+  .screen-heading__subtitle--optional {
+    display: none;
+  }
+
+  .caja-panel {
+    padding: 12px;
+  }
+
+  .caja-card-title {
+    font-size: 1.125rem;
+  }
+
+  .caja-card-subtitle {
+    display: none;
+  }
+
+  .interpret-button {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .caja-text-entry input {
+    min-height: 48px;
+  }
+
+  .sale-entry-row,
+  .goal-action-row {
+    flex-direction: column;
+  }
+
+  .goal-card-header {
+    display: none;
+  }
+
+  .goal-card {
+    padding: 12px;
+  }
+
+  .goal-card-title {
+    font-size: 1.125rem;
+  }
+
+  .goal-body {
+    margin-top: 8px;
+  }
+
+  .goal-body > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 6px;
+  }
+
+  .goal-action-row > div,
+  .goal-action-row > button,
+  .goal-action-row input {
+    min-height: 48px;
+  }
+
+  .corte-note {
+    font-size: 0.875rem;
+  }
+
+  .reconcile-note {
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 0.875rem;
+  }
+
+  .reconcile-title {
+    font-size: 1.25rem;
+  }
+
+  .reconcile-eyebrow {
+    font-size: 0.875rem;
+  }
+
+  .topbar-address {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .sheet-title {
+    font-size: 1.25rem;
+  }
+}
+
+@container (max-width: 18em) {
+  .pay-option {
+    gap: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .pay-option-main {
+    gap: 8px;
+  }
+
+  .pay-option-icon {
+    height: 32px;
+    width: 32px;
+  }
 }
 
 .caja-layout {

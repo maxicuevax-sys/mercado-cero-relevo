@@ -1,0 +1,273 @@
+{
+  "baseUrl": "http://localhost:3101",
+  "started": "2026-11-01T21:15:25",
+  "elapsedSeconds": 26.7,
+  "code": {
+    "commit": "27d42c82d57728a2d49b03ac8995d1c698e63397",
+    "dirty": false
+  },
+  "passed": 52,
+  "failed": 0,
+  "results": [
+    {
+      "name": "dashboard 500 muestra error persistente",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dashboard 500 conserva DEMO",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dashboard 500 no inventa el comercio",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dashboard 500 no dice 'no hay ventas'",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dashboard 500 no dice 'sin fiados'",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dashboard 500 ofrece Reintentar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Actividad distingue error de vacío",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "una sola carga inicial de /api/dashboard",
+      "ok": true,
+      "detail": "1 llamada(s)"
+    },
+    {
+      "name": "sin bucle de /api/dashboard",
+      "ok": true,
+      "detail": "1 llamada(s) y se mantiene"
+    },
+    {
+      "name": "Fiado distingue error de vacío",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Reintentar con el fallo activo no duplica ni entra en bucle",
+      "ok": true,
+      "detail": "2 llamadas"
+    },
+    {
+      "name": "sigue sin bucle tras reintentar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Reintentar recupera el comercio real",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el aviso de error desaparece al recuperar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "la actividad vuelve a mostrar pedidos",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "la actividad recuperada tiene pedidos reales",
+      "ok": true,
+      "detail": "6 pedido(s)"
+    },
+    {
+      "name": "carga buena inicial con pedidos",
+      "ok": true,
+      "detail": "6 pedido(s)"
+    },
+    {
+      "name": "fallo tardío muestra aviso persistente",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "fallo tardío explica que los datos son viejos",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "fallo tardío conserva el comercio de la última carga",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "fallo tardío conserva DEMO",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "fallo tardío no borra la actividad vieja",
+      "ok": true,
+      "detail": "6 pedido(s)"
+    },
+    {
+      "name": "fallo tardío no muestra body crudo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "reintento tardío limpia el aviso",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard muestra error si goal=null",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard no dice 'Aún no hay una meta' con error",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard ofrece Reintentar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard no muestra Unexpected token",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard no muestra el body crudo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard muestra 'No pude aportar' en 500",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard no muestra Unexpected token al aportar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard no muestra el body crudo al aportar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-360-200: header <= 30% del viewport",
+      "ok": true,
+      "detail": "18.5%"
+    },
+    {
+      "name": "home-360-200: campo de venta en el primer viewport",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-360-200: campo de venta por encima de la tab bar",
+      "ok": true,
+      "detail": "sale bottom <= tab top (675)"
+    },
+    {
+      "name": "home-360-200: sin palabras partidas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-360-200: sin overflow horizontal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-768-200: campo de venta por encima de la tab bar",
+      "ok": true,
+      "detail": "saleTop=679 tabTop=899"
+    },
+    {
+      "name": "home-768-200: sin palabras partidas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-768-200: sin overflow horizontal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-1280-200: medida registrada (campo bajo el pliegue documentado)",
+      "ok": true,
+      "detail": "saleTop=899 viewport=800"
+    },
+    {
+      "name": "home-1280-200: sin overflow horizontal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-1280-200: sidebar conserva Fiado y Corte",
+      "ok": true,
+      "detail": "['Caja', 'Fiado', 'Corte', 'Meta']"
+    },
+    {
+      "name": "home-1280-200: sin palabras partidas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "help-1280-200: controles en 1–2 columnas",
+      "ok": true,
+      "detail": "{'cols': 2, 'hasSpeeds': True}"
+    },
+    {
+      "name": "help-1280-200: controles de velocidad presentes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "help-1280-200: sin palabras partidas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "verify-360-200: título completo",
+      "ok": true,
+      "detail": "Verificar comprobante"
+    },
+    {
+      "name": "verify-360-200: sin palabras partidas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "meta-360-200: cifra de meta visible",
+      "ok": true,
+      "detail": "$300.00 de $1,800.00"
+    },
+    {
+      "name": "meta-360-200: Apartar visible por encima de la tab bar",
+      "ok": true,
+      "detail": "top 619 <= tab 675"
+    },
+    {
+      "name": "meta-360-200: sin palabras partidas",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

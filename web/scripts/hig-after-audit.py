@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -23,7 +24,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 BASE = os.environ.get("BASE_URL", "http://localhost:3001")
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "demo" / "hig-after"
+OUT = Path(os.environ.get("HIG_OUT", ROOT / "demo" / "hig-after"))
 OUT.mkdir(parents=True, exist_ok=True)
 AXE = Path(r"C:\Users\Elitebook 840 G8\AppData\Local\Temp\opencode\axe.min.js")
 VIEWPORTS = [(360, 800), (390, 844), (768, 1024), (1280, 800)]
@@ -33,6 +34,23 @@ if os.environ.get("VIEWPORTS"):
         for pair in os.environ["VIEWPORTS"].split(",")
     ]
 results: list[dict] = []
+
+
+def git_value(*args: str) -> str:
+    try:
+        return subprocess.check_output(
+            ["git", *args], cwd=ROOT, text=True, stderr=subprocess.DEVNULL
+        ).strip()
+    except Exception:
+        return ""
+
+
+def code_info() -> dict:
+    return {
+        "commit": git_value("rev-parse", "HEAD"),
+        # Incluye untracked bajo web/ para no declarar limpio un árbol con código nuevo.
+        "dirty": bool(git_value("status", "--porcelain", "--", "web")),
+    }
 
 
 def shot(page, name: str, full: bool = False) -> None:
@@ -278,6 +296,70 @@ def measure(page, label: str) -> dict:
                 }
             }
 
+            // Fragmentación: una palabra partida en dos líneas por break-word.
+            const brokenWords = [];
+            const seenBroken = new Set();
+            const wordPattern = /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]{3,}/g;
+            for (const el of root.querySelectorAll('h1, h2, h3, h4, p, span, button, a, label, li')) {
+                if (!visible(el)) continue;
+                const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+                let node;
+                while ((node = walker.nextNode())) {
+                    const text = node.textContent || '';
+                    if (!/[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]{3,}/.test(text)) continue;
+                    wordPattern.lastIndex = 0;
+                    let match;
+                    while ((match = wordPattern.exec(text))) {
+                        const range = document.createRange();
+                        range.setStart(node, match.index);
+                        range.setEnd(node, match.index + match[0].length);
+                        const rects = Array.from(range.getClientRects()).filter(rect => rect.width > 0);
+                        const lines = new Set(rects.map(rect => Math.round(rect.top)));
+                        if (lines.size > 1) {
+                            const label = (el.innerText || '').trim().replace(/\\s+/g, ' ').slice(0, 48);
+                            const key = `${match[0]}@${label}@${Math.min(...lines)}`;
+                            if (!seenBroken.has(key)) {
+                                seenBroken.add(key);
+                                brokenWords.push({ word: match[0], text: label, lines: lines.size });
+                            }
+                        }
+                    }
+                }
+            }
+
+            const header = document.querySelector('header');
+            const headerHeight = header ? header.getBoundingClientRect().height : 0;
+            const sale = document.querySelector('#sale-text');
+            const saleRect = sale ? sale.getBoundingClientRect() : null;
+            const tabBar = document.querySelector('nav[aria-label="Navegación inferior"]');
+            const tabBarStyle = tabBar ? getComputedStyle(tabBar) : null;
+            const tabBarRect =
+                tabBar && tabBarStyle && tabBarStyle.display !== 'none'
+                    ? tabBar.getBoundingClientRect()
+                    : null;
+            const tabBarVisible = Boolean(
+                tabBarRect && tabBarRect.height > 0 && tabBarRect.top < window.innerHeight
+            );
+            const saleAboveTabBar = saleRect && tabBarVisible
+                ? saleRect.bottom <= tabBarRect.top + 1
+                : null;
+            const saleVisible = saleRect
+                ? saleRect.top < window.innerHeight &&
+                  saleRect.bottom > 0 &&
+                  (!tabBarVisible || saleRect.bottom <= tabBarRect.top + 1)
+                : null;
+            const metaAction = Array.from(document.querySelectorAll('button')).find(
+                el => (el.innerText || '').trim() === 'Apartar' && visible(el)
+            );
+            const metaActionRect = metaAction ? metaAction.getBoundingClientRect() : null;
+            const metaAmount = Array.from(root.querySelectorAll('p, span')).find(
+                el => /\\$[\\d.,]+\\s+de\\s+\\$[\\d.,]+/.test(el.innerText || '') && visible(el)
+            );
+            const optionGrid = root.querySelector('[aria-label="Tamaño del texto"]');
+            const optionColumns = optionGrid
+                ? getComputedStyle(optionGrid).gridTemplateColumns.split(' ').filter(Boolean).length
+                : null;
+
             return {
                 innerWidth: window.innerWidth,
                 visualViewportWidth: window.visualViewport ? window.visualViewport.width : window.innerWidth,
@@ -294,6 +376,19 @@ def measure(page, label: str) -> dict:
                 dialogs: Array.from(document.querySelectorAll('[role="dialog"]')).map(el => ({
                     label: el.getAttribute('aria-labelledby'), modal: el.getAttribute('aria-modal')
                 })),
+                brokenWordCount: brokenWords.length,
+                brokenWords: brokenWords.slice(0, 12),
+                headerHeight: Math.round(headerHeight),
+                headerRatio: Math.round((headerHeight / window.innerHeight) * 1000) / 1000,
+                saleTop: saleRect ? Math.round(saleRect.top) : null,
+                saleVisible,
+                saleAboveTabBar,
+                tabBarVisible,
+                tabBarTop: tabBarVisible ? Math.round(tabBarRect.top) : null,
+                metaAmountVisible: Boolean(metaAmount),
+                metaAmountText: metaAmount ? (metaAmount.innerText || '').trim().replace(/\\s+/g, ' ').slice(0, 70) : null,
+                metaActionVisible: metaActionRect ? metaActionRect.top < window.innerHeight && metaActionRect.bottom > 0 : null,
+                optionColumns,
                 textCount: textEls.length,
                 under12Count: textEls.filter(t => t.size < 12).length,
                 under12: textEls.filter(t => t.size < 12).slice(0, 8),
@@ -309,10 +404,12 @@ def measure(page, label: str) -> dict:
     return data
 
 
-def measure_text200(page, label: str, shot_name: str) -> dict:
+def measure_text200(page, label: str, shot_name: str, with_axe: bool = False) -> dict:
     style = page.add_style_tag(content="html { font-size: 200% !important; }")
     page.wait_for_timeout(500)
     data = measure(page, label)
+    if with_axe:
+        data["axe"] = run_axe(page)
     shot(page, shot_name)
     style.evaluate("el => el.remove()")
     page.wait_for_timeout(300)
@@ -355,19 +452,16 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
     if w in (360, 390):
         shot(page, f"home-{w}-full", full=True)
 
-    style = page.add_style_tag(content="html { font-size: 200% !important; }")
-    page.wait_for_timeout(500)
-    record["homeText200"] = measure(page, "home-text-200")
-    shot(page, f"home-{w}-text200")
-    style.evaluate("el => el.remove()")
-    page.wait_for_timeout(300)
+    record["homeText200"] = measure_text200(
+        page, "home-text-200", f"home-{w}-text200", with_axe=True
+    )
 
     # Guía: foco, Escape y axe.
     page.get_by_role("button", name="Abrir guía").click()
     page.wait_for_timeout(300)
     record["help"] = measure(page, "help")
     record["helpAxe"] = run_axe(page)
-    record["helpText200"] = measure_text200(page, "help-text-200", f"help-{w}-text200")
+    record["helpText200"] = measure_text200(page, "help-text-200", f"help-{w}-text200", with_axe=True)
     record["helpInitialFocus"] = page.evaluate(
         "Boolean(document.activeElement?.closest('[role=dialog]'))"
     )
@@ -391,14 +485,14 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
     page.wait_for_timeout(200)
 
     # Verificación anti-fraude.
-    page.get_by_role("button", name="Verificar", exact=True).click()
+    page.get_by_role("button", name="Verificar comprobante", exact=True).click()
     page.wait_for_selector("text=Pega el ID de la transacción", timeout=10000)
     page.get_by_role("button", name="Probar con un comprobante falso").click()
     page.wait_for_selector("text=No verificado", timeout=15000)
     page.wait_for_timeout(300)
     record["verify"] = measure(page, "verify-sheet")
     record["verifyAxe"] = run_axe(page)
-    record["verifyText200"] = measure_text200(page, "verify-text-200", f"verify-{w}-text200")
+    record["verifyText200"] = measure_text200(page, "verify-text-200", f"verify-{w}-text200", with_axe=True)
     shot(page, f"verify-{w}")
     page.keyboard.press("Escape")
     page.wait_for_timeout(200)
@@ -437,12 +531,12 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
             page.wait_for_timeout(700)
             record[tab.lower()] = measure(page, tab.lower())
             shot(page, f"{tab.lower()}-{w}")
-            tab_style = page.add_style_tag(content="html { font-size: 200% !important; }")
-            page.wait_for_timeout(500)
-            record[f"{tab.lower()}Text200"] = measure(page, f"{tab.lower()}-text-200")
-            shot(page, f"{tab.lower()}-{w}-text200")
-            tab_style.evaluate("el => el.remove()")
-            page.wait_for_timeout(300)
+            record[f"{tab.lower()}Text200"] = measure_text200(
+                page,
+                f"{tab.lower()}-text-200",
+                f"{tab.lower()}-{w}-text200",
+                with_axe=(tab == "Meta"),
+            )
 
         # Sheets de Fiado y confirmación de Corte al 200%.
         page.locator("button:visible", has_text="Fiado").first.click()
@@ -553,6 +647,7 @@ def main() -> int:
         "base": BASE,
         "started": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "elapsedSeconds": round(time.time() - started, 1),
+        "code": code_info(),
         "viewports": results,
     }
     path = OUT / "audit.json"
@@ -573,6 +668,12 @@ def main() -> int:
                         failures.append(
                             f"{view} {key}: axe {violation['impact']} {violation['id']} ({violation['nodes']} nodes)"
                         )
+            if isinstance(value, dict) and isinstance(value.get("axe"), dict):
+                for violation in value["axe"].get("violations", []):
+                    if violation.get("impact") in ("serious", "critical"):
+                        failures.append(
+                            f"{view} {key} 200%: axe {violation['impact']} {violation['id']} ({violation['nodes']} nodes)"
+                        )
             if isinstance(value, dict) and "documentScrollWidth" in value:
                 if value["documentScrollWidth"] > value["innerWidth"] + 1:
                     failures.append(
@@ -592,6 +693,30 @@ def main() -> int:
                         )
                 if value.get("under48Count", 0) > 0:
                     failures.append(f"{view} {key}: {value['under48Count']} targets under 44px")
+                if value.get("unnamedCount", 0) > 0:
+                    failures.append(f"{view} {key}: {value['unnamedCount']} controles sin nombre accesible")
+                if value.get("brokenWordCount", 0) > 0:
+                    words = ", ".join(
+                        f"“{item['word']}” en “{item['text']}”" for item in value.get("brokenWords", [])[:4]
+                    )
+                    failures.append(f"{view} {key}: {value['brokenWordCount']} palabras partidas ({words})")
+                width = int(view.split("x")[0]) if "x" in view else 0
+                if key == "homeText200":
+                    if width <= 390 and value.get("headerRatio", 0) > 0.30:
+                        failures.append(
+                            f"{view} {key}: header ocupa {round(value['headerRatio'] * 100)}% del viewport"
+                        )
+                    if width in (360, 390, 768) and value.get("saleVisible") is False:
+                        failures.append(f"{view} {key}: el campo de venta no aparece en el primer viewport")
+                if key == "helpText200" and (value.get("optionColumns") or 0) > 2:
+                    failures.append(
+                        f"{view} {key}: controles de texto/velocidad en {value['optionColumns']} columnas"
+                    )
+                if key == "metaText200" and width == 360:
+                    if not value.get("metaAmountVisible"):
+                        failures.append(f"{view} {key}: no se ve la cifra de la meta")
+                    if not value.get("metaActionVisible"):
+                        failures.append(f"{view} {key}: no se ve una acción de la meta (Apartar)")
         if record.get("consoleErrors"):
             failures.append(f"{view}: {len(record['consoleErrors'])} console errors: {record['consoleErrors'][:2]}")
 

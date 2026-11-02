@@ -194,6 +194,15 @@ function friendlyError(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
 }
 
+async function readJsonBody<T>(response: Response): Promise<T | null> {
+  // Un 500 puede devolver texto plano; nunca exponemos el cuerpo crudo.
+  try {
+    return (await response.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
 function draftSignature(content: DraftContent): string {
   return JSON.stringify({
     items: content.items.map(({ id, description, quantity, unitPriceCents }) => ({
@@ -451,9 +460,11 @@ function restoredDraftLabel(iso: string): string {
   return `Recuperé tu venta del ${date} a las ${time}`;
 }
 
-export default function CajaApp() {
+export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean }) {
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
+  const [retryingDashboard, setRetryingDashboard] = useState(false);
   const [tab, setTab] = useState<Tab>("caja");
   const [today, setToday] = useState("");
   const [helpOpen, setHelpOpen] = useState(false);
@@ -490,7 +501,6 @@ export default function CajaApp() {
   const [delivering, setDelivering] = useState(false);
   const [deliverError, setDeliverError] = useState<string | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
-  const [toastTimer, setToastTimer] = useState<number | null>(null);
 
   const [verifyId, setVerifyId] = useState("");
   const [verifyResult, setVerifyResult] = useState<VerifyResult | null>(null);
@@ -518,6 +528,7 @@ export default function CajaApp() {
   const lastSavedDraftRef = useRef("");
   const restoredDraftSignatureRef = useRef<string | null>(null);
   const creditPayLockRef = useRef(false);
+  const toastTimerRef = useRef<number | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -536,24 +547,48 @@ export default function CajaApp() {
 
   const showToast = useCallback((tone: ToastTone, text: string) => {
     setToast({ tone, text });
-    if (toastTimer) window.clearTimeout(toastTimer);
-    const timer = window.setTimeout(() => setToast(null), 3000);
-    setToastTimer(timer);
-  }, [toastTimer]);
+    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = window.setTimeout(() => {
+      toastTimerRef.current = null;
+      setToast(null);
+    }, 3000);
+  }, []);
 
   const loadDashboard = useCallback(async () => {
     try {
       const response = await fetch("/api/dashboard", { cache: "no-store" });
-      const data = (await response.json()) as DashboardData & { error?: string };
-      if (!response.ok) throw new Error(data.error ?? "No se pudo cargar la caja.");
+      if (!response.ok) {
+        let detail = "";
+        try {
+          const body = (await response.json()) as { error?: string };
+          detail = typeof body.error === "string" ? body.error : "";
+        } catch {
+          // Un 500 puede no traer JSON; no exponemos el cuerpo crudo.
+        }
+        throw new Error(detail || "No se pudo cargar la caja.");
+      }
+      const data = (await response.json()) as DashboardData;
       setDashboard(data);
+      setDashboardError(null);
       window.dispatchEvent(new Event("mercado:refresh"));
     } catch (error) {
-      showToast("error", error instanceof Error ? error.message : "No se pudo cargar la caja.");
+      // El fallo se queda en un banner persistente; no hay reintento automático.
+      setDashboardError(
+        friendlyError(error, "No se pudo cargar la caja. No hay cifras nuevas para mostrar."),
+      );
     } finally {
       setLoading(false);
     }
-  }, [showToast]);
+  }, []);
+
+  const retryDashboard = useCallback(async () => {
+    setRetryingDashboard(true);
+    try {
+      await loadDashboard();
+    } finally {
+      setRetryingDashboard(false);
+    }
+  }, [loadDashboard]);
 
   useEffect(() => {
     // La fecha se calcula después del montaje para no romper la hidratación.
@@ -1703,6 +1738,10 @@ export default function CajaApp() {
 
   const merchant = dashboard?.merchant;
   const pendingCredits = dashboard?.credits.filter((credit) => credit.status !== "settled") ?? [];
+  // El modo demo se conserva aunque /api/dashboard falle: nunca se oculta el
+  // sello DEMO ni se finge que la app es real.
+  const demoMode = dashboard?.demoMode ?? initialDemoMode;
+  const merchantUnavailable = Boolean(dashboardError && !dashboard);
 
   return (
     <div className="min-h-dvh bg-canvas">
@@ -1715,16 +1754,17 @@ export default function CajaApp() {
       <AppSidebar
         tab={tab}
         onTab={selectTab}
-        demoMode={dashboard?.demoMode ?? false}
+        demoMode={demoMode}
         onHelp={() => setHelpOpen(true)}
         onDemo={() => setDemoOpen(true)}
       />
 
-      <div className="md:pl-[220px] lg:pl-[240px]">
+      <div className="app-main">
         <TopBar
           merchant={merchant}
           today={today}
-          demoMode={dashboard?.demoMode ?? false}
+          demoMode={demoMode}
+          unavailable={merchantUnavailable}
           muted={muted}
           onToggleMuted={toggleMuted}
           onHelp={() => setHelpOpen(true)}
@@ -1732,6 +1772,37 @@ export default function CajaApp() {
         />
 
         <main id="main" className="main-container mx-auto w-full max-w-[1200px] px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:pb-10">
+          {dashboardError ? (
+            <div
+              role="alert"
+              className="mb-5 flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-attention/30 bg-terracotta-soft/70 px-4 py-3"
+            >
+              <div className="flex min-w-0 items-start gap-2.5">
+                <CircleAlert className="mt-0.5 h-5 w-5 shrink-0 text-attention" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-ink">
+                    No pudimos cargar los datos del negocio.
+                  </p>
+                  <p className="mt-0.5 text-sm leading-relaxed text-ink-2">
+                    {dashboard
+                      ? "Lo que ves es de la última carga. No hay una lectura nueva de ventas, fiados ni cobros."
+                      : "No sabemos si hay ventas, fiados o cobros pendientes. No mostramos cifras inventadas."}{" "}
+                    {dashboardError}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => void retryDashboard()}
+                disabled={retryingDashboard}
+                aria-busy={retryingDashboard}
+                className="flex min-h-[48px] shrink-0 items-center gap-1.5 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:text-ink disabled:opacity-60"
+              >
+                <RefreshCw className={cn("h-4 w-4", retryingDashboard && "animate-spin")} />
+                {retryingDashboard ? "Reintentando…" : "Reintentar"}
+              </button>
+            </div>
+          ) : null}
           <div hidden={tab !== "caja"}>
             <div className="caja-layout">
               <section className="min-w-0">
@@ -1748,16 +1819,19 @@ export default function CajaApp() {
                         )} · Por cobrar ${formatMxn(dashboard.summary.pendingCents)} · Fiado ${formatMxn(
                           dashboard.summary.creditCents,
                         )}`
-                      : "Cargando la caja…"
+                      : dashboardError
+                        ? "No pudimos cargar los totales. No hay cifras nuevas."
+                        : "Cargando la caja…"
                   }
                   action={
                     <button
                       type="button"
                       onClick={() => setVerifyOpen(true)}
-                      className="flex min-h-12 items-center gap-2 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
+                      aria-label="Verificar comprobante"
+                      className="flex min-h-[48px] items-center gap-2 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
                     >
                       <ShieldCheck className="h-4 w-4" />
-                      Verificar
+                      <span className="verify-label">Verificar</span>
                     </button>
                   }
                 />
@@ -1881,6 +1955,7 @@ export default function CajaApp() {
                   orders={dashboard?.orders ?? []}
                   credits={dashboard?.credits ?? []}
                   loading={loading}
+                  error={dashboardError}
                   onSelect={(order) => {
                     setActiveOrder(order);
                     setTab("caja");
@@ -1905,6 +1980,8 @@ export default function CajaApp() {
               />
               <CreditList
                 credits={pendingCredits}
+                loading={loading}
+                error={dashboardError}
                 onStart={(credit) => openCreditPay(credit)}
               />
               <CreditPaySheet
@@ -1939,30 +2016,30 @@ export default function CajaApp() {
               <div className="space-y-5">
                 <CashCloseCard showToast={showToast} />
                 <BusinessOverview
-                  demoMode={dashboard?.demoMode ?? false}
+                  demoMode={demoMode}
                   onSpeak={(text) => {
                     showToast("info", text);
                     speak(text);
                   }}
                 />
-                <ReconcileCard demoMode={dashboard?.demoMode ?? false} />
+                <ReconcileCard demoMode={demoMode} />
               </div>
             </section>
 
           <section hidden={tab !== "meta"} className="mx-auto max-w-[760px]">
-              <ScreenHeading title="Meta" subtitle="Una meta a la vez." />
+              <ScreenHeading title="Meta" subtitle="Una meta a la vez." compactSubtitle />
               <GoalCard showToast={showToast} />
             </section>
 
-          <footer className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-separator pt-5 text-sm text-ink-2 sm:flex-row sm:items-center">
-            <p>
+          <footer className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-separator pt-5 text-sm text-ink-2 sm:flex-row sm:flex-wrap sm:items-center">
+            <p className="min-w-0">
               Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + OpenAI ·{" "}
               <a href="/credits.txt" className="inline-flex min-h-12 items-center underline underline-offset-2 hover:text-ink">
                 Fotos: créditos
               </a>
             </p>
-            <p className="flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-green" />
+            <p className="flex min-w-0 items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-green" />
               Sin confirmación firmada no hay pagado.
             </p>
           </footer>
@@ -1986,7 +2063,7 @@ export default function CajaApp() {
         <PaymentPanel
           order={activeOrder}
           credits={dashboard?.credits ?? []}
-          demoMode={dashboard?.demoMode ?? false}
+          demoMode={demoMode}
           changeCents={lastChange && lastChange.orderId === activeOrder?.id ? lastChange.cents : 0}
           loading={paymentLoading}
           mode={paymentMode}
@@ -2092,7 +2169,7 @@ export default function CajaApp() {
         size="sm"
       >
         <DemoContent
-          demoMode={dashboard?.demoMode ?? false}
+          demoMode={demoMode}
           onReset={() => {
             setDemoOpen(false);
             void resetDemo();
@@ -2208,27 +2285,28 @@ function CajaPanel(props: {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-2xl border border-separator bg-surface p-4 shadow-card sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-2">
+      <section className="caja-panel rounded-2xl border border-separator bg-surface p-4 shadow-card sm:p-6">
+        <div className="caja-card-header flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0">
-            <h2 className="text-[1.375rem] font-semibold tracking-tight text-ink">¿Qué vendiste?</h2>
-            <p className="mt-1 text-sm leading-relaxed text-ink-2">
+            <h2 className="caja-card-title text-[1.375rem] font-semibold tracking-tight text-ink">¿Qué vendiste?</h2>
+            <p className="caja-card-subtitle mt-1 text-sm leading-relaxed text-ink-2">
               Habla o escribe; tú confirmas.
             </p>
           </div>
           <button
             type="button"
             onClick={onVoiceHelp}
-            className="flex min-h-12 shrink-0 items-center gap-1.5 rounded-xl border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
+            className="flex min-h-[48px] shrink-0 items-center gap-1.5 rounded-xl border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
           >
             <Volume2 className="h-4 w-4" />
             Escuchar
           </button>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-start gap-4">
-          <div className="flex w-36 shrink-0 flex-col items-center gap-1.5">
-            <div className="relative flex h-20 w-20 items-center justify-center">
+        <div className="caja-entry">
+        <div className="caja-voice mt-4 flex flex-wrap items-start gap-4">
+          <div className="flex w-[144px] shrink-0 flex-col items-center gap-1.5">
+            <div className="relative flex h-[80px] w-[80px] items-center justify-center">
               {listening ? (
                 <>
                   <span className="mic-ring absolute inset-0 rounded-full bg-accent/15" />
@@ -2266,7 +2344,7 @@ function CajaPanel(props: {
                 }}
                 disabled={transcribing}
                 className={cn(
-                  "on-accent relative flex h-20 w-20 touch-none select-none items-center justify-center rounded-full transition-colors disabled:opacity-60",
+                  "on-accent relative flex h-[80px] w-[80px] touch-none select-none items-center justify-center rounded-full transition-colors disabled:opacity-60",
                   listening
                     ? "bg-danger text-white ring-4 ring-danger/20"
                     : "bg-accent text-white hover:bg-accent-press",
@@ -2294,7 +2372,7 @@ function CajaPanel(props: {
             </div>
             <span
               aria-hidden="true"
-              className="w-full break-words text-center text-sm font-semibold text-ink-2"
+              className="w-full text-center text-sm font-semibold text-ink-2"
             >
               {listening
                 ? `${recordingSeconds}s`
@@ -2323,10 +2401,11 @@ function CajaPanel(props: {
           </div>
         </div>
 
+        <div className="caja-text-entry">
         <label htmlFor="sale-text" className="mt-4 block text-xs font-semibold text-ink-2">
           Escribe la venta
         </label>
-        <div className="mt-1 flex flex-col gap-2 sm:flex-row">
+        <div className="sale-entry-row mt-1 flex flex-col gap-2 sm:flex-row">
           <input
             id="sale-text"
             value={textInput}
@@ -2342,7 +2421,7 @@ function CajaPanel(props: {
             onClick={onInterpret}
             disabled={!textInput.trim() || transcribing}
             aria-busy={transcribing}
-            className="flex min-h-12 w-full shrink-0 items-center justify-center gap-1.5 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-green transition hover:border-accent/40 disabled:opacity-50 sm:w-auto"
+            className="interpret-button flex min-h-12 w-full shrink-0 items-center justify-center gap-1.5 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-green transition hover:border-accent/40 disabled:opacity-50 sm:w-auto"
           >
             {transcribing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             Interpretar
@@ -2378,6 +2457,8 @@ function CajaPanel(props: {
             </button>
           </div>
         ) : null}
+        </div>
+        </div>
       </section>
 
       <section id="pedido" className="scroll-mt-20 rounded-2xl border border-separator bg-surface p-5 shadow-card sm:p-6">
@@ -2582,11 +2663,11 @@ function CajaPanel(props: {
           </div>
         ) : (
           <div className="mt-4 space-y-2.5">
-            <div className="flex items-center gap-3 rounded-xl border border-dashed border-separator px-4 py-3 text-left">
+            <div className="flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-separator px-4 py-3 text-left">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-soft text-green">
                 <ReceiptText className="h-5 w-5" />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1 basis-[8rem]">
                 <p className="text-sm font-semibold text-ink">La caja está lista</p>
                 <p className="mt-0.5 text-sm leading-relaxed text-ink-2">
                   Habla o escribe arriba, o agrega un producto a mano.
@@ -3006,15 +3087,15 @@ function PaymentPanel(props: {
             type="button"
             onClick={() => onGenerate("link")}
             disabled={loading}
-            className="on-accent flex min-h-14 w-full items-center justify-between gap-3 rounded-xl bg-accent px-4 text-left text-white transition hover:bg-accent-press disabled:opacity-60"
+            className="pay-option on-accent flex min-h-14 w-full items-center justify-between gap-3 rounded-xl bg-accent px-4 text-left text-white transition hover:bg-accent-press disabled:opacity-60"
           >
-            <span className="flex min-w-0 flex-1 items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/15">
+            <span className="pay-option-main flex min-w-0 flex-1 items-start gap-3">
+              <span className="pay-option-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/15">
                 <Link2 className="h-5 w-5" />
               </span>
               <span className="min-w-0">
-                <span className="block break-words text-sm font-bold">Link de pago</span>
-                <span className="block break-words text-sm text-white/90">CoDi + tarjeta + wallets</span>
+                <span className="block text-sm font-bold">Link de pago</span>
+                <span className="block text-sm text-white/90">CoDi + tarjeta + wallets</span>
               </span>
             </span>
             {loading && mode === "link" ? (
@@ -3028,15 +3109,15 @@ function PaymentPanel(props: {
             type="button"
             onClick={() => onGenerate("qr")}
             disabled={loading}
-            className="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border border-separator bg-surface px-4 text-left text-ink transition hover:border-accent/40 disabled:opacity-60"
+            className="pay-option flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border border-separator bg-surface px-4 text-left text-ink transition hover:border-accent/40 disabled:opacity-60"
           >
-            <span className="flex min-w-0 flex-1 items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-soft text-green">
+            <span className="pay-option-main flex min-w-0 flex-1 items-start gap-3">
+              <span className="pay-option-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-soft text-green">
                 <QrCode className="h-5 w-5" />
               </span>
               <span className="min-w-0">
-                <span className="block break-words text-sm font-bold">QR CoDi directo</span>
-                <span className="block break-words text-sm text-ink-2">Solo transferencia CoDi</span>
+                <span className="block text-sm font-bold">QR CoDi directo</span>
+                <span className="block text-sm text-ink-2">Solo transferencia CoDi</span>
               </span>
             </span>
             {loading && mode === "qr" ? (
@@ -3194,8 +3275,9 @@ function BusinessOverview({
     setError(null);
     fetch(`/api/analytics?period=${period}`, { cache: "no-store" })
       .then(async (response) => {
-        const data = (await response.json()) as AnalyticsReport & { error?: string };
-        if (!response.ok) throw new Error(data.error ?? "No se pudo cargar el resumen.");
+        if (!response.ok) throw new Error("No se pudo cargar el resumen.");
+        const data = await readJsonBody<AnalyticsReport>(response);
+        if (!data) throw new Error("No se pudo cargar el resumen.");
         if (!cancelled) setReport(data);
       })
       .catch((err) => {
@@ -3287,7 +3369,7 @@ function BusinessOverview({
               <p className="tabular max-w-full break-words text-[2.5rem] font-semibold leading-[1.05] tracking-tight text-ink">
                 <AnimatedAmount cents={report.salesCents} />
               </p>
-              <p className="mt-1 break-words text-sm font-semibold text-ink-2">
+              <p className="mt-1 text-sm font-semibold text-ink-2">
                 Ventas registradas · {report.label}
               </p>
             </div>
@@ -3452,8 +3534,9 @@ function CashCloseCard({
     setError(null);
     try {
       const response = await fetch("/api/cash", { cache: "no-store" });
-      const data = (await response.json()) as CashStatus & { error?: string };
-      if (!response.ok) throw new Error(data.error ?? "No se pudo leer la caja.");
+      if (!response.ok) throw new Error("No se pudo leer la caja.");
+      const data = await readJsonBody<CashStatus>(response);
+      if (!data) throw new Error("No se pudo leer la caja.");
       setStatus(data);
       setOpening((data.openingCents / 100).toFixed(2));
       setExpenses((data.expensesCents / 100).toFixed(2));
@@ -3567,8 +3650,8 @@ function CashCloseCard({
 
   return (
     <div className="rounded-2xl border border-separator bg-surface p-[20px] shadow-card sm:p-6">
-      <div className="flex items-start justify-between gap-3">
-        <h2 className="text-[1.375rem] font-semibold tracking-tight text-ink">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <h2 className="min-w-0 text-[1.375rem] font-semibold tracking-tight text-ink">
           Cuenta el efectivo de hoy
         </h2>
         <button
@@ -3613,7 +3696,7 @@ function CashCloseCard({
                 inputMode="decimal"
                 placeholder="0.00"
                 aria-label="Total contado en pesos"
-                className="tabular min-h-12 w-full bg-transparent text-lg font-bold text-ink outline-none placeholder:text-ink-2/40"
+                className="tabular min-h-12 w-full min-w-0 bg-transparent text-lg font-bold text-ink outline-none placeholder:text-ink-2/40"
               />
             </div>
           </label>
@@ -3720,9 +3803,9 @@ function CashCloseCard({
                 { label: "Ventas en efectivo", value: status.cashSalesCents, negative: false },
                 { label: "Abonos de fiado en efectivo", value: status.cashCreditCents, negative: false },
               ].map((row) => (
-                <div key={row.label} className="flex items-center justify-between gap-3">
-                  <span className="text-ink-2">{row.label}</span>
-                  <span className="tabular font-semibold text-ink">{formatMxn(row.value)}</span>
+                <div key={row.label} className="flex flex-wrap items-center justify-between gap-3">
+                  <span className="min-w-0 text-ink-2">{row.label}</span>
+                  <span className="tabular shrink-0 font-semibold text-ink">{formatMxn(row.value)}</span>
                 </div>
               ))}
             </div>
@@ -3755,8 +3838,8 @@ function CashCloseCard({
               </label>
             </div>
             <div className="flex flex-wrap items-end justify-between gap-3 border-t border-separator pt-2">
-              <span className="min-w-0 break-words font-semibold text-ink">Debería haber</span>
-              <span className="tabular break-words text-[1.375rem] font-semibold leading-none text-ink">
+              <span className="min-w-0 font-semibold text-ink">Debería haber</span>
+              <span className="tabular text-[1.375rem] font-semibold leading-none text-ink">
                 {formatMxn(expectedCents)}
               </span>
             </div>
@@ -3805,7 +3888,7 @@ function CashCloseCard({
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
             {saving ? "Guardando…" : "Guardar corte"}
           </button>
-          <p className="text-sm leading-relaxed text-ink-2">
+          <p className="corte-note text-sm leading-relaxed text-ink-2">
             Los gastos y retiros se registran solo al guardar el corte. No se ajusta el efectivo automáticamente.
           </p>
         </div>
@@ -3891,13 +3974,15 @@ function GoalCard({
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch("/api/goals", { cache: "no-store" });
-      const data = (await response.json()) as { goals?: Goal[]; error?: string };
-      if (!response.ok) throw new Error(data.error ?? "No se pudo leer la meta.");
+      if (!response.ok) throw new Error("No pudimos cargar la meta.");
+      const data = await readJsonBody<{ goals?: Goal[] }>(response);
+      if (!data) throw new Error("No pudimos cargar la meta.");
       setGoal(data.goals?.[0] ?? null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo leer la meta.");
+      setError(err instanceof Error ? err.message : "No pudimos cargar la meta.");
     } finally {
       setLoading(false);
     }
@@ -3924,15 +4009,14 @@ function GoalCard({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amountCents, note: "Aportación desde la caja" }),
       });
-      const data = (await response.json()) as { goal?: Goal; error?: string };
-      if (!response.ok || !data.goal) {
-        throw new Error(data.error ?? "No se pudo registrar la aportación.");
-      }
+      if (!response.ok) throw new Error("No pude aportar.");
+      const data = await readJsonBody<{ goal?: Goal }>(response);
+      if (!data?.goal) throw new Error("No pude aportar.");
       setGoal(data.goal);
       setAmount("");
       showToast("ok", `Apartaste ${formatMxn(amountCents)} para ${data.goal.title}.`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo registrar la aportación.");
+      setError(err instanceof Error ? err.message : "No pude aportar.");
     } finally {
       setSaving(false);
     }
@@ -3940,6 +4024,27 @@ function GoalCard({
 
   if (loading && !goal) {
     return <div className="shimmer h-64 rounded-2xl" />;
+  }
+
+  if (error && !goal) {
+    return (
+      <div role="alert" className="rounded-2xl border border-attention/30 bg-terracotta-soft p-6 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-surface text-attention">
+          <CircleAlert className="h-5 w-5" />
+        </div>
+        <p className="mt-3 text-sm font-semibold text-ink">No pudimos cargar la meta</p>
+        <p className="mt-1 text-sm leading-relaxed text-ink-2">{error}</p>
+        <button
+          type="button"
+          onClick={() => void load()}
+          disabled={loading}
+          className="mt-3 inline-flex min-h-[48px] items-center gap-1.5 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:text-ink disabled:opacity-60"
+        >
+          <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+          Reintentar
+        </button>
+      </div>
+    );
   }
 
   if (!goal) {
@@ -3956,38 +4061,47 @@ function GoalCard({
 
   return (
     <>
-      <figure className="mb-4 overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
-        <div className="relative h-[160px] bg-surface-2 sm:h-44">
-          <Image
-            src="/puesto-flores.jpg"
-            alt="Puesto de flores en un tianguis de la Ciudad de México"
-            fill
-            sizes="(max-width: 1024px) 100vw, 420px"
-            className="object-cover"
-          />
-        </div>
-        <figcaption className="px-4 py-2.5 text-xs leading-relaxed text-ink-2">
-          Lo que estás construyendo · Foto: Ehécatl Cabrera / CC BY-SA 4.0.
-        </figcaption>
-      </figure>
-
-      <div className="rounded-2xl border border-separator bg-surface p-[20px] shadow-card sm:p-5">
-        <div className="flex items-start justify-between gap-3">
+      <div className="goal-card rounded-2xl border border-separator bg-surface p-[20px] shadow-card sm:p-5">
+        <div className="goal-card-header flex items-start justify-between gap-3">
           <p className="text-sm font-semibold text-ink-2">Mi camino</p>
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-soft text-green">
+          <div className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full bg-green-soft text-green">
             <Umbrella className="h-6 w-6" strokeWidth={1.6} />
           </div>
         </div>
 
-        <div className="mt-4 space-y-3">
-        <div className="flex items-end justify-between gap-3">
-          <div>
-            <h2 className="text-[1.25rem] font-semibold tracking-tight text-ink">{goal.title}</h2>
-            <p className="text-sm text-ink-2">
+        <div className="goal-body mt-4 space-y-3">
+        <div className="min-w-0">
+          <h2 className="goal-card-title text-[1.25rem] font-semibold tracking-tight text-ink">{goal.title}</h2>
+          <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
+            <p className="min-w-0 flex-1 text-sm text-ink-2">
               {formatMxn(goal.savedCents)} de {formatMxn(goal.targetCents)}
             </p>
+            <p className="tabular shrink-0 text-[1.375rem] font-semibold text-green">{goal.progressPct}%</p>
           </div>
-          <p className="tabular text-[1.375rem] font-semibold text-green">{goal.progressPct}%</p>
+        </div>
+
+        <div className="goal-action-row flex flex-col gap-2 sm:flex-row">
+          <div className="flex min-h-12 flex-1 items-center gap-1 rounded-xl border border-separator bg-surface-2 px-3">
+            <span className="text-sm text-ink-2">$</span>
+            <input
+              value={amount}
+              onChange={(event) => setAmount(event.target.value)}
+              inputMode="decimal"
+              placeholder="Monto"
+              aria-label="¿Cuánto apartaste?"
+              className="tabular min-h-12 w-full bg-transparent text-[1rem] text-ink outline-none placeholder:text-ink-2/60"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => void contribute()}
+            disabled={saving}
+            aria-busy={saving}
+            className="on-accent flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 text-sm font-semibold text-white transition hover:bg-accent-press disabled:opacity-60 sm:w-auto"
+          >
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            Apartar
+          </button>
         </div>
 
         <div
@@ -4010,6 +4124,12 @@ function GoalCard({
             : "Sin fecha límite"}
         </p>
 
+        {error ? (
+          <p role="alert" className="rounded-xl bg-terracotta-soft px-3 py-2 text-sm text-danger">
+            {error}
+          </p>
+        ) : null}
+
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           <div className="rounded-xl bg-surface-2 px-3 py-2.5">
             <p className="text-xs text-ink-2">Falta</p>
@@ -4023,42 +4143,27 @@ function GoalCard({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="flex min-h-12 flex-1 items-center gap-1 rounded-xl border border-separator bg-surface-2 px-3">
-            <span className="text-sm text-ink-2">$</span>
-            <input
-              value={amount}
-              onChange={(event) => setAmount(event.target.value)}
-              inputMode="decimal"
-              placeholder="¿Cuánto apartaste?"
-              aria-label="¿Cuánto apartaste?"
-              className="tabular min-h-12 w-full bg-transparent text-[1rem] text-ink outline-none placeholder:text-ink-2/60"
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => void contribute()}
-            disabled={saving}
-            aria-busy={saving}
-            className="on-accent flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 text-sm font-semibold text-white transition hover:bg-accent-press disabled:opacity-60 sm:w-auto"
-          >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            Apartar
-          </button>
-        </div>
-
-        {error ? (
-          <p role="alert" className="rounded-xl bg-terracotta-soft px-3 py-2 text-sm text-danger">
-            {error}
-          </p>
-        ) : null}
-
         <p className="text-sm leading-relaxed text-ink-2">
           Apartado declarado: no es una cuenta bancaria ni dinero custodiado. El efectivo sigue en tu
           resguardo.
         </p>
       </div>
       </div>
+
+      <figure className="mt-4 overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
+        <div className="relative h-[160px] bg-surface-2 sm:h-44">
+          <Image
+            src="/puesto-flores.jpg"
+            alt="Puesto de flores en un tianguis de la Ciudad de México"
+            fill
+            sizes="(max-width: 1024px) 100vw, 420px"
+            className="object-cover"
+          />
+        </div>
+        <figcaption className="px-4 py-2.5 text-xs leading-relaxed text-ink-2">
+          Lo que estás construyendo · Foto: Ehécatl Cabrera / CC BY-SA 4.0.
+        </figcaption>
+      </figure>
     </>
   );
 }
@@ -4074,17 +4179,10 @@ function ReconcileCard({ demoMode }: { demoMode: boolean }) {
     setError(null);
     try {
       const response = await fetch("/api/reconcile", { cache: "no-store" });
-      const data = (await response.json()) as
-        | ReconciliationReport
-        | { error?: string };
-      if (!response.ok) {
-        throw new Error(
-          "error" in data && data.error
-            ? data.error
-            : "No se pudo conciliar la caja.",
-        );
-      }
-      setReport(data as ReconciliationReport);
+      if (!response.ok) throw new Error("No se pudo conciliar la caja.");
+      const data = await readJsonBody<ReconciliationReport>(response);
+      if (!data) throw new Error("No se pudo conciliar la caja.");
+      setReport(data);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "No se pudo conciliar la caja.",
@@ -4099,9 +4197,9 @@ function ReconcileCard({ demoMode }: { demoMode: boolean }) {
   return (
     <div className="rounded-2xl bg-surface-2 p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-ink-2">Conciliación</p>
-          <h2 className="mt-1 text-[1.375rem] font-semibold tracking-tight text-ink">
+        <div className="min-w-0">
+          <p className="reconcile-eyebrow text-sm font-semibold text-ink-2">Conciliación</p>
+          <h2 className="reconcile-title mt-1 min-w-0 text-[1.375rem] font-semibold tracking-tight text-ink">
             ¿Cuadra con pey?
           </h2>
         </div>
@@ -4121,7 +4219,7 @@ function ReconcileCard({ demoMode }: { demoMode: boolean }) {
       </div>
 
       {demoMode ? (
-        <p className="mt-4 rounded-xl bg-surface/60 px-4 py-3 text-sm leading-relaxed text-ink-2">
+        <p className="reconcile-note mt-4 rounded-xl bg-surface/60 px-4 py-3 text-sm leading-relaxed text-ink-2">
           En modo demo no hay transacciones reales de pey. La conciliación se
           activa con la conexión real de pey.
         </p>
@@ -4216,15 +4314,18 @@ function ActivityList({
   orders,
   credits,
   loading,
+  error,
   onSelect,
 }: {
   orders: Order[];
   credits: Credit[];
   loading: boolean;
+  error: string | null;
   onSelect: (order: Order) => void;
 }) {
   const [showAll, setShowAll] = useState(false);
   const visibleOrders = showAll ? orders : orders.slice(0, 5);
+  const failedWithoutData = Boolean(error) && orders.length === 0;
 
   return (
     <div className="rounded-2xl border border-separator bg-surface p-4 shadow-card sm:p-5">
@@ -4236,21 +4337,37 @@ function ActivityList({
           </h2>
         </div>
         <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-semibold text-ink-2">
-          {orders.length} pedidos
+          {failedWithoutData ? "Sin datos" : `${orders.length} pedidos`}
         </span>
       </div>
 
       <div className="mt-3 max-h-80 space-y-1 overflow-y-auto pr-1">
-        {loading ? (
+        {loading && orders.length === 0 ? (
           Array.from({ length: 3 }).map((_, index) => (
             <div key={index} className="shimmer h-14 rounded-xl" />
           ))
+        ) : failedWithoutData ? (
+          <div role="alert" className="rounded-xl bg-terracotta-soft px-4 py-4 text-sm text-attention">
+            <p className="font-semibold">No pudimos cargar la actividad.</p>
+            <p className="mt-1 leading-relaxed">
+              No sabemos si hay ventas. Reintenta desde el aviso superior.
+            </p>
+          </div>
         ) : orders.length === 0 ? (
           <p className="rounded-xl bg-surface-2 px-4 py-6 text-center text-sm text-ink-2">
             Aún no hay ventas. Habla para crear la primera.
           </p>
         ) : (
-          visibleOrders.map((order) => {
+          <>
+            {error ? (
+              <p
+                role="status"
+                className="mb-1 rounded-xl bg-terracotta-soft px-3 py-2 text-sm text-attention"
+              >
+                No pudimos actualizar la actividad. Estos son los últimos datos cargados.
+              </p>
+            ) : null}
+            {visibleOrders.map((order) => {
             const truth = paymentTruth(order);
             const credit = creditForOrder(order, credits);
             const creditSettled = isCreditSettled(credit);
@@ -4309,7 +4426,7 @@ function ActivityList({
                   <Icon className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1 basis-[10rem]">
-                  <p className="break-words text-sm font-semibold text-ink">
+                  <p className="text-sm font-semibold text-ink">
                     {order.items.map((item) => `${item.quantity} ${item.description}`).join(" · ") ||
                       `Pedido ${shortOrder(order.id)}`}
                   </p>
@@ -4345,7 +4462,8 @@ function ActivityList({
                 </div>
               </button>
             );
-          })
+          })}
+          </>
         )}
       </div>
       {orders.length > 5 ? (
@@ -4368,13 +4486,33 @@ function ActivityList({
 
 function CreditList({
   credits,
+  loading,
+  error,
   onStart,
 }: {
   credits: Credit[];
+  loading: boolean;
+  error: string | null;
   onStart: (credit: Credit) => void;
 }) {
   const total = credits.reduce((sum, credit) => sum + credit.balanceCents, 0);
   const customerCount = new Set(credits.map((credit) => credit.customerId)).size;
+  const failedWithoutData = Boolean(error) && credits.length === 0;
+
+  if (failedWithoutData) {
+    return (
+      <div role="alert" className="rounded-2xl border border-attention/30 bg-terracotta-soft p-6 text-center">
+        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-surface text-attention">
+          <CircleAlert className="h-5 w-5" />
+        </div>
+        <p className="mt-2 text-sm font-semibold text-ink">No pudimos cargar los fiados.</p>
+        <p className="mt-1 text-sm leading-relaxed text-ink-2">
+          No sabemos si te deben dinero. Reintenta desde el aviso superior.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-separator bg-surface p-4 shadow-card">
@@ -4385,7 +4523,7 @@ function CreditList({
               {formatMxn(total)}
             </p>
           </div>
-          <p className="break-words text-sm text-ink-2">
+          <p className="text-sm text-ink-2">
             {customerCount} {customerCount === 1 ? "cliente" : "clientes"}
           </p>
         </div>
@@ -4394,7 +4532,19 @@ function CreditList({
         </p>
       </div>
 
-      {credits.length === 0 ? (
+      {error ? (
+        <p role="status" className="rounded-xl bg-terracotta-soft px-3 py-2 text-sm text-attention">
+          No pudimos actualizar el fiado. El saldo y la lista son de la última carga.
+        </p>
+      ) : null}
+
+      {loading && credits.length === 0 ? (
+        <div className="space-y-2.5">
+          {Array.from({ length: 2 }).map((_, index) => (
+            <div key={index} className="shimmer h-36 rounded-2xl" />
+          ))}
+        </div>
+      ) : credits.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-separator bg-surface p-6 text-center">
           <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-terracotta-soft text-attention">
             <NotebookPen className="h-5 w-5" />
@@ -4411,10 +4561,10 @@ function CreditList({
                   {initials(credit.customerName ?? "Cliente")}
                 </div>
                 <div className="min-w-0 flex-1 basis-[6rem]">
-                  <p className="break-words text-[1rem] font-semibold text-ink">
+                  <p className="text-[1rem] font-semibold text-ink">
                     {credit.customerName ?? "Cliente"}
                   </p>
-                  <p className="break-words text-sm text-ink-2">
+                  <p className="text-sm text-ink-2">
                     {credit.status === "partial" ? "Abono parcial" : "Pendiente"} · desde{" "}
                     {formatTime(credit.createdAt)}
                     {credit.orderId ? ` · Pedido ${shortOrder(credit.orderId)}` : " · sin pedido"}
@@ -4937,12 +5087,12 @@ function StatusBadge({ status }: { status: Order["status"] }) {
   return (
     <span
       className={cn(
-        "inline-flex max-w-full flex-wrap items-center gap-1.5 break-words rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-[0.04em]",
+        "inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-[0.04em]",
         styles[status],
       )}
     >
       <Icon className="h-3.5 w-3.5 shrink-0" />
-      <span className="min-w-0 break-words">{statusLabel(status)}</span>
+      <span className="min-w-0">{statusLabel(status)}</span>
     </span>
   );
 }
@@ -5008,26 +5158,35 @@ function ScreenHeading({
   subtitle,
   action,
   headingId,
+  compactSubtitle = false,
 }: {
   title: string;
   subtitle: string;
   action?: ReactNode;
   headingId?: string;
+  compactSubtitle?: boolean;
 }) {
   return (
     <div className="mb-5 min-w-0">
-      <div className="flex items-center justify-between gap-3">
+      <div className="screen-heading">
         <h1
           id={headingId}
           data-sheet-fallback
           tabIndex={-1}
-          className="min-w-0 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none"
+          className="screen-heading__title text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none"
         >
           {title}
         </h1>
-        {action ? <div className="shrink-0">{action}</div> : null}
+        {action ? <div className="screen-heading__action">{action}</div> : null}
       </div>
-      <p className="mt-1 text-[0.9375rem] leading-relaxed text-ink-2">{subtitle}</p>
+      <p
+        className={cn(
+          "screen-heading__subtitle text-[0.9375rem] leading-relaxed text-ink-2",
+          compactSubtitle && "screen-heading__subtitle--optional",
+        )}
+      >
+        {subtitle}
+      </p>
     </div>
   );
 }
@@ -5053,18 +5212,18 @@ function AppSidebar({
   onDemo: () => void;
 }) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[220px] flex-col border-r border-separator bg-surface px-4 py-6 md:flex lg:w-[240px]">
+    <aside className="app-sidebar fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-separator bg-surface px-4 py-6 lg:flex">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent font-display text-xl font-bold text-white">
+        <div className="flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-xl bg-accent font-display text-xl font-bold text-white">
           0
         </div>
         <div className="min-w-0">
-          <p className="break-words font-display text-xl leading-none tracking-tight text-ink">Mercado Cero</p>
+          <p className="font-display text-xl leading-none tracking-tight text-ink">Mercado Cero</p>
           <p className="mt-1 text-xs font-medium text-ink-2">La caja que habla</p>
         </div>
       </div>
 
-      <nav aria-label="Navegación principal" className="mt-8 space-y-1">
+      <nav aria-label="Navegación principal" className="mt-6 space-y-1">
         {TABS.map((item) => {
           const active = tab === item.id;
           const Icon = item.icon;
@@ -5075,14 +5234,14 @@ function AppSidebar({
               onClick={() => onTab(item.id)}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex min-h-12 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold transition",
+                "flex min-h-[48px] w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold transition",
                 active
                   ? "bg-green-soft text-green"
                   : "text-ink-2 hover:bg-surface-2 hover:text-ink",
               )}
             >
               <Icon className="h-5 w-5 shrink-0" strokeWidth={active ? 2.2 : 1.8} />
-              <span className="min-w-0 break-words">{item.label}</span>
+              <span className="min-w-0">{item.label}</span>
             </button>
           );
         })}
@@ -5093,19 +5252,19 @@ function AppSidebar({
           <button
             type="button"
             onClick={onDemo}
-            className="flex min-h-12 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+            className="flex min-h-[48px] w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
             <RefreshCw className="h-5 w-5 shrink-0" />
-            <span className="min-w-0 break-words">Modo demo</span>
+            <span className="min-w-0">Modo demo</span>
           </button>
         ) : null}
         <button
           type="button"
           onClick={onHelp}
-          className="flex min-h-12 w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+          className="flex min-h-[48px] w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
         >
           <CircleHelp className="h-5 w-5 shrink-0" />
-          <span className="min-w-0 break-words">Ayuda y accesibilidad</span>
+          <span className="min-w-0">Ayuda y accesibilidad</span>
         </button>
       </div>
     </aside>
@@ -5116,6 +5275,7 @@ function TopBar({
   merchant,
   today,
   demoMode,
+  unavailable,
   muted,
   onToggleMuted,
   onHelp,
@@ -5124,20 +5284,21 @@ function TopBar({
   merchant: DashboardData["merchant"] | undefined;
   today: string;
   demoMode: boolean;
+  unavailable: boolean;
   muted: boolean;
   onToggleMuted: () => void;
   onHelp: () => void;
   onDemo: () => void;
 }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-separator bg-canvas/95 backdrop-blur-sm">
-      <div className="mx-auto flex min-h-14 max-w-[1200px] flex-wrap items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8">
-        <div className="min-w-[8rem] flex-1">
-          <p className="break-words text-sm font-semibold text-ink">
-            {merchant?.name ?? "Antojitos de Lupita"}
+    <header className="topbar sticky top-0 z-30 border-b border-separator bg-canvas/95 backdrop-blur-sm">
+      <div className="mx-auto flex min-h-14 max-w-[1200px] flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6 lg:px-8">
+        <div className="min-w-0 flex-1 basis-[8rem]">
+          <p className="text-sm font-semibold text-ink" title={merchant?.name}>
+            {merchant?.name ?? (unavailable ? "Negocio sin datos" : "Cargando el negocio…")}
           </p>
-          <p className="break-words text-xs text-ink-2">
-            {merchant?.address ?? "Coyoacán, CDMX"}
+          <p className="topbar-address text-xs text-ink-2">
+            {merchant?.address ?? (unavailable ? "No pudimos consultarlo" : "Un momento…")}
             <span className="hidden sm:inline"> · {today || "Hoy"}</span>
           </p>
         </div>
@@ -5147,7 +5308,7 @@ function TopBar({
             <button
               type="button"
               onClick={onDemo}
-              className="inline-flex min-h-12 items-center rounded-full border border-attention/30 bg-terracotta-soft/70 px-2.5 text-[0.75rem] font-bold uppercase tracking-[0.06em] text-attention transition hover:border-attention/50"
+              className="inline-flex min-h-[48px] items-center rounded-full border border-attention/30 bg-terracotta-soft/70 px-2.5 text-[0.75rem] font-bold uppercase tracking-[0.06em] text-attention transition hover:border-attention/50"
             >
               Demo
             </button>
@@ -5158,7 +5319,7 @@ function TopBar({
             aria-pressed={muted}
             aria-label={muted ? "Activar voz" : "Silenciar voz"}
             title={muted ? "Activar voz" : "Silenciar voz"}
-            className="flex h-12 w-12 items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+            className="flex h-[48px] w-[48px] items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
             {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
           </button>
@@ -5167,7 +5328,7 @@ function TopBar({
             onClick={onHelp}
             aria-label="Abrir guía"
             title="Ayuda y accesibilidad"
-            className="flex h-12 w-12 items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+            className="flex h-[48px] w-[48px] items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
             <CircleHelp className="h-5 w-5" />
           </button>
@@ -5181,7 +5342,7 @@ function MobileTabBar({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
   return (
     <nav
       aria-label="Navegación inferior"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-separator bg-surface pb-[max(12px,env(safe-area-inset-bottom))] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-separator bg-surface pb-[max(12px,env(safe-area-inset-bottom))] lg:hidden"
     >
       <div className="mx-auto grid max-w-md grid-cols-4">
         {TABS.map((item) => {
@@ -5200,7 +5361,7 @@ function MobileTabBar({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
             >
               {active ? <span className="absolute inset-x-7 top-0 h-0.5 rounded-full bg-accent" /> : null}
               <Icon className="h-5 w-5" strokeWidth={active ? 2.2 : 1.8} />
-              <span className="max-w-full break-words text-center">{item.label}</span>
+              <span className="max-w-full text-center">{item.label}</span>
             </button>
           );
         })}
@@ -5317,7 +5478,7 @@ function Sheet({
         aria-modal="true"
         aria-labelledby={titleId}
         className={cn(
-          "sheet-in flex max-h-[90dvh] w-full flex-col overflow-hidden rounded-t-[20px] border border-separator bg-surface shadow-lift sm:rounded-[20px]",
+          "sheet-panel sheet-in flex max-h-[90dvh] w-full flex-col overflow-hidden rounded-t-[20px] border border-separator bg-surface shadow-lift sm:rounded-[20px]",
           size === "sm" ? "sm:max-w-md" : "sm:max-w-[560px]",
         )}
       >
@@ -5326,7 +5487,7 @@ function Sheet({
             ref={titleRef}
             id={titleId}
             tabIndex={-1}
-            className="min-w-0 flex-1 break-words text-[1.375rem] font-semibold leading-tight tracking-tight text-ink outline-none"
+            className="sheet-title min-w-0 flex-1 text-[1.375rem] font-semibold leading-tight tracking-tight text-ink outline-none"
           >
             {title}
           </h2>
@@ -5334,7 +5495,7 @@ function Sheet({
             type="button"
             onClick={onClose}
             aria-label="Cerrar"
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+            className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
             <X className="h-5 w-5" />
           </button>
@@ -5555,7 +5716,7 @@ function HelpContent({
         <div className="mt-4 space-y-3">
           <div>
             <p className="text-sm font-semibold text-ink">Tamaño del texto</p>
-            <div role="group" aria-label="Tamaño del texto" className="mt-1.5 grid grid-cols-3 gap-2">
+            <div role="group" aria-label="Tamaño del texto" className="option-grid mt-1.5">
               {textOptions.map((option) => (
                 <button
                   key={option.id}
@@ -5584,7 +5745,7 @@ function HelpContent({
                 onContrast(contrast === "high" ? "normal" : "high")
               }
               className={cn(
-                "mt-1.5 flex min-h-12 w-full items-center justify-between rounded-xl border px-3 text-sm font-semibold transition",
+                "mt-1.5 flex min-h-12 w-full flex-wrap items-center justify-between gap-2 rounded-xl border px-3 text-sm font-semibold transition",
                 contrast === "high"
                   ? "border-accent bg-accent text-white"
                   : "border-separator bg-surface-2 text-ink-2 hover:text-ink",
@@ -5597,7 +5758,7 @@ function HelpContent({
 
           <div>
             <p className="text-sm font-semibold text-ink">Velocidad de la voz</p>
-            <div role="group" aria-label="Velocidad de la voz" className="mt-1.5 grid grid-cols-3 gap-2">
+            <div role="group" aria-label="Velocidad de la voz" className="option-grid mt-1.5">
               {rateOptions.map((option) => (
                 <button
                   key={option.id}

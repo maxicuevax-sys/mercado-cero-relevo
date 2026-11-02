@@ -202,7 +202,7 @@ def main() -> int:
         ok, detail = no_horizontal_scroll(page)
         check("Sin scroll horizontal tras el abono", ok, detail)
 
-        page.get_by_role("button", name="Verificar", exact=True).first.click()
+        page.get_by_role("button", name="Verificar comprobante", exact=True).first.click()
         page.wait_for_selector("text=Verificar comprobante", timeout=12000)
         page.get_by_role("button", name="Probar con un comprobante falso").click()
         check("Comprobante falso rechazado", wait_text(page, "No verificado", 12000))

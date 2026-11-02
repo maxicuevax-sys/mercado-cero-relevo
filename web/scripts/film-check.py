@@ -106,7 +106,7 @@ def capture_flow(page: Page) -> None:
 
 def capture_verify(page: Page) -> None:
     reset(page)
-    page.get_by_role("button", name="Verificar", exact=True).click()
+    page.get_by_role("button", name="Verificar comprobante", exact=True).click()
     page.wait_for_selector("text=Probar con un comprobante falso", timeout=10000)
     page.get_by_role("button", name="Probar con un comprobante falso").click()
     page.wait_for_selector("text=No verificado", timeout=10000)
