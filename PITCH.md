@@ -69,7 +69,7 @@ Corte de caja y Mi camino
 | 360 px emulado | **25/25** checks; sin scroll horizontal en cada estado; 0 errores de consola |
 | Checkout público 360 px | **15/15** checks; pago demo y éxito; Lighthouse 100/100/100 |
 | Túnel público | **8/8** por Cloudflare: reset, checkout, pago demo y estado pagado |
-| Ensayo del guion | **3/3** corridas; 14/14 pasos; 0 errores |
+| Ensayo del guion | **3/3** corridas; 15/15 pasos; 0 errores |
 | Video de respaldo | **34 s** con subtítulos |
 | Pago real | **bloqueado por BBVA/CoDi**; el modo demo está etiquetado y el contrato del webhook está probado |
 

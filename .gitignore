@@ -24,5 +24,7 @@ demo/hig-after/
 Thumbs.db
 demo/video/
 
-# Harness: runs locales; latest.json sí se versiona
+# Harness: runs y latest.json son artefactos locales generados.
+# latest.json se ata al HEAD de la corrida y no se versiona para no quedar obsoleto.
 harness/evidence/runs/
+harness/evidence/latest.json

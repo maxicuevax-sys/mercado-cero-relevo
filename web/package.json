@@ -8,10 +8,12 @@
     "start": "next start",
     "lint": "eslint",
     "test:voice": "node --no-warnings --test scripts/voice-debts-test.mjs",
+    "test:harness": "node --test scripts/harness-gate.test.mjs scripts/check-deps.test.mjs scripts/evidence-integrity.test.mjs",
     "verify:fast": "node scripts/harness-gate.mjs --fast",
     "verify:static": "node scripts/harness-gate.mjs --static",
     "verify:full": "node scripts/harness-gate.mjs --full",
-    "verify:list": "node scripts/harness-gate.mjs --list"
+    "verify:list": "node scripts/harness-gate.mjs --list",
+    "verify:evidence": "node scripts/verify-evidence.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.65.0",

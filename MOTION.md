@@ -46,7 +46,7 @@
 ```powershell
 cd web
 $env:MOTION_BASE_URL="http://localhost:3000"
-python scripts/motion-check.py   # 15/15; gate `motion` del harness full (13/13)
+python scripts/motion-check.py   # 15 PASS · 0 FAIL; gate `motion` del harness full (14/14 por defecto)
 python scripts/hig-after-audit.py
 ```
 
@@ -54,3 +54,8 @@ python scripts/hig-after-audit.py
 `harness/evidence/motion/`. El HIG/axe se mantiene en 0 a 360/390/768/1280 y
 200 %. Reel de las transiciones: `demo/stageshow/tab-wipe.mp4` (5.5 s) y
 `tab-wipe-sheet.png`.
+
+**Nota de evidencia:** el `motion-check.json` de `91ad4ee` registra
+`code.dirty:true`; para que un `full` cruce como evidencia limpia, el carril
+a11y debe corregir ese registro en `motion-check.py`/`a11y-contrast.py` y
+volver a correrlos sobre árbol limpio. `verify:evidence` lo exige.

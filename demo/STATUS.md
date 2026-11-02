@@ -22,9 +22,10 @@
 | Venta mixta | ✅ efectivo + fiado + remanente digital, “Pago mixto” | `harness/evidence/p0-integracion-e2e.json` |
 | Carrera de refresco | ✅ un poll viejo no revive el saldo cobrado | `harness/evidence/p0-integracion-e2e.json` |
 | Voz del abono de $50 | ✅ Kokoro `em_santa`, dice “50 pesos”, 0 `speechSynthesis` | `VOZ-50-KOKORO.md` |
-| Movimiento | ✅ tabs/hojas/listas 140–300 ms, barrido ASLI, scroll trigger, reduced-motion | `MOTION.md` · `demo/stageshow/tab-wipe.mp4` |
+| Movimiento | ✅ tabs/hojas/listas 140–300 ms, barrido ASLI, scroll trigger, reduced-motion; 15 PASS · 0 FAIL | `MOTION.md` · `demo/stageshow/tab-wipe.mp4` |
 | Reel de transiciones | ✅ 5.5 s, tabs + hoja de verificación | `demo/stageshow/tab-wipe.mp4` · `tab-wipe-sheet.png` |
-| Harness final | ✅ full 13/13 en `219b26f`, `dirty: false` | `harness/evidence/latest.json` |
+| Harness static | ✅ 5/5 (`guard`, `lint`, `types`, `deps`, `build`), `ok:true`, `gitAtStart.dirty:false`; SHA vigente en `latest.json` (local, no versionado) | `harness/evidence/latest.json` |
+| Harness full | ⏳ no ejecutado en este worktree; el histórico `91ad4ee` (13/13, catálogo anterior sin `deps`) tenía `git.dirty:true` y no es handoff | `harness/STATE.md` |
 | Alto contraste | ✅ axe 0, foco 3 px negro y 360 px sin overflow | `harness/evidence/a11y-contrast.json` |
 | Dirección visual | ✅ papel editorial, Manrope/Fraunces, doble marco, dos columnas desde 1280 | `HIG-DESIGN.md` §16 · `MOTION.md` |
 | Video de respaldo | ✅ 1280×800, MP4 1.6 MB, con la capa editorial y cierre versionado | `demo/mercado-cero-demo.mp4` |
@@ -45,11 +46,13 @@
 - Faltan pruebas reales con **TalkBack/VoiceOver** en teléfono físico; la evidencia actual es Playwright + axe.
 - Faltan **6–8 comerciantes** y SUS; el protocolo está en `TEST-USUARIO.md`.
 - P0-D quedó verde (69/0), pero la migración está pensada para un solo proceso `next start`; si el despliegue es multi-proceso, mover la lectura del esquema dentro del lock. El 200 % es inyección de `font-size`, no zoom real.
+- **Harness full pendiente:** el catálogo actual es 16 gates; `full` son 14 (15 con film) y no se corrió en este worktree. `motion-check.json` y `a11y-contrast.json` de `91ad4ee` declaran `code.dirty:true`; el carril a11y debe corregir ese registro antes de que un full cruce como evidencia limpia.
 
 ## Rojo
 
 - **Pago real de $0.01:** BBVA/CoDi se queda trabado al seleccionar cuenta. La app está lista, el contrato del webhook está en 27/27 y el modo demo está sembrado. Falta un banco/cuenta que funcione o las credenciales del hackathon.
 - No se debe afirmar que el pago demo es real. El sello **DEMO** y el copy lo distinguen.
+- **Matiz de `paid`:** el webhook firmado es el único camino `payment_pending → paid` para pagos digitales. El efectivo se crea directamente como `paid` (no pasa por `payment_pending`) y el demo usa `demo_paid`. `paid` también aparece en lecturas y en `payments.status` del efectivo. No afirmar “sin `paid` fuera del webhook” sin esta aclaración.
 
 ## Cómo arrancar
 
