@@ -182,7 +182,7 @@ corte por cerrado:
 - El polling de 45 s no se espera en el E2E; se prueban `focus` y `visibilitychange`.
 - El remanente digital mixto se probó con `demo_paid`/demo, no con pey real.
 - `fulfilled` también cierra ventas con fiado/mixto; el estado sirve para “cobro resuelto”,
-  no prueba entrega. No hay `paid` **digital** fuera del webhook; el efectivo se registra como pagado al crear la venta.
+  no prueba entrega. **Matiz:** el webhook firmado es el único camino `payment_pending → paid` para pagos digitales; el efectivo se crea directamente como `paid` y el demo usa `demo_paid`. `paid` también aparece en lecturas y en `payments.status` del efectivo.
 - TalkBack/VoiceOver, teléfono físico y zoom real siguen sin probar.
 - Un pedido `cancelled` con fiado no está excluido explícitamente del panel de cobro.
 - El timeout de `/api/dashboard` es de 20 s y no tiene backoff.

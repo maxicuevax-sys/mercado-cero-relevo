@@ -11,15 +11,27 @@
  *   node scripts/harness-gate.mjs --only=truth,webhook
  *   node scripts/harness-gate.mjs --list
  *
+ * Reglas de honestidad:
+ *   - `ok: true` solo si se ejecutaron TODOS los gates del modo y todos
+ *     pasaron, incluida la validación de su marcador `expected`.
+ *   - `--only` produce mode `partial` y NUNCA puede quedar `ok: true`.
+ *   - Un `--skip` de un gate crítico, o un gate que no se ejecutó, impide
+ *     `ok: true`.
+ *   - La evidencia exige `gitAtStart.dirty=false` y que el SHA no cambie
+ *     durante la corrida (`gitAtEnd.sha`). `dirty` incluye untracked.
+ *
  * No arranca ni reinicia el servidor. El runtime es compartido: el agente lo
  * levanta explícitamente. Sí reinicia los datos de demo antes de truth/preflight
  * para que la evidencia sea reproducible.
+ *
+ * `build` es un gate de modo `build`: corre en `--static`, no en `--full`.
+ * `film` es opcional: solo entra a `--full --with-film`.
  */
 
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const WEB = path.resolve(HERE, "..");
@@ -29,7 +41,7 @@ const RUNS = path.join(EVIDENCE, "runs");
 const BASE = (process.env.BASE_URL ?? "http://localhost:3000").replace(/\/+$/, "");
 const IS_WIN = process.platform === "win32";
 
-const GATES = [
+export const GATES = [
   {
     id: "guard",
     name: "Guardrails del repo",
@@ -38,6 +50,7 @@ const GATES = [
     mode: "static",
     timeout: 60_000,
     expected: "Guardrails OK.",
+    expectedBasis: "output",
   },
   {
     id: "lint",
@@ -46,16 +59,30 @@ const GATES = [
     args: ["run", "lint"],
     mode: "static",
     timeout: 180_000,
-    expected: "sin errores",
+    // ESLint no imprime un resumen en verde; el marcador solo comprueba que
+    // el comando real corrió. El veredicto principal es el exit code.
+    expected: "eslint",
+    expectedBasis: "output",
   },
   {
     id: "types",
     name: "TypeScript",
-    command: "npx",
-    args: ["tsc", "--noEmit"],
+    command: "node",
+    args: ["scripts/run-types.mjs"],
+    mode: "static",
+    timeout: 240_000,
+    expected: "TYPES OK",
+    expectedBasis: "output",
+  },
+  {
+    id: "deps",
+    name: "Dependencias de producción",
+    command: "node",
+    args: ["scripts/check-deps.mjs"],
     mode: "static",
     timeout: 180_000,
-    expected: "sin errores",
+    expected: "DEPS OK",
+    expectedBasis: "output",
   },
   {
     id: "build",
@@ -65,6 +92,7 @@ const GATES = [
     mode: "build",
     timeout: 600_000,
     expected: "compiled successfully",
+    expectedBasis: "output",
   },
   {
     id: "truth",
@@ -75,6 +103,7 @@ const GATES = [
     resetBefore: true,
     timeout: 60_000,
     expected: "VERDAD OK",
+    expectedBasis: "output",
   },
   {
     id: "webhook",
@@ -84,6 +113,7 @@ const GATES = [
     mode: "runtime",
     timeout: 120_000,
     expected: "27/27",
+    expectedBasis: "output",
   },
   {
     id: "mobile",
@@ -93,6 +123,7 @@ const GATES = [
     mode: "runtime",
     timeout: 180_000,
     expected: "25/25",
+    expectedBasis: "output",
   },
   {
     id: "checkout",
@@ -102,6 +133,7 @@ const GATES = [
     mode: "runtime",
     timeout: 180_000,
     expected: "15/15",
+    expectedBasis: "output",
   },
   {
     id: "hig",
@@ -111,6 +143,7 @@ const GATES = [
     mode: "runtime",
     timeout: 900_000,
     expected: "PASÓ",
+    expectedBasis: "output",
   },
   {
     id: "motion",
@@ -120,6 +153,7 @@ const GATES = [
     mode: "runtime",
     timeout: 180_000,
     expected: "0 FAIL",
+    expectedBasis: "output",
   },
   {
     id: "contrast",
@@ -129,6 +163,7 @@ const GATES = [
     mode: "runtime",
     timeout: 180_000,
     expected: "0 FAIL",
+    expectedBasis: "output",
   },
   {
     id: "rehearsal",
@@ -138,6 +173,7 @@ const GATES = [
     mode: "runtime",
     timeout: 300_000,
     expected: "todo en verde: True",
+    expectedBasis: "output",
   },
   {
     id: "tunnel",
@@ -147,6 +183,7 @@ const GATES = [
     mode: "runtime",
     timeout: 300_000,
     expected: "8/8",
+    expectedBasis: "output",
   },
   {
     id: "preflight",
@@ -157,6 +194,7 @@ const GATES = [
     resetBefore: true,
     timeout: 120_000,
     expected: "18/18",
+    expectedBasis: "output",
   },
   {
     id: "film",
@@ -167,62 +205,120 @@ const GATES = [
     optional: true,
     timeout: 300_000,
     expected: "SHEET",
+    expectedBasis: "output",
   },
 ];
 
-function parseArgs(argv) {
+export const GATES_BY_ID = new Map(GATES.map((gate) => [gate.id, gate]));
+
+export const MODE_GATES = {
+  fast: ["guard", "lint", "types"],
+  static: ["guard", "lint", "types", "deps", "build"],
+  full: GATES.filter((gate) => gate.mode !== "build" && !gate.optional).map(
+    (gate) => gate.id,
+  ),
+  partial: [],
+};
+
+export class GateConfigError extends Error {}
+
+export function parseArgs(argv) {
   const getValue = (flag) => {
+    const inline = argv.find((arg) => arg.startsWith(`${flag}=`));
     const index = argv.indexOf(flag);
-    return index >= 0 ? argv[index + 1] : null;
+    if (inline && index >= 0) {
+      throw new GateConfigError(`Repetiste ${flag} de dos formas distintas.`);
+    }
+    if (inline) {
+      const value = inline.slice(flag.length + 1);
+      if (!value) throw new GateConfigError(`Falta el valor de ${flag}.`);
+      return value;
+    }
+    if (index < 0) return null;
+    const value = argv[index + 1];
+    if (!value || value.startsWith("--")) {
+      throw new GateConfigError(`Falta el valor de ${flag}.`);
+    }
+    return value;
   };
-  const mode = argv.includes("--fast")
-    ? "fast"
-    : argv.includes("--static")
-      ? "static"
-      : "full";
+
+  const modeFlags = ["--fast", "--static", "--full"].filter((flag) =>
+    argv.includes(flag),
+  );
+  if (modeFlags.length > 1) {
+    throw new GateConfigError(
+      `Elige un solo modo: ${modeFlags.join(", ")}.`,
+    );
+  }
+  const requestedMode = modeFlags.length ? modeFlags[0].slice(2) : null;
+  const only = getValue("--only")
+    ?.split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  if (argv.includes("--only") && !only?.length) {
+    throw new GateConfigError("--only necesita al menos un id.");
+  }
+
+  const skip = new Set(
+    (getValue("--skip") ?? "")
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean),
+  );
+
   return {
-    mode,
+    requestedMode,
+    mode: only?.length ? "partial" : (requestedMode ?? "full"),
+    only,
+    skip,
     withFilm: argv.includes("--with-film"),
     list: argv.includes("--list"),
     help: argv.includes("--help") || argv.includes("-h"),
-    only: getValue("--only")
-      ?.split(",")
-      .map((value) => value.trim())
-      .filter(Boolean),
-    skip: new Set(
-      (getValue("--skip") ?? "")
-        .split(",")
-        .map((value) => value.trim())
-        .filter(Boolean),
-    ),
   };
 }
 
-function selectedGates(options) {
-  let ids;
-  if (options.only?.length) {
-    ids = options.only;
-  } else if (options.mode === "fast") {
-    ids = ["guard", "lint", "types"];
-  } else if (options.mode === "static") {
-    ids = ["guard", "lint", "types", "build"];
-  } else {
-    ids = GATES.filter(
-      (gate) => gate.mode !== "build" && !gate.optional,
-    ).map((gate) => gate.id);
-    if (options.withFilm) ids.push("film");
-  }
-
-  const unknown = ids.filter((id) => !GATES.some((gate) => gate.id === id));
+function validateIds(ids, label) {
+  const unknown = ids.filter((id) => !GATES_BY_ID.has(id));
   if (unknown.length) {
-    console.error(`Gate(s) desconocido(s): ${unknown.join(", ")}`);
-    console.error(`Disponibles: ${GATES.map((gate) => gate.id).join(", ")}`);
-    process.exit(2);
+    throw new GateConfigError(
+      `${label} desconocido(s): ${unknown.join(", ")}. Disponibles: ${GATES.map((gate) => gate.id).join(", ")}`,
+    );
   }
+}
 
-  return GATES.filter(
-    (gate) => ids.includes(gate.id) && !options.skip.has(gate.id),
-  );
+export function expectedGateIds(options) {
+  if (options.mode === "partial") {
+    return [...new Set(options.only ?? [])];
+  }
+  const ids = [...MODE_GATES[options.mode]];
+  if (options.mode === "full" && options.withFilm) ids.push("film");
+  return ids;
+}
+
+export function criticalGateIds(options, expectedIds) {
+  return expectedIds.filter((id) => {
+    const gate = GATES_BY_ID.get(id);
+    if (!gate) return true;
+    if (!gate.optional) return true;
+    // `film` solo es crítico cuando se pidió explícitamente con --with-film.
+    return options.mode === "full" && id === "film";
+  });
+}
+
+export function selectedGates(options) {
+  if (options.only?.length) validateIds(options.only, "Gate");
+  if (options.skip.size) validateIds([...options.skip], "Gate en --skip");
+
+  const expectedIds = expectedGateIds(options);
+  const ids = expectedIds.filter((id) => !options.skip.has(id));
+  return {
+    mode: options.mode,
+    requestedMode: options.requestedMode,
+    expectedIds,
+    criticalIds: criticalGateIds(options, expectedIds),
+    skipped: [...options.skip],
+    gates: GATES.filter((gate) => ids.includes(gate.id)),
+  };
 }
 
 function loadEnvValues() {
@@ -256,7 +352,10 @@ function redact(value) {
   for (const secret of SECRET_VALUES) {
     output = output.split(secret).join("[redacted]");
   }
-  output = output.replace(/\b(sk-[A-Za-z0-9_-]{20,}|whsec_[A-Za-z0-9_-]{20,})\b/g, "[redacted]");
+  output = output.replace(
+    /\b(sk-[A-Za-z0-9_-]{20,}|whsec_[A-Za-z0-9_-]{20,})\b/g,
+    "[redacted]",
+  );
   return output;
 }
 
@@ -273,11 +372,13 @@ function gitValue(args) {
   }
 }
 
-function getGit() {
+export function getGit() {
   return {
     sha: gitValue(["rev-parse", "HEAD"]) || "unknown",
     branch: gitValue(["rev-parse", "--abbrev-ref", "HEAD"]) || "unknown",
-    dirty: Boolean(gitValue(["status", "--porcelain", "--untracked-files=no"])),
+    // Incluye untracked: un archivo nuevo sin commitear también invalida la
+    // evidencia, no solo un archivo tracked modificado.
+    dirty: Boolean(gitValue(["status", "--porcelain", "--untracked-files=all"])),
   };
 }
 
@@ -300,6 +401,22 @@ async function resetDemo() {
   if (!response.ok) {
     throw new Error(`reset de demo respondió HTTP ${response.status}`);
   }
+}
+
+function normalizeOutput(value) {
+  return String(value ?? "")
+    .replace(/\u001b\[[0-9;]*m/g, "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+export function expectedMatches(expected, output) {
+  if (expected == null) return null;
+  const values = Array.isArray(expected) ? expected : [expected];
+  if (!values.length) return null;
+  const normalized = normalizeOutput(output);
+  return values.every((value) => normalized.includes(normalizeOutput(value)));
 }
 
 function runGate(gate) {
@@ -329,12 +446,29 @@ function runGate(gate) {
       });
   const durationMs = Math.round(performance.now() - started);
   const output = redact(`${result.stdout ?? ""}\n${result.stderr ?? ""}`).trim();
-  const ok = result.status === 0 && !result.error;
+  const expectedMatched = expectedMatches(gate.expected, output);
   const exitCode = result.status ?? 1;
+  const timedOut =
+    Boolean(result.error) &&
+    (result.error.code === "ETIMEDOUT" ||
+      /timed?\s*out/i.test(result.error.message ?? ""));
+  const ok =
+    result.status === 0 &&
+    !result.error &&
+    expectedMatched !== false;
+  const reason = result.error
+    ? timedOut
+      ? "timeout"
+      : "spawn-error"
+    : result.status !== 0
+      ? "exit-code"
+      : expectedMatched === false
+        ? "expected-mismatch"
+        : "ok";
   const tail = output.split(/\r?\n/).slice(-40).join("\n");
 
   console.log(
-    `${ok ? "PASS" : "FAIL"}  ${gate.id.padEnd(10)} ${gate.name} — ${durationMs} ms${gate.expected ? ` · esperado: ${gate.expected}` : ""}`,
+    `${ok ? "PASS" : "FAIL"}  ${gate.id.padEnd(10)} ${gate.name} — ${durationMs} ms${gate.expected ? ` · esperado: ${gate.expected}` : " · solo exit code"}${expectedMatched === false ? " · MARCADOR NO ENCONTRADO" : ""}`,
   );
   if (!ok) {
     console.log("      ---- salida ----");
@@ -345,6 +479,11 @@ function runGate(gate) {
         .join("\n"),
     );
     if (result.error) console.log(`      error: ${result.error.message}`);
+    if (expectedMatched === false) {
+      console.log(
+        `      expected no apareció en la salida: ${JSON.stringify(gate.expected)}`,
+      );
+    }
   }
 
   return {
@@ -355,7 +494,205 @@ function runGate(gate) {
     exitCode,
     durationMs,
     expected: gate.expected,
+    expectedBasis: gate.expectedBasis ?? "output",
+    expectedMatched,
+    reason,
     outputTail: tail,
+  };
+}
+
+export function evaluateRun({
+  mode,
+  expectedIds,
+  criticalIds,
+  results,
+  gitAtStart,
+  gitAtEnd,
+}) {
+  const executed = new Set(results.map((result) => result.id));
+  const ids = results.map((result) => result.id);
+  const duplicateResults = ids.filter((id, index) => ids.indexOf(id) !== index);
+  const missing = expectedIds.filter((id) => !executed.has(id));
+  const criticalMissing = missing.filter((id) => criticalIds.includes(id));
+  const unexpected = [...executed].filter((id) => !expectedIds.includes(id));
+  const failed = results.filter((result) => !result.ok);
+  const expectedMismatches = results.filter(
+    (result) => result.expectedMatched === false,
+  );
+  const gatesOk =
+    results.length > 0 &&
+    failed.length === 0 &&
+    expectedMismatches.length === 0 &&
+    duplicateResults.length === 0;
+  const complete =
+    mode !== "partial" &&
+    missing.length === 0 &&
+    unexpected.length === 0 &&
+    duplicateResults.length === 0;
+  const cleanStart =
+    Boolean(gitAtStart) &&
+    gitAtStart.dirty === false &&
+    Boolean(gitAtStart.sha) &&
+    gitAtStart.sha !== "unknown";
+  const cleanEnd = Boolean(gitAtEnd) && gitAtEnd.dirty === false;
+  const shaStable =
+    Boolean(gitAtStart && gitAtEnd) &&
+    gitAtStart.sha === gitAtEnd.sha &&
+    gitAtStart.sha !== "unknown";
+  const evidenceValid = cleanStart && cleanEnd && shaStable;
+  const partial = mode === "partial";
+  const ok =
+    complete &&
+    gatesOk &&
+    criticalMissing.length === 0 &&
+    evidenceValid;
+
+  const reasons = [];
+  if (partial) {
+    reasons.push("modo partial (--only): no cuenta como full/static/fast");
+  }
+  if (!results.length) reasons.push("no se ejecutó ningún gate");
+  if (missing.length) reasons.push(`faltan gates del modo: ${missing.join(", ")}`);
+  if (criticalMissing.length) {
+    reasons.push(`gates críticos no ejecutados: ${criticalMissing.join(", ")}`);
+  }
+  if (failed.length) {
+    reasons.push(`gates en rojo: ${failed.map((result) => result.id).join(", ")}`);
+  }
+  if (expectedMismatches.length) {
+    reasons.push(
+      `expected no coincide: ${expectedMismatches.map((result) => result.id).join(", ")}`,
+    );
+  }
+  if (unexpected.length) {
+    reasons.push(`gates fuera del modo: ${unexpected.join(", ")}`);
+  }
+  if (duplicateResults.length) {
+    reasons.push(`gates duplicados: ${[...new Set(duplicateResults)].join(", ")}`);
+  }
+  if (!cleanStart) {
+    reasons.push(
+      `árbol sucio al inicio (gitAtStart.dirty=${gitAtStart?.dirty ?? "?"}): commitea antes de generar evidencia`,
+    );
+  }
+  if (!shaStable) {
+    reasons.push(
+      `el SHA cambió durante la corrida (${gitAtStart?.sha ?? "?"} → ${gitAtEnd?.sha ?? "?"})`,
+    );
+  }
+  if (!cleanEnd) {
+    reasons.push(
+      `el árbol quedó sucio antes de escribir la evidencia (gitAtEnd.dirty=${gitAtEnd?.dirty ?? "?"})`,
+    );
+  }
+
+  return {
+    ok,
+    complete,
+    partial,
+    gatesOk,
+    evidenceValid,
+    cleanStart,
+    cleanEnd,
+    shaStable,
+    missing,
+    criticalMissing,
+    unexpected,
+    duplicateResults: [...new Set(duplicateResults)],
+    failed: failed.map((result) => result.id),
+    expectedMismatches: expectedMismatches.map((result) => result.id),
+    reasons,
+  };
+}
+
+export function buildNotRunInfo(selection, results, options, defaultReason = "no-ejecutado") {
+  const executed = new Set(results.map((result) => result.id));
+  const aborted = results.some((result) => !result.ok);
+  const notRun = [];
+  const notRunReasons = {};
+  for (const gate of GATES) {
+    if (executed.has(gate.id)) continue;
+    notRun.push(gate.id);
+    if (options.skip.has(gate.id)) {
+      notRunReasons[gate.id] = "skip";
+    } else if (!selection.expectedIds.includes(gate.id)) {
+      notRunReasons[gate.id] = gate.optional
+        ? "opcional-no-solicitado"
+        : "fuera-del-modo";
+    } else if (aborted) {
+      notRunReasons[gate.id] = "no-ejecutado-tras-fallo";
+    } else {
+      notRunReasons[gate.id] = defaultReason;
+    }
+  }
+  return { notRun, notRunReasons };
+}
+
+function runtimeInfo() {
+  return {
+    node: process.version,
+    platform: process.platform,
+    python: (IS_WIN
+      ? spawnSync("python --version", {
+          encoding: "utf8",
+          shell: true,
+        })
+      : spawnSync("python", ["--version"], {
+          encoding: "utf8",
+          shell: false,
+        })
+    ).stdout.trim(),
+  };
+}
+
+function buildRun({
+  selection,
+  options,
+  startedAt,
+  finishedAt,
+  durationMs,
+  gitAtStart,
+  gitAtEnd,
+  resets,
+  results,
+  evaluation,
+  error = null,
+}) {
+  const { notRun, notRunReasons } = buildNotRunInfo(
+    selection,
+    results,
+    options,
+    error ? "servidor-no-alcanzable" : "no-ejecutado",
+  );
+  return {
+    schemaVersion: 2,
+    mode: selection.mode,
+    requestedMode: selection.requestedMode,
+    partial: evaluation.partial,
+    startedAt,
+    finishedAt,
+    durationMs,
+    baseUrl: BASE,
+    error,
+    gitAtStart,
+    gitAtEnd,
+    expectedGates: selection.expectedIds,
+    criticalGates: selection.criticalIds,
+    skipped: selection.skipped,
+    notRun,
+    notRunReasons,
+    resets,
+    gates: results,
+    complete: evaluation.complete,
+    gatesOk: evaluation.gatesOk,
+    evidenceValid: evaluation.evidenceValid,
+    cleanStart: evaluation.cleanStart,
+    cleanEnd: evaluation.cleanEnd,
+    shaStable: evaluation.shaStable,
+    missing: evaluation.missing,
+    criticalMissing: evaluation.criticalMissing,
+    reasons: evaluation.reasons,
+    ok: evaluation.ok,
   };
 }
 
@@ -377,25 +714,46 @@ function writeEvidence(run) {
 function printList() {
   console.log("Gates disponibles:\n");
   for (const gate of GATES) {
-    const mode =
-      gate.mode === "runtime"
-        ? "runtime"
-        : gate.mode === "build"
-          ? "build"
-          : "static";
     console.log(
-      `  ${gate.id.padEnd(10)} ${mode.padEnd(8)} ${gate.name}${gate.optional ? " (opcional)" : ""}`,
+      `  ${gate.id.padEnd(10)} ${gate.mode.padEnd(8)} ${gate.name}${gate.optional ? " (opcional)" : ""}`,
     );
-    console.log(`             ${gate.command} ${gate.args.join(" ")}`);
+    console.log(
+      `             ${gate.command} ${gate.args.join(" ")} · ${gate.expectedBasis === "exit-code" ? "solo exit code" : `expected: ${gate.expected}`}`,
+    );
   }
   console.log("\nModos:");
-  console.log("  --fast    guard + lint + types");
-  console.log("  --static  fast + build");
-  console.log("  --full    todo el runtime (sin film salvo --with-film)");
+  console.log(`  --fast    ${MODE_GATES.fast.length} gates: ${MODE_GATES.fast.join(" + ")}`);
+  console.log(
+    `  --static  ${MODE_GATES.static.length} gates: fast + deps + build`,
+  );
+  console.log(
+    `  --full    ${MODE_GATES.full.length} gates: runtime + guard/lint/types/deps (build NO corre en full; film solo con --with-film)`,
+  );
+  console.log(
+    "  --only    mode partial: ejecuta solo esos gates y NUNCA queda ok:true",
+  );
+  console.log(
+    `\nCatálogo total: ${GATES.length} gates (build fuera de full, film opcional).`,
+  );
+}
+
+function printEvaluation(evaluation) {
+  for (const reason of evaluation.reasons) {
+    console.log(`  - ${reason}`);
+  }
 }
 
 async function main() {
-  const options = parseArgs(process.argv.slice(2));
+  let options;
+  try {
+    options = parseArgs(process.argv.slice(2));
+  } catch (error) {
+    console.error(
+      error instanceof Error ? error.message : String(error),
+    );
+    return 2;
+  }
+
   if (options.help) {
     console.log(
       "Uso: node scripts/harness-gate.mjs [--fast|--static|--full] [--with-film] [--only=a,b] [--skip=c] [--list]",
@@ -407,30 +765,73 @@ async function main() {
     return 0;
   }
 
-  const gates = selectedGates(options);
-  if (!gates.length) {
+  let selection;
+  try {
+    selection = selectedGates(options);
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    return 2;
+  }
+  if (!selection.gates.length) {
     console.error("No hay gates seleccionados.");
     return 2;
   }
 
-  const runtimeGates = gates.filter((gate) => gate.mode === "runtime");
+  const startedAt = new Date().toISOString();
+  const started = performance.now();
+  const gitAtStart = getGit();
+
+  console.log(
+    `HARNESS ${selection.mode}${selection.mode === "partial" ? " (--only)" : ""} · ${selection.gates.length}/${selection.expectedIds.length} gates · ${BASE}\n`,
+  );
+  if (gitAtStart.dirty) {
+    console.log(
+      "AVISO: árbol sucio al inicio (incluye untracked). Los gates pueden correr, pero `ok` será false; commitea primero.\n",
+    );
+  }
+
+  const runtimeGates = selection.gates.filter(
+    (gate) => gate.mode === "runtime",
+  );
   if (runtimeGates.length && !(await serverIsUp())) {
+    const gitAtEnd = getGit();
+    const evaluation = evaluateRun({
+      mode: selection.mode,
+      expectedIds: selection.expectedIds,
+      criticalIds: selection.criticalIds,
+      results: [],
+      gitAtStart,
+      gitAtEnd,
+    });
+    const run = buildRun({
+      selection,
+      options,
+      startedAt,
+      finishedAt: new Date().toISOString(),
+      durationMs: Math.round(performance.now() - started),
+      gitAtStart,
+      gitAtEnd,
+      resets: [],
+      results: [],
+      evaluation,
+      error: `servidor no alcanzable en ${BASE}`,
+    });
+    const file = writeEvidence(run);
     console.error(`FALLO: servidor no alcanzable en ${BASE}`);
     console.error("Arranca el servidor explícitamente:");
     console.error("  cd web && npm run build && npm start");
-    console.error("O corre un modo sin servidor: npm run verify:fast / verify:static");
+    console.error(
+      "O corre un modo sin servidor: npm run verify:fast / verify:static",
+    );
+    printEvaluation(evaluation);
+    console.log(`EVIDENCIA ${path.relative(ROOT, file).replace(/\\/g, "/")}`);
     return 1;
   }
 
-  const gitAtStart = getGit();
-  const startedAt = new Date().toISOString();
-  const started = performance.now();
-  const evidenceGates = [];
   const resets = [];
+  const results = [];
 
-  console.log(`HARNESS ${options.mode} · ${gates.length} gates · ${BASE}\n`);
-
-  for (const gate of gates) {
+  for (const gate of selection.gates) {
     if (gate.resetBefore) {
       try {
         await resetDemo();
@@ -442,8 +843,10 @@ async function main() {
           ok: false,
           error: cause instanceof Error ? cause.message : String(cause),
         });
-        console.error(`FALLO: no pude reiniciar la demo antes de ${gate.id}`);
-        evidenceGates.push({
+        console.error(
+          `FALLO: no pude reiniciar la demo antes de ${gate.id}`,
+        );
+        results.push({
           id: gate.id,
           name: gate.name,
           command: `${gate.command} ${gate.args.join(" ")}`,
@@ -451,59 +854,65 @@ async function main() {
           exitCode: 1,
           durationMs: 0,
           expected: gate.expected,
+          expectedBasis: gate.expectedBasis ?? "output",
+          expectedMatched: null,
+          reason: "reset-failed",
           outputTail: "reset de demo falló",
         });
         break;
       }
     }
     const result = runGate(gate);
-    evidenceGates.push(result);
+    results.push(result);
     if (!result.ok) break;
   }
 
+  const gitAtEnd = getGit();
   const finishedAt = new Date().toISOString();
   const durationMs = Math.round(performance.now() - started);
-  const ok = evidenceGates.length === gates.length && evidenceGates.every((gate) => gate.ok);
-  const run = {
-    schemaVersion: 1,
-    mode: options.mode,
+  const evaluation = evaluateRun({
+    mode: selection.mode,
+    expectedIds: selection.expectedIds,
+    criticalIds: selection.criticalIds,
+    results,
+    gitAtStart,
+    gitAtEnd,
+  });
+  const run = buildRun({
+    selection,
+    options,
     startedAt,
     finishedAt,
     durationMs,
-    baseUrl: BASE,
     gitAtStart,
-    git: getGit(),
-    runtime: {
-      node: process.version,
-      platform: process.platform,
-      python: (IS_WIN
-        ? spawnSync("python --version", {
-            encoding: "utf8",
-            shell: true,
-          })
-        : spawnSync("python", ["--version"], {
-            encoding: "utf8",
-            shell: false,
-          })
-      ).stdout.trim(),
-    },
-    skipped: [...options.skip],
-    notRun: GATES.filter((gate) => !gates.includes(gate)).map((gate) => gate.id),
+    gitAtEnd,
     resets,
-    gates: evidenceGates,
-    ok,
-  };
+    results,
+    evaluation,
+  });
   const file = writeEvidence(run);
 
   console.log("");
-  if (ok) {
-    console.log(`HARNESS OK · ${durationMs} ms · ${evidenceGates.length}/${gates.length}`);
+  if (evaluation.ok) {
+    console.log(
+      `HARNESS OK · ${durationMs} ms · ${results.length}/${selection.expectedIds.length}`,
+    );
   } else {
-    console.log(`HARNESS FALLÓ · ${evidenceGates.filter((gate) => gate.ok).length}/${gates.length} en verde`);
+    console.log(
+      `HARNESS FALLÓ · ${results.filter((result) => result.ok).length}/${selection.expectedIds.length} en verde`,
+    );
+    printEvaluation(evaluation);
   }
   console.log(`EVIDENCIA ${path.relative(ROOT, file).replace(/\\/g, "/")}`);
   console.log("HANDOFF   harness/evidence/latest.json + harness/STATE.md");
-  return ok ? 0 : 1;
+  console.log("VERIFICA  npm run verify:evidence (compara gitAtStart.sha con HEAD)");
+  return evaluation.ok ? 0 : 1;
 }
 
-process.exitCode = await main();
+const isDirect =
+  process.argv[1] &&
+  pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
+
+if (isDirect) {
+  process.exitCode = await main();
+}

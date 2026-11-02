@@ -261,4 +261,4 @@ Si `/api/dashboard` falla, se muestra el comercio hardcodeado, desaparece DEMO, 
 - **P0-D · Corte no destructivo + cierre versionado** es el único P0 funcional pendiente; se trabaja en `p0/corte`.
 - El pago real de $0.01 con pey/CoDi sigue bloqueado por la cuenta/riel; no presentar el demo como pago real.
 - TalkBack/VoiceOver, teléfono físico y 6–8 comerciantes/SUS/NASA-TLX no se sustituyen con gates automáticos.
-- `fulfilled` también cierra mixto/demo: no prueba entrega; no hay `paid` fuera del webhook.
+- `fulfilled` también cierra mixto/demo: no prueba entrega. **Matiz:** el webhook firmado es el único camino `payment_pending → paid` digital; el efectivo se registra `paid` al crear la venta y el demo usa `demo_paid`. `paid` también aparece en lecturas y en `payments.status` del efectivo, así que “sin `paid` fuera del webhook” no es literal.

@@ -23,7 +23,7 @@ Los pagos simulados usan `demo_paid`, nunca `paid`. `/api/verify` solo considera
 
 ## Harness (contexto, gates y evidencia)
 
-Lee **`HARNESS.md`** antes de una tarea larga. `harness/STATE.md` es el handoff vivo; `harness/EVALS.md` explica qué prueba cada gate. No declares listo sin `harness/evidence/latest.json` con `ok: true` y `gitAtStart.sha` igual al commit de código entregado.
+Lee **`HARNESS.md`** antes de una tarea larga. `harness/STATE.md` es el handoff vivo; `harness/EVALS.md` explica qué prueba cada gate. No declares listo sin `harness/evidence/latest.json` con `ok: true`, `gitAtStart.sha` igual al commit de código entregado, `gitAtStart.dirty:false` y `npm run verify:evidence` PASS.
 
 ```bash
 cd web
@@ -31,15 +31,17 @@ npm install
 npm run dev            # o npm run build && npm start
 
 # en otra terminal, desde web/
-npm run verify:fast    # guardrails + lint + tipos
-npm run verify:static  # fast + build de producción
-npm run verify:full    # runtime completo (servidor + túnel)
+npm run verify:fast      # 3 gates: guardrails + lint + tipos
+npm run verify:static    # 5 gates: fast + deps + build de producción
+npm run verify:full      # 14 gates: runtime + guard/lint/types/deps (build fuera; film opcional)
 npm run verify:list
+npm run verify:evidence  # latest.json contra HEAD
+npm run test:harness     # tests del gate
 ```
 
 Los comandos individuales se corren **desde `web/`**; no desde la raíz con `node web/scripts/...`.
 
-Nada se considera listo si rompe el contrato del webhook, la verdad demo/pey o baja HIG/WCAG. Un gate no ejecutado no está verde.
+Nada se considera listo si rompe el contrato del webhook, la verdad demo/pey o baja HIG/WCAG. Un gate no ejecutado no está verde; `--only` es `partial` y nunca `ok:true`; un árbol sucio o un SHA que cambia invalidan la evidencia.
 
 ## Fuente de verdad (leer antes de tocar)
 

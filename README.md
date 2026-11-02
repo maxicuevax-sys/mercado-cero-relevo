@@ -285,7 +285,7 @@ Inspiración: `mono-color-skill` (un ink dominante, halftone, papel), `taste-ski
 - **`demo/mobile-audit.json`** — 25/25 checks a 360 px emulado, flujo de 10.2 s en producción, 0 errores.
 - **`demo/checkout-audit.json`** — 15/15 checks del checkout público y la pantalla de éxito a 360 px.
 - **`demo/tunnel-smoke.json`** — 8/8 checks del camino público por Cloudflare.
-- **`demo/rehearsal.json`** — 3 ensayos, 14/14 pasos, promedio 4.8 s de flujo mecánico.
+- **`demo/rehearsal.json`** — 3 ensayos, 15/15 pasos, promedio 4.8 s de flujo mecánico.
 - **`demo/qr-demo.pdf`** — QR imprimible para abrir la demo; regenerar si cambia el túnel.
 - **`web/scripts/mobile-audit.py`**, **`checkout-audit.py`**, **`tunnel-smoke.py`**, **`record-demo.py`**, **`rehearse-demo.py`** — reproducibles.
 - **`web/scripts/verify-env.mjs`** — revisa demo/real sin imprimir secretos.

@@ -13,9 +13,9 @@ concurrency:
 
 jobs:
   static:
-    name: Guardrails + lint + types + build
+    name: Guardrails + unit tests + lint + types + deps + build
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     defaults:
       run:
         working-directory: web
@@ -37,6 +37,9 @@ jobs:
 
       - name: Audit producción (dev queda fuera)
         run: npm audit --omit=dev
+
+      - name: Harness unit tests
+        run: npm run test:harness
 
       - name: Harness static gate
         run: npm run verify:static
