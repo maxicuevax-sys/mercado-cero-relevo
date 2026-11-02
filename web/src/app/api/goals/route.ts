@@ -1,8 +1,14 @@
 import { z } from "zod";
-import { createGoal, listGoals } from "@/lib/goals";
+import {
+  MAX_GOAL_TITLE_CHARS,
+  createGoal,
+  listGoals,
+} from "@/lib/goals";
+import { appErrorResponse, unexpectedResponse } from "@/lib/errors";
+import { readJsonLimited } from "@/lib/http";
 
 const createSchema = z.object({
-  title: z.string().min(1).max(120),
+  title: z.string().trim().min(1).max(MAX_GOAL_TITLE_CHARS),
   targetCents: z.number().int().positive(),
   deadline: z.string().datetime().nullable().optional(),
 });
@@ -13,8 +19,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = createSchema.parse(await request.json());
-    return Response.json({ goal: createGoal(body) }, { status: 201 });
+    const body = await readJsonLimited(request);
+    const input = createSchema.parse(body);
+    return Response.json({ goal: createGoal(input) }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return Response.json(
@@ -22,8 +29,8 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    const message =
-      error instanceof Error ? error.message : "No se pudo crear la meta.";
-    return Response.json({ error: message }, { status: 400 });
+    const known = appErrorResponse(error);
+    if (known) return known;
+    return unexpectedResponse(error, "No se pudo crear la meta.");
   }
 }

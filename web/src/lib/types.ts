@@ -151,6 +151,8 @@ export interface CreateOrderInput {
   customerName?: string | null;
   creditCents?: number;
   paymentMethod?: PaymentMethod;
+  /** Llave de idempotencia opcional; repetirla devuelve el mismo pedido. */
+  requestId?: string | null;
 }
 
 export type AnalyticsPeriod = "today" | "week" | "month";
