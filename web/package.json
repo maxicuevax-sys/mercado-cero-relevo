@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:voice": "node --no-warnings --test scripts/voice-debts-test.mjs",
     "verify:fast": "node scripts/harness-gate.mjs --fast",
     "verify:static": "node scripts/harness-gate.mjs --static",
     "verify:full": "node scripts/harness-gate.mjs --full",
