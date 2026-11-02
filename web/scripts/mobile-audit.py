@@ -194,11 +194,15 @@ def main() -> int:
         ok, detail = no_horizontal_scroll(page)
         check("Sin scroll horizontal tras el pago", ok, detail)
         page.screenshot(path=str(OUT / "mobile-360-pagado.png"))
-        page.get_by_role("button", name="Listo para entregar").click()
+        # `demo_paid` no se entrega: la API responde 409 demo_not_deliverable
+        # y la hoja debe cerrarse para continuar el recorrido.
+        page.keyboard.press("Escape")
         page.wait_for_timeout(300)
 
         # 3. Fiado en efectivo y anti-fraude, también a 360 px.
-        page.get_by_role("button", name="Juan me pagó 50 del fiado").click()
+        page.get_by_role(
+            "button", name=re.compile("Juan me pagó 50 del fiado")
+        ).click()
         check("Hoja de abono visible", wait_text(page, "Saldo vivo:", 12000))
         page.get_by_role("dialog").get_by_text("Efectivo", exact=True).click()
         page.get_by_role("dialog").get_by_role("button", name="Registrar abono").click()

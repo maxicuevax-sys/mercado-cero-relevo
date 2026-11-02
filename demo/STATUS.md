@@ -10,7 +10,7 @@
 | Preflight de demo | ✅ 18/18 | `node scripts/preflight.mjs` |
 | Webhook firmado | ✅ 34/34 | `scripts/webhook-contract.mjs` |
 | Verdad del comprobante | ✅ demo nunca verificado | `scripts/verify-truth.mjs` |
-| Auditoría HIG | ✅ 4 viewports (360/390/768/1280), axe 0, WCAG 2.2 AA, targets 48 px, 200% | `scripts/hig-after-audit.py` |
+| Auditoría HIG | ✅ 5 viewports (320/360/390/768/1280), axe 0, WCAG 2.2 AA, targets 48 px, 200% | `scripts/hig-after-audit.py` |
 | 360 px caja | ✅ 25/25 checks | `demo/mobile-audit.json` (generado, ignorado) |
 | 320/360 px HIG | ✅ 42 PASS · 0 FAIL en Chromium/Firefox/WebKit | `harness/evidence/mobile-320-e2e.json` (generado, ignorado) |
 | Flujo completo 360 px | ✅ ≈9 s, 0 errores | `scripts/mobile-audit.py` |

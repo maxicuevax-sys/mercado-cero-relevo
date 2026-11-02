@@ -22,7 +22,7 @@
 |---|---|---|
 | Webhook firmado | 34/34 | 2 nov 2026 |
 | Verdad del comprobante | demo no verificado | 2 nov 2026 |
-| HIG/WCAG 2.2 AA | 4 viewports: 360/390/768/1280, axe 0, 48 px, 200% | 2 nov 2026 |
+| HIG/WCAG 2.2 AA | 5 viewports: 320/360/390/768/1280, axe 0, 48 px, 200% | 2 nov 2026 |
 | Móvil 360 px | 25/25 | 2 nov 2026 |
 | Móvil 320/360 (3 motores) | 42 PASS · 0 FAIL (nuevo gate) | 2 nov 2026 |
 | Checkout público | 19/19, `demo_paid` | 2 nov 2026 |

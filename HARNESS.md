@@ -87,7 +87,7 @@ Markers exactos: el harness no acepta substrings. `0 FAIL` no coincide con `10 F
 | `webhook` | Firma, replay, monto, orden, timestamp, QR, 409/404 | `WEBHOOK OK` + `34/34` | — |
 | `mobile` | Flujo completo a 360 px | `MOBILE OK` + `25/25` | `demo/mobile-*` |
 | `checkout` | Checkout público a 360 px | `CHECKOUT OK` + `19/19` | `demo/checkout-*` |
-| `hig` | HIG/WCAG 2.2 AA, 48 px, 200%, **4 viewports** | `HIG OK` + `4 viewports` | `demo/hig-after/audit.json` |
+| `hig` | HIG/WCAG 2.2 AA, 48 px, 200%, **5 viewports** | `HIG OK` + `5 viewports` | `demo/hig-after/audit.json` |
 | `motion` | Duraciones, scroll trigger, reduced-motion | `MOTION OK` + `19 PASS` + `0 FAIL` | `harness/evidence/motion*` |
 | `contrast` | Alto contraste: axe, foco visible y 360 px | `CONTRAST OK` + `0 FAIL` | `harness/evidence/a11y-contrast*` |
 | `mobile-320` | HIG móvil 320/360 en Chromium, Firefox y WebKit | `MOBILE 320/360 E2E` + `42 PASS` + `0 FAIL` | `mobile-320-e2e.json` + capturas 320/360 |
@@ -205,7 +205,7 @@ El criterio no es “cuánto puede hacer el agente”, sino **cuánto puede hace
 - `latest.json` con `ok: true` y `mode` real (`full`/`static`); nunca `partial` ni `fast` sin `--allow-fast`.
 - Sin secretos en el diff.
 - Si tocó dinero: webhook **34/34**, truth PASS y `p0-dinero` **45 + 3 KNOWN**.
-- Si tocó UI: HIG **4 viewports**, mobile **25/25**, checkout **19/19**, motion **19 PASS**, contraste 0 FAIL y mobile-320 **42/42** en 3 motores.
+- Si tocó UI: HIG **5 viewports**, mobile **25/25**, checkout **19/19**, motion **19 PASS**, contraste 0 FAIL y mobile-320 **42/42** en 3 motores.
 - Si tocó demo: preflight + túnel + video/QR actualizados.
 - Handoff actualizado con `npm run harness:report`; las pruebas humanas no se sustituyen por gates.
 

@@ -18,7 +18,7 @@
 | `webhook` | `node scripts/webhook-contract.mjs` | Firma, replay, monto, orden, timestamp, QR y reintento corregido tras 409/404 | Que el banco emita el evento | `WEBHOOK OK` + `34/34` | Reset demo |
 | `mobile` | `python scripts/mobile-audit.py` | Flujo completo a 360 px | Teléfono físico, TalkBack/VoiceOver | `MOBILE OK` + `25/25` | Reset demo |
 | `checkout` | `python scripts/checkout-audit.py` | Checkout público a 360 px | Pago real por pey | `CHECKOUT OK` + `19/19` | Crea/paga demo |
-| `hig` | `python scripts/hig-after-audit.py` | HIG/WCAG 2.2 AA, 48 px, 200%, **4 viewports** | Personas reales | `HIG OK` + `4 viewports` | Reset/recorre |
+| `hig` | `python scripts/hig-after-audit.py` | HIG/WCAG 2.2 AA, 48 px, 200%, **5 viewports** | Personas reales | `HIG OK` + `5 viewports` | Reset/recorre |
 | `motion` | `python scripts/motion-check.py` | Duraciones, scroll trigger, reduced-motion | Que el diseño guste | `MOTION OK` + `19 PASS` + `0 FAIL` | Recorre hojas/tabs |
 | `contrast` | `python scripts/a11y-contrast.py` | Alto contraste: axe, foco visible y 360 px | Personas reales | `CONTRAST OK` + `0 FAIL` | Recorre |
 | `mobile-320` | `node scripts/mobile-320-gate.mjs` | 320/360 px en Chromium, Firefox y WebKit: labels, CTA y foco | Teléfono físico, lector real | `MOBILE 320/360 E2E` + `42 PASS` + `0 FAIL` | Servidor aislado + DB temporal |

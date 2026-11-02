@@ -153,7 +153,7 @@ export const GATES = [
     mode: "runtime",
     usesMainServer: true,
     timeout: 900_000,
-    expected: ["HIG OK", "4 viewports"],
+    expected: ["HIG OK", "5 viewports"],
     expectedBasis: "output",
     artifacts: ["demo/hig-after/audit.json"],
   },
