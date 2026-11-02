@@ -42,3 +42,49 @@
 - La UI no genera `requestId` al confirmar venta o aportar; la idempotencia durable está disponible para el cliente, pero el doble clic de la UI depende de su estado `saving`/`disabled`. Cablear llaves persistentes en `caja-app.tsx` quedó fuera de este carril para no pisar UI compartida.
 - El test `p0-fiado` conserva su assert de puerto `:3101`; por la restricción de la tarea se corrió en `:3123` y ese check es el único FAIL.
 - Serialización link/QR es por proceso (ver riesgo arriba).
+
+## Ronda 2 — revisión adversarial de datos
+
+### Cambios
+
+- `web/src/lib/db.ts`
+  - `getDb()` solo publica la conexión después de `migrate` + `seed`; si falla, cierra la conexión y deja `db = null` para reintentar en la siguiente petición.
+  - `copyLegacyIntoVersioned` compara también `created_at`: una legacy más nueva actualiza la misma fila; si el `id` existe en otra `(date, version)` o la legacy es más vieja/igual, entra como versión nueva con id nuevo o siguiente versión libre. Nunca borra ni pisa una versión existente. Cada fila del merge queda auditada.
+  - `cash_closes.request_id` se deduplica después del merge y antes del índice único; `dedupeRequestIds` ahora usa `SAVEPOINT` para convivir con la transacción de `migrateCashCloses`.
+  - Índice de pedidos scopeado por comercio: `(merchant_id, request_id) WHERE request_id IS NOT NULL`; se elimina el índice global viejo.
+  - Filtro demo en listas, totales, resumen, analytics y corte. `demo=1` se escribe al crear en modo demo en `orders`, `payments`, `credits`, `credit_payments` y `cash_closes`. Los créditos demo no se leen ni se pueden abonar en real.
+  - Un corte real salta las versiones demo ocultas de la misma fecha para no chocar con `UNIQUE(date, version)`.
+- `web/src/lib/orders.ts`
+  - Hash canónico del payload (`items`, cash, credit, customer) en `orders.request_hash`; un `requestId` repetido con otro payload responde `409 request_id_conflict`.
+  - `attachPaymentLink`/`attachQr` no degradan un pedido `paid`/`demo_paid`/`fulfilled` a `payment_pending`; además no marcan pendiente si no queda saldo.
+  - `recordPayment` es atómico con `SAVEPOINT` (pago + `paid_cents` + estado + auditoría) y, en un reintento con la misma `transactionId`, recalcula la orden desde `payments` para curar un fallo anterior.
+  - `fulfillOrder` bloquea `demo_paid` con `409 demo_not_deliverable`.
+- `web/src/lib/goals.ts` y `web/src/lib/orders.ts` (fiado): hash canónico en `goal_contributions.request_hash` y `credit_payments.request_hash`; mismo `requestId` con otro monto/método/nota responde `409 request_id_conflict`.
+- `web/src/app/api/goals/[id]/contribute/route.ts`: `requestId` obligatorio (400 si falta) para que dos POST concurrentes no sumen dos veces.
+- `web/src/lib/request-hash.ts`: canonicalización estable + SHA-256.
+- Tests: `p0-fix-datos-contract.mjs` ampliado; nuevos `p0-db-guards-contract.mjs` (arranque fallido, demo→real, corte demo del mismo día) y `p0-orders-atomic-contract.mjs` (attach tardío, atomicidad de `recordPayment`, curación, fulfill demo). `p0-fiado-e2e.py` actualizado al contrato 409 por monto distinto.
+
+### Evidencia (ronda 2)
+
+- `npm run lint`: PASS (1 warning preexistente en `harness-gate.mjs`).
+- `npx tsc --noEmit`: PASS.
+- `npm run build`: PASS.
+- `npm run test:fix-datos`: PASS · 58 + 20 + 7 = 85 checks.
+- `npm run test:security`: PASS · 29/29.
+- `npm run test:perf-data`: PASS · `ok:true`.
+- `npm run test:harness`: PASS · 44/44.
+- Webhook: PASS · 34/34. `verify-truth`: PASS.
+- `p0-venta` (`:3180`, DB temporal): PASS · 51/51.
+- `p0-fiado` (`:3180`, DB temporal): PASS · 51/51.
+- `p0-corte` (`:3180` + migración `:3181`, DB temporal y migraciones viejas): PASS · 69/69.
+- `p0-integracion` (`:3180`, DB temporal): PASS · 51/51.
+- `p0-dinero` (`:3185`, DB temporal): PASS · 45/45 · 3 KNOWN.
+
+### KNOWN de esta ronda
+
+- `caja-app.tsx` (GoalCard) todavía no envía `requestId` al aportar; la ruta ahora responde 400. La UI de mobile QA ya lo enviará. No se tocó UI por alcance.
+- Las filas manuales de demo creadas **antes** de esta migración no tienen `demo=1`; se siguen filtrando las fixtures por `demo_seed_*`/`demo_*` y por `provider='demo'`, pero una fila manual vieja sin marcador no se puede distinguir de una real.
+- Precedencia del corte: se conserva `400 reason_required` antes de `409 version_conflict`. Es validación de formulario primero; una pestaña vieja con motivo ausente recibe primero el error de motivo. Decisión documentada, no P0.
+- Un `demo_paid` ya no se puede marcar `fulfilled`; la UI no recibió la etiqueta “Demo entregado” porque no se tocó UI.
+- `p0-integracion` mostró dos fallos intermitentes bajo carga compartida (audio Kokoro y crear pendiente) y pasó limpio 51/51 en la corrida final. No se cambió ningún umbral.
+- Serialización link/QR sigue siendo por proceso (riesgo original).

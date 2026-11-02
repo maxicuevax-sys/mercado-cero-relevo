@@ -789,7 +789,9 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
         record["paidText200"] = measure_text200(page, "paid-text-200", f"paid-{w}-text200")
         record["paidDialogs"] = page.locator('[role="dialog"]').count()
         shot(page, f"paid-{w}")
-        page.get_by_role("button", name="Listo para entregar").click()
+        # `demo_paid` no se entrega (409 demo_not_deliverable); cierra la hoja
+        # para seguir midiendo el resto de destinos.
+        page.keyboard.press("Escape")
         page.wait_for_timeout(300)
 
         for tab in ["Fiado", "Corte", "Meta"]:
