@@ -25,6 +25,8 @@ demo/hig-after/
 .DS_Store
 Thumbs.db
 demo/video/
+__pycache__/
+*.pyc
 
 # Harness: runs y latest.json son artefactos locales generados.
 # latest.json se ata al HEAD de la corrida y no se versiona para no quedar obsoleto.

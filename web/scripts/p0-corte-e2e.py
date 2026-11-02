@@ -576,9 +576,11 @@ def reset(page) -> None:
     headers = {"x-forwarded-for": f"198.51.100.{(_reset_client % 200) + 1}"}
     response = page.request.post(f"{BASE}/api/demo/reset", headers=headers)
     assert response.ok, f"demo/reset falló: {response.status} {response.text()}"
-    page.goto(BASE, wait_until="networkidle")
+    page.goto(BASE, wait_until="domcontentloaded")
+    page.wait_for_selector("h1:has-text('Caja')", timeout=20000)
     page.evaluate("localStorage.clear()")
-    page.reload(wait_until="networkidle")
+    page.reload(wait_until="domcontentloaded")
+    page.wait_for_selector("h1:has-text('Caja')", timeout=20000)
 
 
 def open_corte(page) -> None:
