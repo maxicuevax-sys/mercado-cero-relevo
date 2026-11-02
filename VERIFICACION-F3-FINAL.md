@@ -33,7 +33,7 @@ Entrega (`paid → fulfilled`), éxito del checkout con foco/`aria-live`, tabs c
 | `npm run lint` | pasa |
 | `npx tsc --noEmit` | pasa |
 | `python scripts/hig-after-audit.py` | **0 fallos** (pero ver §4, M1: el audit no mide lo que dice medir) |
-| `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` | **27/27** |
+| `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` | **27 aserciones de esa fase** |
 | `npm run build` | no se volvió a ejecutar para no interrumpir 3001; no se usa como prueba propia |
 
 El puerto 3000 corresponde a otra carpeta (`mercado-cero/web`, `next start`), fuera de este worktree. No se modificó. El commit no toca esa app.
@@ -316,7 +316,7 @@ Resultado: el diálogo se cerró sin confirmación; la nota quedó vacía y el m
 - **Verificar:** “Probar con un comprobante falso” mueve el foco al resultado `role=alert` y dice “No entregues el pedido.”
 - **Checkout:** total `40 px` normal y `80 px` al 200% en 360/390/768/1280 (el tamaño pasa; el recorte a 360 es B3.1). Redirección real a `order.paymentUrl` implementada en `checkout-client.tsx:181-188` (no ejecutable en demo; ver §7).
 - **Normal:** sin scroll horizontal, targets ≥44 px en las pantallas/sheets normales, axe serio/crítico 0 en las pantallas y sheets probados; el audit oficial reporta axe 0.
-- **Lint/tsc/webhook:** limpios, 27/27.
+- **Lint/tsc/webhook:** limpios, 27 aserciones de esa fase.
 
 ---
 

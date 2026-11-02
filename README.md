@@ -234,7 +234,7 @@ Para probar el contrato del webhook:
 node scripts/webhook-contract.mjs
 ```
 
-Requiere `PEY_WEBHOOK_SECRET` en `.env.local` y el servidor en `localhost:3000`. El script firma eventos como Standard Webhooks y verifica **9 escenarios / 27 aserciones**: pago válido, replay, firma falsa, monto distinto, orden inexistente, timestamp viejo, evento fuera de orden, JSON inválido y QR CoDi.
+Requiere `PEY_WEBHOOK_SECRET` en `.env.local` y el servidor en `localhost:3000` (o `BASE_URL`). El script firma eventos como Standard Webhooks y verifica **34/34 aserciones**: pago válido, replay, firma falsa, monto distinto, orden inexistente, timestamp viejo, evento fuera de orden, JSON inválido, QR CoDi y los reintentos corregidos tras 409/404.
 
 Para revisar que los pagos digitales del día cuadren con pey:
 
@@ -282,11 +282,12 @@ Inspiración: `mono-color-skill` (un ink dominante, halftone, papel), `taste-ski
 - **`PITCH.md`** — 5 slides, evidencia y notas para el speaker.
 - **`TEST-USUARIO.md`** — protocolo para probar con una persona ajena.
 - **`demo/mercado-cero-demo.mp4`** — video silencioso con subtítulos (34 s, 1280×800).
-- **`demo/mobile-audit.json`** — 25/25 checks a 360 px emulado, flujo de 10.2 s en producción, 0 errores.
-- **`demo/checkout-audit.json`** — 15/15 checks del checkout público y la pantalla de éxito a 360 px.
-- **`demo/tunnel-smoke.json`** — 8/8 checks del camino público por Cloudflare.
-- **`demo/rehearsal.json`** — 3 ensayos, 15/15 pasos, promedio 4.8 s de flujo mecánico.
-- **`demo/qr-demo.pdf`** — QR imprimible para abrir la demo; regenerar si cambia el túnel.
-- **`web/scripts/mobile-audit.py`**, **`checkout-audit.py`**, **`tunnel-smoke.py`**, **`record-demo.py`**, **`rehearse-demo.py`** — reproducibles.
+- **`demo/mobile-audit.json`** — 25/25 checks a 360 px emulado, flujo de 10.2 s en producción, 0 errores. Generado por el gate `mobile`; no se versiona.
+- **`demo/checkout-audit.json`** — 15/15 checks del checkout público y la pantalla de éxito a 360 px. Generado; no se versiona.
+- **`demo/tunnel-smoke.json`** — 8/8 checks del camino público por Cloudflare. Generado; no se versiona.
+- **`demo/rehearsal.json`** — 3 ensayos, 15/15 pasos, promedio 4.8 s de flujo mecánico. Generado; no se versiona.
+- **`demo/qr-demo.pdf`** — QR imprimible para abrir la demo; regenerar si cambia el túnel. Es un entregable versionado.
+- **`web/scripts/mobile-audit.py`**, **`checkout-audit.py`**, **`tunnel-smoke.py`**, **`record-demo.py`**, **`rehearse-demo.py`**, **`mobile-320-audit.py`** — reproducibles.
 - **`web/scripts/verify-env.mjs`** — revisa demo/real sin imprimir secretos.
 - **`web/scripts/preflight.mjs`** — 18/18: servidor, túnel, datos, QR y respaldos.
+- **`HARNESS.md`** — catálogo real: `fast` 3, `static` 5, `full` 23, `full --with-film` 24; evidencia v2 con `buildSha`, artefactos y `npm run harness:report`.

@@ -130,4 +130,7 @@ check("APP_URL es HTTPS", appUrl.startsWith("https://"), appUrl);
 const failed = checks.filter((item) => !item.ok);
 console.log("");
 console.log(failed.length === 0 ? `Preflight OK: ${checks.length}/${checks.length}.` : `${failed.length} falla(s) de ${checks.length}.`);
+if (failed.length === 0) {
+  console.log(`PREFLIGHT OK: ${checks.length}/${checks.length}`);
+}
 process.exitCode = failed.length === 0 ? 0 : 1;

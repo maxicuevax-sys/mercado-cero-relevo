@@ -22,7 +22,7 @@ from playwright.sync_api import sync_playwright
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-BASE = os.environ.get("BASE_URL", "http://localhost:3001")
+BASE = os.environ.get("HIG_BASE_URL", os.environ.get("BASE_URL", "http://localhost:3000")).rstrip("/")
 ROOT = Path(__file__).resolve().parents[2]
 OUT = Path(os.environ.get("HIG_OUT", ROOT / "demo" / "hig-after"))
 OUT.mkdir(parents=True, exist_ok=True)
@@ -1018,6 +1018,7 @@ def main() -> int:
         return 1
 
     print("\nPASÓ: sin violaciones serias, recortes, controles bajo el chrome ni overflow.")
+    print(f"HIG OK: {len(VIEWPORTS)} viewports")
     return 0
 
 

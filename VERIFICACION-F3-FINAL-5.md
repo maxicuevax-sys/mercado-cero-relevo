@@ -21,7 +21,7 @@ No usé `VERIFICACION-INDEPENDIENTE.md` ni sus secciones de reparación como pru
 4. **Entrega y foco: pasan.** Entrega desde `PaidSheet` y desde un pedido pagado reabierto en Actividad (demo y efectivo); `PATCH` 409/idempotente; el sheet no se cierra durante el pago. Foco: 10/10 secuencias, 300/300 `Tab`/`Shift+Tab` dentro del diálogo, 0 `BODY`, Escape/backdrop y retorno exacto.
 5. **Contrato: 30/30.** Tabs/scroll, sidebar 220/240, Fiado con método/nota/descarte, Corte task-first/Falta-Sobra/confirmación/guardado durable, errores inline en español, Verificar con foco y “No entregues el pedido”, checkout 40→80 px, redirect por código, `aria-busy`, subtítulos 15 px, TopBar, foto de Meta y `h1` “Corte de caja”.
 6. **Audit oficial: exit 0**, sin hallazgos, en los 4 viewports. Comprobé con DOM sintético que detecta las 8 categorías pedidas. El audit sigue tratando `.truncate` como intencional, así que por sí solo no habría visto B7; por eso B7 se probó con mi suite propia.
-7. **Calidad:** `npm run lint`, `npx tsc --noEmit`, `npm run build` y webhook 27/27, todos en verde. `git status` limpio salvo este informe; sin secretos; `:3000` intacto; `:3001` restaurado.
+7. **Calidad:** `npm run lint`, `npx tsc --noEmit`, `npm run build` y webhook 27 aserciones de esa fase, todos en verde. `git status` limpio salvo este informe; sin secretos; `:3000` intacto; `:3001` restaurado.
 
 ---
 
@@ -183,7 +183,7 @@ Comprobaciones adicionales:
 - El **webhook** es el único caso con “Pagado / Pago verificado / Pago confirmado”.
 - El efectivo puro no dice “pey” en el cuerpo del sheet ni del checkout.
 - El fiado puro no aparece con “Recibiste”.
-- El webhook firmado de la suite de contrato devolvió `200 processed`; el replay `200 duplicate` y no duplicó pagos (27/27).
+- El webhook firmado de la suite de contrato devolvió `200 processed`; el replay `200 duplicate` y no duplicó pagos (27 aserciones de esa fase).
 
 ---
 
@@ -306,7 +306,7 @@ El audit marca `.truncate` como intencional y no mide texto-texto. Por eso **no 
 | `npm run lint` | **pass**, exit 0 |
 | `npx tsc --noEmit` | **pass**, exit 0 |
 | `npm run build` | **pass**, 20 rutas; servidor 3001 detenido y restaurado |
-| `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` | **27/27**, exit 0 |
+| `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` | **27 aserciones de esa fase**, exit 0 |
 | `python scripts/hig-after-audit.py` | **exit 0**, sin hallazgos |
 | `http://localhost:3001` tras restaurar | 200; `demoMode=true` |
 | `http://localhost:3000` | **no se usó**; mismo proceso `next start` de `mercado-cero\web`, PID 49176, antes y después |
@@ -368,6 +368,6 @@ Build restaurado: `npm run dev -- -p 3001` (PID 26196). Después del build volv�
 
 **LISTO para F4.**
 
-B7 está reparado y verificado con descripciones largas, multi-producto y sin espacios en los 4 viewports al 200%. Los bloqueantes anteriores —verdad de pago de los 9 estados, entrega desde `PaidSheet` y Actividad, foco completo, checkout 80 px, sheets, Fiado con nombres largos, Corte con montos de 4 cifras— se reproducen y pasan. El audit oficial sale 0 y sus detectores responden a las 8 categorías sintéticas. Lint, TypeScript, build y webhook 27/27 están en verde; no hay secretos ni cambios de implementación, y `:3000` sigue intacto.
+B7 está reparado y verificado con descripciones largas, multi-producto y sin espacios en los 4 viewports al 200%. Los bloqueantes anteriores —verdad de pago de los 9 estados, entrega desde `PaidSheet` y Actividad, foco completo, checkout 80 px, sheets, Fiado con nombres largos, Corte con montos de 4 cifras— se reproducen y pasan. El audit oficial sale 0 y sus detectores responden a las 8 categorías sintéticas. Lint, TypeScript, build y webhook 27 aserciones de esa fase están en verde; no hay secretos ni cambios de implementación, y `:3000` sigue intacto.
 
 Quedan observaciones menores (M1–M6) que no bloquean el F4. La más visible es el monto de Corte en dos líneas a 360/390; el valor completo, sin recorte ni solape, está presente.

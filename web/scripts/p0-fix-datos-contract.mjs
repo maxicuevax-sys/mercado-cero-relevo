@@ -684,6 +684,9 @@ async function main() {
       console.log(`  - ${result.name}${result.detail ? ` · ${result.detail}` : ""}`);
     }
   }
+  if (failures === 0) {
+    console.log("DATOS OK");
+  }
   return failures === 0 ? 0 : 1;
 }
 

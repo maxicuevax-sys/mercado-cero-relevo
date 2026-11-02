@@ -32,16 +32,19 @@ npm run dev            # o npm run build && npm start
 
 # en otra terminal, desde web/
 npm run verify:fast      # 3 gates: guardrails + lint + tipos
-npm run verify:static    # 5 gates: fast + deps + build de producción
-npm run verify:full      # 14 gates: runtime + guard/lint/types/deps (build fuera; film opcional)
+npm run verify:static    # 5 gates: fast + deps + build con identidad
+npm run verify:full      # 23 gates: runtime + guard/lint/types/deps + p0 (build fuera; film opcional: 24)
 npm run verify:list
-npm run verify:evidence  # latest.json contra HEAD
-npm run test:harness     # tests del gate
+npm run verify:evidence  # latest.json contra HEAD, árbol y buildSha
+npm run harness:report   # tabla Markdown desde latest.json
+npm run test:harness     # 48 tests del gate y de la evidencia
 ```
 
 Los comandos individuales se corren **desde `web/`**; no desde la raíz con `node web/scripts/...`.
 
-Nada se considera listo si rompe el contrato del webhook, la verdad demo/pey o baja HIG/WCAG. Un gate no ejecutado no está verde; `--only` es `partial` y nunca `ok:true`; un árbol sucio o un SHA que cambia invalidan la evidencia.
+`npm run build` sella `BUILD_SHA` y `/api/health` lo devuelve. Un servidor de otro commit no sirve como evidencia: recompila y reinicia antes de `verify:full`.
+
+Nada se considera listo si rompe el contrato del webhook, la verdad demo/pey o baja HIG/WCAG. Un gate no ejecutado no está verde; `--only` y `--skip` son `partial` y nunca `ok:true`; un árbol sucio, un SHA que cambia, un `buildSha` distinto o un artefacto sin hash invalidan la evidencia.
 
 ## Fuente de verdad (leer antes de tocar)
 

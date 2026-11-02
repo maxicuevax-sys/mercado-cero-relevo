@@ -42,8 +42,10 @@ if hasattr(sys.stdout, "reconfigure"):
 ROOT = Path(__file__).resolve().parents[2]
 WEB = ROOT / "web"
 OUT = ROOT / "harness" / "evidence" / "p0-dinero-e2e.json"
-PORT = int(os.environ.get("P0_DINERO_PORT", "3133"))
-BASE = f"http://localhost:{PORT}"
+BASE = os.environ.get(
+    "P0_BASE_URL", f"http://localhost:{int(os.environ.get('P0_DINERO_PORT', '3133'))}"
+).rstrip("/")
+PORT = int(urllib.parse.urlparse(BASE).port or 3133)
 SECRET = "whsec_" + base64.b64encode(b"mercado-cero-dinero-e2e").decode()
 KEEP_DB = os.environ.get("P0_KEEP_DB") == "1"
 SERVER: subprocess.Popen | None = None

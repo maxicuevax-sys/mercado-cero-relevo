@@ -29,6 +29,8 @@ ENV = ROOT / "web" / ".env.local"
 def app_url() -> str:
     if os.environ.get("MERCADO_BASE_URL"):
         return os.environ["MERCADO_BASE_URL"].rstrip("/")
+    if os.environ.get("APP_URL"):
+        return os.environ["APP_URL"].rstrip("/")
     for line in ENV.read_text(encoding="utf-8").splitlines():
         key, _, value = line.partition("=")
         if key.strip() == "APP_URL" and value.strip():
@@ -133,7 +135,10 @@ def main() -> int:
     print("")
     print(f"{report['passed']}/{len(results)} checks en verde")
     print(f"Reporte: {path}")
-    return 0 if report["failed"] == 0 else 1
+    if report["failed"] == 0:
+        print(f"TUNNEL OK: {report['passed']}/{len(results)} checks")
+        return 0
+    return 1
 
 
 if __name__ == "__main__":

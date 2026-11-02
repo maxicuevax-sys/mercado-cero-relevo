@@ -353,6 +353,7 @@ def main() -> None:
     if motion:
         print(f"MOTION {motion}")
     print(f"LISTO {elapsed:.1f} s")
+    print("FILM OK")
 
 
 if __name__ == "__main__":

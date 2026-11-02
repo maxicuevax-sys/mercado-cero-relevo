@@ -45,7 +45,7 @@ Si un fix tuyo hace que un test del contrato pase *relajando* esa regla, el fix 
 
 ```bash
 cd web && npx tsc --noEmit
-node web/scripts/webhook-contract.mjs   # objetivo: 27/27
+node web/scripts/webhook-contract.mjs   # objetivo: 34/34
 node web/scripts/preflight.mjs          # objetivo: 18/18
 node web/scripts/reconcile.mjs          # conciliación vs pey
 ```

@@ -63,7 +63,7 @@ Corte de caja y Mi camino
 
 | Prueba | Resultado |
 |---|---|
-| Contrato del webhook | **27/27** aserciones: firma, replay, monto, referencia, QR, JSON inválido |
+| Contrato del webhook | **34/34** aserciones: firma, replay, monto, referencia, QR, JSON inválido |
 | Build de producción | **limpio** |
 | Lighthouse | **100 accesibilidad · 100 best practices · 100 SEO** |
 | 360 px emulado | **25/25** checks; sin scroll horizontal en cada estado; 0 errores de consola |
@@ -105,4 +105,4 @@ Corte de caja y Mi camino
 - No prometas tarjeta/Apple Pay si el checkout real solo muestra CoDi.
 - No digas que la app ve la cuenta de Ana; solo ve los cobros del negocio.
 - No digas que los apartados son una cuenta de ahorro; son declarados.
-- Si el jurado pregunta por el banco: “El contrato del webhook está probado 27/27; el riel bancario es lo que estamos esperando.”
+- Si el jurado pregunta por el banco: “El contrato del webhook está probado 34/34; el riel bancario es lo que estamos esperando.”

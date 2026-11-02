@@ -44,7 +44,7 @@ Nunca implementes: "si el usuario dice que pagó, márcalo pagado". Eso es exact
 ```bash
 cd web && npx tsc --noEmit
 node web/scripts/reconcile.mjs
-node web/scripts/webhook-contract.mjs   # no debe bajar de 27/27
+node web/scripts/webhook-contract.mjs   # no debe bajar de 34/34
 python web/scripts/checkout-audit.py    # 15/15 si tocaste checkout
 ```
 

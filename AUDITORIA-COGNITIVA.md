@@ -45,7 +45,7 @@ El botón “Agregar producto” solo aparece cuando ya hay productos (`caja-app
 La libreta muestra `credits.balance_cents`; el detalle del pedido y la actividad muestran `orders.credit_cents` original. Después de un abono parcial, los dos números no coinciden. Peor: “Juan pagó $50” por voz/chip hace `POST` inmediato, con método efectivo fijo, sin confirmación ni idempotencia (`caja-app.tsx:604-632`). La IA tiene autoridad financiera.
 
 ### 3.5 · El corte no es un cierre — **alto**
-Refresh o cualquier venta/abono dispara `load()` y pisa el conteo (`caja-app.tsx:2542-2576`). Guardar hace `UPSERT` por fecha, sin versión, historial ni `audit_log` (`cash.ts:119-138`). Se puede guardar $1 contra $570 sin motivo y la base para mañana puede superar lo contado. El aviso “guardado” no se limpia al editar.
+Refresh o cualquier venta/abono dispara `load()` y pisa el conteo (`caja-app.tsx:2542-2576`). Guardar hace `UPSERT` por fecha, sin versión, historial ni `audit_log` (`cash.ts:119-138`). Se puede guardar $1 contra el esperado de la UI sin motivo y la base para mañana puede superar lo contado. El aviso “guardado” no se limpia al editar.
 
 ### 3.6 · “Hoy” significa tres cosas — **alto**
 La pantalla suma efectivo + verificado + demo + pendiente (`caja-app.tsx:1102-1109`); la voz suma efectivo + verificado + demo (`564-576`); “Por cobrar” es pendiente digital de hoy; “Fiado” es saldo histórico global. La misma persona no puede explicar cuánto vendió, cobró o le deben.
@@ -253,7 +253,7 @@ Si `/api/dashboard` falla, se muestra el comercio hardcodeado, desaparece DEMO, 
 - `p0-fiado-e2e.py` — **50 PASS · 0 FAIL · 0 KNOWN**.
 - `p0-venta-e2e.py` — **43 PASS · 0 FAIL · 0 KNOWN**.
 - `p0-shell-e2e.py` — **52 PASS · 0 FAIL**; HIG/axe 0 a 360/390/768/1280 y 200 %.
-- `mobile` 25/25, `checkout` 15/15, `truth`, `webhook` 27/27, `rehearsal` 3/3, `tunnel` 8/8, `preflight` 18/18.
+- `mobile` 25/25, `checkout` 15/15, `truth`, `webhook` 27 aserciones de esa fase, `rehearsal` 3/3, `tunnel` 8/8, `preflight` 18/18.
 - Stageshow regenerado: `demo/stageshow/contact-sheet-1280.png`, `motion-sheet.png` y `flow-1280.webm`.
 
 **KNOWN / siguiente:**

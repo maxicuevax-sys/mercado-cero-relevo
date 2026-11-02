@@ -36,7 +36,10 @@ from playwright.sync_api import sync_playwright, expect
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-BASE = os.environ.get("P0_BASE_URL", "http://localhost:3101").rstrip("/")
+BASE = os.environ.get(
+    "P0_BASE_URL",
+    os.environ.get("BASE_URL", "http://localhost:3101"),
+).rstrip("/")
 DRAFT_KEY = "mercado-cero:draft:v1"
 PENDING_KEY = "mercado-cero:pending-order:v1"
 ROOT = Path(__file__).resolve().parents[2]

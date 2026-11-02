@@ -104,7 +104,7 @@ Evidencia generada:
 
 ## 8 · Coordinación de marcadores (para harness)
 
-- `web/scripts/webhook-contract.mjs`: el conteo sube de **27/27** a **34/34** (4b: 3 checks; 5b: 4 checks). La última línea imprime `34/34 pruebas en verde`.
+- `web/scripts/webhook-contract.mjs`: el conteo sube de **27 aserciones de esa fase** a **34/34** (4b: 3 checks; 5b: 4 checks). La última línea imprime `34/34 pruebas en verde`.
 - `web/scripts/verify-truth.mjs`: conserva **`VERDAD OK`**.
 - `web/scripts/preflight.mjs`: conserva **18/18** checks; cambia el detalle de “Cobrado” ($0 real + $70 demo) y el esperado del corte ($500, sin efectivo demo).
 - `web/scripts/rehearse-demo.py`: no se tocó ni se ejecutó (requiere `:3000`); su marcador esperado sigue siendo `todo en verde: True`.

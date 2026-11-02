@@ -21,7 +21,11 @@ from playwright.sync_api import sync_playwright
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-BASE = "http://localhost:3000"
+BASE = (
+    os.environ.get("REHEARSAL_BASE_URL")
+    or os.environ.get("BASE_URL")
+    or "http://localhost:3000"
+).rstrip("/")
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "demo"
 OUT.mkdir(parents=True, exist_ok=True)
@@ -171,7 +175,10 @@ def main() -> int:
     )
     print(f"  todo en verde: {report['allPassed']}")
     print(f"  reporte: {path}")
-    return 0 if report["allPassed"] else 1
+    if report["allPassed"]:
+        print("REHEARSAL OK")
+        return 0
+    return 1
 
 
 if __name__ == "__main__":

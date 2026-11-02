@@ -12,23 +12,21 @@
  *   node scripts/harness-gate.mjs --list
  *
  * Reglas de honestidad:
- *   - `ok: true` solo si se ejecutaron TODOS los gates del modo y todos
- *     pasaron, incluida la validación de su marcador `expected`.
- *   - `--only` produce mode `partial` y NUNCA puede quedar `ok: true`.
- *   - Un `--skip` de un gate crítico, o un gate que no se ejecutó, impide
- *     `ok: true`.
- *   - La evidencia exige `gitAtStart.dirty=false` y que el SHA no cambie
- *     durante la corrida (`gitAtEnd.sha`). `dirty` incluye untracked.
+ *   - `ok: true` solo si se ejecutaron TODOS los gates del modo, todos
+ *     pasaron con exitCode 0, reason "ok" y expectedMatched true.
+ *   - `--only` produce mode `partial`; cualquier `--skip` también deja
+ *     `partial: true`. Ninguno puede quedar `ok: true`.
+ *   - El build servido debe declarar el mismo SHA que gitAtStart.
+ *   - La evidencia exige árbol limpio al inicio y al final (incluye
+ *     untracked; los artefactos generados están ignorados en .gitignore).
  *
- * No arranca ni reinicia el servidor. El runtime es compartido: el agente lo
- * levanta explícitamente. Sí reinicia los datos de demo antes de truth/preflight
- * para que la evidencia sea reproducible.
- *
- * `build` es un gate de modo `build`: corre en `--static`, no en `--full`.
- * `film` es opcional: solo entra a `--full --with-film`.
+ * No arranca ni reinicia el servidor principal. El runtime es compartido: el
+ * agente lo levanta explícitamente. Los gates p0 levantan su propio servidor
+ * aislado. El gate sí reinicia los datos de demo antes de truth/preflight.
  */
 
 import { spawnSync } from "node:child_process";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -40,6 +38,7 @@ const EVIDENCE = path.join(ROOT, "harness", "evidence");
 const RUNS = path.join(EVIDENCE, "runs");
 const BASE = (process.env.BASE_URL ?? "http://localhost:3000").replace(/\/+$/, "");
 const IS_WIN = process.platform === "win32";
+const P0_MARKER_PORT = 3212;
 
 export const GATES = [
   {
@@ -51,18 +50,18 @@ export const GATES = [
     timeout: 60_000,
     expected: "Guardrails OK.",
     expectedBasis: "output",
+    artifacts: [],
   },
   {
     id: "lint",
     name: "ESLint",
-    command: "npm",
-    args: ["run", "lint"],
+    command: "node",
+    args: ["scripts/lint-gate.mjs"],
     mode: "static",
     timeout: 180_000,
-    // ESLint no imprime un resumen en verde; el marcador solo comprueba que
-    // el comando real corrió. El veredicto principal es el exit code.
-    expected: "eslint",
+    expected: "LINT OK",
     expectedBasis: "output",
+    artifacts: [],
   },
   {
     id: "types",
@@ -73,6 +72,7 @@ export const GATES = [
     timeout: 240_000,
     expected: "TYPES OK",
     expectedBasis: "output",
+    artifacts: [],
   },
   {
     id: "deps",
@@ -83,16 +83,18 @@ export const GATES = [
     timeout: 180_000,
     expected: "DEPS OK",
     expectedBasis: "output",
+    artifacts: [],
   },
   {
     id: "build",
-    name: "Build de producción",
-    command: "npm",
-    args: ["run", "build"],
+    name: "Build de producción con identidad",
+    command: "node",
+    args: ["scripts/build-gate.mjs"],
     mode: "build",
     timeout: 600_000,
-    expected: "compiled successfully",
+    expected: ["BUILD OK", "compiled successfully"],
     expectedBasis: "output",
+    artifacts: ["web/.next/BUILD_SHA"],
   },
   {
     id: "truth",
@@ -100,10 +102,12 @@ export const GATES = [
     command: "node",
     args: ["scripts/verify-truth.mjs"],
     mode: "runtime",
+    usesMainServer: true,
     resetBefore: true,
     timeout: 60_000,
     expected: "VERDAD OK",
     expectedBasis: "output",
+    artifacts: [],
   },
   {
     id: "webhook",
@@ -111,9 +115,11 @@ export const GATES = [
     command: "node",
     args: ["scripts/webhook-contract.mjs"],
     mode: "runtime",
-    timeout: 120_000,
-    expected: "34/34",
+    usesMainServer: true,
+    timeout: 180_000,
+    expected: ["WEBHOOK OK", "34/34"],
     expectedBasis: "output",
+    artifacts: [],
   },
   {
     id: "mobile",
@@ -121,9 +127,11 @@ export const GATES = [
     command: "python",
     args: ["scripts/mobile-audit.py"],
     mode: "runtime",
+    usesMainServer: true,
     timeout: 180_000,
-    expected: "25/25",
+    expected: ["MOBILE OK", "25/25"],
     expectedBasis: "output",
+    artifacts: ["demo/mobile-audit.json", "demo/mobile-360-*.png"],
   },
   {
     id: "checkout",
@@ -131,9 +139,11 @@ export const GATES = [
     command: "python",
     args: ["scripts/checkout-audit.py"],
     mode: "runtime",
+    usesMainServer: true,
     timeout: 180_000,
-    expected: "15/15",
+    expected: ["CHECKOUT OK", "15/15"],
     expectedBasis: "output",
+    artifacts: ["demo/checkout-audit.json", "demo/checkout-360-*.png"],
   },
   {
     id: "hig",
@@ -141,9 +151,11 @@ export const GATES = [
     command: "python",
     args: ["scripts/hig-after-audit.py"],
     mode: "runtime",
+    usesMainServer: true,
     timeout: 900_000,
-    expected: "PASÓ",
+    expected: ["HIG OK", "4 viewports"],
     expectedBasis: "output",
+    artifacts: ["demo/hig-after/audit.json"],
   },
   {
     id: "motion",
@@ -151,9 +163,11 @@ export const GATES = [
     command: "python",
     args: ["scripts/motion-check.py"],
     mode: "runtime",
+    usesMainServer: true,
     timeout: 180_000,
-    expected: "0 FAIL",
+    expected: ["MOTION OK", "19 PASS", "0 FAIL"],
     expectedBasis: "output",
+    artifacts: ["harness/evidence/motion-check.json", "harness/evidence/motion/*.png"],
   },
   {
     id: "contrast",
@@ -161,9 +175,26 @@ export const GATES = [
     command: "python",
     args: ["scripts/a11y-contrast.py"],
     mode: "runtime",
+    usesMainServer: true,
     timeout: 180_000,
-    expected: "0 FAIL",
+    expected: ["CONTRAST OK", "0 FAIL"],
     expectedBasis: "output",
+    artifacts: [
+      "harness/evidence/a11y-contrast.json",
+      "harness/evidence/a11y-contrast-*.png",
+    ],
+  },
+  {
+    id: "mobile-320",
+    name: "HIG móvil 320 px",
+    command: "python",
+    args: ["scripts/mobile-320-audit.py"],
+    mode: "runtime",
+    usesMainServer: true,
+    timeout: 180_000,
+    expected: ["MOBILE 320 OK", "10/10"],
+    expectedBasis: "output",
+    artifacts: ["harness/evidence/mobile-320.json", "harness/evidence/mobile-320-*.png"],
   },
   {
     id: "rehearsal",
@@ -171,9 +202,115 @@ export const GATES = [
     command: "python",
     args: ["scripts/rehearse-demo.py"],
     mode: "runtime",
+    usesMainServer: true,
     timeout: 300_000,
-    expected: "todo en verde: True",
+    expected: ["REHEARSAL OK", "todo en verde: True"],
     expectedBasis: "output",
+    artifacts: ["demo/rehearsal.json"],
+  },
+  {
+    id: "security",
+    name: "Contrato de seguridad",
+    command: "node",
+    args: ["scripts/security-contract.mjs"],
+    mode: "runtime",
+    timeout: 360_000,
+    expected: "SEGURIDAD OK",
+    expectedBasis: "output",
+    artifacts: [],
+  },
+  {
+    id: "data",
+    name: "Contrato de datos P0",
+    command: "node",
+    args: ["scripts/p0-fix-datos-contract.mjs"],
+    mode: "runtime",
+    timeout: 360_000,
+    expected: "DATOS OK",
+    expectedBasis: "output",
+    artifacts: [],
+  },
+  {
+    id: "perf",
+    name: "Presupuesto de performance",
+    command: "node",
+    args: ["scripts/perf-budget.mjs"],
+    mode: "runtime",
+    timeout: 180_000,
+    expected: "PERF BUDGET OK",
+    expectedBasis: "output",
+    artifacts: [],
+  },
+  {
+    id: "p0-venta",
+    name: "P0 venta durable",
+    command: "node",
+    args: ["scripts/p0-venta-gate.mjs"],
+    mode: "runtime",
+    timeout: 720_000,
+    expected: ["51 PASS", "0 FAIL", "0 KNOWN"],
+    expectedBasis: "output",
+    artifacts: ["harness/evidence/p0-venta-e2e.json"],
+    env: { P0_VENTA_PORT: "3211" },
+  },
+  {
+    id: "p0-fiado",
+    name: "P0 fiado y saldo vivo",
+    command: "python",
+    args: ["scripts/p0-fiado-e2e.py"],
+    mode: "runtime",
+    timeout: 720_000,
+    expected: ["50 PASS", "0 FAIL", "0 KNOWN"],
+    expectedBasis: "output",
+    artifacts: [
+      "harness/evidence/p0-fiado-e2e.json",
+      "harness/evidence/p0-fiado-360.png",
+    ],
+    env: { P0_BASE_URL: `http://127.0.0.1:${P0_MARKER_PORT}`, P0_EXTERNAL_SERVER: "0" },
+  },
+  {
+    id: "p0-corte",
+    name: "P0 corte no destructivo",
+    command: "python",
+    args: ["scripts/p0-corte-e2e.py"],
+    mode: "runtime",
+    timeout: 900_000,
+    expected: ["69 PASS", "0 FAIL", "0 KNOWN"],
+    expectedBasis: "output",
+    artifacts: [
+      "harness/evidence/p0-corte-e2e.json",
+      "harness/evidence/p0-corte-360.png",
+      "harness/evidence/p0-corte-360-200.png",
+    ],
+    env: { P0_BASE_URL: `http://127.0.0.1:${P0_MARKER_PORT}`, P0_EXTERNAL_SERVER: "0" },
+  },
+  {
+    id: "p0-integracion",
+    name: "P0 integración",
+    command: "python",
+    args: ["scripts/p0-integracion-e2e.py"],
+    mode: "runtime",
+    timeout: 720_000,
+    expected: ["51 PASS", "0 FAIL", "0 KNOWN"],
+    expectedBasis: "output",
+    artifacts: [
+      "harness/evidence/p0-integracion-e2e.json",
+      "harness/evidence/p0-integracion-360.png",
+      "harness/evidence/p0-integracion-360-text200.png",
+    ],
+    env: { P0_BASE_URL: `http://127.0.0.1:${P0_MARKER_PORT}`, P0_EXTERNAL_SERVER: "0" },
+  },
+  {
+    id: "p0-dinero",
+    name: "P0 dinero y verdad",
+    command: "python",
+    args: ["scripts/p0-dinero-e2e.py"],
+    mode: "runtime",
+    timeout: 900_000,
+    expected: ["45 PASS", "0 FAIL", "3 KNOWN"],
+    expectedBasis: "output",
+    artifacts: ["harness/evidence/p0-dinero-e2e.json"],
+    env: { P0_BASE_URL: "http://127.0.0.1:3213" },
   },
   {
     id: "tunnel",
@@ -181,9 +318,11 @@ export const GATES = [
     command: "python",
     args: ["scripts/tunnel-smoke.py"],
     mode: "runtime",
+    usesMainServer: true,
     timeout: 300_000,
-    expected: "8/8",
+    expected: ["TUNNEL OK", "8/8"],
     expectedBasis: "output",
+    artifacts: ["demo/tunnel-smoke.json", "demo/tunnel-*.png"],
   },
   {
     id: "preflight",
@@ -191,10 +330,12 @@ export const GATES = [
     command: "node",
     args: ["scripts/preflight.mjs"],
     mode: "runtime",
+    usesMainServer: true,
     resetBefore: true,
     timeout: 120_000,
-    expected: "18/18",
+    expected: ["PREFLIGHT OK", "18/18"],
     expectedBasis: "output",
+    artifacts: [],
   },
   {
     id: "film",
@@ -202,10 +343,12 @@ export const GATES = [
     command: "python",
     args: ["scripts/film-check.py"],
     mode: "runtime",
+    usesMainServer: true,
     optional: true,
     timeout: 300_000,
-    expected: "SHEET",
+    expected: ["FILM OK", "SHEET"],
     expectedBasis: "output",
+    artifacts: ["demo/stageshow/film-check.json", "demo/stageshow/*-sheet*.png"],
   },
 ];
 
@@ -223,6 +366,24 @@ export const MODE_GATES = {
 export class GateConfigError extends Error {}
 
 export function parseArgs(argv) {
+  const known = new Set([
+    "--fast",
+    "--static",
+    "--full",
+    "--with-film",
+    "--only",
+    "--skip",
+    "--list",
+    "--help",
+    "-h",
+  ]);
+  for (const arg of argv) {
+    if (arg.startsWith("--only=") || arg.startsWith("--skip=")) continue;
+    if (!known.has(arg)) {
+      throw new GateConfigError(`Flag desconocido: ${arg}`);
+    }
+  }
+
   const getValue = (flag) => {
     const inline = argv.find((arg) => arg.startsWith(`${flag}=`));
     const index = argv.indexOf(flag);
@@ -246,9 +407,7 @@ export function parseArgs(argv) {
     argv.includes(flag),
   );
   if (modeFlags.length > 1) {
-    throw new GateConfigError(
-      `Elige un solo modo: ${modeFlags.join(", ")}.`,
-    );
+    throw new GateConfigError(`Elige un solo modo: ${modeFlags.join(", ")}.`);
   }
   const requestedMode = modeFlags.length ? modeFlags[0].slice(2) : null;
   const only = getValue("--only")
@@ -300,7 +459,6 @@ export function criticalGateIds(options, expectedIds) {
     const gate = GATES_BY_ID.get(id);
     if (!gate) return true;
     if (!gate.optional) return true;
-    // `film` solo es crítico cuando se pidió explícitamente con --with-film.
     return options.mode === "full" && id === "film";
   });
 }
@@ -311,9 +469,11 @@ export function selectedGates(options) {
 
   const expectedIds = expectedGateIds(options);
   const ids = expectedIds.filter((id) => !options.skip.has(id));
+  const partial = options.mode === "partial" || options.skip.size > 0;
   return {
     mode: options.mode,
     requestedMode: options.requestedMode,
+    partial,
     expectedIds,
     criticalIds: criticalGateIds(options, expectedIds),
     skipped: [...options.skip],
@@ -377,19 +537,31 @@ export function getGit() {
     sha: gitValue(["rev-parse", "HEAD"]) || "unknown",
     branch: gitValue(["rev-parse", "--abbrev-ref", "HEAD"]) || "unknown",
     // Incluye untracked: un archivo nuevo sin commitear también invalida la
-    // evidencia, no solo un archivo tracked modificado.
+    // evidencia. Los artefactos generados están en .gitignore.
     dirty: Boolean(gitValue(["status", "--porcelain", "--untracked-files=all"])),
   };
 }
 
-async function serverIsUp() {
+async function getServerHealth(base = BASE) {
   try {
-    const response = await fetch(`${BASE}/api/dashboard`, {
+    const response = await fetch(`${base}/api/health`, {
       signal: AbortSignal.timeout(8_000),
     });
-    return response.ok;
-  } catch {
-    return false;
+    if (!response.ok) {
+      return { error: `/api/health respondió HTTP ${response.status}` };
+    }
+    const body = await response.json();
+    return {
+      buildSha:
+        typeof body?.buildSha === "string" && body.buildSha
+          ? body.buildSha
+          : "unknown",
+      body,
+    };
+  } catch (cause) {
+    return {
+      error: cause instanceof Error ? cause.message : String(cause),
+    };
   }
 }
 
@@ -411,42 +583,137 @@ function normalizeOutput(value) {
     .toLowerCase();
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Un expected no es un substring: exige límites de palabra. Así "0 FAIL" no
+ * acepta "10 FAIL" ni "25/25" acepta "125/25".
+ */
 export function expectedMatches(expected, output) {
   if (expected == null) return null;
   const values = Array.isArray(expected) ? expected : [expected];
   if (!values.length) return null;
   const normalized = normalizeOutput(output);
-  return values.every((value) => normalized.includes(normalizeOutput(value)));
+  return values.every((value) => {
+    const needle = normalizeOutput(value);
+    if (!needle) return true;
+    const re = new RegExp(
+      `(?<![\\p{L}\\p{N}])${escapeRegExp(needle)}(?![\\p{L}\\p{N}])`,
+      "u",
+    );
+    return re.test(normalized);
+  });
 }
 
-function runGate(gate) {
-  const command = [gate.command, ...gate.args].join(" ");
-  const started = performance.now();
-  const environment = {
+function sha256File(file) {
+  return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+}
+
+function relativeToRoot(file) {
+  return path.relative(ROOT, file).replace(/\\/g, "/");
+}
+
+/**
+ * Expande los artefactos declarados y guarda ruta, existencia, SHA-256 y
+ * tamaño. Un patrón sin coincidencias se registra como faltante; el gate
+ * falla si declaró artefactos y no existen.
+ */
+export function collectArtifacts(patterns = []) {
+  const artifacts = [];
+  for (const pattern of patterns) {
+    let matches = [];
+    try {
+      matches = pattern.includes("*")
+        ? fs.globSync(pattern, { cwd: ROOT })
+        : [pattern];
+    } catch {
+      matches = [];
+    }
+    if (!matches.length) {
+      artifacts.push({
+        path: pattern,
+        exists: false,
+        sha256: null,
+        size: null,
+      });
+      continue;
+    }
+    for (const match of matches) {
+      const absolute = path.resolve(ROOT, match);
+      const relative = relativeToRoot(absolute);
+      try {
+        const stat = fs.statSync(absolute);
+        if (!stat.isFile()) continue;
+        artifacts.push({
+          path: relative,
+          exists: true,
+          sha256: sha256File(absolute),
+          size: stat.size,
+        });
+      } catch {
+        artifacts.push({
+          path: relative,
+          exists: false,
+          sha256: null,
+          size: null,
+        });
+      }
+    }
+  }
+  return artifacts;
+}
+
+function readBuiltSha() {
+  try {
+    const file = path.join(WEB, ".next", "BUILD_SHA");
+    const parsed = JSON.parse(fs.readFileSync(file, "utf8"));
+    return typeof parsed?.sha === "string" ? parsed.sha : null;
+  } catch {
+    return null;
+  }
+}
+
+function gateEnvironment(gate) {
+  return {
     ...process.env,
     BASE_URL: BASE,
+    CHECKOUT_BASE_URL: BASE,
+    MOBILE_BASE_URL: BASE,
+    MOTION_BASE_URL: BASE,
+    CONTRAST_BASE_URL: BASE,
+    HIG_BASE_URL: BASE,
     CI: "1",
+    ...(gate.env ?? {}),
   };
+}
+
+export function runGate(gate) {
+  const command = [gate.command, ...gate.args].join(" ");
+  const started = performance.now();
   const result = IS_WIN
     ? spawnSync(command, {
         cwd: WEB,
         encoding: "utf8",
-        env: environment,
+        env: gateEnvironment(gate),
         timeout: gate.timeout,
-        maxBuffer: 20 * 1024 * 1024,
+        maxBuffer: 40 * 1024 * 1024,
         shell: true,
       })
     : spawnSync(gate.command, gate.args, {
         cwd: WEB,
         encoding: "utf8",
-        env: environment,
+        env: gateEnvironment(gate),
         timeout: gate.timeout,
-        maxBuffer: 20 * 1024 * 1024,
+        maxBuffer: 40 * 1024 * 1024,
         shell: false,
       });
   const durationMs = Math.round(performance.now() - started);
   const output = redact(`${result.stdout ?? ""}\n${result.stderr ?? ""}`).trim();
   const expectedMatched = expectedMatches(gate.expected, output);
+  const artifacts = collectArtifacts(gate.artifacts ?? []);
+  const artifactProblems = artifacts.filter((artifact) => !artifact.exists);
   const exitCode = result.status ?? 1;
   const timedOut =
     Boolean(result.error) &&
@@ -455,20 +722,28 @@ function runGate(gate) {
   const ok =
     result.status === 0 &&
     !result.error &&
-    expectedMatched !== false;
+    expectedMatched === true &&
+    artifactProblems.length === 0;
   const reason = result.error
     ? timedOut
       ? "timeout"
       : "spawn-error"
     : result.status !== 0
       ? "exit-code"
-      : expectedMatched === false
+      : expectedMatched !== true
         ? "expected-mismatch"
-        : "ok";
+        : artifactProblems.length > 0
+          ? "artifacts-missing"
+          : "ok";
   const tail = output.split(/\r?\n/).slice(-40).join("\n");
+  const baseUrl = gate.usesMainServer ? BASE : (gate.baseUrl ?? null);
 
   console.log(
-    `${ok ? "PASS" : "FAIL"}  ${gate.id.padEnd(10)} ${gate.name} — ${durationMs} ms${gate.expected ? ` · esperado: ${gate.expected}` : " · solo exit code"}${expectedMatched === false ? " · MARCADOR NO ENCONTRADO" : ""}`,
+    `${ok ? "PASS" : "FAIL"}  ${gate.id.padEnd(12)} ${gate.name} - ${durationMs} ms - esperado: ${
+      Array.isArray(gate.expected) ? gate.expected.join(" + ") : gate.expected
+    }${expectedMatched === false ? " - MARCADOR NO ENCONTRADO" : ""}${
+      artifactProblems.length ? ` - FALTAN ARTEFACTOS: ${artifactProblems.map((item) => item.path).join(", ")}` : ""
+    }`,
   );
   if (!ok) {
     console.log("      ---- salida ----");
@@ -490,6 +765,7 @@ function runGate(gate) {
     id: gate.id,
     name: gate.name,
     command,
+    baseUrl,
     ok,
     exitCode,
     durationMs,
@@ -497,6 +773,7 @@ function runGate(gate) {
     expectedBasis: gate.expectedBasis ?? "output",
     expectedMatched,
     reason,
+    artifacts,
     outputTail: tail,
   };
 }
@@ -508,6 +785,8 @@ export function evaluateRun({
   results,
   gitAtStart,
   gitAtEnd,
+  serverBuildSha = null,
+  partial = mode === "partial",
 }) {
   const executed = new Set(results.map((result) => result.id));
   const ids = results.map((result) => result.id);
@@ -517,14 +796,23 @@ export function evaluateRun({
   const unexpected = [...executed].filter((id) => !expectedIds.includes(id));
   const failed = results.filter((result) => !result.ok);
   const expectedMismatches = results.filter(
-    (result) => result.expectedMatched === false,
+    (result) => result.expectedMatched !== true,
+  );
+  const badExit = results.filter(
+    (result) => result.exitCode !== 0 || result.reason !== "ok",
+  );
+  const badArtifacts = results.filter((result) =>
+    (result.artifacts ?? []).some((artifact) => !artifact.exists),
   );
   const gatesOk =
     results.length > 0 &&
     failed.length === 0 &&
     expectedMismatches.length === 0 &&
+    badExit.length === 0 &&
+    badArtifacts.length === 0 &&
     duplicateResults.length === 0;
   const complete =
+    !partial &&
     mode !== "partial" &&
     missing.length === 0 &&
     unexpected.length === 0 &&
@@ -540,16 +828,22 @@ export function evaluateRun({
     gitAtStart.sha === gitAtEnd.sha &&
     gitAtStart.sha !== "unknown";
   const evidenceValid = cleanStart && cleanEnd && shaStable;
-  const partial = mode === "partial";
+  const buildBound =
+    mode === "full" || mode === "static"
+      ? Boolean(serverBuildSha) &&
+        serverBuildSha === gitAtStart?.sha &&
+        serverBuildSha !== "unknown"
+      : true;
   const ok =
     complete &&
     gatesOk &&
     criticalMissing.length === 0 &&
-    evidenceValid;
+    evidenceValid &&
+    buildBound;
 
   const reasons = [];
   if (partial) {
-    reasons.push("modo partial (--only): no cuenta como full/static/fast");
+    reasons.push("modo partial (--only/--skip): no cuenta como full/static/fast");
   }
   if (!results.length) reasons.push("no se ejecutó ningún gate");
   if (missing.length) reasons.push(`faltan gates del modo: ${missing.join(", ")}`);
@@ -562,6 +856,16 @@ export function evaluateRun({
   if (expectedMismatches.length) {
     reasons.push(
       `expected no coincide: ${expectedMismatches.map((result) => result.id).join(", ")}`,
+    );
+  }
+  if (badExit.length) {
+    reasons.push(
+      `exitCode/reason inválido: ${badExit.map((result) => result.id).join(", ")}`,
+    );
+  }
+  if (badArtifacts.length) {
+    reasons.push(
+      `artefactos faltantes: ${badArtifacts.map((result) => result.id).join(", ")}`,
     );
   }
   if (unexpected.length) {
@@ -577,12 +881,17 @@ export function evaluateRun({
   }
   if (!shaStable) {
     reasons.push(
-      `el SHA cambió durante la corrida (${gitAtStart?.sha ?? "?"} → ${gitAtEnd?.sha ?? "?"})`,
+      `el SHA cambió durante la corrida (${gitAtStart?.sha ?? "?"} -> ${gitAtEnd?.sha ?? "?"})`,
     );
   }
   if (!cleanEnd) {
     reasons.push(
       `el árbol quedó sucio antes de escribir la evidencia (gitAtEnd.dirty=${gitAtEnd?.dirty ?? "?"})`,
+    );
+  }
+  if (!buildBound) {
+    reasons.push(
+      `buildSha del servidor ${serverBuildSha ?? "?"} no coincide con gitAtStart ${gitAtStart?.sha ?? "?"}`,
     );
   }
 
@@ -592,6 +901,7 @@ export function evaluateRun({
     partial,
     gatesOk,
     evidenceValid,
+    buildBound,
     cleanStart,
     cleanEnd,
     shaStable,
@@ -601,11 +911,18 @@ export function evaluateRun({
     duplicateResults: [...new Set(duplicateResults)],
     failed: failed.map((result) => result.id),
     expectedMismatches: expectedMismatches.map((result) => result.id),
+    badExit: badExit.map((result) => result.id),
+    badArtifacts: badArtifacts.map((result) => result.id),
     reasons,
   };
 }
 
-export function buildNotRunInfo(selection, results, options, defaultReason = "no-ejecutado") {
+export function buildNotRunInfo(
+  selection,
+  results,
+  options,
+  defaultReason = "no-ejecutado",
+) {
   const executed = new Set(results.map((result) => result.id));
   const aborted = results.some((result) => !result.ok);
   const notRun = [];
@@ -631,7 +948,7 @@ export function buildNotRunInfo(selection, results, options, defaultReason = "no
 function runtimeInfo() {
   return {
     node: process.version,
-    platform: process.platform,
+    os: `${process.platform}-${process.arch}`,
     python: (IS_WIN
       ? spawnSync("python --version", {
           encoding: "utf8",
@@ -649,13 +966,14 @@ function buildRun({
   selection,
   options,
   startedAt,
-  finishedAt,
+  endedAt,
   durationMs,
   gitAtStart,
   gitAtEnd,
   resets,
   results,
   evaluation,
+  serverBuildSha,
   error = null,
 }) {
   const { notRun, notRunReasons } = buildNotRunInfo(
@@ -664,15 +982,21 @@ function buildRun({
     options,
     error ? "servidor-no-alcanzable" : "no-ejecutado",
   );
+  const runtime = runtimeInfo();
   return {
     schemaVersion: 2,
     mode: selection.mode,
     requestedMode: selection.requestedMode,
     partial: evaluation.partial,
     startedAt,
-    finishedAt,
+    endedAt,
     durationMs,
     baseUrl: BASE,
+    serverBuildSha: serverBuildSha ?? null,
+    buildMatches: Boolean(serverBuildSha) && serverBuildSha === gitAtStart.sha,
+    node: runtime.node,
+    os: runtime.os,
+    python: runtime.python,
     error,
     gitAtStart,
     gitAtEnd,
@@ -686,6 +1010,7 @@ function buildRun({
     complete: evaluation.complete,
     gatesOk: evaluation.gatesOk,
     evidenceValid: evaluation.evidenceValid,
+    buildBound: evaluation.buildBound,
     cleanStart: evaluation.cleanStart,
     cleanEnd: evaluation.cleanEnd,
     shaStable: evaluation.shaStable,
@@ -703,22 +1028,32 @@ function writeEvidence(run) {
     `${run.startedAt.replace(/[:.]/g, "-")}-${run.mode}.json`,
   );
   fs.writeFileSync(file, `${JSON.stringify(run, null, 2)}\n`, "utf8");
-  fs.writeFileSync(
-    path.join(EVIDENCE, "latest.json"),
-    `${JSON.stringify(run, null, 2)}\n`,
-    "utf8",
-  );
-  return file;
+  const handoff =
+    run.ok === true && (run.mode === "full" || run.mode === "static");
+  if (handoff) {
+    fs.writeFileSync(
+      path.join(EVIDENCE, "latest.json"),
+      `${JSON.stringify(run, null, 2)}\n`,
+      "utf8",
+    );
+  }
+  return { file, handoff };
 }
 
 function printList() {
   console.log("Gates disponibles:\n");
   for (const gate of GATES) {
+    const server = gate.usesMainServer
+      ? `main ${BASE}`
+      : gate.mode === "runtime"
+        ? "aislado"
+        : "sin servidor";
     console.log(
-      `  ${gate.id.padEnd(10)} ${gate.mode.padEnd(8)} ${gate.name}${gate.optional ? " (opcional)" : ""}`,
+      `  ${gate.id.padEnd(12)} ${gate.mode.padEnd(8)} ${gate.name}${gate.optional ? " (opcional)" : ""}`,
     );
+    console.log(`               ${gate.command} ${gate.args.join(" ")} - ${server}`);
     console.log(
-      `             ${gate.command} ${gate.args.join(" ")} · ${gate.expectedBasis === "exit-code" ? "solo exit code" : `expected: ${gate.expected}`}`,
+      `               expected: ${Array.isArray(gate.expected) ? gate.expected.join(" + ") : gate.expected} - artefactos: ${gate.artifacts.length}`,
     );
   }
   console.log("\nModos:");
@@ -732,6 +1067,7 @@ function printList() {
   console.log(
     "  --only    mode partial: ejecuta solo esos gates y NUNCA queda ok:true",
   );
+  console.log("  --skip    marca la corrida como partial y NUNCA queda ok:true");
   console.log(
     `\nCatálogo total: ${GATES.length} gates (build fuera de full, film opcional).`,
   );
@@ -743,14 +1079,48 @@ function printEvaluation(evaluation) {
   }
 }
 
+function errorRun({
+  selection,
+  options,
+  startedAt,
+  gitAtStart,
+  serverBuildSha,
+  error,
+}) {
+  const gitAtEnd = getGit();
+  const evaluation = evaluateRun({
+    mode: selection.mode,
+    expectedIds: selection.expectedIds,
+    criticalIds: selection.criticalIds,
+    results: [],
+    gitAtStart,
+    gitAtEnd,
+    serverBuildSha,
+    partial: selection.partial,
+  });
+  const run = buildRun({
+    selection,
+    options,
+    startedAt,
+    endedAt: new Date().toISOString(),
+    durationMs: 0,
+    gitAtStart,
+    gitAtEnd,
+    resets: [],
+    results: [],
+    evaluation,
+    serverBuildSha,
+    error,
+  });
+  return { run, evaluation, gitAtEnd };
+}
+
 async function main() {
   let options;
   try {
     options = parseArgs(process.argv.slice(2));
   } catch (error) {
-    console.error(
-      error instanceof Error ? error.message : String(error),
-    );
+    console.error(error instanceof Error ? error.message : String(error));
     return 2;
   }
 
@@ -782,7 +1152,7 @@ async function main() {
   const gitAtStart = getGit();
 
   console.log(
-    `HARNESS ${selection.mode}${selection.mode === "partial" ? " (--only)" : ""} · ${selection.gates.length}/${selection.expectedIds.length} gates · ${BASE}\n`,
+    `HARNESS ${selection.mode}${selection.partial ? " (partial)" : ""} - ${selection.gates.length}/${selection.expectedIds.length} gates - ${BASE}\n`,
   );
   if (gitAtStart.dirty) {
     console.log(
@@ -790,42 +1160,49 @@ async function main() {
     );
   }
 
-  const runtimeGates = selection.gates.filter(
-    (gate) => gate.mode === "runtime",
+  const mainRuntimeGates = selection.gates.filter(
+    (gate) => gate.mode === "runtime" && gate.usesMainServer,
   );
-  if (runtimeGates.length && !(await serverIsUp())) {
-    const gitAtEnd = getGit();
-    const evaluation = evaluateRun({
-      mode: selection.mode,
-      expectedIds: selection.expectedIds,
-      criticalIds: selection.criticalIds,
-      results: [],
-      gitAtStart,
-      gitAtEnd,
-    });
-    const run = buildRun({
-      selection,
-      options,
-      startedAt,
-      finishedAt: new Date().toISOString(),
-      durationMs: Math.round(performance.now() - started),
-      gitAtStart,
-      gitAtEnd,
-      resets: [],
-      results: [],
-      evaluation,
-      error: `servidor no alcanzable en ${BASE}`,
-    });
-    const file = writeEvidence(run);
-    console.error(`FALLO: servidor no alcanzable en ${BASE}`);
-    console.error("Arranca el servidor explícitamente:");
-    console.error("  cd web && npm run build && npm start");
-    console.error(
-      "O corre un modo sin servidor: npm run verify:fast / verify:static",
-    );
-    printEvaluation(evaluation);
-    console.log(`EVIDENCIA ${path.relative(ROOT, file).replace(/\\/g, "/")}`);
-    return 1;
+  let serverBuildSha = null;
+  if (mainRuntimeGates.length) {
+    const health = await getServerHealth();
+    if (health.error) {
+      const { run, evaluation } = errorRun({
+        selection,
+        options,
+        startedAt,
+        gitAtStart,
+        serverBuildSha,
+        error: `servidor no alcanzable en ${BASE}: ${health.error}`,
+      });
+      const evidence = writeEvidence(run);
+      console.error(`FALLO: servidor no alcanzable o sin /api/health en ${BASE}`);
+      console.error("Arranca el servidor con un build de este commit:");
+      console.error("  cd web && npm run build && npm start");
+      printEvaluation(evaluation);
+      console.log(`EVIDENCIA ${relativeToRoot(evidence.file)}${evidence.handoff ? "" : " (latest.json NO actualizado)"}`);
+      return 1;
+    }
+    serverBuildSha = health.buildSha;
+    if (serverBuildSha !== gitAtStart.sha) {
+      const { run, evaluation } = errorRun({
+        selection,
+        options,
+        startedAt,
+        gitAtStart,
+        serverBuildSha,
+        error: `buildSha del servidor ${serverBuildSha} != HEAD ${gitAtStart.sha}`,
+      });
+      const evidence = writeEvidence(run);
+      console.error(
+        `FALLO: el servidor en ${BASE} no es de este commit (buildSha ${serverBuildSha}, HEAD ${gitAtStart.sha}).`,
+      );
+      console.error("Recompila y reinicia: cd web && npm run build && npm start");
+      printEvaluation(evaluation);
+      console.log(`EVIDENCIA ${relativeToRoot(evidence.file)}${evidence.handoff ? "" : " (latest.json NO actualizado)"}`);
+      return 1;
+    }
+    console.log(`BUILD SHA ${serverBuildSha} (servidor y HEAD coinciden)\n`);
   }
 
   const resets = [];
@@ -843,20 +1220,20 @@ async function main() {
           ok: false,
           error: cause instanceof Error ? cause.message : String(cause),
         });
-        console.error(
-          `FALLO: no pude reiniciar la demo antes de ${gate.id}`,
-        );
+        console.error(`FALLO: no pude reiniciar la demo antes de ${gate.id}`);
         results.push({
           id: gate.id,
           name: gate.name,
           command: `${gate.command} ${gate.args.join(" ")}`,
+          baseUrl: gate.usesMainServer ? BASE : (gate.baseUrl ?? null),
           ok: false,
           exitCode: 1,
           durationMs: 0,
           expected: gate.expected,
           expectedBasis: gate.expectedBasis ?? "output",
-          expectedMatched: null,
+          expectedMatched: false,
           reason: "reset-failed",
+          artifacts: [],
           outputTail: "reset de demo falló",
         });
         break;
@@ -867,8 +1244,11 @@ async function main() {
     if (!result.ok) break;
   }
 
+  if (!serverBuildSha) {
+    serverBuildSha = readBuiltSha();
+  }
   const gitAtEnd = getGit();
-  const finishedAt = new Date().toISOString();
+  const endedAt = new Date().toISOString();
   const durationMs = Math.round(performance.now() - started);
   const evaluation = evaluateRun({
     mode: selection.mode,
@@ -877,34 +1257,41 @@ async function main() {
     results,
     gitAtStart,
     gitAtEnd,
+    serverBuildSha,
+    partial: selection.partial,
   });
   const run = buildRun({
     selection,
     options,
     startedAt,
-    finishedAt,
+    endedAt,
     durationMs,
     gitAtStart,
     gitAtEnd,
     resets,
     results,
     evaluation,
+    serverBuildSha,
   });
-  const file = writeEvidence(run);
+  const evidence = writeEvidence(run);
 
   console.log("");
   if (evaluation.ok) {
     console.log(
-      `HARNESS OK · ${durationMs} ms · ${results.length}/${selection.expectedIds.length}`,
+      `HARNESS OK - ${durationMs} ms - ${results.length}/${selection.expectedIds.length}`,
     );
   } else {
     console.log(
-      `HARNESS FALLÓ · ${results.filter((result) => result.ok).length}/${selection.expectedIds.length} en verde`,
+      `HARNESS FALLÓ - ${results.filter((result) => result.ok).length}/${selection.expectedIds.length} en verde`,
     );
     printEvaluation(evaluation);
   }
-  console.log(`EVIDENCIA ${path.relative(ROOT, file).replace(/\\/g, "/")}`);
-  console.log("HANDOFF   harness/evidence/latest.json + harness/STATE.md");
+  console.log(`EVIDENCIA ${relativeToRoot(evidence.file)}`);
+  console.log(
+    evidence.handoff
+      ? "HANDOFF harness/evidence/latest.json + harness/STATE.md"
+      : "HANDOFF latest.json NO actualizado (solo full/static con ok:true escriben handoff)",
+  );
   console.log("VERIFICA  npm run verify:evidence (compara gitAtStart.sha con HEAD)");
   return evaluation.ok ? 0 : 1;
 }

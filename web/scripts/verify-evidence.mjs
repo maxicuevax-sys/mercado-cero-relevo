@@ -5,18 +5,22 @@
  * Uso:
  *   node scripts/verify-evidence.mjs
  *   node scripts/verify-evidence.mjs --json
+ *   node scripts/verify-evidence.mjs --allow-fast
  *
- * Compara `harness/evidence/latest.json` con el HEAD actual y falla si:
- *   - `gitAtStart.sha` no es HEAD,
- *   - `gitAtStart.dirty` no es false,
- *   - `gitAtEnd.sha` cambió,
- *   - `ok`/`complete` no son true,
- *   - falta un gate del modo, hay un skip crítico o un expected no validado,
- *   - los artefactos de motion/contraste no declaran el mismo commit limpio.
+ * Compara `harness/evidence/latest.json` con el HEAD y el árbol actual.
+ * Falla si:
+ *   - el modo es `fast` sin --allow-fast, o es partial;
+ *   - falta complete/ok/exitCode 0/reason "ok"/expectedMatched;
+ *   - gitAtStart no es HEAD, el árbol está sucio o el SHA cambió;
+ *   - serverBuildSha no coincide con gitAtStart.sha;
+ *   - falta un gate, un skip crítico o un expected no validado;
+ *   - un artefacto declarado no existe o su hash/tamaño no coincide;
+ *   - un JSON de evidencia declara otro commit o dirty:true.
  *
  * No genera evidencia ni toca la app. Es el chequeo de handoff.
  */
 
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -27,12 +31,7 @@ const WEB = path.resolve(HERE, "..");
 const ROOT = path.resolve(WEB, "..");
 const LATEST = path.join(ROOT, "harness", "evidence", "latest.json");
 const KNOWN_MODES = ["fast", "static", "full"];
-
-const ARTIFACTS = {
-  motion: "harness/evidence/motion-check.json",
-  contrast: "harness/evidence/a11y-contrast.json",
-  hig: "demo/hig-after/audit.json",
-};
+const KNOWN_FLAGS = new Set(["--json", "--allow-fast"]);
 
 export function expectedIdsForEvidence(evidence) {
   const mode = evidence?.mode;
@@ -69,9 +68,81 @@ function timestamp(value) {
   return Number.isFinite(time) ? time : null;
 }
 
+function sha256File(file) {
+  return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+}
+
+/**
+ * Comprueba los artefactos embebidos: ruta relativa segura, existencia,
+ * SHA-256 y tamaño. También cruza `code.commit`/`code.dirty` cuando el JSON
+ * lo declara, para que un artefacto viejo no pase como evidencia de este HEAD.
+ */
+export function artifactProblems(artifacts, { root = ROOT, startSha } = {}) {
+  const problems = [];
+  if (!Array.isArray(artifacts)) {
+    return ["artifacts no es un array"];
+  }
+  for (const artifact of artifacts) {
+    if (!artifact || typeof artifact !== "object") {
+      problems.push("artefacto sin objeto");
+      continue;
+    }
+    const relative = String(artifact.path ?? "").replace(/\\/g, "/");
+    if (!relative) {
+      problems.push("artefacto sin path");
+      continue;
+    }
+    if (path.isAbsolute(relative) || relative.split("/").includes("..")) {
+      problems.push(`${relative}: ruta fuera del repo`);
+      continue;
+    }
+    const absolute = path.join(root, relative);
+    if (artifact.exists !== true) {
+      problems.push(`${relative}: marcado como no existente`);
+      continue;
+    }
+    if (!fs.existsSync(absolute)) {
+      problems.push(`${relative}: no existe`);
+      continue;
+    }
+    const stat = fs.statSync(absolute);
+    if (!stat.isFile()) {
+      problems.push(`${relative}: no es un archivo`);
+      continue;
+    }
+    if (!/^[0-9a-f]{64}$/i.test(String(artifact.sha256 ?? ""))) {
+      problems.push(`${relative}: sha256 inválido`);
+    } else {
+      const actual = sha256File(absolute);
+      if (actual !== artifact.sha256) {
+        problems.push(`${relative}: sha256 no coincide`);
+      }
+    }
+    if (artifact.size !== stat.size) {
+      problems.push(`${relative}: tamaño ${artifact.size} != ${stat.size}`);
+    }
+    if (relative.endsWith(".json")) {
+      try {
+        const body = JSON.parse(fs.readFileSync(absolute, "utf8"));
+        if (body?.code && startSha && body.code.commit !== startSha) {
+          problems.push(
+            `${relative}: code.commit ${body.code.commit ?? "?"} != ${startSha}`,
+          );
+        }
+        if (body?.code && body.code.dirty !== false) {
+          problems.push(`${relative}: code.dirty=${body.code.dirty}`);
+        }
+      } catch {
+        problems.push(`${relative}: JSON inválido`);
+      }
+    }
+  }
+  return problems;
+}
+
 export function validateEvidence(
   evidence,
-  { headSha, artifacts = null } = {},
+  { headSha, treeDirty = null, allowFast = false } = {},
 ) {
   const checks = [];
   const warnings = [];
@@ -102,15 +173,30 @@ export function validateEvidence(
     `schemaVersion=${evidence.schemaVersion}`,
   );
   check(
-    "mode es full/static/fast (no partial)",
-    KNOWN_MODES.includes(mode) && evidence.partial !== true,
-    `mode=${mode} partial=${evidence.partial}`,
+    "mode full/static (fast solo con --allow-fast)",
+    KNOWN_MODES.includes(mode) &&
+      evidence.partial !== true &&
+      (mode !== "fast" || allowFast),
+    `mode=${mode} partial=${evidence.partial} allowFast=${allowFast}`,
   );
+  if (mode === "fast" && allowFast) {
+    warnings.push("Evidencia fast aceptada con --allow-fast: no es handoff de demo.");
+  }
   check("ok global es true", evidence.ok === true, `ok=${evidence.ok}`);
   check(
     "complete es true",
     evidence.complete === true,
     `complete=${evidence.complete}`,
+  );
+  check(
+    "partial es false",
+    evidence.partial === false,
+    `partial=${evidence.partial}`,
+  );
+  check(
+    "error es null",
+    evidence.error == null,
+    `error=${evidence.error ?? "null"}`,
   );
   check(
     "gitAtStart.sha === HEAD",
@@ -133,6 +219,26 @@ export function validateEvidence(
     evidence.gitAtEnd?.dirty === false,
     `dirty=${evidence.gitAtEnd?.dirty}`,
   );
+  if (treeDirty !== null) {
+    check(
+      "árbol actual limpio (ignorando generados)",
+      treeDirty === false,
+      `dirty=${treeDirty}`,
+    );
+  }
+  const handoffMode = mode === "full" || mode === "static";
+  check(
+    "serverBuildSha === gitAtStart.sha (full/static)",
+    !handoffMode ||
+      (evidence.serverBuildSha === evidence.gitAtStart?.sha &&
+        evidence.gitAtStart?.sha !== "unknown"),
+    `${evidence.serverBuildSha ?? "?"} vs ${evidence.gitAtStart?.sha ?? "?"}`,
+  );
+  check(
+    "buildBound es true (full/static)",
+    !handoffMode || evidence.buildBound === true,
+    `buildBound=${evidence.buildBound}`,
+  );
   check(
     "expectedGates coincide con el modo",
     expectedIds.length > 0 && sameSet(expectedField, expectedIds),
@@ -150,48 +256,49 @@ export function validateEvidence(
     new Set(gateIds).size === gateIds.length,
     "",
   );
-  check(
-    "todos los gates están ok",
-    gates.length > 0 && gates.every((gate) => gate.ok === true),
-    gates
-      .filter((gate) => gate.ok !== true)
-      .map((gate) => gate.id)
-      .join(","),
-  );
 
-  const expectedProblems = [];
+  const gateProblems = [];
   for (const gate of gates) {
     const canonical = GATES_BY_ID.get(gate.id);
     if (!canonical) {
-      expectedProblems.push(`${gate.id}: gate desconocido`);
+      gateProblems.push(`${gate.id}: gate desconocido`);
       continue;
     }
-    if (gate.expected !== canonical.expected) {
-      expectedProblems.push(
-        `${gate.id}: expected declarado ${JSON.stringify(gate.expected)} ≠ canónico ${JSON.stringify(canonical.expected)}`,
+    if (gate.ok !== true) gateProblems.push(`${gate.id}: ok=${gate.ok}`);
+    if (gate.exitCode !== 0) {
+      gateProblems.push(`${gate.id}: exitCode=${gate.exitCode}`);
+    }
+    if (gate.reason !== "ok") {
+      gateProblems.push(`${gate.id}: reason=${gate.reason}`);
+    }
+    if (gate.expectedMatched !== true) {
+      gateProblems.push(`${gate.id}: expectedMatched=${gate.expectedMatched}`);
+    }
+    if (!Array.isArray(gate.artifacts)) {
+      gateProblems.push(`${gate.id}: sin artifacts[]`);
+    }
+    if (JSON.stringify(gate.expected) !== JSON.stringify(canonical.expected)) {
+      gateProblems.push(
+        `${gate.id}: expected declarado ${JSON.stringify(gate.expected)} != canonico ${JSON.stringify(canonical.expected)}`,
       );
     }
     if (gate.expectedBasis !== canonical.expectedBasis) {
-      expectedProblems.push(
-        `${gate.id}: expectedBasis ${gate.expectedBasis} ≠ ${canonical.expectedBasis}`,
+      gateProblems.push(
+        `${gate.id}: expectedBasis ${gate.expectedBasis} != ${canonical.expectedBasis}`,
       );
     }
-    if (canonical.expected == null) {
-      if (gate.expectedMatched !== null) {
-        expectedProblems.push(
-          `${gate.id}: sin expected pero expectedMatched=${gate.expectedMatched}`,
-        );
-      }
-    } else if (gate.expectedMatched !== true) {
-      expectedProblems.push(
-        `${gate.id}: expectedMatched=${gate.expectedMatched}`,
-      );
+    const problems = artifactProblems(gate.artifacts ?? [], {
+      root: ROOT,
+      startSha: evidence.gitAtStart?.sha,
+    });
+    for (const problem of problems) {
+      gateProblems.push(`${gate.id}: ${problem}`);
     }
   }
   check(
-    "cada expected se validó contra la salida",
-    expectedProblems.length === 0,
-    expectedProblems.slice(0, 6).join(" | "),
+    "cada gate ok/exitCode/reason/expected/artefactos válidos",
+    gateProblems.length === 0,
+    gateProblems.slice(0, 8).join(" | "),
   );
 
   const skipped = Array.isArray(evidence.skipped) ? evidence.skipped : [];
@@ -234,14 +341,14 @@ export function validateEvidence(
   );
 
   const started = timestamp(evidence.startedAt);
-  const finished = timestamp(evidence.finishedAt);
+  const ended = timestamp(evidence.endedAt);
   check(
-    "timestamps coherentes",
+    "timestamps coherentes (startedAt/endedAt)",
     started !== null &&
-      finished !== null &&
-      finished >= started &&
+      ended !== null &&
+      ended >= started &&
       Number(evidence.durationMs) >= 0,
-    `${evidence.startedAt} → ${evidence.finishedAt} · ${evidence.durationMs} ms`,
+    `${evidence.startedAt} -> ${evidence.endedAt} (${evidence.durationMs} ms)`,
   );
 
   check(
@@ -249,49 +356,14 @@ export function validateEvidence(
     typeof evidence.baseUrl === "string" && evidence.baseUrl.length > 0,
     evidence.baseUrl,
   );
-
-  if (artifacts) {
-    for (const id of ["motion", "contrast"]) {
-      const gate = gates.find((item) => item.id === id && item.ok === true);
-      if (!gate) continue;
-      const artifact = artifacts[id];
-      if (!artifact || typeof artifact !== "object") {
-        check(`artefacto ${id} presente`, false, ARTIFACTS[id]);
-        continue;
-      }
-      check(
-        `artefacto ${id} declara el mismo commit`,
-        artifact.code?.commit === evidence.gitAtStart?.sha,
-        `${artifact.code?.commit ?? "?"} vs ${evidence.gitAtStart?.sha ?? "?"}`,
-      );
-      check(
-        `artefacto ${id} declara dirty:false`,
-        artifact.code?.dirty === false,
-        `dirty=${artifact.code?.dirty}`,
-      );
-    }
-
-    const higGate = gates.find((item) => item.id === "hig" && item.ok === true);
-    if (higGate) {
-      const hig = artifacts.hig;
-      if (hig && typeof hig === "object" && hig.code) {
-        check(
-          "artefacto hig declara el mismo commit",
-          hig.code.commit === evidence.gitAtStart?.sha,
-          `${hig.code.commit ?? "?"} vs ${evidence.gitAtStart?.sha ?? "?"}`,
-        );
-        check(
-          "artefacto hig declara dirty:false",
-          hig.code.dirty === false,
-          `dirty=${hig.code.dirty}`,
-        );
-      } else {
-        warnings.push(
-          "HIG: demo/hig-after/audit.json no está disponible (gitignored); no se pudo cruzar el commit.",
-        );
-      }
-    }
-  }
+  check(
+    "node y os presentes",
+    typeof evidence.node === "string" &&
+      evidence.node.length > 0 &&
+      typeof evidence.os === "string" &&
+      evidence.os.length > 0,
+    `node=${evidence.node} os=${evidence.os}`,
+  );
 
   return {
     ok: checks.every((item) => item.ok),
@@ -311,17 +383,16 @@ function readJson(file) {
   }
 }
 
-function readArtifacts() {
-  const artifacts = {};
-  for (const [id, relative] of Object.entries(ARTIFACTS)) {
-    const file = path.join(ROOT, relative);
-    artifacts[id] = fs.existsSync(file) ? readJson(file) : null;
-  }
-  return artifacts;
-}
-
 function main() {
   const json = process.argv.includes("--json");
+  const allowFast = process.argv.includes("--allow-fast");
+  for (const arg of process.argv.slice(2)) {
+    if (!KNOWN_FLAGS.has(arg)) {
+      console.error(`Flag desconocido: ${arg}`);
+      return 2;
+    }
+  }
+
   if (!fs.existsSync(LATEST)) {
     console.error(`EVIDENCIA INVÁLIDA: falta ${path.relative(ROOT, LATEST)}`);
     return 1;
@@ -336,7 +407,8 @@ function main() {
   const head = getGit();
   const result = validateEvidence(latest, {
     headSha: head.sha,
-    artifacts: readArtifacts(),
+    treeDirty: head.dirty,
+    allowFast,
   });
 
   if (json) {
@@ -348,8 +420,9 @@ function main() {
           evidence: {
             mode: latest.mode,
             sha: latest.gitAtStart?.sha,
+            serverBuildSha: latest.serverBuildSha,
             startedAt: latest.startedAt,
-            finishedAt: latest.finishedAt,
+            endedAt: latest.endedAt,
           },
           checks: result.checks,
           warnings: result.warnings,
@@ -360,11 +433,11 @@ function main() {
     );
   } else {
     console.log(
-      `EVIDENCIA ${latest.mode} · ${String(latest.gitAtStart?.sha ?? "?").slice(0, 7)} · HEAD ${head.sha.slice(0, 7)}\n`,
+      `EVIDENCIA ${latest.mode} - ${String(latest.gitAtStart?.sha ?? "?").slice(0, 7)} - HEAD ${head.sha.slice(0, 7)} - build ${String(latest.serverBuildSha ?? "?").slice(0, 7)}\n`,
     );
     for (const item of result.checks) {
       console.log(
-        `${item.ok ? "PASS" : "FAIL"}  ${item.name}${item.detail ? ` — ${item.detail}` : ""}`,
+        `${item.ok ? "PASS" : "FAIL"}  ${item.name}${item.detail ? ` - ${item.detail}` : ""}`,
       );
     }
     for (const warning of result.warnings) {
@@ -373,7 +446,7 @@ function main() {
     console.log("");
     if (result.ok) {
       console.log(
-        `EVIDENCIA OK: ${latest.mode} en ${latest.gitAtStart?.sha} · ${latest.gates?.length ?? 0} gates · gitAtStart.dirty:false.`,
+        `EVIDENCIA OK: ${latest.mode} en ${latest.gitAtStart?.sha} - ${latest.gates?.length ?? 0} gates - buildSha ${latest.serverBuildSha} - árbol limpio.`,
       );
     } else {
       const failed = result.checks.filter((item) => !item.ok);

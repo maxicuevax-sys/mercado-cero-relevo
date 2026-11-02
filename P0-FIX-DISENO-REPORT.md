@@ -46,7 +46,7 @@
 | `npm run build` | PASS |
 | `checkout-audit.py` | **15/15 checks en verde** |
 | `mobile-audit.py` | **25/25 checks en verde** |
-| `motion-check.py` | **15 PASS · 0 FAIL** |
+| `motion-check.py` | **15 comprobaciones de esa fase** |
 | `p0-shell-e2e.py` | **52 PASS · 0 FAIL** |
 | `hig-after-audit.py` | **PASÓ** (360/390/768/1280, axe 0, 200 %, sin recortes/overflow) |
 

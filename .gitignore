@@ -21,6 +21,20 @@ demo/*.webm
 # Capturas y JSON regenerables de la auditoría HIG
 demo/hig-after/
 
+# Artefactos que escriben los gates y E2E. Se regeneran; no se versionan.
+# El full escribe estos paths, así que trackearlos ensuciaba gitAtEnd.
+demo/mobile-*
+demo/checkout-*
+demo/rehearsal.json
+demo/tunnel-*
+demo/stageshow/film-check.json
+demo/stageshow/*-sheet*.png
+harness/evidence/motion*
+harness/evidence/a11y-contrast*
+harness/evidence/mobile-320*
+harness/evidence/p0-*
+harness/evidence/p0-shell/
+
 # Sistema / editor
 .DS_Store
 Thumbs.db

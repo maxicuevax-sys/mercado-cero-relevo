@@ -336,7 +336,7 @@ Casos:
 
 - **Merge:** `9c85107`; endurecimientos posteriores en `9f7d02d` (`requestId` seguro fuera de contexto seguro, conteo inválido y checkbox tras 409).
 - **E2E:** `p0-corte-e2e.py` **69/0/0** en `:3101` sobre `9f7d02d`.
-- **Harness (histórico, corregido):** la corrida citada como “full 13/13 en `219b26f`” no es verificable en este worktree: `harness/evidence/latest.json` de esa época registra `gitAtStart.sha = 91ad4ee` y `git.dirty: true`, y el catálogo era anterior a `deps`. **No se usa como handoff.** El catálogo actual es 16 gates; `full` son 14 (15 con film).
-- **Motion:** `motion-check.py` **15/0** (el reporte original decía 14/0); `contrast` axe 0; HIG axe 0, `under12=0`. El JSON de 91ad4ee tiene `code.dirty:true`; el carril a11y debe corregirlo para un full limpio.
+- **Harness (histórico, corregido):** la corrida citada como “full 13 de 13 en `219b26f`” no es verificable en este worktree: `harness/evidence/latest.json` de esa época registra `gitAtStart.sha = 91ad4ee` y `git.dirty: true`, y el catálogo era anterior a `deps`. **No se usa como handoff.** El catálogo actual es 25 gates; `full` son 23 (24 con film).
+- **Motion:** `motion-check.py` **19/0** (el reporte original decía 14/0); `contrast` axe 0; HIG axe 0, `under12=0`. El JSON de 91ad4ee tiene `code.dirty:true`; el carril a11y debe corregirlo para un full limpio.
 - **Residuales:** migración pensada para un solo proceso `next start`; `requestId` no está atado al payload (la UI genera uno por apertura); los tests de dos contextos reales, 6 versiones en UI y migración parcial quedan como huecos de cobertura.
 - **Fallback probado:** con `crypto.randomUUID = undefined` (contexto no seguro), el cierre guarda con `requestId` `close_…` y responde “Corte #1 guardado”.

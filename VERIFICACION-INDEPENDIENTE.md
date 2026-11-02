@@ -84,7 +84,7 @@ El shell, la Caja task-first y el flujo demo ya funcionan, pero la app todavía 
 - Sheet de cobro; bloque demo separado; reset de demo con confirmación.
 - Papel retirado del TSX.
 - Targets 44 en la mayoría; `h1` por pantalla; sin scroll horizontal normal.
-- Lint/tsc limpios; contrato de webhook **27/27**; flujo demo completo 360/1280 sin errores de consola.
+- Lint/tsc limpios; contrato de webhook **27 aserciones de esa fase**; flujo demo completo 360/1280 sin errores de consola.
 
 ---
 
@@ -92,7 +92,7 @@ El shell, la Caja task-first y el flujo demo ya funcionan, pero la app todavía 
 
 - `git status`, `diff --stat`, `log`: rama `hig-redesign`; 6 archivos UI modificados; sin cambios en `api/lib`.
 - `npm run lint` → pass; `npx tsc --noEmit` → pass.
-- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27/27**.
+- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27 aserciones de esa fase**.
 - `python scripts/hig-after-audit.py` → 55.5 s; 360/390/768 home axe 0; 1280 `landmark-unique`; sheet de cobro 2 violaciones serias de contraste; `under44=0` en home normal; Corte 43×44; el script sale 0 aunque haya axe/200% roto.
 - Playwright propio: foco (`Shift+Tab` escapa), retorno a BODY, 200% 1280 (inputs 2 px, clipping), checkout 40→43.2/46.8 px, fiado mostrado como pagado, webhook real mostrado como demo, “Listo para entregar” sin cambiar estado, tabs sin estado/scroll, Fiado inline, Corte sin confirmación y 39 px.
 - Revisión visual: capturas en `demo/hig-after/` y `Temp\opencode\mc-verify\`.
@@ -139,7 +139,7 @@ El shell, la Caja task-first y el flujo demo ya funcionan, pero la app todavía 
 ### Evidencia ejecutada (implementador)
 
 - `python scripts/hig-after-audit.py` → **PASÓ**: 360/390/768/1280, axe 0, `under44=0`, 200% en Caja/Fiado/Corte/Meta/checkout/éxito, sin overflow, clipping ni solapes; el script ahora sale distinto de 0 si falla.
-- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27/27**.
+- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27 aserciones de esa fase**.
 - `npm run lint`, `npx tsc --noEmit`, `npm run build` → limpios.
 - Playwright propio: foco y 200% de Guía/Cobro/Fiado/Corte; verdad de pago; entrega `paid→fulfilled`; tabs con estado/scroll; sidebar 768; error inline de fiado con foco.
 
@@ -171,7 +171,7 @@ El shell, la Caja task-first y el flujo demo ya funcionan, pero la app todavía 
 - `python scripts/hig-after-audit.py` → **PASÓ** con los nuevos detectores y sheets 200%.
 - Regresión propia: verdad efectivo/demo/mixto, foco en 5 sheets (Tab, Shift+Tab, backdrop, retorno), Fiado con descarte, checkout 80 px, Corte 200%, todo en verde.
 - `npm run lint`, `npx tsc --noEmit`, `npm run build` → limpios.
-- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27/27**.
+- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27 aserciones de esa fase**.
 
 **Pendiente:** nueva verificación independiente de este segundo commit. No hay gate F4 hasta que pase.
 
@@ -194,7 +194,7 @@ El shell, la Caja task-first y el flujo demo ya funcionan, pero la app todavía 
 - `python scripts/hig-after-audit.py` → **PASÓ** en 360/390/768/1280, con sheets, Demo y `/success` al 200%.
 - Pruebas propias: mixto efectivo+demo, entrega desde Actividad (`paid→fulfilled`), Fiado con 5 clientes al 200%, cierre durante demo pay y auditoría sintética, todo en verde.
 - `npm run lint`, `npx tsc --noEmit`, `npm run build` → limpios.
-- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27/27**.
+- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27 aserciones de esa fase**.
 
 **Pendiente:** tercera verificación independiente. Sin ella no hay gate F4.
 
@@ -216,7 +216,7 @@ El shell, la Caja task-first y el flujo demo ya funcionan, pero la app todavía 
 - `python scripts/hig-after-audit.py` → **PASÓ** en 360/390/768/1280, con sheets, Demo y `/success` al 200%.
 - Prueba con datos grandes: ventas de $2,292.00, etiqueta “Ventas registradas · Hoy”, 4+ clientes de Fiado con nombres largos; todo sin clipping ni truncado.
 - `npm run lint`, `npx tsc --noEmit`, `npm run build` → limpios.
-- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27/27**.
+- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27 aserciones de esa fase**.
 
 **Pendiente:** cuarta verificación independiente. Sin ella no hay gate F4.
 
@@ -238,7 +238,7 @@ El shell, la Caja task-first y el flujo demo ya funcionan, pero la app todavía 
 - `python scripts/hig-after-audit.py` → **PASÓ**.
 - Prueba B7 + monto + error de red → todo en verde a 360/390.
 - `npm run lint`, `npx tsc --noEmit`, `npm run build` → limpios.
-- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27/27**.
+- `BASE_URL=http://localhost:3001 node scripts/webhook-contract.mjs` → **27 aserciones de esa fase**.
 
 **Pendiente:** quinta verificación independiente. Sin ella no hay gate F4.
 
@@ -257,7 +257,7 @@ El shell, la Caja task-first y el flujo demo ya funcionan, pero la app todavía 
 - Foco: 10/10 secuencias, 300/300 pulsaciones, 0 `BODY`.
 - Contrato: 30/30.
 - Audit oficial: exit 0; DOM sintético 8/8 categorías detectadas.
-- `lint`, `tsc`, build (20 rutas) y webhook 27/27.
+- `lint`, `tsc`, build (20 rutas) y webhook 27 aserciones de esa fase.
 - `:3000` intacto; `:3001` restaurado. Sin secretos.
 
 ### Observaciones residuales no bloqueantes

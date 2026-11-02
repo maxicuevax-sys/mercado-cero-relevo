@@ -57,7 +57,7 @@ El baseline no se inventa: se midió. La meta es mantener ≥ 90 y arreglar el c
 - **Un teléfono real de 360 px**: sin scroll horizontal, botones de al menos 44 px, texto legible con una mano.
 - **Lighthouse** en la pantalla principal: accesibilidad ≥ 90, sin errores de consola, sin layout shift grave.
 - **La demo grabada** y el runbook: si el internet o el banco fallan, hay respaldo.
-- **El contrato del dinero** sigue en 27/27 y el build sigue limpio.
+- **El contrato del dinero** sigue en 34/34 y el build sigue limpio.
 
 **Pasa** si el desconocido termina el flujo y las métricas se cumplen. **Falla** si la UI se ve mejor pero el flujo se entiende menos, o si la demo solo funciona en el desktop del desarrollador.
 
@@ -110,7 +110,7 @@ El baseline no se inventa: se midió. La meta es mantener ≥ 90 y arreglar el c
 | **1 nov** | Mi negocio, corte de caja, Mi camino, guía/onboarding | Impeccable (`distill`, `onboard`, `polish`) | Un desconocido completa el flujo |
 | **2 nov** | Accesibilidad y rendimiento en teléfono modesto | Addy Osmani | Lighthouse ≥ 90 en accesibilidad; sin errores de consola |
 | **3 nov** | Validación de campo: 3–6 comerciantes; observar, no pitchear | Superpowers (plan) + investigación | Lista de 3 fricciones y cambios aplicados |
-| **4 nov** | Revisión lean: código muerto, duplicación, estados | Ponytail | Hallazgos resueltos; build y 27/27 |
+| **4 nov** | Revisión lean: código muerto, duplicación, estados | Ponytail | Hallazgos resueltos; build y 34/34 |
 | **5 nov** | Runbook, video de respaldo, QR impreso, pitch | Superpowers + Impeccable | Video de 3 min y runbook |
 | **6 nov** | 5 ensayos cronometrados; preguntas adversariales; congelar código | verification-before-completion | Demo < 3 min, sin tocar código después de las 9 pm |
 | **7 nov** | Evento | — | Demo en vivo + respaldo |
@@ -140,7 +140,7 @@ El baseline no se inventa: se midió. La meta es mantener ≥ 90 y arreglar el c
 ### Dinero / demo
 
 - [ ] Build limpio.
-- [ ] Webhook **27/27**.
+- [ ] Webhook **34/34**.
 - [ ] Pago real de $0.01 **o** demo claramente etiquetada; nunca un simulado presentado como banco.
 - [ ] Video de respaldo y runbook listos.
 - [ ] Cero afirmaciones de custodia, acceso a cuentas familiares o pronósticos inventados.
@@ -169,7 +169,7 @@ claridad por estética.
 Se considera logrado solo si: (a) una persona ajena completa venta → cobro → confirmación →
 corte → apartado en menos de 3 minutos sin ayuda; (b) a 360 px no hay scroll horizontal y
 los controles principales son táctiles; (c) Lighthouse de accesibilidad ≥ 90 y no hay
-errores de consola en el flujo core; (d) el build sigue limpio y el webhook sigue en 27/27;
+errores de consola en el flujo core; (d) el build sigue limpio y el webhook sigue en 34/34;
 (e) hay video de respaldo y runbook. Si algo no pasa, se recorta el alcance antes que
 maquillar la demo.
 ```
@@ -203,7 +203,7 @@ La app dejó de ser un dashboard fintech genérico y se convirtió en un **objet
 
 - **Lighthouse: 100 accesibilidad · 100 best practices · 100 SEO**, sin fallos.
 - **Tasteskill inspector**: 6 FAIL / 8 WARN restantes. Son reglas de landing page o decisiones intencionales: el scrim de la foto, las reglas de libreta/recibo, el cuerpo a 14 px, las 3 fotos y el punto focal. Los fallos objetivos ya se corrigieron: contraste, texto < 12 px, headline de 2 líneas, glass, sombras, contenido oculto.
-- **Build limpio** y **webhook 27/27**.
+- **Build limpio** y **webhook 34/34**.
 - Tarjeta, link, QR, efectivo, fiado, corte y meta probados en navegador real.
 - **Auditoría 360 px emulada:** 25/25 checks, sin scroll horizontal en cada estado, sin texto < 12 px, controles principales ≥ 40 px, flujo completo en 10.2 s en producción (10–17 s en dev), 0 errores de consola.
 - **Checkout público 360 px:** 15/15 checks, tres métodos, pago demo y pantalla de éxito; Lighthouse 100/100/100.

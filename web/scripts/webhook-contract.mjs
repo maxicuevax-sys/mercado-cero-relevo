@@ -523,8 +523,10 @@ async function main() {
   if (failed.length > 0) {
     console.log("");
     for (const result of failed) {
-      console.log(`FALLÓ: ${result.name}${result.detail ? ` — ${result.detail}` : ""}`);
+      console.log(`FALLÓ: ${result.name}${result.detail ? ` - ${result.detail}` : ""}`);
     }
+  } else {
+    console.log(`WEBHOOK OK: ${results.length}/${results.length}`);
   }
 
   if (process.env.KEEP_DATA !== "1") {

@@ -11,7 +11,7 @@ Leyenda: ⬜ backlog · 🔵 en curso · ✅ verificado · ⛔ bloqueado (humano
 
 ## ⬜ Backlog (por carril)
 
-- [ ] **QA** — correr auditorías frescas en producción y emitir reporte: `mobile-audit.py` (25/25), `checkout-audit.py` (15/15), `tunnel-smoke.py` (8/8), `node scripts/webhook-contract.mjs` (27/27), `node scripts/preflight.mjs` (18/18), `node scripts/reconcile.mjs`.
+- [ ] **QA** — correr auditorías frescas en producción y emitir reporte: `mobile-audit.py` (25/25), `checkout-audit.py` (15/15), `tunnel-smoke.py` (8/8), `node scripts/webhook-contract.mjs` (34/34), `node scripts/preflight.mjs` (18/18), `node scripts/reconcile.mjs`.
 - [ ] **API** — cerrar cualquier gap que QA reporte en webhook, máquina de estados, fiado o corte.
 - [ ] **UI** — cerrar gaps de accesibilidad, responsive y contraste sin romper "Mostrador claro".
 - [ ] **Pagos** — revisar flujo "Verificar comprobante" (anti-fraude) y conciliación contra pey.
@@ -25,5 +25,5 @@ Leyenda: ⬜ backlog · 🔵 en curso · ✅ verificado · ⛔ bloqueado (humano
 
 - F3 "Mostrador claro" desplegado en producción.
 - Lighthouse 100 accesibilidad / 100 best practices / 100 SEO.
-- Webhook 27/27 aserciones; auditorías móvil/checkout/túnel pasando al momento del README.
-- Ensayo 14/14 pasos, promedio 4.8 s de flujo mecánico.
+- Webhook 34/34 aserciones; auditorías móvil/checkout/túnel pasando al momento del README.
+- Ensayo 15/15 pasos, promedio 4.8 s de flujo mecánico.
