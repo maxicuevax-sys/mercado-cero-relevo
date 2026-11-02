@@ -1,11 +1,11 @@
 {
-  "baseUrl": "http://localhost:3000",
+  "baseUrl": "http://localhost:3170",
   "code": {
-    "commit": "91ad4ee67148753d79fde7dc094f5f938ea5091c",
-    "branch": "master",
+    "commit": "c0248ba09247fec8d855c4d7b8c1180b83c30ed5",
+    "branch": "p0/fix-mobile-qa",
     "dirty": true
   },
-  "passed": 15,
+  "passed": 19,
   "failed": 0,
   "results": [
     {
@@ -26,7 +26,7 @@
     {
       "name": "cambiar de tab no espera: hay animación en curso a 80 ms",
       "ok": true,
-      "detail": "opacity=0.52125"
+      "detail": "opacity=0.311906"
     },
     {
       "name": "el cambio de tab conserva la misma velocidad",
@@ -41,12 +41,12 @@
     {
       "name": "la hoja entra en 220 ms",
       "ok": true,
-      "detail": "{\"name\": \"sheet-in\", \"duration\": \"0.22s\", \"opacity\": \"0.879995\"}"
+      "detail": "{\"name\": \"sheet-in\", \"duration\": \"0.22s\", \"opacity\": \"0.997912\"}"
     },
     {
       "name": "el fondo de la hoja entra en 140 ms",
       "ok": true,
-      "detail": "{\"name\": \"sheet-backdrop-in\", \"duration\": \"0.14s\", \"opacity\": \"0.476629\"}"
+      "detail": "{\"name\": \"sheet-backdrop-in\", \"duration\": \"0.14s\", \"opacity\": \"1\"}"
     },
     {
       "name": "el marcador del tab entra en 180 ms",
@@ -56,7 +56,27 @@
     {
       "name": "el scroll trigger llega al final de la veta",
       "ok": true,
-      "detail": "{\"name\": \"scroll-progress\", \"duration\": \"auto\", \"delay\": \"0s\", \"timeline\": \"scroll(root)\", \"opacity\": \"0.9\", \"transform\": \"matrix(1, 0, 0, 1, 0, 0)\"}"
+      "detail": "{\"name\": \"scroll-progress\", \"duration\": \"auto\", \"delay\": \"0s\", \"timeline\": \"--mc-main\", \"opacity\": \"0.9\", \"transform\": \"matrix(1, 0, 0, 1, 0, 0)\"}"
+    },
+    {
+      "name": "el wipe intercepta clics mientras existe",
+      "ok": true,
+      "detail": "{\"wipe\": true, \"duration\": \"0s\", \"pointerEvents\": \"auto\", \"transform\": \"matrix(1, 0, 0, 1, 0, 0)\", \"hit\": \"DIV.tab-wipe\", \"hitIsWipe\": true}"
+    },
+    {
+      "name": "durante el wipe el clic cae en el propio barrido",
+      "ok": true,
+      "detail": "{\"wipe\": true, \"duration\": \"0s\", \"pointerEvents\": \"auto\", \"transform\": \"matrix(1, 0, 0, 1, 0, 0)\", \"hit\": \"DIV.tab-wipe\", \"hitIsWipe\": true}"
+    },
+    {
+      "name": "un clic durante el wipe no abre una hoja",
+      "ok": true,
+      "detail": "0 hoja(s)"
+    },
+    {
+      "name": "el wipe desaparece aunque no llegue animationend (timeout de seguridad)",
+      "ok": true,
+      "detail": ""
     },
     {
       "name": "Pendientes también hace el reveal de su título",

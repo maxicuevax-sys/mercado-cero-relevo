@@ -16,7 +16,9 @@ import {
 const contributionSchema = z.object({
   amountCents: z.number().int().positive().max(MAX_GOAL_CONTRIBUTION_CENTS),
   note: z.string().max(MAX_GOAL_NOTE_CHARS).nullable().optional(),
-  requestId: z.string().trim().max(MAX_REQUEST_ID_CHARS).optional(),
+  // Sin llave, dos POST concurrentes suman dos veces. La aportación es dinero:
+  // exigimos idempotencia explícita en vez de aceptar el riesgo.
+  requestId: z.string().trim().min(1).max(MAX_REQUEST_ID_CHARS),
 });
 
 export async function POST(

@@ -335,6 +335,7 @@ textarea[aria-invalid="true"] {
   }
 
   .app-shell {
+    height: 100vh;
     height: 100dvh;
     min-height: 0;
     display: flex;
@@ -363,7 +364,13 @@ textarea[aria-invalid="true"] {
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     scroll-padding-top: 12px;
-    scroll-padding-bottom: 12px;
+    scroll-padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+
+  /* Los CTA que la persona necesita al final de una lista (por ejemplo
+     “Registrar abono” en Fiado) conservan aire al recibir foco. */
+  .main-container [data-chrome-critical] {
+    scroll-margin-bottom: calc(20px + env(safe-area-inset-bottom));
   }
 
   .app-main > .mobile-tabs {
@@ -598,7 +605,10 @@ button {
 }
 
 .mobile-tab-label {
-  font-size: min(0.8125rem, 13px);
+  /* Nunca por debajo de 12 px: a 320 el label no debe encogerse al nivel de
+     una nota al pie. El tope evita el salto a 17 px cuando cambia el ancho. */
+  font-size: clamp(12px, 0.8125rem, 13px);
+  line-height: 1.15;
   overflow-wrap: normal;
 }
 
@@ -788,7 +798,7 @@ select {
 
 @container (max-width: 20rem) {
   .mobile-tab-label {
-    font-size: min(0.8125rem, 13px);
+    font-size: clamp(12px, 0.8125rem, 13px);
     line-height: 1.15;
   }
 
@@ -828,6 +838,13 @@ select {
 
 .sheet-panel {
   container-type: inline-size;
+}
+
+/* El título de una hoja no necesita 40 px a 320/200 %. Con tope, “Verificar
+   comprobante” cabe sin recortarse y conserva su jerarquía. */
+.sheet-title {
+  font-size: min(1.25rem, 26px);
+  overflow-wrap: anywhere;
 }
 
 /* Controles de la guía: 3 columnas con texto normal, 1–2 al ampliar. */
@@ -1046,7 +1063,7 @@ select {
 
 @media (max-width: 480px) {
   .sheet-title {
-    font-size: 1.125rem;
+    font-size: min(1.125rem, 26px);
   }
 }
 
@@ -1273,6 +1290,34 @@ html[data-text-zoom="large"] button {
 .pay-shell {
   /* La barra fija total + CTA no tapa el último contenido. */
   padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+}
+
+/* A 200 % las palabras largas del checkout (“Transferencia”, “confirmación”)
+   pueden no caber. Se parten solo cuando hace falta; no se recortan. */
+.pay-shell p,
+.pay-shell span,
+.pay-shell dd,
+.pay-shell dt,
+.pay-shell h1,
+.pay-shell h2 {
+  overflow-wrap: anywhere;
+}
+
+/* En las tarjetas anidadas de 320 el padding fijo de 14 px deja menos ancho
+   que una palabra larga a 200 %. Se ajusta sin tocar la tipografía. */
+.pay-note {
+  padding-left: clamp(8px, 1.25vw, 14px);
+  padding-right: clamp(8px, 1.25vw, 14px);
+}
+
+/* La píldora “Recomendado” no crece con la raíz: a 320/200 % debe seguir
+   siendo una etiqueta corta, no una palabra partida en varias líneas. */
+.pay-method-tag {
+  font-size: min(0.8125rem, 14px);
+  line-height: 1.2;
+  padding-left: 8px;
+  padding-right: 8px;
+  white-space: nowrap;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -17,6 +17,7 @@
     "test:fix-datos": "node scripts/p0-fix-datos-contract.mjs",
     "test:security": "node --no-warnings scripts/security-contract.mjs",
     "test:harness": "node --test scripts/harness-gate.test.mjs scripts/check-deps.test.mjs scripts/evidence-integrity.test.mjs",
+    "test:mobile-320": "python scripts/mobile-320-e2e.py",
     "test:perf-data": "node scripts/perf-data-contract.mjs",
     "test:perf-data:http": "node scripts/perf-data-http.mjs",
     "verify:fast": "node scripts/harness-gate.mjs --fast",
