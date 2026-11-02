@@ -339,3 +339,4 @@ Casos:
 - **Harness:** `latest.json` **full 11/11** (código `9f7d02d`; `gitAtStart.dirty: false`).
 - **Motion:** `motion-check.py` **14/0**; HIG axe 0, `under12=0`.
 - **Residuales:** migración pensada para un solo proceso `next start`; `requestId` no está atado al payload (la UI genera uno por apertura); los tests de dos contextos reales, 6 versiones en UI y migración parcial quedan como huecos de cobertura.
+- **Fallback probado:** con `crypto.randomUUID = undefined` (contexto no seguro), el cierre guarda con `requestId` `close_…` y responde “Corte #1 guardado”.
