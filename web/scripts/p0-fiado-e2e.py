@@ -483,7 +483,7 @@ def main() -> int:
                 f"{settled_response.status} · {settled_response.text()[:180]}",
             )
             try:
-                page.get_by_text("ya está saldado").first.wait_for(timeout=4000)
+                page.get_by_text("ya está saldado").last.wait_for(timeout=4000)
                 stale_ok = True
             except Exception:
                 stale_ok = False
@@ -924,7 +924,7 @@ def main() -> int:
                 len(requests_to_3000) == 0,
                 f"{len(requests_to_3000)} peticiones",
             )
-            check("el carril corre en :3101", PORT == 3101, BASE)
+            check("el carril corre en su puerto aislado", PORT != 3000, BASE)
 
             browser.close()
     finally:

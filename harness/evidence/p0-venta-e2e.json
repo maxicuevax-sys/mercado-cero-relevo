@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "suite": "p0-venta-e2e",
-  "baseUrl": "http://localhost:3101",
+  "baseUrl": "http://localhost:3126",
   "command": "python web/scripts/p0-venta-e2e.py",
   "requires": [
     "pip install playwright",
@@ -9,21 +9,21 @@
     "servidor aislado en P0_BASE_URL (por defecto http://localhost:3101)"
   ],
   "code": {
-    "commit": "9c85107e1ec2e232cb480c33f6e2fcc54095f090",
-    "branch": "master",
+    "commit": "7bb0dc54a53ea8880415a6af219e19c65529e5d3",
+    "branch": "p0/fix-flujos",
     "dirty": true
   },
   "build": {
     "next": "16.4.3",
     "command": "npm run build"
   },
-  "startedAt": "2026-11-02T06:32:42.464682+00:00",
-  "finishedAt": "2026-11-02T06:33:32.086867+00:00",
+  "startedAt": "2026-11-02T16:10:10.948169+00:00",
+  "finishedAt": "2026-11-02T16:11:47.835819+00:00",
   "summary": {
-    "pass": 43,
+    "pass": 51,
     "fail": 0,
     "known": 0,
-    "total": 43
+    "total": 51
   },
   "results": [
     {
@@ -54,7 +54,7 @@
     {
       "name": "el draft nuevo no guarda dinero sin ítems",
       "ok": true,
-      "detail": "{\"version\": 1, \"items\": [{\"id\": \"draft_1793601166853_z8t2ue\", \"description\": \"\", \"quantity\": 1, \"unitPriceCents\": 0}], \"cashCents\": 0, \"creditCents\": 0, \"customerName\": \"\", \"textInput\": \"\", \"transcript\": \"\", \"updatedAt\": \"2026-11-02T06:32:46.861Z\"}"
+      "detail": "{\"version\": 1, \"items\": [{\"id\": \"draft_1793635822739_1gbxu9\", \"description\": \"\", \"quantity\": 1, \"unitPriceCents\": 0}], \"cashCents\": 0, \"creditCents\": 0, \"customerName\": \"\", \"textInput\": \"\", \"transcript\": \"\", \"updatedAt\": \"2026-11-02T16:10:22.749Z\"}"
     },
     {
       "name": "un parseo nuevo oculta el banner de recuperación",
@@ -109,12 +109,52 @@
     {
       "name": "efectivo $100 sobre $90 conserva cambio $10",
       "ok": true,
-      "detail": "orden=ord_553d60bed8f04ab2a257"
+      "detail": "orden=ord_26fb443ad5d54f9e8332"
     },
     {
       "name": "efectivo $100 con $30 fiado conserva cambio $40",
       "ok": true,
-      "detail": "orden=ord_b8fcdc4a239046e49c91"
+      "detail": "orden=ord_b243ba5c3cc1484596c9"
+    },
+    {
+      "name": "precio 35 conserva el texto crudo mientras se teclea",
+      "ok": true,
+      "detail": "35"
+    },
+    {
+      "name": "precio se formatea a 35.00 solo al salir",
+      "ok": true,
+      "detail": "35.00"
+    },
+    {
+      "name": "efectivo 100 conserva el texto crudo mientras se teclea",
+      "ok": true,
+      "detail": "100"
+    },
+    {
+      "name": "efectivo se formatea a 100.00 solo al salir",
+      "ok": true,
+      "detail": "100.00"
+    },
+    {
+      "name": "fiado 40 conserva el texto crudo mientras se teclea",
+      "ok": true,
+      "detail": "40"
+    },
+    {
+      "name": "fiado se formatea a 40.00 solo al salir",
+      "ok": true,
+      "detail": "40.00"
+    },
+    {
+      "name": "efectivo 100 + fiado 40 sobre 35 × 2 deja cambio 70",
+      "ok": true,
+      "detail": "Cambio $70.00 · Se aplican $30.00 al cobro."
+    },
+    {
+      "name": "la venta tecleada guarda precio 3500, efectivo 3000 y fiado 4000",
+      "ok": true,
+      "detail": "{\"id\": \"ord_65ad70af603c48ea8dae\", \"merchantId\": \"lupita\", \"status\": \"fulfilled\", \"totalCents\": 7000, \"paidCents\": 3000, \"digitalPaidCents\": 0, \"paymentMethod\": \"cash\", \"lastPaymentProvider\": \"cash\", \"customerName\": \"Tecleo\", \"creditId\": \"cred_48b0fbae74384bd4b42b\", \"creditCents\": 4000, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-02T16:10:55.062Z\", \"updatedAt\": \"2026-11-02T16:10:55.067Z\", \"items\": [{\"id\": \"itm_602cfb138cc84234938c\", \"description\": \"Tecleo P0\", \"quantity\": 2, \"unitPriceCents\": 3500, \"totalCents\": 7000}]}"
     },
     {
       "name": "Sí, limpiar enfoca Agregar producto",
@@ -129,7 +169,7 @@
     {
       "name": "el pendiente se guarda en localStorage",
       "ok": true,
-      "detail": "{\"version\": 1, \"orderId\": \"ord_e218bad9c7704321bbe7\", \"updatedAt\": \"2026-11-02T06:33:05.248Z\"}"
+      "detail": "{\"version\": 1, \"orderId\": \"ord_f447742bcb684a79a133\", \"updatedAt\": \"2026-11-02T16:11:00.696Z\"}"
     },
     {
       "name": "el aviso del pendiente usa Descartar aviso",
@@ -144,7 +184,7 @@
     {
       "name": "Continuar reabre el mismo pendiente sin duplicar",
       "ok": true,
-      "detail": "pedido=BBE7"
+      "detail": "pedido=A133"
     },
     {
       "name": "Descartar el aviso no borra la orden y enfoca Caja",
@@ -159,17 +199,17 @@
     {
       "name": "crear otra venta pagada no borra el pendiente ajeno",
       "ok": true,
-      "detail": "{\"version\": 1, \"orderId\": \"ord_8cf3b44bb71e4042b2f4\", \"updatedAt\": \"2026-11-02T06:33:09.054Z\"}"
+      "detail": "{\"version\": 1, \"orderId\": \"ord_678432d89613476fba31\", \"updatedAt\": \"2026-11-02T16:11:06.452Z\"}"
     },
     {
       "name": "abrir y cerrar otra orden pagada conserva el aviso",
       "ok": true,
-      "detail": "{\"version\": 1, \"orderId\": \"ord_8cf3b44bb71e4042b2f4\", \"updatedAt\": \"2026-11-02T06:33:09.054Z\"}"
+      "detail": "{\"version\": 1, \"orderId\": \"ord_678432d89613476fba31\", \"updatedAt\": \"2026-11-02T16:11:06.452Z\"}"
     },
     {
       "name": "Continuar cobro muestra el Pedido #### correcto",
       "ok": true,
-      "detail": "pedido=B2F4"
+      "detail": "pedido=BA31"
     },
     {
       "name": "pagar el pendiente lo borra del aviso",
@@ -184,7 +224,7 @@
     {
       "name": "crear una orden fulfilled ajena no borra el pendiente",
       "ok": true,
-      "detail": "{\"version\": 1, \"orderId\": \"ord_3307acaa87604bb68980\", \"updatedAt\": \"2026-11-02T06:33:14.368Z\"}"
+      "detail": "{\"version\": 1, \"orderId\": \"ord_c0a64b361115429da265\", \"updatedAt\": \"2026-11-02T16:11:14.477Z\"}"
     },
     {
       "name": "abrir y cerrar la orden fulfilled ajena conserva el pendiente",
@@ -214,7 +254,7 @@
     {
       "name": "precio 0 enfoca el campo de precio",
       "ok": true,
-      "detail": "foco=draft-price-draft_1793601201868_yhhzvk"
+      "detail": "foco=draft-price-draft_1793635886106_ptgn80"
     },
     {
       "name": "cantidad 0 restaurada enfoca cantidad y no envía POST",

@@ -313,6 +313,21 @@ export function PendingTasksPanel({
     };
   }, [load]);
 
+  useEffect(() => {
+    const refresh = () => {
+      void load();
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [load]);
+
   const retryLoad = useCallback(() => {
     setLoadState("loading");
     setLoadError(null);
@@ -411,7 +426,13 @@ export function PendingTasksPanel({
           dueAt,
         }),
       });
-      if (!response.ok) throw new Error(await responseError(response));
+      if (!response.ok) {
+        const message = await responseError(response);
+        if (response.status === 404 || response.status === 409) {
+          await load();
+        }
+        throw new Error(message);
+      }
       const body = (await response.json()) as { task?: Task };
       if (!body.task) {
         throw new Error("El servidor no devolvió el pendiente guardado.");
@@ -460,10 +481,13 @@ export function PendingTasksPanel({
       });
 
       if (!response.ok) {
-        if (response.status === 404) {
-          commit(tasks.filter((task) => task.id !== id));
+        const message = await responseError(response);
+        if (response.status === 404 || response.status === 409) {
+          // La lista local quedó vieja (otra pestaña la cambió). La fuente
+          // autoritativa es el servidor: recarga antes de avisar.
+          await load();
         }
-        throw new Error(await responseError(response));
+        throw new Error(message);
       }
 
       const body = (await response.json()) as { task?: Task };
@@ -582,7 +606,7 @@ export function PendingTasksPanel({
           data-focus="create"
           onClick={openForm}
           aria-expanded={formOpen}
-          aria-controls="pendientes-form"
+          aria-controls={formOpen ? "pendientes-form" : undefined}
           className="on-accent inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent-press"
         >
           <Plus className="h-5 w-5 shrink-0" aria-hidden="true" />
@@ -845,8 +869,6 @@ export function PendingTasksPanel({
                 <div className="flex items-start gap-2">
                   <button
                     type="button"
-                    role="checkbox"
-                    aria-checked={false}
                     aria-label={`Completar: ${task.title}`}
                     title={`Completar: ${task.title}`}
                     data-focus={`complete-${task.id}`}
@@ -901,7 +923,7 @@ export function PendingTasksPanel({
                           onClick={() => startPostpone(task.id)}
                           disabled={actionsDisabled}
                           aria-expanded={isPostponing}
-                          aria-controls={`postpone-${task.id}`}
+                          aria-controls={isPostponing ? `postpone-${task.id}` : undefined}
                           className="inline-flex min-h-12 items-center gap-1.5 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           <CalendarDays
