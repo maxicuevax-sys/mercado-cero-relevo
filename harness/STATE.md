@@ -66,6 +66,7 @@
 - **Evidencia integración:** `web/scripts/p0-integracion-e2e.py` → 51 PASS · 0 FAIL · 0 KNOWN (incluye el guard de voz de $50).
 - **Evidencia shell:** `web/scripts/p0-shell-e2e.py` → 52 PASS · 0 FAIL; HIG/axe 0.
 - **Resuelto:** la venta mixta ya ofrece cobrar el remanente digital y muestra “Pago mixto”; el fiado conserva su saldo vivo.
+- **Pagos intactos:** `orders.ts`, `pey-events.ts`, `/api/webhooks/pey` y `/api/verify` no cambiaron desde `586f1a6`; `truth` y `webhook` 27/27 siguen verdes.
 
 ## Siguiente tarea
 
