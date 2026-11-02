@@ -19,13 +19,26 @@ import { fileURLToPath } from "node:url";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..", "..");
 const LATEST = path.join(ROOT, "harness", "evidence", "latest.json");
+const LATEST_STATIC = path.join(
+  ROOT,
+  "harness",
+  "evidence",
+  "latest-static.json",
+);
+const FILE = fs.existsSync(LATEST)
+  ? LATEST
+  : fs.existsSync(LATEST_STATIC)
+    ? LATEST_STATIC
+    : LATEST;
 
-if (!fs.existsSync(LATEST)) {
-  console.error("No hay harness/evidence/latest.json. Corre verify:static o verify:full.");
+if (!fs.existsSync(FILE)) {
+  console.error(
+    "No hay harness/evidence/latest.json ni latest-static.json. Corre verify:full o verify:static.",
+  );
   process.exit(1);
 }
 
-const evidence = JSON.parse(fs.readFileSync(LATEST, "utf8"));
+const evidence = JSON.parse(fs.readFileSync(FILE, "utf8"));
 
 if (process.argv.includes("--json")) {
   console.log(JSON.stringify(evidence, null, 2));

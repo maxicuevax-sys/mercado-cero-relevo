@@ -43,7 +43,8 @@ demo/video/
 __pycache__/
 *.pyc
 
-# Harness: runs y latest.json son artefactos locales generados.
-# latest.json se ata al HEAD de la corrida y no se versiona para no quedar obsoleto.
+# Harness: runs, latest y latest-static son artefactos locales generados.
+# latest.json se ata a la corrida full; latest-static.json a la static.
 harness/evidence/runs/
 harness/evidence/latest.json
+harness/evidence/latest-static.json
