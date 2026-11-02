@@ -61,6 +61,8 @@ Corte de caja y Mi camino
 
 ## Slide 4 — La evidencia
 
+> **Cifras de gates:** última corrida conocida (2 nov 2026); los artefactos están ignorados y no están en el árbol. No son evidencia de la base auditada `3fe1cc9`. El ensayo sí se corrió en master `75179c7`.
+
 | Prueba | Resultado |
 |---|---|
 | Contrato del webhook | **34/34** aserciones: firma, replay, monto, referencia, QR, JSON inválido |
@@ -69,9 +71,9 @@ Corte de caja y Mi camino
 | 360 px emulado | **25/25** checks; sin scroll horizontal en cada estado; 0 errores de consola |
 | Checkout público 360 px | **19/19** checks; pago demo y éxito; Lighthouse 100/100/100 |
 | Túnel público | **8/8** por Cloudflare: reset, checkout, pago demo y estado pagado |
-| Ensayo del guion | **3/3** corridas; 15/15 pasos; 0 errores |
-| Video de respaldo | **34 s** con subtítulos |
-| Pago real | **bloqueado por BBVA/CoDi**; el modo demo está etiquetado y el contrato del webhook está probado |
+| Ensayo del guion | **3/3** corridas; **19/19** pasos; **~8.1 s**; `todo en verde: True` (master `75179c7`) |
+| Video | **histórico**: 39.8 s, 1,704,744 B, UI vieja, muestra $570; se regrabará tras el rediseño |
+| Pago real | **no hubo**. BBVA/CoDi sigue bloqueado; la demo usa `demo_paid` y el contrato del webhook está probado |
 
 **La honestidad también es parte del producto:** si el riel real falla, la app no inventa un “pagado”.
 
@@ -101,8 +103,8 @@ Corte de caja y Mi camino
 
 - Guion narrado con tiempos: **`GUION-3-MIN.md`**.
 - No leas las slides; úsalas como apoyo.
-- Di “modo demo” cuando uses la simulación. Si hay pago real de $0.01, dilo y muestra el portal.
+- Di “modo demo” cuando uses la simulación. En esta demo **no hubo pago real de $0.01**; no lo presentes como si lo hubiera.
 - No prometas tarjeta/Apple Pay si el checkout real solo muestra CoDi.
 - No digas que la app ve la cuenta de Ana; solo ve los cobros del negocio.
 - No digas que los apartados son una cuenta de ahorro; son declarados.
-- Si el jurado pregunta por el banco: “El contrato del webhook está probado 34/34; el riel bancario es lo que estamos esperando.”
+- Si el jurado pregunta por el banco: “El contrato del webhook está probado 34/34 en la última corrida conocida; el riel bancario es lo que estamos esperando.”

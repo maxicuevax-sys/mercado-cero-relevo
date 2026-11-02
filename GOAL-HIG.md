@@ -140,7 +140,7 @@ Matriz obligatoria en `HIG-AUDIT.md`:
 | Superficie | Hoy | Objetivo HIG |
 |---|---|---|
 | **Shell / header** | Marca + ficha de comerciante + reset + ayuda compitiendo; hero editorial largo. | Barra de título clara: destino actual, comerciante, “Demo” y ayuda. El reset sale del header. El hero desaparece del camino de trabajo. |
-| **Navegación** | Bottom nav con anclas a una página larga; en desktop no hay navegación lateral. | 4 destinos reales: **Caja, Fiado, Corte, Meta** (hoy “Camino”). Compacto: tab bar inferior con estado conservado. Regular: sidebar. Help/Verify/Demo como sheets. |
+| **Navegación** | Bottom nav con anclas a una página larga; en desktop no hay navegación lateral. | 5 destinos reales: **Caja, Fiado, Corte, Meta** (hoy “Camino”) y **Pendientes**. Compacto: tab bar inferior con estado conservado. Regular: sidebar. Help/Verify/Demo como sheets. |
 | **Caja / voz** | Micrófono grande, frases de ejemplo, draft, panel de cobro a la derecha; en móvil el cobro queda abajo. | Una tarea: “¿Qué vendiste?” + botón de voz con estados + texto alternativo. El pedido se confirma; el cobro se abre en **sheet en todos los tamaños** (en wide, centrado a 560). |
 | **Payment sheet** | Panel largo con QR, link, aviso de espera, botones demo y “cerrar”. | Sheet scoped: monto, estado, QR/link, un primario, un secundario, salida clara. Demo y real visualmente distintos. |
 | **Checkout público** | Funciona, pero con microtipografía de 9–12 px y estética de papel. | Tarjeta clara: comercio, total, productos, métodos, botón primario, aviso de seguridad y demo. Apple Pay solo con botón/JS oficial si está habilitado; si no, “Wallet”. |
@@ -196,7 +196,7 @@ Matriz obligatoria en `HIG-AUDIT.md`:
 | `--separator` | `#D9D5CC` | Hairlines |
 | `--accent` | `#0B6B4F` | Acción primaria, marca |
 | `--accent-press` | `#07513C` | Pressed |
-| `--success` | `#0B6B4F` | **Solo pago real confirmado** |
+| `--success` | `#0B6B4F` | **Solo pago pey confirmado por webhook** |
 | `--attention` | `#A6532F` | Fiado, pendiente, demo |
 | `--danger` | `#B3261E` | Error/destructivo; nunca marca |
 | `--info` | `#2F5D8A` | Información neutral |
@@ -215,7 +215,7 @@ Matriz obligatoria en `HIG-AUDIT.md`:
 
 ### 8.5 Navegación y contenido
 
-- 4 destinos estables; estado y scroll se conservan al volver.
+- 5 destinos estables; estado y scroll se conservan al volver.
 - Tabs: label corto + icono + `aria-current`; no acciones disfrazadas de tab.
 - Copy es-MX, verbos cortos: “Cobrar”, “Confirmar venta”, “Abrir checkout”, “Guardar corte”, “Apartar”.
 - “Webhook”, “API”, “pey” solo en ayuda/detalle técnico; la UI dice “Confirmación del banco”.

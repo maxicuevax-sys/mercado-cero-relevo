@@ -44,7 +44,7 @@ Lee la tarea en voz alta y deja que la persona la resuelva. No des pistas.
 
 4. **“Al final del día, cuenta el efectivo y cierra caja.”**
    - Debe actualizar el corte, contar y guardar.
-   - Si el abono de Juan fue en efectivo, el esperado es $620.
+   - Si el abono de Juan fue en efectivo, el esperado es **$550** (5×$100 + 1×$50 + 0×$20).
 
 5. **“Quieres apartar $25 para una sombrilla.”**
    - Debe encontrar **Meta** y registrar la aportación.

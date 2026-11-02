@@ -1,5 +1,7 @@
 # P0 perf UI — SSR inicial y checkout sin spinner
 
+> **Nota de vigencia (2 nov 2026):** cifras históricas de esta fase (base `c0248ba`). El gate `checkout` hoy reporta **19/19**. Estado actual: `harness/STATE.md` y `demo/STATUS.md`.
+
 Rama: `p0/perf-ui` · base `c0248ba` · worktree `mercado-cero-perf-ui`.
 Sin merge. Sin tocar `mercado-cero`, `:3000` ni `:3101`.
 
@@ -95,7 +97,7 @@ y no contiene “Cargando la caja”; checkout incluye “Pagar a …” y `$90.
 | HIG 360/390/768/1280 + axe | PASS · 0 violaciones |
 | `motion-check.py` | **19/19 PASS** |
 | `a11y-contrast.py` | **7/7 PASS** |
-| `checkout-audit.py` | **15/15 PASS** |
+| `checkout-audit.py` | **15 checks PASS (de esa fase)** |
 | `mobile-audit.py` | **25/25 PASS** |
 
 Notas de medición:

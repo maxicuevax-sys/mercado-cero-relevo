@@ -118,7 +118,7 @@ npm run build
 npm run test:security
 ```
 
-Arranca un servidor aislado en **127.0.0.1:3121** con base temporal, prueba
+Arranca un servidor aislado en **127.0.0.1:3191** con base temporal, prueba
 headers, CSRF, token, límites, rate limit, backup y protección de pagos reales.
 No usa `:3000`, no toca `mercado-cero` ni la base de la demo.
 

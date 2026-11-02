@@ -40,7 +40,7 @@ Eres el carril **ui** del swarm de Mercado Cero. Trabajas solo, en tu worktree, 
 ```bash
 cd web && npx tsc --noEmit
 python web/scripts/mobile-audit.py     # objetivo: 25/25
-python web/scripts/checkout-audit.py   # objetivo: 15/15 si tocaste checkout
+python web/scripts/checkout-audit.py   # objetivo: 19/19 si tocaste checkout
 ```
 
 Si una aserción falla por tu cambio, arréglala. Si falla porque la aserción está mal, dilo en el reporte en vez de relajar el umbral.

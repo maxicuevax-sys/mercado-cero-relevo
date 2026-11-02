@@ -20,9 +20,9 @@
 | `checkout` | `python scripts/checkout-audit.py` | Checkout público a 360 px | Pago real por pey | `CHECKOUT OK` + `19/19` | Crea/paga demo |
 | `hig` | `python scripts/hig-after-audit.py` | HIG/WCAG 2.2 AA, 48 px, 200%, **5 viewports** | Personas reales | `HIG OK` + `5 viewports` | Reset/recorre |
 | `motion` | `python scripts/motion-check.py` | Duraciones, scroll trigger, reduced-motion | Que el diseño guste | `MOTION OK` + `19 PASS` + `0 FAIL` | Recorre hojas/tabs |
-| `contrast` | `python scripts/a11y-contrast.py` | Alto contraste: axe, foco visible y 360 px | Personas reales | `CONTRAST OK` + `0 FAIL` | Recorre |
+| `contrast` | `python scripts/a11y-contrast.py` | Alto contraste: axe, foco visible y 360 px | Personas reales | `CONTRAST OK` + `7/7` + `0 FAIL` | Recorre |
 | `mobile-320` | `node scripts/mobile-320-gate.mjs` | 320/360 px en Chromium, Firefox y WebKit: labels, CTA y foco | Teléfono físico, lector real | `MOBILE 320/360 E2E` + `42 PASS` + `0 FAIL` | Servidor aislado + DB temporal |
-| `rehearsal` | `python scripts/rehearse-demo.py` | Guion completo, 3 corridas, 15 pasos por corrida | Que el público entienda | `REHEARSAL OK` + `todo en verde: True` | Reset/recorre |
+| `rehearsal` | `python scripts/rehearse-demo.py` | Guion completo, 3 corridas, 19 pasos por corrida | Que el público entienda | `REHEARSAL OK` + `todo en verde: True` | Reset/recorre |
 | `security` | `node scripts/security-contract.mjs` | CSRF, token de reset, límites de cuerpo, rate limit, headers, backup y protección de pagos reales | Despliegue real detrás de Cloudflare Access | `SEGURIDAD OK` | Servidor aislado + DB temporal |
 | `data` | `npm run test:fix-datos` | Idempotencia, transacciones, migraciones y mapeo de errores; **85 checks (58+20+7)** | Carga de producción | `DATOS OK` + `P0 FIX DATOS` + `P0 DB GUARDS` + `P0 ORDERS ATOMIC` | Servidor aislado + DB temporal |
 | `perf` | `node scripts/perf-budget.mjs` | Presupuesto de JS, CSS, fuentes, fotos e iconos del build | Latencia de red real | `PERF BUDGET OK` | No |
@@ -36,6 +36,8 @@
 | `film` | `python scripts/film-check.py` | 8 beats, contact sheet, motion sheet; opcional | Que el diseño guste | `FILM OK` + `SHEET` | Reset/recorre |
 
 **Conteos canónicos:** catálogo **25** gates; `fast` **3**, `static` **5**, `full` **23** (sin `build` ni `film`) y `full --with-film` **24**. Los markers se comparan con límites de palabra: `0 FAIL` no acepta `10 FAIL` y `25/25` no acepta `125/125`.
+
+**Estado real del ensayo (2 nov 2026):** en master `75179c7`, `rehearsal` pasó **3/3 corridas, 19/19 pasos, ~8.1 s, `todo en verde: True`**. El 503 de TTS (Piper no instalado) se ignora solo para `/api/tts`, no oculta otros errores. Esta cifra reemplaza los conteos anteriores de esa fase.
 
 **Cobertura p0:** `p0-venta` (65), `p0-fiado` (51), `p0-corte` (69), `p0-integracion` (51) y `p0-dinero` (45 + 3 KNOWN). Cada uno levanta su servidor aislado en 3211–3213 con SQLite temporal; `security`/`data` usan 3191/3192 y `mobile-320` 3214. `p0-shell` (68 PASS) sigue siendo evidencia de carril aparte, no un gate del full.
 
@@ -57,12 +59,12 @@
 
 | Evaluación | Criterio | Evidencia |
 |---|---|---|
-| Pago real de $0.01 | Webhook firmado, monto/moneda/ref exactos, una sola transición | Captura del portal + log de evento + SQLite |
-| Teléfono físico 360/320 px | Sin scroll horizontal, targets, una mano | Video/captura del dispositivo |
-| TalkBack / VoiceOver | Flujo crítico comprensible y operable | Notas + grabación |
-| 6–8 comerciantes | Tareas, errores, ayuda, SUS/NASA-TLX | `TEST-USUARIO.md` + registro |
+| Pago real de $0.01 | Webhook firmado, monto/moneda/ref exactos, una sola transición | **No ejecutado**: no hubo pago real; BBVA/CoDi sigue bloqueado. La demo usa `demo_paid`. |
+| Teléfono físico 360/320 px | Sin scroll horizontal, targets, una mano | Pendiente (evidencia actual: Playwright). |
+| TalkBack / VoiceOver | Flujo crítico comprensible y operable | Pendiente; sin grabación ni notas de lector real. |
+| 6–8 comerciantes | Tareas, errores, ayuda, SUS/NASA-TLX | **0/6–8 ejecutadas**; `TEST-USUARIO.md` + registro. |
 | Revisión de copy y verdad | Ningún demo se lee como pagado real | Revisión independiente |
-| Accesibilidad completa | No declararla sin las pruebas anteriores | `ACCESIBILIDAD.md` actualizado |
+| Accesibilidad completa | No declararla sin las pruebas anteriores | `ACCESIBILIDAD.md` actualizado; faltan personas y lectores. |
 
 ---
 
