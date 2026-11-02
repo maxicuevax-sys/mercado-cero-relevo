@@ -32,7 +32,7 @@
 ## Última corrida del harness
 
 - Fecha: **2 nov 2026, 08:10 UTC**
-- Código verificado: **`9f7d02d`** (P0-D endurecido, motion y voz); `latest.json` se generó sobre `78aaff3`, que solo añade evidencia.
+- Código verificado: **`9f7d02d`** (P0-D endurecido, motion y voz); `latest.json` se generó sobre `7f1a35c`, que solo añade evidencia.
 - Modo: **full**, **11/11** en verde, `gitAtStart.dirty: false`; `latest.json` con `ok: true`.
 - Gates: `guard`, `lint`, `types`, `truth`, `webhook` 27/27, `mobile` 25/25, `checkout` 15/15, `hig` axe 0, `rehearsal` 3/3 (4.6 s promedio), `tunnel` 8/8, `preflight` 18/18.
 - E2E de carril: corte **69/0/0**, integración **51/0/0**, fiado **50/0/0**, venta **43/0/0**, shell **52/0/0**, motion **14/0**.
