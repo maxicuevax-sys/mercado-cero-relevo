@@ -552,7 +552,6 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const chunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<number | null>(null);
-  const speechTimerRef = useRef<number | null>(null);
   const speechIdRef = useRef(0);
   const lastSpeechRef = useRef({ text: "", at: 0 });
   const mutedRef = useRef(muted);
@@ -900,38 +899,8 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     audioRef.current = null;
   }, []);
 
-  const speakBrowser = useCallback((text: string, speechId: number) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-
-    // Chrome puede atorar o repetir una utterance si se encola justo después
-    // de cancel(). Damos un tick y protegemos cada utterance con un límite.
-    if (speechTimerRef.current) window.clearTimeout(speechTimerRef.current);
-    speechTimerRef.current = window.setTimeout(() => {
-      if (speechIdRef.current !== speechId) return;
-      if (mutedRef.current || document.hidden) return;
-
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "es-MX";
-      utterance.rate = voiceRateRef.current;
-      utterance.pitch = 1;
-      const voice = window.speechSynthesis
-        .getVoices()
-        .find((candidate) => candidate.lang.toLowerCase().startsWith("es"));
-      if (voice) utterance.voice = voice;
-
-      const guard = window.setTimeout(() => {
-        if (speechIdRef.current === speechId) window.speechSynthesis.cancel();
-      }, Math.min(20000, 5000 + text.length * 120));
-
-      utterance.onend = () => window.clearTimeout(guard);
-      utterance.onerror = () => window.clearTimeout(guard);
-      window.speechSynthesis.speak(utterance);
-    }, 80);
-  }, []);
-
   const playAudio = useCallback(
-    (src: string, speechId: number, fallbackText: string) => {
+    (src: string) => {
       window.speechSynthesis?.cancel();
       stopAudio();
       const audio = new Audio(src);
@@ -941,23 +910,23 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       audio.onended = () => {
         if (audioRef.current === audio) audioRef.current = null;
       };
+      // Si el audio elegido no se puede reproducir, no caemos a la voz del
+      // navegador: el texto sigue en pantalla. Nunca una voz distinta.
       audio.onerror = () => {
         if (audioRef.current === audio) audioRef.current = null;
-        speakBrowser(fallbackText, speechId);
       };
       void audio.play().catch(() => {
         if (audioRef.current === audio) audioRef.current = null;
-        speakBrowser(fallbackText, speechId);
       });
     },
-    [speakBrowser, stopAudio],
+    [stopAudio],
   );
 
   const speakPiper = useCallback(
     async (text: string, speechId: number) => {
       const cached = audioCacheRef.current.get(text);
       if (cached) {
-        playAudio(cached, speechId, text);
+        playAudio(cached);
         return;
       }
 
@@ -982,13 +951,14 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
         }
         const url = URL.createObjectURL(blob);
         audioCacheRef.current.set(text, url);
-        playAudio(url, speechId, text);
-      } catch {
+        playAudio(url);
+      } catch (error) {
         if (controller.signal.aborted) return;
-        speakBrowser(text, speechId);
+        // Sin fallback al navegador: preferimos silencio y texto en pantalla.
+        console.warn("[tts] no se pudo reproducir la voz", error);
       }
     },
-    [playAudio, speakBrowser],
+    [playAudio],
   );
 
   const speak = useCallback(
@@ -1008,12 +978,11 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       lastSpeechRef.current = { text, at: now };
 
       const speechId = ++speechIdRef.current;
-      if (speechTimerRef.current) window.clearTimeout(speechTimerRef.current);
       ttsAbortRef.current?.abort();
 
       const file = TTS_FILES[text];
       if (file) {
-        playAudio(file, speechId, text);
+        playAudio(file);
         return;
       }
 
@@ -1075,7 +1044,6 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     window.addEventListener("beforeunload", stopSpeech);
     return () => {
       stopSpeech();
-      if (speechTimerRef.current) window.clearTimeout(speechTimerRef.current);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("beforeunload", stopSpeech);
     };
