@@ -593,7 +593,7 @@ export function PendingTasksPanel({
             id={resolvedHeadingId}
             data-sheet-fallback
             tabIndex={-1}
-            className="heading-in min-w-0 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none"
+            className="heading-in min-w-0 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink"
           >
             Pendientes
           </h1>
@@ -646,7 +646,7 @@ export function PendingTasksPanel({
               aria-describedby={
                 formErrorField === "title" ? formErrorId : undefined
               }
-              className="mt-1.5 min-h-12 w-full rounded-xl border border-separator bg-canvas px-3 py-2 text-ink placeholder:text-ink-2/70"
+              className="mt-1.5 min-h-12 w-full rounded-xl border border-separator bg-canvas px-3 py-2 text-ink placeholder:text-placeholder"
               placeholder="Pagar al proveedor"
             />
             <p className="mt-1 text-right text-xs text-ink-2">
@@ -674,7 +674,7 @@ export function PendingTasksPanel({
               aria-describedby={
                 formErrorField === "note" ? formErrorId : undefined
               }
-              className="mt-1.5 min-h-20 w-full resize-y rounded-xl border border-separator bg-canvas px-3 py-2 text-ink placeholder:text-ink-2/70"
+              className="mt-1.5 min-h-20 w-full resize-y rounded-xl border border-separator bg-canvas px-3 py-2 text-ink placeholder:text-placeholder"
               placeholder="A las 11, por la puerta de atrás"
             />
             <p className="mt-1 text-right text-xs text-ink-2">

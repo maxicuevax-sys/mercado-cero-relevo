@@ -195,8 +195,16 @@ def db_rows(sql: str, params: tuple = ()) -> list[tuple]:
         connection.close()
 
 
+_reset_client = 0
+
+
 def reset(page) -> None:
-    response = page.request.post(f"{BASE}/api/demo/reset")
+    # Cada reset simula un cliente distinto para no agotar el rate limit de la
+    # demo (5/min por IP) durante el setup repetido de los casos.
+    global _reset_client
+    _reset_client += 1
+    headers = {"x-forwarded-for": f"198.51.100.{(_reset_client % 200) + 1}"}
+    response = page.request.post(f"{BASE}/api/demo/reset", headers=headers)
     assert response.ok, f"demo/reset falló: {response.status} {response.text()}"
     page.goto(BASE, wait_until="networkidle")
     page.evaluate("localStorage.clear()")
@@ -323,17 +331,34 @@ def main() -> int:
             # El scroll de Caja se conserva al ir y volver de otro tab.
             page.locator('aside button:visible', has_text="Caja").first.click()
             page.wait_for_timeout(400)
-            page.evaluate("window.scrollTo(0, 500)")
-            page.wait_for_timeout(200)
+            # El alto real de Caja cambia con el layout; usar el máximo
+            # alcanzable evita depender de una altura fija.
+            target_scroll = page.evaluate(
+                "Math.min(500, Math.max(0, document.documentElement.scrollHeight - window.innerHeight))"
+            )
+            # `scroll-behavior: smooth` haría que el guardado capturara una
+            # posición intermedia; el test necesita el scroll ya asentado.
+            page.evaluate(
+                "top => window.scrollTo({top, left: 0, behavior: 'instant'})",
+                target_scroll,
+            )
+            page.wait_for_timeout(150)
             page.locator('aside button:visible', has_text="Pendientes").first.click()
             page.wait_for_timeout(350)
             page.locator('aside button:visible', has_text="Caja").first.click()
-            page.wait_for_timeout(400)
+            try:
+                page.wait_for_function(
+                    "target => Math.abs(window.scrollY - target) <= 24",
+                    arg=target_scroll,
+                    timeout=3000,
+                )
+            except Exception:
+                pass
             restored_scroll = page.evaluate("window.scrollY")
             check(
                 "el scroll de Caja se conserva al cambiar de tab",
-                abs(restored_scroll - 500) <= 24,
-                f"scrollY={restored_scroll}",
+                abs(restored_scroll - target_scroll) <= 24,
+                f"scrollY={restored_scroll} target={target_scroll}",
             )
             page.locator('aside button:visible', has_text="Pendientes").first.click()
             page.wait_for_timeout(300)
@@ -348,7 +373,7 @@ def main() -> int:
                 page.get_by_text("Pagar al proveedor", exact=True).count() >= 1,
             )
 
-            page.get_by_role("checkbox", name="Completar: Pagar al proveedor").click()
+            page.get_by_role("button", name="Completar: Pagar al proveedor").click()
             page.get_by_role("button", name=re.compile("Hechas")).wait_for(timeout=8000)
             page.wait_for_timeout(400)
             check(
@@ -568,7 +593,7 @@ def main() -> int:
             interpret(page, "Juan me transfirió 50")
             page.get_by_role("dialog").wait_for(timeout=8000)
             dialog = page.get_by_role("dialog")
-            selected = dialog.locator('[data-selected="true"]')
+            selected = dialog.locator('label[data-selected="true"]')
             check(
                 "me transfirió preselecciona Digital",
                 selected.count() == 1 and "Digital" in selected.inner_text(),
@@ -586,7 +611,7 @@ def main() -> int:
             dialog = page.get_by_role("dialog")
             check(
                 "sin método no se preselecciona efectivo",
-                dialog.locator('[data-selected="true"]').count() == 0,
+                dialog.locator('label[data-selected="true"]').count() == 0,
             )
             check(
                 "sin método Registrar abono queda deshabilitado",
@@ -598,7 +623,7 @@ def main() -> int:
             interpret(page, "Juan me pagó 50 en efectivo")
             page.get_by_role("dialog").wait_for(timeout=8000)
             dialog = page.get_by_role("dialog")
-            selected = dialog.locator('[data-selected="true"]')
+            selected = dialog.locator('label[data-selected="true"]')
             check(
                 "en efectivo preselecciona Efectivo",
                 selected.count() == 1 and "Efectivo" in selected.inner_text(),
@@ -870,7 +895,10 @@ def main() -> int:
                 "el nombre accesible del tab incluye su texto visible",
                 pendientes_tab.count() == 1,
             )
-            pendientes_tab.click()
+            # El foco al título es intencionalmente solo por teclado: un clic
+            # con puntero no debe robar el foco ni saltar el scroll.
+            pendientes_tab.focus()
+            page.keyboard.press("Enter")
             page.wait_for_selector("h1:has-text('Pendientes')", timeout=10000)
             page.wait_for_timeout(400)
             focus_id = page.evaluate(

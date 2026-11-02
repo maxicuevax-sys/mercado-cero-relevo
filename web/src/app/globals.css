@@ -7,6 +7,11 @@
   --color-surface-2: #ece3d4;
   --color-ink: #1a211b;
   --color-ink-2: #59615a;
+  /* Texto de placeholder: 5.0:1 sobre surface-2 y 6.0:1 sobre surface. */
+  --color-placeholder: #5c635c;
+  /* Borde de controles: 3.8:1 sobre surface-2 y 4.7:1 sobre surface.
+     `separator` se queda solo para hairlines y bordes de tarjetas. */
+  --color-control-border: #7a7165;
   --color-separator: #d7ccb9;
   --color-accent: #0a5b42;
   --color-accent-press: #074433;
@@ -46,6 +51,9 @@
   --background: var(--color-canvas);
   --foreground: var(--color-ink);
   --mc-tap: 48px;
+  /* Alto real del chrome fijo; lo mide CajaApp con ResizeObserver. */
+  --mc-chrome-top: 0px;
+  --mc-chrome-bottom: 0px;
   --mc-motion-fast: 160ms;
   --mc-motion-base: 220ms;
   --mc-motion-slow: 300ms;
@@ -67,6 +75,27 @@
 
 html {
   scroll-behavior: smooth;
+  /* El header es sticky y la tab bar fija: ningún ancla ni foco queda debajo. */
+  scroll-padding-top: calc(var(--mc-chrome-top, 0px) + 12px);
+  scroll-padding-bottom: calc(var(--mc-chrome-bottom, 0px) + 12px);
+}
+
+/* El foco programático de #main y de los encabezados conserva el chrome fijo. */
+main#main {
+  scroll-margin-top: calc(var(--mc-chrome-top, 0px) + 12px);
+  scroll-margin-bottom: calc(var(--mc-chrome-bottom, 0px) + 12px);
+}
+
+main#main:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 4px;
+}
+
+.screen-heading-block,
+.screen-heading__title,
+[data-sheet-fallback] {
+  scroll-margin-top: calc(var(--mc-chrome-top, 0px) + 16px);
+  scroll-margin-bottom: calc(var(--mc-chrome-bottom, 0px) + 16px);
 }
 
 body {
@@ -177,6 +206,8 @@ html[data-contrast="high"] {
   --color-surface-2: #f2f2f2;
   --color-ink: #000000;
   --color-ink-2: #1a1a1a;
+  --color-placeholder: #404040;
+  --color-control-border: #595959;
   --color-separator: #5c5c5c;
   --color-accent: #004d38;
   --color-accent-press: #003326;
@@ -217,6 +248,59 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+/* Placeholders con token sólido: 4.5:1 o más en normal y alto contraste.
+   Sin opacidad, porque la opacidad vuelve a bajar el contraste. */
+::placeholder {
+  color: var(--color-placeholder);
+  opacity: 1;
+}
+
+/* Los controles que nacen con `border-separator` suben a 3:1; `separator`
+   queda para hairlines. Los estados danger/attention/accent no se pisan. */
+button[class*="border-separator"],
+input[class*="border-separator"],
+select[class*="border-separator"],
+textarea[class*="border-separator"] {
+  border-color: var(--color-control-border);
+}
+
+label:has(input[type="radio"]),
+label:has(input[type="checkbox"]) {
+  border-color: var(--color-control-border);
+}
+
+label:has(input[type="radio"]:checked),
+label:has(input[type="checkbox"]:checked) {
+  border-color: var(--color-accent);
+}
+
+/* El radio real es sr-only: el anillo de foco se dibuja en la tarjeta. */
+.checkout-method:focus-within {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.radio-dot[data-selected="false"] {
+  border-color: var(--color-control-border);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-accent);
+}
+
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+/* La tab bar y el barrido no deben robar el foco al contenido. */
+.mobile-tabs {
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
 }
 
 button {
@@ -738,6 +822,64 @@ select {
   gap: 1.5rem;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Texto grande: 200 % de reflujo sin tocar el tamaño de la tipografía.       */
+/* El contenedor `.app-main` mide en `em`: con la raíz al 200 % el umbral      */
+/* solo se cruza cuando el texto es grande respecto del ancho.                */
+/* -------------------------------------------------------------------------- */
+
+.app-main {
+  container-type: inline-size;
+}
+
+@container (max-width: 24em) {
+  /* El header y la tab bar se comen el primer viewport; compactamos solo    */
+  /* espacio, nunca debajo de 12 px de texto.                                */
+  .main-container {
+    padding-top: 8px;
+  }
+
+  .screen-heading-block {
+    margin-bottom: 8px;
+  }
+
+  .screen-heading__subtitle {
+    margin-top: 4px;
+    line-height: 1.25;
+  }
+
+  .caja-panel {
+    padding: 8px;
+  }
+
+  .caja-text-entry label {
+    margin-top: 16px;
+  }
+
+  .caja-text-entry button,
+  .caja-text-entry input {
+    min-height: 48px;
+  }
+
+  .goal-card {
+    padding: 8px;
+  }
+
+  .goal-action-row > div,
+  .goal-action-row > button,
+  .goal-action-row input {
+    min-height: 48px;
+  }
+
+  .credit-list-card {
+    padding-top: 8px;
+  }
+
+  .credit-row button {
+    min-height: 48px;
+  }
+}
+
 @container (min-width: 56rem) {
   .caja-layout {
     grid-template-columns: minmax(0, 1fr) 22.5rem;
@@ -810,8 +952,10 @@ select {
   animation: tab-panel-in 160ms linear both;
 }
 
-/* Barrido de papel entre destinos: cubre el contenido, nunca la navegación,
-   y no intercepta clics. Es el gesto de página de ASLI, en 260 ms. */
+/* Barrido de papel entre destinos: cubre el contenido, nunca la navegación.
+   Mientras existe intercepta clics (pointer-events: auto) para que un toque
+   durante los 300 ms no active un control que todavía no se ve. La tab bar
+   (z-40) queda por encima. */
 @keyframes tab-wipe {
   from {
     transform: translateX(-104%);
@@ -825,7 +969,8 @@ select {
   position: fixed;
   inset: 0;
   z-index: 20;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: progress;
   background: linear-gradient(
     90deg,
     rgba(255, 253, 248, 0) 0%,

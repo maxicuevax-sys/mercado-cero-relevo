@@ -219,8 +219,16 @@ def credit_payments(credit_id: str) -> list[dict]:
     return [{"amountCents": int(row[0]), "method": row[1]} for row in rows]
 
 
+_reset_client = 0
+
+
 def reset(page) -> None:
-    response = page.request.post(f"{BASE}/api/demo/reset")
+    # Cada reset simula un cliente distinto para no agotar el rate limit de la
+    # demo (5/min por IP) durante el setup repetido de los casos.
+    global _reset_client
+    _reset_client += 1
+    headers = {"x-forwarded-for": f"198.51.100.{(_reset_client % 200) + 1}"}
+    response = page.request.post(f"{BASE}/api/demo/reset", headers=headers)
     assert response.ok, f"demo/reset falló: {response.status} {response.text()}"
     page.goto(BASE, wait_until="networkidle")
     page.evaluate("localStorage.clear()")
@@ -355,7 +363,7 @@ def main() -> int:
             open_voice_sheet(page)
             dialog = page.get_by_role("dialog")
             dialog.get_by_text("Digital", exact=True).click()
-            selected = dialog.locator('[data-selected="true"]')
+            selected = dialog.locator('label[data-selected="true"]')
             check(
                 "el método elegido se ve con check y estado",
                 selected.count() == 1

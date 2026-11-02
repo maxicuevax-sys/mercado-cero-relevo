@@ -595,6 +595,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const restoredDraftSignatureRef = useRef<string | null>(null);
   const creditPayLockRef = useRef(false);
   const toastTimerRef = useRef<number | null>(null);
+  const keyboardTabRef = useRef(false);
   const dashboardAbortRef = useRef<AbortController | null>(null);
   const dashboardInFlightRef = useRef(false);
 
@@ -987,25 +988,65 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   }, []);
 
   const selectTab = useCallback(
-    (next: Tab) => {
+    (next: Tab, viaKeyboard = false) => {
       scrollPositions.current[tab] = window.scrollY;
+      keyboardTabRef.current = viaKeyboard;
       setToast(null);
       if (next !== tab) setTabWipe((key) => key + 1);
       setTab(next);
-      // Al cambiar de destino, el foco va al título para que un lector de
-      // pantalla anuncie la sección sin recorrer toda la página.
-      window.requestAnimationFrame(() => {
-        document.getElementById(TAB_HEADINGS[next])?.focus({ preventScroll: true });
-      });
     },
     [tab],
   );
 
   useEffect(() => {
-    const saved = scrollPositions.current[tab] ?? 0;
-    const frame = window.requestAnimationFrame(() => window.scrollTo(0, saved));
+    // Al volver a un tab con scroll guardado conservamos la posición solo si
+    // la activación fue con puntero. Con teclado vamos arriba y enfocamos el
+    // título: el foco nunca queda 800 px fuera de la pantalla.
+    const restore = keyboardTabRef.current ? 0 : (scrollPositions.current[tab] ?? 0);
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo(0, restore);
+      if (keyboardTabRef.current) {
+        document.getElementById(TAB_HEADINGS[tab])?.focus({ preventScroll: true });
+      }
+    });
     return () => window.cancelAnimationFrame(frame);
   }, [tab]);
+
+  useEffect(() => {
+    // El chrome fijo se mide de verdad: `scroll-padding` no puede adivinar el
+    // alto de la tab bar cuando la raíz tipográfica crece al 200 %.
+    const header = document.querySelector<HTMLElement>(".topbar");
+    const tabs = document.querySelector<HTMLElement>(".mobile-tabs");
+    const syncChrome = () => {
+      const root = document.documentElement;
+      root.style.setProperty(
+        "--mc-chrome-top",
+        `${Math.round(header?.getBoundingClientRect().height ?? 0)}px`,
+      );
+      const tabsVisible = tabs && getComputedStyle(tabs).display !== "none";
+      root.style.setProperty(
+        "--mc-chrome-bottom",
+        `${tabsVisible ? Math.round(tabs.getBoundingClientRect().height) : 0}px`,
+      );
+    };
+    syncChrome();
+    const observer = new ResizeObserver(syncChrome);
+    if (header) observer.observe(header);
+    if (tabs) observer.observe(tabs);
+    window.addEventListener("resize", syncChrome);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", syncChrome);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Red de seguridad: el barrido debe desaparecer aunque `animationend` no
+    // llegue (pestaña en segundo plano, reduced motion, animación cancelada).
+    if (!tabWipe) return;
+    const timer = window.setTimeout(() => setTabWipe(0), 1000);
+    return () => window.clearTimeout(timer);
+  }, [tabWipe]);
 
   useEffect(() => {
     // Al abrir otro pedido, el error de entrega anterior deja de aplicar.
@@ -2005,6 +2046,12 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       ) : null}
       <a
         href="#main"
+        onClick={(event) => {
+          // El skip link no solo salta: enfoca main para que el lector de
+          // pantalla y el anillo de foco aterricen en el contenido.
+          event.preventDefault();
+          document.getElementById("main")?.focus();
+        }}
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-accent focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-white"
       >
         Saltar al contenido
@@ -2030,7 +2077,15 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
           onDemo={() => setDemoOpen(true)}
         />
 
-        <main id="main" className="main-container mx-auto w-full max-w-[1200px] px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:pb-10">
+        {/* La tab bar va antes de main en el DOM: el orden de Tab entra en la
+            navegación y luego en el contenido. Es fixed, no cambia el dibujo. */}
+        <MobileTabBar tab={tab} onTab={selectTab} />
+
+        <main
+          id="main"
+          tabIndex={-1}
+          className="main-container mx-auto w-full max-w-[1200px] px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:pb-10"
+        >
           {dashboardError ? (
             <div
               role="alert"
@@ -2118,7 +2173,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                       <button
                         type="button"
                         onClick={resumePendingOrder}
-                        aria-label="Continuar el cobro pendiente"
+                        aria-label="Continuar cobro pendiente"
                         className="flex min-h-12 items-center rounded-xl px-3 text-sm font-semibold text-green transition hover:text-accent"
                       >
                         Continuar cobro
@@ -2126,7 +2181,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                       <button
                         type="button"
                         onClick={discardPendingOrder}
-                        aria-label="Descartar el aviso de cobro pendiente"
+                        aria-label="Descartar aviso de cobro pendiente"
                         className="flex min-h-12 items-center rounded-xl px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
                       >
                         Descartar aviso
@@ -2147,7 +2202,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                       <button
                         type="button"
                         onClick={keepRestoredDraft}
-                        aria-label="Continuar la venta recuperada"
+                        aria-label="Continuar venta recuperada"
                         className="flex min-h-12 items-center rounded-xl px-3 text-sm font-semibold text-green transition hover:text-accent"
                       >
                         Continuar venta
@@ -2155,7 +2210,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                       <button
                         type="button"
                         onClick={discardRestoredDraft}
-                        aria-label="Descartar el borrador de venta"
+                        aria-label="Descartar borrador de venta"
                         className="flex min-h-12 shrink-0 items-center rounded-xl px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
                       >
                         Descartar borrador
@@ -2352,11 +2407,6 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
             </p>
           </footer>
         </main>
-
-        <MobileTabBar
-          tab={tab}
-          onTab={selectTab}
-        />
       </div>
 
       <Sheet
@@ -2734,13 +2784,14 @@ function CajaPanel(props: {
               if (event.key === "Enter") onInterpret();
             }}
             placeholder="Ej. 2 quesadillas $35"
-            className="min-h-12 min-w-0 flex-1 rounded-xl border border-separator bg-surface-2 px-3 text-[1rem] text-ink outline-none placeholder:text-ink-2/70 focus:border-accent/40"
+            className="min-h-12 min-w-0 flex-1 rounded-xl border border-separator bg-surface-2 px-3 text-[1rem] text-ink outline-none placeholder:text-placeholder focus:border-accent/40"
           />
           <button
             type="button"
             onClick={onInterpret}
             disabled={!textInput.trim() || transcribing}
             aria-busy={transcribing}
+            data-chrome-critical
             className="interpret-button flex min-h-12 w-full shrink-0 items-center justify-center gap-1.5 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-green transition hover:border-accent/40 disabled:opacity-50 sm:w-auto"
           >
             {transcribing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
@@ -2749,17 +2800,20 @@ function CajaPanel(props: {
         </div>
 
         <div className="mt-3 flex flex-wrap gap-2">
-          {SAMPLE_PHRASES.map((phrase) => (
-            <button
-              key={phrase}
-              type="button"
-              onClick={() => onSample(phrase)}
-              aria-label={phrase}
-              className="inline-flex max-w-full min-h-12 shrink-0 items-center rounded-full border border-separator bg-surface px-3 text-left text-sm font-medium text-ink-2 transition hover:border-accent/40 hover:text-accent"
-            >
-              {SAMPLE_LABELS[phrase] ?? phrase}
-            </button>
-          ))}
+          {SAMPLE_PHRASES.map((phrase) => {
+            const label = SAMPLE_LABELS[phrase] ?? phrase;
+            return (
+              <button
+                key={phrase}
+                type="button"
+                onClick={() => onSample(phrase)}
+                aria-label={`${label}: ${phrase}`}
+                className="inline-flex max-w-full min-h-12 shrink-0 items-center rounded-full border border-separator bg-surface px-3 text-left text-sm font-medium text-ink-2 transition hover:border-accent/40 hover:text-accent"
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         {voiceError ? (
@@ -2796,7 +2850,7 @@ function CajaPanel(props: {
               type="button"
               onClick={() => setConfirmingClear(true)}
               aria-expanded={confirmingClear}
-              aria-controls="clear-confirmation"
+              aria-controls={confirmingClear ? "clear-confirmation" : undefined}
               className="flex min-h-12 items-center gap-1.5 rounded-xl px-2.5 text-sm font-semibold text-ink-2 transition hover:text-danger"
             >
               <Trash2 className="h-4 w-4" />
@@ -2873,7 +2927,7 @@ function CajaPanel(props: {
                       placeholder="Producto"
                       aria-invalid={itemError?.field === "description"}
                       aria-describedby={itemError ? `item-error-${item.id}` : undefined}
-                      className="min-h-12 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 text-[1rem] font-semibold text-ink outline-none placeholder:text-ink-2/50 focus:border-separator focus:bg-surface"
+                      className="min-h-12 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 text-[1rem] font-semibold text-ink outline-none placeholder:text-placeholder focus:border-separator focus:bg-surface"
                       aria-label="Producto"
                     />
                     <button
@@ -3042,7 +3096,7 @@ function CajaPanel(props: {
                     placeholder="0.00"
                     aria-label="Efectivo recibido en pesos"
                     aria-describedby={changeCents > 0 ? "cash-change" : undefined}
-                    className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-ink-2/40"
+                    className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-placeholder"
                   />
                 </div>
                 {changeCents > 0 ? (
@@ -3077,7 +3131,7 @@ function CajaPanel(props: {
                     aria-label="Monto a fiado en pesos"
                     aria-invalid={overpay}
                     aria-describedby={overpay ? "fiado-overpay" : undefined}
-                    className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-ink-2/40"
+                    className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-placeholder"
                   />
                 </div>
               </label>
@@ -3100,7 +3154,7 @@ function CajaPanel(props: {
                   aria-label="Nombre del cliente para el fiado"
                   aria-invalid={Boolean(saleError) && creditCents > 0 && !customerName.trim()}
                   aria-describedby={saleError ? "sale-error" : undefined}
-                  className="min-w-0 flex-1 bg-transparent text-[1rem] font-semibold text-ink outline-none placeholder:text-ink-2/70"
+                  className="min-w-0 flex-1 bg-transparent text-[1rem] font-semibold text-ink outline-none placeholder:text-placeholder"
                 />
               </label>
             ) : null}
@@ -4569,7 +4623,7 @@ function CashCloseCard({
                 aria-describedby={
                   fieldError?.field === "counted" ? "corte-counted-error" : undefined
                 }
-                className="tabular min-h-12 w-full min-w-0 bg-transparent text-lg font-bold text-ink placeholder:text-ink-2/40"
+                className="tabular min-h-12 w-full min-w-0 bg-transparent text-lg font-bold text-ink placeholder:text-placeholder"
               />
             </div>
             {fieldErrorText("counted")}
@@ -4641,7 +4695,7 @@ function CashCloseCard({
             type="button"
             onClick={() => setShowCounts((value) => !value)}
             aria-expanded={showCounts}
-            aria-controls="corte-denominaciones"
+            aria-controls={showCounts ? "corte-denominaciones" : undefined}
             className="min-h-12 text-left text-sm font-semibold text-green underline-offset-2 hover:underline"
           >
             {showCounts ? "Ocultar conteo por billetes y monedas" : "Contar por billetes y monedas"}
@@ -5049,7 +5103,7 @@ function CashCloseCard({
                 aria-invalid={Boolean(reasonError)}
                 aria-describedby={reasonError ? "corte-reason-error" : undefined}
                 placeholder="Ejemplo: conté de nuevo y faltaba un billete."
-                className="mt-1 min-h-24 w-full rounded-xl border border-separator bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-ink-2/60 focus:border-green"
+                className="mt-1 min-h-24 w-full rounded-xl border border-separator bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-placeholder focus:border-green"
               />
               {reasonError ? (
                 <p
@@ -5237,7 +5291,7 @@ function GoalCard({
               inputMode="decimal"
               placeholder="Monto"
               aria-label="¿Cuánto apartaste?"
-              className="tabular min-h-12 w-full bg-transparent text-[1rem] text-ink outline-none placeholder:text-ink-2/60"
+              className="tabular min-h-12 w-full bg-transparent text-[1rem] text-ink outline-none placeholder:text-placeholder"
             />
           </div>
           <button
@@ -5245,6 +5299,7 @@ function GoalCard({
             onClick={() => void contribute()}
             disabled={saving}
             aria-busy={saving}
+            data-chrome-critical
             className="on-accent flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 text-sm font-semibold text-white transition hover:bg-accent-press disabled:opacity-60 sm:w-auto"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
@@ -5663,7 +5718,7 @@ function CreditList({
 
   return (
     <div className="space-y-4">
-      <div className="paper-card rounded-2xl border border-separator bg-surface p-4 shadow-card">
+      <div className="credit-list-card paper-card rounded-2xl border border-separator bg-surface p-4 shadow-card">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-ink-2">Saldo pendiente</p>
@@ -5703,7 +5758,7 @@ function CreditList({
       ) : (
         <div className="motion-list space-y-2.5">
           {credits.map((credit) => (
-            <div key={credit.id} className="rounded-2xl border border-separator bg-surface p-4">
+            <div key={credit.id} className="credit-row rounded-2xl border border-separator bg-surface p-4">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-terracotta-soft text-sm font-bold text-attention">
                   {initials(credit.customerName ?? "Cliente")}
@@ -5733,6 +5788,7 @@ function CreditList({
               <button
                 type="button"
                 onClick={() => onStart(credit)}
+                data-chrome-critical
                 className="mt-3 flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-surface-2 text-sm font-semibold text-ink-2 transition hover:bg-green-soft hover:text-green"
               >
                 <Banknote className="h-4 w-4" />
@@ -5943,8 +5999,9 @@ function CreditPaySheet({
                     />
                     <span
                       aria-hidden="true"
+                      data-selected={selected ? "true" : "false"}
                       className={cn(
-                        "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
+                        "radio-dot flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
                         selected
                           ? "border-green bg-green text-white"
                           : "border-ink-2/40 bg-surface",
@@ -5973,7 +6030,7 @@ function CreditPaySheet({
               rows={2}
               maxLength={280}
               placeholder="Ej. abonó la mitad, queda para el viernes"
-              className="mt-1 w-full rounded-xl border border-separator bg-surface-2 px-3 py-2 text-sm text-ink outline-none placeholder:text-ink-2/60 focus:border-accent/40"
+              className="mt-1 w-full rounded-xl border border-separator bg-surface-2 px-3 py-2 text-sm text-ink outline-none placeholder:text-placeholder focus:border-accent/40"
             />
           </label>
 
@@ -6053,7 +6110,7 @@ function VerifyCard({
           }}
           placeholder="Ej. 01HXYZTXN1234567890RSTUVWX"
           aria-label="ID de la transacción a verificar"
-          className="min-h-12 min-w-0 flex-1 rounded-xl border border-separator bg-surface-2 px-3 text-[1rem] text-ink outline-none placeholder:text-ink-2/60 focus:border-accent/40"
+          className="min-h-12 min-w-0 flex-1 rounded-xl border border-separator bg-surface-2 px-3 text-[1rem] text-ink outline-none placeholder:text-placeholder focus:border-accent/40"
         />
         <button
           type="button"
@@ -6340,13 +6397,13 @@ function ScreenHeading({
   compactSubtitle?: boolean;
 }) {
   return (
-    <div className="mb-5 min-w-0">
+    <div className="screen-heading-block mb-5 min-w-0">
       <div className="screen-heading">
         <h1
           id={headingId}
           data-sheet-fallback
           tabIndex={-1}
-          className="screen-heading__title heading-in text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none"
+          className="screen-heading__title heading-in text-[1.75rem] font-semibold leading-tight tracking-tight text-ink"
         >
           {title}
         </h1>
@@ -6393,7 +6450,7 @@ function AppSidebar({
   onDemo,
 }: {
   tab: Tab;
-  onTab: (tab: Tab) => void;
+  onTab: (tab: Tab, viaKeyboard?: boolean) => void;
   demoMode: boolean;
   onHelp: () => void;
   onDemo: () => void;
@@ -6418,7 +6475,7 @@ function AppSidebar({
             <button
               key={item.id}
               type="button"
-              onClick={() => onTab(item.id)}
+              onClick={(event) => onTab(item.id, event.detail === 0)}
               aria-current={active ? "page" : undefined}
               className={cn(
                 "flex min-h-[48px] w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold transition",
@@ -6535,7 +6592,13 @@ function TopBar({
   );
 }
 
-function MobileTabBar({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
+function MobileTabBar({
+  tab,
+  onTab,
+}: {
+  tab: Tab;
+  onTab: (tab: Tab, viaKeyboard?: boolean) => void;
+}) {
   return (
     <nav
       aria-label="Navegación inferior"
@@ -6549,7 +6612,7 @@ function MobileTabBar({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
             <button
               key={item.id}
               type="button"
-              onClick={() => onTab(item.id)}
+              onClick={(event) => onTab(item.id, event.detail === 0)}
               aria-current={active ? "page" : undefined}
               aria-label={
                 item.mobileLabel === item.label
@@ -7047,7 +7110,7 @@ function HelpContent({
                 type="button"
                 onClick={() => setExpanded(open ? null : index)}
                 aria-expanded={open}
-                aria-controls={panelId}
+                aria-controls={open ? panelId : undefined}
                 className="flex min-h-12 w-full items-center justify-between gap-3 px-3.5 py-3 text-left text-sm font-semibold text-ink"
               >
                 {question}

@@ -46,7 +46,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 
 ## 3 · Arquitectura de información
 
-### 3.1 Cuatro destinos
+### 3.1 Cinco destinos
 
 | Destino | Trabajo | Acción primaria |
 |---|---|---|
@@ -54,6 +54,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 | **Fiado** | Ver quién debe, abonar, historial | “Registrar abono” |
 | **Corte** | Contar efectivo, comparar, cerrar el día | “Guardar corte” |
 | **Meta** | Ver progreso y apartar | “Apartar” |
+| **Pendientes** | Ver recordatorios, anotar, posponer o completar | “Anotar pendiente” |
 
 - Los tabs son **destinos**, no anclas. Cada uno conserva scroll y estado.
 - “Verificar comprobante”, “Ayuda” y “Modo demo” son **acciones secundarias**, no destinos.
@@ -72,7 +73,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 │  contenido del destino      │
 │                             │
 ├─────────────────────────────┤
-│ Caja   Fiado   Corte  Meta  │  ← tab bar, 64 px + safe bottom
+│ Caja Fiado Corte Meta Tareas │  ← tab bar, 64 px + safe bottom
 └─────────────────────────────┘
 ```
 
@@ -87,6 +88,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 │ Fiado        │                              │
 │ Corte        │                              │
 │ Meta         │                              │
+│ Pendientes   │                              │
 │              │                              │
 │ Ayuda        │                              │
 │ Modo demo    │                              │
@@ -96,6 +98,8 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 - Sidebar 220 px (768–1199) / 240 px (≥1200).
 - En ≥1200, Caja usa dos columnas: venta/draft (640) + resumen/actividad (360).
 - El checkout siempre es una tarjeta centrada de máximo 480 px.
+- La tab bar va antes de `main` en el DOM y es fija; el skip link enfoca `main#main` y `scroll-padding` superior/inferior mide el chrome real.
+- Al 200 %, las acciones primarias de Caja, Meta y Fiado quedan completas por encima de la tab bar; el contenido nunca queda atrapado bajo el chrome.
 
 ### 3.3 Mapa de pantallas
 
@@ -108,6 +112,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 | Fiado | Tab Fiado | “Registrar abono” → sheet |
 | Corte | Tab Corte | “Guardar corte” → confirmación |
 | Meta | Tab Meta | “Apartar” inline |
+| Pendientes | Tab Pendientes | “Anotar pendiente” → lista |
 | Verificar | Acción secundaria en Caja | Sheet con resultado |
 | Ayuda | Acción en shell | Sheet |
 | Modo demo | Acción en shell | Sheet; reset confirmado |
@@ -120,26 +125,30 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 
 | Token | Valor | Uso | Contraste |
 |---|---|---|---|
-| `--color-canvas` | `#F7F5F0` | Fondo de app | — |
-| `--color-surface` | `#FFFFFF` | Tarjetas, sheets | — |
-| `--color-surface-2` | `#F0EEE8` | Campos agrupados, filas | — |
-| `--color-ink` | `#161A17` | Texto principal | 16.1:1 en canvas |
-| `--color-ink-2` | `#5B635D` | Texto secundario | 5.69:1 en canvas · 5.34:1 en surface-2 |
-| `--color-separator` | `#D9D5CC` | Hairlines, no texto | 1.46:1 en surface |
-| `--color-accent` | `#0B6B4F` | Acción primaria, marca | 5.97:1 en canvas · 6.50:1 blanco |
-| `--color-accent-press` | `#07513C` | Pressed | — |
-| `--color-success` | `#0B6B4F` | **Solo pago real confirmado** | 6.50:1 blanco |
-| `--color-attention` | `#A6532F` | Fiado, pendiente, demo | 5.38:1 blanco · 5.38:1 en surface |
-| `--color-danger` | `#B3261E` | Error/destructivo | 6.54:1 blanco |
+| `--color-canvas` | `#F3ECE0` | Fondo de app | — |
+| `--color-surface` | `#FFFDF8` | Tarjetas, sheets | — |
+| `--color-surface-2` | `#ECE3D4` | Campos agrupados, filas | — |
+| `--color-ink` | `#1A211B` | Texto principal | 14.0:1 en canvas · 12.9:1 en surface-2 |
+| `--color-ink-2` | `#59615A` | Texto secundario | 5.45:1 en canvas · 5.03:1 en surface-2 |
+| `--color-separator` | `#D7CCB9` | Hairlines y bordes de tarjetas; nunca controles | 1.46:1 en surface |
+| `--color-placeholder` | `#5C635C` | Texto de placeholder | 4.86:1 en surface-2 · 6.09:1 en surface |
+| `--color-control-border` | `#7A7165` | Bordes de inputs, selects, textareas, botones secundarios y radios | 3.77:1 en surface-2 · 4.72:1 en surface |
+| `--color-accent` | `#0A5B42` | Acción primaria, marca | 6.91:1 en canvas · 8.11:1 blanco |
+| `--color-accent-press` | `#074433` | Pressed | — |
+| `--color-success` | `#0A5B42` | **Solo pago real confirmado** | 8.11:1 blanco |
+| `--color-attention` | `#9C4E2B` | Fiado, pendiente, demo | 5.94:1 blanco · 5.05:1 en canvas |
+| `--color-danger` | `#A9241C` | Error/destructivo | 7.10:1 blanco |
 | `--color-info` | `#2F5D8A` | Información neutral | 6.88:1 blanco |
-| `--color-focus` | `#0B6B4F` | Foco visible; blanco sobre accent | ≥3:1 en canvas |
+| `--color-focus` | `#0A5B42` | Foco visible; blanco sobre accent | 3:1+ en canvas |
 
 **Reglas:**
 
 - El color nunca es el único portador: siempre texto + icono/forma.
 - `--color-success` no se usa en demo, fiado, pendiente ni “copia”.
 - `--color-attention` no se usa para errores destructivos; para eso está `danger`.
-- `--color-separator` no se usa para texto.
+- `--color-separator` no se usa para texto ni para bordes de controles.
+- `--color-placeholder` es sólido (sin opacidad): ≥4.5:1 en normal y en alto contraste.
+- `--color-control-border` mantiene ≥3:1 en inputs, selects, textareas, radios y botones secundarios.
 - Modo oscuro: tokens preparados, **no se implementa en F3**. Si se hace, se prueba contraste y apariencia.
 
 ### 4.2 Tipografía
@@ -251,7 +260,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 
 ### 5.5 TabBar / Sidebar
 
-- 4 destinos; icono + label; `aria-current="page"` en el activo.
+- 5 destinos; icono + label; `aria-current="page"` en el activo.
 - 44×44 mínimo; safe bottom.
 - Estado y scroll por destino.
 - Sin acciones disfrazadas de tab.
@@ -509,7 +518,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 
 | Actual | Nuevo |
 |---|---|
-| `CajaApp` página larga | Shell + 4 destinos |
+| `CajaApp` página larga | Shell + 5 destinos |
 | Hero + foto | Bienvenida/ayuda o una franja editorial; no en Caja |
 | `CajaPanel` | `VoiceSaleCard` + `DraftTicket` |
 | `PaymentPanel` | `PaymentSheet` |

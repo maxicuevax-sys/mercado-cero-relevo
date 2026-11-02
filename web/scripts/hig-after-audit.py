@@ -107,6 +107,41 @@ def measure(page, label: str) -> dict:
                 const s = getComputedStyle(el);
                 return r.width > 2 && r.height > 2 && s.visibility !== 'hidden' && s.display !== 'none' && s.opacity !== '0' && !clippedByAncestor(el);
             };
+            const parseColor = (value) => {
+                const match = String(value || '').match(/rgba?\\(([^)]+)\\)/);
+                if (!match) return null;
+                const parts = match[1].split(',').map(part => parseFloat(part.trim()));
+                if (parts.length < 3 || parts.some((part, index) => index < 3 && !Number.isFinite(part))) return null;
+                return { r: parts[0], g: parts[1], b: parts[2], a: parts.length > 3 ? parts[3] : 1 };
+            };
+            const blend = (fg, bg) => ({
+                r: fg.r * fg.a + bg.r * (1 - fg.a),
+                g: fg.g * fg.a + bg.g * (1 - fg.a),
+                b: fg.b * fg.a + bg.b * (1 - fg.a),
+                a: 1,
+            });
+            const luminance = (color) => {
+                const channel = (value) => {
+                    const c = value / 255;
+                    return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+                };
+                return 0.2126 * channel(color.r) + 0.7152 * channel(color.g) + 0.0722 * channel(color.b);
+            };
+            const contrast = (a, b) => {
+                const la = luminance(a), lb = luminance(b);
+                return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+            };
+            const solidBackground = (el) => {
+                let node = el;
+                while (node && node !== document.documentElement) {
+                    const color = parseColor(getComputedStyle(node).backgroundColor);
+                    if (color && color.a >= 0.95) return color;
+                    node = node.parentElement;
+                }
+                const htmlColor = parseColor(getComputedStyle(document.documentElement).backgroundColor);
+                if (htmlColor && htmlColor.a >= 0.95) return htmlColor;
+                return parseColor(getComputedStyle(document.body).backgroundColor) || { r: 243, g: 236, b: 224, a: 1 };
+            };
             const textEls = Array.from(root.querySelectorAll('p, span, button, a, label, h1, h2, h3, h4, dt, dd, li'))
                 .filter(el => el.innerText && el.innerText.trim().length > 0 && visible(el))
                 .map(el => ({
@@ -360,6 +395,114 @@ def measure(page, label: str) -> dict:
                 ? getComputedStyle(optionGrid).gridTemplateColumns.split(' ').filter(Boolean).length
                 : null;
 
+            // Placeholders: color computado de ::placeholder contra su superficie.
+            const placeholderFailures = [];
+            for (const el of root.querySelectorAll('input[placeholder], textarea[placeholder]')) {
+                if (!visible(el) || el.type === 'hidden') continue;
+                const raw = getComputedStyle(el, '::placeholder').color;
+                const fg = parseColor(raw);
+                if (!fg) continue;
+                const bg = solidBackground(el);
+                const ratio = contrast(blend(fg, bg), bg);
+                if (ratio < 4.5) {
+                    placeholderFailures.push({
+                        text: (el.getAttribute('placeholder') || '').slice(0, 40),
+                        color: raw,
+                        ratio: Math.round(ratio * 100) / 100,
+                    });
+                }
+            }
+
+            // Bordes visibles de controles: 3:1 contra la superficie.
+            const borderFailures = [];
+            const borderCandidates = Array.from(root.querySelectorAll('button, input, select, textarea, label'))
+                .filter(el => visible(el))
+                .filter(el => el.tagName !== 'LABEL' || el.querySelector('input[type="radio"], input[type="checkbox"]'));
+            for (const el of borderCandidates) {
+                const s = getComputedStyle(el);
+                if (s.borderStyle === 'none' || parseFloat(s.borderTopWidth) < 1) continue;
+                const fg = parseColor(s.borderTopColor);
+                if (!fg || fg.a < 0.2) continue;
+                const bg = solidBackground(el.parentElement || el);
+                const ratio = contrast(blend(fg, bg), bg);
+                if (ratio < 3) {
+                    borderFailures.push({
+                        tag: el.tagName,
+                        text: (el.innerText || el.getAttribute('aria-label') || el.getAttribute('placeholder') || '').trim().replace(/\\s+/g, ' ').slice(0, 40),
+                        color: s.borderTopColor,
+                        ratio: Math.round(ratio * 100) / 100,
+                    });
+                }
+            }
+
+            // Controles primarios tapados por el chrome fijo. Solo se marcan
+            // como fallo los que llevan `data-chrome-critical`: el resto del
+            // contenido puede pasar por debajo de la tab bar al hacer scroll.
+            const chromeOverlaps = [];
+            const chromeUnderlay = [];
+            if (!dialog && window.scrollY <= 2) {
+                const header = document.querySelector('header');
+                const chromeRects = [];
+                if (tabBarRect && tabBarRect.height > 0) chromeRects.push(['tab-bar', tabBarRect]);
+                if (header) {
+                    const hr = header.getBoundingClientRect();
+                    if (hr.height > 0 && hr.top < 2) chromeRects.push(['header', hr]);
+                }
+                for (const el of root.querySelectorAll('[data-chrome-critical], button, a[href], input, select, textarea, label')) {
+                    if (!visible(el)) continue;
+                    if (el.closest('nav[aria-label="Navegación inferior"], header, [role="dialog"]')) continue;
+                    const r = el.getBoundingClientRect();
+                    if (r.bottom <= 0 || r.top >= window.innerHeight) continue;
+                    const critical = el.hasAttribute('data-chrome-critical') || Boolean(el.closest('[data-chrome-critical]'));
+                    for (const [name, chrome] of chromeRects) {
+                        const x = Math.max(0, Math.min(r.right, chrome.right) - Math.max(r.left, chrome.left));
+                        const y = Math.max(0, Math.min(r.bottom, chrome.bottom) - Math.max(r.top, chrome.top));
+                        const area = x * y;
+                        if (!area) continue;
+                        const ratio = area / (r.width * r.height);
+                        if (ratio > 0.25) {
+                            const entry = {
+                                chrome: name,
+                                tag: el.tagName,
+                                text: (el.innerText || el.getAttribute('aria-label') || el.getAttribute('placeholder') || '').trim().replace(/\\s+/g, ' ').slice(0, 40),
+                                ratio: Math.round(ratio * 100),
+                            };
+                            if (critical) chromeOverlaps.push(entry);
+                            else chromeUnderlay.push(entry);
+                        }
+                    }
+                }
+            }
+
+            // Label in Name: el nombre accesible debe contener el texto visible.
+            const labelMismatches = [];
+            const normalize = (value) => String(value || '').replace(/\\s+/g, ' ').trim().toLowerCase();
+            for (const el of root.querySelectorAll('button, a[href], [role="button"]')) {
+                if (!visible(el)) continue;
+                const visibleText = normalize(el.innerText);
+                const label = normalize(el.getAttribute('aria-label'));
+                if (!visibleText || !label) continue;
+                // Los botones que solo muestran un glifo (+/−/×) no son texto
+                // visible: su nombre accesible describe la acción.
+                if (!/[0-9a-z\u00e0-\u00ff]/i.test(visibleText)) continue;
+                if (!label.includes(visibleText)) {
+                    labelMismatches.push({
+                        tag: el.tagName,
+                        text: visibleText.slice(0, 40),
+                        label: label.slice(0, 60),
+                    });
+                }
+            }
+
+            // aria-controls solo puede apuntar a un panel que ya existe.
+            const danglingControls = Array.from(root.querySelectorAll('[aria-controls]'))
+                .filter(el => !document.getElementById(el.getAttribute('aria-controls')))
+                .map(el => ({
+                    tag: el.tagName,
+                    controls: el.getAttribute('aria-controls'),
+                    text: (el.innerText || el.getAttribute('aria-label') || '').trim().replace(/\\s+/g, ' ').slice(0, 40),
+                }));
+
             return {
                 innerWidth: window.innerWidth,
                 visualViewportWidth: window.visualViewport ? window.visualViewport.width : window.innerWidth,
@@ -385,9 +528,26 @@ def measure(page, label: str) -> dict:
                 saleAboveTabBar,
                 tabBarVisible,
                 tabBarTop: tabBarVisible ? Math.round(tabBarRect.top) : null,
+                scrollY: Math.round(window.scrollY),
                 metaAmountVisible: Boolean(metaAmount),
                 metaAmountText: metaAmount ? (metaAmount.innerText || '').trim().replace(/\\s+/g, ' ').slice(0, 70) : null,
-                metaActionVisible: metaActionRect ? metaActionRect.top < window.innerHeight && metaActionRect.bottom > 0 : null,
+                metaActionVisible: metaActionRect
+                    ? metaActionRect.top < (tabBarVisible ? tabBarRect.top : window.innerHeight) &&
+                      metaActionRect.bottom > 0 &&
+                      (!tabBarVisible || metaActionRect.bottom <= tabBarRect.top + 1)
+                    : null,
+                chromeOverlapCount: chromeOverlaps.length,
+                chromeOverlaps: chromeOverlaps.slice(0, 8),
+                chromeUnderlayCount: chromeUnderlay.length,
+                chromeUnderlay: chromeUnderlay.slice(0, 6),
+                placeholderFailureCount: placeholderFailures.length,
+                placeholderFailures: placeholderFailures.slice(0, 8),
+                borderFailureCount: borderFailures.length,
+                borderFailures: borderFailures.slice(0, 8),
+                labelMismatchCount: labelMismatches.length,
+                labelMismatches: labelMismatches.slice(0, 8),
+                danglingControlCount: danglingControls.length,
+                danglingControls: danglingControls.slice(0, 8),
                 optionColumns,
                 textCount: textEls.length,
                 under12Count: textEls.filter(t => t.size < 12).length,
@@ -712,6 +872,31 @@ def main() -> int:
                         f"“{item['word']}” en “{item['text']}”" for item in value.get("brokenWords", [])[:4]
                     )
                     failures.append(f"{view} {key}: {value['brokenWordCount']} palabras partidas ({words})")
+                if value.get("chromeOverlapCount", 0) > 0:
+                    for item in value.get("chromeOverlaps", []):
+                        failures.append(
+                            f"{view} {key}: control tapado por {item['chrome']} al {item['ratio']}% “{item['text']}”"
+                        )
+                if value.get("placeholderFailureCount", 0) > 0:
+                    for item in value.get("placeholderFailures", []):
+                        failures.append(
+                            f"{view} {key}: placeholder {item['ratio']}:1 “{item['text']}”"
+                        )
+                if value.get("borderFailureCount", 0) > 0:
+                    for item in value.get("borderFailures", []):
+                        failures.append(
+                            f"{view} {key}: borde de control {item['ratio']}:1 en {item['tag']} “{item['text']}”"
+                        )
+                if value.get("labelMismatchCount", 0) > 0:
+                    for item in value.get("labelMismatches", []):
+                        failures.append(
+                            f"{view} {key}: Label in Name “{item['text']}” / “{item['label']}”"
+                        )
+                if value.get("danglingControlCount", 0) > 0:
+                    for item in value.get("danglingControls", []):
+                        failures.append(
+                            f"{view} {key}: aria-controls colgante “{item['controls']}” en “{item['text']}”"
+                        )
                 width = int(view.split("x")[0]) if "x" in view else 0
                 if key == "homeText200":
                     if width <= 390 and value.get("headerRatio", 0) > 0.30:
@@ -724,11 +909,14 @@ def main() -> int:
                     failures.append(
                         f"{view} {key}: controles de texto/velocidad en {value['optionColumns']} columnas"
                     )
-                if key == "metaText200" and width == 360:
+                if key == "metaText200":
                     if not value.get("metaAmountVisible"):
                         failures.append(f"{view} {key}: no se ve la cifra de la meta")
                     if not value.get("metaActionVisible"):
-                        failures.append(f"{view} {key}: no se ve una acción de la meta (Apartar)")
+                        failures.append(
+                            f"{view} {key}: Apartar no queda completo por encima de la tab bar "
+                            f"(tabTop={value.get('tabBarTop')})"
+                        )
         if record.get("consoleErrors"):
             failures.append(f"{view}: {len(record['consoleErrors'])} console errors: {record['consoleErrors'][:2]}")
 

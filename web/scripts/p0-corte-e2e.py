@@ -553,8 +553,16 @@ def api_close(
     return page.request.post(f"{BASE}/api/cash/close", data=payload)
 
 
+_reset_client = 0
+
+
 def reset(page) -> None:
-    response = page.request.post(f"{BASE}/api/demo/reset")
+    # Cada reset simula un cliente distinto para no agotar el rate limit de la
+    # demo (5/min por IP) durante el setup repetido de los casos.
+    global _reset_client
+    _reset_client += 1
+    headers = {"x-forwarded-for": f"198.51.100.{(_reset_client % 200) + 1}"}
+    response = page.request.post(f"{BASE}/api/demo/reset", headers=headers)
     assert response.ok, f"demo/reset falló: {response.status} {response.text()}"
     page.goto(BASE, wait_until="networkidle")
     page.evaluate("localStorage.clear()")

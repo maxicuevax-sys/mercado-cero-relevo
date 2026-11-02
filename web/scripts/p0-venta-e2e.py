@@ -96,8 +96,16 @@ def summary(page) -> dict:
     return response.json()["summary"]
 
 
+_reset_client = 0
+
+
 def reset(page) -> None:
-    response = page.request.post(f"{BASE}/api/demo/reset")
+    # Cada reset simula un cliente distinto para no agotar el rate limit de la
+    # demo (5/min por IP) durante el setup repetido de los casos.
+    global _reset_client
+    _reset_client += 1
+    headers = {"x-forwarded-for": f"198.51.100.{(_reset_client % 200) + 1}"}
+    response = page.request.post(f"{BASE}/api/demo/reset", headers=headers)
     assert response.ok, f"demo/reset falló: {response.status} {response.text()}"
     page.goto(BASE, wait_until="networkidle")
     page.evaluate("localStorage.clear()")
@@ -230,9 +238,9 @@ def main() -> int:
         expect(page.get_by_text(re.compile(r"Recuperé tu venta de las \d{2}:\d{2}"))).to_be_visible()
         check(
             "el banner del draft usa Descartar borrador",
-            page.get_by_role("button", name="Descartar el borrador de venta").count() == 1,
+            page.get_by_role("button", name="Descartar borrador de venta").count() == 1,
         )
-        page.get_by_role("button", name="Continuar la venta recuperada").click()
+        page.get_by_role("button", name="Continuar venta recuperada").click()
         page.wait_for_timeout(120)
         check(
             "Continuar venta conserva el draft y oculta el banner",
@@ -254,7 +262,7 @@ def main() -> int:
         page.wait_for_function(f"localStorage.getItem('{DRAFT_KEY}') !== null")
         page.reload(wait_until="networkidle")
         expect(page.get_by_text(re.compile(r"Recuperé tu venta de las \d{2}:\d{2}"))).to_be_visible()
-        page.get_by_role("button", name="Descartar el borrador de venta").click()
+        page.get_by_role("button", name="Descartar borrador de venta").click()
         page.wait_for_timeout(120)
         check(
             "Descartar borrador intacto borra el draft y el storage",
@@ -276,7 +284,7 @@ def main() -> int:
             "editar el draft no oculta el banner antes de decidir",
             page.get_by_text(re.compile(r"Recuperé tu venta")).count() == 1,
         )
-        page.get_by_role("button", name="Descartar el borrador de venta").click()
+        page.get_by_role("button", name="Descartar borrador de venta").click()
         page.wait_for_timeout(120)
         edited = page.evaluate(f"JSON.parse(localStorage.getItem('{DRAFT_KEY}') || 'null')")
         check(
@@ -422,7 +430,7 @@ def main() -> int:
         )
         check(
             "el aviso del pendiente usa Descartar aviso",
-            page.get_by_role("button", name="Descartar el aviso de cobro pendiente").count() == 1,
+            page.get_by_role("button", name="Descartar aviso de cobro pendiente").count() == 1,
         )
         before_reload = order_ids(page)
         page.reload(wait_until="networkidle")
@@ -431,7 +439,7 @@ def main() -> int:
             "recargar muestra el aviso sin abrir el cobro solo",
             page.get_by_role("dialog").count() == 0,
         )
-        page.get_by_role("button", name="Continuar el cobro pendiente").click()
+        page.get_by_role("button", name="Continuar cobro pendiente").click()
         expect(page.get_by_role("dialog")).to_be_visible()
         expect(page.get_by_role("dialog")).to_contain_text("$60.00")
         expect(page.get_by_role("dialog")).to_contain_text(f"Pedido {short_order(pending_id)}")
@@ -445,7 +453,7 @@ def main() -> int:
         )
         close_dialog(page)
         expect(page.get_by_text("Tienes un cobro pendiente de $60.00")).to_be_visible()
-        page.get_by_role("button", name="Descartar el aviso de cobro pendiente").click()
+        page.get_by_role("button", name="Descartar aviso de cobro pendiente").click()
         page.wait_for_timeout(120)
         focused = page.evaluate("document.activeElement && document.activeElement.id")
         check(
@@ -513,7 +521,7 @@ def main() -> int:
         )
         page.reload(wait_until="networkidle")
         expect(page.get_by_text("Tienes un cobro pendiente de $60.00")).to_be_visible()
-        page.get_by_role("button", name="Continuar el cobro pendiente").click()
+        page.get_by_role("button", name="Continuar cobro pendiente").click()
         expect(page.get_by_role("dialog")).to_be_visible()
         expect(page.get_by_role("dialog")).to_contain_text("$60.00")
         expect(page.get_by_role("dialog")).to_contain_text(f"Pedido {short_order(pending_id)}")
@@ -760,7 +768,7 @@ def main() -> int:
             page.get_by_text(re.compile(r"Recuperé tu venta de ayer a las \d{2}:\d{2}")).count()
             == 1,
         )
-        page.get_by_role("button", name="Descartar el borrador de venta").click()
+        page.get_by_role("button", name="Descartar borrador de venta").click()
         page.wait_for_timeout(120)
 
         old_payload = dict(yesterday_payload)
@@ -785,7 +793,7 @@ def main() -> int:
             page.get_by_text(re.compile(r"Recuperé tu venta del \d{2}/\d{2} a las \d{2}:\d{2}")).count()
             == 1,
         )
-        page.get_by_role("button", name="Descartar el borrador de venta").click()
+        page.get_by_role("button", name="Descartar borrador de venta").click()
         page.wait_for_timeout(120)
 
         # 9 · JSON corrupto se elimina y no bloquea la caja.
