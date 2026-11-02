@@ -82,6 +82,7 @@ def run_once(page, iteration: int) -> dict:
     # 3. Fiado: la voz abre la hoja; el abono se confirma.
     page.get_by_role("button", name="Juan me pagó 50 del fiado").click()
     step("hoja de abono visible", wait_text(page, "Saldo vivo:"))
+    page.get_by_role("dialog").get_by_text("Efectivo", exact=True).click()
     page.get_by_role("dialog").get_by_role("button", name="Registrar abono").click()
     step("abono confirmado", wait_text(page, "debe $0.00"))
 
@@ -116,7 +117,7 @@ def run_once(page, iteration: int) -> dict:
     page.get_by_role("button", name="Meta", exact=True).first.click()
     page.wait_for_timeout(400)
     step("meta visible", page.get_by_text("Mi camino", exact=False).first.is_visible())
-    page.get_by_placeholder("¿Cuánto apartaste?").fill("25")
+    page.get_by_label("¿Cuánto apartaste?").fill("25")
     page.get_by_role("button", name="Apartar", exact=True).click()
     step("meta avanza", wait_text(page, "$325.00"))
 

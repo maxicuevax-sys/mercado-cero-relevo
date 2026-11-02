@@ -196,6 +196,7 @@ def main() -> int:
         # 3. Fiado en efectivo y anti-fraude, también a 360 px.
         page.get_by_role("button", name="Juan me pagó 50 del fiado").click()
         check("Hoja de abono visible", wait_text(page, "Saldo vivo:", 12000))
+        page.get_by_role("dialog").get_by_text("Efectivo", exact=True).click()
         page.get_by_role("dialog").get_by_role("button", name="Registrar abono").click()
         check("Abono de fiado registrado", wait_text(page, "debe $0.00", 12000))
         page.wait_for_timeout(500)
@@ -226,7 +227,7 @@ def main() -> int:
         page.get_by_role("button", name="Meta", exact=True).first.click()
         page.wait_for_timeout(600)
         check("Meta visible", page.get_by_text("Mi camino", exact=False).first.is_visible(), "pantalla Meta")
-        page.get_by_placeholder("¿Cuánto apartaste?").fill("25")
+        page.get_by_label("¿Cuánto apartaste?").fill("25")
         page.get_by_role("button", name="Apartar", exact=True).click()
         check("Aportación actualiza la meta", wait_text(page, "$325.00", 12000))
         page.wait_for_timeout(500)

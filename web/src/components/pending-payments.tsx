@@ -209,7 +209,7 @@ export function PendingPayments({
 
                 <div className="ml-auto flex min-w-0 max-w-full flex-wrap items-center justify-end gap-3">
                   <div className="text-right">
-                    <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.06em] text-ink-2">
+                    <p className="text-xs font-semibold uppercase tracking-[0.06em] text-ink-2">
                       Saldo
                     </p>
                     <p className="tabular whitespace-nowrap text-sm font-semibold text-ink">
