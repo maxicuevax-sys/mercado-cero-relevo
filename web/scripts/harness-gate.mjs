@@ -733,7 +733,7 @@ function printList() {
     "  --only    mode partial: ejecuta solo esos gates y NUNCA queda ok:true",
   );
   console.log(
-    "\nCatálogo total: 16 gates (build fuera de full, film opcional).",
+    `\nCatálogo total: ${GATES.length} gates (build fuera de full, film opcional).`,
   );
 }
 

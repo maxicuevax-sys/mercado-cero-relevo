@@ -15,7 +15,7 @@
 | Flujo completo 360 px | ✅ ≈9 s, 0 errores | `scripts/mobile-audit.py` |
 | Checkout público 360 px | ✅ 15/15 checks | `demo/checkout-audit.json` |
 | Túnel público | ✅ 8/8 checks | `demo/tunnel-smoke.json` |
-| Ensayo del guion | ✅ 3/3 corridas, 15/15 pasos, promedio 4.6 s | `demo/rehearsal.json` |
+| Ensayo del guion | ✅ 3/3 corridas, 15/15 pasos, promedio 4.8 s | `demo/rehearsal.json` |
 | P0-E cobros pendientes | ✅ franja, fechas, refresh y polling visible | `harness/evidence/p0-integracion-e2e.json` |
 | P0-G pendientes de negocio | ✅ quinto tab, crear/completar/reabrir/posponer/eliminar | `harness/evidence/p0-integracion-e2e.json` |
 | P0-D corte no destructivo | ✅ borrador, cierre v1/v2, snapshot, idempotencia, migración | `harness/evidence/p0-corte-e2e.json` |
