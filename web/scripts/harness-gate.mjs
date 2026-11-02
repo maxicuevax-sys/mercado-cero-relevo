@@ -214,6 +214,7 @@ export const GATES = [
     command: "node",
     args: ["scripts/security-contract.mjs"],
     mode: "runtime",
+    baseUrl: "http://127.0.0.1:3121",
     timeout: 360_000,
     expected: "SEGURIDAD OK",
     expectedBasis: "output",
@@ -225,6 +226,7 @@ export const GATES = [
     command: "node",
     args: ["scripts/p0-fix-datos-contract.mjs"],
     mode: "runtime",
+    baseUrl: "http://127.0.0.1:3123",
     timeout: 360_000,
     expected: "DATOS OK",
     expectedBasis: "output",
@@ -247,6 +249,7 @@ export const GATES = [
     command: "node",
     args: ["scripts/p0-venta-gate.mjs"],
     mode: "runtime",
+    baseUrl: "http://127.0.0.1:3211",
     timeout: 720_000,
     expected: ["51 PASS", "0 FAIL", "0 KNOWN"],
     expectedBasis: "output",
@@ -259,6 +262,7 @@ export const GATES = [
     command: "python",
     args: ["scripts/p0-fiado-e2e.py"],
     mode: "runtime",
+    baseUrl: `http://127.0.0.1:${P0_MARKER_PORT}`,
     timeout: 720_000,
     expected: ["50 PASS", "0 FAIL", "0 KNOWN"],
     expectedBasis: "output",
@@ -274,6 +278,7 @@ export const GATES = [
     command: "python",
     args: ["scripts/p0-corte-e2e.py"],
     mode: "runtime",
+    baseUrl: `http://127.0.0.1:${P0_MARKER_PORT}`,
     timeout: 900_000,
     expected: ["69 PASS", "0 FAIL", "0 KNOWN"],
     expectedBasis: "output",
@@ -290,6 +295,7 @@ export const GATES = [
     command: "python",
     args: ["scripts/p0-integracion-e2e.py"],
     mode: "runtime",
+    baseUrl: `http://127.0.0.1:${P0_MARKER_PORT}`,
     timeout: 720_000,
     expected: ["51 PASS", "0 FAIL", "0 KNOWN"],
     expectedBasis: "output",
@@ -306,6 +312,7 @@ export const GATES = [
     command: "python",
     args: ["scripts/p0-dinero-e2e.py"],
     mode: "runtime",
+    baseUrl: "http://127.0.0.1:3213",
     timeout: 900_000,
     expected: ["45 PASS", "0 FAIL", "3 KNOWN"],
     expectedBasis: "output",
@@ -689,7 +696,7 @@ function gateEnvironment(gate) {
   };
 }
 
-export function runGate(gate) {
+export function runGate(gate, { serverBuildSha = null } = {}) {
   const command = [gate.command, ...gate.args].join(" ");
   const started = performance.now();
   const result = IS_WIN
@@ -737,6 +744,12 @@ export function runGate(gate) {
           : "ok";
   const tail = output.split(/\r?\n/).slice(-40).join("\n");
   const baseUrl = gate.usesMainServer ? BASE : (gate.baseUrl ?? null);
+  const buildSha =
+    gate.mode === "runtime"
+      ? gate.usesMainServer
+        ? serverBuildSha
+        : readBuiltSha()
+      : null;
 
   console.log(
     `${ok ? "PASS" : "FAIL"}  ${gate.id.padEnd(12)} ${gate.name} - ${durationMs} ms - esperado: ${
@@ -766,6 +779,7 @@ export function runGate(gate) {
     name: gate.name,
     command,
     baseUrl,
+    buildSha,
     ok,
     exitCode,
     durationMs,
@@ -1226,6 +1240,7 @@ async function main() {
           name: gate.name,
           command: `${gate.command} ${gate.args.join(" ")}`,
           baseUrl: gate.usesMainServer ? BASE : (gate.baseUrl ?? null),
+          buildSha: gate.usesMainServer ? serverBuildSha : readBuiltSha(),
           ok: false,
           exitCode: 1,
           durationMs: 0,
@@ -1239,7 +1254,7 @@ async function main() {
         break;
       }
     }
-    const result = runGate(gate);
+    const result = runGate(gate, { serverBuildSha });
     results.push(result);
     if (!result.ok) break;
   }

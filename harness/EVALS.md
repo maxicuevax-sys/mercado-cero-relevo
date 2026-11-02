@@ -114,6 +114,7 @@
       "name": "Build de producción con identidad",
       "command": "node scripts/build-gate.mjs",
       "baseUrl": null,
+      "buildSha": null,
       "ok": true,
       "exitCode": 0,
       "durationMs": 30410,
@@ -168,7 +169,7 @@ npm run harness:report    # tabla Markdown desde latest.json
 - árbol actual limpio, ignorando artefactos generados.
 - `serverBuildSha === gitAtStart.sha` y `buildBound:true`.
 - `expectedGates` y `gates[]` coinciden exactamente con el modo.
-- todos los gates `ok:true`, `exitCode:0`, `reason:"ok"` y `expectedMatched:true`.
+- todos los gates `ok:true`, `exitCode:0`, `reason:"ok"` y `expectedMatched:true`; los de runtime declaran `buildSha === gitAtStart.sha`.
 - cada `expected` canónico validado con límites de palabra.
 - cada artefacto existe, su `sha256`/`size` coincide y, si declara `code.commit`/`code.dirty`, coincide con el HEAD limpio.
 - `skipped`/`notRun` no contienen gates críticos.

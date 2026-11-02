@@ -20,7 +20,10 @@ function gateResult(id, overrides = {}) {
     id,
     name: gate.name,
     command: `${gate.command} ${gate.args.join(" ")}`,
-    baseUrl: gate.usesMainServer ? "http://localhost:3000" : null,
+    baseUrl: gate.usesMainServer
+      ? "http://localhost:3000"
+      : (gate.baseUrl ?? null),
+    buildSha: gate.mode === "runtime" ? SHA : null,
     ok: true,
     exitCode: 0,
     durationMs: 1,
@@ -202,6 +205,10 @@ test("evidencia con ok:false, complete:false o buildSha distinto falla", () => {
     ).ok,
     false,
   );
+
+  const gateBuild = makeEvidence("full");
+  gateBuild.gates.find((gate) => gate.id === "webhook").buildSha = "f".repeat(40);
+  assert.equal(validate(gateBuild).ok, false);
 });
 
 test("evidencia a la que le falta un gate del modo falla", () => {

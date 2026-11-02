@@ -277,6 +277,20 @@ export function validateEvidence(
     if (!Array.isArray(gate.artifacts)) {
       gateProblems.push(`${gate.id}: sin artifacts[]`);
     }
+    if (
+      canonical.mode === "runtime" &&
+      gate.buildSha !== evidence.gitAtStart?.sha
+    ) {
+      gateProblems.push(
+        `${gate.id}: buildSha ${gate.buildSha ?? "?"} != ${evidence.gitAtStart?.sha ?? "?"}`,
+      );
+    }
+    if (
+      (canonical.usesMainServer || canonical.baseUrl) &&
+      typeof gate.baseUrl !== "string"
+    ) {
+      gateProblems.push(`${gate.id}: sin baseUrl registrado`);
+    }
     if (JSON.stringify(gate.expected) !== JSON.stringify(canonical.expected)) {
       gateProblems.push(
         `${gate.id}: expected declarado ${JSON.stringify(gate.expected)} != canonico ${JSON.stringify(canonical.expected)}`,

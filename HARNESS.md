@@ -120,7 +120,7 @@ El detalle de cada eval, incluyendo las que son **solo humanas**, está en `harn
 - `startedAt`, `endedAt`, `durationMs`, `baseUrl`, `serverBuildSha`, `buildMatches`, `node`, `os`, `python`.
 - `gitAtStart { sha, branch, dirty }` y `gitAtEnd { sha, branch, dirty }`.
 - `expectedGates[]`, `criticalGates[]`, `skipped[]`, `notRun[]`, `notRunReasons{}`, `resets[]`.
-- `gates[]`: `id`, `name`, `command`, `baseUrl`, `ok`, `exitCode`, `reason`, `durationMs`, `expected`, `expectedBasis`, `expectedMatched`, `artifacts[]` y `outputTail` redactado.
+- `gates[]`: `id`, `name`, `command`, `baseUrl`, `buildSha`, `ok`, `exitCode`, `reason`, `durationMs`, `expected`, `expectedBasis`, `expectedMatched`, `artifacts[]` y `outputTail` redactado. `buildSha` se cruza con `gitAtStart.sha` en cada gate de runtime.
 - `artifacts[]`: cada uno con `path` relativo, `exists`, `sha256` y `size`. `verify:evidence` recomputa el hash y el tamaño.
 - `missing`, `criticalMissing`, `reasons`, `error`.
 

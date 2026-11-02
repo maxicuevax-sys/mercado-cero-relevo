@@ -21,7 +21,10 @@ function gateResult(id, overrides = {}) {
     id,
     name: gate.name,
     command: `${gate.command} ${gate.args.join(" ")}`,
-    baseUrl: gate.usesMainServer ? "http://localhost:3000" : null,
+    baseUrl: gate.usesMainServer
+      ? "http://localhost:3000"
+      : (gate.baseUrl ?? null),
+    buildSha: gate.mode === "runtime" ? SHA : null,
     ok: true,
     exitCode: 0,
     durationMs: 1,
