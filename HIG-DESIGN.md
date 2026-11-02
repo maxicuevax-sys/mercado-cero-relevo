@@ -603,3 +603,14 @@ La revisión de diseño pidió una capa más editorial, manteniendo la claridad 
 - **Movimiento:** el sistema de `MOTION.md`; 140–240 ms, scroll trigger nativo y reduced-motion.
 
 Lo que **no** cambia: 48 px, 200 %, axe serious/critical 0, foco visible, teclado, estados error≠vacío, distinción demo/efectivo/fiado/pey y la regla de `paid` solo por webhook. Esta sección reemplaza la prohibición absoluta de grano/display de §1 para la capa visual; no autoriza halftone, borde de recibo ni sellos rotados en la ruta transaccional.
+
+---
+
+## 17 · Nota de rendimiento (2 de noviembre de 2026)
+
+El primer render de `/` y del checkout público ahora sale del servidor con datos
+reales (`connection()` + `getDashboardData`/`getCheckoutData`). No cambia el
+diseño: el esqueleto del checkout reserva el alto final para no mover el CTA ni
+el total. Los paneles ocultos se montan al visitar su pestaña y los datos vivos
+se refrescan por API. La regla visual sigue intacta; esta nota solo documenta
+que el LCP ya no espera al cliente. Detalle medido en `P0-PERF-UI-REPORT.md`.

@@ -4,31 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { Banknote, Check, Loader2, NotebookPen, SearchX, Sparkles, Store } from "lucide-react";
 import { cn, formatMxn } from "@/lib/format";
-
-interface CheckoutData {
-  demoMode: boolean;
-  merchant: { name: string; address: string };
-  order: {
-    id: string;
-    shortRef: string;
-    status: string;
-    totalCents: number;
-    paidCents: number;
-    digitalPaidCents: number;
-    cashPaidCents?: number;
-    demoPaidCents?: number;
-    verifiedPaidCents?: number;
-    amountDueCents: number;
-    creditCents: number;
-  };
-  payment: {
-    provider: string;
-    method: string;
-    transactionId: string | null;
-    amountCents: number;
-    createdAt: string;
-  } | null;
-}
+import type { CheckoutData } from "@/lib/checkout";
 
 const METHOD_LABEL: Record<string, string> = {
   codi: "CoDi",
@@ -38,13 +14,19 @@ const METHOD_LABEL: Record<string, string> = {
   mixed: "Pago mixto",
 };
 
-export default function CheckoutSuccessPage() {
+export default function CheckoutSuccessPage({
+  initialOrder,
+}: {
+  initialOrder: CheckoutData | null;
+}) {
   const params = useParams<{ id: string }>();
-  const orderId = params.id;
-  const [data, setData] = useState<CheckoutData | null>(null);
+  const orderId = initialOrder?.order.id ?? params.id;
+  // El servidor ya leyó el pago: no hay spinner de “confirmando” en el HTML.
+  const [data, setData] = useState<CheckoutData | null>(initialOrder);
+  const etagRef = useRef<string | null>(null);
   const [attempts, setAttempts] = useState(0);
   const [exited, setExited] = useState(false);
-  const [missing, setMissing] = useState(false);
+  const [missing, setMissing] = useState(initialOrder === null);
 
   function finish() {
     // Salida pública: nunca el dashboard de la comerciante.
@@ -56,9 +38,14 @@ export default function CheckoutSuccessPage() {
     setExited(true);
   }
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (options?: { force?: boolean }) => {
+    const force = options?.force ?? false;
     const response = await fetch(`/api/checkout/${orderId}`, {
       cache: "no-store",
+      headers:
+        !force && etagRef.current
+          ? { "If-None-Match": etagRef.current }
+          : undefined,
     });
     if (response.status === 404) {
       // Un link inventado no va a confirmarse nunca: no lo dejamos esperando
@@ -67,25 +54,50 @@ export default function CheckoutSuccessPage() {
       setData(null);
       return;
     }
+    if (response.status === 304) return;
     if (!response.ok) return;
     setMissing(false);
+    const etag = response.headers.get("etag");
+    if (etag) etagRef.current = etag;
     setData((await response.json()) as CheckoutData);
   }, [orderId]);
 
   useEffect(() => {
-    // Carga inicial del estado de pago; el polling continúa después.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load();
-  }, [load]);
-
-  useEffect(() => {
     if (missing) return;
-    if (data?.payment || (data && data.order.amountDueCents <= 0)) return;
-    const interval = window.setInterval(() => {
-      setAttempts((value) => value + 1);
-      void load();
-    }, 2000);
-    return () => window.clearInterval(interval);
+    if (!data || data.payment || data.order.amountDueCents <= 0) return;
+    const DELAYS = [3000, 10_000, 30_000];
+    let cancelled = false;
+    let timer: number | null = null;
+    let step = 0;
+    const schedule = (delay: number) => {
+      timer = window.setTimeout(tick, delay);
+    };
+    const tick = async () => {
+      if (cancelled) return;
+      if (document.visibilityState === "visible") {
+        setAttempts((value) => value + 1);
+        await load();
+        step = Math.min(step + 1, DELAYS.length - 1);
+      }
+      if (!cancelled) schedule(DELAYS[step]);
+    };
+    const onVisibility = () => {
+      if (timer !== null) {
+        window.clearTimeout(timer);
+        timer = null;
+      }
+      if (document.visibilityState === "visible") {
+        step = 0;
+        schedule(0);
+      }
+    };
+    schedule(DELAYS[0]);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      cancelled = true;
+      if (timer !== null) window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, [data, load, missing]);
 
   const isCredit =
@@ -154,6 +166,38 @@ export default function CheckoutSuccessPage() {
               </button>
             )}
           </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!data) {
+    return (
+      <main className="pay-shell grid min-h-dvh place-items-center bg-canvas px-4 py-8">
+        <section className="w-full max-w-md rounded-2xl border border-separator bg-surface p-7 text-center shadow-card">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-terracotta-soft text-attention">
+            <Store className="h-6 w-6" />
+          </div>
+          <h1 className="mt-4 text-[1.5rem] font-semibold text-ink">
+            Este cobro no existe
+          </h1>
+          <p className="mt-2 text-sm leading-relaxed text-ink-2">
+            Pide a la comerciante que genere un link nuevo. No hay ningún pago
+            en curso.
+          </p>
+          {exited ? (
+            <p role="status" className="mt-5 text-sm font-semibold text-ink-2">
+              Listo. Ya puedes cerrar esta pestaña.
+            </p>
+          ) : (
+            <button
+              type="button"
+              onClick={finish}
+              className="cta-primary on-accent mt-5 inline-flex min-h-12 items-center gap-2 bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent-press"
+            >
+              Cerrar
+            </button>
+          )}
         </section>
       </main>
     );
@@ -392,7 +436,7 @@ export default function CheckoutSuccessPage() {
           ) : (
             <button
               type="button"
-              onClick={() => void load()}
+              onClick={() => void load({ force: true })}
               className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-separator bg-surface px-5 text-sm font-semibold text-ink-2 transition hover:border-accent/30 hover:text-accent"
             >
               Revisar link

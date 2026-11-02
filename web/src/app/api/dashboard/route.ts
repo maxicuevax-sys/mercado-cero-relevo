@@ -1,14 +1,5 @@
 import { connection } from "next/server";
-import { MERCHANT, isDemoMode } from "@/lib/config";
-import {
-  countCredits,
-  countOrders,
-  countPendingOrders,
-  getDailySummary,
-  listCredits,
-  listOrders,
-  listPendingOrders,
-} from "@/lib/db";
+import { getDashboardData } from "@/lib/dashboard";
 import { cachedJson } from "@/lib/http-cache";
 import {
   DEFAULT_DASHBOARD_CREDITS_LIMIT,
@@ -17,7 +8,6 @@ import {
   MAX_DASHBOARD_CREDITS_LIMIT,
   MAX_DASHBOARD_ORDERS_LIMIT,
   MAX_DASHBOARD_PENDING_LIMIT,
-  pageMeta,
   parseNamedLimit,
   parseNamedOffset,
 } from "@/lib/pagination";
@@ -48,40 +38,14 @@ export async function GET(request: Request) {
   const pendingOffset = parseNamedOffset(params, "pendingOffset");
   const creditsOffset = parseNamedOffset(params, "creditsOffset");
 
-  const orders = listOrders(ordersLimit, ordersOffset);
-  const pendingOrders = listPendingOrders(pendingLimit, pendingOffset);
-  const credits = listCredits(creditsLimit, creditsOffset);
-  const ordersTotal = countOrders();
-  const pendingTotal = countPendingOrders();
-  const creditsTotal = countCredits();
+  const dashboard = getDashboardData({
+    ordersLimit,
+    pendingLimit,
+    creditsLimit,
+    ordersOffset,
+    pendingOffset,
+    creditsOffset,
+  });
 
-  return await cachedJson(
-    request,
-    {
-      merchant: MERCHANT,
-      demoMode: isDemoMode(),
-      summary: getDailySummary(),
-      orders,
-      pendingOrders,
-      credits,
-      pagination: {
-        orders: pageMeta(ordersLimit, ordersOffset, orders.length, ordersTotal),
-        pendingOrders: pageMeta(
-          pendingLimit,
-          pendingOffset,
-          pendingOrders.length,
-          pendingTotal,
-        ),
-        credits: pageMeta(
-          creditsLimit,
-          creditsOffset,
-          credits.length,
-          creditsTotal,
-        ),
-      },
-      creditsTotal,
-      creditsHasMore: creditsOffset + credits.length < creditsTotal,
-    },
-    "dashboard",
-  );
+  return await cachedJson(request, dashboard, "dashboard");
 }
