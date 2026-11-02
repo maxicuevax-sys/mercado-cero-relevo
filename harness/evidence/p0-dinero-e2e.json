@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "suite": "p0-dinero-e2e",
-  "startedAt": "2026-11-02T16:11:20.901954+00:00",
-  "finishedAt": "2026-11-02T16:11:45.658906+00:00",
+  "startedAt": "2026-11-02T18:01:14.518802+00:00",
+  "finishedAt": "2026-11-02T18:01:27.606292+00:00",
   "git": {
-    "sha": "7bb0dc54a53ea8880415a6af219e19c65529e5d3",
-    "branch": "p0/fix-dinero",
+    "sha": "2990581996a011fc228a5bdead715b75df1d2874",
+    "branch": "p0/perf-data",
     "dirty": true
   },
-  "baseUrl": "http://localhost:3122",
+  "baseUrl": "http://localhost:3165",
   "summary": {
     "pass": 45,
     "fail": 0,
@@ -24,7 +24,7 @@
     {
       "name": "demo: el fixture de pedido se declara demo_paid/provider demo",
       "ok": true,
-      "detail": "[{\"id\": \"demo_seed_ord_2e63ceaabed64583b0a2\", \"merchantId\": \"lupita\", \"status\": \"demo_paid\", \"totalCents\": 7000, \"paidCents\": 7000, \"digitalPaidCents\": 0, \"paymentMethod\": \"cash\", \"lastPaymentProvider\": \"demo\", \"customerName\": null, \"creditId\": null, \"creditCents\": 0, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-02T16:11:30.041Z\", \"updatedAt\": \"2026-11-02T16:11:30.041Z\", \"items\": [{\"id\": \"demo_seed_itm_8e6399e6964f4e92b5aa\", \"description\": \"Quesadilla\", \"quantity\": 2, \"unitPriceCents\": 3500, \"totalCents\": 7000}]}]"
+      "detail": "[{\"id\": \"demo_seed_ord_f64fa68020154b6c98fa\", \"merchantId\": \"lupita\", \"status\": \"demo_paid\", \"totalCents\": 7000, \"paidCents\": 7000, \"digitalPaidCents\": 0, \"paymentMethod\": \"cash\", \"lastPaymentProvider\": \"demo\", \"customerName\": null, \"creditId\": null, \"creditCents\": 0, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-02T18:01:20.335Z\", \"updatedAt\": \"2026-11-02T18:01:20.335Z\", \"items\": [{\"id\": \"demo_seed_itm_c1bb0326bd3847bd81b0\", \"description\": \"Quesadilla\", \"quantity\": 2, \"unitPriceCents\": 3500, \"totalCents\": 7000}]}]"
     },
     {
       "name": "demo: el efectivo del fixture va a demoCashCents, no a cashCents",
@@ -34,7 +34,7 @@
     {
       "name": "demo: el fiado del fixture se declara demoCreditCents",
       "ok": true,
-      "detail": "{\"credits\": [{\"id\": \"demo_seed_cred_a125f9db7a74408d8363\", \"customerId\": \"demo_seed_cus_b53eec6340d64d168286\", \"customerName\": \"Juan\", \"orderId\": null, \"originalCents\": 5000, \"balanceCents\": 5000, \"status\": \"open\", \"dueDate\": null, \"createdAt\": \"2026-11-02T16:11:30.041Z\"}], \"summary\": {\"date\": \"2026-11-02\", \"verifiedDigitalCents\": 0, \"declaredDigitalCents\": 0, \"demoDigitalCents\": 0, \"demoCashCents\": 7000, \"cashCents\": 0, \"pendingCents\": 12000, \"creditCents\": 5000, \"demoCreditCents\": 5000, \"orderCount\": 2, \"paidOrderCount\": 1, \"methods\": {}}}"
+      "detail": "{\"credits\": [{\"id\": \"demo_seed_cred_3c8bfcbe8e354c0faadd\", \"customerId\": \"demo_seed_cus_3a2b523242e7404bb469\", \"customerName\": \"Juan\", \"orderId\": null, \"originalCents\": 5000, \"balanceCents\": 5000, \"status\": \"open\", \"dueDate\": null, \"createdAt\": \"2026-11-02T18:01:20.335Z\"}], \"summary\": {\"date\": \"2026-11-02\", \"verifiedDigitalCents\": 0, \"declaredDigitalCents\": 0, \"demoDigitalCents\": 0, \"demoCashCents\": 7000, \"cashCents\": 0, \"pendingCents\": 12000, \"creditCents\": 5000, \"demoCreditCents\": 5000, \"orderCount\": 2, \"paidOrderCount\": 1, \"methods\": {}}}"
     },
     {
       "name": "demo: el corte no suma efectivo demo",
@@ -44,12 +44,12 @@
     {
       "name": "demo: la meta fixture se declara demo",
       "ok": true,
-      "detail": "{\"goals\": [{\"id\": \"demo_seed_goal_9504d89e6aad4ec197c3\", \"demo\": true, \"title\": \"Mi primera sombrilla\", \"targetCents\": 180000, \"savedCents\": 30000, \"deadline\": \"2026-12-28T16:11:30.047Z\", \"status\": \"active\", \"createdAt\": \"2026-11-02T16:11:30.047Z\", \"progressPct\": 17, \"remainingCents\": 150000, \"weeksRemaining\": 8, \"weeklyNeededCents\": 18750}]}"
+      "detail": "{\"goals\": [{\"id\": \"demo_seed_goal_5a9d0d48f7404bf789f1\", \"demo\": true, \"title\": \"Mi primera sombrilla\", \"targetCents\": 180000, \"savedCents\": 30000, \"deadline\": \"2026-12-28T18:01:20.339Z\", \"status\": \"active\", \"createdAt\": \"2026-11-02T18:01:20.339Z\", \"progressPct\": 17, \"remainingCents\": 150000, \"weeksRemaining\": 8, \"weeklyNeededCents\": 18750}]}"
     },
     {
       "name": "demo/pay: method cash se rechaza con 400",
       "ok": true,
-      "detail": "status 400 · {\"error\": \"Método demo inválido. Usa codi, card o wallet; el efectivo no se simula.\"}"
+      "detail": "status 400 Â· {\"error\": \"Método demo inválido. Usa codi, card o wallet; el efectivo no se simula.\"}"
     },
     {
       "name": "demo/pay: el rechazo no crea pago ni marca el pedido",
@@ -57,9 +57,9 @@
       "detail": "confirmed"
     },
     {
-      "name": "demo/pay: codi sí simula y queda demo_paid",
+      "name": "demo/pay: codi sÃ­ simula y queda demo_paid",
       "ok": true,
-      "detail": "status 200 · {\"order\": {\"id\": \"ord_92039e95763d4daaad03\", \"merchantId\": \"lupita\", \"status\": \"demo_paid\", \"totalCents\": 3000, \"paidCents\": 3000, \"digitalPaidCents\": 3000, \"paymentMethod\": \"codi\", \"lastPaymentProvid"
+      "detail": "status 200 Â· {\"order\": {\"id\": \"ord_71e603bdac744e09b89b\", \"merchantId\": \"lupita\", \"status\": \"demo_paid\", \"totalCents\": 3000, \"paidCents\": 3000, \"digitalPaidCents\": 3000, \"paymentMethod\": \"codi\", \"lastPaymentProvid"
     },
     {
       "name": "demo/pay: el demo digital no entra a cashCents ni al corte",
@@ -69,22 +69,22 @@
     {
       "name": "checkout: pago demo con cashPaidCents 0 y provider demo",
       "ok": true,
-      "detail": "{\"demoMode\": true, \"merchant\": {\"name\": \"Antojitos de Lupita\", \"owner\": \"Lupita\", \"address\": \"Coyoacán, CDMX\"}, \"order\": {\"id\": \"ord_f31bef513e39498989e0\", \"shortRef\": \"89E0\", \"status\": \"demo_paid\", \"totalCents\": 4000, \"paidCents\": 4000, \"digitalPaidCents\": 4000, \"cashPaidCents\": 0, \"demoPaidCents\":"
+      "detail": "{\"demoMode\": true, \"merchant\": {\"name\": \"Antojitos de Lupita\", \"owner\": \"Lupita\", \"address\": \"Coyoacán, CDMX\"}, \"order\": {\"id\": \"ord_4fc5ceb19bb04da2a066\", \"shortRef\": \"A066\", \"status\": \"demo_paid\", \"totalCents\": 4000, \"paidCents\": 4000, \"digitalPaidCents\": 4000, \"cashPaidCents\": 0, \"demoPaidCents\":"
     },
     {
       "name": "webhook: monto distinto responde 409",
       "ok": true,
-      "detail": "status 409 · {\"error\": \"Link de pago: el monto no coincide con el saldo pendiente (100 vs 1000 centavos).\"}"
+      "detail": "status 409 Â· {\"error\": \"Link de pago: el monto no coincide con el saldo pendiente (100 vs 1000 centavos).\"}"
     },
     {
-      "name": "webhook: reintento corregido mismo webhook-id → 200 processed",
+      "name": "webhook: reintento corregido mismo webhook-id â†’ 200 processed",
       "ok": true,
-      "detail": "status 200 · {\"ok\": true, \"result\": \"processed\", \"orderId\": \"ord_c6f64b9978244f08953b\", \"amountCents\": 1000}"
+      "detail": "status 200 Â· {\"ok\": true, \"result\": \"processed\", \"orderId\": \"ord_c607817abf084ee9b09d\", \"amountCents\": 1000}"
     },
     {
       "name": "webhook: el reintento cobra una sola vez",
       "ok": true,
-      "detail": "{\"order\": {\"id\": \"ord_c6f64b9978244f08953b\", \"merchantId\": \"lupita\", \"status\": \"paid\", \"totalCents\": 1000, \"paidCents\": 1000, \"digitalPaidCents\": 1000, \"paymentMethod\": \"codi\", \"lastPaymentProvider\": \"pey\", \"customerName\": null, \"creditId\": null, \"creditCents\": 0, \"paymentLinkId\": \"demo_link_ord_c6f"
+      "detail": "{\"order\": {\"id\": \"ord_c607817abf084ee9b09d\", \"merchantId\": \"lupita\", \"status\": \"paid\", \"totalCents\": 1000, \"paidCents\": 1000, \"digitalPaidCents\": 1000, \"paymentMethod\": \"codi\", \"lastPaymentProvider\": \"pey\", \"customerName\": null, \"creditId\": null, \"creditCents\": 0, \"paymentLinkId\": \"demo_link_ord_c60"
     },
     {
       "name": "webhook: el evento rechazado se reutiliza como processed",
@@ -94,12 +94,12 @@
     {
       "name": "webhook: referencia inexistente responde 404",
       "ok": true,
-      "detail": "status 404 · {\"error\": \"clientReferenceId no corresponde a un pedido.\"}"
+      "detail": "status 404 Â· {\"error\": \"clientReferenceId no corresponde a un pedido.\"}"
     },
     {
-      "name": "webhook: reintento 404 corregido mismo id → 200 processed",
+      "name": "webhook: reintento 404 corregido mismo id â†’ 200 processed",
       "ok": true,
-      "detail": "status 200 · {\"ok\": true, \"result\": \"processed\", \"orderId\": \"ord_b15050d93d2e49389105\", \"amountCents\": 1200}"
+      "detail": "status 200 Â· {\"ok\": true, \"result\": \"processed\", \"orderId\": \"ord_6e43841e55be4ebf9c9c\", \"amountCents\": 1200}"
     },
     {
       "name": "webhook: el 404 corregido marca paid una vez",
@@ -107,17 +107,17 @@
       "detail": "paid"
     },
     {
-      "name": "verify: transacción de A contra orden B → verified false",
+      "name": "verify: transacciÃ³n de A contra orden B â†’ verified false",
       "ok": true,
       "detail": "{\"verified\": false, \"reason\": \"order_mismatch\", \"message\": \"Esa transacción pertenece a otro pedido. No entregues este pedido.\"}"
     },
     {
-      "name": "verify: transacción de A contra orden A → verified true",
+      "name": "verify: transacciÃ³n de A contra orden A â†’ verified true",
       "ok": true,
-      "detail": "{\"verified\": true, \"source\": \"local\", \"transactionId\": \"txn_retry_1793635890546\", \"orderId\": \"ord_c6f64b9978244f08953b\", \"method\": \"codi\", \"amountCents\": 1000, \"createdAt\": \"2026-11-02T16:11:30.579Z\"}"
+      "detail": "{\"verified\": true, \"source\": \"local\", \"transactionId\": \"txn_retry_1793642480989\", \"orderId\": \"ord_c607817abf084ee9b09d\", \"method\": \"codi\", \"amountCents\": 1000, \"createdAt\": \"2026-11-02T18:01:21.124Z\"}"
     },
     {
-      "name": "verify: falta orderId → 400",
+      "name": "verify: falta orderId â†’ 400",
       "ok": true,
       "detail": "status 400"
     },
@@ -129,22 +129,22 @@
     {
       "name": "fiado: no se puede entregar con deuda abierta",
       "ok": true,
-      "detail": "status 409 · {\"error\": \"El fiado sigue abierto. Cóbralo antes de marcar la entrega.\"}"
+      "detail": "status 409 Â· {\"error\": \"El fiado sigue abierto. Cóbralo antes de marcar la entrega.\"}"
     },
     {
       "name": "abono: cash aplica 2000 y deja saldo 3000",
       "ok": true,
-      "detail": "{\"credit\": {\"id\": \"cred_234fc565e2b7419eb115\", \"customerId\": \"cus_cb4c9c2ce4304de9a0d3\", \"customerName\": \"Cliente Fiado\", \"orderId\": \"ord_9f883760c90b498d9dc7\", \"originalCents\": 5000, \"balanceCents\": 3000, \"status\": \"partial\", \"dueDate\": null, \"createdAt\": \"2026-11-02T16:11:30.776Z\"}, \"appliedCents\""
+      "detail": "{\"credit\": {\"id\": \"cred_af01cdb7f7174da8ad32\", \"customerId\": \"cus_c5a6c75316f24751afa1\", \"customerName\": \"Cliente Fiado\", \"orderId\": \"ord_03c9f11216da4131b7fd\", \"originalCents\": 5000, \"balanceCents\": 3000, \"status\": \"partial\", \"dueDate\": null, \"createdAt\": \"2026-11-02T18:01:21.448Z\"}, \"appliedCents\""
     },
     {
       "name": "abono: codi aplica 1000 y deja saldo 2000",
       "ok": true,
-      "detail": "{\"credit\": {\"id\": \"cred_234fc565e2b7419eb115\", \"customerId\": \"cus_cb4c9c2ce4304de9a0d3\", \"customerName\": \"Cliente Fiado\", \"orderId\": \"ord_9f883760c90b498d9dc7\", \"originalCents\": 5000, \"balanceCents\": 2000, \"status\": \"partial\", \"dueDate\": null, \"createdAt\": \"2026-11-02T16:11:30.776Z\"}, \"appliedCents\""
+      "detail": "{\"credit\": {\"id\": \"cred_af01cdb7f7174da8ad32\", \"customerId\": \"cus_c5a6c75316f24751afa1\", \"customerName\": \"Cliente Fiado\", \"orderId\": \"ord_03c9f11216da4131b7fd\", \"originalCents\": 5000, \"balanceCents\": 2000, \"status\": \"partial\", \"dueDate\": null, \"createdAt\": \"2026-11-02T18:01:21.448Z\"}, \"appliedCents\""
     },
     {
       "name": "abono: reintento con la misma requestId no duplica",
       "ok": true,
-      "detail": "{\"credit\": {\"id\": \"cred_234fc565e2b7419eb115\", \"customerId\": \"cus_cb4c9c2ce4304de9a0d3\", \"customerName\": \"Cliente Fiado\", \"orderId\": \"ord_9f883760c90b498d9dc7\", \"originalCents\": 5000, \"balanceCents\": 2000, \"status\": \"partial\", \"dueDate\": null, \"createdAt\": \"2026-11-02T16:11:30.776Z\"}, \"appliedCents\""
+      "detail": "{\"credit\": {\"id\": \"cred_af01cdb7f7174da8ad32\", \"customerId\": \"cus_c5a6c75316f24751afa1\", \"customerName\": \"Cliente Fiado\", \"orderId\": \"ord_03c9f11216da4131b7fd\", \"originalCents\": 5000, \"balanceCents\": 2000, \"status\": \"partial\", \"dueDate\": null, \"createdAt\": \"2026-11-02T18:01:21.448Z\"}, \"appliedCents\""
     },
     {
       "name": "abono: cash suma a summary.cashCents y al corte",
@@ -164,22 +164,22 @@
     {
       "name": "abono: analytics de hoy usa fecha del abono",
       "ok": true,
-      "detail": "{\"period\": \"today\", \"label\": \"Hoy\", \"start\": \"2026-11-02T06:00:00.000Z\", \"end\": \"2026-11-02T16:11:30.910Z\", \"demoMode\": true, \"salesCents\": 43100, \"collectedCents\": 5200, \"demoCollectedCents\": 14000, \"pendingCents\": 21900, \"creditCents\": 7000, \"demoCreditCents\": 5000, \"orderCount\": 8, \"paidOrderCoun"
+      "detail": "{\"period\": \"today\", \"label\": \"Hoy\", \"start\": \"2026-11-02T06:00:00.000Z\", \"end\": \"2026-11-02T18:01:21.758Z\", \"demoMode\": true, \"salesCents\": 43100, \"collectedCents\": 5200, \"demoCollectedCents\": 14000, \"pendingCents\": 21900, \"creditCents\": 7000, \"demoCreditCents\": 5000, \"orderCount\": 8, \"paidOrderCoun"
     },
     {
       "name": "abono: liquidar el fiado deja saldo 0",
       "ok": true,
-      "detail": "{\"credit\": {\"id\": \"cred_234fc565e2b7419eb115\", \"customerId\": \"cus_cb4c9c2ce4304de9a0d3\", \"customerName\": \"Cliente Fiado\", \"orderId\": \"ord_9f883760c90b498d9dc7\", \"originalCents\": 5000, \"balanceCents\": "
+      "detail": "{\"credit\": {\"id\": \"cred_af01cdb7f7174da8ad32\", \"customerId\": \"cus_c5a6c75316f24751afa1\", \"customerName\": \"Cliente Fiado\", \"orderId\": \"ord_03c9f11216da4131b7fd\", \"originalCents\": 5000, \"balanceCents\": "
     },
     {
-      "name": "fiado saldado: la entrega es explícita y permitida",
+      "name": "fiado saldado: la entrega es explÃ­cita y permitida",
       "ok": true,
-      "detail": "status 200 · {\"order\": {\"id\": \"ord_9f883760c90b498d9dc7\", \"merchantId\": \"lupita\", \"status\": \"fulfilled\", \"totalCents\": 5000, \"paidCents\": 0, \"digitalPaidCents\": 0, \"paymentMethod\": null, \"lastPaymentProvider\": nul"
+      "detail": "status 200 Â· {\"order\": {\"id\": \"ord_03c9f11216da4131b7fd\", \"merchantId\": \"lupita\", \"status\": \"fulfilled\", \"totalCents\": 5000, \"paidCents\": 0, \"digitalPaidCents\": 0, \"paymentMethod\": null, \"lastPaymentProvider\": nul"
     },
     {
       "name": "reportes: un fulfilled con fiado no se cuenta como pedido pagado",
       "ok": true,
-      "detail": "paidOrderCount 5 → 5"
+      "detail": "paidOrderCount 5 â†’ 5"
     },
     {
       "name": "fechas: el cobro de hoy entra a verifiedDigital y collected",
@@ -192,34 +192,34 @@
       "detail": "{\"summary\": {\"ordersBefore\": 8, \"ordersAfter\": 8}, \"analytics\": {\"salesBefore\": 43100, \"salesAfter\": 43100}}"
     },
     {
-      "name": "corte: preview con esperado negativo → 400 expected_negative",
+      "name": "corte: preview con esperado negativo â†’ 400 expected_negative",
       "ok": true,
-      "detail": "status 400 · {\"error\": \"Gastos y retiros (1000.00) superan la base inicial, las ventas y los abonos en efectivo (540.00). Ajusta los montos: el corte no puede guardar un esperado negativo.\", \"code\": \"expected_negative\"}"
+      "detail": "status 400 Â· {\"error\": \"Gastos y retiros (1000.00) superan la base inicial, las ventas y los abonos en efectivo (540.00). Ajusta los montos: el corte no puede guardar un esperado negativo.\", \"code\": \"expected_negative\"}"
     },
     {
-      "name": "corte: close con esperado negativo → 400 expected_negative",
+      "name": "corte: close con esperado negativo â†’ 400 expected_negative",
       "ok": true,
-      "detail": "status 400 · {\"error\": \"Gastos y retiros (1000.00) superan la base inicial, las ventas y los abonos en efectivo (540.00). Ajusta los montos: el corte no puede guardar un esperado negativo.\", \"code\": \"expected_negative\"}"
+      "detail": "status 400 Â· {\"error\": \"Gastos y retiros (1000.00) superan la base inicial, las ventas y los abonos en efectivo (540.00). Ajusta los montos: el corte no puede guardar un esperado negativo.\", \"code\": \"expected_negative\"}"
     },
     {
-      "name": "corte: preview válido devuelve fingerprint",
+      "name": "corte: preview vÃ¡lido devuelve fingerprint",
       "ok": true,
       "detail": "{\"status\": {\"date\": \"2026-11-02\", \"openingCents\": 50000, \"cashSalesCents\": 0, \"cashCreditCents\": 4000, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 54000, \"saved\": null, \"history\": []}, \"preview\": {\"openingCents\": 50000, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"countedCents\": 54000"
     },
     {
-      "name": "corte: venta entre preview y close → 409 totals_changed",
+      "name": "corte: venta entre preview y close â†’ 409 totals_changed",
       "ok": true,
-      "detail": "status 409 · {\"error\": \"Entraron ventas o abonos después del preview. Vuelve a revisar la diferencia antes de guardar; no se guardó nada.\", \"code\": \"totals_changed\", \"currentVersion\": 0, \"currentFingerprint\": \"cada154c7c723b70\"}"
+      "detail": "status 409 Â· {\"error\": \"Entraron ventas o abonos después del preview. Vuelve a revisar la diferencia antes de guardar; no se guardó nada.\", \"code\": \"totals_changed\", \"currentVersion\": 0, \"currentFingerprint\": \"cada154c7c723b70\"}"
     },
     {
-      "name": "corte: el 409 no guarda ninguna versión",
+      "name": "corte: el 409 no guarda ninguna versiÃ³n",
       "ok": true,
       "detail": "filas=0"
     },
     {
-      "name": "corte: re-preview con fingerprint nuevo sí guarda",
+      "name": "corte: re-preview con fingerprint nuevo sÃ­ guarda",
       "ok": true,
-      "detail": "status 200 · {\"close\": {\"id\": \"cash_417899c9e0194c008268\", \"date\": \"2026-11-02\", \"version\": 1, \"openingCents\": 50000, \"cashSalesCents\": 5000, \"cashCreditCents\": 4000, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 59000, \"countedCents\": 590"
+      "detail": "status 200 Â· {\"close\": {\"id\": \"cash_f3800616595d4b6b899e\", \"date\": \"2026-11-02\", \"version\": 1, \"openingCents\": 50000, \"cashSalesCents\": 5000, \"cashCreditCents\": 4000, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 59000, \"countedCents\": 590"
     },
     {
       "name": "real: 0 pedidos, 0 clientes, 0 fiado, 0 pagos, 0 metas",
@@ -234,7 +234,7 @@
     {
       "name": "real: analytics no inventa ventas ni cobros",
       "ok": true,
-      "detail": "{\"period\": \"today\", \"label\": \"Hoy\", \"start\": \"2026-11-02T06:00:00.000Z\", \"end\": \"2026-11-02T16:11:45.597Z\", \"demoMode\": false, \"salesCents\": 0, \"collectedCents\": 0, \"demoCollectedCents\": 0, \"pendingCents\": 0, \"creditCents\": 0, \"demoCreditCents\": 0, \"orderCount\": 0, \"paidOrderCount\": 0, \"averageTicke"
+      "detail": "{\"period\": \"today\", \"label\": \"Hoy\", \"start\": \"2026-11-02T06:00:00.000Z\", \"end\": \"2026-11-02T18:01:27.548Z\", \"demoMode\": false, \"salesCents\": 0, \"collectedCents\": 0, \"demoCollectedCents\": 0, \"pendingCents\": 0, \"creditCents\": 0, \"demoCreditCents\": 0, \"orderCount\": 0, \"paidOrderCount\": 0, \"averageTicke"
     },
     {
       "name": "real: /api/demo/reset responde 403",
@@ -244,12 +244,12 @@
     {
       "name": "P1-4: payload real de pey no verificable sin portal",
       "ok": null,
-      "detail": "El contrato del webhook y /api/verify usan el payload sintético documentado; la forma real de pey sigue pendiente de validar con el portal."
+      "detail": "El contrato del webhook y /api/verify usan el payload sintÃ©tico documentado; la forma real de pey sigue pendiente de validar con el portal."
     },
     {
-      "name": "P1: reconciliación de red no ejecutada",
+      "name": "P1: reconciliaciÃ³n de red no ejecutada",
       "ok": null,
-      "detail": "reconcile.ts filtra por fecha del pago y excluye demo; no se llamó a pey real."
+      "detail": "reconcile.ts filtra por fecha del pago y excluye demo; no se llamÃ³ a pey real."
     },
     {
       "name": "Contrato de conteo posterior al cierre",

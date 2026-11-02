@@ -1,6 +1,21 @@
 import { connection } from "next/server";
 import { z } from "zod";
-import { createTask, listTasks, TaskError, TASK_NOTE_MAX, TASK_TITLE_MAX } from "@/lib/tasks";
+import { cachedJson } from "@/lib/http-cache";
+import {
+  DEFAULT_TASKS_LIMIT,
+  MAX_TASKS_LIMIT,
+  pageMeta,
+  parseLimit,
+  parseOffset,
+} from "@/lib/pagination";
+import {
+  countTasks,
+  createTask,
+  listTasks,
+  TaskError,
+  TASK_NOTE_MAX,
+  TASK_TITLE_MAX,
+} from "@/lib/tasks";
 
 const createSchema = z.object({
   title: z
@@ -20,10 +35,27 @@ function jsonError(message: string, status: number, extra?: Record<string, unkno
   return Response.json({ error: message, ...extra }, { status });
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   // La bandeja es dato vivo: no puede servirse desde un snapshot de build.
   await connection();
-  return Response.json({ tasks: listTasks() });
+  const params = new URL(request.url).searchParams;
+  const limit = parseLimit(params, DEFAULT_TASKS_LIMIT, MAX_TASKS_LIMIT);
+  const offset = parseOffset(params);
+  const tasks = listTasks(limit, offset);
+  const total = countTasks();
+  const meta = pageMeta(limit, offset, tasks.length, total);
+  return await cachedJson(
+    request,
+    {
+      tasks,
+      limit,
+      offset,
+      total,
+      hasMore: meta.hasMore,
+      pagination: meta,
+    },
+    "tasks",
+  );
 }
 
 export async function POST(request: Request) {

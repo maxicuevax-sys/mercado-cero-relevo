@@ -205,6 +205,31 @@ function migrate(database: DatabaseSync) {
     CREATE INDEX IF NOT EXISTS idx_goal_contributions_goal ON goal_contributions(goal_id);
     CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
     CREATE INDEX IF NOT EXISTS idx_tasks_due ON tasks(due_at);
+
+    -- Índices de lectura del mostrador. Se crean con IF NOT EXISTS para que
+    -- una base vieja migre al arrancar sin intervención manual. El orden de
+    -- columnas sigue las consultas reales: primero la igualdad, luego el
+    -- rango/fecha y al final la columna que evita volver a la tabla.
+    CREATE INDEX IF NOT EXISTS idx_order_items_order_id
+      ON order_items(order_id);
+    CREATE INDEX IF NOT EXISTS idx_payments_order_status_method_created
+      ON payments(order_id, status, method, created_at);
+    CREATE INDEX IF NOT EXISTS idx_payments_method_status_created
+      ON payments(method, status, created_at);
+    CREATE INDEX IF NOT EXISTS idx_payments_status_created
+      ON payments(status, created_at);
+    CREATE INDEX IF NOT EXISTS idx_credit_payments_created
+      ON credit_payments(created_at);
+    CREATE INDEX IF NOT EXISTS idx_credit_payments_method_created
+      ON credit_payments(method, created_at);
+    CREATE INDEX IF NOT EXISTS idx_credits_status_created
+      ON credits(status, created_at, id);
+    CREATE INDEX IF NOT EXISTS idx_orders_created_status
+      ON orders(created_at, status);
+    CREATE INDEX IF NOT EXISTS idx_orders_status_created
+      ON orders(status, created_at);
+    CREATE INDEX IF NOT EXISTS idx_orders_created_id
+      ON orders(created_at, id);
   `);
 
   const columns = database.prepare("PRAGMA table_info(orders)").all() as Array<{ name: string }>;
@@ -636,81 +661,203 @@ export function audit(action: string, entity: string, entityId: string, detail?:
     .run(newId("aud"), action, entity, entityId, detail ? JSON.stringify(detail) : null, nowIso());
 }
 
-function mapOrder(row: Record<string, unknown>): Order {
-  const database = getDb();
-  const items = database
-    .prepare("SELECT * FROM order_items WHERE order_id = ? ORDER BY rowid ASC")
-    .all(row.id as string) as Record<string, unknown>[];
-  const digital = database
-    .prepare(
-      "SELECT COALESCE(SUM(amount_cents), 0) AS total FROM payments WHERE order_id = ? AND status = 'paid' AND method != 'cash'",
-    )
-    .get(row.id as string) as { total: number };
-  const lastPayment = database
-    .prepare(
-      "SELECT provider FROM payments WHERE order_id = ? AND status = 'paid' ORDER BY CASE WHEN method != 'cash' THEN 0 ELSE 1 END, created_at DESC LIMIT 1",
-    )
-    .get(row.id as string) as { provider: string } | undefined;
+/**
+ * Hidrata una página de pedidos con 3 consultas fijas, no 3 por pedido.
+ * SQLite no acepta un `IN` arbitrariamente grande: se parte en lotes.
+ */
+const ORDER_HYDRATION_CHUNK = 400;
 
-  return {
-    id: row.id as string,
-    merchantId: row.merchant_id as string,
-    status: row.status as Order["status"],
-    totalCents: Number(row.total_cents),
-    paidCents: Number(row.paid_cents),
-    digitalPaidCents: Number(digital.total),
-    paymentMethod: (row.payment_method as Order["paymentMethod"]) ?? null,
-    lastPaymentProvider: lastPayment?.provider ?? null,
-    customerName: (row.customer_name as string) ?? null,
-    creditId: (row.credit_id as string) ?? null,
-    creditCents: Number(row.credit_cents ?? 0),
-    paymentLinkId: (row.payment_link_id as string) ?? null,
-    paymentUrl: (row.payment_url as string) ?? null,
-    qrId: (row.qr_id as string) ?? null,
-    qrString: (row.qr_string as string) ?? null,
-    qrImage: (row.qr_image as string) ?? null,
-    numRef: (row.num_ref as string) ?? null,
-    createdAt: row.created_at as string,
-    updatedAt: row.updated_at as string,
-    items: items.map(
-      (item): OrderItem => ({
+function chunks<T>(values: T[], size: number): T[][] {
+  const result: T[][] = [];
+  for (let index = 0; index < values.length; index += size) {
+    result.push(values.slice(index, index + size));
+  }
+  return result;
+}
+
+function placeholders(count: number): string {
+  return Array.from({ length: count }, () => "?").join(", ");
+}
+
+function loadOrderItems(
+  database: DatabaseSync,
+  ids: string[],
+): Map<string, OrderItem[]> {
+  const byOrder = new Map<string, OrderItem[]>(ids.map((id) => [id, []]));
+  for (const chunk of chunks(ids, ORDER_HYDRATION_CHUNK)) {
+    const rows = database
+      .prepare(
+        `SELECT * FROM order_items
+         WHERE order_id IN (${placeholders(chunk.length)})
+         ORDER BY rowid ASC`,
+      )
+      .all(...chunk) as Record<string, unknown>[];
+    for (const item of rows) {
+      const orderId = item.order_id as string;
+      const list = byOrder.get(orderId);
+      if (!list) continue;
+      list.push({
         id: item.id as string,
         description: item.description as string,
         quantity: Number(item.quantity),
         unitPriceCents: Number(item.unit_price_cents),
         totalCents: Number(item.total_cents),
-      }),
-    ),
-  };
+      });
+    }
+  }
+  return byOrder;
 }
 
-export function listOrders(limit = 30): Order[] {
+function loadDigitalTotals(
+  database: DatabaseSync,
+  ids: string[],
+): Map<string, number> {
+  const totals = new Map<string, number>();
+  for (const chunk of chunks(ids, ORDER_HYDRATION_CHUNK)) {
+    const rows = database
+      .prepare(
+        `SELECT order_id, COALESCE(SUM(amount_cents), 0) AS total
+         FROM payments
+         WHERE order_id IN (${placeholders(chunk.length)})
+           AND status = 'paid' AND method != 'cash'
+         GROUP BY order_id`,
+      )
+      .all(...chunk) as Array<{ order_id: string; total: number }>;
+    for (const row of rows) totals.set(row.order_id, Number(row.total));
+  }
+  return totals;
+}
+
+function loadLastPaymentProviders(
+  database: DatabaseSync,
+  ids: string[],
+): Map<string, string> {
+  const providers = new Map<string, string>();
+  for (const chunk of chunks(ids, ORDER_HYDRATION_CHUNK)) {
+    // Misma prioridad que la consulta por pedido: primero digital, luego el
+    // pago más reciente. La ventana se evalúa una sola vez por lote.
+    const rows = database
+      .prepare(
+        `SELECT order_id, provider FROM (
+           SELECT order_id, provider,
+                  ROW_NUMBER() OVER (
+                    PARTITION BY order_id
+                    ORDER BY CASE WHEN method != 'cash' THEN 0 ELSE 1 END,
+                             created_at DESC
+                  ) AS rn
+           FROM payments
+           WHERE order_id IN (${placeholders(chunk.length)}) AND status = 'paid'
+         ) WHERE rn = 1`,
+      )
+      .all(...chunk) as Array<{ order_id: string; provider: string }>;
+    for (const row of rows) providers.set(row.order_id, row.provider);
+  }
+  return providers;
+}
+
+function mapOrders(
+  rows: Record<string, unknown>[],
+  options: { includeQrImage?: boolean } = {},
+): Order[] {
+  if (rows.length === 0) return [];
+  const includeQrImage = options.includeQrImage !== false;
+  const database = getDb();
+  const ids = rows.map((row) => row.id as string);
+  const itemsByOrder = loadOrderItems(database, ids);
+  const digitalByOrder = loadDigitalTotals(database, ids);
+  const providerByOrder = loadLastPaymentProviders(database, ids);
+
+  return rows.map((row) => {
+    const id = row.id as string;
+    return {
+      id,
+      merchantId: row.merchant_id as string,
+      status: row.status as Order["status"],
+      totalCents: Number(row.total_cents),
+      paidCents: Number(row.paid_cents),
+      digitalPaidCents: digitalByOrder.get(id) ?? 0,
+      paymentMethod: (row.payment_method as Order["paymentMethod"]) ?? null,
+      lastPaymentProvider: providerByOrder.get(id) ?? null,
+      customerName: (row.customer_name as string) ?? null,
+      creditId: (row.credit_id as string) ?? null,
+      creditCents: Number(row.credit_cents ?? 0),
+      paymentLinkId: (row.payment_link_id as string) ?? null,
+      paymentUrl: (row.payment_url as string) ?? null,
+      qrId: (row.qr_id as string) ?? null,
+      qrString: (row.qr_string as string) ?? null,
+      // Las listas no cargan el PNG base64: la UI ya puede dibujar el QR desde
+      // `qrString` cuando `qrImage` es null. El detalle por id sí lo conserva.
+      qrImage: includeQrImage ? ((row.qr_image as string) ?? null) : null,
+      numRef: (row.num_ref as string) ?? null,
+      createdAt: row.created_at as string,
+      updatedAt: row.updated_at as string,
+      items: itemsByOrder.get(id) ?? [],
+    };
+  });
+}
+
+function mapOrder(row: Record<string, unknown>): Order {
+  return mapOrders([row])[0];
+}
+
+export function listOrders(limit = 30, offset = 0): Order[] {
   const database = getDb();
   const demoFilter = isDemoMode()
     ? ""
     : "WHERE id NOT LIKE 'demo_%' AND status != 'demo_paid'";
+  const safeLimit = Math.max(1, Math.floor(limit));
+  const safeOffset = Math.max(0, Math.floor(offset));
   const rows = database
-    .prepare(`SELECT * FROM orders ${demoFilter} ORDER BY created_at DESC LIMIT ?`)
-    .all(limit) as Record<string, unknown>[];
-  return rows.map(mapOrder);
+    .prepare(
+      `SELECT * FROM orders ${demoFilter}
+       ORDER BY created_at DESC, id DESC
+       LIMIT ? OFFSET ?`,
+    )
+    .all(safeLimit, safeOffset) as Record<string, unknown>[];
+  return mapOrders(rows, { includeQrImage: false });
+}
+
+export function countOrders(): number {
+  const database = getDb();
+  const demoFilter = isDemoMode()
+    ? ""
+    : "WHERE id NOT LIKE 'demo_%' AND status != 'demo_paid'";
+  const row = database
+    .prepare(`SELECT COUNT(*) AS n FROM orders ${demoFilter}`)
+    .get() as { n: number };
+  return Number(row.n);
 }
 
 /**
  * Cobros pendientes de cualquier fecha. No usa el resumen diario, que solo
  * mira pedidos creados hoy. La franja de P0-E lista estos pedidos.
  */
-export function listPendingOrders(limit = 50): Order[] {
+export function listPendingOrders(limit = 50, offset = 0): Order[] {
   const database = getDb();
+  const safeLimit = Math.max(1, Math.floor(limit));
+  const safeOffset = Math.max(0, Math.floor(offset));
   const rows = database
     .prepare(
       `SELECT * FROM orders
        WHERE status IN ('confirmed', 'payment_pending', 'partially_paid')
          AND MAX(total_cents - paid_cents - credit_cents, 0) > 0
-       ORDER BY created_at ASC
-       LIMIT ?`,
+       ORDER BY created_at ASC, id ASC
+       LIMIT ? OFFSET ?`,
     )
-    .all(limit) as Record<string, unknown>[];
-  return rows.map(mapOrder);
+    .all(safeLimit, safeOffset) as Record<string, unknown>[];
+  return mapOrders(rows, { includeQrImage: false });
+}
+
+export function countPendingOrders(): number {
+  const database = getDb();
+  const row = database
+    .prepare(
+      `SELECT COUNT(*) AS n FROM orders
+       WHERE status IN ('confirmed', 'payment_pending', 'partially_paid')
+         AND MAX(total_cents - paid_cents - credit_cents, 0) > 0`,
+    )
+    .get() as { n: number };
+  return Number(row.n);
 }
 
 export function getOrder(id: string): Order | null {
@@ -788,15 +935,26 @@ export function findOrCreateCustomer(name: string): Customer {
   return customer;
 }
 
-export function listCredits(): Credit[] {
+/**
+ * Sin límite se conserva el contrato histórico (todo el fiado). Las rutas
+ * pasan un límite acotado para no serializar cientos de filas por petición.
+ */
+export function listCredits(limit?: number, offset = 0): Credit[] {
   const database = getDb();
+  const safeOffset = Math.max(0, Math.floor(offset));
+  const safeLimit =
+    limit === undefined ? null : Math.max(1, Math.floor(limit));
   const rows = database
     .prepare(
       `SELECT c.*, cu.name AS customer_name
-       FROM credits c JOIN customers cu ON cu.id = c.customer_id
-       ORDER BY c.status ASC, c.created_at DESC`,
+       FROM credits c INDEXED BY idx_credits_status_created
+       JOIN customers cu ON cu.id = c.customer_id
+       ORDER BY c.status ASC, c.created_at DESC, c.id DESC
+       ${safeLimit === null ? "" : "LIMIT ? OFFSET ?"}`,
     )
-    .all() as Record<string, unknown>[];
+    .all(
+      ...(safeLimit === null ? [] : [safeLimit, safeOffset]),
+    ) as Record<string, unknown>[];
   return rows.map((row) => ({
     id: row.id as string,
     customerId: row.customer_id as string,
@@ -808,6 +966,17 @@ export function listCredits(): Credit[] {
     dueDate: (row.due_date as string) ?? null,
     createdAt: row.created_at as string,
   }));
+}
+
+export function countCredits(): number {
+  const database = getDb();
+  const row = database
+    .prepare(
+      `SELECT COUNT(*) AS n
+       FROM credits c JOIN customers cu ON cu.id = c.customer_id`,
+    )
+    .get() as { n: number };
+  return Number(row.n);
 }
 
 export function getCredit(id: string): Credit | null {
@@ -908,34 +1077,30 @@ export function getDailySummary(): DailySummary {
     else declaredDigitalCents += amount;
   }
 
+  // Un solo recorrido del rango del día alimenta pedidos, pagados y
+  // pendiente. Antes eran tres consultas que volvían a escanear lo mismo.
   const orderRow = database
     .prepare(
-      `SELECT COUNT(*) AS n FROM orders o
+      `SELECT
+         COUNT(*) AS n,
+         COALESCE(SUM(
+           CASE
+             WHEN o.status IN ('paid', 'demo_paid')
+               OR (o.status = 'fulfilled' AND o.credit_cents = 0)
+             THEN 1 ELSE 0
+           END
+         ), 0) AS paid,
+         COALESCE(SUM(
+           CASE
+             WHEN o.status IN ('confirmed', 'payment_pending', 'partially_paid')
+             THEN MAX(o.total_cents - o.paid_cents - o.credit_cents, 0)
+             ELSE 0
+           END
+         ), 0) AS pending
+       FROM orders o
        WHERE o.created_at >= ? AND o.created_at < ? ${demoOrderFilter}`,
     )
-    .get(startIso, endIso) as { n: number };
-
-  const paidRow = database
-    .prepare(
-      `SELECT COUNT(*) AS n FROM orders o
-       WHERE o.created_at >= ? AND o.created_at < ?
-         AND (
-           o.status IN ('paid', 'demo_paid')
-           OR (o.status = 'fulfilled' AND o.credit_cents = 0)
-         )
-         ${demoOrderFilter}`,
-    )
-    .get(startIso, endIso) as { n: number };
-
-  const pendingRow = database
-    .prepare(
-      `SELECT COALESCE(SUM(MAX(o.total_cents - o.paid_cents - o.credit_cents, 0)), 0) AS total
-       FROM orders o
-       WHERE o.created_at >= ? AND o.created_at < ?
-         AND o.status IN ('confirmed', 'payment_pending', 'partially_paid')
-         ${demoOrderFilter}`,
-    )
-    .get(startIso, endIso) as { total: number };
+    .get(startIso, endIso) as { n: number; paid: number; pending: number };
 
   const creditRow = database
     .prepare(
@@ -962,11 +1127,11 @@ export function getDailySummary(): DailySummary {
     demoDigitalCents,
     demoCashCents,
     cashCents,
-    pendingCents: Number(pendingRow.total),
+    pendingCents: Number(orderRow.pending),
     creditCents: includeDemo ? Number(creditRow.total) : realCreditCents,
     demoCreditCents,
     orderCount: Number(orderRow.n),
-    paidOrderCount: Number(paidRow.n),
+    paidOrderCount: Number(orderRow.paid),
     methods,
   };
 }

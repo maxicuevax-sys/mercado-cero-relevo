@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // gzip de respuestas y assets en `next start`. Si un proxy/túnel comprime
+  // por su cuenta, este valor no desactiva esa capa; se verifica con
+  // `Accept-Encoding: gzip` y `Content-Encoding` en el contrato de perf.
+  compress: true,
   cacheComponents: true,
   partialPrefetching: true,
   // El indicador de desarrollo sale en capturas y en el video de respaldo.

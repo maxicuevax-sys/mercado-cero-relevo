@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { audit, getDailySummary, getDb, newId, nowIso } from "./db";
-import { mexicoDateKey } from "./time";
+import { mexicoDateKey, startOfMexicoDay } from "./time";
 import type { CashClose, CashClosePreview, CashStatus } from "./types";
 
 interface CashCloseRow {
@@ -186,6 +186,10 @@ function listCashClosesForHistory(date: string): CashClose[] {
 export function getCashStatus(): CashStatus {
   const database = getDb();
   const date = mexicoDateKey();
+  // Rango equivalente a `date(created_at, '-6 hours') = date`, pero sargable:
+  // permite que SQLite use los índices de método/estado/fecha.
+  const startIso = startOfMexicoDay(0).toISOString();
+  const endIso = startOfMexicoDay(-1).toISOString();
   const saved = getCashClose(date);
   const history = listCashClosesForHistory(date);
 
@@ -210,18 +214,18 @@ export function getCashStatus(): CashStatus {
        FROM payments
        WHERE status IN ('paid', 'demo_paid') AND method = 'cash'
          AND provider != 'demo'
-         AND date(created_at, '-6 hours') = ?`,
+         AND created_at >= ? AND created_at < ?`,
     )
-    .get(date) as unknown as { total: number };
+    .get(startIso, endIso) as unknown as { total: number };
 
   const cashCredit = database
     .prepare(
       `SELECT COALESCE(SUM(amount_cents), 0) AS total
        FROM credit_payments
        WHERE method = 'cash' AND provider != 'demo'
-         AND date(created_at, '-6 hours') = ?`,
+         AND created_at >= ? AND created_at < ?`,
     )
-    .get(date) as unknown as { total: number };
+    .get(startIso, endIso) as unknown as { total: number };
 
   const expensesCents = saved?.expensesCents ?? 0;
   const withdrawalsCents = saved?.withdrawalsCents ?? 0;

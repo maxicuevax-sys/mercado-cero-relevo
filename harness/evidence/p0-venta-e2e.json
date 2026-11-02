@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "suite": "p0-venta-e2e",
-  "baseUrl": "http://localhost:3122",
+  "baseUrl": "http://127.0.0.1:3161",
   "command": "python web/scripts/p0-venta-e2e.py",
   "requires": [
     "pip install playwright",
@@ -9,16 +9,16 @@
     "servidor aislado en P0_BASE_URL (por defecto http://localhost:3101)"
   ],
   "code": {
-    "commit": "7bb0dc54a53ea8880415a6af219e19c65529e5d3",
-    "branch": "p0/fix-dinero",
+    "commit": "2990581996a011fc228a5bdead715b75df1d2874",
+    "branch": "p0/perf-data",
     "dirty": true
   },
   "build": {
     "next": "16.4.3",
     "command": "npm run build"
   },
-  "startedAt": "2026-11-02T16:01:29.500168+00:00",
-  "finishedAt": "2026-11-02T16:03:05.510778+00:00",
+  "startedAt": "2026-11-02T17:56:24.059423+00:00",
+  "finishedAt": "2026-11-02T17:57:35.448396+00:00",
   "summary": {
     "pass": 43,
     "fail": 0,
@@ -54,7 +54,7 @@
     {
       "name": "el draft nuevo no guarda dinero sin ítems",
       "ok": true,
-      "detail": "{\"version\": 1, \"items\": [{\"id\": \"draft_1793635297090_4mnxqv\", \"description\": \"\", \"quantity\": 1, \"unitPriceCents\": 0}], \"cashCents\": 0, \"creditCents\": 0, \"customerName\": \"\", \"textInput\": \"\", \"transcript\": \"\", \"updatedAt\": \"2026-11-02T16:01:37.101Z\"}"
+      "detail": "{\"version\": 1, \"items\": [{\"id\": \"draft_1793642190544_2ex0nk\", \"description\": \"\", \"quantity\": 1, \"unitPriceCents\": 0}], \"cashCents\": 0, \"creditCents\": 0, \"customerName\": \"\", \"textInput\": \"\", \"transcript\": \"\", \"updatedAt\": \"2026-11-02T17:56:30.556Z\"}"
     },
     {
       "name": "un parseo nuevo oculta el banner de recuperación",
@@ -109,12 +109,12 @@
     {
       "name": "efectivo $100 sobre $90 conserva cambio $10",
       "ok": true,
-      "detail": "orden=ord_36da45726aa84e2a845e"
+      "detail": "orden=ord_82d236ab99c24c809868"
     },
     {
       "name": "efectivo $100 con $30 fiado conserva cambio $40",
       "ok": true,
-      "detail": "orden=ord_cdcb10731b1e4decbc14"
+      "detail": "orden=ord_f57c2e922b6d44d4bd3d"
     },
     {
       "name": "Sí, limpiar enfoca Agregar producto",
@@ -129,7 +129,7 @@
     {
       "name": "el pendiente se guarda en localStorage",
       "ok": true,
-      "detail": "{\"version\": 1, \"orderId\": \"ord_647fda6b722346c1bee6\", \"updatedAt\": \"2026-11-02T16:02:06.521Z\"}"
+      "detail": "{\"version\": 1, \"orderId\": \"ord_55f9605f60374ca7886f\", \"updatedAt\": \"2026-11-02T17:56:55.987Z\"}"
     },
     {
       "name": "el aviso del pendiente usa Descartar aviso",
@@ -144,7 +144,7 @@
     {
       "name": "Continuar reabre el mismo pendiente sin duplicar",
       "ok": true,
-      "detail": "pedido=BEE6"
+      "detail": "pedido=886F"
     },
     {
       "name": "Descartar el aviso no borra la orden y enfoca Caja",
@@ -159,17 +159,17 @@
     {
       "name": "crear otra venta pagada no borra el pendiente ajeno",
       "ok": true,
-      "detail": "{\"version\": 1, \"orderId\": \"ord_313e2619901c4481afbe\", \"updatedAt\": \"2026-11-02T16:02:12.454Z\"}"
+      "detail": "{\"version\": 1, \"orderId\": \"ord_c86a48a9aa0b4591ab94\", \"updatedAt\": \"2026-11-02T17:57:01.734Z\"}"
     },
     {
       "name": "abrir y cerrar otra orden pagada conserva el aviso",
       "ok": true,
-      "detail": "{\"version\": 1, \"orderId\": \"ord_313e2619901c4481afbe\", \"updatedAt\": \"2026-11-02T16:02:12.454Z\"}"
+      "detail": "{\"version\": 1, \"orderId\": \"ord_c86a48a9aa0b4591ab94\", \"updatedAt\": \"2026-11-02T17:57:01.734Z\"}"
     },
     {
       "name": "Continuar cobro muestra el Pedido #### correcto",
       "ok": true,
-      "detail": "pedido=AFBE"
+      "detail": "pedido=AB94"
     },
     {
       "name": "pagar el pendiente lo borra del aviso",
@@ -184,7 +184,7 @@
     {
       "name": "crear una orden fulfilled ajena no borra el pendiente",
       "ok": true,
-      "detail": "{\"version\": 1, \"orderId\": \"ord_fac1f6b76e584839a355\", \"updatedAt\": \"2026-11-02T16:02:22.103Z\"}"
+      "detail": "{\"version\": 1, \"orderId\": \"ord_08cbe18e58f94ef59568\", \"updatedAt\": \"2026-11-02T17:57:09.249Z\"}"
     },
     {
       "name": "abrir y cerrar la orden fulfilled ajena conserva el pendiente",
@@ -214,7 +214,7 @@
     {
       "name": "precio 0 enfoca el campo de precio",
       "ok": true,
-      "detail": "foco=draft-price-draft_1793635354448_78iogh"
+      "detail": "foco=draft-price-draft_1793642240946_4bckfj"
     },
     {
       "name": "cantidad 0 restaurada enfoca cantidad y no envía POST",

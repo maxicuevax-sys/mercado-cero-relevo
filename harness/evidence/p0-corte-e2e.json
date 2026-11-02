@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "suite": "p0-corte-e2e",
-  "baseUrl": "http://localhost:3122",
+  "baseUrl": "http://127.0.0.1:3163",
   "command": "python web/scripts/p0-corte-e2e.py",
   "artifacts": [
     "harness/evidence/p0-corte-360.png",
@@ -13,16 +13,16 @@
     "npm run build"
   ],
   "code": {
-    "commit": "7bb0dc54a53ea8880415a6af219e19c65529e5d3",
-    "branch": "p0/fix-dinero",
+    "commit": "2990581996a011fc228a5bdead715b75df1d2874",
+    "branch": "p0/perf-data",
     "dirty": true
   },
   "build": {
     "next": "16.4.3",
     "command": "npm run build"
   },
-  "startedAt": "2026-11-02T16:11:53.606115+00:00",
-  "finishedAt": "2026-11-02T16:13:49.915783+00:00",
+  "startedAt": "2026-11-02T17:58:44.196744+00:00",
+  "finishedAt": "2026-11-02T18:00:11.134782+00:00",
   "summary": {
     "pass": 69,
     "fail": 0,
@@ -133,12 +133,12 @@
     {
       "name": "la primera llave crea la versión 1",
       "ok": true,
-      "detail": "200 · {\"close\": {\"id\": \"cash_065cc0fb36d34b869bec\", \"date\": \"2026-11-02\", \"version\": 1, \"openingCents\": 50000, \"cashSalesCents\": 0, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 50000, \"countedCents\": 50000, \"d"
+      "detail": "200 · {\"close\": {\"id\": \"cash_21d40fa0f88f496c81c6\", \"date\": \"2026-11-02\", \"version\": 1, \"openingCents\": 50000, \"cashSalesCents\": 0, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 50000, \"countedCents\": 50000, \"d"
     },
     {
       "name": "reintentar la misma llave devuelve la misma versión",
       "ok": true,
-      "detail": "200 · {\"close\": {\"id\": \"cash_065cc0fb36d34b869bec\", \"date\": \"2026-11-02\", \"version\": 1, \"openingCents\": 50000, \"cashSalesCents\": 0, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 50000, \"countedCents\": 50000, \"d"
+      "detail": "200 · {\"close\": {\"id\": \"cash_21d40fa0f88f496c81c6\", \"date\": \"2026-11-02\", \"version\": 1, \"openingCents\": 50000, \"cashSalesCents\": 0, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 50000, \"countedCents\": 50000, \"d"
     },
     {
       "name": "una versión esperada vieja responde 409 version_conflict",
@@ -153,7 +153,7 @@
     {
       "name": "con motivo y versión correcta crea la versión 2",
       "ok": true,
-      "detail": "200 · {\"close\": {\"id\": \"cash_6b6072efd36946209a9f\", \"date\": \"2026-11-02\", \"version\": 2, \"openingCents\": 50000, \"cashSalesCents\": 0, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 50000, \"countedCents\": 50000, \"d"
+      "detail": "200 · {\"close\": {\"id\": \"cash_888233d15c754247a6f9\", \"date\": \"2026-11-02\", \"version\": 2, \"openingCents\": 50000, \"cashSalesCents\": 0, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 50000, \"countedCents\": 50000, \"d"
     },
     {
       "name": "contado 0 responde 400 counted_required, no invalid_close",
@@ -193,12 +193,12 @@
     {
       "name": "el resumen posterior muestra efectivo, fiado, digital, contado y diferencia",
       "ok": true,
-      "detail": "Corte #1 ·  · Hoy 10:12 a.m. ·  · Efectivo del día · $0.00 · Fiado pendiente · $50.00 · Pendiente digital de hoy · $120.00 · Contado · $485.00 · Diferencia · Cuadra ·  · Esta foto no cambia si hay ventas o cobros después del cierre."
+      "detail": "Corte #1 ·  · Hoy 11:59 a.m. ·  · Efectivo del día · $0.00 · Fiado pendiente · $50.00 · Pendiente digital de hoy · $120.00 · Contado · $485.00 · Diferencia · Cuadra ·  · Esta foto no cambia si hay ventas o cobros después del cierre."
     },
     {
       "name": "el resumen incluye la fecha del cierre",
       "ok": true,
-      "detail": "Corte #1 ·  · Hoy 10:12 a.m. ·  · Efectivo del día · $0.00 · Fiado pendiente · $50.00 · Pendiente digital de hoy · $120.00 · Contado · $485.00 · Diferencia · Cuadra ·  · Esta foto no cambia si hay ven"
+      "detail": "Corte #1 ·  · Hoy 11:59 a.m. ·  · Efectivo del día · $0.00 · Fiado pendiente · $50.00 · Pendiente digital de hoy · $120.00 · Contado · $485.00 · Diferencia · Cuadra ·  · Esta foto no cambia si hay ven"
     },
     {
       "name": "el primer cierre crea la versión 1 en SQLite",
@@ -213,7 +213,7 @@
     {
       "name": "audit cash.close registra versión 1 sin motivo",
       "ok": true,
-      "detail": "{\"date\": \"2026-11-02\", \"version\": 1, \"reason\": null, \"requestId\": \"close_d6149276-dacf-40f6-aec0-e4b30fdcefb1\", \"expectedVersion\": 0, \"countedCents\": 48500, \"expectedCents\": 48500, \"differenceCents\": 0, \"baseNextCents\": 40000}"
+      "detail": "{\"date\": \"2026-11-02\", \"version\": 1, \"reason\": null, \"requestId\": \"close_61bda76d-4375-4f53-9854-cf129c5d0f2f\", \"expectedVersion\": 0, \"countedCents\": 48500, \"expectedCents\": 48500, \"differenceCents\": 0, \"baseNextCents\": 40000}"
     },
     {
       "name": "la versión 1 deja un adicional a retirar (sin efectivo demo)",
@@ -253,12 +253,12 @@
     {
       "name": "el historial muestra la versión 1 y el motivo de la 2",
       "ok": true,
-      "detail": "Cierres de hoy · Corte #2 · 10:12 a.m. ·  · Contado $450.00 · Cuadra ·  · Motivo: Retiré $155 del corte #1 y volví a contar. ·  · Corte #1 · 10:12 a.m. ·  · Contado $485.00 · Cuadra"
+      "detail": "Cierres de hoy · Corte #2 · 11:59 a.m. ·  · Contado $450.00 · Cuadra ·  · Motivo: Retiré $155 del corte #1 y volví a contar. ·  · Corte #1 · 11:59 a.m. ·  · Contado $485.00 · Cuadra"
     },
     {
       "name": "audit cash.close registra versión 2 y su motivo",
       "ok": true,
-      "detail": "{\"date\": \"2026-11-02\", \"version\": 2, \"reason\": \"Retir\\u00e9 $155 del corte #1 y volv\\u00ed a contar.\", \"requestId\": \"close_53f968dc-0a5f-4a71-9233-ae7e6251421c\", \"expectedVersion\": 1, \"countedCents\": 45000, \"expectedCents\": 45000, \"differenceCents\": 0, \"baseNextCents\": 40000}"
+      "detail": "{\"date\": \"2026-11-02\", \"version\": 2, \"reason\": \"Retir\\u00e9 $155 del corte #1 y volv\\u00ed a contar.\", \"requestId\": \"close_5cdd591c-2b61-4af0-bcbe-8411300fd026\", \"expectedVersion\": 1, \"countedCents\": 45000, \"expectedCents\": 45000, \"differenceCents\": 0, \"baseNextCents\": 40000}"
     },
     {
       "name": "el estado sirve la versión 2 como corte vigente",
@@ -343,7 +343,7 @@
     {
       "name": "migración vieja: la corrección crea v2 sin borrar v1",
       "ok": true,
-      "detail": "{\"id\": \"cash_95a6550e46cb47339d95\", \"date\": \"2026-11-02\", \"version\": 2, \"openingCents\": 30000, \"cashSalesCents\": 0, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 30000, \"countedCents\": 30000, \"differenceCents\": 0, \"baseNextCents\": 30000, \"withd"
+      "detail": "{\"id\": \"cash_1dfc6a5696a641858786\", \"date\": \"2026-11-02\", \"version\": 2, \"openingCents\": 30000, \"cashSalesCents\": 0, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 30000, \"countedCents\": 30000, \"differenceCents\": 0, \"baseNextCents\": 30000, \"withd"
     },
     {
       "name": "migración vieja: SQLite conserva v1 desconocida y v2 conocida",
@@ -373,7 +373,7 @@
     {
       "name": "el carril corre en un puerto aislado, nunca en :3000",
       "ok": true,
-      "detail": "http://localhost:3122 · migración :3102"
+      "detail": "http://127.0.0.1:3163 · migración :3102"
     }
   ]
 }

@@ -69,11 +69,117 @@ function mismatchReason(local: PaymentRow, transaction: PeyTransaction): string 
   return null;
 }
 
+interface ReconciledRow {
+  item: ReconciliationItem;
+  confirmedCents: number;
+}
+
+async function reconcileRow(
+  row: PaymentRow,
+  signal: AbortSignal,
+): Promise<ReconciledRow> {
+  const localCents = Number(row.amount_cents);
+  const base = {
+    orderId: row.order_id,
+    transactionId: row.transaction_id,
+    method: row.method,
+    localCents,
+    peyCents: null,
+  } as const;
+
+  if (row.provider !== "pey") {
+    return {
+      item: {
+        ...base,
+        status: "not_pey",
+        reason: `El pago local es de ${row.provider}, no de pey.`,
+      },
+      confirmedCents: 0,
+    };
+  }
+
+  if (!row.transaction_id) {
+    return {
+      item: {
+        ...base,
+        status: "missing_transaction_id",
+        reason: "El pago no tiene transactionId.",
+      },
+      confirmedCents: 0,
+    };
+  }
+
+  try {
+    const transaction = await getPeyTransaction(row.transaction_id, signal);
+    if (!transaction) {
+      return {
+        item: {
+          ...base,
+          status: "not_found",
+          reason: "pey no reconoce esa transacción para esta cuenta.",
+        },
+        confirmedCents: 0,
+      };
+    }
+
+    const peyCents = baseCents(transaction);
+    const paid = transaction.status === "PAID";
+    const reason = mismatchReason(row, transaction);
+    if (reason) {
+      return {
+        item: {
+          ...base,
+          peyCents,
+          status: paid ? "mismatch" : "not_paid",
+          reason,
+        },
+        confirmedCents: paid ? peyCents : 0,
+      };
+    }
+    return {
+      item: { ...base, peyCents, status: "ok" },
+      confirmedCents: paid ? peyCents : 0,
+    };
+  } catch (error) {
+    return {
+      item: {
+        ...base,
+        status: "error",
+        reason: signal.aborted
+          ? "Se agotó el tiempo al consultar pey."
+          : error instanceof Error
+            ? error.message
+            : "No se pudo consultar pey.",
+      },
+      confirmedCents: 0,
+    };
+  }
+}
+
+function clampConcurrency(value: number | undefined): number {
+  if (!Number.isFinite(value)) return 6;
+  return Math.min(10, Math.max(5, Math.trunc(value as number)));
+}
+
+export interface ReconciliationOptions {
+  signal?: AbortSignal;
+  /** 5–10 consultas simultáneas a pey; el default es 6. */
+  concurrency?: number;
+  /** Corte global de la conciliación. */
+  timeoutMs?: number;
+}
+
 /**
  * Compara los pagos digitales del día contra pey. Es solo lectura:
  * no corrige ni inventa pagos; reporta diferencias para que una persona decida.
+ *
+ * La conciliación no se ejecuta desde el dashboard: solo corre cuando la
+ * comerciante abre esa tarjeta. Aun así, limita la concurrencia y aborta las
+ * consultas colgadas para que una lentitud de pey no consuma el proceso.
  */
-export async function getReconciliationReport(): Promise<ReconciliationReport> {
+export async function getReconciliationReport(
+  options: ReconciliationOptions = {},
+): Promise<ReconciliationReport> {
   const startIso = startOfTodayIso();
   const date = mexicoDateKey();
   const database = getDb();
@@ -109,92 +215,57 @@ export async function getReconciliationReport(): Promise<ReconciliationReport> {
     };
   }
 
-  const items: ReconciliationItem[] = [];
-  let peyConfirmedCents = 0;
+  const concurrency = clampConcurrency(
+    options.concurrency ??
+      Number(process.env.RECONCILE_CONCURRENCY ?? 6),
+  );
+  const configuredTimeout = Number(
+    process.env.RECONCILE_TIMEOUT_MS ?? 20_000,
+  );
+  const timeoutMs = Math.max(
+    1_000,
+    options.timeoutMs ??
+      (Number.isFinite(configuredTimeout) ? configuredTimeout : 20_000),
+  );
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(new Error("reconcile timeout")),
+    timeoutMs,
+  );
+  const signal = options.signal
+    ? AbortSignal.any([options.signal, controller.signal])
+    : controller.signal;
 
-  for (const row of rows) {
-    const localCents = Number(row.amount_cents);
-
-    if (row.provider !== "pey") {
-      items.push({
-        orderId: row.order_id,
-        transactionId: row.transaction_id,
-        method: row.method,
-        localCents,
-        peyCents: null,
-        status: "not_pey",
-        reason: `El pago local es de ${row.provider}, no de pey.`,
-      });
-      continue;
+  const results = new Array<ReconciledRow | undefined>(rows.length);
+  let cursor = 0;
+  const worker = async () => {
+    while (true) {
+      const index = cursor;
+      cursor += 1;
+      if (index >= rows.length) return;
+      results[index] = await reconcileRow(rows[index], signal);
     }
+  };
 
-    if (!row.transaction_id) {
-      items.push({
-        orderId: row.order_id,
-        transactionId: null,
-        method: row.method,
-        localCents,
-        peyCents: null,
-        status: "missing_transaction_id",
-        reason: "El pago no tiene transactionId.",
-      });
-      continue;
-    }
-
-    try {
-      const transaction = await getPeyTransaction(row.transaction_id);
-      if (!transaction) {
-        items.push({
-          orderId: row.order_id,
-          transactionId: row.transaction_id,
-          method: row.method,
-          localCents,
-          peyCents: null,
-          status: "not_found",
-          reason: "pey no reconoce esa transacción para esta cuenta.",
-        });
-        continue;
-      }
-
-      const peyCents = baseCents(transaction);
-      const paid = transaction.status === "PAID";
-      if (paid) peyConfirmedCents += peyCents;
-
-      const reason = mismatchReason(row, transaction);
-      if (reason) {
-        items.push({
-          orderId: row.order_id,
-          transactionId: row.transaction_id,
-          method: row.method,
-          localCents,
-          peyCents,
-          status: paid ? "mismatch" : "not_paid",
-          reason,
-        });
-      } else {
-        items.push({
-          orderId: row.order_id,
-          transactionId: row.transaction_id,
-          method: row.method,
-          localCents,
-          peyCents,
-          status: "ok",
-        });
-      }
-    } catch (error) {
-      items.push({
-        orderId: row.order_id,
-        transactionId: row.transaction_id,
-        method: row.method,
-        localCents,
-        peyCents: null,
-        status: "error",
-        reason:
-          error instanceof Error ? error.message : "No se pudo consultar pey.",
-      });
-    }
+  try {
+    await Promise.all(
+      Array.from(
+        { length: Math.min(concurrency, Math.max(1, rows.length)) },
+        worker,
+      ),
+    );
+  } finally {
+    clearTimeout(timeout);
   }
 
+  const resolved = results.filter(
+    (row): row is ReconciledRow => row !== undefined,
+  );
+  const items = resolved.map((row) => row.item);
+  const peyConfirmedCents = resolved.reduce(
+    (sum, row) => sum + row.confirmedCents,
+    0,
+  );
   const issues = items.filter((item) => item.status !== "ok").length;
   const differenceCents = localDigitalCents - peyConfirmedCents;
 
