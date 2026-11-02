@@ -35,7 +35,7 @@
 - Código verificado: **`3f95307`** (cierre de revisión de integración P0 + accesibilidad del saldo).
 - Modo: **full**, **11/11** en verde, `gitAtStart.dirty: false`; `latest.json` con `ok: true`.
 - Gates: `guard`, `lint`, `types`, `truth`, `webhook` 27/27, `mobile` 25/25, `checkout` 15/15, `hig` axe 0, `rehearsal` 3/3, `tunnel` 8/8, `preflight` 18/18.
-- E2E de carril: integración **50/0/0**, fiado **50/0/0**, venta **43/0/0**, shell **52/0/0**.
+- E2E de carril: integración **51/0/0**, fiado **50/0/0**, venta **43/0/0**, shell **52/0/0**.
 - Voz: el botón de $50 reproduce Kokoro `em_santa` (SHA-256 `24EF2C9F…`), 0 llamadas a `speechSynthesis`; las frases dinámicas siguen en Piper.
 - No ejecutado: `film` (`--with-film`), porque el corte es funcional/accesible y no cambió la dirección visual. El pago real de $0.01 sigue bloqueado.
 
@@ -61,7 +61,7 @@
 - **P0-C.1/E/G integrados:** `96381b9` + `76bfbc3` — cobros pendientes, tareas de negocio, método de abono, venta mixta, carrera de refresco, WCAG 2.5.3 y voz de $50.
 - **Evidencia P0-A/B:** `web/scripts/p0-venta-e2e.py` → 43 PASS · 0 FAIL · 0 KNOWN.
 - **Evidencia P0-C:** `web/scripts/p0-fiado-e2e.py` → 50 PASS · 0 FAIL · 0 KNOWN.
-- **Evidencia integración:** `web/scripts/p0-integracion-e2e.py` → 50 PASS · 0 FAIL · 0 KNOWN.
+- **Evidencia integración:** `web/scripts/p0-integracion-e2e.py` → 51 PASS · 0 FAIL · 0 KNOWN (incluye el guard de voz de $50).
 - **Evidencia shell:** `web/scripts/p0-shell-e2e.py` → 52 PASS · 0 FAIL; HIG/axe 0.
 - **Resuelto:** la venta mixta ya ofrece cobrar el remanente digital y muestra “Pago mixto”; el fiado conserva su saldo vivo.
 

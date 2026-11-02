@@ -168,13 +168,14 @@ corte por cerrado:
 
 | # | Hallazgo | Corrección | Evidencia |
 |---|---|---|---|
-| 1 | Un poll viejo podía pisar el saldo recién cobrado | `loadDashboard({ force: true })` aborta la lectura en vuelo tras cada mutación; el refresco de fondo se deduplica | `p0-integracion-e2e.py`: retiene un dashboard viejo, cobra el abono y verifica saldo $0; 50/0 |
+| 1 | Un poll viejo podía pisar el saldo recién cobrado | `loadDashboard({ force: true })` aborta la lectura en vuelo tras cada mutación; el refresco de fondo se deduplica | `p0-integracion-e2e.py`: retiene un dashboard viejo, cobra el abono y verifica saldo $0; 51/0 |
 | 2 | Reset de demo dejaba tareas fantasma | `tasksResetKey` remonta `PendingTasksPanel` al reiniciar | `p0-integracion-e2e.py`: “el reset de demo limpia las tareas visibles” |
 | 3 | WCAG 2.5.3: tab “Tareas” con nombre accesible “Pendientes” | nombre accesible **“Tareas (Pendientes)”**; foco al `h1` de cada tab | `p0-integracion-e2e.py`: nombre accesible y foco `pendientes-heading` |
 | 4 | La franja P0-E empujaba la venta fuera del primer viewport al 200 % | franja movida al aside, después de la venta; un solo “Reintentar” global | `p0-shell-e2e.py`: 360/768/200 con campo de venta visible; 52/0 |
 | 5 | “Pedido entregado” en un mixto demo | título “Pago mixto” / “Quedó anotado” cuando hay fiado; no afirma entrega | `p0-integracion-e2e.py` |
 | 6 | Gates viejos de P0-C/P0-F desactualizados | `p0-fiado` elige método; `p0-shell` espera 5 destinos; `p0-venta` retira el KNOWN del remanente | `p0-fiado` 50/0 · `p0-venta` 43/0 · `p0-shell` 52/0 |
-| 7 | Evidencia de tabs/fecha engañosa | `labelFits` mide el texto real; la fecha se lee dentro de Actividad | `p0-integracion-e2e.py` 50/0 |
+| 7 | Evidencia de tabs/fecha engañosa | `labelFits` mide el texto real; la fecha se lee dentro de Actividad | `p0-integracion-e2e.py` 51/0 |
+| 8 | La voz de $50 podía volver a Piper | guard de regresión: WAV Kokoro, hash exacto y 0 `speechSynthesis` | `p0-integracion-e2e.py` 51/0 |
 
 **KNOWN que permanecen**
 

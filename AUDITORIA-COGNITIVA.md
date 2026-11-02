@@ -249,7 +249,7 @@ Si `/api/dashboard` falla, se muestra el comercio hardcodeado, desaparece DEMO, 
 **Evidencia final (árbol limpio):**
 
 - `harness/evidence/latest.json` — **full 11/11**, `ok: true`, `gitAtStart.sha = 3f95307`, `dirty: false`.
-- `p0-integracion-e2e.py` — **50 PASS · 0 FAIL · 0 KNOWN**.
+- `p0-integracion-e2e.py` — **51 PASS · 0 FAIL · 0 KNOWN**, incluido el guard de voz de $50.
 - `p0-fiado-e2e.py` — **50 PASS · 0 FAIL · 0 KNOWN**.
 - `p0-venta-e2e.py` — **43 PASS · 0 FAIL · 0 KNOWN**.
 - `p0-shell-e2e.py` — **52 PASS · 0 FAIL**; HIG/axe 0 a 360/390/768/1280 y 200 %.
