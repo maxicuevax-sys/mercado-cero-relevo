@@ -49,5 +49,5 @@ sonaba la voz dinámica de Piper, no el WAV Kokoro del demo. Además, los motore
 - El reconocedor base transcribe la “r” inicial de “Revisa” como “Previsa”; el texto y la
   locución son correctos. No se cambió la copia para no alterar el guion.
 - Otros montos siguen usando Piper (voz dinámica elegida). Solo las frases fijas usan Kokoro.
-- `speechSynthesis` sigue como último recurso si el audio no se puede reproducir; en la
-  prueba real del botón de $50 no se invocó.
+- Ya **no hay fallback a `speechSynthesis`**: si el audio elegido no se puede reproducir, la
+  app no habla con otra voz; el texto sigue en pantalla. Se prefiere silencio a una voz distinta.
