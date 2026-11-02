@@ -1,14 +1,33 @@
 import { isDemoMode } from "@/lib/config";
 import { getDb, getOrder, newId, nowIso } from "@/lib/db";
+import {
+  bodyErrorResponse,
+  enforceRateLimit,
+  internalErrorResponse,
+  MAX_SMALL_JSON_BYTES,
+  readJsonLimited,
+} from "@/lib/http-security";
 import { recordPayment } from "@/lib/orders";
 
 export async function POST(request: Request) {
   if (!isDemoMode()) {
-    return Response.json({ error: "El modo demo está desactivado." }, { status: 403 });
+    return Response.json(
+      { error: "El modo demo está desactivado.", code: "demo_disabled" },
+      { status: 403 },
+    );
+  }
+
+  const limited = enforceRateLimit(request, "demo-pay", 30, 60_000);
+  if (limited) return limited;
+
+  let body: { orderId?: string; method?: "codi" | "card" | "wallet" };
+  try {
+    body = await readJsonLimited(request, MAX_SMALL_JSON_BYTES);
+  } catch (error) {
+    return bodyErrorResponse(error);
   }
 
   try {
-    const body = (await request.json()) as { orderId?: string; method?: "codi" | "card" | "wallet" };
     if (!body.orderId) {
       return Response.json({ error: "Falta orderId." }, { status: 400 });
     }
@@ -53,7 +72,6 @@ export async function POST(request: Request) {
 
     return Response.json({ order: updated, transactionId });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "No se pudo simular el pago.";
-    return Response.json({ error: message }, { status: 500 });
+    return internalErrorResponse("demo pay", error);
   }
 }

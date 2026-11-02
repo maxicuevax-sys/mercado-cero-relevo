@@ -177,6 +177,11 @@ export async function getReconciliationReport(): Promise<ReconciliationReport> {
         });
       }
     } catch (error) {
+      console.error(
+        "[reconcile] no se pudo consultar pey",
+        row.transaction_id,
+        error,
+      );
       items.push({
         orderId: row.order_id,
         transactionId: row.transaction_id,
@@ -184,8 +189,7 @@ export async function getReconciliationReport(): Promise<ReconciliationReport> {
         localCents,
         peyCents: null,
         status: "error",
-        reason:
-          error instanceof Error ? error.message : "No se pudo consultar pey.",
+        reason: "No se pudo consultar pey para esta transacción.",
       });
     }
   }

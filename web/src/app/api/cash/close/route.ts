@@ -1,5 +1,12 @@
 import { z } from "zod";
 import { CashCloseError, closeCash, getCashStatus } from "@/lib/cash";
+import {
+  bodyErrorResponse,
+  enforceRateLimit,
+  readJsonLimited,
+} from "@/lib/http-security";
+
+const MAX_CASH_BODY_BYTES = 16 * 1024;
 
 const moneyCents = z
   .number({ error: "Escribe un monto válido en centavos." })
@@ -36,18 +43,16 @@ async function readJson(
   request: Request,
 ): Promise<{ body: unknown } | { response: Response }> {
   try {
-    return { body: await request.json() };
-  } catch {
-    return {
-      response: Response.json(
-        { error: "El cuerpo debe ser JSON válido.", code: "invalid_json" },
-        { status: 400 },
-      ),
-    };
+    return { body: await readJsonLimited(request, MAX_CASH_BODY_BYTES) };
+  } catch (error) {
+    return { response: bodyErrorResponse(error) };
   }
 }
 
 export async function POST(request: Request) {
+  const limited = enforceRateLimit(request, "cash-close", 30, 60_000);
+  if (limited) return limited;
+
   const parsed = await readJson(request);
   if ("response" in parsed) return parsed.response;
 
@@ -76,8 +81,10 @@ export async function POST(request: Request) {
         { status: error.status },
       );
     }
-    const message =
-      error instanceof Error ? error.message : "No se pudo guardar el corte.";
-    return Response.json({ error: message }, { status: 500 });
+    console.error("[cash close] error inesperado", error);
+    return Response.json(
+      { error: "No se pudo guardar el corte.", code: "cash_close_failed" },
+      { status: 500 },
+    );
   }
 }

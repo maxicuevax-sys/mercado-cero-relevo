@@ -1,11 +1,12 @@
 import { z } from "zod";
-import {
-  MAX_GOAL_TITLE_CHARS,
-  createGoal,
-  listGoals,
-} from "@/lib/goals";
 import { appErrorResponse, unexpectedResponse } from "@/lib/errors";
-import { readJsonLimited } from "@/lib/http";
+import { MAX_GOAL_TITLE_CHARS, createGoal, listGoals } from "@/lib/goals";
+import {
+  bodyErrorResponse,
+  enforceRateLimit,
+  MAX_SMALL_JSON_BYTES,
+  readJsonLimited,
+} from "@/lib/http-security";
 
 const createSchema = z.object({
   title: z.string().trim().min(1).max(MAX_GOAL_TITLE_CHARS),
@@ -18,8 +19,17 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const limited = enforceRateLimit(request, "goals-create", 30, 60_000);
+  if (limited) return limited;
+
+  let body: unknown;
   try {
-    const body = await readJsonLimited(request);
+    body = await readJsonLimited(request, MAX_SMALL_JSON_BYTES);
+  } catch (error) {
+    return bodyErrorResponse(error);
+  }
+
+  try {
     const input = createSchema.parse(body);
     return Response.json({ goal: createGoal(input) }, { status: 201 });
   } catch (error) {

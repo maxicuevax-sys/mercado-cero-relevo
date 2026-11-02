@@ -48,7 +48,7 @@ export class ConflictError extends AppError {
 
 export class PayloadTooLargeError extends AppError {
   constructor(message = "El cuerpo de la solicitud es demasiado grande.") {
-    super(413, "payload_too_large", message);
+    super(413, "body_too_large", message);
     this.name = "PayloadTooLargeError";
   }
 }
@@ -69,7 +69,14 @@ export function appErrorResponse(error: unknown): Response | null {
  * Respuesta para fallos no previstos. El detalle solo queda en los logs del
  * servidor; el cliente recibe un mensaje estable y accionable.
  */
-export function unexpectedResponse(error: unknown, fallback: string): Response {
+export function unexpectedResponse(
+  error: unknown,
+  fallback: string,
+  status = 500,
+): Response {
   console.error(`[api] ${fallback}`, error);
-  return Response.json({ error: fallback }, { status: 500 });
+  return Response.json(
+    { error: fallback, code: "internal_error" },
+    { status },
+  );
 }

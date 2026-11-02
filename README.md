@@ -154,6 +154,10 @@ Regla de oro: **ningún estado `paid` se alcanza por lógica del cliente, ni por
 - No almacenar datos de tarjeta; el checkout es alojado por pey.
 - Secretos solo en el servidor; rate limiting en endpoints públicos.
 - Registrar cada evento para auditoría y para explicar cualquier discrepancia.
+- CSRF de mismo origen, límites de cuerpo, headers y reset con backup:
+  ver [`SECURITY.md`](./SECURITY.md). Para producción, Cloudflare Access es la
+  capa de autenticación; el webhook queda fuera de Access y se autentica con
+  firma.
 
 ---
 
@@ -222,7 +226,7 @@ npm run dev
 
 Sin `PEY_API_KEY`, la app arranca en **modo demo** y permite simular pagos desde el checkout. Para forzar la demo aunque exista una API key, pon `DEMO_MODE=true` en `.env.local` y reinicia. El webhook real sigue exigiendo firma; el dinero simulado usa `/api/demo/pay`.
 
-En modo demo, **Reiniciar demo** siembra un historial de 30 días, un cobro pendiente, un corte de ayer y una meta. Todo se marca como demo: no son pagos reales ni dinero verificado por el banco.
+En modo demo, **Reiniciar demo** siembra un historial de 30 días, un cobro pendiente, un corte de ayer y una meta. Todo se marca como demo: no son pagos reales ni dinero verificado por el banco. El reset hace un backup SQLite antes de borrar y se niega si detecta un pago `pey` confirmado (ver [`SECURITY.md`](./SECURITY.md)).
 
 Para probar el contrato del webhook:
 

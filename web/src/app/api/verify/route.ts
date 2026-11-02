@@ -1,11 +1,18 @@
 import { isDemoMode } from "@/lib/config";
 import { getDb } from "@/lib/db";
+import { enforceRateLimit } from "@/lib/http-security";
 import { getPeyTransaction } from "@/lib/pey";
 
 export async function GET(request: Request) {
+  const limited = enforceRateLimit(request, "verify", 60, 60_000);
+  if (limited) return limited;
+
   const transactionId = new URL(request.url).searchParams.get("transactionId")?.trim();
   if (!transactionId) {
     return Response.json({ error: "Falta transactionId." }, { status: 400 });
+  }
+  if (transactionId.length > 200) {
+    return Response.json({ error: "transactionId inválido." }, { status: 400 });
   }
 
   const database = getDb();
@@ -75,7 +82,14 @@ export async function GET(request: Request) {
       transaction,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "No se pudo verificar el comprobante.";
-    return Response.json({ verified: false, reason: "error", message }, { status: 502 });
+    console.error("[verify] no se pudo consultar pey", error);
+    return Response.json(
+      {
+        verified: false,
+        reason: "error",
+        message: "No se pudo verificar el comprobante en este momento.",
+      },
+      { status: 502 },
+    );
   }
 }

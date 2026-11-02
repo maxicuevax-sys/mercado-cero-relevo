@@ -14,8 +14,28 @@ import type {
 
 const dataDir = path.join(process.cwd(), "data");
 const dbPath = process.env.DATABASE_PATH ?? path.join(dataDir, "mercado-cero.db");
+const backupDir =
+  process.env.DATABASE_BACKUP_DIR ?? path.join(dataDir, "backups");
 
 let db: DatabaseSync | null = null;
+
+export class DemoResetBlockedError extends Error {
+  readonly realPaymentCount: number;
+
+  constructor(realPaymentCount: number) {
+    super(
+      "Hay pagos reales de pey confirmados. El reinicio de demo está bloqueado.",
+    );
+    this.name = "DemoResetBlockedError";
+    this.realPaymentCount = realPaymentCount;
+  }
+}
+
+export interface DemoResetResult {
+  backup: string;
+  realPaymentCount: number;
+  preservedRealPayments: number;
+}
 
 export function newId(prefix = "mc"): string {
   return `${prefix}_${crypto.randomUUID().replaceAll("-", "").slice(0, 20)}`;
@@ -1090,23 +1110,141 @@ export function getDailySummary(): DailySummary {
   };
 }
 
-export function resetDemoData() {
+interface RealPaymentRow {
+  payment_id: string;
+  order_id: string;
+  transaction_id: string | null;
+}
+
+function listRealPeyPayments(database: DatabaseSync): RealPaymentRow[] {
+  return database
+    .prepare(
+      `SELECT p.id AS payment_id, p.order_id, p.transaction_id
+       FROM payments p
+       WHERE p.provider = 'pey' AND p.status = 'paid'`,
+    )
+    .all() as unknown as RealPaymentRow[];
+}
+
+/**
+ * Copia consistente de SQLite antes de cualquier borrado. `VACUUM INTO`
+ * incluye el WAL y deja un archivo standalone que se puede restaurar sin
+ * detener el servidor.
+ */
+function backupDatabase(database: DatabaseSync): string {
+  fs.mkdirSync(backupDir, { recursive: true });
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  let target = path.join(backupDir, `mercado-cero-${stamp}.db`);
+  let attempt = 1;
+  while (fs.existsSync(target)) {
+    target = path.join(backupDir, `mercado-cero-${stamp}-${attempt}.db`);
+    attempt += 1;
+  }
+
+  const escaped = target.replaceAll("'", "''");
+  database.exec(`VACUUM INTO '${escaped}'`);
+  return target;
+}
+
+/**
+ * Reinicia los datos de demostración.
+ *
+ * - Si hay un pago real (`pey` + `paid`), se niega salvo `force`.
+ * - Siempre hace backup timestamped antes de borrar.
+ * - Con `force`, conserva los pedidos/pagos reales y toda la auditoría; solo
+ *   limpia lo que pertenece a la demo. Nunca borra la evidencia de un pago
+ *   real para “dejar limpio” el escenario.
+ */
+export function resetDemoData(options: { force?: boolean } = {}): DemoResetResult {
   const database = getDb();
-  database.exec(`
-    DELETE FROM payment_events;
-    DELETE FROM tasks;
-    DELETE FROM goal_contributions;
-    DELETE FROM goals;
-    DELETE FROM cash_closes;
-    DELETE FROM payments;
-    DELETE FROM order_items;
-    DELETE FROM orders;
-    DELETE FROM credit_payments;
-    DELETE FROM credits;
-    DELETE FROM customers;
-    DELETE FROM audit_log;
-  `);
+  const realPayments = listRealPeyPayments(database);
+
+  if (realPayments.length > 0 && !options.force) {
+    throw new DemoResetBlockedError(realPayments.length);
+  }
+
+  const backupPath = backupDatabase(database);
+  const realOrderIds = [...new Set(realPayments.map((payment) => payment.order_id))];
+
+  if (realOrderIds.length === 0) {
+    database.exec(`
+      DELETE FROM payment_events;
+      DELETE FROM tasks;
+      DELETE FROM goal_contributions;
+      DELETE FROM goals;
+      DELETE FROM cash_closes;
+      DELETE FROM payments;
+      DELETE FROM order_items;
+      DELETE FROM orders;
+      DELETE FROM credit_payments;
+      DELETE FROM credits;
+      DELETE FROM customers;
+      DELETE FROM audit_log;
+    `);
+  } else {
+    const placeholders = realOrderIds.map(() => "?").join(", ");
+    database.exec("BEGIN IMMEDIATE");
+    try {
+      database
+        .prepare(`DELETE FROM payments WHERE order_id NOT IN (${placeholders})`)
+        .run(...realOrderIds);
+      database
+        .prepare(`DELETE FROM order_items WHERE order_id NOT IN (${placeholders})`)
+        .run(...realOrderIds);
+      database
+        .prepare(
+          `DELETE FROM credit_payments
+           WHERE credit_id NOT IN (
+             SELECT id FROM credits WHERE order_id IN (${placeholders})
+           )`,
+        )
+        .run(...realOrderIds);
+      database
+        .prepare(
+          `DELETE FROM credits
+           WHERE order_id IS NULL OR order_id NOT IN (${placeholders})`,
+        )
+        .run(...realOrderIds);
+      database.exec(
+        "DELETE FROM customers WHERE id NOT IN (SELECT customer_id FROM credits)",
+      );
+      database
+        .prepare(`DELETE FROM orders WHERE id NOT IN (${placeholders})`)
+        .run(...realOrderIds);
+
+      // Los eventos del webhook y la auditoría de pagos reales se conservan.
+      database.exec("DELETE FROM payment_events WHERE provider != 'pey'");
+      database.exec(`
+        DELETE FROM tasks;
+        DELETE FROM goal_contributions;
+        DELETE FROM goals;
+        DELETE FROM cash_closes;
+      `);
+      database.exec("COMMIT");
+    } catch (error) {
+      try {
+        database.exec("ROLLBACK");
+      } catch {
+        // SQLite pudo cerrar la transacción sola.
+      }
+      throw error;
+    }
+  }
+
   seed(database);
   seedGoal(database);
   seedDemoHistory(database);
+
+  audit("demo.reset", "demo", "reset", {
+    backup: path.basename(backupPath),
+    force: Boolean(options.force),
+    realPaymentCount: realPayments.length,
+    preservedRealPayments: realOrderIds.length,
+  });
+
+  return {
+    backup: path.basename(backupPath),
+    realPaymentCount: realPayments.length,
+    preservedRealPayments: realOrderIds.length,
+  };
 }

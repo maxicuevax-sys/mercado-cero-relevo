@@ -1,6 +1,13 @@
 import { connection } from "next/server";
 import { z } from "zod";
+import {
+  bodyErrorResponse,
+  enforceRateLimit,
+  readJsonLimited,
+} from "@/lib/http-security";
 import { createTask, listTasks, TaskError, TASK_NOTE_MAX, TASK_TITLE_MAX } from "@/lib/tasks";
+
+const MAX_TASK_BODY_BYTES = 16 * 1024;
 
 const createSchema = z.object({
   title: z
@@ -27,11 +34,14 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const limited = enforceRateLimit(request, "tasks-create", 60, 60_000);
+  if (limited) return limited;
+
   let body: unknown;
   try {
-    body = await request.json();
-  } catch {
-    return jsonError("Envía los datos del pendiente en formato JSON.", 400);
+    body = await readJsonLimited(request, MAX_TASK_BODY_BYTES);
+  } catch (error) {
+    return bodyErrorResponse(error);
   }
 
   try {

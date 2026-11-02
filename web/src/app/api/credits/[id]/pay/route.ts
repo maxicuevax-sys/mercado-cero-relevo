@@ -1,10 +1,12 @@
 import { z } from "zod";
-import {
-  CreditPaymentConflict,
-  recordCreditPayment,
-} from "@/lib/orders";
 import { appErrorResponse, unexpectedResponse } from "@/lib/errors";
-import { readJsonLimited } from "@/lib/http";
+import {
+  bodyErrorResponse,
+  enforceRateLimit,
+  MAX_SMALL_JSON_BYTES,
+  readJsonLimited,
+} from "@/lib/http-security";
+import { CreditPaymentConflict, recordCreditPayment } from "@/lib/orders";
 
 const bodySchema = z.object({
   amountCents: z.number().int().positive(),
@@ -15,9 +17,19 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: Request, ctx: RouteContext<"/api/credits/[id]/pay">) {
+  const limited = enforceRateLimit(request, "credit-pay", 60, 60_000);
+  if (limited) return limited;
+
+  let rawBody: unknown;
+  try {
+    rawBody = await readJsonLimited(request, MAX_SMALL_JSON_BYTES);
+  } catch (error) {
+    return bodyErrorResponse(error);
+  }
+
   try {
     const { id } = await ctx.params;
-    const body = bodySchema.parse(await readJsonLimited(request));
+    const body = bodySchema.parse(rawBody);
     const result = recordCreditPayment(
       id,
       body.amountCents,

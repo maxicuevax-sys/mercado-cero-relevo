@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { listOrders } from "@/lib/db";
 import { appErrorResponse, unexpectedResponse } from "@/lib/errors";
-import { MAX_JSON_BODY_BYTES, readJsonLimited } from "@/lib/http";
+import { MAX_JSON_BODY_BYTES } from "@/lib/http";
+import {
+  bodyErrorResponse,
+  enforceRateLimit,
+  readJsonLimited,
+} from "@/lib/http-security";
 import {
   MAX_CUSTOMER_NAME_CHARS,
   MAX_ITEM_DESCRIPTION_CHARS,
@@ -38,8 +43,17 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const limited = enforceRateLimit(request, "orders-create", 60, 60_000);
+  if (limited) return limited;
+
+  let body: unknown;
   try {
-    const body = await readJsonLimited(request, MAX_JSON_BODY_BYTES);
+    body = await readJsonLimited(request, MAX_JSON_BODY_BYTES);
+  } catch (error) {
+    return bodyErrorResponse(error);
+  }
+
+  try {
     const input = createOrderSchema.parse(body);
     const order = createOrder(input);
     return Response.json({ order }, { status: 201 });

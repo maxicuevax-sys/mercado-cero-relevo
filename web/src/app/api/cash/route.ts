@@ -1,11 +1,13 @@
 import { getCashStatus } from "@/lib/cash";
+import { enforceRateLimit, internalErrorResponse } from "@/lib/http-security";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const limited = enforceRateLimit(request, "cash-status", 120, 60_000);
+  if (limited) return limited;
+
   try {
     return Response.json(getCashStatus());
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "No se pudo leer la caja.";
-    return Response.json({ error: message }, { status: 500 });
+    return internalErrorResponse("cash status", error);
   }
 }

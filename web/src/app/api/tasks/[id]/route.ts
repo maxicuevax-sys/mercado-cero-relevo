@@ -1,5 +1,11 @@
 import { z } from "zod";
 import {
+  bodyErrorResponse,
+  enforceRateLimit,
+  MAX_SMALL_JSON_BYTES,
+  readJsonLimited,
+} from "@/lib/http-security";
+import {
   completeTask,
   deleteTask,
   getTask,
@@ -20,6 +26,9 @@ function jsonError(message: string, status: number, extra?: Record<string, unkno
 }
 
 export async function PATCH(request: Request, ctx: RouteContext<"/api/tasks/[id]">) {
+  const limited = enforceRateLimit(request, "tasks-patch", 60, 60_000);
+  if (limited) return limited;
+
   const { id } = await ctx.params;
   const existing = getTask(id);
   if (!existing) {
@@ -28,9 +37,9 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/tasks/[id]
 
   let body: unknown;
   try {
-    body = await request.json();
-  } catch {
-    return jsonError("Envía la acción del pendiente en formato JSON.", 400);
+    body = await readJsonLimited(request, MAX_SMALL_JSON_BYTES);
+  } catch (error) {
+    return bodyErrorResponse(error);
   }
 
   try {
@@ -73,7 +82,10 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/tasks/[id]
   }
 }
 
-export async function DELETE(_request: Request, ctx: RouteContext<"/api/tasks/[id]">) {
+export async function DELETE(request: Request, ctx: RouteContext<"/api/tasks/[id]">) {
+  const limited = enforceRateLimit(request, "tasks-delete", 60, 60_000);
+  if (limited) return limited;
+
   const { id } = await ctx.params;
   try {
     return Response.json({ task: deleteTask(id) });

@@ -9,7 +9,12 @@ import {
   appErrorResponse,
   unexpectedResponse,
 } from "@/lib/errors";
-import { readJsonLimited } from "@/lib/http";
+import {
+  bodyErrorResponse,
+  enforceRateLimit,
+  MAX_SMALL_JSON_BYTES,
+  readOptionalJsonLimited,
+} from "@/lib/http-security";
 import { attachPaymentLink, attachQr } from "@/lib/orders";
 import { createCodiQr, createPaymentLink } from "@/lib/pey";
 import type { Order } from "@/lib/types";
@@ -113,10 +118,26 @@ async function generatePayment(orderId: string, mode: "link" | "qr"): Promise<Or
 }
 
 export async function POST(request: Request, ctx: RouteContext<"/api/orders/[id]/pay">) {
+  const limited = enforceRateLimit(request, "order-pay", 30, 60_000);
+  if (limited) return limited;
+
+  let body: { mode?: "link" | "qr" };
+  try {
+    body = await readOptionalJsonLimited<{ mode?: "link" | "qr" }>(
+      request,
+      MAX_SMALL_JSON_BYTES,
+      {},
+    );
+  } catch (error) {
+    return bodyErrorResponse(error);
+  }
+
   try {
     const { id } = await ctx.params;
-    const body = bodySchema.parse(await readJsonLimited(request));
-    const order = await withOrderLock(id, () => generatePayment(id, body.mode ?? "link"));
+    const input = bodySchema.parse(body);
+    const order = await withOrderLock(id, () =>
+      generatePayment(id, input.mode ?? "link"),
+    );
     return Response.json({ order });
   } catch (error) {
     if (error instanceof z.ZodError) {
