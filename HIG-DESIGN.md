@@ -62,7 +62,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 
 ### 3.2 Shell
 
-**Compacto (<768 px):**
+**Compacto y tablet (<1024 px):**
 
 ```
 ┌─────────────────────────────┐
@@ -77,7 +77,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 └─────────────────────────────┘
 ```
 
-**Regular (≥768 px):**
+**Regular (≥1024 px):**
 
 ```
 ┌──────────────┬──────────────────────────────┐
@@ -95,7 +95,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 └──────────────┴──────────────────────────────┘
 ```
 
-- Sidebar 220 px (768–1199) / 240 px (≥1200).
+- Tab bar de 64 px + safe bottom en 360–1023 (tablet incluida); sidebar 220 px (1024–1199) / 240 px (≥1200).
 - En ≥1200, Caja usa dos columnas: venta/draft (640) + resumen/actividad (360).
 - El checkout siempre es una tarjeta centrada de máximo 480 px.
 - La tab bar va antes de `main` en el DOM. En móvil es una fila del shell y `main` tiene su propio scroll; en escritorio la barra queda fija abajo. Así ningún control puede quedar debajo del chrome.
@@ -108,8 +108,8 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 |---|---|---|
 | Caja | Tab Caja / inicio | Tab, “Confirmar venta” → Payment sheet |
 | Payment sheet | Confirmar venta / pedido pendiente | “Listo para entregar”, “Cerrar”, Escape |
-| Checkout | Link/QR del cliente | Pago / error / volver |
-| Éxito | Pago confirmado | “Volver a la caja” |
+| Checkout | Link/QR del cliente | Pago / error / “Listo” o “Cerrar” (salida pública) |
+| Éxito | Pago confirmado | “Listo” / “Cerrar”; mientras espera: “Revisar link” |
 | Fiado | Tab Fiado | “Registrar abono” → sheet |
 | Corte | Tab Corte | “Guardar corte” → confirmación |
 | Meta | Tab Meta | “Apartar” inline |
@@ -262,7 +262,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 
 ### 5.5 TabBar / Sidebar
 
-- 5 destinos; icono + label; `aria-current="page"` en el activo.
+- 5 destinos (Caja, Fiado, Corte, Meta, Pendientes); icono + label; `aria-current="page"` en el activo.
 - 44×44 mínimo; safe bottom.
 - Estado y scroll por destino.
 - Sin acciones disfrazadas de tab.
@@ -385,7 +385,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 - Check solo en real; demo con beaker/attention.
 - Monto, pedido, método, comercio.
 - Real: “La comerciante ya puede entregar.” Demo: “Esto es una simulación.”
-- Primario: “Volver a la caja”; secundario: “Ver detalle” (opcional).
+- Primario: “Listo” o “Cerrar”, salida pública del pagador. Nunca el dashboard de la comerciante. Mientras espera: “Revisar link”.
 
 **Aceptación:** `h1` presente; CLS <0.1; 200% sin cortar total; targets 44; foco y error accesibles.
 
@@ -502,7 +502,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 
 | | 360 | 390 | 768 | 1280 |
 |---|---|---|---|---|
-| Navegación | Tab bar | Tab bar | Sidebar 220 | Sidebar 240 |
+| Navegación | Tab bar | Tab bar | Tab bar | Sidebar 240 |
 | Márgenes | 16 | 16 | 24 | 32 |
 | Caja | 1 col | 1 col | 1 col | 2 col (640/360) |
 | Payment | Sheet 100%−16 | Sheet 100%−16 | Sheet 560 | Sheet 560 |

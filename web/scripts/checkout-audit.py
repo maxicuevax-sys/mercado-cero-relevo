@@ -11,6 +11,7 @@ No imprime secretos. Guarda capturas y un JSON en mercado-cero/demo/.
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -20,7 +21,9 @@ from playwright.sync_api import sync_playwright
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-BASE = "http://localhost:3000"
+BASE = os.environ.get(
+    "CHECKOUT_BASE_URL", os.environ.get("P0_BASE_URL", "http://localhost:3000")
+).rstrip("/")
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "demo"
 OUT.mkdir(parents=True, exist_ok=True)
@@ -152,7 +155,35 @@ def main() -> int:
             f"{metrics['smallTargetCount']} menores: {metrics['smallTargets'][:6]}",
         )
 
-        check("Checkout: total visible", wait_text(page, "$120.00", 5000))
+        # El CTA no puede quedar bajo el fold en escritorio. Se mide en un
+        # contexto aparte para no cambiar el viewport de la auditoría 360.
+        desktop = browser.new_context(
+            viewport={"width": 1280, "height": 800}, locale="es-MX"
+        )
+        desktop_page = desktop.new_page()
+        desktop_page.goto(checkout_url, wait_until="domcontentloaded")
+        desktop_page.wait_for_selector("text=¿Cómo quieres pagar?", timeout=15000)
+        desktop_page.wait_for_timeout(400)
+        desktop_cta = desktop_page.evaluate(
+            """() => {
+                const button = [...document.querySelectorAll('button')]
+                    .find((item) => (item.innerText || '').trim().startsWith('Pagar'));
+                if (!button) return null;
+                const rect = button.getBoundingClientRect();
+                return {
+                    top: Math.round(rect.top),
+                    bottom: Math.round(rect.bottom),
+                    visible: rect.top >= 0 && rect.bottom <= window.innerHeight,
+                };
+            }"""
+        )
+        desktop.close()
+        check(
+            "Checkout: total y CTA de pago en fold (360 y 1280)",
+            wait_text(page, "$120.00", 5000)
+            and bool(desktop_cta and desktop_cta["visible"]),
+            f"CTA 1280: {desktop_cta}",
+        )
         check("Checkout: aviso de demo visible", wait_text(page, "Modo demo", 5000))
 
         # 2. Pagar con CoDi en modo demo.

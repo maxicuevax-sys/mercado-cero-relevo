@@ -22,6 +22,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { ScreenHeading } from "@/components/screen-heading";
 import { cn } from "@/lib/format";
 import type { Task } from "@/lib/types";
 
@@ -587,32 +588,24 @@ export function PendingTasksPanel({
 
   return (
     <div ref={rootRef} className="min-w-0">
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h1
-            id={resolvedHeadingId}
-            data-sheet-fallback
-            tabIndex={-1}
-            className="heading-in min-w-0 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink"
+      <ScreenHeading
+        title="Pendientes"
+        headingId={resolvedHeadingId}
+        subtitle="Lo que queda para después."
+        action={
+          <button
+            type="button"
+            data-focus="create"
+            onClick={openForm}
+            aria-expanded={formOpen}
+            aria-controls={formOpen ? "pendientes-form" : undefined}
+            className="cta-primary on-accent inline-flex min-h-12 items-center justify-center gap-2 bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent-press"
           >
-            Pendientes
-          </h1>
-          <p className="mt-1 text-[0.9375rem] leading-relaxed text-ink-2">
-            Lo que queda para después.
-          </p>
-        </div>
-        <button
-          type="button"
-          data-focus="create"
-          onClick={openForm}
-          aria-expanded={formOpen}
-          aria-controls={formOpen ? "pendientes-form" : undefined}
-          className="on-accent inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent-press"
-        >
-          <Plus className="h-5 w-5 shrink-0" aria-hidden="true" />
-          Anotar pendiente
-        </button>
-      </div>
+            <Plus className="h-5 w-5 shrink-0" aria-hidden="true" />
+            Anotar pendiente
+          </button>
+        }
+      />
 
       <p role="status" aria-live="polite" className="sr-only">
         {announcement}
@@ -646,7 +639,7 @@ export function PendingTasksPanel({
               aria-describedby={
                 formErrorField === "title" ? formErrorId : undefined
               }
-              className="mt-1.5 min-h-12 w-full rounded-xl border border-separator bg-canvas px-3 py-2 text-ink placeholder:text-placeholder"
+              className="mt-1.5 min-h-12 w-full rounded-xl border border-control-border bg-canvas px-3 py-2 text-ink placeholder:text-placeholder"
               placeholder="Pagar al proveedor"
             />
             <p className="mt-1 text-right text-xs text-ink-2">
@@ -674,7 +667,7 @@ export function PendingTasksPanel({
               aria-describedby={
                 formErrorField === "note" ? formErrorId : undefined
               }
-              className="mt-1.5 min-h-20 w-full resize-y rounded-xl border border-separator bg-canvas px-3 py-2 text-ink placeholder:text-placeholder"
+              className="mt-1.5 min-h-20 w-full resize-y rounded-xl border border-control-border bg-canvas px-3 py-2 text-ink placeholder:text-placeholder"
               placeholder="A las 11, por la puerta de atrás"
             />
             <p className="mt-1 text-right text-xs text-ink-2">
@@ -702,7 +695,7 @@ export function PendingTasksPanel({
               aria-describedby={
                 formErrorField === "date" ? formErrorId : undefined
               }
-              className="mt-1.5 min-h-12 w-full rounded-xl border border-separator bg-canvas px-3 py-2 text-ink sm:max-w-64"
+              className="mt-1.5 min-h-12 w-full rounded-xl border border-control-border bg-canvas px-3 py-2 text-ink sm:max-w-64"
             />
             <p className="mt-1 text-xs text-ink-2">
               Si no eliges fecha, queda en la lista sin día.
@@ -723,7 +716,7 @@ export function PendingTasksPanel({
             <button
               type="submit"
               disabled={saving}
-              className="on-accent inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent-press disabled:cursor-not-allowed disabled:opacity-60"
+              className="cta-primary on-accent inline-flex min-h-12 items-center justify-center gap-2 bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent-press disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? (
                 <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
@@ -832,21 +825,15 @@ export function PendingTasksPanel({
       ) : loadState === "ready" && openTasks.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-separator bg-surface px-5 py-6 text-center">
           <p className="text-[1.0625rem] font-semibold text-ink">
-            {doneTasks.length > 0
-              ? "No hay pendientes abiertos."
-              : "No hay pendientes."}
+            {tasks.length === 0
+              ? "Aún no hay pendientes."
+              : "No hay pendientes abiertos."}
           </p>
-          <p className="mt-1 text-sm text-ink-2">
-            Anota algo para después.
+          <p className="mx-auto mt-1 max-w-[34rem] text-sm leading-relaxed text-ink-2">
+            {tasks.length === 0
+              ? "Aquí van los recordatorios del puesto: pagar al proveedor, recoger un pedido, llamar a un cliente. Usa “Anotar pendiente” para crear el primero."
+              : "Los pendientes hechos quedan abajo, en Hechas. Anota otro cuando algo quede para después."}
           </p>
-          <button
-            type="button"
-            onClick={openForm}
-            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white hover:bg-accent-press"
-          >
-            <Plus className="h-5 w-5" aria-hidden="true" />
-            Anotar pendiente
-          </button>
         </div>
       ) : (
         <ul aria-label="Pendientes abiertos" className="motion-list space-y-3">
@@ -1126,8 +1113,8 @@ export function PendingTasksPanel({
             <span className="inline-flex items-center gap-2">
               <Check className="h-5 w-5 text-accent" aria-hidden="true" />
               Hechas
-              <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs text-ink-2">
-                {doneTasks.length}
+              <span className="rounded-full border border-separator bg-surface px-2 py-0.5 text-xs text-ink-2">
+                ({doneTasks.length})
               </span>
             </span>
             <ChevronDown

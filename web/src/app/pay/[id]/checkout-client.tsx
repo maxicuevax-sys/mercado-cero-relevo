@@ -1,10 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
-  ArrowLeft,
   Banknote,
   Check,
   CreditCard,
@@ -106,6 +104,18 @@ export default function CheckoutPage() {
   const [method, setMethod] = useState<CheckoutMethod>("codi");
   const [paying, setPaying] = useState(false);
   const [justPaid, setJustPaid] = useState(false);
+  const [exited, setExited] = useState(false);
+
+  function finish() {
+    // El comprador no tiene por qué caer en el dashboard de la comerciante.
+    try {
+      window.close();
+    } catch {
+      // Algunos navegadores no permiten cerrar una pestaña que no abrió el
+      // script; el mensaje de abajo le dice que ya terminó.
+    }
+    setExited(true);
+  }
 
   const load = useCallback(async () => {
     try {
@@ -206,10 +216,28 @@ export default function CheckoutPage() {
 
   if (loading) {
     return (
-      <main className="grid min-h-dvh place-items-center bg-canvas px-4">
-        <div className="flex items-center gap-3 rounded-2xl border border-separator bg-surface px-5 py-4 text-sm text-ink-2 shadow-card">
-          <Loader2 className="h-4 w-4 animate-spin text-green" />
+      <main className="pay-shell min-h-dvh bg-canvas px-4 pt-8">
+        <p role="status" className="sr-only">
           Abriendo tu cobro…
+        </p>
+        <div className="mx-auto w-full max-w-[480px] animate-pulse" aria-hidden="true">
+          <div className="flex items-center gap-3 px-1">
+            <div className="h-10 w-10 rounded-xl bg-surface-2" />
+            <div>
+              <div className="h-4 w-32 rounded bg-surface-2" />
+              <div className="mt-1 h-2.5 w-24 rounded bg-surface-2" />
+            </div>
+          </div>
+          <div className="mt-4 rounded-2xl border border-separator bg-surface p-5 shadow-card">
+            <div className="h-3 w-24 rounded-full bg-surface-2" />
+            <div className="mt-3 h-10 w-44 rounded-xl bg-surface-2" />
+            <div className="mt-6 space-y-2">
+              <div className="h-12 rounded-2xl bg-surface-2/70" />
+              <div className="h-12 rounded-2xl bg-surface-2/70" />
+              <div className="h-12 rounded-2xl bg-surface-2/70" />
+            </div>
+            <div className="mt-6 h-12 rounded-xl bg-surface-2" />
+          </div>
         </div>
       </main>
     );
@@ -226,13 +254,20 @@ export default function CheckoutPage() {
           <p className="mt-2 text-sm leading-relaxed text-ink-2">
             {error ?? "Pide a la comerciante que genere un link nuevo."}
           </p>
-          <Link
-            href="/"
-            className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-xl bg-accent px-5 text-sm font-semibold text-white"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Volver a la caja
-          </Link>
+          {exited ? (
+            <p role="status" className="mt-5 text-sm font-semibold text-ink-2">
+              Listo. Ya puedes cerrar esta pestaña o pedir a la comerciante un
+              link nuevo.
+            </p>
+          ) : (
+            <button
+              type="button"
+              onClick={finish}
+              className="cta-primary on-accent mt-5 inline-flex min-h-12 items-center gap-2 bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent-press"
+            >
+              Cerrar
+            </button>
+          )}
         </div>
       </main>
     );
@@ -258,7 +293,7 @@ export default function CheckoutPage() {
       .join(" + ");
 
     return (
-      <main className="grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
+      <main className="pay-shell grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
         <section role="status" aria-live="polite" className="w-full max-w-md overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
           <div className="px-[18px] pb-7 pt-8 text-center sm:px-5">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-terracotta-soft text-attention">
@@ -270,7 +305,7 @@ export default function CheckoutPage() {
             <h1 ref={resultHeadingRef} tabIndex={-1} className="mt-1 text-[1.75rem] font-semibold tracking-tight text-ink outline-none">
               Quedó anotado
             </h1>
-            <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
+            <p className="pay-amount tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
               {formatMxn(order.totalCents)}
             </p>
             <p className="mt-2 text-sm text-ink-2">
@@ -278,20 +313,26 @@ export default function CheckoutPage() {
             </p>
           </div>
           <div className="border-t border-separator px-[18px] py-4 sm:px-5">
-            <div className="rounded-xl bg-surface-2 px-3.5 py-3">
+            <div className="rounded-xl border border-separator bg-surface px-3.5 py-3">
               <p className="text-sm leading-relaxed text-ink-2">
                 {source ? <>Recibiste {source}. </> : null}
                 Quedó a fiado: <strong>{formatMxn(order.creditCents)}</strong>. Está en la
                 libreta de fiado; no es dinero recibido ni un pago confirmado.
               </p>
             </div>
-            <Link
-              href="/"
-              className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Volver a la caja
-            </Link>
+            {exited ? (
+              <p role="status" className="mt-4 text-center text-sm font-semibold text-ink-2">
+                Listo. El fiado quedó anotado; ya puedes cerrar esta pestaña.
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={finish}
+                className="cta-primary on-accent mt-4 flex min-h-12 w-full items-center justify-center gap-2 bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press"
+              >
+                Listo
+              </button>
+            )}
           </div>
         </section>
       </main>
@@ -305,7 +346,7 @@ export default function CheckoutPage() {
     const sourceMixed = Boolean(payment) && cashPaid > 0;
 
     return (
-      <main className="grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
+      <main className="pay-shell grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
         <section role="status" aria-live="polite" className="w-full max-w-md overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
           <div className="px-[18px] pb-7 pt-8 text-center sm:px-5">
             <div
@@ -318,7 +359,7 @@ export default function CheckoutPage() {
                   : demo
                     ? "bg-terracotta-soft text-attention"
                     : cashOnly
-                      ? "bg-surface-2 text-ink"
+                      ? "border border-separator bg-surface text-ink"
                       : "bg-green-soft text-green",
               )}
             >
@@ -350,7 +391,7 @@ export default function CheckoutPage() {
                     ? "Efectivo recibido"
                     : "Listo para entregar"}
             </h1>
-            <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
+            <p className="pay-amount tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
               {formatMxn(
                 sourceMixed
                   ? order.totalCents
@@ -384,7 +425,7 @@ export default function CheckoutPage() {
               ) : null}
             </dl>
 
-            <div className="mt-4 rounded-xl bg-surface-2 px-3.5 py-3">
+            <div className="mt-4 rounded-xl border border-separator bg-surface px-3.5 py-3">
               <p className="text-sm leading-relaxed text-ink-2">
                 {sourceMixed
                   ? demo
@@ -398,13 +439,19 @@ export default function CheckoutPage() {
               </p>
             </div>
 
-            <Link
-              href="/"
-              className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Volver a la caja
-            </Link>
+            {exited ? (
+              <p role="status" className="mt-4 text-center text-sm font-semibold text-ink-2">
+                Listo. Ya puedes cerrar esta pestaña; tu comprobante queda en este link.
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={finish}
+                className="cta-primary on-accent mt-4 flex min-h-12 w-full items-center justify-center gap-2 bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press"
+              >
+                Listo
+              </button>
+            )}
             {justPaid ? (
               <p className="mt-3 text-center text-xs text-ink-2">
                 {cashOnly
@@ -419,31 +466,31 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-dvh bg-canvas px-[16px] py-8">
+    <main className="pay-shell min-h-dvh bg-canvas px-[16px] pb-32 pt-8 sm:pb-8">
       <div className="mx-auto w-full max-w-[480px]">
-        <header className="flex flex-wrap items-center justify-between gap-3 px-1">
+        <header className="pay-header flex flex-wrap items-center justify-between gap-3 px-1">
           <div className="flex min-w-0 items-center gap-2.5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent font-display text-xl font-bold text-white">
               0
             </div>
             <div>
-              <p className="font-display text-[1.15rem] leading-none tracking-tight text-ink">
+              <p className="pay-brand-name font-display text-[1.15rem] leading-none tracking-tight text-ink">
                 Mercado Cero
               </p>
-              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-ink-2">
+              <p className="pay-eyebrow mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-ink-2">
                 Pago protegido
               </p>
             </div>
           </div>
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-2">
-            <Lock className="h-3.5 w-3.5 text-green" />
-            Seguro
+            <Lock aria-hidden="true" className="h-3.5 w-3.5 text-green" />
+            <span className="pay-secure-label">Seguro</span>
           </span>
         </header>
 
         <section className="mt-4 overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
-          <div className="border-b border-separator bg-surface-2/60 px-[18px] py-4 sm:px-5">
-            <h1 className="text-[1.625rem] font-semibold leading-tight tracking-tight text-ink">
+          <div className="border-b border-separator bg-canvas/60 px-[18px] py-4 sm:px-5">
+            <h1 className="pay-title text-[1.625rem] font-semibold leading-tight tracking-tight text-ink">
               Pagar a {merchant.name}
             </h1>
             <p className="mt-1 text-sm text-ink-2">
@@ -453,7 +500,7 @@ export default function CheckoutPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-2">
                 Total a pagar
               </p>
-              <p className="tabular mt-1 text-[2.25rem] font-semibold leading-none tracking-tight text-ink sm:text-[2.5rem]">
+              <p className="pay-total tabular mt-1 text-[2.25rem] font-semibold leading-none tracking-tight text-ink sm:text-[2.5rem]">
                 {formatMxn(order.amountDueCents)}
               </p>
               <p className="mt-1 text-sm text-ink-2">
@@ -463,7 +510,7 @@ export default function CheckoutPage() {
           </div>
 
           <div className="px-[18px] py-4 sm:px-5">
-            <div className="rounded-xl bg-surface-2 px-3.5 py-2">
+            <div className="rounded-xl border border-separator bg-surface px-3.5 py-2">
               {order.items.map((item) => (
                 <div
                   key={item.id}
@@ -493,7 +540,7 @@ export default function CheckoutPage() {
                         "checkout-method relative block w-full min-w-0 rounded-xl border p-[14px] pr-[44px] transition",
                         selected
                           ? "border-accent/40 bg-green-soft/50"
-                          : "border-separator bg-surface hover:border-accent/30",
+                          : "border-control-border bg-surface hover:border-accent/30",
                       )}
                     >
                       <input
@@ -555,25 +602,35 @@ export default function CheckoutPage() {
               </p>
             ) : null}
 
-            <button
-              type="button"
-              onClick={pay}
-              disabled={paying}
-              aria-busy={paying}
-              className="on-accent mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-[0.9375rem] font-bold text-white shadow-card transition hover:bg-accent-press disabled:cursor-wait disabled:opacity-80"
-            >
-              {paying ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {demoMode ? "Simulando el pago…" : "Conectando con el banco…"}
-                </>
-              ) : (
-                <>
-                  <Lock className="h-4 w-4" />
-                  Pagar {formatMxn(order.amountDueCents)}
-                </>
-              )}
-            </button>
+            <div className="pay-submit mt-4">
+              <div className="pay-submit-total">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-ink-2">
+                  Total
+                </p>
+                <p className="pay-sticky-total tabular font-semibold leading-tight text-ink">
+                  {formatMxn(order.amountDueCents)}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={pay}
+                disabled={paying}
+                aria-busy={paying}
+                className="pay-submit-button cta-primary on-accent flex min-h-12 w-full items-center justify-center gap-2 bg-accent px-5 text-[0.9375rem] font-bold text-white shadow-card transition hover:bg-accent-press disabled:cursor-wait disabled:opacity-80"
+              >
+                {paying ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {demoMode ? "Simulando el pago…" : "Conectando con el banco…"}
+                  </>
+                ) : (
+                  <>
+                    <Lock className="h-4 w-4" />
+                    Pagar {formatMxn(order.amountDueCents)}
+                  </>
+                )}
+              </button>
+            </div>
 
             <p className="mt-3 text-center text-xs leading-relaxed text-ink-2">
               Al pagar aceptas el cobro de {merchant.name}. No guardamos datos de tu tarjeta.
