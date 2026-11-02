@@ -23,7 +23,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 BASE = os.environ.get("BASE_URL", "http://localhost:3001")
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "demo" / "hig-after"
+OUT = Path(os.environ.get("HIG_OUT", ROOT / "demo" / "hig-after"))
 OUT.mkdir(parents=True, exist_ok=True)
 AXE = Path(r"C:\Users\Elitebook 840 G8\AppData\Local\Temp\opencode\axe.min.js")
 VIEWPORTS = [(360, 800), (390, 844), (768, 1024), (1280, 800)]
@@ -278,6 +278,53 @@ def measure(page, label: str) -> dict:
                 }
             }
 
+            // Fragmentación: una palabra partida en dos líneas por break-word.
+            const brokenWords = [];
+            const seenBroken = new Set();
+            const wordPattern = /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]{3,}/g;
+            for (const el of root.querySelectorAll('h1, h2, h3, h4, p, span, button, a, label, li')) {
+                if (!visible(el)) continue;
+                const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+                let node;
+                while ((node = walker.nextNode())) {
+                    const text = node.textContent || '';
+                    if (!/[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]{3,}/.test(text)) continue;
+                    wordPattern.lastIndex = 0;
+                    let match;
+                    while ((match = wordPattern.exec(text))) {
+                        const range = document.createRange();
+                        range.setStart(node, match.index);
+                        range.setEnd(node, match.index + match[0].length);
+                        const rects = Array.from(range.getClientRects()).filter(rect => rect.width > 0);
+                        const lines = new Set(rects.map(rect => Math.round(rect.top)));
+                        if (lines.size > 1) {
+                            const label = (el.innerText || '').trim().replace(/\\s+/g, ' ').slice(0, 48);
+                            const key = `${match[0]}@${label}@${Math.min(...lines)}`;
+                            if (!seenBroken.has(key)) {
+                                seenBroken.add(key);
+                                brokenWords.push({ word: match[0], text: label, lines: lines.size });
+                            }
+                        }
+                    }
+                }
+            }
+
+            const header = document.querySelector('header');
+            const headerHeight = header ? header.getBoundingClientRect().height : 0;
+            const sale = document.querySelector('#sale-text');
+            const saleRect = sale ? sale.getBoundingClientRect() : null;
+            const metaAction = Array.from(document.querySelectorAll('button')).find(
+                el => (el.innerText || '').trim() === 'Apartar' && visible(el)
+            );
+            const metaActionRect = metaAction ? metaAction.getBoundingClientRect() : null;
+            const metaAmount = Array.from(root.querySelectorAll('p, span')).find(
+                el => /\\$[\\d.,]+\\s+de\\s+\\$[\\d.,]+/.test(el.innerText || '') && visible(el)
+            );
+            const optionGrid = root.querySelector('[aria-label="Tamaño del texto"]');
+            const optionColumns = optionGrid
+                ? getComputedStyle(optionGrid).gridTemplateColumns.split(' ').filter(Boolean).length
+                : null;
+
             return {
                 innerWidth: window.innerWidth,
                 visualViewportWidth: window.visualViewport ? window.visualViewport.width : window.innerWidth,
@@ -294,6 +341,16 @@ def measure(page, label: str) -> dict:
                 dialogs: Array.from(document.querySelectorAll('[role="dialog"]')).map(el => ({
                     label: el.getAttribute('aria-labelledby'), modal: el.getAttribute('aria-modal')
                 })),
+                brokenWordCount: brokenWords.length,
+                brokenWords: brokenWords.slice(0, 12),
+                headerHeight: Math.round(headerHeight),
+                headerRatio: Math.round((headerHeight / window.innerHeight) * 1000) / 1000,
+                saleTop: saleRect ? Math.round(saleRect.top) : null,
+                saleVisible: saleRect ? saleRect.top < window.innerHeight && saleRect.bottom > 0 : null,
+                metaAmountVisible: Boolean(metaAmount),
+                metaAmountText: metaAmount ? (metaAmount.innerText || '').trim().replace(/\\s+/g, ' ').slice(0, 70) : null,
+                metaActionVisible: metaActionRect ? metaActionRect.top < window.innerHeight && metaActionRect.bottom > 0 : null,
+                optionColumns,
                 textCount: textEls.length,
                 under12Count: textEls.filter(t => t.size < 12).length,
                 under12: textEls.filter(t => t.size < 12).slice(0, 8),
@@ -592,6 +649,28 @@ def main() -> int:
                         )
                 if value.get("under48Count", 0) > 0:
                     failures.append(f"{view} {key}: {value['under48Count']} targets under 44px")
+                if value.get("brokenWordCount", 0) > 0:
+                    words = ", ".join(
+                        f"“{item['word']}” en “{item['text']}”" for item in value.get("brokenWords", [])[:4]
+                    )
+                    failures.append(f"{view} {key}: {value['brokenWordCount']} palabras partidas ({words})")
+                width = int(view.split("x")[0]) if "x" in view else 0
+                if key == "homeText200":
+                    if width <= 390 and value.get("headerRatio", 0) > 0.30:
+                        failures.append(
+                            f"{view} {key}: header ocupa {round(value['headerRatio'] * 100)}% del viewport"
+                        )
+                    if width in (360, 390, 768) and value.get("saleVisible") is False:
+                        failures.append(f"{view} {key}: el campo de venta no aparece en el primer viewport")
+                if key == "helpText200" and (value.get("optionColumns") or 0) > 2:
+                    failures.append(
+                        f"{view} {key}: controles de texto/velocidad en {value['optionColumns']} columnas"
+                    )
+                if key == "metaText200" and width == 360:
+                    if not value.get("metaAmountVisible"):
+                        failures.append(f"{view} {key}: no se ve la cifra de la meta")
+                    if not value.get("metaActionVisible"):
+                        failures.append(f"{view} {key}: no se ve una acción de la meta (Apartar)")
         if record.get("consoleErrors"):
             failures.append(f"{view}: {len(record['consoleErrors'])} console errors: {record['consoleErrors'][:2]}")
 
