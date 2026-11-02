@@ -1859,7 +1859,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const merchantUnavailable = Boolean(dashboardError && !dashboard);
 
   return (
-    <div className="min-h-dvh bg-canvas">
+    <div className="app-shell min-h-dvh">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-accent focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-white"
@@ -1944,7 +1944,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                       type="button"
                       onClick={() => setVerifyOpen(true)}
                       aria-label="Verificar comprobante"
-                      className="flex min-h-[48px] items-center gap-2 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
+                      className="flex min-h-[48px] items-center gap-2 rounded-full border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
                     >
                       <ShieldCheck className="h-4 w-4" />
                       <span className="verify-label">Verificar</span>
@@ -2429,7 +2429,7 @@ function CajaPanel(props: {
 
   return (
     <div className="space-y-4">
-      <section className="caja-panel rounded-2xl border border-separator bg-surface p-4 shadow-card sm:p-6">
+      <section className="caja-panel paper-card rounded-2xl border border-separator bg-surface p-4 shadow-card sm:p-6">
         <div className="caja-card-header flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0">
             <h2 className="caja-card-title text-[1.375rem] font-semibold tracking-tight text-ink">¿Qué vendiste?</h2>
@@ -2440,7 +2440,7 @@ function CajaPanel(props: {
           <button
             type="button"
             onClick={onVoiceHelp}
-            className="flex min-h-[48px] shrink-0 items-center gap-1.5 rounded-xl border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
+            className="flex min-h-[48px] shrink-0 items-center gap-1.5 rounded-full border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
           >
             <Volume2 className="h-4 w-4" />
             Escuchar
@@ -2451,6 +2451,10 @@ function CajaPanel(props: {
         <div className="caja-voice mt-4 flex flex-wrap items-start gap-4">
           <div className="flex w-[144px] shrink-0 flex-col items-center gap-1.5">
             <div className="relative flex h-[80px] w-[80px] items-center justify-center">
+              <span
+                aria-hidden="true"
+                className="mic-halo absolute -inset-2 rounded-full border border-dashed border-accent/25"
+              />
               {listening ? (
                 <>
                   <span className="mic-ring absolute inset-0 rounded-full bg-accent/15" />
@@ -2488,7 +2492,7 @@ function CajaPanel(props: {
                 }}
                 disabled={transcribing}
                 className={cn(
-                  "on-accent relative flex h-[80px] w-[80px] touch-none select-none items-center justify-center rounded-full transition-colors disabled:opacity-60",
+                  "mic-button on-accent relative flex h-[80px] w-[80px] touch-none select-none items-center justify-center rounded-full transition-colors disabled:opacity-60",
                   listening
                     ? "bg-danger text-white ring-4 ring-danger/20"
                     : "bg-accent text-white hover:bg-accent-press",
@@ -2605,7 +2609,7 @@ function CajaPanel(props: {
         </div>
       </section>
 
-      <section id="pedido" className="scroll-mt-20 rounded-2xl border border-separator bg-surface p-5 shadow-card sm:p-6">
+      <section id="pedido" className="paper-card scroll-mt-20 rounded-2xl border border-separator bg-surface p-5 shadow-card sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-[1.375rem] font-semibold tracking-tight text-ink">Pedido en curso</h2>
@@ -3496,7 +3500,7 @@ function BusinessOverview({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
+    <div className="paper-card relative overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
       <div className="border-b border-separator bg-surface-2/50 px-[18px] py-4 sm:px-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -3533,7 +3537,7 @@ function BusinessOverview({
             <button
               type="button"
               onClick={speakReport}
-              className="flex min-h-12 items-center gap-1.5 rounded-xl bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:text-green"
+              className="flex min-h-12 items-center gap-1.5 rounded-full bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:text-green"
             >
               <Volume2 className="h-3.5 w-3.5" />
               Escuchar
@@ -4233,7 +4237,7 @@ function CashCloseCard({
   }
 
   return (
-    <div className="rounded-2xl border border-separator bg-surface p-[20px] shadow-card sm:p-6">
+    <div className="paper-card rounded-2xl border border-separator bg-surface p-[20px] shadow-card sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <h2 className="min-w-0 text-[1.375rem] font-semibold tracking-tight text-ink">
           Cuenta el efectivo de hoy
@@ -4980,7 +4984,7 @@ function GoalCard({
 
   return (
     <>
-      <div className="goal-card rounded-2xl border border-separator bg-surface p-[20px] shadow-card sm:p-5">
+      <div className="goal-card paper-card rounded-2xl border border-separator bg-surface p-[20px] shadow-card sm:p-5">
         <div className="goal-card-header flex items-start justify-between gap-3">
           <p className="text-sm font-semibold text-ink-2">Mi camino</p>
           <div className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full bg-green-soft text-green">
@@ -5247,7 +5251,7 @@ function ActivityList({
   const failedWithoutData = Boolean(error) && orders.length === 0;
 
   return (
-    <div className="view-reveal rounded-2xl border border-separator bg-surface p-4 shadow-card sm:p-5">
+    <div className="activity-list view-reveal paper-card rounded-2xl border border-separator bg-surface p-4 shadow-card sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-ink-2">Actividad</p>
@@ -5434,7 +5438,7 @@ function CreditList({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-separator bg-surface p-4 shadow-card">
+      <div className="paper-card rounded-2xl border border-separator bg-surface p-4 shadow-card">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-ink-2">Saldo pendiente</p>
@@ -6170,12 +6174,12 @@ function AppSidebar({
   return (
     <aside className="app-sidebar fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-separator bg-surface px-4 py-6 lg:flex">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-xl bg-accent font-display text-xl font-bold text-white">
+        <div className="brand-mark flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-xl bg-accent font-display text-xl font-bold text-white">
           0
         </div>
         <div className="min-w-0">
           <p className="font-display text-xl leading-none tracking-tight text-ink">Mercado Cero</p>
-          <p className="mt-1 text-xs font-medium text-ink-2">La caja que habla</p>
+          <p className="brand-tagline mt-1 text-xs font-medium text-ink-2">La caja que habla</p>
         </div>
       </div>
 
@@ -6203,7 +6207,17 @@ function AppSidebar({
         })}
       </nav>
 
-      <div className="mt-auto space-y-1 border-t border-separator pt-4">
+      <div className="sidebar-keepsake mt-auto" aria-hidden="true">
+        <span className="sidebar-keepsake__rule" />
+        <p className="font-display text-[1.05rem] italic leading-snug text-ink-2">
+          “El mercado no necesita más apps. Necesita certeza.”
+        </p>
+        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-ink-2/70">
+          Cuaderno de mercado
+        </p>
+      </div>
+
+      <div className="mt-2 space-y-1 border-t border-separator pt-4">
         {demoMode ? (
           <button
             type="button"
@@ -6250,7 +6264,7 @@ function TopBar({
     <header className="topbar sticky top-0 z-30 border-b border-separator bg-canvas/95 backdrop-blur-sm">
       <div className="mx-auto flex min-h-14 max-w-[1200px] flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6 lg:px-8">
         <div className="min-w-0 flex-1 basis-[8rem]">
-          <p className="text-sm font-semibold text-ink" title={merchant?.name}>
+          <p className="topbar-merchant text-sm font-semibold text-ink" title={merchant?.name}>
             {merchant?.name ?? (unavailable ? "Negocio sin datos" : "Cargando el negocio…")}
           </p>
           <p className="topbar-address text-xs text-ink-2">
@@ -6264,7 +6278,7 @@ function TopBar({
             <button
               type="button"
               onClick={onDemo}
-              className="inline-flex min-h-[48px] items-center rounded-full border border-attention/30 bg-terracotta-soft/70 px-2.5 text-[0.75rem] font-bold uppercase tracking-[0.06em] text-attention transition hover:border-attention/50"
+              className="demo-stamp inline-flex min-h-[48px] items-center rounded-full border border-attention/30 bg-terracotta-soft/70 px-2.5 text-[0.75rem] font-bold uppercase tracking-[0.06em] text-attention transition hover:border-attention/50"
             >
               Demo
             </button>
@@ -6452,7 +6466,7 @@ function Sheet({
             ref={titleRef}
             id={titleId}
             tabIndex={-1}
-            className="sheet-title min-w-0 flex-1 text-[1.375rem] font-semibold leading-tight tracking-tight text-ink outline-none"
+            className="sheet-title min-w-0 flex-1 text-[1.25rem] font-semibold leading-tight tracking-tight text-ink outline-none sm:text-[1.375rem]"
           >
             {title}
           </h2>

@@ -114,7 +114,7 @@ export function PendingPayments({
   return (
     <section
       aria-labelledby={titleId}
-      className="rounded-2xl border border-separator bg-surface shadow-card"
+      className="paper-card rounded-2xl border border-separator bg-surface shadow-card"
     >
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 px-4 pb-3 pt-4 sm:px-5">
         <div className="min-w-0">

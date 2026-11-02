@@ -444,7 +444,7 @@ export default function CheckoutPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-2">
                 Total a pagar
               </p>
-              <p className="tabular mt-1 text-[2.5rem] font-semibold leading-none tracking-tight text-ink">
+              <p className="tabular mt-1 text-[2.25rem] font-semibold leading-none tracking-tight text-ink sm:text-[2.5rem]">
                 {formatMxn(order.amountDueCents)}
               </p>
               <p className="mt-1 text-sm text-ink-2">
