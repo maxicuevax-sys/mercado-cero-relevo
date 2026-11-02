@@ -1,9 +1,9 @@
 {
   "baseUrl": "http://localhost:3101",
-  "started": "2026-11-01T21:15:25",
-  "elapsedSeconds": 26.7,
+  "started": "2026-11-01T22:30:21",
+  "elapsedSeconds": 25.8,
   "code": {
-    "commit": "27d42c82d57728a2d49b03ac8995d1c698e63397",
+    "commit": "76bfbc3e8a5ce8b36c0a303c71e99cc1aeb9fbd4",
     "dirty": false
   },
   "passed": 52,
@@ -220,9 +220,9 @@
       "detail": ""
     },
     {
-      "name": "home-1280-200: sidebar conserva Fiado y Corte",
+      "name": "home-1280-200: sidebar conserva los cinco destinos",
       "ok": true,
-      "detail": "['Caja', 'Fiado', 'Corte', 'Meta']"
+      "detail": "['Caja', 'Fiado', 'Corte', 'Meta', 'Pendientes']"
     },
     {
       "name": "home-1280-200: sin palabras partidas",

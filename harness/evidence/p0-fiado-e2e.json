@@ -12,16 +12,16 @@
     "npm run build"
   ],
   "code": {
-    "commit": "586f1a627638cea5bdfeacb59adfd5a197c68af1",
+    "commit": "76bfbc3e8a5ce8b36c0a303c71e99cc1aeb9fbd4",
     "branch": "master",
-    "dirty": true
+    "dirty": false
   },
   "build": {
     "next": "16.4.3",
     "command": "npm run build"
   },
-  "startedAt": "2026-11-02T01:10:19.987177+00:00",
-  "finishedAt": "2026-11-02T01:11:14.385836+00:00",
+  "startedAt": "2026-11-02T04:27:23.937477+00:00",
+  "finishedAt": "2026-11-02T04:28:07.676397+00:00",
   "summary": {
     "pass": 50,
     "fail": 0,
@@ -32,7 +32,7 @@
     {
       "name": "la hoja muestra saldo vivo de Juan",
       "ok": true,
-      "detail": "Registrar abono ·  · Juan ·  · Saldo vivo: $50.00 ·  · original $50.00 ·  · Monto del abono · $ ·  · Se aplican $50.00 al saldo vivo. ·  · ¿Cómo lo recibiste? · Efectivo · ELEGIDO "
+      "detail": "Registrar abono ·  · Juan ·  · Saldo vivo: $50.00 ·  · original $50.00 ·  · Monto del abono · $ ·  · Se aplican $50.00 al saldo vivo. ·  · ¿Cómo lo recibiste? ·  · Elige un método "
     },
     {
       "name": "el monto interpretado prellena $50",
@@ -87,7 +87,7 @@
     {
       "name": "la API del sobrepago reporta aplicado y devuelto",
       "ok": true,
-      "detail": "{\"credit\": {\"id\": \"cred_1a6a4115f88145db95f1\", \"customerId\": \"cus_de3f51b473884a88a635\", \"customerName\": \"Juan\", \"orderId\": null, \"originalCents\": 5000, \"balanceCents\": 0, \"status\": \"settled\", \"dueDate\": null, \"createdAt\": \"2026-11-02T01:10:43.056Z\"}, \"applied"
+      "detail": "{\"credit\": {\"id\": \"cred_0b2bccaef2c046168c4d\", \"customerId\": \"cus_2074d50f465a457c81b9\", \"customerName\": \"Juan\", \"orderId\": null, \"originalCents\": 5000, \"balanceCents\": 0, \"status\": \"settled\", \"dueDate\": null, \"createdAt\": \"2026-11-02T04:27:34.290Z\"}, \"applied"
     },
     {
       "name": "el sobrepago no registra más que el saldo",
@@ -107,12 +107,12 @@
     {
       "name": "el doble clic no manda dos POST",
       "ok": true,
-      "detail": "1 POST · ['http://localhost:3101/api/credits/cred_e97319eba7c2424b84c0/pay']"
+      "detail": "1 POST · ['http://localhost:3101/api/credits/cred_7c885733f1bb45db99f2/pay']"
     },
     {
       "name": "un fiado ya saldado responde 409 credit_settled",
       "ok": true,
-      "detail": "409 · {\"error\":\"Ese fiado ya está saldado. No se registró nada.\",\"code\":\"credit_settled\",\"credit\":{\"id\":\"cred_2e4364a3233a439a9ba9\",\"customerId\":\"cus_5ba1418888a44bdb91d8\",\"customerName\""
+      "detail": "409 · {\"error\":\"Ese fiado ya está saldado. No se registró nada.\",\"code\":\"credit_settled\",\"credit\":{\"id\":\"cred_5ef54f03444947888d72\",\"customerId\":\"cus_05cc53711a5b4fa0bae2\",\"customerName\""
     },
     {
       "name": "un saldo liquidado en otra pestaña no duplica el abono",
@@ -127,7 +127,7 @@
     {
       "name": "un saldo cambiado responde 409 balance_changed",
       "ok": true,
-      "detail": "409 · {\"error\":\"El saldo cambió a $30.00. Revisa el monto y confirma de nuevo.\",\"code\":\"balance_changed\",\"credit\":{\"id\":\"cred_d448faf20ec54b2093b5\",\"customerId\":\"cus_f49bc4ad5dd34fb294e1"
+      "detail": "409 · {\"error\":\"El saldo cambió a $30.00. Revisa el monto y confirma de nuevo.\",\"code\":\"balance_changed\",\"credit\":{\"id\":\"cred_b74ba531aeb547efbb00\",\"customerId\":\"cus_eda5a83f9b1244bc8955"
     },
     {
       "name": "un saldo cambiado entre apertura y POST responde explícito",
@@ -147,7 +147,7 @@
     {
       "name": "la rama de nombre exacto abre la deuda de Juana, no la de Ana",
       "ok": true,
-      "detail": "Registrar abono ·  · Juana ·  · Saldo vivo: $200.00 ·  · original $200.00 ·  · Monto del abono · $ ·  · Se aplican $50.00 al saldo vivo. ·  · ¿Cómo lo recibiste? · Efectivo · ELEGIDO · Digital · Nota (opcional) · Registr"
+      "detail": "Registrar abono ·  · Juana ·  · Saldo vivo: $200.00 ·  · original $200.00 ·  · Monto del abono · $ ·  · Se aplican $50.00 al saldo vivo. ·  · ¿Cómo lo recibiste? ·  · Elige un método para registrar el abono. ·  · Efectiv"
     },
     {
       "name": "la voz prellena $50 sobre un saldo de $200",
@@ -177,17 +177,17 @@
     {
       "name": "la actividad muestra el saldo vivo",
       "ok": true,
-      "detail": "1 Prueba fiado ·  · 07:11 p.m. · Fiado · saldo $100.00 ·  · $100.00"
+      "detail": "1 Prueba fiado ·  · Hoy 10:27 p.m. · Fiado · saldo $100.00 ·  · $100.00"
     },
     {
       "name": "el detalle muestra saldo vivo y original",
       "ok": true,
-      "detail": "Pedido entregado ·  · Quedó anotado ·  · $100.00 ·  · Pedido AB0A · fiado con Cliente Detalle · original $100.00 ·  · Saldo vivo: $100.00 · original $100.00. Aparece en Fiado; no es dinero recibido. ·  · Entendido · Nuev"
+      "detail": "Quedó anotado ·  · Quedó anotado ·  · $100.00 ·  · Pedido 9D98 · fiado con Cliente Detalle · original $100.00 ·  · Saldo vivo: $100.00 · original $100.00. Aparece en Fiado; no es dinero recibido. ·  · Entendido · Nuevo c"
     },
     {
       "name": "la hoja de abono muestra el saldo vivo antes del parcial",
       "ok": true,
-      "detail": "Registrar abono ·  · Cliente Detalle ·  · Saldo vivo: $100.00 ·  · original $100.00 ·  · Monto del abono · $ ·  · Se aplican $100.00 al saldo vivo. ·  · ¿Cómo lo recibiste? · Efectivo · ELEGIDO · Digital · Nota (opcional"
+      "detail": "Registrar abono ·  · Cliente Detalle ·  · Saldo vivo: $100.00 ·  · original $100.00 ·  · Monto del abono · $ ·  · Se aplican $100.00 al saldo vivo. ·  · ¿Cómo lo recibiste? ·  · Elige un método para registrar el abono. ·"
     },
     {
       "name": "confirmar desde la hoja registra un abono parcial",
@@ -197,22 +197,22 @@
     {
       "name": "el POST de la hoja lleva requestId y saldo esperado",
       "ok": true,
-      "detail": "[{\"amountCents\": 4000, \"method\": \"cash\", \"requestId\": \"cp_f3c4d683-83b7-43eb-acb6-b35278d0cb4a\", \"expectedBalanceCents\": 10000}]"
+      "detail": "[{\"amountCents\": 4000, \"method\": \"cash\", \"requestId\": \"cp_7df30136-5443-4072-b837-df3b2b8cf3ec\", \"expectedBalanceCents\": 10000}]"
     },
     {
       "name": "la actividad sigue el saldo después del parcial",
       "ok": true,
-      "detail": "1 Prueba fiado ·  · 07:11 p.m. · Fiado · saldo $60.00 ·  · $100.00"
+      "detail": "1 Prueba fiado ·  · Hoy 10:27 p.m. · Fiado · saldo $60.00 ·  · $100.00"
     },
     {
       "name": "el detalle muestra el saldo vivo después del parcial",
       "ok": true,
-      "detail": "Pedido entregado ·  · Quedó anotado ·  · $100.00 ·  · Pedido AB0A · fiado con Cliente Detalle · original $100.00 ·  · Saldo vivo: $60.00 · original $100.00. Aparece en Fiado; no es dinero recibido. ·  · Entendido · Nuevo"
+      "detail": "Quedó anotado ·  · Quedó anotado ·  · $100.00 ·  · Pedido 9D98 · fiado con Cliente Detalle · original $100.00 ·  · Saldo vivo: $60.00 · original $100.00. Aparece en Fiado; no es dinero recibido. ·  · Entendido · Nuevo co"
     },
     {
       "name": "la hoja de abono muestra saldo vivo, original y abonado",
       "ok": true,
-      "detail": "Registrar abono ·  · Cliente Detalle ·  · Saldo vivo: $60.00 ·  · original $100.00 · abonado $40.00 ·  · Monto del abono · $ ·  · Se aplican $60.00 al saldo vivo. ·  · ¿Cómo lo recibiste? · Efectivo · ELEGIDO · Digital ·"
+      "detail": "Registrar abono ·  · Cliente Detalle ·  · Saldo vivo: $60.00 ·  · original $100.00 · abonado $40.00 ·  · Monto del abono · $ ·  · Se aplican $60.00 al saldo vivo. ·  · ¿Cómo lo recibiste? ·  · Elige un método para regist"
     },
     {
       "name": "liquidar desde la hoja registra el abono final",
@@ -227,22 +227,22 @@
     {
       "name": "la actividad dice Saldado al liquidar",
       "ok": true,
-      "detail": "1 Prueba fiado ·  · 07:11 p.m. · Fiado · Saldado ·  · $100.00"
+      "detail": "1 Prueba fiado ·  · Hoy 10:27 p.m. · Fiado · Saldado ·  · $100.00"
     },
     {
       "name": "el detalle dice Saldado y conserva el original",
       "ok": true,
-      "detail": "Pedido entregado ·  · Quedó anotado ·  · $100.00 ·  · Pedido AB0A · fiado con Cliente Detalle · original $100.00 ·  · Fiado Saldado · original $100.00. Ya no es dinero pendiente. ·  · Entendido · Nuevo cobro"
+      "detail": "Quedó anotado ·  · Quedó anotado ·  · $100.00 ·  · Pedido 9D98 · fiado con Cliente Detalle · original $100.00 ·  · Fiado Saldado · original $100.00. Ya no es dinero pendiente. ·  · Entendido · Nuevo cobro"
     },
     {
       "name": "el primer abono con requestId se aplica una vez",
       "ok": true,
-      "detail": "{\"credit\": {\"id\": \"cred_40dabc85780a4a1e8789\", \"customerId\": \"cus_06835e7ca3e14f46adb7\", \"customerName\": \"Juan\", \"orderId\": null, \"originalCents\": 5000, \"balanceCents\": 3000, \"status\": \"partial\", \"dueDate\": null, \"createdAt\": \"2026-11-02T01:11:08.134Z\"}, \"appl"
+      "detail": "{\"credit\": {\"id\": \"cred_3316233c2d6a40fabb61\", \"customerId\": \"cus_cccb8b94f10c4295a1f5\", \"customerName\": \"Juan\", \"orderId\": null, \"originalCents\": 5000, \"balanceCents\": 3000, \"status\": \"partial\", \"dueDate\": null, \"createdAt\": \"2026-11-02T04:28:00.099Z\"}, \"appl"
     },
     {
       "name": "reintentar con otro monto no duplica ni inventa devuelto",
       "ok": true,
-      "detail": "{\"rows\": [{\"amountCents\": 2000, \"method\": \"cash\"}], \"second\": {\"credit\": {\"id\": \"cred_40dabc85780a4a1e8789\", \"customerId\": \"cus_06835e7ca3e14f46adb7\", \"customerName\": \"Juan\", \"orderId\": null, \"originalCents\": 5000, \"balanceCents\": 3000, \"status\": \"partial\", \"dueDate\": null, \"createdAt\": \"2026-11-02T01:11:08.134Z\"}, \"appliedCents\": 2000, \""
+      "detail": "{\"rows\": [{\"amountCents\": 2000, \"method\": \"cash\"}], \"second\": {\"credit\": {\"id\": \"cred_3316233c2d6a40fabb61\", \"customerId\": \"cus_cccb8b94f10c4295a1f5\", \"customerName\": \"Juan\", \"orderId\": null, \"originalCents\": 5000, \"balanceCents\": 3000, \"status\": \"partial\", \"dueDate\": null, \"createdAt\": \"2026-11-02T04:28:00.099Z\"}, \"appliedCents\": 2000, \""
     },
     {
       "name": "la misma requestId en otro fiado responde request_id_conflict",
@@ -252,7 +252,7 @@
     {
       "name": "una respuesta perdida deja un solo abono y conserva el requestId",
       "ok": true,
-      "detail": "requestId=cp_54f9c379-960c-4402-be65-2830a0471c48 · rows=[{\"amountCents\": 5000, \"method\": \"cash\"}]"
+      "detail": "requestId=cp_f848cee8-3d7b-45da-aa3c-433bde30068f · rows=[{\"amountCents\": 5000, \"method\": \"cash\"}]"
     },
     {
       "name": "el reintento dice Abono ya registrado sin devuelve",
