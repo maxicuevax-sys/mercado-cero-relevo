@@ -1,8 +1,13 @@
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync } from "node:fs";
-import { readFile, rename } from "node:fs/promises";
+import { readdir, readFile, rename, stat, unlink } from "node:fs/promises";
 import path from "node:path";
+import {
+  bodyErrorResponse,
+  enforceRateLimit,
+  readJsonLimited,
+} from "@/lib/http-security";
 import { toSpeechText } from "@/lib/speech";
 
 const ROOT = process.cwd();
@@ -24,7 +29,7 @@ const FIXED_KOKORO: Record<string, string> = {
 };
 
 const inflight = new Map<string, Promise<string>>();
-const buckets = new Map<string, { count: number; reset: number }>();
+const MAX_CACHE_FILES = 512;
 
 function cacheKey(text: string): string {
   return createHash("sha256")
@@ -32,16 +37,31 @@ function cacheKey(text: string): string {
     .digest("hex");
 }
 
-function rateLimited(ip: string): boolean {
-  const now = Date.now();
-  const bucket = buckets.get(ip) ?? { count: 0, reset: now + 60_000 };
-  if (now > bucket.reset) {
-    bucket.count = 0;
-    bucket.reset = now + 60_000;
+/**
+ * El caché de voz es un archivo por frase. Sin tope, un demo largo o un
+ * cliente curioso puede llenar el disco. Se conservan las 512 frases más
+ * recientes y se borran las más viejas por mtime.
+ */
+async function pruneTtsCache(): Promise<void> {
+  try {
+    const entries = (await readdir(CACHE_DIR)).filter((name) => name.endsWith(".wav"));
+    if (entries.length <= MAX_CACHE_FILES) return;
+
+    const files = await Promise.all(
+      entries.map(async (name) => {
+        const filePath = path.join(CACHE_DIR, name);
+        const info = await stat(filePath);
+        return { filePath, mtimeMs: info.mtimeMs };
+      }),
+    );
+    files.sort((a, b) => a.mtimeMs - b.mtimeMs);
+    const excess = files.length - MAX_CACHE_FILES;
+    await Promise.all(
+      files.slice(0, excess).map((file) => unlink(file.filePath).catch(() => undefined)),
+    );
+  } catch (error) {
+    console.error("[tts] no se pudo podar el caché", error);
   }
-  bucket.count += 1;
-  buckets.set(ip, bucket);
-  return bucket.count > 40;
 }
 
 async function generate(text: string, key: string): Promise<string> {
@@ -94,18 +114,19 @@ async function generate(text: string, key: string): Promise<string> {
 }
 
 export async function POST(request: Request) {
-  const body = (await request.json().catch(() => null)) as
-    | { text?: unknown }
-    | null;
+  const limited = enforceRateLimit(request, "tts", 40, 60_000);
+  if (limited) return limited;
+
+  let body: { text?: unknown } | null;
+  try {
+    body = await readJsonLimited<{ text?: unknown }>(request, 4 * 1024);
+  } catch (error) {
+    return bodyErrorResponse(error);
+  }
+
   const text = typeof body?.text === "string" ? body.text.trim() : "";
   if (!text || text.length > 280) {
     return Response.json({ error: "Texto inválido." }, { status: 400 });
-  }
-
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
-  if (rateLimited(ip)) {
-    return Response.json({ error: "Demasiadas solicitudes." }, { status: 429 });
   }
 
   const speech = toSpeechText(text);
@@ -130,6 +151,7 @@ export async function POST(request: Request) {
       inflight.set(key, job);
     }
     const file = await job;
+    void pruneTtsCache();
     const audio = await readFile(/* turbopackIgnore: true */ file);
     return new Response(new Uint8Array(audio), {
       headers: {

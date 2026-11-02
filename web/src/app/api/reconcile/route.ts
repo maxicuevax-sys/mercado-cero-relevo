@@ -1,11 +1,13 @@
+import { enforceRateLimit, internalErrorResponse } from "@/lib/http-security";
 import { getReconciliationReport } from "@/lib/reconcile";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const limited = enforceRateLimit(request, "reconcile", 30, 60_000);
+  if (limited) return limited;
+
   try {
     return Response.json(await getReconciliationReport());
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "No se pudo conciliar la caja.";
-    return Response.json({ error: message }, { status: 500 });
+    return internalErrorResponse("reconcile", error);
   }
 }

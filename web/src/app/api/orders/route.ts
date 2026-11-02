@@ -1,5 +1,11 @@
 import { z } from "zod";
 import { listOrders } from "@/lib/db";
+import {
+  bodyErrorResponse,
+  enforceRateLimit,
+  MAX_ORDERS_BYTES,
+  readJsonLimited,
+} from "@/lib/http-security";
 import { createOrder } from "@/lib/orders";
 
 const itemSchema = z.object({
@@ -21,16 +27,31 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const limited = enforceRateLimit(request, "orders-create", 60, 60_000);
+  if (limited) return limited;
+
+  let body: unknown;
   try {
-    const body = await request.json();
+    body = await readJsonLimited(request, MAX_ORDERS_BYTES);
+  } catch (error) {
+    return bodyErrorResponse(error);
+  }
+
+  try {
     const input = createOrderSchema.parse(body);
     const order = createOrder(input);
     return Response.json({ order }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return Response.json({ error: "Datos de venta inválidos.", issues: error.issues }, { status: 400 });
+      return Response.json(
+        { error: "Datos de venta inválidos.", issues: error.issues },
+        { status: 400 },
+      );
     }
-    const message = error instanceof Error ? error.message : "No se pudo crear la venta.";
-    return Response.json({ error: message }, { status: 400 });
+    console.error("[orders create] error inesperado", error);
+    return Response.json(
+      { error: "No se pudo crear la venta.", code: "order_create_failed" },
+      { status: 400 },
+    );
   }
 }

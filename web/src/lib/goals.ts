@@ -1,6 +1,18 @@
 import { getDb, newId, nowIso } from "./db";
 import type { Goal } from "./types";
 
+export class GoalError extends Error {
+  readonly status: number;
+  readonly code: string;
+
+  constructor(message: string, status = 400, code = "invalid_goal") {
+    super(message);
+    this.name = "GoalError";
+    this.status = status;
+    this.code = code;
+  }
+}
+
 interface GoalRow {
   id: string;
   title: string;
@@ -64,10 +76,14 @@ export function createGoal(input: {
   deadline?: string | null;
 }): Goal {
   const title = input.title.trim();
-  if (!title) throw new Error("La meta necesita un nombre.");
+  if (!title) throw new GoalError("La meta necesita un nombre.", 400, "invalid_title");
   const targetCents = Math.round(input.targetCents);
   if (!Number.isFinite(targetCents) || targetCents <= 0) {
-    throw new Error("El monto de la meta debe ser mayor a cero.");
+    throw new GoalError(
+      "El monto de la meta debe ser mayor a cero.",
+      400,
+      "invalid_target",
+    );
   }
 
   const id = newId("goal");
@@ -86,10 +102,14 @@ export function contributeToGoal(
 ): Goal {
   const database = getDb();
   const goal = getGoal(goalId);
-  if (!goal) throw new Error("Meta no encontrada.");
+  if (!goal) throw new GoalError("Meta no encontrada.", 404, "goal_not_found");
   const amount = Math.round(amountCents);
   if (!Number.isFinite(amount) || amount <= 0) {
-    throw new Error("La aportación debe ser mayor a cero.");
+    throw new GoalError(
+      "La aportación debe ser mayor a cero.",
+      400,
+      "invalid_contribution",
+    );
   }
 
   database

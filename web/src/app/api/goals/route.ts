@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { createGoal, listGoals } from "@/lib/goals";
+import { GoalError, createGoal, listGoals } from "@/lib/goals";
+import {
+  bodyErrorResponse,
+  enforceRateLimit,
+  MAX_SMALL_JSON_BYTES,
+  readJsonLimited,
+} from "@/lib/http-security";
 
 const createSchema = z.object({
   title: z.string().min(1).max(120),
@@ -12,9 +18,19 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const limited = enforceRateLimit(request, "goals-create", 30, 60_000);
+  if (limited) return limited;
+
+  let body: unknown;
   try {
-    const body = createSchema.parse(await request.json());
-    return Response.json({ goal: createGoal(body) }, { status: 201 });
+    body = await readJsonLimited(request, MAX_SMALL_JSON_BYTES);
+  } catch (error) {
+    return bodyErrorResponse(error);
+  }
+
+  try {
+    const input = createSchema.parse(body);
+    return Response.json({ goal: createGoal(input) }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return Response.json(
@@ -22,8 +38,16 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    const message =
-      error instanceof Error ? error.message : "No se pudo crear la meta.";
-    return Response.json({ error: message }, { status: 400 });
+    if (error instanceof GoalError) {
+      return Response.json(
+        { error: error.message, code: error.code },
+        { status: error.status },
+      );
+    }
+    console.error("[goals create] error inesperado", error);
+    return Response.json(
+      { error: "No se pudo crear la meta.", code: "goal_create_failed" },
+      { status: 500 },
+    );
   }
 }

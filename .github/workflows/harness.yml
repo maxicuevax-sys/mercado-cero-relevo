@@ -4,6 +4,13 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: harness-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   static:
     name: Guardrails + lint + types + build
@@ -15,6 +22,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Node 24
         uses: actions/setup-node@v4
@@ -25,6 +34,9 @@ jobs:
 
       - name: Install
         run: npm ci
+
+      - name: Audit producción (dev queda fuera)
+        run: npm audit --omit=dev
 
       - name: Harness static gate
         run: npm run verify:static

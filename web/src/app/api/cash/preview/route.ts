@@ -1,5 +1,12 @@
 import { z } from "zod";
 import { previewCashClose } from "@/lib/cash";
+import {
+  bodyErrorResponse,
+  enforceRateLimit,
+  readJsonLimited,
+} from "@/lib/http-security";
+
+const MAX_CASH_BODY_BYTES = 16 * 1024;
 
 const moneyCents = z
   .number({ error: "Escribe un monto válido en centavos." })
@@ -19,14 +26,9 @@ async function readJson(
   request: Request,
 ): Promise<{ body: unknown } | { response: Response }> {
   try {
-    return { body: await request.json() };
-  } catch {
-    return {
-      response: Response.json(
-        { error: "El cuerpo debe ser JSON válido.", code: "invalid_json" },
-        { status: 400 },
-      ),
-    };
+    return { body: await readJsonLimited(request, MAX_CASH_BODY_BYTES) };
+  } catch (error) {
+    return { response: bodyErrorResponse(error) };
   }
 }
 
@@ -35,6 +37,9 @@ async function readJson(
  * No escribe nada: la confirmación del corte usa este resultado.
  */
 export async function POST(request: Request) {
+  const limited = enforceRateLimit(request, "cash-preview", 60, 60_000);
+  if (limited) return limited;
+
   const parsed = await readJson(request);
   if ("response" in parsed) return parsed.response;
 
@@ -52,8 +57,10 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    const message =
-      error instanceof Error ? error.message : "No se pudo calcular el corte.";
-    return Response.json({ error: message }, { status: 500 });
+    console.error("[cash preview] error inesperado", error);
+    return Response.json(
+      { error: "No se pudo calcular el corte.", code: "cash_preview_failed" },
+      { status: 500 },
+    );
   }
 }

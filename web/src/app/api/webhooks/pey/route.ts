@@ -1,8 +1,12 @@
 import { getDb, newId, nowIso } from "@/lib/db";
+import {
+  bodyErrorResponse,
+  enforceRateLimit,
+  MAX_WEBHOOK_BYTES,
+  readTextLimited,
+} from "@/lib/http-security";
 import { PeyWebhookError, processPeyEvent } from "@/lib/pey-events";
 import { verifyWebhookSignature } from "@/lib/pey";
-
-const MAX_BODY_CHARS = 64 * 1024;
 
 function isUniqueViolation(error: unknown): boolean {
   return error instanceof Error && /unique|constraint/i.test(error.message);
@@ -55,9 +59,14 @@ function auditEvent(input: {
 }
 
 export async function POST(request: Request) {
-  const rawBody = await request.text();
-  if (rawBody.length > MAX_BODY_CHARS) {
-    return Response.json({ error: "Payload demasiado grande." }, { status: 413 });
+  const limited = enforceRateLimit(request, "webhook-pey", 120, 60_000);
+  if (limited) return limited;
+
+  let rawBody: string;
+  try {
+    rawBody = await readTextLimited(request, MAX_WEBHOOK_BYTES);
+  } catch (error) {
+    return bodyErrorResponse(error);
   }
 
   const webhookId = request.headers.get("webhook-id");

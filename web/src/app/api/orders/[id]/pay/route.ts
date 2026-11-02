@@ -2,6 +2,13 @@ import crypto from "node:crypto";
 import QRCode from "qrcode";
 import { appUrl, isDemoMode } from "@/lib/config";
 import { getOrder, getOrderByNumRef } from "@/lib/db";
+import {
+  bodyErrorResponse,
+  enforceRateLimit,
+  internalErrorResponse,
+  MAX_SMALL_JSON_BYTES,
+  readOptionalJsonLimited,
+} from "@/lib/http-security";
 import { attachPaymentLink, attachQr } from "@/lib/orders";
 import { createCodiQr, createPaymentLink } from "@/lib/pey";
 
@@ -11,9 +18,22 @@ function shortRef(orderId: string): string {
 }
 
 export async function POST(request: Request, ctx: RouteContext<"/api/orders/[id]/pay">) {
+  const limited = enforceRateLimit(request, "order-pay", 30, 60_000);
+  if (limited) return limited;
+
+  let body: { mode?: "link" | "qr" };
+  try {
+    body = await readOptionalJsonLimited<{ mode?: "link" | "qr" }>(
+      request,
+      MAX_SMALL_JSON_BYTES,
+      {},
+    );
+  } catch (error) {
+    return bodyErrorResponse(error);
+  }
+
   try {
     const { id } = await ctx.params;
-    const body = (await request.json().catch(() => ({}))) as { mode?: "link" | "qr" };
     const order = getOrder(id);
 
     if (!order) {
@@ -65,7 +85,6 @@ export async function POST(request: Request, ctx: RouteContext<"/api/orders/[id]
     const updated = attachPaymentLink(order.id, link);
     return Response.json({ order: updated });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "No se pudo generar el cobro.";
-    return Response.json({ error: message }, { status: 500 });
+    return internalErrorResponse("order pay", error);
   }
 }
