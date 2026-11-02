@@ -217,12 +217,19 @@ export interface PendingTasksPanelProps {
   headingId?: string;
   /** Se llama con la lista vigente después de cargar o cambiar algo. */
   onTasksChange?: (tasks: Task[]) => void;
+  /**
+   * La pestaña de pendientes está oculta al abrir la caja. Con `false` no se
+   * pide la lista hasta que la persona la visita; el default conserva el uso
+   * standalone de la bandeja.
+   */
+  active?: boolean;
 }
 
 export function PendingTasksPanel({
   apiBase = "/api/tasks",
   headingId,
   onTasksChange,
+  active = true,
 }: PendingTasksPanelProps) {
   const generatedHeadingId = useId();
   const resolvedHeadingId = headingId ?? generatedHeadingId;
@@ -235,6 +242,7 @@ export function PendingTasksPanel({
   const titleInputRef = useRef<HTMLInputElement>(null);
   const onTasksChangeRef = useRef(onTasksChange);
   const inFlight = useRef<Set<string>>(new Set());
+  const loadSeq = useRef(0);
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">(
@@ -267,12 +275,15 @@ export function PendingTasksPanel({
   }, [onTasksChange]);
 
   const commit = useCallback((next: Task[]) => {
+    // Una mutación local gana sobre cualquier lectura que ya estaba en vuelo.
+    loadSeq.current += 1;
     setTasks(next);
     onTasksChangeRef.current?.(next);
   }, []);
 
   const load = useCallback(
     async (signal?: AbortSignal) => {
+      const seq = ++loadSeq.current;
       try {
         const response = await fetch(apiBase, {
           cache: "no-store",
@@ -286,13 +297,14 @@ export function PendingTasksPanel({
         if (!Array.isArray(body.tasks)) {
           throw new Error("La respuesta del servidor no trae la lista de pendientes.");
         }
+        if (seq !== loadSeq.current) return;
         const next = (body.tasks as Task[])
           .filter((task) => task.status === "open" || task.status === "done")
           .sort(sortTasks);
         commit(next);
         setLoadState("ready");
       } catch (error) {
-        if (signal?.aborted) return;
+        if (signal?.aborted || seq !== loadSeq.current) return;
         setLoadError(
           humanError(error, "No pude cargar tus pendientes. Intenta de nuevo."),
         );
@@ -303,6 +315,7 @@ export function PendingTasksPanel({
   );
 
   useEffect(() => {
+    if (!active) return;
     const controller = new AbortController();
     // Diferido un tick para no encadenar renders desde el cuerpo del efecto.
     const timer = window.setTimeout(() => {
@@ -312,9 +325,10 @@ export function PendingTasksPanel({
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [load]);
+  }, [active, load]);
 
   useEffect(() => {
+    if (!active) return;
     const refresh = () => {
       void load();
     };
@@ -327,7 +341,7 @@ export function PendingTasksPanel({
       window.removeEventListener("focus", refresh);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [load]);
+  }, [active, load]);
 
   const retryLoad = useCallback(() => {
     setLoadState("loading");

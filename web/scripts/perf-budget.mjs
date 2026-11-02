@@ -34,6 +34,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import vm from "node:vm";
 import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
 
@@ -71,10 +72,50 @@ function toStaticPath(url) {
 }
 
 function readHtml() {
-  if (!fs.existsSync(HTML)) {
-    throw new Error("No hay build. Corre `npm run build` antes del presupuesto.");
-  }
-  return fs.readFileSync(HTML, "utf8");
+  if (!fs.existsSync(HTML)) return null;
+  const html = fs.readFileSync(HTML, "utf8");
+  // Con Cache Components, una ruta que bloquea para leer datos vivos puede
+  // producir un `index.html` vacío. En ese caso medimos los manifests del
+  // build, que son la misma lista de chunks que sirve `next start`.
+  return html.length > 0 ? html : null;
+}
+
+function withNextPrefix(value) {
+  return value.startsWith("/_next/") ? value : `/_next/${value.replace(/^\/+/, "")}`;
+}
+
+/**
+ * Fallback para rutas dinámicas: el HTML prerenderizado no tiene scripts
+ * porque el request se renderiza completo. `build-manifest.json` aporta los
+ * chunks raíz y `page_client-reference-manifest.js` los de la página.
+ */
+function assetsFromManifests() {
+  const buildManifest = JSON.parse(
+    fs.readFileSync(path.join(NEXT, "build-manifest.json"), "utf8"),
+  );
+  const clientManifestPath = path.join(
+    NEXT,
+    "server",
+    "app",
+    "page_client-reference-manifest.js",
+  );
+  const source = fs.readFileSync(clientManifestPath, "utf8");
+  const sandbox = { globalThis: {} };
+  vm.runInNewContext(source, sandbox, { timeout: 1000 });
+  const manifest = sandbox.globalThis.__RSC_MANIFEST?.["/page"];
+  if (!manifest) throw new Error("El manifest del cliente no trae /page.");
+  const entry = manifest.entryJSFiles?.["[project]/src/app/page"] ?? [];
+  const css = (manifest.entryCSSFiles?.["[project]/src/app/page"] ?? []).map(
+    (item) => withNextPrefix(item.path),
+  );
+  const scripts = [
+    ...(buildManifest.rootMainFiles ?? []),
+    ...entry,
+  ].map(withNextPrefix);
+  return {
+    scripts: [...new Set(scripts)],
+    styles: [...new Set(css)],
+  };
 }
 
 function initialAssets(html) {
@@ -136,15 +177,27 @@ function fmt(kib) {
 }
 
 function main() {
-  let html;
+  let assets;
+  let source;
   try {
-    html = readHtml();
+    const html = readHtml();
+    if (html) {
+      assets = initialAssets(html);
+      source = "html";
+    } else {
+      assets = assetsFromManifests();
+      source = "manifests";
+    }
   } catch (error) {
-    fail(error.message);
+    fail(
+      `No hay build medible. Corre \`npm run build\` antes del presupuesto. ${
+        error.message ?? ""
+      }`.trim(),
+    );
     return;
   }
 
-  const { scripts, styles } = initialAssets(html);
+  const { scripts, styles } = assets;
   const js = scripts.map((src) => {
     const buffer = fs.readFileSync(toStaticPath(src));
     return { url: src, raw: buffer.length, gzip: gzipSize(buffer) };
@@ -196,6 +249,7 @@ function main() {
       JSON.stringify(
         {
           generatedAt: new Date().toISOString(),
+          source,
           budget: BUDGET,
           totals,
           chunks: js,

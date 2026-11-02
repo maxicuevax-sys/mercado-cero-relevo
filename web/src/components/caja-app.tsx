@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, memo, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnimatedAmount } from "@/components/animated-amount";
 import { PendingPayments } from "@/components/pending-payments";
@@ -51,13 +51,13 @@ import {
   shortOrder,
 } from "@/lib/format";
 import { answerDebtQuery } from "@/lib/voice-debts";
+import type { DashboardData } from "@/lib/dashboard";
 import type {
   AnalyticsReport,
   CashClose,
   CashClosePreview,
   CashStatus,
   Credit,
-  DailySummary,
   Goal,
   Order,
   ParsedSale,
@@ -73,22 +73,6 @@ type VoiceRate = "slow" | "normal" | "fast";
 interface Toast {
   tone: ToastTone;
   text: string;
-}
-
-interface DashboardData {
-  merchant: {
-    id: string;
-    name: string;
-    owner: string;
-    receiverName: string;
-    receiverMask: string;
-    address: string;
-  };
-  demoMode: boolean;
-  summary: DailySummary;
-  orders: Order[];
-  pendingOrders?: Order[];
-  credits: Credit[];
 }
 
 interface DraftItem {
@@ -159,6 +143,10 @@ interface CreditPayResponse {
   error?: string;
   code?: string;
 }
+
+// La bandeja de pendientes vive en una pestaña que no se ve al abrir la caja.
+// Se monta recién al visitarla; así no pesa en el primer paint ni en la
+// hidratación de la caja.
 
 const SAMPLE_PHRASES = [
   "Dos quesadillas de 35 y un agua de 20",
@@ -541,15 +529,26 @@ function restoredDraftLabel(iso: string): string {
   return `Recuperé tu venta del ${date} a las ${time}`;
 }
 
-export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean }) {
-  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+export default function CajaApp({
+  initialDashboard,
+  initialDemoMode,
+}: {
+  initialDashboard?: DashboardData;
+  initialDemoMode: boolean;
+}) {
+  const [dashboard, setDashboard] = useState<DashboardData | null>(
+    initialDashboard ?? null,
+  );
+  const [loading, setLoading] = useState(!initialDashboard);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
   const [retryingDashboard, setRetryingDashboard] = useState(false);
   const [pendingCheckedAt, setPendingCheckedAt] = useState<string | null>(null);
   const [tasksResetKey, setTasksResetKey] = useState(0);
   const [cashCloseKey, setCashCloseKey] = useState(0);
   const [tab, setTab] = useState<Tab>("caja");
+  const [visitedTabs, setVisitedTabs] = useState<ReadonlySet<Tab>>(
+    () => new Set<Tab>(["caja"]),
+  );
   const [tabWipe, setTabWipe] = useState(0);
   const [today, setToday] = useState("");
   const [helpOpen, setHelpOpen] = useState(false);
@@ -627,6 +626,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const keyboardTabRef = useRef(false);
   const dashboardAbortRef = useRef<AbortController | null>(null);
   const dashboardInFlightRef = useRef(false);
+  const dashboardEtagRef = useRef<string | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -641,6 +641,19 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const ttsAbortRef = useRef<AbortController | null>(null);
   const audioCacheRef = useRef<Map<string, string>>(new Map());
+
+  // El servidor puede mandar los pendientes solo una vez (compactos) y no
+  // repetirlos dentro de `orders`. La actividad los vuelve a unir por id.
+  const activityOrders = useMemo(() => {
+    if (!dashboard) return [];
+    const byId = new Map<string, Order>();
+    for (const order of dashboard.orders) byId.set(order.id, order);
+    for (const order of dashboard.pendingOrders ?? []) byId.set(order.id, order);
+    return [...byId.values()].sort(
+      (a, b) =>
+        b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id),
+    );
+  }, [dashboard]);
 
   const showToast = useCallback((tone: ToastTone, text: string) => {
     setToast({ tone, text });
@@ -687,7 +700,19 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       const response = await fetch("/api/dashboard", {
         cache: "no-store",
         signal: controller.signal,
+        headers:
+          !options?.force && dashboardEtagRef.current
+            ? { "If-None-Match": dashboardEtagRef.current }
+            : undefined,
       });
+      if (response.status === 304) {
+        // Sin cambios: no reemplazamos el snapshot ni despertamos a los
+        // paneles. El polling barato no debe costar un render completo.
+        if (!controller.signal.aborted) {
+          setPendingCheckedAt(new Date().toISOString());
+        }
+        return;
+      }
       if (!response.ok) {
         let detail = "";
         try {
@@ -700,6 +725,8 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       }
       const data = (await response.json()) as DashboardData;
       if (controller.signal.aborted) return;
+      const etag = response.headers.get("etag");
+      if (etag) dashboardEtagRef.current = etag;
       setDashboard(data);
       setDashboardError(null);
       setPendingCheckedAt(new Date().toISOString());
@@ -746,6 +773,10 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     }
   }, [loadDashboard]);
 
+  const retryPending = useCallback(() => {
+    void retryDashboard();
+  }, [retryDashboard]);
+
   useEffect(() => {
     // La fecha se calcula después del montaje para no romper la hidratación.
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -770,8 +801,16 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     } catch {
       // Sin almacenamiento local, la voz queda activa.
     }
-    void loadDashboard();
-  }, [loadDashboard]);
+    if (initialDashboard) {
+      // Los datos vienen del servidor: la lectura ya está hecha y no hay
+      // waterfall de APIs en el primer paint.
+      setPendingCheckedAt(new Date().toISOString());
+    } else {
+      // La primera lectura es fría: no despierta analytics/cash que todavía
+      // están ocultos; los paneles se actualizan al abrir su pestaña.
+      void loadDashboard({ broadcast: false });
+    }
+  }, [initialDashboard, loadDashboard]);
 
   useEffect(() => {
     // Refresco al volver a la pestaña y polling ligero solo mientras es visible.
@@ -947,7 +986,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     // El aviso de cobro pendiente puede quedar viejo si la orden se pagó en
     // otra pestaña. Se limpia el aviso y la llave local; no se reabre la hoja.
     if (resumableOrder) {
-      const order = dashboard.orders.find((item) => item.id === resumableOrder.id);
+      const order = activityOrders.find((item) => item.id === resumableOrder.id);
       if (order && !isPendingOrder(order)) {
         clearStoredPendingOrder(order.id);
         setResumableOrder(null);
@@ -961,7 +1000,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
         );
       }
     }
-  }, [creditPayId, creditPaying, dashboard, resumableOrder, showToast]);
+  }, [activityOrders, creditPayId, creditPaying, dashboard, resumableOrder, showToast]);
 
   const activeOrderId = activeOrder?.id;
   const activeOrderStatus = activeOrder?.status;
@@ -1042,6 +1081,12 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       keyboardTabRef.current = viaKeyboard;
       setToast(null);
       if (next !== tab) setTabWipe((key) => key + 1);
+      setVisitedTabs((visited) => {
+        if (visited.has(next)) return visited;
+        const grown = new Set(visited);
+        grown.add(next);
+        return grown;
+      });
       setTab(next);
     },
     [tab],
@@ -1862,7 +1907,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       // La verificación siempre se compara contra una orden. Usa el cobro
       // abierto o, si la hoja se abrió desde la cabecera, el pedido más
       // reciente de la actividad.
-      const orderId = activeOrder?.id ?? dashboard?.orders[0]?.id;
+      const orderId = activeOrder?.id ?? activityOrders[0]?.id;
       if (!orderId) {
         setVerifyError("Abre o crea un pedido antes de verificar un comprobante.");
         return;
@@ -1894,7 +1939,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
         setVerifying(false);
       }
     },
-    [activeOrder?.id, dashboard, speak, verifyId, vibrate],
+    [activeOrder?.id, activityOrders, dashboard, speak, verifyId, vibrate],
   );
 
   const payCredit = useCallback(
@@ -2097,7 +2142,22 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   }, [clearDraft, loadDashboard, showToast]);
 
   const merchant = dashboard?.merchant;
-  const pendingCredits = dashboard?.credits.filter((credit) => credit.status !== "settled") ?? [];
+  const pendingCredits = useMemo(
+    () => dashboard?.credits.filter((credit) => credit.status !== "settled") ?? [],
+    [dashboard],
+  );
+  const selectOrder = useCallback((order: Order) => {
+    setActiveOrder(order);
+    setTab("caja");
+  }, []);
+  const goToCaja = useCallback(() => selectTab("caja"), [selectTab]);
+  const speakOverview = useCallback(
+    (text: string) => {
+      showToast("info", text);
+      speak(text);
+    },
+    [showToast, speak],
+  );
   // El modo demo se conserva aunque /api/dashboard falle: nunca se oculta el
   // sello DEMO ni se finge que la app es real.
   const demoMode = dashboard?.demoMode ?? initialDemoMode;
@@ -2366,27 +2426,21 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                     (registrar) no se empuja fuera del primer viewport a 200 %. */}
                 {(dashboard?.pendingOrders?.length ?? 0) > 0 ? (
                   <div id="cobros-pendientes" className="mb-4 scroll-mt-[72px]">
-                    <PendingPayments
+                    <MemoPendingPayments
                       orders={dashboard?.pendingOrders ?? []}
                       lastCheckedAt={pendingCheckedAt}
                       error={dashboardError}
-                      onOpen={(order) => {
-                        setActiveOrder(order);
-                        setTab("caja");
-                      }}
-                      onRetry={() => void loadDashboard({ force: true })}
+                      onOpen={selectOrder}
+                      onRetry={retryPending}
                     />
                   </div>
                 ) : null}
-                <ActivityList
-                  orders={dashboard?.orders ?? []}
+                <MemoActivityList
+                  orders={activityOrders}
                   credits={dashboard?.credits ?? []}
                   loading={loading}
                   error={dashboardError}
-                  onSelect={(order) => {
-                    setActiveOrder(order);
-                    setTab("caja");
-                  }}
+                  onSelect={selectOrder}
                 />
                 <div className="caja-trust-note mt-4 flex items-start gap-2.5 rounded-xl border border-separator bg-surface p-3.5 text-sm leading-relaxed text-ink-2">
                   <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-green" />
@@ -2399,7 +2453,8 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
             </div>
           </div>
 
-          <section hidden={tab !== "fiado"} className="tab-panel tab-shell">
+          {visitedTabs.has("fiado") ? (
+            <section hidden={tab !== "fiado"} className="tab-panel tab-shell">
               <ScreenHeading
                 title="Fiado"
                 headingId="fiado-heading"
@@ -2424,60 +2479,42 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                 </div>
               ) : null}
               <div className="tab-readable">
-                <CreditList
+                <MemoCreditList
                   credits={pendingCredits}
                   loading={loading}
                   error={dashboardError}
-                  onStart={(credit) => openCreditPay(credit)}
-                  onGoToCaja={() => selectTab("caja")}
+                  onStart={openCreditPay}
+                  onGoToCaja={goToCaja}
                 />
               </div>
-              <CreditPaySheet
-                credit={pendingCredits.find((credit) => credit.id === creditPayId) ?? null}
-                amount={creditPayAmount}
-                initialAmount={creditPayInitialAmount}
-                method={creditPayMethod}
-                initialMethod={creditPayInitialMethod}
-                note={creditPayNote}
-                paying={creditPaying}
-                error={creditPayError}
-                onAmount={setCreditPayAmount}
-                onMethod={setCreditPayMethod}
-                onNote={setCreditPayNote}
-                onClose={() => {
-                  setCreditPayId(null);
-                  setCreditPayInitialAmount("");
-                  setCreditPayInitialMethod(null);
-                  setCreditPayRequestId(null);
-                  setCreditPayError(null);
-                }}
-                onPay={() => {
-                  const credit = pendingCredits.find((item) => item.id === creditPayId);
-                  if (credit) void payCredit(credit);
-                }}
-              />
             </section>
+          ) : null}
 
-          <section hidden={tab !== "corte"} className="tab-panel tab-shell">
+          {visitedTabs.has("corte") ? (
+            <section hidden={tab !== "corte"} className="tab-panel tab-shell">
               <ScreenHeading
                 title="Corte de caja"
                 headingId="corte-heading"
                 subtitle="Compara lo contado con lo esperado."
               />
               <div className="space-y-5">
-                <CashCloseCard key={cashCloseKey} showToast={showToast} />
-                <BusinessOverview
-                  demoMode={demoMode}
-                  onSpeak={(text) => {
-                    showToast("info", text);
-                    speak(text);
-                  }}
+                <MemoCashCloseCard
+                  key={cashCloseKey}
+                  active={tab === "corte"}
+                  showToast={showToast}
                 />
-                <ReconcileCard demoMode={demoMode} />
+                <MemoBusinessOverview
+                  active={tab === "corte"}
+                  demoMode={demoMode}
+                  onSpeak={speakOverview}
+                />
+                <MemoReconcileCard demoMode={demoMode} />
               </div>
             </section>
+          ) : null}
 
-          <section hidden={tab !== "meta"} className="tab-panel tab-shell">
+          {visitedTabs.has("meta") ? (
+            <section hidden={tab !== "meta"} className="tab-panel tab-shell">
               <ScreenHeading
                 title="Meta"
                 headingId="meta-heading"
@@ -2485,13 +2522,20 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                 compactSubtitle
               />
               <div className="tab-readable">
-                <GoalCard showToast={showToast} />
+                <MemoGoalCard active={tab === "meta"} showToast={showToast} />
               </div>
             </section>
+          ) : null}
 
-          <section hidden={tab !== "pendientes"} className="tab-panel tab-shell">
-              <PendingTasksPanel key={tasksResetKey} headingId="pendientes-heading" />
+          {visitedTabs.has("pendientes") ? (
+            <section hidden={tab !== "pendientes"} className="tab-panel tab-shell">
+              <MemoPendingTasksPanel
+                key={tasksResetKey}
+                active={tab === "pendientes"}
+                headingId="pendientes-heading"
+              />
             </section>
+          ) : null}
 
           <footer className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-separator pt-5 text-sm text-ink-2 sm:flex-row sm:flex-wrap sm:items-center">
             <p className="min-w-0">
@@ -2507,6 +2551,31 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
           </footer>
         </main>
       </div>
+
+      <CreditPaySheet
+        credit={pendingCredits.find((credit) => credit.id === creditPayId) ?? null}
+        amount={creditPayAmount}
+        initialAmount={creditPayInitialAmount}
+        method={creditPayMethod}
+        initialMethod={creditPayInitialMethod}
+        note={creditPayNote}
+        paying={creditPaying}
+        error={creditPayError}
+        onAmount={setCreditPayAmount}
+        onMethod={setCreditPayMethod}
+        onNote={setCreditPayNote}
+        onClose={() => {
+          setCreditPayId(null);
+          setCreditPayInitialAmount("");
+          setCreditPayInitialMethod(null);
+          setCreditPayRequestId(null);
+          setCreditPayError(null);
+        }}
+        onPay={() => {
+          const credit = pendingCredits.find((item) => item.id === creditPayId);
+          if (credit) void payCredit(credit);
+        }}
+      />
 
       <Sheet
         open={Boolean(activeOrder)}
@@ -3790,9 +3859,11 @@ function PaymentPanel(props: {
 /* -------------------------------------------------------------------------- */
 
 function BusinessOverview({
+  active,
   onSpeak,
   demoMode,
 }: {
+  active: boolean;
   onSpeak: (message: string) => void;
   demoMode: boolean;
 }) {
@@ -3809,6 +3880,10 @@ function BusinessOverview({
   }, []);
 
   useEffect(() => {
+    // La pestaña de corte se monta oculta. No pedimos analytics hasta que se
+    // abre: el dashboard inicial ya trae el resumen del día y el primer paint
+    // no debe pagar otra lectura casi idéntica.
+    if (!active) return;
     let cancelled = false;
     // Fetch on mount/period change; el estado de carga es intencional.
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -3832,7 +3907,7 @@ function BusinessOverview({
     return () => {
       cancelled = true;
     };
-  }, [period, refreshTick]);
+  }, [active, period, refreshTick]);
 
   const comparison = report?.comparison.salesChangePct ?? null;
   const maxSeries = Math.max(...(report?.series.map((point) => point.salesCents) ?? [0]), 1);
@@ -4283,8 +4358,10 @@ function CashCloseSummary({
 }
 
 function CashCloseCard({
+  active,
   showToast,
 }: {
+  active: boolean;
   showToast: (tone: ToastTone, text: string) => void;
 }) {
   const [status, setStatus] = useState<CashStatus | null>(null);
@@ -4388,14 +4465,17 @@ function CashCloseCard({
   );
 
   useEffect(() => {
-    // Carga inicial del corte; el formulario se llena una vez.
+    // Carga inicial del corte; el formulario se llena una vez. Se difiere
+    // hasta abrir la pestaña para no duplicar la lectura del dashboard.
+    if (!active) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
-  }, [load]);
+  }, [active, load]);
 
   useEffect(() => {
     const handler = () => {
       // Una venta o un refresco no deben borrar un conteo sin guardar.
+      if (!active) return;
       if (dirty) {
         setStale(true);
         return;
@@ -4404,7 +4484,7 @@ function CashCloseCard({
     };
     window.addEventListener("mercado:refresh", handler);
     return () => window.removeEventListener("mercado:refresh", handler);
-  }, [dirty, load]);
+  }, [active, dirty, load]);
 
   const openingField = readCentsField(opening);
   const expensesField = readCentsField(expenses);
@@ -5334,8 +5414,10 @@ function CashCloseCard({
 }
 
 function GoalCard({
+  active,
   showToast,
 }: {
+  active: boolean;
   showToast: (tone: ToastTone, text: string) => void;
 }) {
   const [goal, setGoal] = useState<Goal | null>(null);
@@ -5361,10 +5443,12 @@ function GoalCard({
   }, []);
 
   useEffect(() => {
-    // Carga inicial de la meta; se actualiza al aportar.
+    // Carga inicial de la meta; se actualiza al aportar. La pestaña está
+    // oculta al abrir la caja, así que se pide recién cuando se visita.
+    if (!active) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
-  }, [load]);
+  }, [active, load]);
 
   async function contribute() {
     if (!goal) return;
@@ -6430,14 +6514,8 @@ function QrImage({ value, className }: { value: string; className?: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    import("qrcode")
-      .then((module) =>
-        module.default.toDataURL(value, {
-          width: 640,
-          margin: 1,
-          color: { dark: "#143D2F", light: "#FFFFFF" },
-        }),
-      )
+    import("@/lib/qr")
+      .then((module) => module.qrDataUrl(value))
       .then((url) => {
         if (!cancelled) setSrc(url);
       })
@@ -7364,3 +7442,19 @@ function DemoContent({ demoMode, onReset }: { demoMode: boolean; onReset: () => 
     </div>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/*                           Paneles memorizados                              */
+/* -------------------------------------------------------------------------- */
+/* Los paneles ocultos conservan su estado al cambiar de pestaña. `memo` evita
+   que un keystroke en Caja, o el cambio de pestaña, vuelva a renderizar el
+   corte, la meta o la actividad completa. */
+
+const MemoBusinessOverview = memo(BusinessOverview);
+const MemoCashCloseCard = memo(CashCloseCard);
+const MemoGoalCard = memo(GoalCard);
+const MemoReconcileCard = memo(ReconcileCard);
+const MemoActivityList = memo(ActivityList);
+const MemoCreditList = memo(CreditList);
+const MemoPendingPayments = memo(PendingPayments);
+const MemoPendingTasksPanel = memo(PendingTasksPanel);

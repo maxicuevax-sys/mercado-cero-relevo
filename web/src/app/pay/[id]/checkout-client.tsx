@@ -16,47 +16,9 @@ import {
   Wallet,
 } from "lucide-react";
 import { cn, formatMxn } from "@/lib/format";
+import type { CheckoutData } from "@/lib/checkout";
 
 type CheckoutMethod = "codi" | "card" | "wallet";
-
-interface CheckoutData {
-  demoMode: boolean;
-  merchant: {
-    name: string;
-    owner: string;
-    address: string;
-  };
-  order: {
-    id: string;
-    shortRef: string;
-    status: string;
-    totalCents: number;
-    paidCents: number;
-    digitalPaidCents: number;
-    cashPaidCents?: number;
-    demoPaidCents?: number;
-    verifiedPaidCents?: number;
-    creditCents: number;
-    amountDueCents: number;
-    paymentMethod: string | null;
-    paymentUrl: string | null;
-    createdAt: string;
-    items: Array<{
-      id: string;
-      description: string;
-      quantity: number;
-      unitPriceCents: number;
-      totalCents: number;
-    }>;
-  };
-  payment: {
-    provider: string;
-    method: string;
-    transactionId: string | null;
-    amountCents: number;
-    createdAt: string;
-  } | null;
-}
 
 const METHODS: Array<{
   id: CheckoutMethod;
@@ -94,12 +56,17 @@ const METHOD_LABEL: Record<string, string> = {
   mixed: "Pago mixto",
 };
 
-export default function CheckoutPage() {
+export default function CheckoutPage({
+  initialOrder,
+}: {
+  initialOrder: CheckoutData | null;
+}) {
   const params = useParams<{ id: string }>();
-  const orderId = params.id;
+  const orderId = initialOrder?.order.id ?? params.id;
 
-  const [data, setData] = useState<CheckoutData | null>(null);
-  const [loading, setLoading] = useState(true);
+  // El servidor ya leyó la orden: el primer render no es un spinner.
+  const [data, setData] = useState<CheckoutData | null>(initialOrder);
+  const etagRef = useRef<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [method, setMethod] = useState<CheckoutMethod>("codi");
   const [paying, setPaying] = useState(false);
@@ -117,17 +84,25 @@ export default function CheckoutPage() {
     setExited(true);
   }
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (options?: { force?: boolean }) => {
+    const force = options?.force ?? false;
     try {
       const response = await fetch(`/api/checkout/${orderId}`, {
         cache: "no-store",
+        headers:
+          !force && etagRef.current
+            ? { "If-None-Match": etagRef.current }
+            : undefined,
       });
+      if (response.status === 304) return data;
       if (!response.ok) {
         const body = (await response.json().catch(() => null)) as
           | { error?: string }
           | null;
         throw new Error(body?.error ?? "No encontramos este cobro.");
       }
+      const etag = response.headers.get("etag");
+      if (etag) etagRef.current = etag;
       const next = (await response.json()) as CheckoutData;
       setData(next);
       setError(null);
@@ -137,24 +112,46 @@ export default function CheckoutPage() {
         cause instanceof Error ? cause.message : "No encontramos este cobro.",
       );
       return null;
-    } finally {
-      setLoading(false);
     }
-  }, [orderId]);
+  }, [data, orderId]);
 
   useEffect(() => {
-    // Carga inicial del checkout; el estado de carga es intencional.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load();
-  }, [load]);
-
-  useEffect(() => {
-    if (!data || data.payment || data.order.amountDueCents <= 0) return;
-    const interval = window.setInterval(() => {
-      void load();
-    }, 3000);
-    return () => window.clearInterval(interval);
-  }, [data, load]);
+    if (!data || data.payment || data.order.amountDueCents <= 0 || paying) return;
+    // 3 s recién llegado, luego 10 s y 30 s: el comprador puede esperar el
+    // webhook sin castigar la batería ni la red si la pestaña queda abierta.
+    const DELAYS = [3000, 10_000, 30_000];
+    let cancelled = false;
+    let timer: number | null = null;
+    let step = 0;
+    const schedule = (delay: number) => {
+      timer = window.setTimeout(tick, delay);
+    };
+    const tick = async () => {
+      if (cancelled) return;
+      if (document.visibilityState === "visible") {
+        await load();
+        step = Math.min(step + 1, DELAYS.length - 1);
+      }
+      if (!cancelled) schedule(DELAYS[step]);
+    };
+    const onVisibility = () => {
+      if (timer !== null) {
+        window.clearTimeout(timer);
+        timer = null;
+      }
+      if (document.visibilityState === "visible") {
+        step = 0;
+        schedule(0);
+      }
+    };
+    schedule(DELAYS[0]);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      cancelled = true;
+      if (timer !== null) window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [data, load, paying]);
 
   const isCredit = useMemo(() => {
     if (!data) return false;
@@ -203,7 +200,7 @@ export default function CheckoutPage() {
         return;
       }
 
-      const next = await load();
+      const next = await load({ force: true });
       if (next?.payment) setJustPaid(true);
     } catch (cause) {
       setError(
@@ -212,35 +209,6 @@ export default function CheckoutPage() {
     } finally {
       setPaying(false);
     }
-  }
-
-  if (loading) {
-    return (
-      <main className="pay-shell min-h-dvh bg-canvas px-4 pt-8">
-        <p role="status" className="sr-only">
-          Abriendo tu cobro…
-        </p>
-        <div className="mx-auto w-full max-w-[480px] animate-pulse" aria-hidden="true">
-          <div className="flex items-center gap-3 px-1">
-            <div className="h-10 w-10 rounded-xl bg-surface-2" />
-            <div>
-              <div className="h-4 w-32 rounded bg-surface-2" />
-              <div className="mt-1 h-2.5 w-24 rounded bg-surface-2" />
-            </div>
-          </div>
-          <div className="mt-4 rounded-2xl border border-separator bg-surface p-5 shadow-card">
-            <div className="h-3 w-24 rounded-full bg-surface-2" />
-            <div className="mt-3 h-10 w-44 rounded-xl bg-surface-2" />
-            <div className="mt-6 space-y-2">
-              <div className="h-12 rounded-2xl bg-surface-2/70" />
-              <div className="h-12 rounded-2xl bg-surface-2/70" />
-              <div className="h-12 rounded-2xl bg-surface-2/70" />
-            </div>
-            <div className="mt-6 h-12 rounded-xl bg-surface-2" />
-          </div>
-        </div>
-      </main>
-    );
   }
 
   if (!data) {
