@@ -51,8 +51,8 @@ def code_info() -> dict:
 
     return {
         "commit": git("rev-parse", "HEAD"),
-        # La evidencia recién escrita es untracked: no convierte el código en sucio.
-        "dirty": bool(git("status", "--porcelain", "--untracked-files=no")),
+        # La evidencia recién escrita no convierte el código de web/ en sucio.
+        "dirty": bool(git("status", "--porcelain", "--untracked-files=no", "--", "web")),
     }
 
 
