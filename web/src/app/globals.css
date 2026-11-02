@@ -256,6 +256,24 @@ button {
   container-type: inline-size;
 }
 
+/* Cinco destinos en la tab bar: el label corto se mantiene completo. A 200 %
+   la raíz crece y el contenedor relativo a rem entra en el umbral; el label
+   baja un escalón para no partirse ni empujar scroll horizontal. */
+.mobile-tabs {
+  container-type: inline-size;
+}
+
+.mobile-tab-label {
+  overflow-wrap: normal;
+}
+
+@container (max-width: 20rem) {
+  .mobile-tab-label {
+    font-size: 0.6875rem;
+    line-height: 1rem;
+  }
+}
+
 .sheet-panel {
   container-type: inline-size;
 }

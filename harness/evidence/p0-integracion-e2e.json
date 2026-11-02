@@ -1,0 +1,249 @@
+{
+  "startedAt": "2026-11-02T03:43:26.848681+00:00",
+  "finishedAt": "2026-11-02T03:44:00.338135+00:00",
+  "baseUrl": "http://localhost:3101",
+  "gitAtStart": {
+    "sha": "d8b8421e21ae21ce54dc0fff8bc1d298bc0730b9",
+    "branch": "p0/integracion",
+    "dirty": true
+  },
+  "totals": {
+    "pass": 46,
+    "fail": 0,
+    "known": 0
+  },
+  "requestsTo3000": [],
+  "dashboardCalls": 18,
+  "results": [
+    {
+      "name": "sidebar muestra los cinco destinos",
+      "ok": true,
+      "detail": "[\"Caja\", \"Fiado\", \"Corte\", \"Meta\", \"Pendientes\"]"
+    },
+    {
+      "name": "el quinto tab monta el panel de pendientes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el scroll de Caja se conserva al cambiar de tab",
+      "ok": true,
+      "detail": "scrollY=500"
+    },
+    {
+      "name": "crear pendiente lo muestra en la lista abierta",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "completar mueve la tarea a Hechas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "reabrir devuelve la tarea a pendientes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "posponer deja la tarea abierta con marca Pospuesto",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "posponer persiste postponedUntil en la API",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "eliminar saca la tarea de la lista",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el refresco de la pestaña no borra la venta en curso",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el refresco de la pestaña no borra el conteo del corte",
+      "ok": true,
+      "detail": "500"
+    },
+    {
+      "name": "la franja muestra el pendiente sembrado",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el pendiente distingue Esperando banco",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no hay hoja abierta al cargar Caja",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "la franja muestra última comprobación",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el refresco por focus trae el pendiente nuevo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el refresco por visibilitychange trae el pendiente nuevo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "la actividad usa fecha relativa, no solo hora",
+      "ok": true,
+      "detail": "Hoy 9:33 p.m."
+    },
+    {
+      "name": "Ver abre el cobro explícitamente",
+      "ok": true,
+      "detail": "Cobro pendiente ·  · Cobro · Pedido B132 ·  · $120.00 ·  · 1 Pedido para llevar ·  · ESPERANDO AL BANCO ·  · Pago pendiente; aún no entregues. ·  · Modo demo ·  · Simula la confirm"
+    },
+    {
+      "name": "Fiado muestra desde con fecha relativa",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dos deudas de Juan suman $130.00 en 2 fiados",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "una consulta de voz no manda POST de abono",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "la consulta general suma el total abierto",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "me transfirió preselecciona Digital",
+      "ok": true,
+      "detail": "Digital · ELEGIDO"
+    },
+    {
+      "name": "con método elegido se puede registrar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "sin método no se preselecciona efectivo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "sin método Registrar abono queda deshabilitado",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "en efectivo preselecciona Efectivo",
+      "ok": true,
+      "detail": "Efectivo · ELEGIDO"
+    },
+    {
+      "name": "la venta mixta muestra el remanente de $40",
+      "ok": true,
+      "detail": "Cobrar $40.00 ·  · Cobro · Pedido B952 ·  · $40.00 ·  · 1 Quesadillas ·  · POR COBRAR ·  · Fiado $20.00 · Cobrado $30.00 · Falta cobrar $40.00 ·  · El fiado vive en la libreta y no se cuenta como dinero recibido. Cobra aquí solo el saldo di"
+    },
+    {
+      "name": "la venta mixta muestra fiado, cobrado y link/QR",
+      "ok": true,
+      "detail": "Cobrar $40.00 ·  · Cobro · Pedido B952 ·  · $40.00 ·  · 1 Quesadillas ·  · POR COBRAR ·  · Fiado $20.00 · Cobrado $30.00 · Falta cobrar $40.00 ·  · El fiado vive en la libreta y no se cuenta como dinero recibido. Cobra aquí solo el saldo di"
+    },
+    {
+      "name": "la venta mixta no dice Quedó anotado por el total",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el link del remanente habilita la simulación demo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "pagar el digital deja el resultado Pago mixto",
+      "ok": true,
+      "detail": "Pedido entregado ·  · Pago mixto ·  · $90.00 ·  · Pedido B952 · $30.00 efectivo + Fiado $20.00 + $40.00 demo ·  · Recibiste $30.00 en efectivo + $40.00 demo. Saldo vivo: $20.00 · original $20.00. Aparece en Fiado; no es "
+    },
+    {
+      "name": "el resultado declara Fiado + demo, no Quedó anotado",
+      "ok": true,
+      "detail": "Pedido entregado ·  · Pago mixto ·  · $90.00 ·  · Pedido B952 · $30.00 efectivo + Fiado $20.00 + $40.00 demo ·  · Recibiste $30.00 en efectivo + $40.00 demo. Saldo vivo: $20.00 · original $20.00. Aparece en Fiado; no es "
+    },
+    {
+      "name": "la base conserva la venta mixta correcta",
+      "ok": true,
+      "detail": "[[\"ord_e1c26fbcd3af4677b952\", \"fulfilled\", 7000, 2000]] digital=[[4000]]"
+    },
+    {
+      "name": "el fiado original sigue intacto después del digital",
+      "ok": true,
+      "detail": "[[2000, 2000]]"
+    },
+    {
+      "name": "a 360 px hay cinco tabs visibles",
+      "ok": true,
+      "detail": "[{\"name\": \"Caja\", \"text\": \"Caja\", \"left\": 0, \"right\": 72, \"width\": 72, \"labelFits\": true}, {\"name\": \"Fiado\", \"text\": \"Fiado\", \"left\": 72, \"right\": 144, \"width\": 72, \"labelFits\": true}, {\"name\": \"Corte\", \"text\": \"Corte\", \"left\": 144, \"right\": 216, \"width\": 72, \"labelFits\": true}, {\"name\": \"Meta\", \"text\": \"Meta\", \"left\": 216, \"right\": 288, \"width\": 72, \"labelFits\": true}, {\"name\": \"Pendientes\", \"text\": \"Tareas\", \"left\": 288, \"right\": 360, \"width\": 72, \"labelFits\": true}]"
+    },
+    {
+      "name": "los cinco tabs caben en el viewport",
+      "ok": true,
+      "detail": "[{\"name\": \"Caja\", \"text\": \"Caja\", \"left\": 0, \"right\": 72, \"width\": 72, \"labelFits\": true}, {\"name\": \"Fiado\", \"text\": \"Fiado\", \"left\": 72, \"right\": 144, \"width\": 72, \"labelFits\": true}, {\"name\": \"Corte\", \"text\": \"Corte\", \"left\": 144, \"right\": 216, \"width\": 72, \"labelFits\": true}, {\"name\": \"Meta\", \"text\": \"Meta\", \"left\": 216, \"right\": 288, \"width\": 72, \"labelFits\": true}, {\"name\": \"Pendientes\", \"text\": \"Tareas\", \"left\": 288, \"right\": 360, \"width\": 72, \"labelFits\": true}]"
+    },
+    {
+      "name": "los labels móviles son cortos y completos",
+      "ok": true,
+      "detail": "[\"Caja\", \"Fiado\", \"Corte\", \"Meta\", \"Tareas\"]"
+    },
+    {
+      "name": "a 360 px no hay scroll horizontal",
+      "ok": true,
+      "detail": "[360, 360]"
+    },
+    {
+      "name": "Pendientes a 360/200 sin palabras partidas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Pendientes a 360/200 sin overflow horizontal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a 360/200 los cinco tabs siguen completos",
+      "ok": true,
+      "detail": "[{\"name\": \"Caja\", \"width\": 72, \"labelFits\": true}, {\"name\": \"Fiado\", \"width\": 72, \"labelFits\": true}, {\"name\": \"Corte\", \"width\": 72, \"labelFits\": true}, {\"name\": \"Meta\", \"width\": 72, \"labelFits\": true}, {\"name\": \"Pendientes\", \"width\": 72, \"labelFits\": true}]"
+    },
+    {
+      "name": "Caja a 360/200 sin palabras partidas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Caja a 360/200 sin overflow horizontal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ninguna petición a :3000",
+      "ok": true,
+      "detail": "[]"
+    }
+  ]
+}
