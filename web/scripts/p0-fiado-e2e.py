@@ -52,6 +52,7 @@ if "localhost" not in BASE and "127.0.0.1" not in BASE:
 ROOT = Path(__file__).resolve().parents[2]
 WEB = ROOT / "web"
 OUT = ROOT / "harness" / "evidence" / "p0-fiado-e2e.json"
+SHOT = ROOT / "harness" / "evidence" / "p0-fiado-360.png"
 EXTERNAL = os.environ.get("P0_EXTERNAL_SERVER") == "1"
 KEEP_DB = os.environ.get("P0_KEEP_DB") == "1"
 RUN_DIR: Path | None = None
@@ -117,6 +118,8 @@ def start_server() -> subprocess.Popen:
             "PORT": str(PORT),
             "DATABASE_PATH": str(DB_PATH),
             "DEMO_MODE": "true",
+            # El parser local hace deterministas las frases del E2E.
+            "OPENAI_API_KEY": "",
             # No dependemos de una APP_URL de :3000 para nada del flujo.
             "APP_URL": BASE,
         }
@@ -268,7 +271,11 @@ def create_credit_order(page, customer: str, cents: int, description: str) -> di
 def main() -> int:
     global SERVER, RUN_DIR
     started_at = datetime.now(timezone.utc)
+    start_commit = git_value("rev-parse", "HEAD")
+    start_branch = git_value("rev-parse", "--abbrev-ref", "HEAD")
+    start_dirty = bool(git_value("status", "--porcelain"))
     pay_posts: list[str] = []
+    pay_bodies: list[dict] = []
     requests_to_3000: list[str] = []
     try:
         if not EXTERNAL:
@@ -291,6 +298,10 @@ def main() -> int:
             def track_request(request) -> None:
                 if request.method == "POST" and re.search(r"/api/credits/[^/]+/pay$", request.url):
                     pay_posts.append(request.url)
+                    try:
+                        pay_bodies.append(json.loads(request.post_data or "{}"))
+                    except Exception:
+                        pay_bodies.append({})
                 if re.search(r":3000(?:/|$)", request.url):
                     requests_to_3000.append(request.url)
 
@@ -394,7 +405,21 @@ def main() -> int:
                 and dialog.get_by_text("devuelve $50.00").count() >= 1,
                 dialog.inner_text().replace("\n", " · ")[:220],
             )
-            dialog.get_by_role("button", name="Registrar abono").click()
+            with page.expect_response(
+                lambda response: response.request.method == "POST"
+                and re.search(r"/api/credits/[^/]+/pay$", response.url) is not None
+            ) as overpay_info:
+                dialog.get_by_role("button", name="Registrar abono").click()
+            overpay_response = overpay_info.value
+            overpay_data = overpay_response.json()
+            check(
+                "la API del sobrepago reporta aplicado y devuelto",
+                overpay_response.status == 200
+                and overpay_data.get("appliedCents") == 5000
+                and overpay_data.get("overpayCents") == 5000
+                and overpay_data.get("duplicate") is False,
+                json.dumps(overpay_data)[:260],
+            )
             settled = wait_credit_balance(page, juan["id"], 0)
             rows = credit_payments(juan["id"])
             balances = db_rows("SELECT balance_cents FROM credits WHERE id = ?", (juan["id"],))
@@ -442,7 +467,18 @@ def main() -> int:
             )
             assert external.ok, external.text()
             dialog = page.get_by_role("dialog")
-            dialog.get_by_role("button", name="Registrar abono").click()
+            with page.expect_response(
+                lambda response: response.request.method == "POST"
+                and re.search(r"/api/credits/[^/]+/pay$", response.url) is not None
+            ) as settled_info:
+                dialog.get_by_role("button", name="Registrar abono").click()
+            settled_response = settled_info.value
+            check(
+                "un fiado ya saldado responde 409 credit_settled",
+                settled_response.status == 409
+                and settled_response.json().get("code") == "credit_settled",
+                f"{settled_response.status} · {settled_response.text()[:180]}",
+            )
             try:
                 page.get_by_text("ya está saldado").first.wait_for(timeout=4000)
                 stale_ok = True
@@ -460,7 +496,108 @@ def main() -> int:
                 stale_ok,
             )
 
-            # 5 · Ambigüedad: dos deudas de Juan no eligen una al azar.
+            # 4c · El saldo cambió entre abrir la hoja y confirmar: 409 explícito.
+            reset(page)
+            juan = credit_by_name(page, "Juan")
+            open_voice_sheet(page)
+            external = page.request.post(
+                f"{BASE}/api/credits/{juan['id']}/pay",
+                data={"amountCents": 2000, "method": "cash", "requestId": "e2e-race-open"},
+            )
+            assert external.ok, external.text()
+            dialog = page.get_by_role("dialog")
+            with page.expect_response(
+                lambda response: response.request.method == "POST"
+                and re.search(r"/api/credits/[^/]+/pay$", response.url) is not None
+            ) as changed_info:
+                dialog.get_by_role("button", name="Registrar abono").click()
+            changed_response = changed_info.value
+            check(
+                "un saldo cambiado responde 409 balance_changed",
+                changed_response.status == 409
+                and changed_response.json().get("code") == "balance_changed",
+                f"{changed_response.status} · {changed_response.text()[:180]}",
+            )
+            try:
+                page.get_by_text("El saldo cambió a $30.00").first.wait_for(timeout=4000)
+                changed_ok = True
+            except Exception:
+                changed_ok = False
+            page.wait_for_timeout(400)
+            rows = credit_payments(juan["id"])
+            check(
+                "un saldo cambiado entre apertura y POST responde explícito",
+                changed_ok,
+            )
+            check(
+                "un saldo cambiado entre apertura y POST no duplica el abono",
+                len(rows) == 1 and rows[0]["amountCents"] == 2000,
+                json.dumps(rows),
+            )
+
+            # 5 · Nombre exacto del parser y baseline real del borrador.
+            reset(page)
+            create_credit_order(page, "Juana", 20000, "Deuda de Juana")
+            create_credit_order(page, "Ana", 3000, "Deuda de Ana")
+            page.reload(wait_until="networkidle")
+            phrase = "Me pagó a Juana 50 del fiado de Ana"
+            parsed_response = page.request.post(
+                f"{BASE}/api/voice/parse",
+                data={"transcript": phrase},
+            )
+            assert parsed_response.ok, parsed_response.text()
+            parsed = parsed_response.json()
+            check(
+                "mockParse devuelve customerName exacto",
+                parsed.get("intent") == "credit_payment" and parsed.get("customerName") == "Juana",
+                f"intent={parsed.get('intent')} · cliente={parsed.get('customerName')}",
+            )
+            juana = credit_by_name(page, "Juana")
+            assert juana, "Falta el crédito de Juana."
+            before = credit_payments(juana["id"])
+            page.locator("#sale-text").fill(phrase)
+            page.get_by_role("button", name="Interpretar", exact=True).click()
+            dialog = page.get_by_role("dialog")
+            dialog.wait_for(timeout=8000)
+            dialog_text = dialog.inner_text()
+            check(
+                "la rama de nombre exacto abre la deuda de Juana, no la de Ana",
+                "Juana" in dialog_text
+                and "Saldo vivo: $200.00" in dialog_text
+                and "Ana" not in dialog_text,
+                dialog_text.replace("\n", " · ")[:220],
+            )
+            check(
+                "la voz prellena $50 sobre un saldo de $200",
+                page.get_by_role("spinbutton", name="Monto del abono en pesos").input_value()
+                == "50.00",
+            )
+            dialog.get_by_role("button", name="Cerrar", exact=True).click()
+            page.wait_for_timeout(300)
+            check(
+                "cerrar sin editar el monto prellenado no pide confirmación",
+                page.get_by_role("dialog").count() == 0
+                and credit_by_name(page, "Juana")["balanceCents"] == 20000
+                and len(credit_payments(juana["id"])) == len(before),
+            )
+            page.get_by_role("button", name="Interpretar", exact=True).click()
+            dialog = page.get_by_role("dialog")
+            dialog.wait_for(timeout=8000)
+            page.get_by_role("spinbutton", name="Monto del abono en pesos").fill("60")
+            dialog.get_by_role("button", name="Cerrar", exact=True).click()
+            check(
+                "editar a $60 sí pide confirmación",
+                dialog.get_by_text("Tienes un abono sin guardar").count() == 1,
+            )
+            dialog.get_by_role("button", name="Descartar abono").click()
+            page.wait_for_timeout(300)
+            check(
+                "descartar el borrador editado no escribe el abono",
+                credit_by_name(page, "Juana")["balanceCents"] == 20000
+                and len(credit_payments(juana["id"])) == len(before),
+            )
+
+            # 6 · Ambigüedad: dos deudas de Juan no eligen una al azar.
             reset(page)
             create_credit_order(page, "Juan", 8000, "Segunda deuda de Juan")
             page.reload(wait_until="networkidle")
@@ -478,7 +615,7 @@ def main() -> int:
                 f"POST {len(pay_posts)}",
             )
 
-            # 6 · Detalle, hoja y actividad leen el saldo vivo; liquidado dice Saldado.
+            # 7 · Detalle, hoja y actividad leen el saldo vivo; liquidado dice Saldado.
             reset(page)
             order = create_credit_order(page, "Cliente Detalle", 10000, "Prueba fiado")
             credit_id = order["creditId"]
@@ -503,19 +640,63 @@ def main() -> int:
             detail.get_by_role("button", name="Cerrar", exact=True).click()
             page.wait_for_timeout(300)
 
-            partial = page.request.post(
-                f"{BASE}/api/credits/{credit_id}/pay",
-                data={"amountCents": 4000, "method": "codi"},
+            page.get_by_role("button", name="Fiado", exact=True).first.click()
+            page.wait_for_timeout(300)
+            card = (
+                page.locator("div.rounded-2xl")
+                .filter(has=page.get_by_text("Cliente Detalle", exact=True))
+                .last
             )
-            assert partial.ok, partial.text()
+            card.get_by_role("button", name="Registrar abono").click()
+            sheet = page.get_by_role("dialog")
+            sheet_text = sheet.inner_text()
+            check(
+                "la hoja de abono muestra el saldo vivo antes del parcial",
+                "Saldo vivo: $100.00" in sheet_text
+                and "original $100.00" in sheet_text
+                and "Saldo pendiente" not in sheet_text,
+                sheet_text.replace("\n", " · ")[:220],
+            )
+            pay_bodies.clear()
+            page.get_by_role("spinbutton", name="Monto del abono en pesos").fill("40")
+            sheet.get_by_role("button", name="Registrar abono").click()
+            partial_balance = wait_credit_balance(page, credit_id, 6000)
+            partial_rows = credit_payments(credit_id)
+            check(
+                "confirmar desde la hoja registra un abono parcial",
+                len(partial_rows) == 1
+                and partial_rows[0]["amountCents"] == 4000
+                and partial_balance.get("balanceCents") == 6000,
+                json.dumps(partial_rows),
+            )
+            check(
+                "el POST de la hoja lleva requestId y saldo esperado",
+                len(pay_bodies) == 1
+                and bool(pay_bodies[0].get("requestId"))
+                and pay_bodies[0].get("expectedBalanceCents") == 10000
+                and pay_bodies[0].get("amountCents") == 4000,
+                json.dumps(pay_bodies),
+            )
             page.reload(wait_until="networkidle")
             page.wait_for_timeout(500)
             activity = page.get_by_role("button", name=re.compile(r"Prueba fiado")).first
             check(
-                "la actividad sigue el saldo después de un abono",
+                "la actividad sigue el saldo después del parcial",
                 "saldo $60.00" in activity.inner_text(),
                 activity.inner_text().replace("\n", " · "),
             )
+            activity.click()
+            detail = page.get_by_role("dialog")
+            detail_text = detail.inner_text()
+            check(
+                "el detalle muestra el saldo vivo después del parcial",
+                "Saldo vivo: $60.00" in detail_text
+                and "original $100.00" in detail_text
+                and "Saldo pendiente" not in detail_text,
+                detail_text.replace("\n", " · ")[:220],
+            )
+            detail.get_by_role("button", name="Cerrar", exact=True).click()
+            page.wait_for_timeout(300)
 
             page.get_by_role("button", name="Fiado", exact=True).first.click()
             page.wait_for_timeout(300)
@@ -528,20 +709,34 @@ def main() -> int:
             sheet = page.get_by_role("dialog")
             sheet_text = sheet.inner_text()
             check(
-                "la hoja de abono muestra el saldo vivo, no el original",
+                "la hoja de abono muestra saldo vivo, original y abonado",
                 "Saldo vivo: $60.00" in sheet_text
                 and "original $100.00" in sheet_text
+                and "abonado $40.00" in sheet_text
                 and "Saldo pendiente" not in sheet_text,
                 sheet_text.replace("\n", " · ")[:220],
             )
-            sheet.get_by_role("button", name="Cerrar", exact=True).click()
-            page.wait_for_timeout(300)
-
-            final = page.request.post(
-                f"{BASE}/api/credits/{credit_id}/pay",
-                data={"amountCents": 6000, "method": "cash"},
+            pay_bodies.clear()
+            page.get_by_role("spinbutton", name="Monto del abono en pesos").fill("60")
+            sheet.get_by_role("button", name="Registrar abono").click()
+            final_balance = wait_credit_balance(page, credit_id, 0)
+            final_rows = credit_payments(credit_id)
+            check(
+                "liquidar desde la hoja registra el abono final",
+                len(final_rows) == 2
+                and sum(row["amountCents"] for row in final_rows) == 10000
+                and final_balance.get("balanceCents") == 0,
+                json.dumps(final_rows),
             )
-            assert final.ok, final.text()
+            order_credit = db_rows(
+                "SELECT credit_cents FROM orders WHERE id = ?",
+                (order["id"],),
+            )
+            check(
+                "orders.credit_cents sigue siendo el original tras liquidar",
+                bool(order_credit) and int(order_credit[0][0]) == 10000,
+                f"credit_cents={order_credit[0][0] if order_credit else 'sin fila'}",
+            )
             page.reload(wait_until="networkidle")
             page.wait_for_timeout(500)
             activity = page.get_by_role("button", name=re.compile(r"Prueba fiado")).first
@@ -562,7 +757,105 @@ def main() -> int:
             )
             detail.get_by_role("button", name="Cerrar", exact=True).click()
 
-            # 7 · Aislamiento: ninguna petición del navegador a :3000.
+            # 8 · La misma requestId no duplica el abono.
+            reset(page)
+            juan = credit_by_name(page, "Juan")
+            request_id = "e2e-request-id-1"
+            first_pay = page.request.post(
+                f"{BASE}/api/credits/{juan['id']}/pay",
+                data={
+                    "amountCents": 2000,
+                    "method": "cash",
+                    "requestId": request_id,
+                    "expectedBalanceCents": 5000,
+                },
+            )
+            first_data = first_pay.json()
+            check(
+                "el primer abono con requestId se aplica una vez",
+                first_pay.status == 200
+                and first_data.get("duplicate") is False
+                and first_data.get("appliedCents") == 2000
+                and first_data.get("balanceCents") == 3000
+                and first_data.get("overpayCents") == 0,
+                json.dumps(first_data)[:260],
+            )
+            second_pay = page.request.post(
+                f"{BASE}/api/credits/{juan['id']}/pay",
+                data={
+                    "amountCents": 2000,
+                    "method": "cash",
+                    "requestId": request_id,
+                    "expectedBalanceCents": 5000,
+                },
+            )
+            second_data = second_pay.json()
+            check(
+                "reintentar la misma requestId devuelve el abono existente",
+                second_pay.status == 200
+                and second_data.get("duplicate") is True
+                and second_data.get("appliedCents") == 2000
+                and second_data.get("balanceCents") == 3000,
+                json.dumps(second_data)[:260],
+            )
+            third_pay = page.request.post(
+                f"{BASE}/api/credits/{juan['id']}/pay",
+                data={
+                    "amountCents": 3000,
+                    "method": "codi",
+                    "requestId": request_id,
+                },
+            )
+            third_data = third_pay.json()
+            rows = credit_payments(juan["id"])
+            stored_request = db_rows(
+                "SELECT request_id FROM credit_payments WHERE credit_id = ?",
+                (juan["id"],),
+            )
+            check(
+                "la misma requestId con otro monto tampoco duplica",
+                third_pay.status == 200
+                and third_data.get("duplicate") is True
+                and third_data.get("appliedCents") == 2000
+                and len(rows) == 1
+                and rows[0]["amountCents"] == 2000
+                and stored_request
+                and stored_request[0][0] == request_id,
+                json.dumps({"rows": rows, "third": third_data})[:320],
+            )
+
+            # 9 · Chequeo 360 px con artefacto.
+            context360 = browser.new_context(viewport={"width": 360, "height": 800})
+            page360 = context360.new_page()
+            page360.on("request", track_request)
+            reset(page360)
+            open_voice_sheet(page360)
+            page360.wait_for_timeout(250)
+            SHOT.parent.mkdir(parents=True, exist_ok=True)
+            page360.screenshot(path=str(SHOT))
+            metrics360 = page360.evaluate(
+                """() => {
+                    const dialog = document.querySelector('[role="dialog"]');
+                    return {
+                        innerWidth: window.innerWidth,
+                        documentScrollWidth: document.documentElement.scrollWidth,
+                        dialogScrollWidth: dialog ? dialog.scrollWidth : 0,
+                    };
+                }"""
+            )
+            check(
+                "la hoja a 360 px no desborda horizontalmente",
+                metrics360["documentScrollWidth"] <= metrics360["innerWidth"] + 1
+                and metrics360["dialogScrollWidth"] <= metrics360["innerWidth"] + 1,
+                json.dumps(metrics360),
+            )
+            check(
+                "la hoja a 360 px muestra el método con estado",
+                page360.get_by_role("dialog").get_by_text("ELEGIDO").count() >= 1,
+            )
+            context360.close()
+
+            # 10 · Aislamiento: ninguna petición del navegador a :3000.
             check(
                 "el navegador no habló con :3000",
                 len(requests_to_3000) == 0,
@@ -587,15 +880,16 @@ def main() -> int:
         "suite": "p0-fiado-e2e",
         "baseUrl": BASE,
         "command": "python web/scripts/p0-fiado-e2e.py",
+        "artifacts": ["harness/evidence/p0-fiado-360.png"],
         "requires": [
             "pip install playwright",
             "python -m playwright install chromium",
             "npm run build",
         ],
         "code": {
-            "commit": git_value("rev-parse", "HEAD"),
-            "branch": git_value("rev-parse", "--abbrev-ref", "HEAD"),
-            "dirty": bool(git_value("status", "--porcelain")),
+            "commit": start_commit,
+            "branch": start_branch,
+            "dirty": start_dirty,
         },
         "build": {"next": next_version, "command": "npm run build"},
         "startedAt": started_at.isoformat(),

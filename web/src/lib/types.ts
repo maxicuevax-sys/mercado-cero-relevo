@@ -81,6 +81,7 @@ export interface CreditPayment {
   creditId: string;
   amountCents: number;
   method: PaymentMethod;
+  requestId: string | null;
   createdAt: string;
 }
 

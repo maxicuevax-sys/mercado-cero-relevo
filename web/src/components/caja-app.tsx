@@ -141,6 +141,16 @@ interface VerifyResult {
   transactionId?: string;
 }
 
+interface CreditPayResponse {
+  credit?: Credit;
+  appliedCents?: number;
+  balanceCents?: number;
+  overpayCents?: number;
+  duplicate?: boolean;
+  error?: string;
+  code?: string;
+}
+
 const SAMPLE_PHRASES = [
   "Dos quesadillas de 35 y un agua de 20",
   "Juan me pagó 50 del fiado",
@@ -218,6 +228,13 @@ function safeCents(value: unknown): number {
 
 function newDraftItemId(): string {
   return `draft_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function newCreditPayRequestId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return `cp_${crypto.randomUUID()}`;
+  }
+  return `cp_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function normalizeName(value: string): string {
@@ -481,9 +498,11 @@ export default function CajaApp() {
 
   const [creditPayId, setCreditPayId] = useState<string | null>(null);
   const [creditPayAmount, setCreditPayAmount] = useState("");
+  const [creditPayInitialAmount, setCreditPayInitialAmount] = useState("");
   const [creditPayMethod, setCreditPayMethod] = useState<"cash" | "codi">("cash");
   const [creditPayNote, setCreditPayNote] = useState("");
   const [creditPayError, setCreditPayError] = useState<string | null>(null);
+  const [creditPayRequestId, setCreditPayRequestId] = useState<string | null>(null);
   const [creditPaying, setCreditPaying] = useState(false);
   const [saleError, setSaleError] = useState<string | null>(null);
   const [voiceError, setVoiceError] = useState<string | null>(null);
@@ -980,6 +999,18 @@ export default function CajaApp() {
     [dashboard],
   );
 
+  const openCreditPay = useCallback((credit: Credit, amountCents?: number) => {
+    const cents = Math.max(0, Math.round(amountCents ?? credit.balanceCents));
+    const amount = (cents / 100).toFixed(2);
+    setCreditPayId(credit.id);
+    setCreditPayAmount(amount);
+    setCreditPayInitialAmount(amount);
+    setCreditPayRequestId(newCreditPayRequestId());
+    setCreditPayMethod("cash");
+    setCreditPayNote("");
+    setCreditPayError(null);
+  }, []);
+
   const interpretText = useCallback(
     async (text: string) => {
       const clean = text.trim();
@@ -1026,11 +1057,7 @@ export default function CajaApp() {
           }
           const credit = candidates[0];
           // La voz solo propone: el POST ocurre al pulsar "Registrar abono".
-          setCreditPayId(credit.id);
-          setCreditPayAmount((parsed.creditCents / 100).toFixed(2));
-          setCreditPayMethod("cash");
-          setCreditPayNote("");
-          setCreditPayError(null);
+          openCreditPay(credit, parsed.creditCents);
           const message = `Revisa el abono de ${formatMxn(parsed.creditCents)} a ${
             credit.customerName ?? "el cliente"
           }. Todavía no se registra.`;
@@ -1076,7 +1103,7 @@ export default function CajaApp() {
         setTranscribing(false);
       }
     },
-    [answerLocal, dashboard, speak],
+    [answerLocal, dashboard, openCreditPay, speak],
   );
 
   const startRecording = useCallback(async () => {
@@ -1499,59 +1526,66 @@ export default function CajaApp() {
         setCreditPayError("Ese fiado ya está saldado. No se registró nada.");
         return;
       }
+      const requestId = creditPayRequestId;
+      if (!requestId) {
+        setCreditPayError("Vuelve a abrir la hoja para generar una llave de abono.");
+        return;
+      }
       if (creditPayLockRef.current) return;
       // Candado síncrono: un doble clic no alcanza a mandar dos POST.
       creditPayLockRef.current = true;
       setCreditPaying(true);
       setCreditPayError(null);
       try {
-        // Revisa el saldo vivo justo antes de escribir: si otra pestaña ya
-        // abonó, la hoja no debe anunciar un abono que no ocurrió.
-        const freshResponse = await fetch("/api/dashboard", { cache: "no-store" });
-        const freshData = (await freshResponse.json()) as {
-          credits?: Credit[];
-          error?: string;
-        };
-        if (!freshResponse.ok || !freshData.credits) {
-          throw new Error(freshData.error ?? "No pude revisar el saldo vivo.");
-        }
-        const fresh = freshData.credits.find((item) => item.id === credit.id);
-        if (!fresh || fresh.status === "settled" || fresh.balanceCents <= 0) {
-          const message = "Ese fiado ya está saldado. No se registró nada.";
-          setCreditPayError(message);
-          showToast("info", message);
-          await loadDashboard();
-          return;
-        }
-        if (fresh.balanceCents !== credit.balanceCents) {
-          const message = `El saldo cambió a ${formatMxn(fresh.balanceCents)}. Revisa el monto y confirma de nuevo.`;
-          setCreditPayError(message);
-          showToast("info", message);
-          await loadDashboard();
-          return;
-        }
-        const appliedCents = Math.min(requested, fresh.balanceCents);
-        const returnedCents = requested - appliedCents;
         const response = await fetch(`/api/credits/${credit.id}/pay`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            // Se envía lo que la hoja muestra como aplicado, no el billete completo.
-            amountCents: appliedCents,
+            amountCents: requested,
             method: creditPayMethod,
             note: creditPayNote.trim() || undefined,
+            requestId,
+            expectedBalanceCents: credit.balanceCents,
           }),
         });
-        const data = (await response.json()) as { credit?: Credit; error?: string };
-        if (!response.ok || !data.credit) throw new Error(data.error ?? "No pude registrar el abono.");
+        const data = (await response.json()) as CreditPayResponse;
+        if (!response.ok) {
+          if (response.status === 409) {
+            const message = data.error ?? "El saldo cambió. Revisa el monto y confirma de nuevo.";
+            setCreditPayError(message);
+            showToast("info", message);
+            await loadDashboard();
+            return;
+          }
+          throw new Error(data.error ?? "No pude registrar el abono.");
+        }
+        if (
+          !data.credit ||
+          typeof data.appliedCents !== "number" ||
+          typeof data.balanceCents !== "number"
+        ) {
+          throw new Error("El abono se registró pero no pude leer el saldo nuevo.");
+        }
+        const appliedCents = data.appliedCents;
+        const overpayCents =
+          typeof data.overpayCents === "number"
+            ? data.overpayCents
+            : Math.max(0, requested - appliedCents);
         const returnedNote =
-          returnedCents > 0 ? ` Se aplicaron ${formatMxn(appliedCents)}; devuelve ${formatMxn(returnedCents)}.` : "";
+          overpayCents > 0
+            ? ` Se aplicaron ${formatMxn(appliedCents)}; devuelve ${formatMxn(overpayCents)}.`
+            : "";
+        const duplicateNote = data.duplicate ? " No se duplicó." : "";
         showToast(
           "ok",
-          `Abono registrado.${returnedNote} ${credit.customerName ?? "Cliente"} debe ${formatMxn(data.credit.balanceCents)}.`,
+          `${data.duplicate ? "Abono ya registrado" : "Abono registrado"}.${returnedNote}${duplicateNote} ${
+            credit.customerName ?? "Cliente"
+          } debe ${formatMxn(data.balanceCents)}.`,
         );
         setCreditPayId(null);
         setCreditPayAmount("");
+        setCreditPayInitialAmount("");
+        setCreditPayRequestId(null);
         setCreditPayNote("");
         vibrate(30);
         await loadDashboard();
@@ -1562,7 +1596,15 @@ export default function CajaApp() {
         setCreditPaying(false);
       }
     },
-    [creditPayAmount, creditPayMethod, creditPayNote, loadDashboard, showToast, vibrate],
+    [
+      creditPayAmount,
+      creditPayMethod,
+      creditPayNote,
+      creditPayRequestId,
+      loadDashboard,
+      showToast,
+      vibrate,
+    ],
   );
 
   const fulfillOrder = useCallback(
@@ -1856,17 +1898,12 @@ export default function CajaApp() {
               />
               <CreditList
                 credits={pendingCredits}
-                onStart={(credit) => {
-                  setCreditPayId(credit.id);
-                  setCreditPayAmount((credit.balanceCents / 100).toFixed(2));
-                  setCreditPayMethod("cash");
-                  setCreditPayNote("");
-                  setCreditPayError(null);
-                }}
+                onStart={(credit) => openCreditPay(credit)}
               />
               <CreditPaySheet
                 credit={pendingCredits.find((credit) => credit.id === creditPayId) ?? null}
                 amount={creditPayAmount}
+                initialAmount={creditPayInitialAmount}
                 method={creditPayMethod}
                 note={creditPayNote}
                 paying={creditPaying}
@@ -1876,6 +1913,8 @@ export default function CajaApp() {
                 onNote={setCreditPayNote}
                 onClose={() => {
                   setCreditPayId(null);
+                  setCreditPayInitialAmount("");
+                  setCreditPayRequestId(null);
                   setCreditPayError(null);
                 }}
                 onPay={() => {
@@ -4410,6 +4449,7 @@ function CreditList({
 function CreditPaySheet({
   credit,
   amount,
+  initialAmount,
   method,
   note,
   paying,
@@ -4422,6 +4462,7 @@ function CreditPaySheet({
 }: {
   credit: Credit | null;
   amount: string;
+  initialAmount: string;
   method: "cash" | "codi";
   note: string;
   paying: boolean;
@@ -4439,7 +4480,6 @@ function CreditPaySheet({
   const returnedCents = Math.max(0, requestedCents - appliedCents);
   const valid = !settled && requestedCents > 0 && appliedCents > 0;
   const [discardOpen, setDiscardOpen] = useState(false);
-  const initialAmount = credit ? (credit.balanceCents / 100).toFixed(2) : "";
   const dirty =
     Boolean(credit) &&
     (amount !== initialAmount || note.trim().length > 0 || method !== "cash");
