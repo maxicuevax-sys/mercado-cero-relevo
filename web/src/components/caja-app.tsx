@@ -249,11 +249,15 @@ function newDraftItemId(): string {
   return `draft_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function newCreditPayRequestId(): string {
+function newRequestId(prefix: string): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return `cp_${crypto.randomUUID()}`;
+    return `${prefix}_${crypto.randomUUID()}`;
   }
-  return `cp_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function newCreditPayRequestId(): string {
+  return newRequestId("cp");
 }
 
 function normalizeName(value: string): string {
@@ -4012,7 +4016,11 @@ function CashCloseCard({
   }
 
   function updateCount(denomination: number, quantity: number) {
-    const next = { ...counts, [denomination]: Math.max(0, quantity) };
+    // Un input numérico vacío o inválido no debe convertir el total en NaN.
+    const safeQuantity = Number.isFinite(quantity)
+      ? Math.max(0, Math.floor(quantity))
+      : 0;
+    const next = { ...counts, [denomination]: safeQuantity };
     setCounts(next);
     const total = DENOMINATIONS.reduce(
       (sum, value) => sum + value * (next[value] ?? 0),
@@ -4123,7 +4131,7 @@ function CashCloseCard({
     const payload = validateDraft();
     if (!payload) return;
     setPendingPayload(payload);
-    setPendingRequestId(crypto.randomUUID());
+    setPendingRequestId(newRequestId("close"));
     setReasonError(null);
     setError(null);
     setConfirmOpen(true);
@@ -4167,6 +4175,9 @@ function CashCloseCard({
               ? "Alguien guardó un corte antes. Actualiza los totales y escribe el motivo de la corrección."
               : "Otro corte se guardó antes. Actualicé los totales; revisa y vuelve a intentar.";
           setPendingRequestId(null);
+          // Si la otra pestaña cambió el cierre, el retiro del corte anterior
+          // ya no es el mismo; no arrastrar el checkbox marcado.
+          setApplyPreviousWithdrawal(false);
           closeConfirm();
           showToast("error", message);
           void load({ preserveDraft: true }).then((ok) => {

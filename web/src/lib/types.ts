@@ -236,7 +236,7 @@ export interface CashStatus {
   withdrawalsCents: number;
   expectedCents: number;
   saved: CashClose | null;
-  /** Versiones de hoy, la más reciente primero; máximo 5. */
+  /** Versiones de hoy, la más reciente primero; máximo 6 (incluye v1). */
   history: CashClose[];
 }
 
