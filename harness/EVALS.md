@@ -18,6 +18,7 @@
 | `mobile` | `python scripts/mobile-audit.py` | Flujo completo a 360 px; 25/25 | Teléfono físico, TalkBack/VoiceOver | Reset demo |
 | `checkout` | `python scripts/checkout-audit.py` | Checkout público a 360 px; 15/15 | Pago real por pey | Crea/paga demo |
 | `hig` | `python scripts/hig-after-audit.py` | HIG/WCAG 2.2 AA, 48 px, 200%, 360/390/768/1280 | Personas reales | Reset/recorre |
+| `motion` | `python scripts/motion-check.py` | Duraciones 140–240 ms, scroll trigger, reduced-motion y 14 comprobaciones | Que el diseño guste | Recorre hojas/tabs |
 | `rehearsal` | `python scripts/rehearse-demo.py` | Guion completo, 3 corridas, 15 pasos | Que el público entienda | Reset/recorre |
 | `tunnel` | `python scripts/tunnel-smoke.py` | Camino público HTTPS; 8/8 | Estabilidad del túnel en el evento | Reset/paga |
 | `preflight` | `node scripts/preflight.mjs` | Servidor, túnel, datos, QR, respaldos; 18/18 | Que el QR esté impreso | Reset demo |

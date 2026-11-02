@@ -113,6 +113,15 @@ const GATES = [
     expected: "PASÓ",
   },
   {
+    id: "motion",
+    name: "Movimiento y reduced-motion",
+    command: "python",
+    args: ["scripts/motion-check.py"],
+    mode: "runtime",
+    timeout: 180_000,
+    expected: "0 FAIL",
+  },
+  {
     id: "rehearsal",
     name: "Ensayo del guion",
     command: "python",
