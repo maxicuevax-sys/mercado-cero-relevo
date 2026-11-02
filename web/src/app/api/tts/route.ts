@@ -10,6 +10,34 @@ const PIPER_BIN = process.env.PIPER_BIN ?? path.join(PIPER_DIR, "piper.exe");
 const PIPER_MODEL =
   process.env.PIPER_MODEL ?? path.join(PIPER_DIR, "es_MX-claude-high.onnx");
 const CACHE_DIR = path.join(ROOT, "data", "tts-cache");
+const PUBLIC_TTS = path.join(ROOT, "public", "tts");
+
+/**
+ * Frases fijas que conservan la voz Kokoro em_santa aunque lleguen por la ruta
+ * dinámica. Las claves están normalizadas para voz: sin "$" ni ".00", porque
+ * los motores TTS leen "$50.00" como "cincuenta punto cero cero".
+ */
+const FIXED_KOKORO: Record<string, string> = {
+  "Revisa el abono de 50 pesos a Juan.": "revisa-abono-50-juan.wav",
+  "Abono de 50 pesos a Juan. Saldo: cero pesos.": "abono-50-juan.wav",
+};
+
+/** Convierte montos escritos ("$1,800.00") en texto que se entiende al oírlo. */
+function toSpeechText(text: string): string {
+  const withPesos = text.replace(
+    /\$\s?(\d[\d,]*(?:\.\d{1,2})?)/g,
+    (_match, raw: string) => {
+      const [wholeRaw, centsRaw = ""] = raw.replace(/,/g, "").split(".");
+      const whole = Number(wholeRaw);
+      if (!Number.isFinite(whole)) return raw;
+      const cents = Number(centsRaw.padEnd(2, "0").slice(0, 2));
+      if (!cents) return whole === 0 ? "cero pesos" : `${whole} pesos`;
+      if (!whole) return `${cents} centavos`;
+      return `${whole} pesos con ${cents} centavos`;
+    },
+  );
+  return withPesos.replace(/\s+/g, " ").trim();
+}
 
 const inflight = new Map<string, Promise<string>>();
 const buckets = new Map<string, { count: number; reset: number }>();
@@ -96,11 +124,25 @@ export async function POST(request: Request) {
     return Response.json({ error: "Demasiadas solicitudes." }, { status: 429 });
   }
 
-  const key = cacheKey(text);
+  const speech = toSpeechText(text);
+  const key = cacheKey(speech);
   try {
+    const fixed = FIXED_KOKORO[speech];
+    if (fixed) {
+      const audio = await readFile(
+        /* turbopackIgnore: true */ path.join(PUBLIC_TTS, fixed),
+      );
+      return new Response(new Uint8Array(audio), {
+        headers: {
+          "content-type": "audio/wav",
+          "cache-control": "public, max-age=0, must-revalidate",
+        },
+      });
+    }
+
     let job = inflight.get(key);
     if (!job) {
-      job = generate(text, key).finally(() => inflight.delete(key));
+      job = generate(speech, key).finally(() => inflight.delete(key));
       inflight.set(key, job);
     }
     const file = await job;

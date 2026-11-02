@@ -23,12 +23,15 @@ from pathlib import Path
 import soundfile as sf
 from kokoro_onnx import Kokoro
 
+# Los montos van sin "$" ni ".00": los motores TTS leen "$50.00" como
+# "cincuenta punto cero cero". Para oído, "50 pesos" es inequívoco.
 LINES = {
-    "son-90-genero-el-cobro": "Escuché 90.00 pesos. ¿Confirmas?",
-    "venta-cobrada-90": "Venta cobrada. $90.00.",
-    "pago-simulado-90": "Pago simulado. $90.00.",
-    "pago-verificado-90": "Pago verificado: $90.00.",
-    "abono-50-juan": "Abono de $50.00 a Juan. Saldo: $0.00.",
+    "son-90-genero-el-cobro": "Escuché 90 pesos. ¿Confirmas?",
+    "venta-cobrada-90": "Venta cobrada. 90 pesos.",
+    "pago-simulado-90": "Pago simulado. 90 pesos.",
+    "pago-verificado-90": "Pago verificado: 90 pesos.",
+    "abono-50-juan": "Abono de 50 pesos a Juan. Saldo: cero pesos.",
+    "revisa-abono-50-juan": "Revisa el abono de 50 pesos a Juan.",
     "venta-lista": "Venta lista para confirmar.",
     "comprobante-verificado-demo": "Comprobante verificado en la caja. En producción se valida contra pey.",
     "comprobante-no-verificado": "Ese comprobante no está verificado. No entregues el pedido.",
