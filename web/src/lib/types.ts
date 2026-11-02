@@ -213,6 +213,21 @@ export interface CashStatus {
   saved: CashClose | null;
 }
 
+export type TaskStatus = "open" | "done" | "deleted";
+
+export interface Task {
+  id: string;
+  title: string;
+  note: string | null;
+  status: TaskStatus;
+  dueAt: string | null;
+  postponedUntil: string | null;
+  createdAt: string;
+  updatedAt: string;
+  completedAt: string | null;
+  deletedAt: string | null;
+}
+
 export interface Goal {
   id: string;
   title: string;
