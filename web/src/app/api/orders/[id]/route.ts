@@ -1,3 +1,4 @@
+import { appErrorResponse, unexpectedResponse } from "@/lib/errors";
 import { fulfillOrder, getOrderDetail } from "@/lib/orders";
 
 export async function GET(_request: Request, ctx: RouteContext<"/api/orders/[id]">) {
@@ -26,9 +27,8 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/orders/[id
     }
     return Response.json({ order });
   } catch (error) {
-    return Response.json(
-      { error: error instanceof Error ? error.message : "No se pudo marcar el pedido." },
-      { status: 409 },
-    );
+    const known = appErrorResponse(error);
+    if (known) return known;
+    return unexpectedResponse(error, "No se pudo marcar el pedido.");
   }
 }

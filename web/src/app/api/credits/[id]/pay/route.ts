@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { CreditPaymentConflict, recordCreditPayment } from "@/lib/orders";
+import {
+  CreditPaymentConflict,
+  recordCreditPayment,
+} from "@/lib/orders";
+import { appErrorResponse, unexpectedResponse } from "@/lib/errors";
+import { readJsonLimited } from "@/lib/http";
 
 const bodySchema = z.object({
   amountCents: z.number().int().positive(),
@@ -12,7 +17,7 @@ const bodySchema = z.object({
 export async function POST(request: Request, ctx: RouteContext<"/api/credits/[id]/pay">) {
   try {
     const { id } = await ctx.params;
-    const body = bodySchema.parse(await request.json());
+    const body = bodySchema.parse(await readJsonLimited(request));
     const result = recordCreditPayment(
       id,
       body.amountCents,
@@ -40,7 +45,8 @@ export async function POST(request: Request, ctx: RouteContext<"/api/credits/[id
         { status: 409 },
       );
     }
-    const message = error instanceof Error ? error.message : "No se pudo registrar el abono.";
-    return Response.json({ error: message }, { status: 400 });
+    const known = appErrorResponse(error);
+    if (known) return known;
+    return unexpectedResponse(error, "No se pudo registrar el abono.");
   }
 }

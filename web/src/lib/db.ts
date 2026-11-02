@@ -63,6 +63,7 @@ function migrate(database: DatabaseSync) {
       qr_string TEXT,
       qr_image TEXT,
       num_ref TEXT,
+      request_id TEXT,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
@@ -179,6 +180,7 @@ function migrate(database: DatabaseSync) {
       goal_id TEXT NOT NULL,
       amount_cents INTEGER NOT NULL,
       note TEXT,
+      request_id TEXT,
       created_at TEXT NOT NULL,
       FOREIGN KEY (goal_id) REFERENCES goals(id) ON DELETE CASCADE
     );
@@ -213,6 +215,20 @@ function migrate(database: DatabaseSync) {
   if (!columns.some((column) => column.name === "qr_id")) {
     database.exec("ALTER TABLE orders ADD COLUMN qr_id TEXT;");
   }
+  if (!columns.some((column) => column.name === "request_id")) {
+    database.exec("ALTER TABLE orders ADD COLUMN request_id TEXT;");
+  }
+  // La llave de idempotencia es opcional: los pedidos viejos quedan NULL.
+  // Si un arranque anterior quedó a medias, deduplicamos antes del índice.
+  dedupeRequestIds(database, {
+    table: "orders",
+    index: "idx_orders_request_id",
+    action: "order.request_id_deduped",
+    entity: "order",
+  });
+  database.exec(
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_request_id ON orders(request_id) WHERE request_id IS NOT NULL;",
+  );
 
   const eventColumns = database.prepare("PRAGMA table_info(payment_events)").all() as Array<{
     name: string;
@@ -233,13 +249,112 @@ function migrate(database: DatabaseSync) {
   if (!creditPaymentColumns.some((column) => column.name === "request_id")) {
     database.exec("ALTER TABLE credit_payments ADD COLUMN request_id TEXT;");
   }
+  // Una DB vieja pudo escribir la misma llave más de una vez antes de que
+  // existiera el índice. Si no se deduplica, el arranque falla al crear el
+  // índice único. Se conserva el primer abono y se anulan las llaves repetidas
+  // (los montos y saldos no se tocan), dejando rastro en audit_log.
+  dedupeRequestIds(database, {
+    table: "credit_payments",
+    index: "idx_credit_payments_request_id",
+    action: "credit_payment.request_id_deduped",
+    entity: "credit_payment",
+  });
   // La llave es opcional: los abonos viejos y los que no traen requestId
   // conservan request_id NULL y no compiten en el índice parcial.
   database.exec(
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_credit_payments_request_id ON credit_payments(request_id) WHERE request_id IS NOT NULL;",
   );
 
+  const goalContributionColumns = database
+    .prepare("PRAGMA table_info(goal_contributions)")
+    .all() as Array<{ name: string }>;
+  if (!goalContributionColumns.some((column) => column.name === "request_id")) {
+    database.exec("ALTER TABLE goal_contributions ADD COLUMN request_id TEXT;");
+  }
+  dedupeRequestIds(database, {
+    table: "goal_contributions",
+    index: "idx_goal_contributions_request_id",
+    action: "goal_contribution.request_id_deduped",
+    entity: "goal_contribution",
+  });
+  database.exec(
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_goal_contributions_request_id ON goal_contributions(request_id) WHERE request_id IS NOT NULL;",
+  );
+
   migrateCashCloses(database);
+}
+
+/**
+ * Antes de crear un índice único parcial, conserva la primera fila de cada
+ * `request_id` repetido y anula la llave de las demás. Es idempotente: si el
+ * índice ya existe, no hay nada que deduplicar.
+ */
+function dedupeRequestIds(
+  database: DatabaseSync,
+  options: { table: string; index: string; action: string; entity: string },
+) {
+  const indexExists = database
+    .prepare("SELECT 1 AS found FROM sqlite_master WHERE type = 'index' AND name = ?")
+    .get(options.index) as { found: number } | undefined;
+  if (indexExists) return;
+
+  const duplicates = database
+    .prepare(
+      `SELECT request_id, COUNT(*) AS n
+       FROM ${options.table}
+       WHERE request_id IS NOT NULL
+       GROUP BY request_id
+       HAVING COUNT(*) > 1`,
+    )
+    .all() as Array<{ request_id: string; n: number }>;
+  if (duplicates.length === 0) return;
+
+  database.exec("BEGIN IMMEDIATE");
+  try {
+    const rowsStmt = database.prepare(
+      `SELECT id FROM ${options.table}
+       WHERE request_id = ?
+       ORDER BY created_at ASC, rowid ASC`,
+    );
+    const clearStmt = database.prepare(
+      `UPDATE ${options.table} SET request_id = NULL WHERE id = ?`,
+    );
+    const auditStmt = database.prepare(
+      "INSERT INTO audit_log (id, action, entity, entity_id, detail, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+    );
+
+    for (const duplicate of duplicates) {
+      const rows = rowsStmt.all(duplicate.request_id) as Array<{ id: string }>;
+      const [kept, ...cleared] = rows;
+      if (!kept || cleared.length === 0) continue;
+      for (const row of cleared) clearStmt.run(row.id);
+      auditStmt.run(
+        newId("aud"),
+        options.action,
+        options.entity,
+        kept.id,
+        JSON.stringify({
+          requestId: duplicate.request_id,
+          keptId: kept.id,
+          clearedIds: cleared.map((row) => row.id),
+          clearedCount: cleared.length,
+        }),
+        nowIso(),
+      );
+      console.warn(
+        `[db] ${options.table}: request_id repetido ${duplicate.request_id}; conservé ${kept.id} y anulé ${cleared.length}.`,
+      );
+    }
+
+    database.exec("COMMIT");
+  } catch (error) {
+    try {
+      database.exec("ROLLBACK");
+    } catch {
+      // Si SQLite ya cerró la transacción, conservamos el error original.
+    }
+    throw error;
+  }
 }
 
 /**
@@ -381,40 +496,148 @@ function tableColumns(database: DatabaseSync, table: string): Array<{ name: stri
   }>;
 }
 
-/** Recupera filas de una legacy parcial en una tabla ya versionada. */
+/**
+ * Recupera filas de una `cash_closes_legacy` parcial en una tabla ya
+ * versionada. No usa `INSERT OR IGNORE`: si una fila choca con otra del mismo
+ * `id` se actualiza, y si choca en `(date, version)` se le asigna la siguiente
+ * versión libre. Cada merge queda auditado.
+ */
 function copyLegacyIntoVersioned(database: DatabaseSync) {
   const legacyColumns = tableColumns(database, "cash_closes_legacy").map(
     (column) => column.name,
   );
   const has = (name: string) => legacyColumns.includes(name);
-  const version = has("version") ? "version" : "1";
-  const snapshotCash = has("snapshot_cash_cents")
-    ? "snapshot_cash_cents"
-    : "cash_sales_cents + cash_credit_cents";
-  const snapshotCredit = has("snapshot_credit_cents") ? "snapshot_credit_cents" : "0";
-  const snapshotPending = has("snapshot_pending_digital_cents")
-    ? "snapshot_pending_digital_cents"
-    : "0";
-  const snapshotKnown = has("snapshot_known") ? "snapshot_known" : "0";
-  const reason = has("reason") ? "reason" : "NULL";
-  const requestId = has("request_id") ? "request_id" : "NULL";
+  const rows = database
+    .prepare("SELECT * FROM cash_closes_legacy ORDER BY rowid ASC")
+    .all() as unknown as Array<Record<string, unknown>>;
 
-  database.exec(`
-    INSERT OR IGNORE INTO cash_closes
+  const findById = database.prepare(
+    "SELECT date, version FROM cash_closes WHERE id = ?",
+  );
+  const findByDateVersion = database.prepare(
+    "SELECT id FROM cash_closes WHERE date = ? AND version = ?",
+  );
+  const maxVersion = database.prepare(
+    "SELECT COALESCE(MAX(version), 0) AS version FROM cash_closes WHERE date = ?",
+  );
+  const upsert = database.prepare(
+    `INSERT INTO cash_closes
       (id, date, version, opening_cents, cash_sales_cents, cash_credit_cents,
        expenses_cents, withdrawals_cents, expected_cents, counted_cents,
        difference_cents, base_next_cents, withdrawal_next_cents,
        snapshot_cash_cents, snapshot_credit_cents, snapshot_pending_digital_cents,
        snapshot_known, reason, request_id, created_at)
-    SELECT
-      id, date, ${version}, opening_cents, cash_sales_cents, cash_credit_cents,
-      expenses_cents, withdrawals_cents, expected_cents, counted_cents,
-      difference_cents, base_next_cents, withdrawal_next_cents,
-      ${snapshotCash}, ${snapshotCredit}, ${snapshotPending},
-      ${snapshotKnown}, ${reason}, ${requestId}, created_at
-    FROM cash_closes_legacy;
-    DROP TABLE cash_closes_legacy;
-  `);
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET
+       date = excluded.date,
+       version = excluded.version,
+       opening_cents = excluded.opening_cents,
+       cash_sales_cents = excluded.cash_sales_cents,
+       cash_credit_cents = excluded.cash_credit_cents,
+       expenses_cents = excluded.expenses_cents,
+       withdrawals_cents = excluded.withdrawals_cents,
+       expected_cents = excluded.expected_cents,
+       counted_cents = excluded.counted_cents,
+       difference_cents = excluded.difference_cents,
+       base_next_cents = excluded.base_next_cents,
+       withdrawal_next_cents = excluded.withdrawal_next_cents,
+       snapshot_cash_cents = excluded.snapshot_cash_cents,
+       snapshot_credit_cents = excluded.snapshot_credit_cents,
+       snapshot_pending_digital_cents = excluded.snapshot_pending_digital_cents,
+       snapshot_known = excluded.snapshot_known,
+       reason = excluded.reason,
+       request_id = excluded.request_id,
+       created_at = excluded.created_at`,
+  );
+  const auditStmt = database.prepare(
+    "INSERT INTO audit_log (id, action, entity, entity_id, detail, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+  );
+
+  for (const row of rows) {
+    const id = row.id == null ? "" : String(row.id);
+    const date = row.date == null ? "" : String(row.date);
+    if (!id || !date) {
+      throw new Error("cash_closes_legacy tiene una fila sin id o sin fecha.");
+    }
+
+    const num = (name: string, fallback = 0) => {
+      if (!has(name)) return fallback;
+      const value = Number(row[name] ?? fallback);
+      return Number.isFinite(value) ? value : fallback;
+    };
+    const text = (name: string) => {
+      if (!has(name) || row[name] == null) return null;
+      return String(row[name]);
+    };
+
+    const originalVersion = Math.max(1, Math.trunc(num("version", 1)));
+    let version = originalVersion;
+    const existingById = findById.get(id) as
+      | { date: string; version: number }
+      | undefined;
+    let action: "updated" | "version_bumped" | null = existingById ? "updated" : null;
+
+    // Si otra fila ya ocupa (date, version), buscamos la siguiente libre.
+    for (let guard = 0; guard < 10_000; guard += 1) {
+      const occupant = findByDateVersion.get(date, version) as
+        | { id: string }
+        | undefined;
+      if (!occupant || occupant.id === id) break;
+      const max = maxVersion.get(date) as { version: number };
+      version = Math.max(version + 1, Number(max.version) + 1);
+      action = "version_bumped";
+    }
+
+    const stillOccupied = findByDateVersion.get(date, version) as
+      | { id: string }
+      | undefined;
+    if (stillOccupied && stillOccupied.id !== id) {
+      throw new Error(
+        `No pude acomodar cash_closes_legacy ${id}: (${date}, ${version}) sigue ocupada.`,
+      );
+    }
+
+    upsert.run(
+      id,
+      date,
+      version,
+      num("opening_cents"),
+      num("cash_sales_cents"),
+      num("cash_credit_cents"),
+      num("expenses_cents"),
+      num("withdrawals_cents"),
+      num("expected_cents"),
+      num("counted_cents"),
+      num("difference_cents"),
+      num("base_next_cents"),
+      num("withdrawal_next_cents"),
+      num("snapshot_cash_cents", num("cash_sales_cents") + num("cash_credit_cents")),
+      num("snapshot_credit_cents"),
+      num("snapshot_pending_digital_cents"),
+      num("snapshot_known"),
+      text("reason"),
+      text("request_id"),
+      text("created_at") ?? nowIso(),
+    );
+
+    if (action) {
+      auditStmt.run(
+        newId("aud"),
+        "cash_close.legacy_merged",
+        "cash_close",
+        id,
+        JSON.stringify({
+          action,
+          date,
+          fromVersion: originalVersion,
+          toVersion: version,
+        }),
+        nowIso(),
+      );
+    }
+  }
+
+  database.exec("DROP TABLE cash_closes_legacy;");
 }
 
 function seed(database: DatabaseSync) {
@@ -686,6 +909,14 @@ export function getOrder(id: string): Order | null {
   const row = database.prepare("SELECT * FROM orders WHERE id = ?").get(id) as
     | Record<string, unknown>
     | undefined;
+  return row ? mapOrder(row) : null;
+}
+
+export function getOrderByRequestId(requestId: string): Order | null {
+  const database = getDb();
+  const row = database
+    .prepare("SELECT * FROM orders WHERE request_id = ?")
+    .get(requestId) as Record<string, unknown> | undefined;
   return row ? mapOrder(row) : null;
 }
 

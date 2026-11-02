@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:voice": "node --no-warnings --test scripts/voice-debts-test.mjs",
+    "test:fix-datos": "node scripts/p0-fix-datos-contract.mjs",
     "verify:fast": "node scripts/harness-gate.mjs --fast",
     "verify:static": "node scripts/harness-gate.mjs --static",
     "verify:full": "node scripts/harness-gate.mjs --full",

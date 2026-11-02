@@ -1,5 +1,11 @@
-import { getDb, newId, nowIso } from "./db";
+import { audit, getDb, newId, nowIso } from "./db";
+import { ConflictError, NotFoundError, ValidationError } from "./errors";
 import type { Goal } from "./types";
+
+export const MAX_GOAL_TITLE_CHARS = 120;
+export const MAX_GOAL_NOTE_CHARS = 200;
+export const MAX_GOAL_CONTRIBUTION_CENTS = 100_000_000;
+export const MAX_REQUEST_ID_CHARS = 128;
 
 interface GoalRow {
   id: string;
@@ -64,10 +70,16 @@ export function createGoal(input: {
   deadline?: string | null;
 }): Goal {
   const title = input.title.trim();
-  if (!title) throw new Error("La meta necesita un nombre.");
+  if (!title) throw new ValidationError("La meta necesita un nombre.");
+  if (title.length > MAX_GOAL_TITLE_CHARS) {
+    throw new ValidationError(
+      `El nombre de la meta no puede pasar de ${MAX_GOAL_TITLE_CHARS} caracteres.`,
+      "title_too_long",
+    );
+  }
   const targetCents = Math.round(input.targetCents);
   if (!Number.isFinite(targetCents) || targetCents <= 0) {
-    throw new Error("El monto de la meta debe ser mayor a cero.");
+    throw new ValidationError("El monto de la meta debe ser mayor a cero.");
   }
 
   const id = newId("goal");
@@ -79,27 +91,102 @@ export function createGoal(input: {
   return getGoal(id)!;
 }
 
+/**
+ * Registra una aportación en una sola transacción. `requestId` es opcional:
+ * repetirlo devuelve la meta actual sin insertar otra aportación, así que un
+ * doble clic (o un reintento tras perder la respuesta) no infla el ahorro.
+ */
 export function contributeToGoal(
   goalId: string,
   amountCents: number,
   note?: string | null,
+  requestId?: string | null,
 ): Goal {
-  const database = getDb();
-  const goal = getGoal(goalId);
-  if (!goal) throw new Error("Meta no encontrada.");
   const amount = Math.round(amountCents);
   if (!Number.isFinite(amount) || amount <= 0) {
-    throw new Error("La aportación debe ser mayor a cero.");
+    throw new ValidationError("La aportación debe ser mayor a cero.");
+  }
+  if (amount > MAX_GOAL_CONTRIBUTION_CENTS) {
+    throw new ValidationError(
+      "La aportación es demasiado grande.",
+      "contribution_too_large",
+    );
   }
 
-  database
-    .prepare(
-      "INSERT INTO goal_contributions (id, goal_id, amount_cents, note, created_at) VALUES (?, ?, ?, ?, ?)",
-    )
-    .run(newId("gctr"), goalId, amount, note?.trim() || null, nowIso());
-  database
-    .prepare("UPDATE goals SET saved_cents = saved_cents + ? WHERE id = ?")
-    .run(amount, goalId);
+  const cleanNote = (note ?? "").trim() || null;
+  if (cleanNote && cleanNote.length > MAX_GOAL_NOTE_CHARS) {
+    throw new ValidationError(
+      `La nota no puede pasar de ${MAX_GOAL_NOTE_CHARS} caracteres.`,
+      "note_too_long",
+    );
+  }
 
-  return getGoal(goalId)!;
+  const request = (requestId ?? "").trim() || null;
+  if (request && request.length > MAX_REQUEST_ID_CHARS) {
+    throw new ValidationError(
+      `El identificador de la solicitud no puede pasar de ${MAX_REQUEST_ID_CHARS} caracteres.`,
+      "request_id_too_long",
+    );
+  }
+
+  const database = getDb();
+  let committed = false;
+  database.exec("BEGIN IMMEDIATE");
+  try {
+    if (request) {
+      const existing = database
+        .prepare("SELECT goal_id FROM goal_contributions WHERE request_id = ?")
+        .get(request) as { goal_id: string } | undefined;
+      if (existing) {
+        if (existing.goal_id !== goalId) {
+          throw new ConflictError(
+            "Ese requestId ya se usó en otra meta. No se registró nada.",
+            "request_id_conflict",
+          );
+        }
+        database.exec("COMMIT");
+        committed = true;
+        const goal = getGoal(goalId);
+        if (!goal) throw new NotFoundError("Meta no encontrada.", "goal_not_found");
+        return goal;
+      }
+    }
+
+    const goalRow = database
+      .prepare("SELECT id FROM goals WHERE id = ?")
+      .get(goalId) as { id: string } | undefined;
+    if (!goalRow) {
+      throw new NotFoundError("Meta no encontrada.", "goal_not_found");
+    }
+
+    database
+      .prepare(
+        "INSERT INTO goal_contributions (id, goal_id, amount_cents, note, request_id, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+      )
+      .run(newId("gctr"), goalId, amount, cleanNote, request, nowIso());
+    database
+      .prepare("UPDATE goals SET saved_cents = saved_cents + ? WHERE id = ?")
+      .run(amount, goalId);
+
+    audit("goal.contribution", "goal", goalId, {
+      amountCents: amount,
+      note: cleanNote,
+      requestId: request,
+    });
+
+    database.exec("COMMIT");
+    committed = true;
+  } finally {
+    if (!committed) {
+      try {
+        database.exec("ROLLBACK");
+      } catch {
+        // Si SQLite ya cerró la transacción, conservamos el error original.
+      }
+    }
+  }
+
+  const goal = getGoal(goalId);
+  if (!goal) throw new NotFoundError("Meta no encontrada.", "goal_not_found");
+  return goal;
 }
