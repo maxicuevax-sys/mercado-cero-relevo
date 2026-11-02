@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { Banknote, Check, Loader2, NotebookPen, Sparkles, Store } from "lucide-react";
+import { Banknote, Check, Loader2, NotebookPen, SearchX, Sparkles, Store } from "lucide-react";
 import { cn, formatMxn } from "@/lib/format";
 
 interface CheckoutData {
@@ -44,6 +44,7 @@ export default function CheckoutSuccessPage() {
   const [data, setData] = useState<CheckoutData | null>(null);
   const [attempts, setAttempts] = useState(0);
   const [exited, setExited] = useState(false);
+  const [missing, setMissing] = useState(false);
 
   function finish() {
     // Salida pública: nunca el dashboard de la comerciante.
@@ -59,7 +60,15 @@ export default function CheckoutSuccessPage() {
     const response = await fetch(`/api/checkout/${orderId}`, {
       cache: "no-store",
     });
+    if (response.status === 404) {
+      // Un link inventado no va a confirmarse nunca: no lo dejamos esperando
+      // al banco ni mostramos mensajes de un pago que no existe.
+      setMissing(true);
+      setData(null);
+      return;
+    }
     if (!response.ok) return;
+    setMissing(false);
     setData((await response.json()) as CheckoutData);
   }, [orderId]);
 
@@ -70,13 +79,14 @@ export default function CheckoutSuccessPage() {
   }, [load]);
 
   useEffect(() => {
+    if (missing) return;
     if (data?.payment || (data && data.order.amountDueCents <= 0)) return;
     const interval = window.setInterval(() => {
       setAttempts((value) => value + 1);
       void load();
     }, 2000);
     return () => window.clearInterval(interval);
-  }, [data, load]);
+  }, [data, load, missing]);
 
   const isCredit =
     Boolean(data) &&
@@ -90,10 +100,64 @@ export default function CheckoutSuccessPage() {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    if (!paid && !isCredit) return;
+    if (!paid && !isCredit && !missing) return;
     const timer = window.setTimeout(() => headingRef.current?.focus(), 80);
     return () => window.clearTimeout(timer);
-  }, [paid, isCredit]);
+  }, [paid, isCredit, missing]);
+
+  useEffect(() => {
+    if (!missing) return;
+    const previousTitle = document.title;
+    document.title = "Cobro no encontrado · Mercado Cero";
+    return () => {
+      document.title = previousTitle;
+    };
+  }, [missing]);
+
+  if (missing) {
+    return (
+      <main className="pay-shell grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
+        <section
+          role="status"
+          aria-live="polite"
+          className="w-full max-w-md overflow-hidden rounded-2xl border border-separator bg-surface shadow-card"
+        >
+          <div className="px-[18px] pb-7 pt-8 text-center sm:px-5">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-separator bg-surface text-ink-2">
+              <SearchX className="h-7 w-7" />
+            </div>
+            <p className="mt-4 text-sm font-semibold text-ink-2">Cobro no disponible</p>
+            <h1
+              ref={headingRef}
+              tabIndex={-1}
+              className="mt-1 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none"
+            >
+              No encontramos este cobro
+            </h1>
+            <p className="mt-3 text-sm leading-relaxed text-ink-2">
+              Este link no corresponde a un cobro de Mercado Cero. Pide a la comerciante
+              que genere uno nuevo.
+            </p>
+          </div>
+          <div className="border-t border-separator px-[18px] py-4 sm:px-5">
+            {exited ? (
+              <p role="status" className="text-center text-sm font-semibold text-ink-2">
+                Listo. Ya puedes cerrar esta pestaña.
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={finish}
+                className="cta-primary on-accent flex min-h-12 w-full items-center justify-center gap-2 bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press"
+              >
+                Cerrar esta pestaña
+              </button>
+            )}
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   if (isCredit && data) {
     const cashPaid =
@@ -135,7 +199,7 @@ export default function CheckoutSuccessPage() {
             </p>
           </div>
           <div className="border-t border-separator px-[18px] py-4 sm:px-5">
-            <div className="rounded-xl border border-separator bg-surface px-3.5 py-3">
+            <div className="pay-note rounded-xl border border-separator bg-surface px-3.5 py-3">
               <p className="text-sm leading-relaxed text-ink-2">
                 {source ? <>Recibiste {source}. </> : null}
                 Quedó a fiado: <strong>{formatMxn(data.order.creditCents)}</strong>. Está en la
@@ -264,7 +328,7 @@ export default function CheckoutSuccessPage() {
                   </div>
                 ) : null}
               </dl>
-              <div className="mt-4 rounded-xl border border-separator bg-surface px-3.5 py-3">
+              <div className="pay-note mt-4 rounded-xl border border-separator bg-surface px-3.5 py-3">
                 <p className="text-sm leading-relaxed text-ink-2">
                   {sourceMixed
                     ? demo
@@ -284,7 +348,7 @@ export default function CheckoutSuccessPage() {
                 Recibiste {formatMxn(cashPaid)} en efectivo en la caja. No pasó por pey ni es un
                 pago verificado por el banco.
               </p>
-              <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-separator bg-surface px-3.5 py-3">
+              <div className="pay-note mt-4 flex items-start gap-2.5 rounded-xl border border-separator bg-surface px-3.5 py-3">
                 <Store className="mt-0.5 h-4 w-4 shrink-0 text-ink-2" />
                 <p className="text-sm leading-relaxed text-ink-2">
                   La comerciante ya puede entregar el pedido. El efectivo queda registrado en el
@@ -298,7 +362,7 @@ export default function CheckoutSuccessPage() {
                 Tu pago ya salió del banco. Mercado Cero está esperando la confirmación
                 firmada de pey; normalmente tarda unos segundos.
               </p>
-              <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-separator bg-surface px-3.5 py-3">
+              <div className="pay-note mt-4 flex items-start gap-2.5 rounded-xl border border-separator bg-surface px-3.5 py-3">
                 <Store className="mt-0.5 h-4 w-4 shrink-0 text-ink-2" />
                 <p className="text-sm leading-relaxed text-ink-2">
                   No cierres esta pantalla. Si tarda más de un minuto, muestra tu comprobante

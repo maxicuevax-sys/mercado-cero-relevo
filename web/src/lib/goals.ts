@@ -96,7 +96,7 @@ export function createGoal(input: {
 }
 
 /**
- * Registra una aportación en una sola transacción. `requestId` es opcional:
+ * Registra una aportación en una sola transacción. `requestId` es obligatorio:
  * repetirlo devuelve la meta actual sin insertar otra aportación, así que un
  * doble clic (o un reintento tras perder la respuesta) no infla el ahorro.
  */
@@ -126,7 +126,15 @@ export function contributeToGoal(
   }
 
   const request = (requestId ?? "").trim() || null;
-  if (request && request.length > MAX_REQUEST_ID_CHARS) {
+  if (!request) {
+    // Defensa extra además del esquema de la ruta: sin llave no hay forma de
+    // distinguir un reintento de una segunda aportación.
+    throw new ValidationError(
+      "Falta la llave de la aportación. Vuelve a intentarlo desde la caja.",
+      "request_id_required",
+    );
+  }
+  if (request.length > MAX_REQUEST_ID_CHARS) {
     throw new ValidationError(
       `El identificador de la solicitud no puede pasar de ${MAX_REQUEST_ID_CHARS} caracteres.`,
       "request_id_too_long",

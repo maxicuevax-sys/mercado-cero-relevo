@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = Path(os.environ.get("HIG_OUT", ROOT / "demo" / "hig-after"))
 OUT.mkdir(parents=True, exist_ok=True)
 AXE = Path(r"C:\Users\Elitebook 840 G8\AppData\Local\Temp\opencode\axe.min.js")
-VIEWPORTS = [(360, 800), (390, 844), (768, 1024), (1280, 800)]
+VIEWPORTS = [(320, 640), (360, 800), (390, 844), (768, 1024), (1280, 800)]
 if os.environ.get("VIEWPORTS"):
     VIEWPORTS = [
         tuple(int(value) for value in pair.lower().split("x"))
@@ -669,6 +669,38 @@ def focus_sequence(page, steps: int = 6) -> list[dict]:
     return seq
 
 
+def tab_bar_metrics(page) -> dict:
+    """Mide los labels reales de la tab bar, no el CSS declarado."""
+    return page.evaluate(
+        """() => {
+            const bar = document.querySelector('.mobile-tabs');
+            if (!bar) return null;
+            const br = bar.getBoundingClientRect();
+            const buttons = Array.from(bar.querySelectorAll('button'));
+            const labels = buttons.map((button) => {
+                const label = button.querySelector('.mobile-tab-label');
+                const br2 = button.getBoundingClientRect();
+                const lr = label ? label.getBoundingClientRect() : null;
+                return {
+                    text: label ? label.textContent.trim() : '',
+                    size: label ? parseFloat(getComputedStyle(label).fontSize) : 0,
+                    buttonWidth: Math.round(br2.width),
+                    labelWidth: lr ? Math.round(lr.width) : 0,
+                    fits: Boolean(lr && lr.width <= br2.width - 2),
+                };
+            });
+            return {
+                visible: br.height > 0 && getComputedStyle(bar).display !== 'none',
+                innerWidth: window.innerWidth,
+                scrollWidth: document.documentElement.scrollWidth,
+                height: Math.round(br.height),
+                count: buttons.length,
+                labels,
+            };
+        }"""
+    )
+
+
 def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
     page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
     page.wait_for_selector("h1:has-text('Caja')", timeout=30000)
@@ -680,6 +712,7 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
 
     record = {"viewport": f"{w}x{h}"}
     record["home"] = measure(page, "home")
+    record["tabBar"] = tab_bar_metrics(page)
     record["homeAxe"] = run_axe(page)
     shot(page, f"home-{w}-fold")
     if w in (360, 390):
@@ -838,7 +871,11 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
         style.evaluate("el => el.remove()")
 
         page.goto(f"{BASE}/pay/{pending['id']}/success", wait_until="domcontentloaded", timeout=45000)
-        page.wait_for_selector("section[role=status]", timeout=20000)
+        # La espera no depende de que el estado sea “pagado”: también debe
+        # funcionar el estado honesto de un cobro inexistente.
+        page.wait_for_selector("main h1", timeout=20000)
+        record["successChecked"] = True
+        record["successHasStatus"] = page.locator("section[role=status]").count() >= 1
         page.wait_for_timeout(500)
         record["successPage"] = measure(page, "success-page")
         record["successPageAxe"] = run_axe(page)
@@ -867,7 +904,7 @@ def main() -> int:
             page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
             page.on("pageerror", lambda e: errors.append(str(e)))
             try:
-                record = audit_viewport(page, context, w, h, full_flow=w in (360, 390, 768, 1280))
+                record = audit_viewport(page, context, w, h, full_flow=w in (320, 360, 390, 768, 1280))
                 record["consoleErrors"] = errors
                 results.append(record)
                 home = record["home"]
@@ -907,6 +944,26 @@ def main() -> int:
         if "error" in record:
             failures.append(f"{view}: audit crashed: {record['error']}")
             continue
+        tab_bar = record.get("tabBar") or {}
+        if tab_bar.get("visible"):
+            if tab_bar.get("count") != 5:
+                failures.append(f"{view} tab bar: {tab_bar.get('count')} tabs en vez de 5")
+            if tab_bar.get("scrollWidth", 0) > tab_bar.get("innerWidth", 0) + 1:
+                failures.append(
+                    f"{view} tab bar: overflow {tab_bar.get('scrollWidth')}>{tab_bar.get('innerWidth')}"
+                )
+            for label in tab_bar.get("labels", []):
+                if label.get("size", 0) < 12:
+                    failures.append(
+                        f"{view} tab bar: “{label.get('text')}” mide {label.get('size')} px (<12)"
+                    )
+                if not label.get("fits"):
+                    failures.append(
+                        f"{view} tab bar: “{label.get('text')}” no cabe en su botón "
+                        f"({label.get('labelWidth')}>{label.get('buttonWidth') - 2})"
+                    )
+        if record.get("successChecked") and not record.get("successHasStatus"):
+            failures.append(f"{view} success: falta section[role=status]")
         for key, value in record.items():
             if isinstance(value, dict) and "violations" in value:
                 for violation in value["violations"]:
@@ -987,7 +1044,7 @@ def main() -> int:
                         failures.append(
                             f"{view} {key}: header ocupa {round(value['headerRatio'] * 100)}% del viewport"
                         )
-                    if width in (360, 390, 768) and value.get("saleVisible") is False:
+                    if width in (320, 360, 390, 768) and value.get("saleVisible") is False:
                         failures.append(f"{view} {key}: el campo de venta no aparece en el primer viewport")
                 if key == "helpText200" and (value.get("optionColumns") or 0) > 2:
                     failures.append(

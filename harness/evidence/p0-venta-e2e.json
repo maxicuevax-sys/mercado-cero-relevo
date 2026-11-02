@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "suite": "p0-venta-e2e",
-  "baseUrl": "http://localhost:3126",
+  "baseUrl": "http://localhost:3170",
   "command": "python web/scripts/p0-venta-e2e.py",
   "requires": [
     "pip install playwright",
@@ -9,21 +9,21 @@
     "servidor aislado en P0_BASE_URL (por defecto http://localhost:3101)"
   ],
   "code": {
-    "commit": "7bb0dc54a53ea8880415a6af219e19c65529e5d3",
-    "branch": "p0/fix-flujos",
+    "commit": "c0248ba09247fec8d855c4d7b8c1180b83c30ed5",
+    "branch": "p0/fix-mobile-qa",
     "dirty": true
   },
   "build": {
     "next": "16.4.3",
     "command": "npm run build"
   },
-  "startedAt": "2026-11-02T16:10:10.948169+00:00",
-  "finishedAt": "2026-11-02T16:11:47.835819+00:00",
+  "startedAt": "2026-11-02T19:28:45.049707+00:00",
+  "finishedAt": "2026-11-02T19:30:19.334167+00:00",
   "summary": {
-    "pass": 51,
+    "pass": 65,
     "fail": 0,
     "known": 0,
-    "total": 51
+    "total": 65
   },
   "results": [
     {
@@ -54,7 +54,7 @@
     {
       "name": "el draft nuevo no guarda dinero sin ítems",
       "ok": true,
-      "detail": "{\"version\": 1, \"items\": [{\"id\": \"draft_1793635822739_1gbxu9\", \"description\": \"\", \"quantity\": 1, \"unitPriceCents\": 0}], \"cashCents\": 0, \"creditCents\": 0, \"customerName\": \"\", \"textInput\": \"\", \"transcript\": \"\", \"updatedAt\": \"2026-11-02T16:10:22.749Z\"}"
+      "detail": "{\"version\": 1, \"items\": [{\"id\": \"draft_1793647731358_hs9k45\", \"description\": \"\", \"quantity\": 1, \"unitPriceCents\": 0}], \"cashCents\": 0, \"creditCents\": 0, \"customerName\": \"\", \"textInput\": \"\", \"transcript\": \"\", \"updatedAt\": \"2026-11-02T19:28:51.369Z\"}"
     },
     {
       "name": "un parseo nuevo oculta el banner de recuperación",
@@ -107,14 +107,49 @@
       "detail": ""
     },
     {
+      "name": "502 post-commit: el servidor sí guardó la venta",
+      "ok": true,
+      "detail": "antes=15 después=16"
+    },
+    {
+      "name": "502 post-commit: el reintento deja una sola orden",
+      "ok": true,
+      "detail": "orders=1"
+    },
+    {
+      "name": "502 post-commit: el reintento devuelve la misma orden",
+      "ok": true,
+      "detail": "ord_e99f950ccaa343ee80d2 / ord_e99f950ccaa343ee80d2"
+    },
+    {
+      "name": "502 post-commit: el reintento reutiliza la misma requestId",
+      "ok": true,
+      "detail": "[\"sale_bb74464d-1c69-4d5b-b8f6-e455dfcfd724\", \"sale_bb74464d-1c69-4d5b-b8f6-e455dfcfd724\"]"
+    },
+    {
+      "name": "la llave de venta se limpia solo tras el éxito confirmado",
+      "ok": true,
+      "detail": "None"
+    },
+    {
+      "name": "doble tap crea una sola venta",
+      "ok": true,
+      "detail": "orders=1 · posts=1"
+    },
+    {
+      "name": "doble tap reutiliza la misma llave si alcanza a mandar dos POST",
+      "ok": true,
+      "detail": "[\"sale_635bc410-30e4-4626-8c5a-de8432a5feab\"]"
+    },
+    {
       "name": "efectivo $100 sobre $90 conserva cambio $10",
       "ok": true,
-      "detail": "orden=ord_26fb443ad5d54f9e8332"
+      "detail": "orden=ord_30a044b47c1c4917a866"
     },
     {
       "name": "efectivo $100 con $30 fiado conserva cambio $40",
       "ok": true,
-      "detail": "orden=ord_b243ba5c3cc1484596c9"
+      "detail": "orden=ord_a38b8680ab294433b78c"
     },
     {
       "name": "precio 35 conserva el texto crudo mientras se teclea",
@@ -154,7 +189,32 @@
     {
       "name": "la venta tecleada guarda precio 3500, efectivo 3000 y fiado 4000",
       "ok": true,
-      "detail": "{\"id\": \"ord_65ad70af603c48ea8dae\", \"merchantId\": \"lupita\", \"status\": \"fulfilled\", \"totalCents\": 7000, \"paidCents\": 3000, \"digitalPaidCents\": 0, \"paymentMethod\": \"cash\", \"lastPaymentProvider\": \"cash\", \"customerName\": \"Tecleo\", \"creditId\": \"cred_48b0fbae74384bd4b42b\", \"creditCents\": 4000, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-02T16:10:55.062Z\", \"updatedAt\": \"2026-11-02T16:10:55.067Z\", \"items\": [{\"id\": \"itm_602cfb138cc84234938c\", \"description\": \"Tecleo P0\", \"quantity\": 2, \"unitPriceCents\": 3500, \"totalCents\": 7000}]}"
+      "detail": "{\"id\": \"ord_633f1ee1062f40edbb20\", \"merchantId\": \"lupita\", \"status\": \"confirmed\", \"totalCents\": 7000, \"paidCents\": 3000, \"digitalPaidCents\": 0, \"paymentMethod\": \"cash\", \"lastPaymentProvider\": \"cash\", \"customerName\": \"Tecleo\", \"creditId\": \"cred_f6d36384d232471cb058\", \"creditCents\": 4000, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-02T19:29:17.130Z\", \"updatedAt\": \"2026-11-02T19:29:17.131Z\", \"items\": [{\"id\": \"itm_0382ee79588e406995c9\", \"description\": \"Tecleo P0\", \"quantity\": 2, \"unitPriceCents\": 3500, \"totalCents\": 7000}]}"
+    },
+    {
+      "name": "tecleo 0.01: conserva el texto crudo y guarda 1 cents",
+      "ok": true,
+      "detail": "texto='0.01' orden={\"id\": \"ord_c9f199e440ab44bc9db1\", \"merchantId\": \"lupita\", \"status\": \"confirmed\", \"totalCents\": 1, \"paidCents\": 0, \"digitalPaidCents\": 0, \"paymentMethod\": null, \"lastPaymentProvider\": null, \"customerName\": null, \"creditId\": null, \"creditCents\": 0, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-02T19:29:19.569Z\", \"updatedAt\": \"2026-11-02T19:29:19.569Z\", \"items\": [{\"id\": \"itm_c78d9f14d21e45e8996e\", \"description\": \"Tecleo 0.01\", \"quantity\": 1, \"unitPriceCents\": 1, \"totalCents\": 1}]}"
+    },
+    {
+      "name": "tecleo 00035: conserva el texto crudo y guarda 3500 cents",
+      "ok": true,
+      "detail": "texto='00035' orden={\"id\": \"ord_72a3e5f9c3374bd1aaf0\", \"merchantId\": \"lupita\", \"status\": \"confirmed\", \"totalCents\": 3500, \"paidCents\": 0, \"digitalPaidCents\": 0, \"paymentMethod\": null, \"lastPaymentProvider\": null, \"customerName\": null, \"creditId\": null, \"creditCents\": 0, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-02T19:29:22.518Z\", \"updatedAt\": \"2026-11-02T19:29:22.518Z\", \"items\": [{\"id\": \"itm_2d5a1b9e1fa3476fa83b\", \"description\": \"Tecleo 00035\", \"quantity\": 1, \"unitPriceCents\": 3500, \"totalCents\": 3500}]}"
+    },
+    {
+      "name": "tecleo 35.: conserva el texto crudo y guarda 3500 cents",
+      "ok": true,
+      "detail": "texto='35.' orden={\"id\": \"ord_2401c9c2da6949589ae7\", \"merchantId\": \"lupita\", \"status\": \"confirmed\", \"totalCents\": 3500, \"paidCents\": 0, \"digitalPaidCents\": 0, \"paymentMethod\": null, \"lastPaymentProvider\": null, \"customerName\": null, \"creditId\": null, \"creditCents\": 0, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-02T19:29:25.403Z\", \"updatedAt\": \"2026-11-02T19:29:25.403Z\", \"items\": [{\"id\": \"itm_e596dfb164914ab98ff9\", \"description\": \"Tecleo 35.\", \"quantity\": 1, \"unitPriceCents\": 3500, \"totalCents\": 3500}]}"
+    },
+    {
+      "name": "tecleo 35.5: conserva el texto crudo y guarda 3550 cents",
+      "ok": true,
+      "detail": "texto='35.5' orden={\"id\": \"ord_c5b596c8b8924b419115\", \"merchantId\": \"lupita\", \"status\": \"confirmed\", \"totalCents\": 3550, \"paidCents\": 0, \"digitalPaidCents\": 0, \"paymentMethod\": null, \"lastPaymentProvider\": null, \"customerName\": null, \"creditId\": null, \"creditCents\": 0, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-02T19:29:27.703Z\", \"updatedAt\": \"2026-11-02T19:29:27.703Z\", \"items\": [{\"id\": \"itm_7b7f9ea7266748a89ce8\", \"description\": \"Tecleo 35.5\", \"quantity\": 1, \"unitPriceCents\": 3550, \"totalCents\": 3550}]}"
+    },
+    {
+      "name": "tecleo 35.50: conserva el texto crudo y guarda 3550 cents",
+      "ok": true,
+      "detail": "texto='35.50' orden={\"id\": \"ord_c7f115249c5b47a09bc5\", \"merchantId\": \"lupita\", \"status\": \"confirmed\", \"totalCents\": 3550, \"paidCents\": 0, \"digitalPaidCents\": 0, \"paymentMethod\": null, \"lastPaymentProvider\": null, \"customerName\": null, \"creditId\": null, \"creditCents\": 0, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-02T19:29:30.266Z\", \"updatedAt\": \"2026-11-02T19:29:30.266Z\", \"items\": [{\"id\": \"itm_19aba70c48ca4ca38d7c\", \"description\": \"Tecleo 35.50\", \"quantity\": 1, \"unitPriceCents\": 3550, \"totalCents\": 3550}]}"
     },
     {
       "name": "Sí, limpiar enfoca Agregar producto",
@@ -169,7 +229,7 @@
     {
       "name": "el pendiente se guarda en localStorage",
       "ok": true,
-      "detail": "{\"version\": 1, \"orderId\": \"ord_f447742bcb684a79a133\", \"updatedAt\": \"2026-11-02T16:11:00.696Z\"}"
+      "detail": "{\"version\": 1, \"orderId\": \"ord_33552d1a0a674b1199b6\", \"updatedAt\": \"2026-11-02T19:29:33.700Z\"}"
     },
     {
       "name": "el aviso del pendiente usa Descartar aviso",
@@ -184,7 +244,7 @@
     {
       "name": "Continuar reabre el mismo pendiente sin duplicar",
       "ok": true,
-      "detail": "pedido=A133"
+      "detail": "pedido=99B6"
     },
     {
       "name": "Descartar el aviso no borra la orden y enfoca Caja",
@@ -199,17 +259,17 @@
     {
       "name": "crear otra venta pagada no borra el pendiente ajeno",
       "ok": true,
-      "detail": "{\"version\": 1, \"orderId\": \"ord_678432d89613476fba31\", \"updatedAt\": \"2026-11-02T16:11:06.452Z\"}"
+      "detail": "{\"version\": 1, \"orderId\": \"ord_083582bce4664429aed2\", \"updatedAt\": \"2026-11-02T19:29:38.255Z\"}"
     },
     {
       "name": "abrir y cerrar otra orden pagada conserva el aviso",
       "ok": true,
-      "detail": "{\"version\": 1, \"orderId\": \"ord_678432d89613476fba31\", \"updatedAt\": \"2026-11-02T16:11:06.452Z\"}"
+      "detail": "{\"version\": 1, \"orderId\": \"ord_083582bce4664429aed2\", \"updatedAt\": \"2026-11-02T19:29:38.255Z\"}"
     },
     {
       "name": "Continuar cobro muestra el Pedido #### correcto",
       "ok": true,
-      "detail": "pedido=BA31"
+      "detail": "pedido=AED2"
     },
     {
       "name": "pagar el pendiente lo borra del aviso",
@@ -217,14 +277,14 @@
       "detail": ""
     },
     {
-      "name": "la venta de crédito completo queda fulfilled",
+      "name": "la venta de crédito completo queda confirmed, no fulfilled",
       "ok": true,
       "detail": ""
     },
     {
       "name": "crear una orden fulfilled ajena no borra el pendiente",
       "ok": true,
-      "detail": "{\"version\": 1, \"orderId\": \"ord_c0a64b361115429da265\", \"updatedAt\": \"2026-11-02T16:11:14.477Z\"}"
+      "detail": "{\"version\": 1, \"orderId\": \"ord_3894d8a09e224ff8893b\", \"updatedAt\": \"2026-11-02T19:29:45.183Z\"}"
     },
     {
       "name": "abrir y cerrar la orden fulfilled ajena conserva el pendiente",
@@ -254,7 +314,7 @@
     {
       "name": "precio 0 enfoca el campo de precio",
       "ok": true,
-      "detail": "foco=draft-price-draft_1793635886106_ptgn80"
+      "detail": "foco=draft-price-draft_1793647793858_g92rkd"
     },
     {
       "name": "cantidad 0 restaurada enfoca cantidad y no envía POST",
@@ -280,6 +340,16 @@
       "name": "reiniciar demo limpia el borrador",
       "ok": true,
       "detail": ""
+    },
+    {
+      "name": "venta mixta 320px: total 7100, pagado 3100, fiado 4000, cambio 6900",
+      "ok": true,
+      "detail": "{\"id\": \"ord_4284ebbb471f446fab0a\", \"merchantId\": \"lupita\", \"status\": \"confirmed\", \"totalCents\": 7100, \"paidCents\": 3100, \"digitalPaidCents\": 0, \"paymentMethod\": \"cash\", \"lastPaymentProvider\": \"cash\", \"customerName\": \"Juan\", \"creditId\": \"cred_f476f51742b4412897a3\", \"creditCents\": 4000, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-02T19:30:07.155Z\", \"updatedAt\": \"2026-11-02T19:30:07.156Z\", \"items\": [{\"id\": \"itm_69eecbb793c24f1c9778\", \"description\": \"Quesadilla mixta\", \"quantity\": 2, \"unitPriceCents\": 3550, \"totalCents\": 7100}]}"
+    },
+    {
+      "name": "venta mixta 360px: total 7100, pagado 3100, fiado 4000, cambio 6900",
+      "ok": true,
+      "detail": "{\"id\": \"ord_d7667815daa84ef1b3cf\", \"merchantId\": \"lupita\", \"status\": \"confirmed\", \"totalCents\": 7100, \"paidCents\": 3100, \"digitalPaidCents\": 0, \"paymentMethod\": \"cash\", \"lastPaymentProvider\": \"cash\", \"customerName\": \"Juan\", \"creditId\": \"cred_29e1dd8c785849c385d1\", \"creditCents\": 4000, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-02T19:30:09.944Z\", \"updatedAt\": \"2026-11-02T19:30:09.945Z\", \"items\": [{\"id\": \"itm_6a98e3c3a18f44999c75\", \"description\": \"Quesadilla mixta\", \"quantity\": 2, \"unitPriceCents\": 3550, \"totalCents\": 7100}]}"
     }
   ]
 }

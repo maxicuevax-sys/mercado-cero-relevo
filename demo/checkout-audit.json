@@ -1,6 +1,6 @@
 {
   "viewport": "360x800",
-  "elapsedSeconds": 5.0,
+  "elapsedSeconds": 10.3,
   "checkout": {
     "innerWidth": 360,
     "scrollWidth": 360,
@@ -31,7 +31,9 @@
     "smallTargetCount": 0,
     "methods": 0
   },
-  "consoleErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
   "pageErrors": [],
   "checks": [
     {
@@ -55,9 +57,9 @@
       "detail": "0 menores: []"
     },
     {
-      "name": "Checkout: total visible",
+      "name": "Checkout: total y CTA de pago en fold (360 y 1280)",
       "ok": true,
-      "detail": ""
+      "detail": "CTA 1280: {'top': 742, 'bottom': 790, 'visible': True}"
     },
     {
       "name": "Checkout: aviso de demo visible",
@@ -100,6 +102,26 @@
       "detail": "scrollWidth=360"
     },
     {
+      "name": "Éxito 404: muestra 'No encontramos este cobro'",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Éxito 404: no inventa mensajes bancarios",
+      "ok": true,
+      "detail": "cobro no disponible\n\nno encontramos este cobro\n\neste link no corresponde a un cobro de mercado cero. pide a la comerciante que genere uno nuevo.\n\ncerrar esta pe"
+    },
+    {
+      "name": "Éxito 404: salida pública y foco en el estado",
+      "ok": true,
+      "detail": "H1:No encontramos este cobro"
+    },
+    {
+      "name": "Éxito 404: solo registra el 404 esperado en consola",
+      "ok": true,
+      "detail": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
       "name": "Checkout: sin errores de consola",
       "ok": true,
       "detail": ""
@@ -110,6 +132,6 @@
       "detail": ""
     }
   ],
-  "passed": 15,
+  "passed": 19,
   "failed": 0
 }

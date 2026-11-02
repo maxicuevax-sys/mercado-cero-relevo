@@ -102,6 +102,10 @@ const DRAFT_STORAGE_KEY = "mercado-cero:draft:v1";
 const DRAFT_VERSION = 1;
 const PENDING_ORDER_KEY = "mercado-cero:pending-order:v1";
 const PENDING_ORDER_VERSION = 1;
+// La llave sobrevive al 502: si el servidor ya commiteó, el reintento
+// devuelve la misma venta en lugar de crear otra.
+const SALE_REQUEST_STORAGE_KEY = "mercado-cero:sale-request:v1";
+const SALE_REQUEST_VERSION = 1;
 
 interface StoredDraft {
   version: number;
@@ -117,6 +121,13 @@ interface StoredDraft {
 interface StoredPendingOrder {
   version: number;
   orderId: string;
+  updatedAt: string;
+}
+
+interface StoredSaleRequest {
+  version: number;
+  requestId: string;
+  signature: string;
   updatedAt: string;
 }
 
@@ -459,6 +470,68 @@ function clearStoredPendingOrder(orderId?: string) {
   }
 }
 
+function readStoredSaleRequest(): StoredSaleRequest | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(SALE_REQUEST_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<StoredSaleRequest>;
+    if (
+      parsed.version !== SALE_REQUEST_VERSION ||
+      typeof parsed.requestId !== "string" ||
+      !parsed.requestId.startsWith("sale_") ||
+      typeof parsed.signature !== "string" ||
+      !parsed.signature
+    ) {
+      window.localStorage.removeItem(SALE_REQUEST_STORAGE_KEY);
+      return null;
+    }
+    const updatedAt =
+      typeof parsed.updatedAt === "string" && !Number.isNaN(Date.parse(parsed.updatedAt))
+        ? parsed.updatedAt
+        : new Date().toISOString();
+    return {
+      version: SALE_REQUEST_VERSION,
+      requestId: parsed.requestId,
+      signature: parsed.signature,
+      updatedAt,
+    };
+  } catch {
+    try {
+      window.localStorage.removeItem(SALE_REQUEST_STORAGE_KEY);
+    } catch {
+      // Sin almacenamiento no hay llave que limpiar.
+    }
+    return null;
+  }
+}
+
+function writeStoredSaleRequest(requestId: string, signature: string) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      SALE_REQUEST_STORAGE_KEY,
+      JSON.stringify({
+        version: SALE_REQUEST_VERSION,
+        requestId,
+        signature,
+        updatedAt: new Date().toISOString(),
+      } satisfies StoredSaleRequest),
+    );
+  } catch {
+    // Sin almacenamiento local, la llave vive en memoria durante la sesión.
+  }
+}
+
+function clearStoredSaleRequest() {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(SALE_REQUEST_STORAGE_KEY);
+  } catch {
+    // Sin almacenamiento local no hay llave que limpiar.
+  }
+}
+
 function isPendingOrder(order: Order): boolean {
   // Un fiado puro también queda `confirmed`, pero no tiene saldo digital
   // pendiente: no debe ocupar el aviso de “cobro pendiente”.
@@ -623,6 +696,8 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const lastSavedDraftRef = useRef("");
   const restoredDraftSignatureRef = useRef<string | null>(null);
   const creditPayLockRef = useRef(false);
+  const saleRequestRef = useRef<{ requestId: string; signature: string } | null>(null);
+  const saleLockRef = useRef(false);
   const toastTimerRef = useRef<number | null>(null);
   const keyboardTabRef = useRef(false);
   const dashboardAbortRef = useRef<AbortController | null>(null);
@@ -818,7 +893,14 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   useEffect(() => {
     // El borrador se restaura después del montaje para no romper la hidratación.
     const stored = readStoredDraft();
+    const storedSaleRequest = readStoredSaleRequest();
     if (stored) {
+      if (storedSaleRequest) {
+        saleRequestRef.current = {
+          requestId: storedSaleRequest.requestId,
+          signature: storedSaleRequest.signature,
+        };
+      }
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setDraftItems(stored.items);
       setCashCents(stored.cashCents);
@@ -832,6 +914,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       restoredDraftSignatureRef.current = draftSignature(stored);
       lastSavedDraftRef.current = draftSignature(stored);
     } else {
+      clearStoredSaleRequest();
       lastSavedDraftRef.current = draftSignature({
         items: [],
         cashCents: 0,
@@ -1564,6 +1647,8 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     setSaleError(null);
     setVoiceError(null);
     setRestoredDraftAt(null);
+    saleRequestRef.current = null;
+    clearStoredSaleRequest();
     lastSavedDraftRef.current = draftSignature({
       items: [],
       cashCents: 0,
@@ -1672,27 +1757,47 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       return;
     }
 
+    if (saleLockRef.current) return;
+    // Un doble tap no alcanza a mandar dos POST; aun si lo hiciera, la llave
+    // estable hace que el servidor devuelva la misma venta.
+    saleLockRef.current = true;
+
+    const payload = {
+      items: draftItems.map(({ description, quantity, unitPriceCents }) => ({
+        description: description.trim(),
+        quantity,
+        unitPriceCents,
+      })),
+      cashCents: appliedCashCents,
+      creditCents: appliedCreditCents,
+      customerName: customerName.trim() || null,
+    };
+    const signature = JSON.stringify(payload);
+    const previousRequest = saleRequestRef.current;
+    const requestId =
+      previousRequest && previousRequest.signature === signature
+        ? previousRequest.requestId
+        : newRequestId("sale");
+    if (!previousRequest || previousRequest.signature !== signature) {
+      saleRequestRef.current = { requestId, signature };
+      writeStoredSaleRequest(requestId, signature);
+    }
+
     setSavingOrder(true);
     const changeForOrder = changeCents;
     try {
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: draftItems.map(({ description, quantity, unitPriceCents }) => ({
-            description: description.trim(),
-            quantity,
-            unitPriceCents,
-          })),
-          cashCents: appliedCashCents,
-          creditCents: appliedCreditCents,
-          customerName: customerName.trim() || null,
-        }),
+        body: JSON.stringify({ ...payload, requestId }),
       });
       const data = (await response.json()) as { order?: Order; error?: string };
       if (!response.ok || !data.order) throw new Error(data.error ?? "No pude crear la venta.");
 
       const order = data.order;
+      // Éxito confirmado: la llave ya no se reutiliza para otra venta.
+      saleRequestRef.current = null;
+      clearStoredSaleRequest();
       setLastChange(changeForOrder > 0 ? { orderId: order.id, cents: changeForOrder } : null);
       setActiveOrder(order);
       clearDraft();
@@ -1726,6 +1831,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     } catch (error) {
       setSaleError(friendlyError(error, "No pude crear la venta."));
     } finally {
+      saleLockRef.current = false;
       setSavingOrder(false);
     }
   }, [
@@ -5343,6 +5449,8 @@ function GoalCard({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const goalRequestRef = useRef<{ requestId: string; signature: string } | null>(null);
+  const goalLockRef = useRef(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -5373,23 +5481,37 @@ function GoalCard({
       setError("Escribe un monto mayor a cero.");
       return;
     }
+    if (goalLockRef.current) return;
+    goalLockRef.current = true;
+    const note = "Aportación desde la caja";
+    const signature = JSON.stringify({ goalId: goal.id, amountCents, note });
+    const previousRequest = goalRequestRef.current;
+    const requestId =
+      previousRequest && previousRequest.signature === signature
+        ? previousRequest.requestId
+        : newRequestId("goal");
+    if (!previousRequest || previousRequest.signature !== signature) {
+      goalRequestRef.current = { requestId, signature };
+    }
     setSaving(true);
     setError(null);
     try {
       const response = await fetch(`/api/goals/${goal.id}/contribute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amountCents, note: "Aportación desde la caja" }),
+        body: JSON.stringify({ amountCents, note, requestId }),
       });
       if (!response.ok) throw new Error("No pude aportar.");
       const data = await readJsonBody<{ goal?: Goal }>(response);
       if (!data?.goal) throw new Error("No pude aportar.");
+      goalRequestRef.current = null;
       setGoal(data.goal);
       setAmount("");
       showToast("ok", `Apartaste ${formatMxn(amountCents)} para ${data.goal.title}.`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No pude aportar.");
     } finally {
+      goalLockRef.current = false;
       setSaving(false);
     }
   }
