@@ -3,7 +3,7 @@
 **Carril:** `p0/corte`  
 **Worktree:** `mercado-cero-corte`  
 **Base:** `db47540` (`master` con P0-A/B/C/C.1/E/F/G y voz mergeados)  
-**Commit de código verificado:** `e0fc8cef816c0e34acf238ce486c99b71b109ed1`  
+**Commit de código verificado:** `b69fc7a4edfa5d4103b8e6504bd21c9ee292c291`  
 **Estado:** implementado y verificado en el carril; **sin merge**.
 
 ---
@@ -256,7 +256,7 @@ python scripts/p0-corte-e2e.py
 Resultado: **39 PASS · 0 FAIL · 0 KNOWN**. El script levanta su propio
 `npm start` en `:3101` con una DB temporal, la reinicia con `/api/demo/reset` y
 la elimina al final. Nunca apunta a `:3000`. La evidencia quedó generada con
-`code.commit = e0fc8cef816c0e34acf238ce486c99b71b109ed1` y `dirty: false`.
+`code.commit = b69fc7a4edfa5d4103b8e6504bd21c9ee292c291` y `dirty: false`.
 
 Casos cubiertos:
 

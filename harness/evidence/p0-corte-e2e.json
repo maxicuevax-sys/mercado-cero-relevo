@@ -13,7 +13,7 @@
     "npm run build"
   ],
   "code": {
-    "commit": "e0fc8cef816c0e34acf238ce486c99b71b109ed1",
+    "commit": "b69fc7a4edfa5d4103b8e6504bd21c9ee292c291",
     "branch": "p0/corte",
     "dirty": false
   },
@@ -21,8 +21,8 @@
     "next": "16.4.3",
     "command": "npm run build"
   },
-  "startedAt": "2026-11-02T05:24:33.594033+00:00",
-  "finishedAt": "2026-11-02T05:25:01.827354+00:00",
+  "startedAt": "2026-11-02T05:25:36.091035+00:00",
+  "finishedAt": "2026-11-02T05:26:00.849954+00:00",
   "summary": {
     "pass": 39,
     "fail": 0,
@@ -123,12 +123,12 @@
     {
       "name": "el resumen posterior muestra efectivo, fiado, digital, contado y diferencia",
       "ok": true,
-      "detail": "Corte #1 ·  · Hoy 11:24 p.m. ·  · Efectivo del día · $70.00 · Fiado pendiente · $50.00 · Pendiente digital · $120.00 · Contado · $555.00 · Diferencia · Cuadra ·  · Esta foto no cambia si hay ventas o cobros después del cierre."
+      "detail": "Corte #1 ·  · Hoy 11:25 p.m. ·  · Efectivo del día · $70.00 · Fiado pendiente · $50.00 · Pendiente digital · $120.00 · Contado · $555.00 · Diferencia · Cuadra ·  · Esta foto no cambia si hay ventas o cobros después del cierre."
     },
     {
       "name": "el resumen incluye la fecha del cierre",
       "ok": true,
-      "detail": "Corte #1 ·  · Hoy 11:24 p.m. ·  · Efectivo del día · $70.00 · Fiado pendiente · $50.00 · Pendiente digital · $120.00 · Contado · $555.00 · Diferencia · Cuadra ·  · Esta foto no cambia si hay ventas o "
+      "detail": "Corte #1 ·  · Hoy 11:25 p.m. ·  · Efectivo del día · $70.00 · Fiado pendiente · $50.00 · Pendiente digital · $120.00 · Contado · $555.00 · Diferencia · Cuadra ·  · Esta foto no cambia si hay ventas o "
     },
     {
       "name": "el primer cierre crea la versión 1 en SQLite",
@@ -163,7 +163,7 @@
     {
       "name": "el historial muestra la versión 1 y el motivo de la 2",
       "ok": true,
-      "detail": "Cierres de hoy · Corte #2 · 11:24 p.m. ·  · Contado $555.50 · Sobra $0.50 ·  · Motivo: Conté de nuevo: había un billete de $50. ·  · Corte #1 · 11:24 p.m. ·  · Contado $555.00 · Cuadra"
+      "detail": "Cierres de hoy · Corte #2 · 11:25 p.m. ·  · Contado $555.50 · Sobra $0.50 ·  · Motivo: Conté de nuevo: había un billete de $50. ·  · Corte #1 · 11:25 p.m. ·  · Contado $555.00 · Cuadra"
     },
     {
       "name": "audit cash.close registra versión 2 y su motivo",
