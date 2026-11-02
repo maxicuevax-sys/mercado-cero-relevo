@@ -1,11 +1,11 @@
 {
-  "startedAt": "2026-11-02T04:28:11.726638+00:00",
-  "finishedAt": "2026-11-02T04:28:52.510884+00:00",
+  "startedAt": "2026-11-02T04:33:03.292567+00:00",
+  "finishedAt": "2026-11-02T04:33:48.575615+00:00",
   "baseUrl": "http://localhost:3101",
   "gitAtStart": {
-    "sha": "76bfbc3e8a5ce8b36c0a303c71e99cc1aeb9fbd4",
+    "sha": "210496622ee2032285e5ac0974364e4983e9bc28",
     "branch": "master",
-    "dirty": true
+    "dirty": false
   },
   "totals": {
     "pass": 50,
@@ -108,12 +108,12 @@
     {
       "name": "la actividad usa fecha relativa, no solo hora",
       "ok": true,
-      "detail": "Hoy 10:28 p.m."
+      "detail": "Hoy 10:33 p.m."
     },
     {
       "name": "Ver abre el cobro explícitamente",
       "ok": true,
-      "detail": "Cobro pendiente ·  · Cobro · Pedido BA8E ·  · $120.00 ·  · 1 Pedido para llevar ·  · ESPERANDO AL BANCO ·  · Pago pendiente; aún no entregues. ·  · Modo demo ·  · Simula la confirm"
+      "detail": "Cobro pendiente ·  · Cobro · Pedido ABD3 ·  · $120.00 ·  · 1 Pedido para llevar ·  · ESPERANDO AL BANCO ·  · Pago pendiente; aún no entregues. ·  · Modo demo ·  · Simula la confirm"
     },
     {
       "name": "Fiado muestra desde con fecha relativa",
@@ -168,12 +168,12 @@
     {
       "name": "la venta mixta muestra el remanente de $40",
       "ok": true,
-      "detail": "Cobrar $40.00 ·  · Cobro · Pedido 8A6B ·  · $40.00 ·  · 1 Quesadillas ·  · POR COBRAR ·  · Fiado $20.00 · Cobrado $30.00 · Falta cobrar $40.00 ·  · El fiado vive en la libreta y no se cuenta como dinero recibido. Cobra aquí solo el saldo di"
+      "detail": "Cobrar $40.00 ·  · Cobro · Pedido 9BFB ·  · $40.00 ·  · 1 Quesadillas ·  · POR COBRAR ·  · Fiado $20.00 · Cobrado $30.00 · Falta cobrar $40.00 ·  · El fiado vive en la libreta y no se cuenta como dinero recibido. Cobra aquí solo el saldo di"
     },
     {
       "name": "la venta mixta muestra fiado, cobrado y link/QR",
       "ok": true,
-      "detail": "Cobrar $40.00 ·  · Cobro · Pedido 8A6B ·  · $40.00 ·  · 1 Quesadillas ·  · POR COBRAR ·  · Fiado $20.00 · Cobrado $30.00 · Falta cobrar $40.00 ·  · El fiado vive en la libreta y no se cuenta como dinero recibido. Cobra aquí solo el saldo di"
+      "detail": "Cobrar $40.00 ·  · Cobro · Pedido 9BFB ·  · $40.00 ·  · 1 Quesadillas ·  · POR COBRAR ·  · Fiado $20.00 · Cobrado $30.00 · Falta cobrar $40.00 ·  · El fiado vive en la libreta y no se cuenta como dinero recibido. Cobra aquí solo el saldo di"
     },
     {
       "name": "la venta mixta no dice Quedó anotado por el total",
@@ -188,17 +188,17 @@
     {
       "name": "pagar el digital deja el resultado Pago mixto",
       "ok": true,
-      "detail": "Pago mixto ·  · Pago mixto ·  · $90.00 ·  · Pedido 8A6B · $30.00 efectivo + Fiado $20.00 + $40.00 demo ·  · Recibiste $30.00 en efectivo + $40.00 demo. Saldo vivo: $20.00 · original $20.00. Aparece en Fiado; no es dinero"
+      "detail": "Pago mixto ·  · Pago mixto ·  · $90.00 ·  · Pedido 9BFB · $30.00 efectivo + Fiado $20.00 + $40.00 demo ·  · Recibiste $30.00 en efectivo + $40.00 demo. Saldo vivo: $20.00 · original $20.00. Aparece en Fiado; no es dinero"
     },
     {
       "name": "el resultado declara Fiado + demo, no Quedó anotado",
       "ok": true,
-      "detail": "Pago mixto ·  · Pago mixto ·  · $90.00 ·  · Pedido 8A6B · $30.00 efectivo + Fiado $20.00 + $40.00 demo ·  · Recibiste $30.00 en efectivo + $40.00 demo. Saldo vivo: $20.00 · original $20.00. Aparece en Fiado; no es dinero"
+      "detail": "Pago mixto ·  · Pago mixto ·  · $90.00 ·  · Pedido 9BFB · $30.00 efectivo + Fiado $20.00 + $40.00 demo ·  · Recibiste $30.00 en efectivo + $40.00 demo. Saldo vivo: $20.00 · original $20.00. Aparece en Fiado; no es dinero"
     },
     {
       "name": "la base conserva la venta mixta correcta",
       "ok": true,
-      "detail": "[[\"ord_679bcfd2f829434c8a6b\", \"fulfilled\", 7000, 2000]] digital=[[4000]]"
+      "detail": "[[\"ord_bf16591d2c2444a79bfb\", \"fulfilled\", 7000, 2000]] digital=[[4000]]"
     },
     {
       "name": "el fiado original sigue intacto después del digital",
