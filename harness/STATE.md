@@ -31,8 +31,8 @@
 
 ## Última corrida del harness
 
-- Fecha: **2 nov 2026, 06:49 UTC**
-- Código verificado: **`cf8d6fc`** (P0-D mergeado, motion y voz); `latest.json` se generó sobre `87239a3`, que solo añade evidencia.
+- Fecha: **2 nov 2026, 08:10 UTC**
+- Código verificado: **`9f7d02d`** (P0-D endurecido, motion y voz); `latest.json` se generó sobre `78aaff3`, que solo añade evidencia.
 - Modo: **full**, **11/11** en verde, `gitAtStart.dirty: false`; `latest.json` con `ok: true`.
 - Gates: `guard`, `lint`, `types`, `truth`, `webhook` 27/27, `mobile` 25/25, `checkout` 15/15, `hig` axe 0, `rehearsal` 3/3 (4.6 s promedio), `tunnel` 8/8, `preflight` 18/18.
 - E2E de carril: corte **69/0/0**, integración **51/0/0**, fiado **50/0/0**, venta **43/0/0**, shell **52/0/0**, motion **14/0**.
@@ -47,7 +47,7 @@
 - Pendientes de negocio (P0-G): quinto tab, crear/completar/reabrir/posponer/eliminar, reset de demo sin tareas fantasma.
 - Venta mixta: efectivo + fiado + remanente digital con Link/QR/demo; resultado “Pago mixto”.
 - Voz: Kokoro `em_santa` para frases fijas, Piper para dinámicas, montos hablados (“50 pesos”, no “cincuenta punto cero cero”).
-- Corte (P0-D mergeado): borrador no destructivo, cierre versionado `cash_closes` con `snapshot_known`, retiro previo explícito, idempotencia `requestId`/`expectedVersion` 409, historial con v1 y migración transaccional con recovery.
+- Corte (P0-D mergeado): borrador no destructivo, cierre versionado `cash_closes` con `snapshot_known`, retiro previo explícito, idempotencia `requestId`/`expectedVersion` 409, historial con v1, migración transaccional con recovery y `requestId` seguro también fuera de contexto seguro.
 - Movimiento: sistema “papel que se asienta” en `MOTION.md`, CSS nativo, scroll trigger y reduced-motion.
 - Meta: apartado declarado, progreso.
 - Accesibilidad: 48 px, 200%, alto contraste, voz, repetir, leer pantalla, movimiento reducido.
