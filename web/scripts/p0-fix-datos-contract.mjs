@@ -52,6 +52,23 @@ function seedOldDatabase() {
   try {
     db.exec("PRAGMA journal_mode = WAL;");
     db.exec(`
+      CREATE TABLE customers (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE,
+        phone TEXT,
+        created_at TEXT NOT NULL
+      );
+      CREATE TABLE credits (
+        id TEXT PRIMARY KEY,
+        customer_id TEXT NOT NULL,
+        order_id TEXT,
+        original_cents INTEGER NOT NULL,
+        balance_cents INTEGER NOT NULL,
+        status TEXT NOT NULL DEFAULT 'open',
+        due_date TEXT,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (customer_id) REFERENCES customers(id)
+      );
       CREATE TABLE credit_payments (
         id TEXT PRIMARY KEY,
         credit_id TEXT NOT NULL,
@@ -62,6 +79,19 @@ function seedOldDatabase() {
         created_at TEXT NOT NULL
       );
     `);
+    db.prepare(
+      "INSERT INTO customers (id, name, phone, created_at) VALUES (?, ?, NULL, ?)",
+    ).run("cus_viejo", "Juan", "2020-01-01T00:00:00.000Z");
+    db.prepare(
+      `INSERT INTO credits
+       (id, customer_id, order_id, original_cents, balance_cents, status, created_at)
+       VALUES (?, ?, NULL, ?, ?, 'open', ?)`,
+    ).run("cred_vieja", "cus_viejo", 5000, 5000, "2020-01-01T00:00:00.000Z");
+    db.prepare(
+      `INSERT INTO credits
+       (id, customer_id, order_id, original_cents, balance_cents, status, created_at)
+       VALUES (?, ?, NULL, ?, ?, 'open', ?)`,
+    ).run("cred_otra", "cus_viejo", 3000, 3000, "2020-01-01T00:00:00.000Z");
     const insert = db.prepare(
       `INSERT INTO credit_payments
        (id, credit_id, amount_cents, method, note, request_id, created_at)
@@ -392,6 +422,61 @@ async function main() {
     check(
       "migración: crea el índice único de request_id de cash_closes",
       Number(cashRequestIndex[0].n) === 1,
+    );
+
+    // La tabla customers vieja tenía `name UNIQUE` global. La migración debe
+    // reconstruirla con `demo` y unicidad (name, demo), conservando el crédito
+    // viejo y permitiendo el fixture demo con el mismo nombre.
+    const customerColumns = rows("PRAGMA table_info(customers)");
+    check(
+      "migración: customers gana la columna demo",
+      customerColumns.some((column) => column.name === "demo"),
+      JSON.stringify(customerColumns.map((column) => column.name)),
+    );
+    const oldCustomer = rows("SELECT id, name, demo FROM customers WHERE id = 'cus_viejo'")[0];
+    const juanCustomers = rows(
+      "SELECT id, demo FROM customers WHERE lower(name) = 'juan' ORDER BY demo",
+    );
+    check(
+      "migración: conserva el cliente viejo como real",
+      oldCustomer?.name === "Juan" && Number(oldCustomer.demo) === 0,
+      JSON.stringify(oldCustomer),
+    );
+    check(
+      "migración: el fixture demo Juan convive con el Juan real",
+      juanCustomers.length === 2 &&
+        juanCustomers.some((row) => Number(row.demo) === 0) &&
+        juanCustomers.some(
+          (row) => Number(row.demo) === 1 && String(row.id).startsWith("demo_seed_"),
+        ),
+      JSON.stringify(juanCustomers),
+    );
+    check(
+      "migración: el crédito viejo conserva su cliente",
+      rows("SELECT customer_id FROM credits WHERE id = 'cred_vieja'")[0]?.customer_id ===
+        "cus_viejo",
+    );
+
+    const juanDemoSale = await api("/api/orders", {
+      method: "POST",
+      body: {
+        items: [{ description: "Fiado demo Juan", quantity: 1, unitPriceCents: 1000 }],
+        creditCents: 1000,
+        customerName: "Juan",
+      },
+    });
+    const juanDemoCredit = rows(
+      `SELECT c.customer_id, c.demo AS credit_demo, cu.demo AS customer_demo
+       FROM credits c JOIN customers cu ON cu.id = c.customer_id
+       WHERE c.id = ?`,
+      [juanDemoSale.json?.order?.creditId],
+    )[0];
+    check(
+      "migración: una venta fiada demo a Juan usa el cliente demo",
+      juanDemoSale.status === 201 &&
+        Number(juanDemoCredit?.credit_demo) === 1 &&
+        Number(juanDemoCredit?.customer_demo) === 1,
+      JSON.stringify(juanDemoCredit),
     );
 
     // ---------------------------------------------------------------------

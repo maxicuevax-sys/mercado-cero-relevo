@@ -4,6 +4,7 @@ import {
   getCredit,
   getDb,
   getOrder,
+  getOrderByNumRef,
   getOrderRequestMatch,
   listPayments,
   newId,
@@ -43,18 +44,43 @@ function normalizeRequestId(value: string | null | undefined): string | null {
   return requestId;
 }
 
+function isOrderVisibleInCurrentMode(row: Record<string, unknown>): boolean {
+  if (isDemoMode()) return true;
+  return (
+    Number(row.demo) === 0 &&
+    !String(row.id).startsWith("demo_") &&
+    row.status !== "demo_paid"
+  );
+}
+
 /**
  * Un requestId solo es idempotente si el payload es el mismo. Si la llave ya
  * existe con otro hash, responde 409 en lugar de devolver un pedido viejo.
  * Los pedidos migrados sin hash se aceptan como reintento (no conocemos su
  * payload original).
+ *
+ * La búsqueda se limita al modo actual. Un requestId demo no puede devolver
+ * un pedido demo en real: si la llave existe en el otro modo, la respuesta es
+ * 409 para no mezclar identidades ni permitir un cobro cruzado.
  */
 function findOrderForRequest(
   requestId: string,
   requestHash: string,
 ): Order | null {
   const match = getOrderRequestMatch(requestId, MERCHANT.id);
-  if (!match) return null;
+  if (!match) {
+    const database = getDb();
+    const crossMode = database
+      .prepare("SELECT * FROM orders WHERE request_id = ? AND merchant_id = ? LIMIT 1")
+      .get(requestId, MERCHANT.id) as Record<string, unknown> | undefined;
+    if (crossMode && !isOrderVisibleInCurrentMode(crossMode)) {
+      throw new ConflictError(
+        "Ese identificador de solicitud pertenece al otro modo (demo/real). No se creó otro pedido.",
+        "request_id_conflict",
+      );
+    }
+    return null;
+  }
   if (match.requestHash !== null && match.requestHash !== requestHash) {
     throw new ConflictError(
       "Ese identificador de solicitud ya se usó con otros datos. No se creó otro pedido.",
@@ -205,27 +231,40 @@ export function createOrder(input: CreateOrderInput): Order {
       }
     }
 
-    database
-      .prepare(
-        `INSERT INTO orders
-         (id, merchant_id, status, total_cents, paid_cents, payment_method, customer_name, credit_cents, request_id, request_hash, demo, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      )
-      .run(
-        id,
-        MERCHANT.id,
-        "confirmed",
-        totalCents,
-        cashCents,
-        cashCents > 0 ? "cash" : null,
-        customerName,
-        creditCents,
-        requestId,
-        requestHash,
-        isDemoMode() ? 1 : 0,
-        createdAt,
-        createdAt,
-      );
+    try {
+      database
+        .prepare(
+          `INSERT INTO orders
+           (id, merchant_id, status, total_cents, paid_cents, payment_method, customer_name, credit_cents, request_id, request_hash, demo, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .run(
+          id,
+          MERCHANT.id,
+          "confirmed",
+          totalCents,
+          cashCents,
+          cashCents > 0 ? "cash" : null,
+          customerName,
+          creditCents,
+          requestId,
+          requestHash,
+          isDemoMode() ? 1 : 0,
+          createdAt,
+          createdAt,
+        );
+    } catch (error) {
+      // Carrera entre la comprobación de modo y el INSERT: el índice único
+      // de (merchant_id, request_id) sigue siendo global. Se traduce a 409
+      // en vez de filtrar un error de SQLite.
+      if (error instanceof Error && /UNIQUE constraint failed: orders/i.test(error.message)) {
+        throw new ConflictError(
+          "Ese identificador de solicitud ya está en uso. No se creó otro pedido.",
+          "request_id_conflict",
+        );
+      }
+      throw error;
+    }
 
     const insertItem = database.prepare(
       `INSERT INTO order_items (id, order_id, description, quantity, unit_price_cents, total_cents)
@@ -368,9 +407,13 @@ export function attachPaymentLink(
     }
 
     // Solo se marca `payment_pending` si de verdad queda saldo por cobrar.
+    // Un abono parcial no se degrada a "pendiente de pago": ya tiene dinero.
     const outstandingCents =
       Number(row.total_cents) - Number(row.paid_cents) - Number(row.credit_cents);
-    const nextStatus = outstandingCents > 0 ? "payment_pending" : row.status;
+    const nextStatus =
+      outstandingCents > 0 && row.status !== "partially_paid"
+        ? "payment_pending"
+        : row.status;
     database
       .prepare(
         "UPDATE orders SET payment_link_id = ?, payment_url = ?, status = ?, updated_at = ? WHERE id = ?",
@@ -439,11 +482,10 @@ export function attachQr(
     }
 
     // La colisión se decide dentro del lock: si otro pedido tomó el numRef
-    // mientras hablábamos con pey, no se adjunta nada.
-    const collision = database
-      .prepare("SELECT id FROM orders WHERE num_ref = ? AND id != ? LIMIT 1")
-      .get(numRef, orderId) as { id: string } | undefined;
-    if (collision) {
+    // mientras hablábamos con pey, no se adjunta nada. `getOrderByNumRef`
+    // filtra el modo actual: un numRef demo no bloquea uno real.
+    const collision = getOrderByNumRef(numRef);
+    if (collision && collision.id !== orderId) {
       throw new ConflictError(
         "Ese número de referencia ya está en uso. Intenta generar el QR de nuevo.",
         "num_ref_conflict",
@@ -452,7 +494,10 @@ export function attachQr(
 
     const outstandingCents =
       Number(row.total_cents) - Number(row.paid_cents) - Number(row.credit_cents);
-    const nextStatus = outstandingCents > 0 ? "payment_pending" : row.status;
+    const nextStatus =
+      outstandingCents > 0 && row.status !== "partially_paid"
+        ? "payment_pending"
+        : row.status;
     database
       .prepare(
         "UPDATE orders SET qr_id = ?, qr_string = ?, qr_image = ?, num_ref = ?, status = ?, updated_at = ? WHERE id = ?",
@@ -927,10 +972,22 @@ export function fulfillOrder(orderId: string): Order | null {
       "demo_not_deliverable",
     );
   }
-  // La entrega no puede adelantarse a una deuda abierta. Un fiado saldado sí
-  // puede entregarse explícitamente, pero nunca se marca solo.
-  const credit = order.creditId ? getCredit(order.creditId) : null;
-  if (credit && credit.balanceCents > 0) {
+  // La entrega no puede adelantarse a una deuda abierta. Se consulta por
+  // `order_id` (no solo por `credit_id`) y sin el filtro de visibilidad de
+  // `getCredit`: un crédito real puede apuntar a un cliente demo y aun así
+  // debe bloquear la entrega hasta cobrarse.
+  const database = getDb();
+  const openCredit = database
+    .prepare(
+      `SELECT id, balance_cents FROM credits
+       WHERE status != 'settled' AND balance_cents > 0
+         AND (order_id = ? OR id = ?)
+       LIMIT 1`,
+    )
+    .get(orderId, order.creditId ?? "") as
+    | { id: string; balance_cents: number }
+    | undefined;
+  if (openCredit) {
     throw new ConflictError(
       "El fiado sigue abierto. Cóbralo antes de marcar la entrega.",
       "credit_open",
@@ -947,7 +1004,6 @@ export function fulfillOrder(orderId: string): Order | null {
     );
   }
 
-  const database = getDb();
   database
     .prepare("UPDATE orders SET status = 'fulfilled', updated_at = ? WHERE id = ?")
     .run(nowIso(), orderId);

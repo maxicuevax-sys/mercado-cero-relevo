@@ -138,6 +138,25 @@ function main() {
     `${linkedOpen.status} · ${linkedOpen.paymentUrl}`,
   );
 
+  const partialOrder = createOrder({
+    items: [{ description: "Abono parcial", quantity: 1, unitPriceCents: 1000 }],
+  });
+  recordPayment(partialOrder.id, {
+    provider: "pey",
+    method: "card",
+    amountCents: 400,
+    transactionId: "tx_partial_link",
+  });
+  const linkedPartial = attachPaymentLink(partialOrder.id, {
+    id: "link_partial",
+    url: "https://example.test/partial",
+  });
+  check(
+    "attach link no degrada un pedido partially_paid",
+    linkedPartial.status === "partially_paid" && Boolean(linkedPartial.paymentUrl),
+    `${linkedPartial.status} · ${linkedPartial.paymentUrl}`,
+  );
+
   // ---------------------------------------------------------------- P0-2
   const atomicOrder = createOrder({
     items: [{ description: "Atómico", quantity: 1, unitPriceCents: 5000 }],
