@@ -8,6 +8,8 @@
   --color-ink: #1a211b;
   --color-ink-2: #59615a;
   --color-separator: #d7ccb9;
+  --color-control-border: #b4a68f;
+  --color-placeholder: #675f52;
   --color-accent: #0a5b42;
   --color-accent-press: #074433;
   --color-success: #0a5b42;
@@ -178,6 +180,8 @@ html[data-contrast="high"] {
   --color-ink: #000000;
   --color-ink-2: #1a1a1a;
   --color-separator: #5c5c5c;
+  --color-control-border: #000000;
+  --color-placeholder: #1a1a1a;
   --color-accent: #004d38;
   --color-accent-press: #003326;
   --color-success: #004d38;
@@ -212,11 +216,13 @@ html[data-contrast="high"] *:focus-visible {
   color: var(--color-ink);
 }
 
+/* Solo la familia se hereda: `font: inherit` borraba tamaño, peso y
+   line-height que las utilidades de Tailwind ya habían fijado. */
 button,
 input,
 textarea,
 select {
-  font: inherit;
+  font-family: inherit;
 }
 
 button {
@@ -416,16 +422,90 @@ button {
 
 .topbar-merchant {
   font-family: var(--font-display);
-  font-size: 1.0625rem;
+  font-size: min(1.0625rem, 18px);
   font-weight: 600;
   line-height: 1.1;
   letter-spacing: -0.01em;
 }
 
 .topbar-address {
-  font-size: 0.75rem;
+  font-size: min(0.75rem, 12px);
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.topbar svg {
+  width: min(1.25rem, 20px);
+  height: min(1.25rem, 20px);
+}
+
+/* El chrome no crece sin límite al ampliar el texto: la tarea (venta) cabe
+   antes y la navegación conserva targets de 48 px. */
+.topbar > div {
+  min-height: 56px;
+  padding-top: clamp(4px, 0.5rem, 8px);
+  padding-bottom: clamp(4px, 0.5rem, 8px);
+}
+
+.mobile-tab-label {
+  font-size: min(0.8125rem, 13px);
+  overflow-wrap: normal;
+}
+
+.mobile-tabs svg {
+  width: min(1.25rem, 20px);
+  height: min(1.25rem, 20px);
+}
+
+.mobile-tabs {
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
+.mobile-tabs button {
+  height: 56px;
+  min-height: 56px;
+  gap: 2px;
+}
+
+/* Un shell para los cinco destinos: mismo borde izquierdo del H1 y misma
+   retícula. Fiado y Meta conservan su columna de lectura dentro. */
+.tab-shell {
+  width: 100%;
+  max-width: 64rem;
+  min-width: 0;
+}
+
+.tab-readable {
+  width: 100%;
+  max-width: 47.5rem;
+  min-width: 0;
+}
+
+.screen-heading__title {
+  font-size: min(1.75rem, 40px);
+}
+
+.sidebar-label {
+  font-size: min(0.9375rem, 15px);
+  white-space: nowrap;
+}
+
+/* En móvil el acceso a cobros vive junto al heading; en la retícula de dos
+   columnas el detalle ya está a la vista en el aside. */
+@container (min-width: 56rem) {
+  .caja-pending-strip {
+    display: none;
+  }
+}
+
+.caja-pending-strip {
+  min-height: 48px;
+  font-size: min(0.875rem, 16px);
+  flex-wrap: nowrap;
+}
+
+.caja-pending-strip > span:last-child {
+  flex-shrink: 0;
 }
 
 .mobile-tabs {
@@ -452,7 +532,9 @@ button {
   opacity: 0.45;
 }
 
-button.bg-accent {
+/* La píldora es una decisión semántica del CTA primario, no un efecto de
+   `bg-accent`. Las filas de cobro (.pay-option) conservan su radio de lista. */
+.cta-primary {
   border-radius: 999px;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
@@ -460,12 +542,12 @@ button.bg-accent {
 }
 
 @media (hover: hover) {
-  button.bg-accent:hover {
+  .cta-primary:hover {
     transform: translateY(-1px);
   }
 }
 
-button.bg-accent:active {
+.cta-primary:active {
   transform: translateY(0) scale(0.99);
 }
 
@@ -480,6 +562,7 @@ button.bg-accent:active {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  min-height: 48px;
   gap: 0.75rem;
 }
 
@@ -511,7 +594,7 @@ button.bg-accent:active {
 
 @media (min-width: 1024px) {
   .screen-heading__title {
-    font-size: 2.1rem;
+    font-size: min(2.1rem, 44px);
     line-height: 1.1;
   }
 }
@@ -553,22 +636,35 @@ select {
   container-type: inline-size;
 }
 
-.mobile-tab-label {
-  overflow-wrap: normal;
-}
-
 @container (max-width: 20rem) {
   .mobile-tab-label {
-    font-size: 0.625rem;
-    line-height: 1rem;
+    font-size: min(0.8125rem, 13px);
+    line-height: 1.15;
   }
 
   /* A 200 % el topbar se compacta para dejar la venta en el primer viewport. */
   .topbar > div {
-    min-height: 0;
-    padding-top: 6px;
-    padding-bottom: 6px;
+    min-height: 56px;
+    flex-wrap: nowrap;
+    padding-top: 4px;
+    padding-bottom: 4px;
   }
+
+  .topbar > div > div:first-child {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .topbar-merchant {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .topbar .demo-stamp {
+    font-size: min(0.75rem, 12px);
+  }
+
 }
 
 /* A 200 % el resumen baja un escalón para que la venta siga en el primer
@@ -611,6 +707,26 @@ select {
     order: -1;
   }
 
+  /* Los atajos de ejemplo no empujan la voz ni el resto del pedido fuera
+     del primer viewport: siguen disponibles en una sola fila desplazable. */
+  .caja-voice {
+    margin-top: 8px;
+  }
+
+  .caja-text-entry > label {
+    margin-top: 4px;
+  }
+
+  /* Los atajos de ejemplo viven después de la voz para no empujar el campo
+     de venta; siguen disponibles y envuelven dentro del ancho. */
+  .sample-phrases {
+    margin-top: 8px;
+  }
+
+  .interpret-button {
+    min-height: 48px;
+  }
+
   /* A 200 % en 360 px, el encabezado y la tarjeta de venta se compactan sin
      reducir la tipografía: el campo de texto debe seguir en el primer viewport. */
   .screen-heading {
@@ -626,9 +742,34 @@ select {
     display: none;
   }
 
+  .screen-heading__action {
+    max-width: 100%;
+  }
+
+  .screen-heading__action button {
+    max-width: 100%;
+    min-height: 48px;
+    font-size: min(0.875rem, 16px);
+  }
+
   .screen-heading__subtitle {
+    font-size: min(0.875rem, 18px);
     line-height: 1.25;
     margin-top: 4px;
+  }
+
+  .main-container h2 {
+    font-size: min(1.25rem, 28px);
+  }
+
+  .caja-trust-note {
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .caja-trust-note svg {
+    width: 20px;
+    height: 20px;
   }
 
   .screen-heading__subtitle--optional {
@@ -670,7 +811,12 @@ select {
   }
 
   .goal-card-title {
-    font-size: 1.125rem;
+    font-size: min(1.25rem, 24px);
+  }
+
+  .goal-card .text-sm {
+    font-size: min(0.9375rem, 16px);
+    line-height: 1.35;
   }
 
   .goal-body {
@@ -685,6 +831,44 @@ select {
   .goal-action-row > button,
   .goal-action-row input {
     min-height: 48px;
+  }
+
+  /* A 200 % la meta conserva la lectura (cifra + barra + falta) y deja el
+     aporte en una fila compacta, no en dos pantallas. */
+  .goal-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .goal-stats .text-xs {
+    font-size: min(0.8125rem, 14px);
+  }
+
+  .goal-stats .tabular {
+    font-size: min(1rem, 16px);
+  }
+
+  .goal-action-row {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .goal-action-row > button {
+    width: auto;
+    flex: 0 0 auto;
+    padding-left: 12px;
+    padding-right: 12px;
+    gap: 6px;
+    font-size: min(0.875rem, 16px);
+  }
+
+  .goal-action-row > button svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .goal-action-row > div > span,
+  .goal-action-row input {
+    font-size: min(0.875rem, 16px);
   }
 
   .corte-note {
@@ -789,6 +973,103 @@ select {
 .bar-grow {
   transform-origin: bottom;
   animation: bar-grow 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Checkout público: chrome acotado y total siempre a la vista.               */
+/* -------------------------------------------------------------------------- */
+
+.pay-header {
+  container-type: inline-size;
+}
+
+@container (max-width: 20rem) {
+  .pay-header {
+    flex-wrap: nowrap;
+  }
+
+  .pay-secure-label {
+    display: none;
+  }
+}
+
+.pay-brand-name {
+  font-size: min(1.15rem, 18px);
+}
+
+.pay-eyebrow {
+  font-size: min(0.75rem, 12px);
+}
+
+.pay-title {
+  font-size: min(1.625rem, 30px);
+  line-height: 1.15;
+}
+
+.pay-total {
+  font-size: min(2.25rem, 40px);
+}
+
+.pay-sticky-total {
+  font-size: min(1.125rem, 20px);
+}
+
+.pay-submit {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid var(--color-separator);
+  background: var(--color-surface);
+  padding: 8px max(16px, calc((100vw - 480px) / 2))
+    max(10px, env(safe-area-inset-bottom));
+  box-shadow: 0 -12px 30px -30px rgba(47, 38, 24, 0.55);
+}
+
+/* Un solo botón de pago, siempre visible: total + CTA en una barra fija que
+   se alinea con la tarjeta de 480 px en escritorio. */
+.pay-submit-total {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+
+.pay-submit-total p:first-child {
+  font-size: min(0.75rem, 12px);
+}
+
+.pay-submit button {
+  min-height: 48px;
+  padding-left: 20px;
+  padding-right: 20px;
+  gap: 8px;
+  font-size: min(1rem, 16px);
+}
+
+.pay-submit-button {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.pay-shell h1 {
+  font-size: min(1.75rem, 34px);
+  line-height: 1.2;
+}
+
+.pay-shell h1.pay-title {
+  font-size: min(1.625rem, 30px);
+}
+
+.pay-amount {
+  font-size: min(2.125rem, 38px);
+}
+
+.pay-shell {
+  /* La barra fija total + CTA no tapa el último contenido. */
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -987,5 +1268,18 @@ select {
     transition-duration: 0.01ms !important;
     transition-delay: 0ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Variante ligera para gama baja / movimiento reducido: sin grano fijo ni
+     blur de composición. El contraste y la jerarquía se mantienen. */
+  body::before {
+    display: none;
+  }
+
+  .topbar,
+  .mobile-tabs,
+  .pay-submit {
+    backdrop-filter: none;
+    background: var(--color-surface);
   }
 }

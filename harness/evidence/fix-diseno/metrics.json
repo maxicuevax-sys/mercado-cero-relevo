@@ -1,0 +1,189 @@
+{
+  "360": {
+    "topbar": {
+      "x": 0,
+      "y": 0,
+      "w": 360,
+      "h": 65,
+      "top": 0,
+      "bottom": 65,
+      "font": "17px",
+      "weight": "400",
+      "radius": "0px",
+      "text": "Antojitos de Lupita\n\nCOYOACÁN, CDMX\n\nDEMO"
+    },
+    "tabbar": {
+      "x": 0,
+      "y": 735,
+      "w": 360,
+      "h": 65,
+      "top": 735,
+      "bottom": 800,
+      "font": "17px",
+      "weight": "400",
+      "radius": "0px",
+      "text": "Caja\nFiado\nCorte\nMeta\nTareas"
+    },
+    "h1": {
+      "x": 16,
+      "y": 92,
+      "w": 198,
+      "h": 35,
+      "top": 92,
+      "bottom": 127,
+      "font": "28px",
+      "weight": "600",
+      "radius": "0px",
+      "text": "Caja"
+    },
+    "sale": {
+      "x": 33,
+      "y": 583,
+      "w": 294,
+      "h": 48,
+      "top": 583,
+      "bottom": 631,
+      "font": "16px",
+      "weight": "400",
+      "radius": "12px",
+      "text": ""
+    },
+    "demo": {
+      "x": 174,
+      "y": 8,
+      "w": 62,
+      "h": 48,
+      "top": 8,
+      "bottom": 56,
+      "font": "12px",
+      "weight": "700",
+      "radius": "3.35544e+07px",
+      "text": "DEMO"
+    },
+    "label": {
+      "x": 22,
+      "y": 767,
+      "w": 28,
+      "h": 16,
+      "top": 767,
+      "bottom": 783,
+      "font": "13px",
+      "weight": "600",
+      "radius": "0px",
+      "text": "Caja"
+    }
+  },
+  "360text200": {
+    "topbar": {
+      "x": 0,
+      "y": 0,
+      "w": 360,
+      "h": 57,
+      "top": 0,
+      "bottom": 57,
+      "font": "34px",
+      "weight": "400",
+      "radius": "0px",
+      "text": "Antojitos de Lupita\n\nDEMO"
+    },
+    "tabbar": {
+      "x": 0,
+      "y": 735,
+      "w": 360,
+      "h": 65,
+      "top": 735,
+      "bottom": 800,
+      "font": "34px",
+      "weight": "400",
+      "radius": "0px",
+      "text": "Caja\nFiado\nCorte\nMeta\nTareas"
+    },
+    "h1": {
+      "x": 32,
+      "y": 97,
+      "w": 206,
+      "h": 50,
+      "top": 97,
+      "bottom": 147,
+      "font": "40px",
+      "weight": "600",
+      "radius": "0px",
+      "text": "Caja"
+    },
+    "sale": {
+      "x": 45,
+      "y": 478,
+      "w": 270,
+      "h": 48,
+      "top": 478,
+      "bottom": 526,
+      "font": "32px",
+      "weight": "400",
+      "radius": "24px",
+      "text": ""
+    },
+    "mic": {
+      "x": 77,
+      "y": 600,
+      "w": 80,
+      "h": 80,
+      "top": 600,
+      "bottom": 680,
+      "font": "34px",
+      "weight": "400",
+      "radius": "3.35544e+07px",
+      "text": ""
+    },
+    "scrollWidth": 360
+  },
+  "768": {
+    "tabbar": true,
+    "sidebar": false,
+    "scrollWidth": 768,
+    "innerWidth": 768
+  },
+  "768text200": {
+    "saleTop": 700,
+    "saleBottom": 796,
+    "scrollWidth": 768,
+    "innerWidth": 768
+  },
+  "1280tabs": {
+    "Caja": {
+      "x": 272,
+      "y": 91,
+      "w": 462,
+      "font": "33.6px"
+    },
+    "Fiado": {
+      "x": 272,
+      "y": 91,
+      "w": 976,
+      "font": "33.6px"
+    },
+    "Corte": {
+      "x": 272,
+      "y": 91,
+      "w": 976,
+      "font": "33.6px"
+    },
+    "Meta": {
+      "x": 272,
+      "y": 91,
+      "w": 976,
+      "font": "33.6px"
+    },
+    "Pendientes": {
+      "x": 272,
+      "y": 91,
+      "w": 763,
+      "font": "33.6px"
+    }
+  },
+  "checkout1280": {
+    "top": 742,
+    "bottom": 790,
+    "visible": true,
+    "innerHeight": 800
+  }
+}

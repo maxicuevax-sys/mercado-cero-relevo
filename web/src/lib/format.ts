@@ -37,6 +37,23 @@ const activityShortDateWithYear = new Intl.DateTimeFormat("es-MX", {
   year: "numeric",
 });
 
+const dayMonth = new Intl.DateTimeFormat("es-MX", {
+  day: "numeric",
+  month: "short",
+  timeZone: "UTC",
+});
+
+/**
+ * "2026-02-11" → "11 feb". Evita el ambiguo "11-02" en los reportes.
+ */
+export function formatDayMonth(isoDate: string): string {
+  const [year, month, day] = isoDate.split("-").map(Number);
+  if (!year || !month || !day) return isoDate;
+  const date = new Date(Date.UTC(year, month - 1, day, 12));
+  if (Number.isNaN(date.getTime())) return isoDate;
+  return dayMonth.format(date);
+}
+
 function localDayNumber(date: Date): number {
   return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000;
 }

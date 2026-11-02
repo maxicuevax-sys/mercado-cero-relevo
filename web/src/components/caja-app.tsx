@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { AnimatedAmount } from "@/components/animated-amount";
 import { PendingPayments } from "@/components/pending-payments";
 import { PendingTasksPanel } from "@/components/pending-tasks";
+import { ScreenHeading } from "@/components/screen-heading";
 import {
   ArrowUpRight,
   Banknote,
@@ -43,6 +44,7 @@ import {
   cn,
   formatActivityDate,
   formatCompactMxn,
+  formatDayMonth,
   formatLongDate,
   formatMxn,
   formatTime,
@@ -1113,7 +1115,9 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
           : `${formatMxn(dashboard.summary.verifiedDigitalCents)} digitales verificados y ${formatMxn(
               dashboard.summary.cashCents,
             )} en efectivo.`;
-      return `Hoy llevas ${formatMxn(total)} en ${dashboard.summary.paidOrderCount} ventas. ${detail}`;
+      return `Hoy llevas ${formatMxn(total)} en ${dashboard.summary.paidOrderCount} ${
+        dashboard.summary.paidOrderCount === 1 ? "venta" : "ventas"
+      }. ${detail}`;
     },
     [dashboard],
   );
@@ -1929,7 +1933,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
               </button>
             </div>
           ) : null}
-          <div hidden={tab !== "caja"} className="tab-panel">
+          <div hidden={tab !== "caja"} className="tab-panel tab-shell">
             <div className="caja-layout">
               <section className="min-w-0">
                 <ScreenHeading
@@ -1961,10 +1965,32 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                     </button>
                   }
                 />
+                {(dashboard?.pendingOrders?.length ?? 0) > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      document
+                        .getElementById("cobros-pendientes")
+                        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                    className="caja-pending-strip mb-3 flex min-h-12 w-full flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border border-separator bg-surface px-3 text-left text-sm text-ink-2 transition hover:border-accent/40"
+                  >
+                    <span className="flex min-w-0 items-center gap-2">
+                      <Clock3 className="h-4 w-4 shrink-0 text-attention" />
+                      <span className="min-w-0">
+                        Por cobrar{" "}
+                        <strong className="tabular font-semibold text-ink">
+                          {formatMxn(dashboard?.summary.pendingCents ?? 0)}
+                        </strong>
+                      </span>
+                    </span>
+                    <span className="font-semibold text-green">Ver</span>
+                  </button>
+                ) : null}
                 {resumableOrder && !activeOrder ? (
                   <div
                     role="status"
-                    className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-separator bg-surface-2 px-3 py-2 text-sm text-ink-2"
+                    className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-separator bg-surface px-3 py-2 text-sm text-ink-2"
                   >
                     <p className="flex min-w-0 items-center gap-2 font-medium text-ink">
                       <Clock3 className="h-4 w-4 shrink-0 text-accent" />
@@ -2004,7 +2030,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                 {restoredDraftAt ? (
                   <div
                     role="status"
-                    className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-separator bg-surface-2 px-3 py-2 text-sm text-ink-2"
+                    className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-separator bg-surface px-3 py-2 text-sm text-ink-2"
                   >
                     <p className="flex min-w-0 items-center gap-2 font-medium text-ink">
                       <Clock3 className="h-4 w-4 shrink-0 text-accent" />
@@ -2080,7 +2106,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                 {/* Cobros pendientes después de la venta: la acción principal
                     (registrar) no se empuja fuera del primer viewport a 200 %. */}
                 {(dashboard?.pendingOrders?.length ?? 0) > 0 ? (
-                  <div className="mb-4">
+                  <div id="cobros-pendientes" className="mb-4 scroll-mt-[72px]">
                     <PendingPayments
                       orders={dashboard?.pendingOrders ?? []}
                       lastCheckedAt={pendingCheckedAt}
@@ -2103,9 +2129,9 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                     setTab("caja");
                   }}
                 />
-                <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-separator bg-surface p-3.5 text-sm leading-relaxed text-ink-2">
+                <div className="caja-trust-note mt-4 flex items-start gap-2.5 rounded-xl border border-separator bg-surface p-3.5 text-sm leading-relaxed text-ink-2">
                   <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-green" />
-                  <p>
+                  <p className="min-w-0 flex-1">
                     Ningún pedido se marca pagado sin la confirmación firmada de pey. Una
                     captura no cuenta.
                   </p>
@@ -2114,18 +2140,21 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
             </div>
           </div>
 
-          <section hidden={tab !== "fiado"} className="tab-panel mx-auto max-w-[760px]">
+          <section hidden={tab !== "fiado"} className="tab-panel tab-shell">
               <ScreenHeading
                 title="Fiado"
                 headingId="fiado-heading"
                 subtitle="Lo que te deben, no dinero recibido."
               />
-              <CreditList
-                credits={pendingCredits}
-                loading={loading}
-                error={dashboardError}
-                onStart={(credit) => openCreditPay(credit)}
-              />
+              <div className="tab-readable">
+                <CreditList
+                  credits={pendingCredits}
+                  loading={loading}
+                  error={dashboardError}
+                  onStart={(credit) => openCreditPay(credit)}
+                  onGoToCaja={() => selectTab("caja")}
+                />
+              </div>
               <CreditPaySheet
                 credit={pendingCredits.find((credit) => credit.id === creditPayId) ?? null}
                 amount={creditPayAmount}
@@ -2152,7 +2181,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
               />
             </section>
 
-          <section hidden={tab !== "corte"} className="tab-panel mx-auto max-w-[1000px]">
+          <section hidden={tab !== "corte"} className="tab-panel tab-shell">
               <ScreenHeading
                 title="Corte de caja"
                 headingId="corte-heading"
@@ -2171,17 +2200,19 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
               </div>
             </section>
 
-          <section hidden={tab !== "meta"} className="tab-panel mx-auto max-w-[760px]">
+          <section hidden={tab !== "meta"} className="tab-panel tab-shell">
               <ScreenHeading
                 title="Meta"
                 headingId="meta-heading"
                 subtitle="Una meta a la vez."
                 compactSubtitle
               />
-              <GoalCard showToast={showToast} />
+              <div className="tab-readable">
+                <GoalCard showToast={showToast} />
+              </div>
             </section>
 
-          <section hidden={tab !== "pendientes"} className="tab-panel mx-auto max-w-[820px]">
+          <section hidden={tab !== "pendientes"} className="tab-panel tab-shell">
               <PendingTasksPanel key={tasksResetKey} headingId="pendientes-heading" />
             </section>
 
@@ -2450,7 +2481,7 @@ function CajaPanel(props: {
           <button
             type="button"
             onClick={onVoiceHelp}
-            className="flex min-h-[48px] shrink-0 items-center gap-1.5 rounded-full border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
+            className="flex min-h-[48px] shrink-0 items-center gap-1.5 rounded-full border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-ink"
           >
             <Volume2 className="h-4 w-4" />
             Escuchar
@@ -2545,7 +2576,7 @@ function CajaPanel(props: {
 
           <div className="min-w-[7rem] flex-1 pt-1">
             {transcript ? (
-              <div className="rounded-xl border border-separator bg-surface-2 px-3 py-2 text-sm leading-relaxed text-ink">
+              <div className="rounded-xl border border-separator bg-surface px-3 py-2 text-sm leading-relaxed text-ink">
                 {transcript}
               </div>
             ) : (
@@ -2572,7 +2603,7 @@ function CajaPanel(props: {
               if (event.key === "Enter") onInterpret();
             }}
             placeholder="Ej. 2 quesadillas $35"
-            className="min-h-12 min-w-0 flex-1 rounded-xl border border-separator bg-surface-2 px-3 text-[1rem] text-ink outline-none placeholder:text-ink-2/70 focus:border-accent/40"
+            className="min-h-12 min-w-0 flex-1 rounded-xl border border-control-border bg-surface-2 px-3 text-[1rem] text-ink outline-none placeholder:text-placeholder focus:border-accent/40"
           />
           <button
             type="button"
@@ -2584,20 +2615,6 @@ function CajaPanel(props: {
             {transcribing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             Interpretar
           </button>
-        </div>
-
-        <div className="mt-3 flex flex-wrap gap-2">
-          {SAMPLE_PHRASES.map((phrase) => (
-            <button
-              key={phrase}
-              type="button"
-              onClick={() => onSample(phrase)}
-              aria-label={phrase}
-              className="inline-flex max-w-full min-h-12 shrink-0 items-center rounded-full border border-separator bg-surface px-3 text-left text-sm font-medium text-ink-2 transition hover:border-accent/40 hover:text-accent"
-            >
-              {SAMPLE_LABELS[phrase] ?? phrase}
-            </button>
-          ))}
         </div>
 
         {voiceError ? (
@@ -2615,6 +2632,20 @@ function CajaPanel(props: {
             </button>
           </div>
         ) : null}
+        </div>
+
+        <div className="sample-phrases mt-3 flex flex-wrap gap-2">
+          {SAMPLE_PHRASES.map((phrase) => (
+            <button
+              key={phrase}
+              type="button"
+              onClick={() => onSample(phrase)}
+              aria-label={phrase}
+              className="inline-flex max-w-full min-h-12 shrink-0 items-center rounded-full border border-separator bg-surface px-3 text-left text-sm font-medium text-ink-2 transition hover:border-accent/40 hover:text-accent"
+            >
+              {SAMPLE_LABELS[phrase] ?? phrase}
+            </button>
+          ))}
         </div>
         </div>
       </section>
@@ -2678,7 +2709,7 @@ function CajaPanel(props: {
         {draftItems.length > 0 && transcript ? (
           <p
             role="status"
-            className="mt-4 rounded-xl bg-surface-2 px-3 py-2 text-sm font-semibold text-ink"
+            className="mt-4 rounded-xl border border-green/20 bg-green-soft/50 px-3 py-2 text-sm font-semibold text-ink"
           >
             Escuché {formatMxn(draftTotal)}. ¿Confirmas?
           </p>
@@ -2709,7 +2740,7 @@ function CajaPanel(props: {
                       placeholder="Producto"
                       aria-invalid={itemError?.field === "description"}
                       aria-describedby={itemError ? `item-error-${item.id}` : undefined}
-                      className="min-h-12 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 text-[1rem] font-semibold text-ink outline-none placeholder:text-ink-2/50 focus:border-separator focus:bg-surface"
+                      className="min-h-12 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 text-[1rem] font-semibold text-ink outline-none placeholder:text-placeholder focus:border-control-border focus:bg-surface"
                       aria-label="Producto"
                     />
                     <button
@@ -2867,7 +2898,7 @@ function CajaPanel(props: {
                     placeholder="0.00"
                     aria-label="Efectivo recibido en pesos"
                     aria-describedby={changeCents > 0 ? "cash-change" : undefined}
-                    className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-ink-2/40"
+                    className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-placeholder"
                   />
                 </div>
                 {changeCents > 0 ? (
@@ -2903,7 +2934,7 @@ function CajaPanel(props: {
                     aria-label="Monto a fiado en pesos"
                     aria-invalid={overpay}
                     aria-describedby={overpay ? "fiado-overpay" : undefined}
-                    className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-ink-2/40"
+                    className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-placeholder"
                   />
                 </div>
               </label>
@@ -2926,7 +2957,7 @@ function CajaPanel(props: {
                   aria-label="Nombre del cliente para el fiado"
                   aria-invalid={Boolean(saleError) && creditCents > 0 && !customerName.trim()}
                   aria-describedby={saleError ? "sale-error" : undefined}
-                  className="min-w-0 flex-1 bg-transparent text-[1rem] font-semibold text-ink outline-none placeholder:text-ink-2/70"
+                  className="min-w-0 flex-1 bg-transparent text-[1rem] font-semibold text-ink outline-none placeholder:text-placeholder"
                 />
               </label>
             ) : null}
@@ -2961,7 +2992,7 @@ function CajaPanel(props: {
                 disabled={draftItems.length === 0 || savingOrder}
                 aria-busy={savingOrder}
                 aria-describedby={saleError ? "sale-error" : undefined}
-                className="on-accent flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto"
+                className="cta-primary on-accent flex min-h-12 w-full items-center justify-center gap-2 bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto"
               >
                 {savingOrder ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}
                 Confirmar venta
@@ -3077,7 +3108,7 @@ function PaymentPanel(props: {
                       ? "bg-terracotta-soft text-attention"
                       : "bg-green-soft text-green"
                     : truth.isCash
-                      ? "bg-surface-2 text-ink"
+                      ? "border border-separator bg-surface text-ink"
                       : "bg-green-soft text-green",
             )}
           >
@@ -3159,10 +3190,10 @@ function PaymentPanel(props: {
               credit={credit}
               settled={creditSettled}
               prefix={mixed ? `Recibiste ${source}. ` : null}
-              className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left"
+              className="mt-3 rounded-xl border border-separator bg-surface px-3 py-2 text-left"
             />
           ) : sourceMixed ? (
-            <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
+            <p className="mt-3 rounded-xl border border-separator bg-surface px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
               Recibiste {formatMxn(truth.cashPaidCents)} en efectivo y{" "}
               {formatMxn(order.digitalPaidCents)}{" "}
               {truth.isDemo
@@ -3170,17 +3201,17 @@ function PaymentPanel(props: {
                 : truth.isVerified ? "verificados por pey." : "sin verificar."}
             </p>
           ) : truth.isDemo ? (
-            <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
+            <p className="mt-3 rounded-xl border border-separator bg-surface px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
               En producción, este estado solo se actualiza con la confirmación firmada de pey. No
               se movió dinero real.
             </p>
           ) : truth.isCash ? (
-            <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
+            <p className="mt-3 rounded-xl border border-separator bg-surface px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
               Recibiste el efectivo en la caja. No pasó por pey ni es un pago verificado por el
               banco.
             </p>
           ) : (
-            <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
+            <p className="mt-3 rounded-xl border border-separator bg-surface px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
               El pago fue confirmado con una confirmación firmada de pey. Puedes entregar el
               pedido.
             </p>
@@ -3201,7 +3232,7 @@ function PaymentPanel(props: {
               onClick={onDeliver}
               disabled={delivering}
               aria-busy={delivering}
-              className="on-accent flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-60"
+              className="cta-primary on-accent flex min-h-12 flex-1 items-center justify-center gap-2 bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-60"
             >
               {delivering ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {delivering ? "Entregando…" : "Listo para entregar"}
@@ -3243,7 +3274,7 @@ function PaymentPanel(props: {
             <AnimatedAmount cents={due} />
           </p>
           <p className="mt-1.5 text-sm text-ink-2">
-            {order.items.map((item) => `${item.quantity} ${item.description}`).join(" · ")}
+            {order.items.map((item) => `${item.quantity} × ${item.description}`).join(" · ")}
           </p>
           {changeCents > 0 ? (
             <p
@@ -3280,7 +3311,7 @@ function PaymentPanel(props: {
       ) : null}
 
       {waiting ? (
-        <p role="status" className="rounded-xl bg-surface-2 px-3 py-2 text-sm font-semibold text-ink-2">
+        <p role="status" className="rounded-xl border border-separator bg-surface px-3 py-2 text-sm font-semibold text-ink-2">
           Pago pendiente; aún no entregues.
         </p>
       ) : null}
@@ -3362,7 +3393,7 @@ function PaymentPanel(props: {
             </div>
           </div>
         ) : (
-          <p className="rounded-xl bg-surface-2 px-3 py-2.5 text-sm leading-relaxed text-ink-2">
+          <p className="rounded-xl border border-separator bg-surface px-3 py-2.5 text-sm leading-relaxed text-ink-2">
             Genera el link o el QR para simular la confirmación del banco.
           </p>
         )
@@ -3388,7 +3419,7 @@ function PaymentPanel(props: {
           <button
             type="button"
             onClick={() => onShare(order.paymentUrl ?? "")}
-            className="on-accent flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press"
+            className="cta-primary on-accent flex min-h-12 w-full items-center justify-center gap-2 bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press"
           >
             <Share2 className="h-4 w-4" />
             Compartir link
@@ -3503,7 +3534,9 @@ function BusinessOverview({
   function speakReport() {
     if (!report) return;
     onSpeak(
-      `${report.label}: ${formatMxn(report.salesCents)} en ${report.orderCount} ventas. Cobrado ${formatMxn(
+      `${report.label}: ${formatMxn(report.salesCents)} en ${report.orderCount} ${
+        report.orderCount === 1 ? "venta" : "ventas"
+      }. Cobrado ${formatMxn(
         report.collectedCents,
       )}. Por cobrar ${formatMxn(report.pendingCents)}.`,
     );
@@ -3511,7 +3544,7 @@ function BusinessOverview({
 
   return (
     <div className="paper-card relative overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
-      <div className="border-b border-separator bg-surface-2/50 px-[18px] py-4 sm:px-6">
+      <div className="border-b border-separator bg-canvas/60 px-[18px] py-4 sm:px-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <div className="flex flex-wrap items-center gap-2">
@@ -3606,10 +3639,10 @@ function BusinessOverview({
             {[
               { label: "Cobrado", value: report.collectedCents, note: "De las ventas del periodo" },
               { label: "Por cobrar", value: report.pendingCents, note: "De las ventas del periodo" },
-              { label: "Ticket promedio", value: report.averageTicketCents, note: `${report.orderCount} ventas` },
+              { label: "Ticket promedio", value: report.averageTicketCents, note: `${report.orderCount} ${report.orderCount === 1 ? "venta" : "ventas"}` },
               { label: "Fiado", value: report.creditCents, note: "Saldo pendiente total" },
             ].map((item) => (
-              <div key={item.label} className="rounded-xl bg-surface-2 px-3 py-3">
+              <div key={item.label} className="border-t border-separator px-0 py-3">
                 <p className="text-sm font-semibold text-ink-2">{item.label}</p>
                 <p className="tabular mt-1 break-words text-xl font-bold text-ink">{formatMxn(item.value)}</p>
                 <p className="mt-0.5 text-sm text-ink-2">{item.note}</p>
@@ -3653,7 +3686,7 @@ function BusinessOverview({
               </p>
               {report.bestDay ? (
                 <p className="text-sm text-ink-2">
-                  Mejor día: {report.bestDay.date.slice(5)} ·{" "}
+                  Mejor día: {formatDayMonth(report.bestDay.date)} ·{" "}
                   {formatCompactMxn(report.bestDay.salesCents)}
                 </p>
               ) : null}
@@ -3663,7 +3696,7 @@ function BusinessOverview({
                 <div
                   key={point.date}
                   className="group relative h-full flex-1"
-                  title={`${point.date}: ${formatMxn(point.salesCents)} · ${point.orders} ventas`}
+                  title={`${point.date}: ${formatMxn(point.salesCents)} · ${point.orders} ${point.orders === 1 ? "venta" : "ventas"}`}
                 >
                   <div
                     className={cn(
@@ -4256,7 +4289,7 @@ function CashCloseCard({
           type="button"
           onClick={() => void load({ preserveDraft: dirty })}
           disabled={loading || refreshing}
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-ink-2 transition hover:text-ink disabled:opacity-50"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-separator bg-surface text-ink-2 transition hover:border-accent/40 hover:text-ink disabled:opacity-50"
           title={dirty ? "Actualizar totales sin borrar el conteo" : "Actualizar corte"}
           aria-label={
             dirty ? "Actualizar totales sin borrar el conteo" : "Actualizar corte"
@@ -4356,7 +4389,7 @@ function CashCloseCard({
                 aria-describedby={
                   fieldError?.field === "counted" ? "corte-counted-error" : undefined
                 }
-                className="tabular min-h-12 w-full min-w-0 bg-transparent text-lg font-bold text-ink placeholder:text-ink-2/40"
+                className="tabular min-h-12 w-full min-w-0 bg-transparent text-lg font-bold text-ink placeholder:text-placeholder"
               />
             </div>
             {fieldErrorText("counted")}
@@ -4414,7 +4447,7 @@ function CashCloseCard({
               </div>
             </div>
           ) : (
-            <p className="rounded-xl bg-surface-2 px-3 py-2.5 text-sm text-ink-2">
+            <p className="rounded-xl border border-separator bg-surface px-3 py-2.5 text-sm text-ink-2">
               Escribe el total contado para ver si cuadra.
             </p>
           )}
@@ -4677,7 +4710,7 @@ function CashCloseCard({
             onClick={requestSave}
             disabled={saving || baseExceedsCounted}
             aria-busy={saving}
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-60"
+            className="cta-primary on-accent flex min-h-12 w-full items-center justify-center gap-2 bg-accent px-4 py-3 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-60"
           >
             {saving ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -4834,7 +4867,7 @@ function CashCloseCard({
                 aria-invalid={Boolean(reasonError)}
                 aria-describedby={reasonError ? "corte-reason-error" : undefined}
                 placeholder="Ejemplo: conté de nuevo y faltaba un billete."
-                className="mt-1 min-h-24 w-full rounded-xl border border-separator bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-ink-2/60 focus:border-green"
+                className="mt-1 min-h-24 w-full rounded-xl border border-control-border bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-placeholder focus:border-green"
               />
               {reasonError ? (
                 <p
@@ -5011,7 +5044,39 @@ function GoalCard({
             </p>
             <p className="tabular shrink-0 text-[1.375rem] font-semibold text-green">{goal.progressPct}%</p>
           </div>
+          <div
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={goal.progressPct}
+            aria-label={`Progreso de ${goal.title}`}
+            className="mt-2 h-2.5 overflow-hidden rounded-full bg-surface-2"
+          >
+            <div
+              className="h-full rounded-full bg-accent transition-[width] duration-300"
+              style={{ width: `${Math.min(100, Math.max(0, goal.progressPct))}%` }}
+            />
+          </div>
         </div>
+
+        <div className="goal-stats grid grid-cols-1 gap-2.5 border-t border-separator pt-3 sm:grid-cols-2">
+          <div className="min-w-0">
+            <p className="text-xs text-ink-2">Falta</p>
+            <p className="tabular mt-0.5 break-words text-[1rem] font-semibold text-ink">{formatMxn(goal.remainingCents)}</p>
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-ink-2">Por semana</p>
+            <p className="tabular mt-0.5 break-words text-[1rem] font-semibold text-ink">
+              {goal.weeklyNeededCents ? formatMxn(goal.weeklyNeededCents) : "—"}
+            </p>
+          </div>
+        </div>
+
+        <p className="text-sm text-ink-2">
+          {goal.weeksRemaining !== null
+            ? `${goal.weeksRemaining} ${goal.weeksRemaining === 1 ? "semana" : "semanas"} para la meta`
+            : "Sin fecha límite"}
+        </p>
 
         <div className="goal-action-row flex flex-col gap-2 sm:flex-row">
           <div className="flex min-h-12 flex-1 items-center gap-1 rounded-xl border border-separator bg-surface-2 px-3">
@@ -5022,7 +5087,7 @@ function GoalCard({
               inputMode="decimal"
               placeholder="Monto"
               aria-label="¿Cuánto apartaste?"
-              className="tabular min-h-12 w-full bg-transparent text-[1rem] text-ink outline-none placeholder:text-ink-2/60"
+              className="tabular min-h-12 w-full bg-transparent text-[1rem] text-ink outline-none placeholder:text-placeholder"
             />
           </div>
           <button
@@ -5030,51 +5095,18 @@ function GoalCard({
             onClick={() => void contribute()}
             disabled={saving}
             aria-busy={saving}
-            className="on-accent flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 text-sm font-semibold text-white transition hover:bg-accent-press disabled:opacity-60 sm:w-auto"
+            className="cta-primary on-accent flex min-h-12 w-full items-center justify-center gap-1.5 bg-accent px-3 text-sm font-semibold text-white transition hover:bg-accent-press disabled:opacity-60 sm:w-auto"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             Apartar
           </button>
         </div>
 
-        <div
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={goal.progressPct}
-          aria-label={`Progreso de ${goal.title}`}
-          className="h-2.5 overflow-hidden rounded-full bg-surface-2"
-        >
-          <div
-            className="h-full rounded-full bg-accent transition-[width] duration-300"
-            style={{ width: `${Math.min(100, Math.max(0, goal.progressPct))}%` }}
-          />
-        </div>
-
-        <p className="text-sm text-ink-2">
-          {goal.weeksRemaining !== null
-            ? `${goal.weeksRemaining} semanas para la meta`
-            : "Sin fecha límite"}
-        </p>
-
         {error ? (
           <p role="alert" className="rounded-xl bg-terracotta-soft px-3 py-2 text-sm text-danger">
             {error}
           </p>
         ) : null}
-
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-          <div className="rounded-xl bg-surface-2 px-3 py-2.5">
-            <p className="text-xs text-ink-2">Falta</p>
-            <p className="tabular mt-0.5 text-[1rem] font-semibold text-ink">{formatMxn(goal.remainingCents)}</p>
-          </div>
-          <div className="rounded-xl bg-surface-2 px-3 py-2.5">
-            <p className="text-xs text-ink-2">Por semana</p>
-            <p className="tabular mt-0.5 text-[1rem] font-semibold text-ink">
-              {goal.weeklyNeededCents ? formatMxn(goal.weeklyNeededCents) : "—"}
-            </p>
-          </div>
-        </div>
 
         <p className="text-sm leading-relaxed text-ink-2">
           Apartado declarado: no es una cuenta bancaria ni dinero custodiado. El efectivo sigue en tu
@@ -5128,7 +5160,7 @@ function ReconcileCard({ demoMode }: { demoMode: boolean }) {
   const issues = report?.items.filter((item) => item.status !== "ok") ?? [];
 
   return (
-    <div className="rounded-2xl bg-surface-2 p-5 sm:p-6">
+    <div className="rounded-2xl border border-dashed border-separator bg-surface p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="reconcile-eyebrow text-sm font-semibold text-ink-2">Conciliación</p>
@@ -5269,8 +5301,8 @@ function ActivityList({
             Últimos movimientos
           </h2>
         </div>
-        <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-semibold text-ink-2">
-          {failedWithoutData ? "Sin datos" : `${orders.length} pedidos`}
+        <span className="shrink-0 rounded-full border border-separator bg-surface px-2.5 py-1 text-xs font-semibold text-ink-2">
+          {failedWithoutData ? "Sin datos" : `${orders.length} ${orders.length === 1 ? "pedido" : "pedidos"}`}
         </span>
       </div>
 
@@ -5287,7 +5319,7 @@ function ActivityList({
             </p>
           </div>
         ) : orders.length === 0 ? (
-          <p className="rounded-xl bg-surface-2 px-4 py-6 text-center text-sm text-ink-2">
+          <p className="rounded-xl border border-dashed border-separator bg-surface px-4 py-6 text-center text-sm text-ink-2">
             Aún no hay ventas. Habla para crear la primera.
           </p>
         ) : (
@@ -5350,17 +5382,17 @@ function ActivityList({
                             ? "bg-terracotta-soft text-attention"
                             : "bg-green-soft text-green"
                           : cash
-                            ? "bg-surface-2 text-ink"
+                            ? "border border-separator bg-surface text-ink"
                             : order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled"
                               ? "bg-green-soft text-green"
-                              : "bg-surface-2 text-ink-2",
+                              : "border border-separator bg-surface text-ink-2",
                   )}
                 >
                   <Icon className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1 basis-[10rem]">
                   <p className="text-sm font-semibold text-ink">
-                    {order.items.map((item) => `${item.quantity} ${item.description}`).join(" · ") ||
+                    {order.items.map((item) => `${item.quantity} × ${item.description}`).join(" · ") ||
                       `Pedido ${shortOrder(order.id)}`}
                   </p>
                   <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs text-ink-2">
@@ -5422,11 +5454,13 @@ function CreditList({
   loading,
   error,
   onStart,
+  onGoToCaja,
 }: {
   credits: Credit[];
   loading: boolean;
   error: string | null;
   onStart: (credit: Credit) => void;
+  onGoToCaja: () => void;
 }) {
   const total = credits.reduce((sum, credit) => sum + credit.balanceCents, 0);
   const customerCount = new Set(credits.map((credit) => credit.customerId)).size;
@@ -5483,7 +5517,19 @@ function CreditList({
             <NotebookPen className="h-5 w-5" />
           </div>
           <p className="mt-2 text-sm font-semibold text-ink">Sin fiados pendientes</p>
-          <p className="mt-1 text-sm text-ink-2">Cuando apuntes uno, aparecerá aquí.</p>
+          <p className="mx-auto mt-1 max-w-[32rem] text-sm leading-relaxed text-ink-2">
+            El fiado se anota al cerrar una venta en Caja: elige “A fiado” y el
+            nombre de quien queda a deber. Aquí verás el saldo y podrás registrar
+            abonos.
+          </p>
+          <button
+            type="button"
+            onClick={onGoToCaja}
+            className="mt-3 inline-flex min-h-12 items-center justify-center gap-1.5 rounded-xl border border-separator bg-surface px-4 text-sm font-semibold text-green transition hover:border-accent/40 hover:bg-green-soft"
+          >
+            <NotebookPen className="h-4 w-4" />
+            Ir a Caja
+          </button>
         </div>
       ) : (
         <div className="motion-list space-y-2.5">
@@ -5518,7 +5564,7 @@ function CreditList({
               <button
                 type="button"
                 onClick={() => onStart(credit)}
-                className="mt-3 flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-surface-2 text-sm font-semibold text-ink-2 transition hover:bg-green-soft hover:text-green"
+                className="mt-3 flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl border border-green/25 bg-surface text-sm font-semibold text-green transition hover:border-green/40 hover:bg-green-soft"
               >
                 <Banknote className="h-4 w-4" />
                 Registrar abono
@@ -5610,7 +5656,7 @@ function CreditPaySheet({
               type="button"
               onClick={() => setDiscardOpen(false)}
               autoFocus
-              className="flex min-h-12 w-full items-center justify-center rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press"
+              className="cta-primary on-accent flex min-h-12 w-full items-center justify-center bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press"
             >
               Seguir editando
             </button>
@@ -5624,7 +5670,7 @@ function CreditPaySheet({
           </div>
         ) : (
         <div className="space-y-4">
-          <div className="rounded-xl bg-surface-2 px-4 py-3">
+          <div className="rounded-xl border border-separator bg-surface px-4 py-3">
             <p className="text-sm font-semibold text-ink">
               {credit.customerName ?? "Cliente"}
             </p>
@@ -5758,7 +5804,7 @@ function CreditPaySheet({
               rows={2}
               maxLength={280}
               placeholder="Ej. abonó la mitad, queda para el viernes"
-              className="mt-1 w-full rounded-xl border border-separator bg-surface-2 px-3 py-2 text-sm text-ink outline-none placeholder:text-ink-2/60 focus:border-accent/40"
+              className="mt-1 w-full rounded-xl border border-control-border bg-surface-2 px-3 py-2 text-sm text-ink outline-none placeholder:text-placeholder focus:border-accent/40"
             />
           </label>
 
@@ -5773,7 +5819,7 @@ function CreditPaySheet({
             onClick={onPay}
             disabled={paying || !valid || settled}
             aria-busy={paying}
-            className="on-accent flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-50"
+            className="cta-primary on-accent flex min-h-12 w-full items-center justify-center gap-2 bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-50"
           >
             {paying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
             {paying ? "Registrando…" : "Registrar abono"}
@@ -5836,7 +5882,7 @@ function VerifyCard({
           }}
           placeholder="Ej. 01HXYZTXN1234567890RSTUVWX"
           aria-label="ID de la transacción a verificar"
-          className="min-h-12 min-w-0 flex-1 rounded-xl border border-separator bg-surface-2 px-3 text-[1rem] text-ink outline-none placeholder:text-ink-2/60 focus:border-accent/40"
+          className="min-h-12 min-w-0 flex-1 rounded-xl border border-control-border bg-surface-2 px-3 text-[1rem] text-ink outline-none placeholder:text-placeholder focus:border-accent/40"
         />
         <button
           type="button"
@@ -6008,14 +6054,14 @@ function QrImage({ value, className }: { value: string; className?: string }) {
 
 function StatusBadge({ status }: { status: Order["status"] }) {
   const styles: Record<Order["status"], string> = {
-    draft: "bg-surface-2 text-ink-2",
+    draft: "border border-separator bg-surface text-ink-2",
     confirmed: "bg-terracotta-soft text-attention",
     payment_pending: "bg-terracotta-soft text-attention",
     partially_paid: "bg-terracotta-soft text-attention",
     paid: "bg-green-soft text-green",
     demo_paid: "bg-terracotta-soft text-attention",
     fulfilled: "bg-green-soft text-green",
-    cancelled: "bg-surface-2 text-ink-2",
+    cancelled: "border border-separator bg-surface text-ink-2",
   };
   const icons: Record<Order["status"], typeof Clock3> = {
     draft: Clock3,
@@ -6109,44 +6155,6 @@ function paymentSheetTitle(order: Order): string {
   return `Cobrar ${formatMxn(order.totalCents)}`;
 }
 
-function ScreenHeading({
-  title,
-  subtitle,
-  action,
-  headingId,
-  compactSubtitle = false,
-}: {
-  title: string;
-  subtitle: string;
-  action?: ReactNode;
-  headingId?: string;
-  compactSubtitle?: boolean;
-}) {
-  return (
-    <div className="mb-5 min-w-0">
-      <div className="screen-heading">
-        <h1
-          id={headingId}
-          data-sheet-fallback
-          tabIndex={-1}
-          className="screen-heading__title heading-in text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none"
-        >
-          {title}
-        </h1>
-        {action ? <div className="screen-heading__action">{action}</div> : null}
-      </div>
-      <p
-        className={cn(
-          "screen-heading__subtitle text-[0.9375rem] leading-relaxed text-ink-2",
-          compactSubtitle && "screen-heading__subtitle--optional",
-        )}
-      >
-        {subtitle}
-      </p>
-    </div>
-  );
-}
-
 const TAB_HEADINGS: Record<Tab, string> = {
   caja: "caja-heading",
   fiado: "fiado-heading",
@@ -6163,6 +6171,7 @@ const TABS = [
   {
     id: "pendientes" as const,
     label: "Pendientes",
+    // La tab bar usa el label corto; el aria-label conserva "Tareas (Pendientes)".
     mobileLabel: "Tareas",
     icon: ListTodo,
   },
@@ -6244,7 +6253,7 @@ function AppSidebar({
           className="flex min-h-[48px] w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
         >
           <CircleHelp className="h-5 w-5 shrink-0" />
-          <span className="min-w-0">Ayuda y accesibilidad</span>
+          <span className="sidebar-label min-w-0">Ayuda y accesibilidad</span>
         </button>
       </div>
     </aside>
@@ -6274,7 +6283,7 @@ function TopBar({
     <header className="topbar sticky top-0 z-30 border-b border-separator bg-canvas/95 backdrop-blur-sm">
       <div className="mx-auto flex min-h-14 max-w-[1200px] flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6 lg:px-8">
         <div className="min-w-0 flex-1 basis-[8rem]">
-          <p className="topbar-merchant text-sm font-semibold text-ink" title={merchant?.name}>
+          <p className="topbar-merchant truncate text-sm font-semibold text-ink" title={merchant?.name}>
             {merchant?.name ?? (unavailable ? "Negocio sin datos" : "Cargando el negocio…")}
           </p>
           <p className="topbar-address text-xs text-ink-2">
@@ -6549,7 +6558,7 @@ function PaidSheet({
                     ? "bg-terracotta-soft text-attention"
                     : "bg-green-soft text-green"
                   : truth.isCash
-                    ? "bg-surface-2 text-ink"
+                    ? "border border-separator bg-surface text-ink"
                     : "bg-green-soft text-green",
           )}
         >
@@ -6636,10 +6645,10 @@ function PaidSheet({
             credit={credit}
             settled={creditSettled}
             prefix={mixed ? `Recibiste ${source}. ` : null}
-            className="mt-4 rounded-xl bg-surface-2 px-3 py-2.5 text-left"
+            className="mt-4 rounded-xl border border-separator bg-surface px-3 py-2.5 text-left"
           />
         ) : (
-          <p className="mt-4 rounded-xl bg-surface-2 px-3 py-2.5 text-left text-sm leading-relaxed text-ink-2">
+          <p className="mt-4 rounded-xl border border-separator bg-surface px-3 py-2.5 text-left text-sm leading-relaxed text-ink-2">
             {sourceMixed ? (
               <>
                 Recibiste {formatMxn(truth.cashPaidCents)} en efectivo y{" "}
@@ -6793,7 +6802,7 @@ function HelpContent({
             <button
               type="button"
               onClick={onReadScreen}
-              className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
+              className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-ink"
             >
               <Volume2 className="h-4 w-4" />
               Leer esta pantalla
@@ -6801,7 +6810,7 @@ function HelpContent({
             <button
               type="button"
               onClick={onRepeat}
-              className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-separator bg-surface-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
+              className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-ink"
             >
               <RefreshCw className="h-4 w-4" />
               Repetir último aviso

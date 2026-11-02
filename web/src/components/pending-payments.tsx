@@ -24,7 +24,7 @@ const STATUS: Record<
 > = {
   confirmed: {
     label: "Sin link",
-    className: "bg-surface-2 text-ink-2",
+    className: "border border-separator bg-surface text-ink-2",
     Icon: Link2Off,
   },
   payment_pending: {
@@ -45,7 +45,7 @@ function statusMeta(status: Order["status"]) {
   }
   return {
     label: "Pendiente",
-    className: "bg-surface-2 text-ink-2",
+    className: "border border-separator bg-surface text-ink-2",
     Icon: Clock3,
   };
 }
@@ -63,7 +63,7 @@ function pendingBalanceCents(order: Order): number {
 
 function orderSummary(order: Order): string {
   const parts = (order.items ?? [])
-    .map((item) => `${item.quantity} ${item.description}`.trim())
+    .map((item) => `${item.quantity} × ${item.description}`.trim())
     .filter(Boolean);
   if (parts.length === 0) return `Pedido ${shortOrder(order.id)}`;
   if (parts.length <= 2) return parts.join(" · ");
@@ -128,7 +128,7 @@ export function PendingPayments({
             >
               Cobros pendientes
             </h2>
-            <span className="rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-semibold text-ink-2">
+            <span className="rounded-full border border-separator bg-surface px-2.5 py-0.5 text-xs font-semibold text-ink-2">
               {countLabel}
             </span>
           </div>
