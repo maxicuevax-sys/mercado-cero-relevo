@@ -121,9 +121,9 @@ def main() -> int:
         page.on("console", lambda msg: errors.append(msg.text) if msg.type == "error" else None)
         page.goto(BASE, wait_until="networkidle", timeout=60000)
         page.wait_for_function(
-            "document.documentElement.dataset.contrast === 'high'", timeout=20000
+            "() => document.documentElement.dataset.contrast === 'high'", timeout=20000
         )
-        page.wait_for_function("document.body.innerText.includes('Hoy $')", timeout=20000)
+        page.wait_for_function("() => document.body.innerText.includes('Hoy $')", timeout=20000)
         page.wait_for_timeout(350)
 
         check(
@@ -200,7 +200,7 @@ def main() -> int:
         normal_page = normal.new_page()
         normal_page.goto(BASE, wait_until="networkidle", timeout=60000)
         normal_page.wait_for_function(
-            "document.body.innerText.includes('Hoy $')", timeout=20000
+            "() => document.body.innerText.includes('Hoy $')", timeout=20000
         )
         normal_page.wait_for_timeout(300)
         check_placeholders(normal_page, "tema normal")

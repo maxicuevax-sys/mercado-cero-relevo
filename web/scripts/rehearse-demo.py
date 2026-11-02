@@ -55,7 +55,7 @@ def run_once(page, iteration: int) -> dict:
     page.goto(BASE, wait_until="domcontentloaded")
     page.wait_for_selector("h1:has-text('Caja')", timeout=15000)
     page.wait_for_function(
-        "document.body.innerText.includes('Hoy $')", timeout=20000
+        "() => document.body.innerText.includes('Hoy $')", timeout=20000
     )
     page.wait_for_timeout(400)
     started = time.time()

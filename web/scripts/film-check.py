@@ -63,7 +63,7 @@ def reset(page: Page) -> None:
     page.context.request.post(f"{BASE}/api/demo/reset")
     page.goto(BASE, wait_until="domcontentloaded")
     page.wait_for_selector("h1:has-text('Caja')", timeout=15000)
-    page.wait_for_function("document.body.innerText.includes('Hoy $')", timeout=20000)
+    page.wait_for_function("() => document.body.innerText.includes('Hoy $')", timeout=20000)
     page.wait_for_timeout(500)
 
 

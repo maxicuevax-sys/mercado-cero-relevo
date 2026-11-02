@@ -103,7 +103,7 @@ def main() -> int:
         page = desktop.new_page()
         page.on("console", lambda msg: errors.append(msg.text) if msg.type == "error" else None)
         page.goto(BASE, wait_until="networkidle", timeout=60000)
-        page.wait_for_function("document.body.innerText.includes('Hoy $')", timeout=20000)
+        page.wait_for_function("() => document.body.innerText.includes('Hoy $')", timeout=20000)
         page.wait_for_timeout(250)
 
         home = read_motion(page)
@@ -209,7 +209,7 @@ def main() -> int:
         )
         page = mobile.new_page()
         page.goto(BASE, wait_until="networkidle", timeout=60000)
-        page.wait_for_function("document.body.innerText.includes('Hoy $')", timeout=20000)
+        page.wait_for_function("() => document.body.innerText.includes('Hoy $')", timeout=20000)
         page.wait_for_timeout(250)
         page.screenshot(path=str(SHOTS / "360-home.png"))
         marker = page.evaluate(
@@ -331,7 +331,7 @@ def main() -> int:
         )
         page = reduced.new_page()
         page.goto(BASE, wait_until="networkidle", timeout=60000)
-        page.wait_for_function("document.body.innerText.includes('Hoy $')", timeout=20000)
+        page.wait_for_function("() => document.body.innerText.includes('Hoy $')", timeout=20000)
         page.wait_for_timeout(250)
         calm = read_motion(page)
         check(

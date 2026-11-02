@@ -112,7 +112,7 @@ def main() -> int:
         page.goto(BASE, wait_until="domcontentloaded", timeout=60000)
         page.wait_for_selector("h1:has-text('Caja')", timeout=30000)
         page.wait_for_function(
-            "document.body.innerText.includes('Hoy $')", timeout=30000
+            "() => document.body.innerText.includes('Hoy $')", timeout=30000
         )
         page.wait_for_timeout(400)
         records["home"] = measure(page)
@@ -144,7 +144,7 @@ def main() -> int:
         records["meta"] = measure(page)
         check("meta sin scroll horizontal", no_overflow(records["meta"]))
 
-        page.locator('button[title="Corte de caja"]').first.click()
+        page.get_by_role("button", name="Corte", exact=True).first.click()
         page.wait_for_selector("text=Corte de caja", timeout=10000)
         page.wait_for_timeout(250)
         records["corte"] = measure(page)
