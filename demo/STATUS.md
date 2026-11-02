@@ -23,7 +23,7 @@
 | Carrera de refresco | ✅ un poll viejo no revive el saldo cobrado | `harness/evidence/p0-integracion-e2e.json` |
 | Voz del abono de $50 | ✅ Kokoro `em_santa`, dice “50 pesos”, 0 `speechSynthesis` | `VOZ-50-KOKORO.md` |
 | Movimiento | ✅ tabs/hojas/listas 140–240 ms, scroll trigger, reduced-motion | `MOTION.md` · `harness/evidence/motion-check.json` |
-| Harness final | ✅ full 11/11 en `3f95307`, `dirty: false` | `harness/evidence/latest.json` |
+| Harness final | ✅ full 12/12 en `cd34405`, `dirty: false` | `harness/evidence/latest.json` |
 | Video de respaldo | ✅ 1280×800, MP4 1.2 MB, con motion y cierre versionado | `demo/mercado-cero-demo.mp4` |
 | Film check Stageshow | ✅ 8 beats + contact sheet + motion sheet | `demo/stageshow/` |
 | QR imprimible | ✅ PNG + SVG + HTML + PDF, URL nueva | `demo/qr-demo.*` |

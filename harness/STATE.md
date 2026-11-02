@@ -32,12 +32,12 @@
 ## Última corrida del harness
 
 - Fecha: **2 nov 2026, 08:10 UTC**
-- Código verificado: **`9f7d02d`** (P0-D endurecido, motion y voz); `latest.json` se generó sobre `7f1a35c`, que solo añade evidencia.
-- Modo: **full**, **11/11** en verde, `gitAtStart.dirty: false`; `latest.json` con `ok: true`.
+- Código verificado: **`cd34405`** (gate de motion; app `9f7d02d` con P0-D endurecido, motion y voz); `latest.json` sobre el mismo commit, `gitAtStart.dirty: false`.
+- Modo: **full**, **12/12** en verde; `latest.json` con `ok: true`.
 - Gates: `guard`, `lint`, `types`, `truth`, `webhook` 27/27, `mobile` 25/25, `checkout` 15/15, `hig` axe 0, `rehearsal` 3/3 (4.6 s promedio), `tunnel` 8/8, `preflight` 18/18.
 - E2E de carril: corte **69/0/0**, integración **51/0/0**, fiado **50/0/0**, venta **43/0/0**, shell **52/0/0**, motion **14/0**.
 - Voz: el botón de $50 reproduce Kokoro `em_santa` (SHA-256 `24EF2C9F…`), 0 llamadas a `speechSynthesis`; las dinámicas van a Piper y los montos se normalizan (`70.00 pesos` → “70 pesos”). **No hay fallback a la voz del navegador**.
-- Movimiento: tabs 160 ms, títulos 240 ms, listas 180 ms con stagger ≤84 ms, hojas 220 ms, marcador 180 ms, sello 240 ms y veta de scroll nativa. `motion-check.py` 14/14.
+- Movimiento: tabs 160 ms, títulos 240 ms, listas 180 ms con stagger ≤84 ms, hojas 220 ms, marcador 180 ms, sello 240 ms y veta de scroll nativa. `motion-check.py` 14/14 y gate `motion` dentro del harness.
 - `film` regenerado: 8 beats + contact sheet + motion sheet. El pago real de $0.01 sigue bloqueado.
 
 ## Qué está construido
@@ -69,7 +69,7 @@
 
 ## Siguiente tarea
 
-**Demo y pruebas humanas.** P0-A/B/C/C.1/D/E/F/G están mergeados y el harness full está en 11/11. Siguiente: ensayar `GUION-3-MIN.md` con cronómetro, revisar el contact sheet/motion sheet, preflight y túnel el día del evento. Las pruebas humanas (6–8 comerciantes, SUS/NASA-TLX, TalkBack/VoiceOver, teléfono físico, zoom real) siguen pendientes y no se sustituyen con gates automáticos. Endurecimientos opcionales de P0-D: migración multi-proceso, atar `requestId` al payload y tests de 6 versiones en UI.
+**Demo y pruebas humanas.** P0-A/B/C/C.1/D/E/F/G están mergeados y el harness full está en 12/12. Siguiente: ensayar `GUION-3-MIN.md` con cronómetro, revisar el contact sheet/motion sheet, preflight y túnel el día del evento. Las pruebas humanas (6–8 comerciantes, SUS/NASA-TLX, TalkBack/VoiceOver, teléfono físico, zoom real) siguen pendientes y no se sustituyen con gates automáticos. Endurecimientos opcionales de P0-D: migración multi-proceso, atar `requestId` al payload y tests de 6 versiones en UI.
 
 ## Bloqueos reales
 
