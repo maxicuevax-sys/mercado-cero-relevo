@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "mode": "static",
-  "startedAt": "2026-11-02T00:45:39.557Z",
-  "finishedAt": "2026-11-02T00:46:09.888Z",
-  "durationMs": 30328,
+  "startedAt": "2026-11-02T01:02:14.149Z",
+  "finishedAt": "2026-11-02T01:02:43.386Z",
+  "durationMs": 29235,
   "baseUrl": "http://localhost:3000",
   "gitAtStart": {
-    "sha": "62ca6f2780835e83602a3a8cdefe8bb8d5394c4b",
+    "sha": "1181967376ed229574207e17aa6e524f30299db8",
     "branch": "p0/fiado",
     "dirty": false
   },
   "git": {
-    "sha": "62ca6f2780835e83602a3a8cdefe8bb8d5394c4b",
+    "sha": "1181967376ed229574207e17aa6e524f30299db8",
     "branch": "p0/fiado",
     "dirty": false
   },
@@ -40,7 +40,7 @@
       "command": "node scripts/harness-guard.mjs",
       "ok": true,
       "exitCode": 0,
-      "durationMs": 458,
+      "durationMs": 414,
       "expected": "Guardrails OK.",
       "outputTail": "PASS  AGENTS.md presente\nPASS  HARNESS.md presente\nPASS  ningún .env real trackeado\nPASS  .gitignore protege web/.env.local\nPASS  verify solo acepta provider pey\nPASS  los pagos demo usan demo_paid\nPASS  demo/pay declara provider demo\nPASS  webhook pey existe y valida firma\nPASS  sin secretos con pinta real en archivos versionados\n\nGuardrails OK."
     },
@@ -50,7 +50,7 @@
       "command": "npm run lint",
       "ok": true,
       "exitCode": 0,
-      "durationMs": 11046,
+      "durationMs": 11021,
       "expected": "sin errores",
       "outputTail": "> web@0.1.0 lint\n> eslint"
     },
@@ -60,7 +60,7 @@
       "command": "npx tsc --noEmit",
       "ok": true,
       "exitCode": 0,
-      "durationMs": 5669,
+      "durationMs": 5162,
       "expected": "sin errores",
       "outputTail": ""
     },
@@ -70,9 +70,9 @@
       "command": "npm run build",
       "ok": true,
       "exitCode": 0,
-      "durationMs": 13152,
+      "durationMs": 12636,
       "expected": "compiled successfully",
-      "outputTail": "  Collecting page data using 7 workers ...\n  Generating static pages using 7 workers (0/21) ...\n  Generating static pages using 7 workers (5/21) \n  Generating static pages using 7 workers (10/21) \n  Generating static pages using 7 workers (15/21) \n✓ Generating static pages using 7 workers (21/21) in 1238ms\n  Finalizing page optimization ...\n\nRoute (app)\n┌ ○ /\n├ ○ /_not-found\n├ ƒ /api/analytics\n├ ƒ /api/cash\n├ ƒ /api/cash/close\n├ ƒ /api/checkout/[id]\n├ ƒ /api/credits\n├ ƒ /api/credits/[id]/pay\n├ ƒ /api/dashboard\n├ ƒ /api/demo/pay\n├ ƒ /api/demo/reset\n├ ƒ /api/goals\n├ ƒ /api/goals/[id]/contribute\n├ ƒ /api/orders\n├ ƒ /api/orders/[id]\n├ ƒ /api/orders/[id]/pay\n├ ƒ /api/reconcile\n├ ƒ /api/tts\n├ ƒ /api/verify\n├ ƒ /api/voice/parse\n├ ƒ /api/voice/transcribe\n├ ƒ /api/webhooks/pey\n├   /pay/[id]\n│ └ ◐ /pay/[id]\n└   /pay/[id]/success\n  └ ◐ /pay/[id]/success\n\n\n○  (Static)             prerendered as static content\n◐  (Partial Prerender)  prerendered as static HTML with dynamic server-streamed content\nƒ  (Dynamic)            server-rendered on demand"
+      "outputTail": "  Collecting page data using 7 workers ...\n  Generating static pages using 7 workers (0/21) ...\n  Generating static pages using 7 workers (5/21) \n  Generating static pages using 7 workers (10/21) \n  Generating static pages using 7 workers (15/21) \n✓ Generating static pages using 7 workers (21/21) in 812ms\n  Finalizing page optimization ...\n\nRoute (app)\n┌ ○ /\n├ ○ /_not-found\n├ ƒ /api/analytics\n├ ƒ /api/cash\n├ ƒ /api/cash/close\n├ ƒ /api/checkout/[id]\n├ ƒ /api/credits\n├ ƒ /api/credits/[id]/pay\n├ ƒ /api/dashboard\n├ ƒ /api/demo/pay\n├ ƒ /api/demo/reset\n├ ƒ /api/goals\n├ ƒ /api/goals/[id]/contribute\n├ ƒ /api/orders\n├ ƒ /api/orders/[id]\n├ ƒ /api/orders/[id]/pay\n├ ƒ /api/reconcile\n├ ƒ /api/tts\n├ ƒ /api/verify\n├ ƒ /api/voice/parse\n├ ƒ /api/voice/transcribe\n├ ƒ /api/webhooks/pey\n├   /pay/[id]\n│ └ ◐ /pay/[id]\n└   /pay/[id]/success\n  └ ◐ /pay/[id]/success\n\n\n○  (Static)             prerendered as static content\n◐  (Partial Prerender)  prerendered as static HTML with dynamic server-streamed content\nƒ  (Dynamic)            server-rendered on demand"
     }
   ],
   "ok": true
