@@ -31,7 +31,7 @@
 
 ## Última corrida del harness
 
-- Fecha: **2 nov 2026, 08:10 UTC**
+- Fecha: **2 nov 2026, 12:37 UTC**
 - Código verificado: **`cd34405`** (gate de motion; app `9f7d02d` con P0-D endurecido, motion y voz); `latest.json` sobre el mismo commit, `gitAtStart.dirty: false`.
 - Modo: **full**, **12/12** en verde; `latest.json` con `ok: true`.
 - Gates: `guard`, `lint`, `types`, `truth`, `webhook` 27/27, `mobile` 25/25, `checkout` 15/15, `hig` axe 0, `rehearsal` 3/3 (4.6 s promedio), `tunnel` 8/8, `preflight` 18/18.
