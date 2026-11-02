@@ -2,7 +2,7 @@
   "runs": [
     {
       "iteration": 1,
-      "seconds": 4.1,
+      "seconds": 4.9,
       "steps": [
         {
           "name": "venta interpretada",
@@ -170,7 +170,7 @@
     },
     {
       "iteration": 3,
-      "seconds": 3.9,
+      "seconds": 4.5,
       "steps": [
         {
           "name": "venta interpretada",
@@ -254,7 +254,7 @@
     }
   ],
   "fastestSeconds": 3.8,
-  "slowestSeconds": 4.1,
-  "averageSeconds": 3.9,
+  "slowestSeconds": 4.9,
+  "averageSeconds": 4.4,
   "allPassed": true
 }

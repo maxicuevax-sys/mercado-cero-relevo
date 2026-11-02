@@ -31,13 +31,13 @@
 
 ## Última corrida del harness
 
-- Fecha: **2 nov 2026, 04:34 UTC**
-- Código verificado: **`76bfbc3`** (cierre de la revisión de integración P0); `latest.json` se generó sobre `8a440bf`, que solo añade evidencia.
-- Modo: **static**, 4/4 en verde (`guard`, `lint`, `types`, `build`), `gitAtStart.dirty: false`.
-- E2E: integración **50/0/0**, fiado **50/0/0**, venta **43/0/0**, shell **52/0/0**.
-- HIG/axe aislado `:3101`: 360/390/768/1280 normal y 200 %, axe 0, 0 recortes, 0 controles bajo 48 px.
+- Fecha: **2 nov 2026, 04:52 UTC**
+- Código verificado: **`3f95307`** (cierre de revisión de integración P0 + accesibilidad del saldo).
+- Modo: **full**, **11/11** en verde, `gitAtStart.dirty: false`; `latest.json` con `ok: true`.
+- Gates: `guard`, `lint`, `types`, `truth`, `webhook` 27/27, `mobile` 25/25, `checkout` 15/15, `hig` axe 0, `rehearsal` 3/3, `tunnel` 8/8, `preflight` 18/18.
+- E2E de carril: integración **50/0/0**, fiado **50/0/0**, venta **43/0/0**, shell **52/0/0**.
 - Voz: el botón de $50 reproduce Kokoro `em_santa` (SHA-256 `24EF2C9F…`), 0 llamadas a `speechSynthesis`; las frases dinámicas siguen en Piper.
-- No ejecutados en esta corrida: `verify:full` (truth/webhook/mobile/checkout/tunnel/preflight/film). El pago real de $0.01 sigue bloqueado.
+- No ejecutado: `film` (`--with-film`), porque el corte es funcional/accesible y no cambió la dirección visual. El pago real de $0.01 sigue bloqueado.
 
 ## Qué está construido
 
