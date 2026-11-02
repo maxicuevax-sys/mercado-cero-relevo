@@ -1,11 +1,11 @@
 {
   "baseUrl": "http://localhost:3000",
   "code": {
-    "commit": "00216e3436742c139695c5f5ab925a5a50b6d255",
+    "commit": "219b26f664119433e39c39feb1d9247ca184767f",
     "branch": "master",
     "dirty": true
   },
-  "passed": 14,
+  "passed": 15,
   "failed": 0,
   "results": [
     {
@@ -26,7 +26,7 @@
     {
       "name": "cambiar de tab no espera: hay animación en curso a 80 ms",
       "ok": true,
-      "detail": "opacity=0.52115"
+      "detail": "opacity=0.62485"
     },
     {
       "name": "el cambio de tab conserva la misma velocidad",
@@ -34,14 +34,19 @@
       "detail": ""
     },
     {
+      "name": "el barrido de papel cruza en 300 ms",
+      "ok": true,
+      "detail": "{\"name\": \"tab-wipe\", \"duration\": \"0.3s\"}"
+    },
+    {
       "name": "la hoja entra en 220 ms",
       "ok": true,
-      "detail": "{\"name\": \"sheet-in\", \"duration\": \"0.22s\", \"opacity\": \"0.879665\"}"
+      "detail": "{\"name\": \"sheet-in\", \"duration\": \"0.22s\", \"opacity\": \"0.929837\"}"
     },
     {
       "name": "el fondo de la hoja entra en 140 ms",
       "ok": true,
-      "detail": "{\"name\": \"sheet-backdrop-in\", \"duration\": \"0.14s\", \"opacity\": \"0.476014\"}"
+      "detail": "{\"name\": \"sheet-backdrop-in\", \"duration\": \"0.14s\", \"opacity\": \"0.5955\"}"
     },
     {
       "name": "el marcador del tab entra en 180 ms",

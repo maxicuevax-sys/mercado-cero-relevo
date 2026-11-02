@@ -86,7 +86,7 @@
     },
     {
       "iteration": 2,
-      "seconds": 4.5,
+      "seconds": 4.7,
       "steps": [
         {
           "name": "venta interpretada",
@@ -170,7 +170,7 @@
     },
     {
       "iteration": 3,
-      "seconds": 4.4,
+      "seconds": 4.7,
       "steps": [
         {
           "name": "venta interpretada",
@@ -253,8 +253,8 @@
       "failed": 0
     }
   ],
-  "fastestSeconds": 4.4,
+  "fastestSeconds": 4.7,
   "slowestSeconds": 5.3,
-  "averageSeconds": 4.7,
+  "averageSeconds": 4.9,
   "allPassed": true
 }
