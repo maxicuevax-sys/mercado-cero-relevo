@@ -15,13 +15,31 @@ const previewSchema = z.object({
   baseNextCents: moneyCents,
 });
 
+async function readJson(
+  request: Request,
+): Promise<{ body: unknown } | { response: Response }> {
+  try {
+    return { body: await request.json() };
+  } catch {
+    return {
+      response: Response.json(
+        { error: "El cuerpo debe ser JSON válido.", code: "invalid_json" },
+        { status: 400 },
+      ),
+    };
+  }
+}
+
 /**
  * Devuelve la diferencia calculada con los totales vivos del servidor.
  * No escribe nada: la confirmación del corte usa este resultado.
  */
 export async function POST(request: Request) {
+  const parsed = await readJson(request);
+  if ("response" in parsed) return parsed.response;
+
   try {
-    const body = previewSchema.parse(await request.json());
+    const body = previewSchema.parse(parsed.body);
     return Response.json(previewCashClose(body));
   } catch (error) {
     if (error instanceof z.ZodError) {

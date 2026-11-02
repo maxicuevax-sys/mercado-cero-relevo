@@ -19,28 +19,43 @@ interface CashCloseRow {
   snapshot_cash_cents: number;
   snapshot_credit_cents: number;
   snapshot_pending_digital_cents: number;
+  snapshot_known: number;
   reason: string | null;
+  request_id: string | null;
   created_at: string;
 }
 
-export interface CashCloseInput {
+export interface CashCloseAmounts {
   openingCents: number;
   expensesCents: number;
   withdrawalsCents: number;
   countedCents: number;
   baseNextCents: number;
+}
+
+export interface CashCloseInput extends CashCloseAmounts {
   reason?: string | null;
+  requestId?: string | null;
+  /** Versión que el cliente cree vigente; 0 si es el primer corte. */
+  expectedVersion: number;
 }
 
 export class CashCloseError extends Error {
   code: string;
   status: number;
+  currentVersion?: number;
 
-  constructor(code: string, message: string, status = 400) {
+  constructor(
+    code: string,
+    message: string,
+    status = 400,
+    currentVersion?: number,
+  ) {
     super(message);
     this.name = "CashCloseError";
     this.code = code;
     this.status = status;
+    this.currentVersion = currentVersion;
   }
 }
 
@@ -66,7 +81,9 @@ function mapClose(row: CashCloseRow): CashClose {
     snapshotCashCents: Number(row.snapshot_cash_cents),
     snapshotCreditCents: Number(row.snapshot_credit_cents),
     snapshotPendingDigitalCents: Number(row.snapshot_pending_digital_cents),
+    snapshotKnown: Boolean(row.snapshot_known),
     reason: row.reason ?? null,
+    requestId: row.request_id ?? null,
     createdAt: row.created_at,
   };
 }
@@ -90,11 +107,43 @@ export function getCashClose(date: string): CashClose | null {
   return row ? mapClose(row) : null;
 }
 
+/** Lectura por id: nunca devuelve “la última” después de un COMMIT ajeno. */
+export function getCashCloseById(id: string): CashClose | null {
+  const row = getDb()
+    .prepare("SELECT * FROM cash_closes WHERE id = ?")
+    .get(id) as unknown as CashCloseRow | undefined;
+  return row ? mapClose(row) : null;
+}
+
+export function getCashCloseByRequestId(requestId: string): CashClose | null {
+  const row = getDb()
+    .prepare("SELECT * FROM cash_closes WHERE request_id = ?")
+    .get(requestId) as unknown as CashCloseRow | undefined;
+  return row ? mapClose(row) : null;
+}
+
+/**
+ * Historial breve: las últimas 5 versiones más la versión 1. La primera no
+ * desaparece aunque haya muchas correcciones.
+ */
+function listCashClosesForHistory(date: string): CashClose[] {
+  const latest = listCashCloses(date, 5);
+  const firstRow = getDb()
+    .prepare(
+      "SELECT * FROM cash_closes WHERE date = ? ORDER BY version ASC LIMIT 1",
+    )
+    .get(date) as unknown as CashCloseRow | undefined;
+  if (!firstRow) return latest;
+  const first = mapClose(firstRow);
+  if (latest.some((item) => item.id === first.id)) return latest;
+  return [...latest, first].sort((a, b) => b.version - a.version);
+}
+
 export function getCashStatus(): CashStatus {
   const database = getDb();
   const date = mexicoDateKey();
   const saved = getCashClose(date);
-  const history = listCashCloses(date, 5);
+  const history = listCashClosesForHistory(date);
 
   const openingCents = saved
     ? saved.openingCents
@@ -147,7 +196,7 @@ export function getCashStatus(): CashStatus {
 
 function computePreview(
   status: CashStatus,
-  input: Omit<CashCloseInput, "reason">,
+  input: CashCloseAmounts,
 ): CashClosePreview {
   const openingCents = normalizeCents(input.openingCents);
   const expensesCents = normalizeCents(input.expensesCents);
@@ -181,7 +230,7 @@ function computePreview(
  * local que pudo quedar vieja.
  */
 export function previewCashClose(
-  input: Omit<CashCloseInput, "reason">,
+  input: CashCloseAmounts,
 ): { status: CashStatus; preview: CashClosePreview; issues: Array<{ code: string; message: string }> } {
   const status = getCashStatus();
   const preview = computePreview(status, input);
@@ -207,11 +256,27 @@ export function previewCashClose(
 export function closeCash(input: CashCloseInput): CashClose {
   const database = getDb();
   const cleanReason = (input.reason ?? "").trim();
+  const requestId = (input.requestId ?? "").trim() || null;
+
+  // Reintento con la misma llave: devuelve la fila ya creada.
+  if (requestId) {
+    const existingRequest = getCashCloseByRequestId(requestId);
+    if (existingRequest) return existingRequest;
+  }
 
   database.exec("BEGIN IMMEDIATE");
   let date = mexicoDateKey();
   let closeId = "";
   try {
+    // Otra pestaña pudo insertar la misma llave entre la lectura y el lock.
+    if (requestId) {
+      const racedRequest = getCashCloseByRequestId(requestId);
+      if (racedRequest) {
+        database.exec("COMMIT");
+        return racedRequest;
+      }
+    }
+
     // Dentro de la transacción se relee la última versión y los totales vivos.
     const status = getCashStatus();
     date = status.date;
@@ -237,7 +302,17 @@ export function closeCash(input: CashCloseInput): CashClose {
       );
     }
 
-    const version = (existing?.version ?? 0) + 1;
+    const currentVersion = existing?.version ?? 0;
+    if (input.expectedVersion !== currentVersion) {
+      throw new CashCloseError(
+        "version_conflict",
+        "Otro corte se guardó antes. Actualiza los totales y vuelve a intentar.",
+        409,
+        currentVersion,
+      );
+    }
+
+    const version = currentVersion + 1;
     const summary = getDailySummary();
     closeId = newId("cash");
 
@@ -248,8 +323,8 @@ export function closeCash(input: CashCloseInput): CashClose {
           expenses_cents, withdrawals_cents, expected_cents, counted_cents,
           difference_cents, base_next_cents, withdrawal_next_cents,
           snapshot_cash_cents, snapshot_credit_cents, snapshot_pending_digital_cents,
-          reason, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          snapshot_known, reason, request_id, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)`,
       )
       .run(
         closeId,
@@ -269,6 +344,7 @@ export function closeCash(input: CashCloseInput): CashClose {
         summary.creditCents,
         summary.pendingCents,
         existing ? cleanReason : null,
+        requestId,
         nowIso(),
       );
 
@@ -276,6 +352,8 @@ export function closeCash(input: CashCloseInput): CashClose {
       date,
       version,
       reason: existing ? cleanReason : null,
+      requestId,
+      expectedVersion: input.expectedVersion,
       countedCents: preview.countedCents,
       expectedCents: preview.expectedCents,
       differenceCents: preview.differenceCents,
@@ -284,15 +362,20 @@ export function closeCash(input: CashCloseInput): CashClose {
 
     database.exec("COMMIT");
   } catch (error) {
-    database.exec("ROLLBACK");
+    try {
+      database.exec("ROLLBACK");
+    } catch {
+      // Si SQLite ya cerró la transacción, conservamos el error original.
+    }
     throw error;
   }
 
-  const saved = getCashClose(date);
-  if (!saved || saved.id !== closeId) {
+  // Se lee por id, no “la última”: otra pestaña pudo crear una versión después.
+  const saved = getCashCloseById(closeId);
+  if (!saved) {
     throw new CashCloseError(
       "close_not_saved",
-      "El corte no se pudo leer después de guardarlo.",
+      "El corte se guardó pero no se pudo leer. Actualiza la caja.",
       500,
     );
   }

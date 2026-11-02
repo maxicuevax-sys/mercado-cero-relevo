@@ -207,7 +207,10 @@ export interface CashClose {
   snapshotCreditCents: number;
   /** Foto de lo pendiente de cobro digital al cerrar. */
   snapshotPendingDigitalCents: number;
+  /** false en filas migradas: fiado/digital no se registraban al cerrar. */
+  snapshotKnown: boolean;
   reason: string | null;
+  requestId: string | null;
   createdAt: string;
 }
 

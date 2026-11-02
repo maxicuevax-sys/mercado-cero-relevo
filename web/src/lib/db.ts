@@ -157,7 +157,9 @@ function migrate(database: DatabaseSync) {
       snapshot_cash_cents INTEGER NOT NULL DEFAULT 0,
       snapshot_credit_cents INTEGER NOT NULL DEFAULT 0,
       snapshot_pending_digital_cents INTEGER NOT NULL DEFAULT 0,
+      snapshot_known INTEGER NOT NULL DEFAULT 1,
       reason TEXT,
+      request_id TEXT,
       created_at TEXT NOT NULL,
       UNIQUE(date, version)
     );
@@ -242,73 +244,177 @@ function migrate(database: DatabaseSync) {
 
 /**
  * `cash_closes` nació con una fila por fecha. El corte versionado necesita
- * conservar cada guardado. Si la base ya existe, se reconstruye la tabla una
- * sola vez y la fila anterior queda como versión 1.
+ * conservar cada guardado. La migración es atómica y también recupera una
+ * `cash_closes_legacy` que haya quedado de un intento anterior.
  */
 function migrateCashCloses(database: DatabaseSync) {
-  const columns = database.prepare("PRAGMA table_info(cash_closes)").all() as Array<{
+  const columns = tableColumns(database, "cash_closes");
+  const hasVersion = columns.some((column) => column.name === "version");
+
+  database.exec("BEGIN IMMEDIATE");
+  try {
+    if (!hasVersion) {
+      // Si quedó una legacy de un intento previo, primero se recuperan sus
+      // filas en la tabla vieja y después se hace la reconstrucción completa.
+      if (tableExists(database, "cash_closes_legacy")) {
+        const legacyColumns = tableColumns(database, "cash_closes_legacy").map(
+          (column) => column.name,
+        );
+        const common = columns
+          .map((column) => column.name)
+          .filter((name) => legacyColumns.includes(name));
+        if (common.length > 0) {
+          const list = common.join(", ");
+          database.exec(
+            `INSERT OR IGNORE INTO cash_closes (${list})
+             SELECT ${list} FROM cash_closes_legacy;
+             DROP TABLE cash_closes_legacy;`,
+          );
+        } else {
+          database.exec("DROP TABLE cash_closes_legacy;");
+        }
+      }
+
+      database.exec(`
+        DROP INDEX IF EXISTS idx_cash_closes_date;
+        DROP INDEX IF EXISTS idx_cash_closes_date_version;
+        DROP INDEX IF EXISTS idx_cash_closes_request_id;
+        ALTER TABLE cash_closes RENAME TO cash_closes_legacy;
+        CREATE TABLE cash_closes (
+          id TEXT PRIMARY KEY,
+          date TEXT NOT NULL,
+          version INTEGER NOT NULL DEFAULT 1,
+          opening_cents INTEGER NOT NULL DEFAULT 0,
+          cash_sales_cents INTEGER NOT NULL DEFAULT 0,
+          cash_credit_cents INTEGER NOT NULL DEFAULT 0,
+          expenses_cents INTEGER NOT NULL DEFAULT 0,
+          withdrawals_cents INTEGER NOT NULL DEFAULT 0,
+          expected_cents INTEGER NOT NULL DEFAULT 0,
+          counted_cents INTEGER NOT NULL DEFAULT 0,
+          difference_cents INTEGER NOT NULL DEFAULT 0,
+          base_next_cents INTEGER NOT NULL DEFAULT 0,
+          withdrawal_next_cents INTEGER NOT NULL DEFAULT 0,
+          snapshot_cash_cents INTEGER NOT NULL DEFAULT 0,
+          snapshot_credit_cents INTEGER NOT NULL DEFAULT 0,
+          snapshot_pending_digital_cents INTEGER NOT NULL DEFAULT 0,
+          snapshot_known INTEGER NOT NULL DEFAULT 1,
+          reason TEXT,
+          request_id TEXT,
+          created_at TEXT NOT NULL,
+          UNIQUE(date, version)
+        );
+        INSERT INTO cash_closes
+          (id, date, version, opening_cents, cash_sales_cents, cash_credit_cents,
+           expenses_cents, withdrawals_cents, expected_cents, counted_cents,
+           difference_cents, base_next_cents, withdrawal_next_cents,
+           snapshot_cash_cents, snapshot_credit_cents, snapshot_pending_digital_cents,
+           snapshot_known, reason, request_id, created_at)
+        SELECT
+          id, date, 1, opening_cents, cash_sales_cents, cash_credit_cents,
+          expenses_cents, withdrawals_cents, expected_cents, counted_cents,
+          difference_cents, base_next_cents, withdrawal_next_cents,
+          cash_sales_cents + cash_credit_cents, 0, 0,
+          0, NULL, NULL, created_at
+        FROM cash_closes_legacy;
+        DROP TABLE cash_closes_legacy;
+        CREATE INDEX IF NOT EXISTS idx_cash_closes_date ON cash_closes(date);
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_cash_closes_date_version
+          ON cash_closes(date, version);
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_cash_closes_request_id
+          ON cash_closes(request_id) WHERE request_id IS NOT NULL;
+      `);
+      database.exec("COMMIT");
+      return;
+    }
+
+    const addColumn = (name: string, definition: string) => {
+      const current = tableColumns(database, "cash_closes");
+      if (!current.some((column) => column.name === name)) {
+        database.exec(`ALTER TABLE cash_closes ADD COLUMN ${name} ${definition};`);
+      }
+    };
+    addColumn("snapshot_cash_cents", "INTEGER NOT NULL DEFAULT 0");
+    addColumn("snapshot_credit_cents", "INTEGER NOT NULL DEFAULT 0");
+    addColumn("snapshot_pending_digital_cents", "INTEGER NOT NULL DEFAULT 0");
+    // En una tabla ya versionada no sabemos si un 0 significaba “cero real”;
+    // se marca desconocido y se hace backfill solo cuando hay una foto > 0.
+    addColumn("snapshot_known", "INTEGER NOT NULL DEFAULT 0");
+    addColumn("reason", "TEXT");
+    addColumn("request_id", "TEXT");
+
+    if (tableExists(database, "cash_closes_legacy")) {
+      copyLegacyIntoVersioned(database);
+    }
+
+    database.exec(`
+      UPDATE cash_closes
+      SET snapshot_known = 1
+      WHERE snapshot_known = 0
+        AND (snapshot_credit_cents != 0
+          OR snapshot_pending_digital_cents != 0);
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_cash_closes_date_version
+        ON cash_closes(date, version);
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_cash_closes_request_id
+        ON cash_closes(request_id) WHERE request_id IS NOT NULL;
+    `);
+    database.exec("COMMIT");
+  } catch (error) {
+    try {
+      database.exec("ROLLBACK");
+    } catch {
+      // Si SQLite ya cerró la transacción, conservamos el error original.
+    }
+    throw error;
+  }
+}
+
+function tableExists(database: DatabaseSync, table: string): boolean {
+  const row = database
+    .prepare("SELECT 1 AS found FROM sqlite_master WHERE type = 'table' AND name = ?")
+    .get(table) as unknown as { found: number } | undefined;
+  return Boolean(row);
+}
+
+function tableColumns(database: DatabaseSync, table: string): Array<{ name: string }> {
+  return database.prepare(`PRAGMA table_info(${table})`).all() as unknown as Array<{
     name: string;
   }>;
+}
 
-  if (!columns.some((column) => column.name === "version")) {
-    database.exec(`
-      DROP INDEX IF EXISTS idx_cash_closes_date;
-      ALTER TABLE cash_closes RENAME TO cash_closes_legacy;
-      CREATE TABLE cash_closes (
-        id TEXT PRIMARY KEY,
-        date TEXT NOT NULL,
-        version INTEGER NOT NULL DEFAULT 1,
-        opening_cents INTEGER NOT NULL DEFAULT 0,
-        cash_sales_cents INTEGER NOT NULL DEFAULT 0,
-        cash_credit_cents INTEGER NOT NULL DEFAULT 0,
-        expenses_cents INTEGER NOT NULL DEFAULT 0,
-        withdrawals_cents INTEGER NOT NULL DEFAULT 0,
-        expected_cents INTEGER NOT NULL DEFAULT 0,
-        counted_cents INTEGER NOT NULL DEFAULT 0,
-        difference_cents INTEGER NOT NULL DEFAULT 0,
-        base_next_cents INTEGER NOT NULL DEFAULT 0,
-        withdrawal_next_cents INTEGER NOT NULL DEFAULT 0,
-        snapshot_cash_cents INTEGER NOT NULL DEFAULT 0,
-        snapshot_credit_cents INTEGER NOT NULL DEFAULT 0,
-        snapshot_pending_digital_cents INTEGER NOT NULL DEFAULT 0,
-        reason TEXT,
-        created_at TEXT NOT NULL,
-        UNIQUE(date, version)
-      );
-      INSERT INTO cash_closes
-        (id, date, version, opening_cents, cash_sales_cents, cash_credit_cents,
-         expenses_cents, withdrawals_cents, expected_cents, counted_cents,
-         difference_cents, base_next_cents, withdrawal_next_cents,
-         snapshot_cash_cents, snapshot_credit_cents, snapshot_pending_digital_cents,
-         reason, created_at)
-      SELECT
-        id, date, 1, opening_cents, cash_sales_cents, cash_credit_cents,
-        expenses_cents, withdrawals_cents, expected_cents, counted_cents,
-        difference_cents, base_next_cents, withdrawal_next_cents,
-        cash_sales_cents + cash_credit_cents, 0, 0,
-        NULL, created_at
-      FROM cash_closes_legacy;
-      DROP TABLE cash_closes_legacy;
-      CREATE INDEX IF NOT EXISTS idx_cash_closes_date ON cash_closes(date);
-    `);
-    return;
-  }
-
-  const addColumn = (name: string, definition: string) => {
-    const current = database.prepare("PRAGMA table_info(cash_closes)").all() as Array<{
-      name: string;
-    }>;
-    if (!current.some((column) => column.name === name)) {
-      database.exec(`ALTER TABLE cash_closes ADD COLUMN ${name} ${definition};`);
-    }
-  };
-  addColumn("snapshot_cash_cents", "INTEGER NOT NULL DEFAULT 0");
-  addColumn("snapshot_credit_cents", "INTEGER NOT NULL DEFAULT 0");
-  addColumn("snapshot_pending_digital_cents", "INTEGER NOT NULL DEFAULT 0");
-  addColumn("reason", "TEXT");
-  database.exec(
-    "CREATE UNIQUE INDEX IF NOT EXISTS idx_cash_closes_date_version ON cash_closes(date, version);",
+/** Recupera filas de una legacy parcial en una tabla ya versionada. */
+function copyLegacyIntoVersioned(database: DatabaseSync) {
+  const legacyColumns = tableColumns(database, "cash_closes_legacy").map(
+    (column) => column.name,
   );
+  const has = (name: string) => legacyColumns.includes(name);
+  const version = has("version") ? "version" : "1";
+  const snapshotCash = has("snapshot_cash_cents")
+    ? "snapshot_cash_cents"
+    : "cash_sales_cents + cash_credit_cents";
+  const snapshotCredit = has("snapshot_credit_cents") ? "snapshot_credit_cents" : "0";
+  const snapshotPending = has("snapshot_pending_digital_cents")
+    ? "snapshot_pending_digital_cents"
+    : "0";
+  const snapshotKnown = has("snapshot_known") ? "snapshot_known" : "0";
+  const reason = has("reason") ? "reason" : "NULL";
+  const requestId = has("request_id") ? "request_id" : "NULL";
+
+  database.exec(`
+    INSERT OR IGNORE INTO cash_closes
+      (id, date, version, opening_cents, cash_sales_cents, cash_credit_cents,
+       expenses_cents, withdrawals_cents, expected_cents, counted_cents,
+       difference_cents, base_next_cents, withdrawal_next_cents,
+       snapshot_cash_cents, snapshot_credit_cents, snapshot_pending_digital_cents,
+       snapshot_known, reason, request_id, created_at)
+    SELECT
+      id, date, ${version}, opening_cents, cash_sales_cents, cash_credit_cents,
+      expenses_cents, withdrawals_cents, expected_cents, counted_cents,
+      difference_cents, base_next_cents, withdrawal_next_cents,
+      ${snapshotCash}, ${snapshotCredit}, ${snapshotPending},
+      ${snapshotKnown}, ${reason}, ${requestId}, created_at
+    FROM cash_closes_legacy;
+    DROP TABLE cash_closes_legacy;
+  `);
 }
 
 function seed(database: DatabaseSync) {

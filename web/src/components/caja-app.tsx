@@ -3807,13 +3807,15 @@ function CashCloseSummary({
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <dt className="text-ink-2">Fiado pendiente</dt>
           <dd className="tabular font-semibold text-ink">
-            {formatMxn(close.snapshotCreditCents)}
+            {close.snapshotKnown ? formatMxn(close.snapshotCreditCents) : "No registrado"}
           </dd>
         </div>
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <dt className="text-ink-2">Pendiente digital</dt>
+          <dt className="text-ink-2">Pendiente digital de hoy</dt>
           <dd className="tabular font-semibold text-ink">
-            {formatMxn(close.snapshotPendingDigitalCents)}
+            {close.snapshotKnown
+              ? formatMxn(close.snapshotPendingDigitalCents)
+              : "No registrado"}
           </dd>
         </div>
         <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -3846,11 +3848,22 @@ function CashCloseSummary({
       <p className="mt-2 text-sm leading-relaxed text-ink-2">
         Esta foto no cambia si hay ventas o cobros después del cierre.
       </p>
+      {!close.snapshotKnown ? (
+        <p className="mt-2 rounded-lg bg-surface px-3 py-2 text-sm leading-relaxed text-ink-2">
+          Este corte viene de una versión anterior: el fiado y el pendiente digital no se
+          registraban al cerrar, por eso dicen “No registrado”.
+        </p>
+      ) : null}
       {history.length > 1 ? (
         <div className="mt-3 border-t border-green/20 pt-3">
           <h4 className="text-sm font-bold text-ink">Cierres de hoy</h4>
+          {history.length > 5 ? (
+            <p className="mt-1 text-sm text-ink-2">
+              Se muestran las últimas 5 versiones y la primera.
+            </p>
+          ) : null}
           <ul className="mt-2 space-y-2">
-            {history.slice(0, 5).map((item) => (
+            {history.slice(0, 6).map((item) => (
               <li key={item.id} className="rounded-lg bg-surface px-3 py-2 text-sm">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <span className="font-semibold text-ink">Corte #{item.version}</span>
@@ -3905,6 +3918,8 @@ function CashCloseCard({
   const [reason, setReason] = useState("");
   const [reasonError, setReasonError] = useState<string | null>(null);
   const [savedNotice, setSavedNotice] = useState<string | null>(null);
+  const [applyPreviousWithdrawal, setApplyPreviousWithdrawal] = useState(false);
+  const [pendingRequestId, setPendingRequestId] = useState<string | null>(null);
 
   const openingRef = useRef<HTMLInputElement>(null);
   const expensesRef = useRef<HTMLInputElement>(null);
@@ -3912,6 +3927,9 @@ function CashCloseCard({
   const countedRef = useRef<HTMLInputElement>(null);
   const baseRef = useRef<HTMLInputElement>(null);
   const reasonRef = useRef<HTMLTextAreaElement>(null);
+  const dirtyRef = useRef(false);
+  const statusRef = useRef<CashStatus | null>(null);
+  const previewTokenRef = useRef(0);
 
   const fillFromStatus = useCallback((data: CashStatus) => {
     setOpening((data.openingCents / 100).toFixed(2));
@@ -3920,6 +3938,7 @@ function CashCloseCard({
     setBaseNext(((data.saved?.baseNextCents ?? 40000) / 100).toFixed(2));
     setCounted(data.saved ? (data.saved.countedCents / 100).toFixed(2) : "");
     setCounts({});
+    setApplyPreviousWithdrawal(false);
   }, []);
 
   const load = useCallback(
@@ -3937,8 +3956,18 @@ function CashCloseCard({
         const data = await readJsonBody<CashStatus>(response);
         if (!data) throw new Error("No se pudo leer la caja.");
         setStatus(data);
+        statusRef.current = data;
+
+        // Carrera: el usuario empezó a contar mientras resolvía el fetch.
+        // Se actualizan los totales, pero nunca sus campos.
+        if (!preserve && dirtyRef.current) {
+          setStale(true);
+          return true;
+        }
+
         if (!preserve) {
           fillFromStatus(data);
+          dirtyRef.current = false;
           setDirty(false);
           setStale(false);
           setSavedNotice(null);
@@ -3950,6 +3979,7 @@ function CashCloseCard({
         setError(
           friendlyError(err, "No se pudo leer la caja. Revisa tu conexión."),
         );
+        if (statusRef.current) setStale(true);
         return false;
       } finally {
         setLoading(false);
@@ -3984,12 +4014,18 @@ function CashCloseCard({
   const countedCents = readCentsField(counted).cents;
   const baseNextCents = readCentsField(baseNext).cents;
   const hasCounted = counted.trim() !== "";
+  const previousWithdrawalCents = status?.saved?.withdrawalNextCents ?? 0;
+  const appliedPreviousWithdrawalCents = applyPreviousWithdrawal
+    ? previousWithdrawalCents
+    : 0;
+  const effectiveWithdrawalsCents =
+    withdrawalsCents + appliedPreviousWithdrawalCents;
   const expectedCents = status
     ? openingCents +
       status.cashSalesCents +
       status.cashCreditCents -
       expensesCents -
-      withdrawalsCents
+      effectiveWithdrawalsCents
     : 0;
   const differenceCents = countedCents - expectedCents;
   const withdrawalNextCents = Math.max(0, countedCents - baseNextCents);
@@ -4000,6 +4036,7 @@ function CashCloseCard({
     hasCounted && countedCents > 0 && baseNextCents > countedCents;
 
   function markDirty() {
+    dirtyRef.current = true;
     setDirty(true);
     setFieldError(null);
     setError(null);
@@ -4065,13 +4102,22 @@ function CashCloseCard({
     return {
       openingCents,
       expensesCents,
-      withdrawalsCents,
+      withdrawalsCents: effectiveWithdrawalsCents,
       countedCents: countedTotal,
       baseNextCents: baseCents,
     };
   }
 
+  function closeConfirm() {
+    previewTokenRef.current += 1;
+    setConfirmOpen(false);
+    setReasonError(null);
+    setPreviewLoading(false);
+  }
+
   async function fetchPreview(payload: ClosePayload) {
+    const token = previewTokenRef.current + 1;
+    previewTokenRef.current = token;
     setPreview(null);
     setPreviewIssues(null);
     setPreviewError(null);
@@ -4087,17 +4133,19 @@ function CashCloseCard({
         issues?: Array<{ code: string; message: string }>;
         error?: string;
       }>(response);
+      if (token !== previewTokenRef.current) return;
       if (!response.ok || !data?.preview) {
         throw new Error(data?.error ?? "No se pudo calcular el corte.");
       }
       setPreview(data.preview);
       setPreviewIssues(data.issues?.[0]?.message ?? null);
     } catch (err) {
+      if (token !== previewTokenRef.current) return;
       setPreviewError(
         friendlyError(err, "No se pudo calcular el corte con el servidor."),
       );
     } finally {
-      setPreviewLoading(false);
+      if (token === previewTokenRef.current) setPreviewLoading(false);
     }
   }
 
@@ -4106,6 +4154,7 @@ function CashCloseCard({
     const payload = validateDraft();
     if (!payload) return;
     setPendingPayload(payload);
+    setPendingRequestId(crypto.randomUUID());
     setReasonError(null);
     setError(null);
     setConfirmOpen(true);
@@ -4113,12 +4162,15 @@ function CashCloseCard({
   }
 
   async function saveClose() {
-    if (!status || saving || !pendingPayload) return;
+    if (!status || saving || !pendingPayload || !pendingRequestId) return;
     if (status.saved && !reason.trim()) {
       setReasonError("Escribe el motivo de la corrección. No se puede guardar sin motivo.");
       reasonRef.current?.focus();
       return;
     }
+    const usedPreviousWithdrawal = applyPreviousWithdrawal
+      ? previousWithdrawalCents
+      : 0;
     setSaving(true);
     setError(null);
     setReasonError(null);
@@ -4129,6 +4181,8 @@ function CashCloseCard({
         body: JSON.stringify({
           ...pendingPayload,
           reason: status.saved ? reason.trim() : undefined,
+          requestId: pendingRequestId,
+          expectedVersion: status.saved?.version ?? 0,
         }),
       });
       const data = await readJsonBody<{
@@ -4138,29 +4192,42 @@ function CashCloseCard({
         code?: string;
       }>(response);
       if (!response.ok || !data?.close || !data.status) {
-        if (data?.code === "reason_required") {
-          setConfirmOpen(false);
-          setError(
-            "Alguien guardó otro corte antes. Actualiza los totales y escribe el motivo de la corrección.",
-          );
-          void load({ preserveDraft: true });
+        if (data?.code === "reason_required" || data?.code === "version_conflict") {
+          const message =
+            data.code === "reason_required"
+              ? "Alguien guardó un corte antes. Actualiza los totales y escribe el motivo de la corrección."
+              : "Otro corte se guardó antes. Actualicé los totales; revisa y vuelve a intentar.";
+          setPendingRequestId(null);
+          closeConfirm();
+          showToast("error", message);
+          void load({ preserveDraft: true }).then((ok) => {
+            if (ok) setError(message);
+          });
           return;
         }
         throw new Error(data?.error ?? "No se pudo guardar el corte.");
       }
       const close = data.close;
       setStatus(data.status);
+      statusRef.current = data.status;
       setOpening((close.openingCents / 100).toFixed(2));
       setExpenses((close.expensesCents / 100).toFixed(2));
       setWithdrawals((close.withdrawalsCents / 100).toFixed(2));
       setCounted((close.countedCents / 100).toFixed(2));
       setBaseNext((close.baseNextCents / 100).toFixed(2));
+      setApplyPreviousWithdrawal(false);
+      dirtyRef.current = false;
       setDirty(false);
       setStale(false);
       setPendingPayload(null);
+      setPendingRequestId(null);
       setReason("");
-      setConfirmOpen(false);
-      const notice = `Corte #${close.version} guardado. ${differenceText(close.differenceCents)}.`;
+      closeConfirm();
+      const baseNotice = `Corte #${close.version} guardado. ${differenceText(close.differenceCents)}.`;
+      const notice =
+        usedPreviousWithdrawal > 0
+          ? `${baseNotice} Se sumó el retiro previo de ${formatMxn(usedPreviousWithdrawal)} a retiros.`
+          : baseNotice;
       setSavedNotice(notice);
       showToast(close.differenceCents === 0 ? "ok" : "info", notice);
     } catch (err) {
@@ -4233,7 +4300,7 @@ function CashCloseCard({
               <p className="text-sm font-bold text-attention">Hay cambios sin guardar.</p>
               <p className="mt-0.5 text-sm leading-relaxed text-ink-2">
                 {stale
-                  ? "Llegaron movimientos nuevos. No actualicé los totales para no borrar tu conteo."
+                  ? "Los totales del servidor pueden haber cambiado. No borré tu conteo."
                   : "Puedes actualizar solo los totales del servidor sin borrar tu conteo."}
               </p>
               <button
@@ -4507,6 +4574,37 @@ function CashCloseCard({
                 {fieldErrorText("withdrawals")}
               </label>
             </div>
+            {status.saved && previousWithdrawalCents > 0 ? (
+              <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-xl border border-separator bg-surface px-3 py-2">
+                <input
+                  type="checkbox"
+                  checked={applyPreviousWithdrawal}
+                  onChange={(event) => {
+                    setApplyPreviousWithdrawal(event.target.checked);
+                    markDirty();
+                  }}
+                  className="mt-1 h-5 w-5 shrink-0 accent-[var(--color-green)]"
+                />
+                <span className="min-w-0 text-sm leading-relaxed">
+                  <span className="font-semibold text-ink">
+                    Ya retiré {formatMxn(previousWithdrawalCents)} del corte #
+                    {status.saved.version}
+                  </span>
+                  <span className="mt-0.5 block text-ink-2">
+                    Súmalo a retiros y al esperado para no marcar un faltante falso.
+                  </span>
+                </span>
+              </label>
+            ) : null}
+            {applyPreviousWithdrawal && previousWithdrawalCents > 0 ? (
+              <p className="text-sm text-ink-2">
+                Retiros para el corte:{" "}
+                <span className="font-semibold text-ink">
+                  {formatMxn(effectiveWithdrawalsCents)}
+                </span>{" "}
+                (incluye {formatMxn(previousWithdrawalCents)} del corte previo).
+              </p>
+            ) : null}
             <div className="flex flex-wrap items-end justify-between gap-3 border-t border-separator pt-2">
               <span className="min-w-0 font-semibold text-ink">Debería haber</span>
               <span className="tabular text-[1.375rem] font-semibold leading-none text-ink">
@@ -4611,8 +4709,7 @@ function CashCloseCard({
         open={confirmOpen}
         onClose={() => {
           if (saving) return;
-          setConfirmOpen(false);
-          setReasonError(null);
+          closeConfirm();
         }}
         title={status?.saved ? "Corregir corte" : "Confirmar corte"}
         size="sm"
@@ -4661,6 +4758,16 @@ function CashCloseCard({
                     {formatMxn(preview.withdrawalsCents)}
                   </dd>
                 </div>
+                {applyPreviousWithdrawal && previousWithdrawalCents > 0 ? (
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <dt className="text-ink-2">
+                      Incluye retiro previo del corte #{status?.saved?.version}
+                    </dt>
+                    <dd className="tabular font-semibold text-ink">
+                      {formatMxn(previousWithdrawalCents)}
+                    </dd>
+                  </div>
+                ) : null}
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t border-separator pt-2">
                   <dt className="text-ink-2">Debería haber</dt>
                   <dd className="tabular font-semibold text-ink">
@@ -4781,7 +4888,7 @@ function CashCloseCard({
           </button>
           <button
             type="button"
-            onClick={() => setConfirmOpen(false)}
+            onClick={closeConfirm}
             disabled={saving}
             className="flex min-h-12 w-full items-center justify-center rounded-xl border border-separator bg-surface text-sm font-semibold text-ink-2 transition hover:text-ink disabled:opacity-60"
           >

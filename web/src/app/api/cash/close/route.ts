@@ -11,22 +11,48 @@ const closeSchema = z.object({
   openingCents: moneyCents,
   expensesCents: moneyCents,
   withdrawalsCents: moneyCents,
-  countedCents: z
-    .number({ error: "Escribe cuánto contaste." })
-    .int("El monto debe estar en centavos enteros.")
-    .min(1, "Escribe cuánto contaste. El total contado debe ser mayor que cero.")
-    .max(100_000_000, "El monto es demasiado grande."),
+  // El 0 se valida en closeCash para responder `counted_required`, no
+  // `invalid_close`, y mantener el mismo contrato que el preview.
+  countedCents: moneyCents,
   baseNextCents: moneyCents,
   reason: z
     .string({ error: "El motivo debe ser texto." })
     .trim()
     .max(280, "El motivo es demasiado largo; usa 280 caracteres o menos.")
     .optional(),
+  requestId: z
+    .string({ error: "La llave del corte debe ser texto." })
+    .trim()
+    .min(1, "La llave del corte no puede estar vacía.")
+    .max(100, "La llave del corte es demasiado larga.")
+    .optional(),
+  expectedVersion: z
+    .number({ error: "Falta la versión esperada del corte." })
+    .int("La versión esperada debe ser un entero.")
+    .min(0, "La versión esperada no puede ser negativa."),
 });
 
-export async function POST(request: Request) {
+async function readJson(
+  request: Request,
+): Promise<{ body: unknown } | { response: Response }> {
   try {
-    const body = closeSchema.parse(await request.json());
+    return { body: await request.json() };
+  } catch {
+    return {
+      response: Response.json(
+        { error: "El cuerpo debe ser JSON válido.", code: "invalid_json" },
+        { status: 400 },
+      ),
+    };
+  }
+}
+
+export async function POST(request: Request) {
+  const parsed = await readJson(request);
+  if ("response" in parsed) return parsed.response;
+
+  try {
+    const body = closeSchema.parse(parsed.body);
     const close = closeCash(body);
     return Response.json({ close, status: getCashStatus() });
   } catch (error) {
@@ -42,7 +68,11 @@ export async function POST(request: Request) {
     }
     if (error instanceof CashCloseError) {
       return Response.json(
-        { error: error.message, code: error.code },
+        {
+          error: error.message,
+          code: error.code,
+          currentVersion: error.currentVersion,
+        },
         { status: error.status },
       );
     }
