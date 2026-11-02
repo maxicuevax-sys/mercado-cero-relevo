@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
   "mode": "static",
-  "startedAt": "2026-11-02T03:45:31.293Z",
-  "finishedAt": "2026-11-02T03:46:22.997Z",
-  "durationMs": 51700,
+  "startedAt": "2026-11-02T03:47:41.906Z",
+  "finishedAt": "2026-11-02T03:48:47.454Z",
+  "durationMs": 65545,
   "baseUrl": "http://localhost:3000",
   "gitAtStart": {
-    "sha": "d8b8421e21ae21ce54dc0fff8bc1d298bc0730b9",
+    "sha": "3da950fec136f6fdbd26b027174b2e5eeb64f4dd",
     "branch": "p0/integracion",
-    "dirty": true
+    "dirty": false
   },
   "git": {
-    "sha": "d8b8421e21ae21ce54dc0fff8bc1d298bc0730b9",
+    "sha": "3da950fec136f6fdbd26b027174b2e5eeb64f4dd",
     "branch": "p0/integracion",
-    "dirty": true
+    "dirty": false
   },
   "runtime": {
     "node": "v25.7.0",
@@ -40,7 +40,7 @@
       "command": "node scripts/harness-guard.mjs",
       "ok": true,
       "exitCode": 0,
-      "durationMs": 1078,
+      "durationMs": 1069,
       "expected": "Guardrails OK.",
       "outputTail": "PASS  AGENTS.md presente\nPASS  HARNESS.md presente\nPASS  ningún .env real trackeado\nPASS  .gitignore protege web/.env.local\nPASS  verify solo acepta provider pey\nPASS  los pagos demo usan demo_paid\nPASS  demo/pay declara provider demo\nPASS  webhook pey existe y valida firma\nPASS  sin secretos con pinta real en archivos versionados\n\nGuardrails OK."
     },
@@ -50,7 +50,7 @@
       "command": "npm run lint",
       "ok": true,
       "exitCode": 0,
-      "durationMs": 22032,
+      "durationMs": 27529,
       "expected": "sin errores",
       "outputTail": "> web@0.1.0 lint\n> eslint"
     },
@@ -60,7 +60,7 @@
       "command": "npx tsc --noEmit",
       "ok": true,
       "exitCode": 0,
-      "durationMs": 8882,
+      "durationMs": 14558,
       "expected": "sin errores",
       "outputTail": ""
     },
@@ -70,9 +70,9 @@
       "command": "npm run build",
       "ok": true,
       "exitCode": 0,
-      "durationMs": 19703,
+      "durationMs": 22384,
       "expected": "compiled successfully",
-      "outputTail": "  Generating static pages using 7 workers (5/22) \n  Generating static pages using 7 workers (10/22) \n  Generating static pages using 7 workers (16/22) \n✓ Generating static pages using 7 workers (22/22) in 1910ms\n  Finalizing page optimization ...\n\nRoute (app)\n┌ ○ /\n├ ○ /_not-found\n├ ƒ /api/analytics\n├ ƒ /api/cash\n├ ƒ /api/cash/close\n├ ƒ /api/checkout/[id]\n├ ƒ /api/credits\n├ ƒ /api/credits/[id]/pay\n├ ƒ /api/dashboard\n├ ƒ /api/demo/pay\n├ ƒ /api/demo/reset\n├ ƒ /api/goals\n├ ƒ /api/goals/[id]/contribute\n├ ƒ /api/orders\n├ ƒ /api/orders/[id]\n├ ƒ /api/orders/[id]/pay\n├ ƒ /api/reconcile\n├ ƒ /api/tasks\n├ ƒ /api/tasks/[id]\n├ ƒ /api/tts\n├ ƒ /api/verify\n├ ƒ /api/voice/parse\n├ ƒ /api/voice/transcribe\n├ ƒ /api/webhooks/pey\n├   /pay/[id]\n│ └ ◐ /pay/[id]\n└   /pay/[id]/success\n  └ ◐ /pay/[id]/success\n\n\n○  (Static)             prerendered as static content\n◐  (Partial Prerender)  prerendered as static HTML with dynamic server-streamed content\nƒ  (Dynamic)            server-rendered on demand"
+      "outputTail": "  Generating static pages using 7 workers (5/22) \n  Generating static pages using 7 workers (10/22) \n  Generating static pages using 7 workers (16/22) \n✓ Generating static pages using 7 workers (22/22) in 1825ms\n  Finalizing page optimization ...\n\nRoute (app)\n┌ ○ /\n├ ○ /_not-found\n├ ƒ /api/analytics\n├ ƒ /api/cash\n├ ƒ /api/cash/close\n├ ƒ /api/checkout/[id]\n├ ƒ /api/credits\n├ ƒ /api/credits/[id]/pay\n├ ƒ /api/dashboard\n├ ƒ /api/demo/pay\n├ ƒ /api/demo/reset\n├ ƒ /api/goals\n├ ƒ /api/goals/[id]/contribute\n├ ƒ /api/orders\n├ ƒ /api/orders/[id]\n├ ƒ /api/orders/[id]/pay\n├ ƒ /api/reconcile\n├ ƒ /api/tasks\n├ ƒ /api/tasks/[id]\n├ ƒ /api/tts\n├ ƒ /api/verify\n├ ƒ /api/voice/parse\n├ ƒ /api/voice/transcribe\n├ ƒ /api/webhooks/pey\n├   /pay/[id]\n│ └ ◐ /pay/[id]\n└   /pay/[id]/success\n  └ ◐ /pay/[id]/success\n\n\n○  (Static)             prerendered as static content\n◐  (Partial Prerender)  prerendered as static HTML with dynamic server-streamed content\nƒ  (Dynamic)            server-rendered on demand"
     }
   ],
   "ok": true
