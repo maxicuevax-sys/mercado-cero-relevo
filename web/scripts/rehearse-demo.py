@@ -90,7 +90,7 @@ def run_once(page, iteration: int) -> dict:
     step("consulta de ventas", wait_text(page, "Hoy llevas"))
 
     # 5. Anti-fraude.
-    page.get_by_role("button", name="Verificar", exact=True).first.click()
+    page.get_by_role("button", name="Verificar comprobante", exact=True).first.click()
     page.wait_for_selector("text=Verificar comprobante", timeout=12000)
     page.get_by_role("button", name="Probar con un comprobante falso").click()
     step("comprobante falso rechazado", wait_text(page, "No verificado"))

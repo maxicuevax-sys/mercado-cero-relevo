@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -33,6 +34,23 @@ if os.environ.get("VIEWPORTS"):
         for pair in os.environ["VIEWPORTS"].split(",")
     ]
 results: list[dict] = []
+
+
+def git_value(*args: str) -> str:
+    try:
+        return subprocess.check_output(
+            ["git", *args], cwd=ROOT, text=True, stderr=subprocess.DEVNULL
+        ).strip()
+    except Exception:
+        return ""
+
+
+def code_info() -> dict:
+    return {
+        "commit": git_value("rev-parse", "HEAD"),
+        # Incluye untracked bajo web/ para no declarar limpio un árbol con código nuevo.
+        "dirty": bool(git_value("status", "--porcelain", "--", "web")),
+    }
 
 
 def shot(page, name: str, full: bool = False) -> None:
@@ -313,6 +331,23 @@ def measure(page, label: str) -> dict:
             const headerHeight = header ? header.getBoundingClientRect().height : 0;
             const sale = document.querySelector('#sale-text');
             const saleRect = sale ? sale.getBoundingClientRect() : null;
+            const tabBar = document.querySelector('nav[aria-label="Navegación inferior"]');
+            const tabBarStyle = tabBar ? getComputedStyle(tabBar) : null;
+            const tabBarRect =
+                tabBar && tabBarStyle && tabBarStyle.display !== 'none'
+                    ? tabBar.getBoundingClientRect()
+                    : null;
+            const tabBarVisible = Boolean(
+                tabBarRect && tabBarRect.height > 0 && tabBarRect.top < window.innerHeight
+            );
+            const saleAboveTabBar = saleRect && tabBarVisible
+                ? saleRect.bottom <= tabBarRect.top + 1
+                : null;
+            const saleVisible = saleRect
+                ? saleRect.top < window.innerHeight &&
+                  saleRect.bottom > 0 &&
+                  (!tabBarVisible || saleRect.bottom <= tabBarRect.top + 1)
+                : null;
             const metaAction = Array.from(document.querySelectorAll('button')).find(
                 el => (el.innerText || '').trim() === 'Apartar' && visible(el)
             );
@@ -346,7 +381,10 @@ def measure(page, label: str) -> dict:
                 headerHeight: Math.round(headerHeight),
                 headerRatio: Math.round((headerHeight / window.innerHeight) * 1000) / 1000,
                 saleTop: saleRect ? Math.round(saleRect.top) : null,
-                saleVisible: saleRect ? saleRect.top < window.innerHeight && saleRect.bottom > 0 : null,
+                saleVisible,
+                saleAboveTabBar,
+                tabBarVisible,
+                tabBarTop: tabBarVisible ? Math.round(tabBarRect.top) : null,
                 metaAmountVisible: Boolean(metaAmount),
                 metaAmountText: metaAmount ? (metaAmount.innerText || '').trim().replace(/\\s+/g, ' ').slice(0, 70) : null,
                 metaActionVisible: metaActionRect ? metaActionRect.top < window.innerHeight && metaActionRect.bottom > 0 : null,
@@ -366,10 +404,12 @@ def measure(page, label: str) -> dict:
     return data
 
 
-def measure_text200(page, label: str, shot_name: str) -> dict:
+def measure_text200(page, label: str, shot_name: str, with_axe: bool = False) -> dict:
     style = page.add_style_tag(content="html { font-size: 200% !important; }")
     page.wait_for_timeout(500)
     data = measure(page, label)
+    if with_axe:
+        data["axe"] = run_axe(page)
     shot(page, shot_name)
     style.evaluate("el => el.remove()")
     page.wait_for_timeout(300)
@@ -412,19 +452,16 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
     if w in (360, 390):
         shot(page, f"home-{w}-full", full=True)
 
-    style = page.add_style_tag(content="html { font-size: 200% !important; }")
-    page.wait_for_timeout(500)
-    record["homeText200"] = measure(page, "home-text-200")
-    shot(page, f"home-{w}-text200")
-    style.evaluate("el => el.remove()")
-    page.wait_for_timeout(300)
+    record["homeText200"] = measure_text200(
+        page, "home-text-200", f"home-{w}-text200", with_axe=True
+    )
 
     # Guía: foco, Escape y axe.
     page.get_by_role("button", name="Abrir guía").click()
     page.wait_for_timeout(300)
     record["help"] = measure(page, "help")
     record["helpAxe"] = run_axe(page)
-    record["helpText200"] = measure_text200(page, "help-text-200", f"help-{w}-text200")
+    record["helpText200"] = measure_text200(page, "help-text-200", f"help-{w}-text200", with_axe=True)
     record["helpInitialFocus"] = page.evaluate(
         "Boolean(document.activeElement?.closest('[role=dialog]'))"
     )
@@ -448,14 +485,14 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
     page.wait_for_timeout(200)
 
     # Verificación anti-fraude.
-    page.get_by_role("button", name="Verificar", exact=True).click()
+    page.get_by_role("button", name="Verificar comprobante", exact=True).click()
     page.wait_for_selector("text=Pega el ID de la transacción", timeout=10000)
     page.get_by_role("button", name="Probar con un comprobante falso").click()
     page.wait_for_selector("text=No verificado", timeout=15000)
     page.wait_for_timeout(300)
     record["verify"] = measure(page, "verify-sheet")
     record["verifyAxe"] = run_axe(page)
-    record["verifyText200"] = measure_text200(page, "verify-text-200", f"verify-{w}-text200")
+    record["verifyText200"] = measure_text200(page, "verify-text-200", f"verify-{w}-text200", with_axe=True)
     shot(page, f"verify-{w}")
     page.keyboard.press("Escape")
     page.wait_for_timeout(200)
@@ -494,12 +531,12 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
             page.wait_for_timeout(700)
             record[tab.lower()] = measure(page, tab.lower())
             shot(page, f"{tab.lower()}-{w}")
-            tab_style = page.add_style_tag(content="html { font-size: 200% !important; }")
-            page.wait_for_timeout(500)
-            record[f"{tab.lower()}Text200"] = measure(page, f"{tab.lower()}-text-200")
-            shot(page, f"{tab.lower()}-{w}-text200")
-            tab_style.evaluate("el => el.remove()")
-            page.wait_for_timeout(300)
+            record[f"{tab.lower()}Text200"] = measure_text200(
+                page,
+                f"{tab.lower()}-text-200",
+                f"{tab.lower()}-{w}-text200",
+                with_axe=(tab == "Meta"),
+            )
 
         # Sheets de Fiado y confirmación de Corte al 200%.
         page.locator("button:visible", has_text="Fiado").first.click()
@@ -610,6 +647,7 @@ def main() -> int:
         "base": BASE,
         "started": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "elapsedSeconds": round(time.time() - started, 1),
+        "code": code_info(),
         "viewports": results,
     }
     path = OUT / "audit.json"
@@ -630,6 +668,12 @@ def main() -> int:
                         failures.append(
                             f"{view} {key}: axe {violation['impact']} {violation['id']} ({violation['nodes']} nodes)"
                         )
+            if isinstance(value, dict) and isinstance(value.get("axe"), dict):
+                for violation in value["axe"].get("violations", []):
+                    if violation.get("impact") in ("serious", "critical"):
+                        failures.append(
+                            f"{view} {key} 200%: axe {violation['impact']} {violation['id']} ({violation['nodes']} nodes)"
+                        )
             if isinstance(value, dict) and "documentScrollWidth" in value:
                 if value["documentScrollWidth"] > value["innerWidth"] + 1:
                     failures.append(
@@ -649,6 +693,8 @@ def main() -> int:
                         )
                 if value.get("under48Count", 0) > 0:
                     failures.append(f"{view} {key}: {value['under48Count']} targets under 44px")
+                if value.get("unnamedCount", 0) > 0:
+                    failures.append(f"{view} {key}: {value['unnamedCount']} controles sin nombre accesible")
                 if value.get("brokenWordCount", 0) > 0:
                     words = ", ".join(
                         f"“{item['word']}” en “{item['text']}”" for item in value.get("brokenWords", [])[:4]

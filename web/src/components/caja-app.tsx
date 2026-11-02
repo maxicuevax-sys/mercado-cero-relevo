@@ -194,6 +194,15 @@ function friendlyError(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
 }
 
+async function readJsonBody<T>(response: Response): Promise<T | null> {
+  // Un 500 puede devolver texto plano; nunca exponemos el cuerpo crudo.
+  try {
+    return (await response.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
 function draftSignature(content: DraftContent): string {
   return JSON.stringify({
     items: content.items.map(({ id, description, quantity, unitPriceCents }) => ({
@@ -1818,6 +1827,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                     <button
                       type="button"
                       onClick={() => setVerifyOpen(true)}
+                      aria-label="Verificar comprobante"
                       className="flex min-h-[48px] items-center gap-2 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
                     >
                       <ShieldCheck className="h-4 w-4" />
@@ -3265,8 +3275,9 @@ function BusinessOverview({
     setError(null);
     fetch(`/api/analytics?period=${period}`, { cache: "no-store" })
       .then(async (response) => {
-        const data = (await response.json()) as AnalyticsReport & { error?: string };
-        if (!response.ok) throw new Error(data.error ?? "No se pudo cargar el resumen.");
+        if (!response.ok) throw new Error("No se pudo cargar el resumen.");
+        const data = await readJsonBody<AnalyticsReport>(response);
+        if (!data) throw new Error("No se pudo cargar el resumen.");
         if (!cancelled) setReport(data);
       })
       .catch((err) => {
@@ -3523,8 +3534,9 @@ function CashCloseCard({
     setError(null);
     try {
       const response = await fetch("/api/cash", { cache: "no-store" });
-      const data = (await response.json()) as CashStatus & { error?: string };
-      if (!response.ok) throw new Error(data.error ?? "No se pudo leer la caja.");
+      if (!response.ok) throw new Error("No se pudo leer la caja.");
+      const data = await readJsonBody<CashStatus>(response);
+      if (!data) throw new Error("No se pudo leer la caja.");
       setStatus(data);
       setOpening((data.openingCents / 100).toFixed(2));
       setExpenses((data.expensesCents / 100).toFixed(2));
@@ -3965,11 +3977,12 @@ function GoalCard({
     setError(null);
     try {
       const response = await fetch("/api/goals", { cache: "no-store" });
-      const data = (await response.json()) as { goals?: Goal[]; error?: string };
-      if (!response.ok) throw new Error(data.error ?? "No se pudo leer la meta.");
+      if (!response.ok) throw new Error("No pudimos cargar la meta.");
+      const data = await readJsonBody<{ goals?: Goal[] }>(response);
+      if (!data) throw new Error("No pudimos cargar la meta.");
       setGoal(data.goals?.[0] ?? null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo leer la meta.");
+      setError(err instanceof Error ? err.message : "No pudimos cargar la meta.");
     } finally {
       setLoading(false);
     }
@@ -3996,15 +4009,14 @@ function GoalCard({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amountCents, note: "Aportación desde la caja" }),
       });
-      const data = (await response.json()) as { goal?: Goal; error?: string };
-      if (!response.ok || !data.goal) {
-        throw new Error(data.error ?? "No se pudo registrar la aportación.");
-      }
+      if (!response.ok) throw new Error("No pude aportar.");
+      const data = await readJsonBody<{ goal?: Goal }>(response);
+      if (!data?.goal) throw new Error("No pude aportar.");
       setGoal(data.goal);
       setAmount("");
       showToast("ok", `Apartaste ${formatMxn(amountCents)} para ${data.goal.title}.`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo registrar la aportación.");
+      setError(err instanceof Error ? err.message : "No pude aportar.");
     } finally {
       setSaving(false);
     }
@@ -4167,17 +4179,10 @@ function ReconcileCard({ demoMode }: { demoMode: boolean }) {
     setError(null);
     try {
       const response = await fetch("/api/reconcile", { cache: "no-store" });
-      const data = (await response.json()) as
-        | ReconciliationReport
-        | { error?: string };
-      if (!response.ok) {
-        throw new Error(
-          "error" in data && data.error
-            ? data.error
-            : "No se pudo conciliar la caja.",
-        );
-      }
-      setReport(data as ReconciliationReport);
+      if (!response.ok) throw new Error("No se pudo conciliar la caja.");
+      const data = await readJsonBody<ReconciliationReport>(response);
+      if (!data) throw new Error("No se pudo conciliar la caja.");
+      setReport(data);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "No se pudo conciliar la caja.",

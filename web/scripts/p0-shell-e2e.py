@@ -51,8 +51,8 @@ def code_info() -> dict:
 
     return {
         "commit": git("rev-parse", "HEAD"),
-        # La evidencia recién escrita no convierte el código de web/ en sucio.
-        "dirty": bool(git("status", "--porcelain", "--untracked-files=no", "--", "web")),
+        # Incluye untracked bajo web/ para no declarar limpio un árbol con código nuevo.
+        "dirty": bool(git("status", "--porcelain", "--", "web")),
     }
 
 
@@ -105,9 +105,14 @@ def home_metrics(page) -> dict:
           const sr = sale ? sale.getBoundingClientRect() : null;
           const tab = document.querySelector('nav[aria-label="Navegación inferior"]');
           const tr = tab ? tab.getBoundingClientRect() : null;
+          const tabVisible = Boolean(tr && tr.height > 0 && tr.top < innerHeight);
+          const saleVisible = sr
+            ? sr.top < innerHeight && sr.bottom > 0 && (!tabVisible || sr.bottom <= tr.top + 1)
+            : null;
           return {
             headerRatio: header ? header.getBoundingClientRect().height / innerHeight : null,
-            saleVisible: sr ? sr.top < innerHeight && sr.bottom > 0 : null,
+            saleTop: sr ? Math.round(sr.top) : null,
+            saleVisible,
             saleFullyAboveTabBar: sr && tr ? sr.bottom <= tr.top + 1 : null,
             tabBarTop: tr ? Math.round(tr.top) : null,
             scrollWidth: document.documentElement.scrollWidth,
@@ -163,6 +168,7 @@ def main() -> int:
         check("Actividad distingue error de vacío", "No pudimos cargar la actividad." in body)
 
         first_count = len(dashboard_calls)
+        check("una sola carga inicial de /api/dashboard", first_count == 1, f"{first_count} llamada(s)")
         page.wait_for_timeout(2600)
         check(
             "sin bucle de /api/dashboard",
@@ -198,7 +204,78 @@ def main() -> int:
         check("Reintentar recupera el comercio real", "Antojitos de Lupita" in recovered)
         check("el aviso de error desaparece al recuperar", "No pudimos cargar los datos del negocio." not in recovered)
         check("la actividad vuelve a mostrar pedidos", "No pudimos cargar la actividad." not in recovered)
+        activity_items = page.evaluate(
+            """() => {
+              const heading = [...document.querySelectorAll('h2')].find(
+                el => (el.innerText || '').includes('Últimos movimientos')
+              );
+              const card = heading ? heading.closest('div.rounded-2xl') : null;
+              return card ? card.querySelectorAll('button').length : 0;
+            }"""
+        )
+        check("la actividad recuperada tiene pedidos reales", activity_items > 0, f"{activity_items} pedido(s)")
         page.screenshot(path=str(OUT / "e2e-error-recovered-360.png"))
+        context.close()
+
+        # ------------------------------------------------------------------
+        # 1b · Fallo después de una carga buena: datos viejos + aviso.
+        # ------------------------------------------------------------------
+        context = browser.new_context(
+            viewport={"width": 360, "height": 800},
+            locale="es-MX",
+            is_mobile=True,
+            has_touch=True,
+        )
+        page = context.new_page()
+        page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
+        page.wait_for_selector("text=Antojitos de Lupita", timeout=20000)
+        page.wait_for_timeout(900)
+        before_items = page.evaluate(
+            """() => {
+              const heading = [...document.querySelectorAll('h2')].find(
+                el => (el.innerText || '').includes('Últimos movimientos')
+              );
+              const card = heading ? heading.closest('div.rounded-2xl') : null;
+              return card ? card.querySelectorAll('button').length : 0;
+            }"""
+        )
+        check("carga buena inicial con pedidos", before_items > 0, f"{before_items} pedido(s)")
+
+        def fail_late(route):
+            route.fulfill(status=500, content_type="text/plain", body="fallo simulado")
+
+        page.route("**/api/dashboard", fail_late)
+        page.get_by_role("button", name="Demo", exact=True).click()
+        page.get_by_role("button", name="Reiniciar datos de demo").click()
+        page.get_by_role("button", name="Sí, reiniciar").click()
+        page.wait_for_selector("text=No pudimos cargar los datos del negocio.", timeout=15000)
+        page.wait_for_timeout(700)
+        stale_body = page.locator("body").inner_text()
+        check("fallo tardío muestra aviso persistente", "No pudimos cargar los datos del negocio." in stale_body)
+        check("fallo tardío explica que los datos son viejos", "Lo que ves es de la última carga." in stale_body)
+        check("fallo tardío conserva el comercio de la última carga", "Antojitos de Lupita" in stale_body)
+        check("fallo tardío conserva DEMO", page.get_by_role("button", name="Demo", exact=True).count() == 1)
+        after_items = page.evaluate(
+            """() => {
+              const heading = [...document.querySelectorAll('h2')].find(
+                el => (el.innerText || '').includes('Últimos movimientos')
+              );
+              const card = heading ? heading.closest('div.rounded-2xl') : null;
+              return card ? card.querySelectorAll('button').length : 0;
+            }"""
+        )
+        check("fallo tardío no borra la actividad vieja", after_items > 0, f"{after_items} pedido(s)")
+        check("fallo tardío no muestra body crudo", "fallo simulado" not in stale_body)
+        page.screenshot(path=str(OUT / "e2e-stale-dashboard-360.png"))
+
+        page.unroute("**/api/dashboard", fail_late)
+        page.get_by_role("button", name="Reintentar").click()
+        page.wait_for_selector("text=Antojitos de Lupita", timeout=20000)
+        page.wait_for_timeout(700)
+        check(
+            "reintento tardío limpia el aviso",
+            "No pudimos cargar los datos del negocio." not in page.locator("body").inner_text(),
+        )
         context.close()
 
         # ------------------------------------------------------------------
@@ -223,7 +300,35 @@ def main() -> int:
         check("GoalCard muestra error si goal=null", "No pudimos cargar la meta" in meta_body)
         check("GoalCard no dice 'Aún no hay una meta' con error", "Aún no hay una meta" not in meta_body)
         check("GoalCard ofrece Reintentar", page.get_by_role("button", name="Reintentar").count() >= 1)
+        check("GoalCard no muestra Unexpected token", "Unexpected token" not in meta_body)
+        check("GoalCard no muestra el body crudo", "fallo simulado" not in meta_body)
         page.screenshot(path=str(OUT / "e2e-goal-error-360.png"))
+        context.close()
+
+        # 2b · Aportación con 500 de texto plano: mensaje propio, no el body.
+        context = browser.new_context(
+            viewport={"width": 360, "height": 800},
+            locale="es-MX",
+            is_mobile=True,
+            has_touch=True,
+        )
+        page = context.new_page()
+        page.route(
+            "**/api/goals/*/contribute",
+            lambda route: route.fulfill(status=500, content_type="text/plain", body="fallo simulado"),
+        )
+        page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
+        page.wait_for_selector("h1:has-text('Caja')", timeout=20000)
+        page.locator("button:visible", has_text="Meta").first.click()
+        page.wait_for_selector("text=Mi primera sombrilla", timeout=15000)
+        page.get_by_label("¿Cuánto apartaste?").fill("50")
+        page.get_by_role("button", name="Apartar", exact=True).click()
+        page.wait_for_selector("text=No pude aportar.", timeout=10000)
+        contribute_body = page.locator("body").inner_text()
+        check("GoalCard muestra 'No pude aportar' en 500", "No pude aportar." in contribute_body)
+        check("GoalCard no muestra Unexpected token al aportar", "Unexpected token" not in contribute_body)
+        check("GoalCard no muestra el body crudo al aportar", "fallo simulado" not in contribute_body)
+        page.screenshot(path=str(OUT / "e2e-goal-contribute-error-360.png"))
         context.close()
 
         # ------------------------------------------------------------------
@@ -254,12 +359,39 @@ def main() -> int:
         page.screenshot(path=str(OUT / "e2e-home-360-text200.png"))
         context.close()
 
+        # 768/200: la tab bar inferior comparte el viewport; el campo debe estar encima.
+        context = browser.new_context(viewport={"width": 768, "height": 1024}, locale="es-MX")
+        page = context.new_page()
+        page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
+        page.wait_for_selector("h1:has-text('Caja')", timeout=30000)
+        page.wait_for_timeout(900)
+        text200(page)
+        metrics768 = home_metrics(page)
+        broken768 = broken_words(page)
+        check(
+            "home-768-200: campo de venta por encima de la tab bar",
+            bool(metrics768["saleVisible"] and metrics768["saleFullyAboveTabBar"]),
+            f"saleTop={metrics768['saleTop']} tabTop={metrics768['tabBarTop']}",
+        )
+        check("home-768-200: sin palabras partidas", not broken768)
+        check("home-768-200: sin overflow horizontal", metrics768["scrollWidth"] <= metrics768["innerWidth"] + 1)
+        page.screenshot(path=str(OUT / "e2e-home-768-text200.png"))
+        context.close()
+
         context = browser.new_context(viewport={"width": 1280, "height": 800}, locale="es-MX")
         page = context.new_page()
         page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
         page.wait_for_selector("h1:has-text('Caja')", timeout=30000)
         page.wait_for_timeout(900)
         text200(page)
+        metrics1280 = home_metrics(page)
+        check(
+            "home-1280-200: medida registrada (campo bajo el pliegue documentado)",
+            True,
+            f"saleTop={metrics1280['saleTop']} viewport=800",
+        )
+        check("home-1280-200: sin overflow horizontal", metrics1280["scrollWidth"] <= metrics1280["innerWidth"] + 1)
+        page.screenshot(path=str(OUT / "e2e-home-1280-text200.png"))
         sidebar = page.evaluate(
             """() => {
               const nav = document.querySelector('aside nav[aria-label="Navegación principal"]');
@@ -269,7 +401,6 @@ def main() -> int:
         broken = broken_words(page)
         check("home-1280-200: sidebar conserva Fiado y Corte", sidebar == ["Caja", "Fiado", "Corte", "Meta"], str(sidebar))
         check("home-1280-200: sin palabras partidas", not broken, ", ".join(item["word"] for item in broken[:5]))
-        page.screenshot(path=str(OUT / "e2e-home-1280-text200.png"))
 
         page.get_by_role("button", name="Abrir guía").click()
         page.wait_for_timeout(400)
@@ -301,7 +432,7 @@ def main() -> int:
         page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
         page.wait_for_selector("h1:has-text('Caja')", timeout=30000)
         page.wait_for_timeout(900)
-        page.get_by_role("button", name="Verificar", exact=True).click()
+        page.get_by_role("button", name="Verificar comprobante", exact=True).click()
         page.wait_for_selector("text=Pega el ID de la transacción", timeout=10000)
         text200(page)
         title = page.locator('[role="dialog"] h2').inner_text()

@@ -272,6 +272,14 @@ button {
   flex-direction: column;
 }
 
+/* En tablet (768–1023) la tab bar inferior comparte el primer viewport. El
+   campo de texto sube para no quedar debajo de ella cuando el texto crece. */
+@media (min-width: 640px) and (max-width: 1023.98px) {
+  .caja-text-entry {
+    order: -1;
+  }
+}
+
 /* A 200 % el contenedor mide ~10 em: el campo de texto sube antes de la voz
    para que siga apareciendo en el primer viewport sin reducir el texto. */
 @container (max-width: 15em) {
