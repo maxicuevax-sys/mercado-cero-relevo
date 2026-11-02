@@ -141,6 +141,16 @@ interface VerifyResult {
   transactionId?: string;
 }
 
+interface CreditPayResponse {
+  credit?: Credit;
+  appliedCents?: number;
+  balanceCents?: number;
+  overpayCents?: number;
+  duplicate?: boolean;
+  error?: string;
+  code?: string;
+}
+
 const SAMPLE_PHRASES = [
   "Dos quesadillas de 35 y un agua de 20",
   "Juan me pagó 50 del fiado",
@@ -218,6 +228,65 @@ function safeCents(value: unknown): number {
 
 function newDraftItemId(): string {
   return `draft_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function newCreditPayRequestId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return `cp_${crypto.randomUUID()}`;
+  }
+  return `cp_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function normalizeName(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function mentionsName(text: string, name: string): boolean {
+  const target = normalizeName(name);
+  if (!target) return false;
+  const pattern = new RegExp(`(^|[^a-z0-9])${escapeRegExp(target)}([^a-z0-9]|$)`);
+  return pattern.test(normalizeName(text));
+}
+
+/**
+ * Un abono por voz solo puede prellenar una hoja. Si el nombre del parser
+ * coincide con más de un crédito abierto, no se elige uno al azar.
+ */
+function findOpenCreditCandidates(
+  credits: Credit[],
+  parsedName: string | null,
+  transcript: string,
+): Credit[] {
+  const open = credits.filter(
+    (credit) => credit.status !== "settled" && credit.balanceCents > 0,
+  );
+  const parserName = parsedName?.trim();
+  if (parserName) {
+    const target = normalizeName(parserName);
+    return open.filter((credit) => normalizeName(credit.customerName ?? "") === target);
+  }
+  // Sin nombre del parser, solo aceptamos una mención completa en la frase.
+  return open.filter((credit) =>
+    credit.customerName ? mentionsName(transcript, credit.customerName) : false,
+  );
+}
+
+function creditForOrder(order: Order, credits: Credit[]): Credit | null {
+  if (!order.creditId) return null;
+  return credits.find((credit) => credit.id === order.creditId) ?? null;
+}
+
+function isCreditSettled(credit: Credit | null): boolean {
+  return Boolean(credit && (credit.status === "settled" || credit.balanceCents <= 0));
 }
 
 function readStoredDraft(): StoredDraft | null {
@@ -429,9 +498,11 @@ export default function CajaApp() {
 
   const [creditPayId, setCreditPayId] = useState<string | null>(null);
   const [creditPayAmount, setCreditPayAmount] = useState("");
+  const [creditPayInitialAmount, setCreditPayInitialAmount] = useState("");
   const [creditPayMethod, setCreditPayMethod] = useState<"cash" | "codi">("cash");
   const [creditPayNote, setCreditPayNote] = useState("");
   const [creditPayError, setCreditPayError] = useState<string | null>(null);
+  const [creditPayRequestId, setCreditPayRequestId] = useState<string | null>(null);
   const [creditPaying, setCreditPaying] = useState(false);
   const [saleError, setSaleError] = useState<string | null>(null);
   const [voiceError, setVoiceError] = useState<string | null>(null);
@@ -446,6 +517,7 @@ export default function CajaApp() {
 
   const lastSavedDraftRef = useRef("");
   const restoredDraftSignatureRef = useRef<string | null>(null);
+  const creditPayLockRef = useRef(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -927,6 +999,18 @@ export default function CajaApp() {
     [dashboard],
   );
 
+  const openCreditPay = useCallback((credit: Credit, amountCents?: number) => {
+    const cents = Math.max(0, Math.round(amountCents ?? credit.balanceCents));
+    const amount = (cents / 100).toFixed(2);
+    setCreditPayId(credit.id);
+    setCreditPayAmount(amount);
+    setCreditPayInitialAmount(amount);
+    setCreditPayRequestId(newCreditPayRequestId());
+    setCreditPayMethod("cash");
+    setCreditPayNote("");
+    setCreditPayError(null);
+  }, []);
+
   const interpretText = useCallback(
     async (text: string) => {
       const clean = text.trim();
@@ -951,32 +1035,38 @@ export default function CajaApp() {
         }
 
         if (parsed.intent === "credit_payment") {
-          const lower = clean.toLowerCase();
-          const credit = dashboard?.credits.find(
-            (item) =>
-              item.status !== "settled" &&
-              item.customerName &&
-              lower.includes(item.customerName.toLowerCase()),
-          );
-          if (!credit || parsed.creditCents <= 0) {
-            setVoiceError("No encontré ese fiado. Dime el nombre del cliente y el monto.");
+          if (parsed.creditCents <= 0) {
+            setVoiceError("Dime el monto del abono. No registré nada.");
             return;
           }
-          const payResponse = await fetch(`/api/credits/${credit.id}/pay`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ amountCents: parsed.creditCents, method: "cash" }),
-          });
-          const payData = (await payResponse.json()) as { credit?: Credit; error?: string };
-          if (!payResponse.ok || !payData.credit) {
-            throw new Error(payData.error ?? "No pude registrar el abono.");
+          const candidates = findOpenCreditCandidates(
+            dashboard?.credits ?? [],
+            parsed.customerName,
+            clean,
+          );
+          if (candidates.length === 0) {
+            setVoiceError("No encontré un fiado abierto con ese nombre. No registré nada.");
+            return;
           }
-          const message = `Abono de ${formatMxn(parsed.creditCents)} a ${credit.customerName}. Saldo: ${formatMxn(
-            payData.credit.balanceCents,
-          )}.`;
+          if (candidates.length > 1) {
+            const name = candidates[0]?.customerName ?? parsed.customerName ?? "Ese cliente";
+            setVoiceError(
+              `${name} tiene ${candidates.length} fiados abiertos. Elige la deuda en Fiado; no registré nada.`,
+            );
+            return;
+          }
+          const credit = candidates[0];
+          // La voz solo propone: el POST ocurre al pulsar "Registrar abono".
+          openCreditPay(credit, parsed.creditCents);
+          const message = `Revisa el abono de ${formatMxn(parsed.creditCents)} a ${
+            credit.customerName ?? "el cliente"
+          }. Todavía no se registra.`;
           setTranscript(`${clean}\n\n${message}`);
-          speak(message);
-          await loadDashboard();
+          speak(
+            `Revisa el abono de ${formatMxn(parsed.creditCents)} a ${
+              credit.customerName ?? "el cliente"
+            }.`,
+          );
           return;
         }
 
@@ -1013,7 +1103,7 @@ export default function CajaApp() {
         setTranscribing(false);
       }
     },
-    [answerLocal, dashboard, loadDashboard, speak],
+    [answerLocal, dashboard, openCreditPay, speak],
   );
 
   const startRecording = useCallback(async () => {
@@ -1427,11 +1517,23 @@ export default function CajaApp() {
 
   const payCredit = useCallback(
     async (credit: Credit) => {
-      const amount = Math.round(Number(creditPayAmount) * 100);
-      if (!Number.isFinite(amount) || amount <= 0) {
+      const requested = Math.round(Number(creditPayAmount) * 100);
+      if (!Number.isFinite(requested) || requested <= 0) {
         setCreditPayError("Escribe un monto mayor a cero.");
         return;
       }
+      if (credit.status === "settled" || credit.balanceCents <= 0) {
+        setCreditPayError("Ese fiado ya está saldado. No se registró nada.");
+        return;
+      }
+      const requestId = creditPayRequestId;
+      if (!requestId) {
+        setCreditPayError("Vuelve a abrir la hoja para generar una llave de abono.");
+        return;
+      }
+      if (creditPayLockRef.current) return;
+      // Candado síncrono: un doble clic no alcanza a mandar dos POST.
+      creditPayLockRef.current = true;
       setCreditPaying(true);
       setCreditPayError(null);
       try {
@@ -1439,29 +1541,77 @@ export default function CajaApp() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            amountCents: amount,
+            amountCents: requested,
             method: creditPayMethod,
             note: creditPayNote.trim() || undefined,
+            requestId,
+            expectedBalanceCents: credit.balanceCents,
           }),
         });
-        const data = (await response.json()) as { credit?: Credit; error?: string };
-        if (!response.ok || !data.credit) throw new Error(data.error ?? "No pude registrar el abono.");
+        const data = (await response.json()) as CreditPayResponse;
+        if (!response.ok) {
+          if (response.status === 409) {
+            const message = data.error ?? "El saldo cambió. Revisa el monto y confirma de nuevo.";
+            setCreditPayError(message);
+            showToast("info", message);
+            await loadDashboard();
+            return;
+          }
+          throw new Error(data.error ?? "No pude registrar el abono.");
+        }
+        if (
+          !data.credit ||
+          typeof data.appliedCents !== "number" ||
+          typeof data.balanceCents !== "number"
+        ) {
+          throw new Error("El abono se registró pero no pude leer el saldo nuevo.");
+        }
+        const appliedCents = data.appliedCents;
+        const overpayCents = data.duplicate
+          ? 0
+          : typeof data.overpayCents === "number"
+            ? data.overpayCents
+            : Math.max(0, requested - appliedCents);
+        const returnedNote =
+          !data.duplicate && overpayCents > 0
+            ? ` Se aplicaron ${formatMxn(appliedCents)}; devuelve ${formatMxn(overpayCents)}.`
+            : "";
+        const duplicateNote = data.duplicate
+          ? ` Se aplicaron ${formatMxn(appliedCents)}. No se duplicó.`
+          : "";
         showToast(
           "ok",
-          `Abono registrado. ${credit.customerName ?? "Cliente"} debe ${formatMxn(data.credit.balanceCents)}.`,
+          `${
+            data.duplicate
+              ? "Abono ya registrado"
+              : "Abono registrado"
+          }.${returnedNote}${duplicateNote} ${
+            credit.customerName ?? "Cliente"
+          } debe ${formatMxn(data.balanceCents)}.`,
         );
         setCreditPayId(null);
         setCreditPayAmount("");
+        setCreditPayInitialAmount("");
+        setCreditPayRequestId(null);
         setCreditPayNote("");
         vibrate(30);
         await loadDashboard();
       } catch (error) {
         setCreditPayError(friendlyError(error, "No pude registrar el abono."));
       } finally {
+        creditPayLockRef.current = false;
         setCreditPaying(false);
       }
     },
-    [creditPayAmount, creditPayMethod, creditPayNote, loadDashboard, showToast, vibrate],
+    [
+      creditPayAmount,
+      creditPayMethod,
+      creditPayNote,
+      creditPayRequestId,
+      loadDashboard,
+      showToast,
+      vibrate,
+    ],
   );
 
   const fulfillOrder = useCallback(
@@ -1729,6 +1879,7 @@ export default function CajaApp() {
               <div className="caja-aside min-w-0">
                 <ActivityList
                   orders={dashboard?.orders ?? []}
+                  credits={dashboard?.credits ?? []}
                   loading={loading}
                   onSelect={(order) => {
                     setActiveOrder(order);
@@ -1747,20 +1898,19 @@ export default function CajaApp() {
           </div>
 
           <section hidden={tab !== "fiado"} className="mx-auto max-w-[760px]">
-              <ScreenHeading title="Fiado" subtitle="Lo que te deben, no dinero recibido." />
+              <ScreenHeading
+                title="Fiado"
+                headingId="fiado-heading"
+                subtitle="Lo que te deben, no dinero recibido."
+              />
               <CreditList
                 credits={pendingCredits}
-                onStart={(credit) => {
-                  setCreditPayId(credit.id);
-                  setCreditPayAmount((credit.balanceCents / 100).toFixed(2));
-                  setCreditPayMethod("cash");
-                  setCreditPayNote("");
-                  setCreditPayError(null);
-                }}
+                onStart={(credit) => openCreditPay(credit)}
               />
               <CreditPaySheet
                 credit={pendingCredits.find((credit) => credit.id === creditPayId) ?? null}
                 amount={creditPayAmount}
+                initialAmount={creditPayInitialAmount}
                 method={creditPayMethod}
                 note={creditPayNote}
                 paying={creditPaying}
@@ -1770,6 +1920,8 @@ export default function CajaApp() {
                 onNote={setCreditPayNote}
                 onClose={() => {
                   setCreditPayId(null);
+                  setCreditPayInitialAmount("");
+                  setCreditPayRequestId(null);
                   setCreditPayError(null);
                 }}
                 onPay={() => {
@@ -1833,6 +1985,7 @@ export default function CajaApp() {
       >
         <PaymentPanel
           order={activeOrder}
+          credits={dashboard?.credits ?? []}
           demoMode={dashboard?.demoMode ?? false}
           changeCents={lastChange && lastChange.orderId === activeOrder?.id ? lastChange.cents : 0}
           loading={paymentLoading}
@@ -1883,6 +2036,7 @@ export default function CajaApp() {
 
       <PaidSheet
         order={paidOverlay}
+        credits={dashboard?.credits ?? []}
         changeCents={lastChange && lastChange.orderId === paidOverlay?.id ? lastChange.cents : 0}
         onClose={() => {
           setPaidOverlay(null);
@@ -2586,8 +2740,44 @@ function CajaPanel(props: {
 /*                                  Cobro                                     */
 /* -------------------------------------------------------------------------- */
 
+function OrderCreditNote({
+  order,
+  credit,
+  settled,
+  prefix,
+  className,
+}: {
+  order: Order;
+  credit: Credit | null;
+  settled: boolean;
+  prefix?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <p className={cn("text-sm leading-relaxed text-ink-2", className)}>
+      {prefix}
+      {settled ? (
+        <>
+          Fiado <strong className="text-green">Saldado</strong> · original{" "}
+          {formatMxn(order.creditCents)}. Ya no es dinero pendiente.
+        </>
+      ) : credit ? (
+        <>
+          Saldo vivo: <strong>{formatMxn(credit.balanceCents)}</strong> · original{" "}
+          {formatMxn(order.creditCents)}. Aparece en Fiado; no es dinero recibido.
+        </>
+      ) : (
+        <>
+          Fiado original {formatMxn(order.creditCents)}. El saldo vivo no está disponible.
+        </>
+      )}
+    </p>
+  );
+}
+
 function PaymentPanel(props: {
   order: Order | null;
+  credits: Credit[];
   demoMode: boolean;
   changeCents: number;
   loading: boolean;
@@ -2602,13 +2792,15 @@ function PaymentPanel(props: {
   delivering: boolean;
   error: string | null;
 }) {
-  const { order, demoMode, changeCents, loading, mode, onGenerate, onDemoPay, onClose, onNew, onCopy, onShare, onDeliver, delivering, error } = props;
+  const { order, credits, demoMode, changeCents, loading, mode, onGenerate, onDemoPay, onClose, onNew, onCopy, onShare, onDeliver, delivering, error } = props;
 
   if (!order) return null;
 
   const due = Math.max(0, order.totalCents - order.paidCents - order.creditCents);
   const isPaid = order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled";
   const isCredit = order.creditCents > 0;
+  const credit = creditForOrder(order, credits);
+  const creditSettled = isCreditSettled(credit);
   const waiting = order.status === "payment_pending" || order.status === "confirmed";
   const qrValue = order.qrImage ? null : order.qrString ?? order.paymentUrl;
 
@@ -2686,8 +2878,8 @@ function PaymentPanel(props: {
             Pedido {shortOrder(order.id)} ·{" "}
             {truth.hasCredit
               ? mixed
-                ? `${source} + ${formatMxn(order.creditCents)} a fiado`
-                : `fiado con ${order.customerName ?? "el cliente"}`
+                ? `${source} + ${formatMxn(order.creditCents)} original a fiado`
+                : `fiado con ${order.customerName ?? "el cliente"} · original ${formatMxn(order.creditCents)}`
               : sourceMixed
                 ? source
                 : truth.isDemo
@@ -2699,11 +2891,13 @@ function PaymentPanel(props: {
                       : "sin confirmar"}
           </p>
           {truth.hasCredit ? (
-            <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
-              {mixed ? `Recibiste ${source}. ` : null}
-              Saldo pendiente: <strong>{formatMxn(order.creditCents)}</strong>. Aparece en la
-              libreta de fiado; no es dinero recibido.
-            </p>
+            <OrderCreditNote
+              order={order}
+              credit={credit}
+              settled={creditSettled}
+              prefix={mixed ? `Recibiste ${source}. ` : null}
+              className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left"
+            />
           ) : sourceMixed ? (
             <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
               Recibiste {formatMxn(truth.cashPaidCents)} en efectivo y{" "}
@@ -4020,10 +4214,12 @@ function ReconcileCard({ demoMode }: { demoMode: boolean }) {
 
 function ActivityList({
   orders,
+  credits,
   loading,
   onSelect,
 }: {
   orders: Order[];
+  credits: Credit[];
   loading: boolean;
   onSelect: (order: Order) => void;
 }) {
@@ -4056,6 +4252,13 @@ function ActivityList({
         ) : (
           visibleOrders.map((order) => {
             const truth = paymentTruth(order);
+            const credit = creditForOrder(order, credits);
+            const creditSettled = isCreditSettled(credit);
+            const creditLabel = creditSettled
+              ? "Saldado"
+              : credit
+                ? `saldo ${formatMxn(credit.balanceCents)}`
+                : `original ${formatMxn(order.creditCents)}`;
             const mixed = truth.hasCredit && truth.receivedCents > 0;
             const sourceMixed = !truth.hasCredit && truth.isMixedSources;
             const demo = !truth.hasCredit && !sourceMixed && truth.isDemo;
@@ -4086,17 +4289,21 @@ function ActivityList({
                 <div
                   className={cn(
                     "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
-                    truth.hasCredit || demo || pending
-                      ? "bg-terracotta-soft text-attention"
-                      : sourceMixed
-                        ? truth.isDemo
-                          ? "bg-terracotta-soft text-attention"
-                          : "bg-green-soft text-green"
-                        : cash
-                          ? "bg-surface-2 text-ink"
-                          : order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled"
-                            ? "bg-green-soft text-green"
-                            : "bg-surface-2 text-ink-2",
+                    truth.hasCredit
+                      ? creditSettled
+                        ? "bg-green-soft text-green"
+                        : "bg-terracotta-soft text-attention"
+                      : demo || pending
+                        ? "bg-terracotta-soft text-attention"
+                        : sourceMixed
+                          ? truth.isDemo
+                            ? "bg-terracotta-soft text-attention"
+                            : "bg-green-soft text-green"
+                          : cash
+                            ? "bg-surface-2 text-ink"
+                            : order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled"
+                              ? "bg-green-soft text-green"
+                              : "bg-surface-2 text-ink-2",
                   )}
                 >
                   <Icon className="h-4 w-4" />
@@ -4111,13 +4318,15 @@ function ActivityList({
                     <span className="h-0.5 w-0.5 rounded-full bg-ink-2/50" />
                     <span
                       className={cn(
-                        (truth.hasCredit || demo) && "font-semibold text-attention",
+                        truth.hasCredit
+                          ? creditSettled
+                            ? "font-semibold text-green"
+                            : "font-semibold text-attention"
+                          : demo && "font-semibold text-attention",
                       )}
                     >
                       {truth.hasCredit
-                        ? mixed
-                          ? "Pago mixto"
-                          : "Fiado"
+                        ? `${mixed ? "Pago mixto" : "Fiado"} · ${creditLabel}`
                         : sourceMixed
                           ? truth.isDemo
                             ? "Efectivo + demo"
@@ -4165,6 +4374,7 @@ function CreditList({
   onStart: (credit: Credit) => void;
 }) {
   const total = credits.reduce((sum, credit) => sum + credit.balanceCents, 0);
+  const customerCount = new Set(credits.map((credit) => credit.customerId)).size;
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-separator bg-surface p-4 shadow-card">
@@ -4176,7 +4386,7 @@ function CreditList({
             </p>
           </div>
           <p className="break-words text-sm text-ink-2">
-            {credits.length} {credits.length === 1 ? "cliente" : "clientes"}
+            {customerCount} {customerCount === 1 ? "cliente" : "clientes"}
           </p>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-ink-2">
@@ -4207,13 +4417,18 @@ function CreditList({
                   <p className="break-words text-sm text-ink-2">
                     {credit.status === "partial" ? "Abono parcial" : "Pendiente"} · desde{" "}
                     {formatTime(credit.createdAt)}
+                    {credit.orderId ? ` · Pedido ${shortOrder(credit.orderId)}` : " · sin pedido"}
                   </p>
                 </div>
                 <div className="ml-auto shrink-0 text-right">
                   <p className="tabular text-[1rem] font-semibold text-attention">
                     {formatMxn(credit.balanceCents)}
                   </p>
-                  <p className="text-xs text-ink-2">saldo</p>
+                  <p className="text-xs text-ink-2">
+                    {credit.balanceCents < credit.originalCents
+                      ? `original ${formatMxn(credit.originalCents)}`
+                      : "saldo"}
+                  </p>
                 </div>
               </div>
 
@@ -4241,6 +4456,7 @@ function CreditList({
 function CreditPaySheet({
   credit,
   amount,
+  initialAmount,
   method,
   note,
   paying,
@@ -4253,6 +4469,7 @@ function CreditPaySheet({
 }: {
   credit: Credit | null;
   amount: string;
+  initialAmount: string;
   method: "cash" | "codi";
   note: string;
   paying: boolean;
@@ -4264,9 +4481,12 @@ function CreditPaySheet({
   onPay: () => void;
 }) {
   const amountCents = Math.round(Number(amount) * 100);
-  const valid = Number.isFinite(amountCents) && amountCents > 0;
+  const settled = credit ? credit.status === "settled" || credit.balanceCents <= 0 : false;
+  const requestedCents = Number.isFinite(amountCents) ? Math.max(0, amountCents) : 0;
+  const appliedCents = credit ? Math.min(requestedCents, credit.balanceCents) : 0;
+  const returnedCents = Math.max(0, requestedCents - appliedCents);
+  const valid = !settled && requestedCents > 0 && appliedCents > 0;
   const [discardOpen, setDiscardOpen] = useState(false);
-  const initialAmount = credit ? (credit.balanceCents / 100).toFixed(2) : "";
   const dirty =
     Boolean(credit) &&
     (amount !== initialAmount || note.trim().length > 0 || method !== "cash");
@@ -4320,9 +4540,25 @@ function CreditPaySheet({
             <p className="text-sm font-semibold text-ink">
               {credit.customerName ?? "Cliente"}
             </p>
-            <p className="mt-0.5 text-sm text-ink-2">
-              Debe <strong className="text-attention">{formatMxn(credit.balanceCents)}</strong>
-            </p>
+            {settled ? (
+              <p className="mt-0.5 text-sm text-ink-2">
+                <strong className="text-green">Saldado</strong> · original{" "}
+                {formatMxn(credit.originalCents)}
+              </p>
+            ) : (
+              <>
+                <p className="mt-0.5 text-sm text-ink-2">
+                  Saldo vivo:{" "}
+                  <strong className="text-attention">{formatMxn(credit.balanceCents)}</strong>
+                </p>
+                <p className="text-xs text-ink-2">
+                  original {formatMxn(credit.originalCents)}
+                  {credit.originalCents > credit.balanceCents
+                    ? ` · abonado ${formatMxn(credit.originalCents - credit.balanceCents)}`
+                    : ""}
+                </p>
+              </>
+            )}
           </div>
 
           <label className="block">
@@ -4342,6 +4578,30 @@ function CreditPaySheet({
             </div>
           </label>
 
+          {!settled && requestedCents > 0 ? (
+            <div
+              role="status"
+              className={cn(
+                "rounded-xl border px-3 py-2 text-sm leading-relaxed",
+                returnedCents > 0
+                  ? "border-attention/25 bg-terracotta-soft/60 text-ink-2"
+                  : "border-green/20 bg-green-soft/50 text-ink-2",
+              )}
+            >
+              <p>
+                Se aplican <strong className="text-ink">{formatMxn(appliedCents)}</strong> al
+                saldo vivo.
+              </p>
+              {returnedCents > 0 ? (
+                <p className="mt-1">
+                  Recibiste {formatMxn(requestedCents)}: devuelve{" "}
+                  <strong className="text-ink">{formatMxn(returnedCents)}</strong>. El saldo no
+                  queda negativo.
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
           <fieldset>
             <legend className="text-sm font-semibold text-ink-2">¿Cómo lo recibiste?</legend>
             <div className="mt-1.5 grid grid-cols-2 gap-2">
@@ -4356,8 +4616,9 @@ function CreditPaySheet({
                 return (
                   <label
                     key={option.id}
+                    data-selected={selected ? "true" : "false"}
                     className={cn(
-                      "flex min-h-12 cursor-pointer items-center justify-center gap-1.5 rounded-xl border text-sm font-semibold transition",
+                      "flex min-h-12 cursor-pointer flex-wrap items-center justify-center gap-1.5 rounded-xl border px-2 text-sm font-semibold transition focus-within:ring-2 focus-within:ring-accent/40",
                       selected
                         ? "border-accent/40 bg-green-soft text-green"
                         : "border-separator bg-surface text-ink-2 hover:border-accent/30",
@@ -4371,8 +4632,24 @@ function CreditPaySheet({
                       onChange={() => onMethod(option.id)}
                       className="sr-only"
                     />
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
+                        selected
+                          ? "border-green bg-green text-white"
+                          : "border-ink-2/40 bg-surface",
+                      )}
+                    >
+                      {selected ? <Check className="h-3 w-3" /> : null}
+                    </span>
                     <Icon className="h-4 w-4" />
                     {option.label}
+                    {selected ? (
+                      <span className="text-[0.625rem] font-bold uppercase tracking-wide text-green">
+                        Elegido
+                      </span>
+                    ) : null}
                   </label>
                 );
               })}
@@ -4400,7 +4677,7 @@ function CreditPaySheet({
           <button
             type="button"
             onClick={onPay}
-            disabled={paying || !valid}
+            disabled={paying || !valid || settled}
             aria-busy={paying}
             className="on-accent flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-50"
           >
@@ -4408,7 +4685,8 @@ function CreditPaySheet({
             {paying ? "Registrando…" : "Registrar abono"}
           </button>
           <p className="text-sm leading-relaxed text-ink-2">
-            Un abono reduce la deuda; no crea una venta nueva ni cuenta como dinero cobrado hoy.
+            Se registra el monto aplicado, no el billete completo. Un abono reduce la deuda; no
+            crea una venta nueva ni cuenta como dinero cobrado hoy.
           </p>
         </div>
         )
@@ -5072,6 +5350,7 @@ function Sheet({
 
 function PaidSheet({
   order,
+  credits,
   changeCents,
   onClose,
   onDeliver,
@@ -5079,6 +5358,7 @@ function PaidSheet({
   error,
 }: {
   order: Order | null;
+  credits: Credit[];
   changeCents: number;
   onClose: () => void;
   onDeliver: () => void;
@@ -5087,6 +5367,8 @@ function PaidSheet({
 }) {
   if (!order) return null;
   const truth = paymentTruth(order);
+  const credit = creditForOrder(order, credits);
+  const creditSettled = isCreditSettled(credit);
   const mixed = truth.hasCredit && truth.receivedCents > 0;
   const source = [
     truth.cashPaidCents > 0 ? `${formatMxn(truth.cashPaidCents)} en efectivo` : null,
@@ -5159,8 +5441,8 @@ function PaidSheet({
           Pedido {shortOrder(order.id)} ·{" "}
           {truth.hasCredit
             ? mixed
-              ? `${source} + ${formatMxn(order.creditCents)} a fiado`
-              : `fiado con ${order.customerName ?? "el cliente"}`
+              ? `${source} + ${formatMxn(order.creditCents)} original a fiado`
+              : `fiado con ${order.customerName ?? "el cliente"} · original ${formatMxn(order.creditCents)}`
             : sourceMixed
               ? source
               : truth.isDemo
@@ -5176,29 +5458,33 @@ function PaidSheet({
             Cambio {formatMxn(changeCents)}
           </p>
         ) : null}
-        <p className="mt-4 rounded-xl bg-surface-2 px-3 py-2.5 text-left text-sm leading-relaxed text-ink-2">
-          {truth.hasCredit ? (
-            <>
-              {mixed ? `Recibiste ${source}. ` : null}
-              Saldo pendiente: <strong>{formatMxn(order.creditCents)}</strong>. Aparece en Fiado;
-              no es dinero recibido.
-            </>
-          ) : sourceMixed ? (
-            <>
-              Recibiste {formatMxn(truth.cashPaidCents)} en efectivo y{" "}
-              {formatMxn(order.digitalPaidCents)}{" "}
-              {truth.isDemo
-                ? "en un pago simulado. El efectivo sí es dinero real; el digital es demo."
-                : truth.isVerified ? "verificados por pey." : "sin verificar."}
-            </>
-          ) : truth.isDemo ? (
-            "En producción, este estado solo se actualiza con la confirmación firmada de pey. No se movió dinero real."
-          ) : truth.isCash ? (
-            "Recibiste el efectivo en la caja. No pasó por pey ni es un pago verificado por el banco."
-          ) : (
-            "El pago fue confirmado con una confirmación firmada de pey. Puedes entregar el pedido."
-          )}
-        </p>
+        {truth.hasCredit ? (
+          <OrderCreditNote
+            order={order}
+            credit={credit}
+            settled={creditSettled}
+            prefix={mixed ? `Recibiste ${source}. ` : null}
+            className="mt-4 rounded-xl bg-surface-2 px-3 py-2.5 text-left"
+          />
+        ) : (
+          <p className="mt-4 rounded-xl bg-surface-2 px-3 py-2.5 text-left text-sm leading-relaxed text-ink-2">
+            {sourceMixed ? (
+              <>
+                Recibiste {formatMxn(truth.cashPaidCents)} en efectivo y{" "}
+                {formatMxn(order.digitalPaidCents)}{" "}
+                {truth.isDemo
+                  ? "en un pago simulado. El efectivo sí es dinero real; el digital es demo."
+                  : truth.isVerified ? "verificados por pey." : "sin verificar."}
+              </>
+            ) : truth.isDemo ? (
+              "En producción, este estado solo se actualiza con la confirmación firmada de pey. No se movió dinero real."
+            ) : truth.isCash ? (
+              "Recibiste el efectivo en la caja. No pasó por pey ni es un pago verificado por el banco."
+            ) : (
+              "El pago fue confirmado con una confirmación firmada de pey. Puedes entregar el pedido."
+            )}
+          </p>
+        )}
         {error ? (
           <p role="alert" className="mt-3 rounded-xl bg-terracotta-soft px-3 py-2 text-left text-sm text-danger">
             {error}

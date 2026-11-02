@@ -126,6 +126,7 @@ function migrate(database: DatabaseSync) {
       amount_cents INTEGER NOT NULL,
       method TEXT NOT NULL DEFAULT 'cash',
       note TEXT,
+      request_id TEXT,
       created_at TEXT NOT NULL,
       FOREIGN KEY (credit_id) REFERENCES credits(id) ON DELETE CASCADE
     );
@@ -206,6 +207,14 @@ function migrate(database: DatabaseSync) {
   if (!creditPaymentColumns.some((column) => column.name === "note")) {
     database.exec("ALTER TABLE credit_payments ADD COLUMN note TEXT;");
   }
+  if (!creditPaymentColumns.some((column) => column.name === "request_id")) {
+    database.exec("ALTER TABLE credit_payments ADD COLUMN request_id TEXT;");
+  }
+  // La llave es opcional: los abonos viejos y los que no traen requestId
+  // conservan request_id NULL y no compiten en el índice parcial.
+  database.exec(
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_credit_payments_request_id ON credit_payments(request_id) WHERE request_id IS NOT NULL;",
+  );
 }
 
 function seed(database: DatabaseSync) {

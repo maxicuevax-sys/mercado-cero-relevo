@@ -8,6 +8,7 @@ import {
   newId,
   nowIso,
 } from "./db";
+import { formatMxn } from "./format";
 import type {
   CreateOrderInput,
   Credit,
@@ -232,38 +233,188 @@ export function recordPayment(
   return getOrder(orderId)!;
 }
 
+export type CreditPaymentConflictCode =
+  | "credit_settled"
+  | "balance_changed"
+  | "request_id_conflict";
+
+export class CreditPaymentConflict extends Error {
+  readonly code: CreditPaymentConflictCode;
+  readonly credit: Credit | null;
+  readonly appliedCents: number;
+  readonly balanceCents: number;
+  readonly overpayCents: number;
+  readonly duplicate = false;
+
+  constructor(
+    code: CreditPaymentConflictCode,
+    message: string,
+    credit: Credit | null,
+    options: { appliedCents?: number; overpayCents?: number } = {},
+  ) {
+    super(message);
+    this.name = "CreditPaymentConflict";
+    this.code = code;
+    this.credit = credit;
+    this.appliedCents = options.appliedCents ?? 0;
+    this.balanceCents = credit?.balanceCents ?? 0;
+    this.overpayCents = options.overpayCents ?? 0;
+  }
+}
+
+export interface CreditPaymentResult {
+  credit: Credit;
+  appliedCents: number;
+  balanceCents: number;
+  overpayCents: number;
+  duplicate: boolean;
+}
+
+/**
+ * Registra un abono en una sola transacción y con idempotencia durable.
+ *
+ * - `requestId` es opcional; si ya existe, devuelve el abono existente sin
+ *   insertar otro (`duplicate: true`).
+ * - `expectedBalanceCents` permite que una hoja abierta con un saldo viejo
+ *   reciba 409 en lugar de escribir sobre un saldo que cambió.
+ * - El monto pedido puede superar el saldo: se aplica el saldo y se reporta
+ *   `overpayCents`; nunca se recorta en silencio.
+ */
 export function recordCreditPayment(
   creditId: string,
   amountCents: number,
   method: PaymentMethod = "cash",
   note: string | null = null,
-): Credit {
+  requestId: string | null = null,
+  expectedBalanceCents: number | null = null,
+): CreditPaymentResult {
   const database = getDb();
-  const credit = getCredit(creditId);
-  if (!credit) throw new Error("Fiado no encontrado.");
+  const requestedCents = Math.round(amountCents);
+  if (!Number.isFinite(requestedCents) || requestedCents <= 0) {
+    throw new Error("El abono debe ser mayor a cero.");
+  }
+  const request = requestId?.trim() || null;
 
-  const amount = Math.min(Math.max(0, Math.round(amountCents)), credit.balanceCents);
-  if (amount <= 0) return credit;
+  database.exec("BEGIN IMMEDIATE");
+  let committed = false;
+  try {
+    if (request) {
+      const existing = database
+        .prepare(
+          "SELECT credit_id, amount_cents FROM credit_payments WHERE request_id = ?",
+        )
+        .get(request) as { credit_id: string; amount_cents: number } | undefined;
+      if (existing) {
+        if (existing.credit_id !== creditId) {
+          throw new CreditPaymentConflict(
+            "request_id_conflict",
+            "Ese requestId ya se usó en otro fiado. No se registró nada.",
+            null,
+          );
+        }
+        const credit = getCredit(creditId);
+        if (!credit) throw new Error("Fiado no encontrado.");
+        const applied = Number(existing.amount_cents);
+        const result: CreditPaymentResult = {
+          credit,
+          appliedCents: applied,
+          balanceCents: credit.balanceCents,
+          // No guardamos el monto pedido original. En un reintento no hubo
+          // un nuevo cambio que devolver, así que no inventamos overpay.
+          overpayCents: 0,
+          duplicate: true,
+        };
+        database.exec("COMMIT");
+        committed = true;
+        return result;
+      }
+    }
 
-  database
-    .prepare(
-      "INSERT INTO credit_payments (id, credit_id, amount_cents, method, note, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-    )
-    .run(newId("cp"), creditId, amount, method, note?.trim() || null, nowIso());
+    const credit = getCredit(creditId);
+    if (!credit) throw new Error("Fiado no encontrado.");
+    if (credit.status === "settled" || credit.balanceCents <= 0) {
+      throw new CreditPaymentConflict(
+        "credit_settled",
+        "Ese fiado ya está saldado. No se registró nada.",
+        credit,
+      );
+    }
+    if (
+      expectedBalanceCents !== null &&
+      Number.isFinite(expectedBalanceCents) &&
+      credit.balanceCents !== expectedBalanceCents
+    ) {
+      throw new CreditPaymentConflict(
+        "balance_changed",
+        `El saldo cambió a ${formatMxn(credit.balanceCents)}. Revisa el monto y confirma de nuevo.`,
+        credit,
+      );
+    }
 
-  const newBalance = credit.balanceCents - amount;
-  database
-    .prepare("UPDATE credits SET balance_cents = ?, status = ? WHERE id = ?")
-    .run(newBalance, newBalance === 0 ? "settled" : "partial", creditId);
+    const appliedCents = Math.min(requestedCents, credit.balanceCents);
+    if (appliedCents <= 0) {
+      throw new CreditPaymentConflict(
+        "credit_settled",
+        "Ese fiado ya está saldado. No se registró nada.",
+        credit,
+      );
+    }
+    const overpayCents = requestedCents - appliedCents;
+    const newBalance = credit.balanceCents - appliedCents;
 
-  audit("credit.payment", "credit", creditId, {
-    amount,
-    method,
-    note: note?.trim() || null,
-    newBalance,
-  });
-  return getCredit(creditId)!;
+    database
+      .prepare(
+        `INSERT INTO credit_payments
+         (id, credit_id, amount_cents, method, note, request_id, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .run(
+        newId("cp"),
+        creditId,
+        appliedCents,
+        method,
+        note?.trim() || null,
+        request,
+        nowIso(),
+      );
+
+    database
+      .prepare("UPDATE credits SET balance_cents = ?, status = ? WHERE id = ?")
+      .run(newBalance, newBalance === 0 ? "settled" : "partial", creditId);
+
+    audit("credit.payment", "credit", creditId, {
+      amount: appliedCents,
+      requestedCents,
+      overpayCents,
+      method,
+      note: note?.trim() || null,
+      requestId: request,
+      newBalance,
+    });
+
+    const updated = getCredit(creditId);
+    if (!updated) throw new Error("No pude leer el fiado actualizado.");
+    const result: CreditPaymentResult = {
+      credit: updated,
+      appliedCents,
+      balanceCents: newBalance,
+      overpayCents,
+      duplicate: false,
+    };
+    database.exec("COMMIT");
+    committed = true;
+    return result;
+  } finally {
+    if (!committed) {
+      try {
+        database.exec("ROLLBACK");
+      } catch {
+        // Si la transacción no llegó a abrirse o ya se cerró, no hay nada que deshacer.
+      }
+    }
+  }
 }
+
 
 export function fulfillOrder(orderId: string): Order | null {
   const order = getOrder(orderId);
