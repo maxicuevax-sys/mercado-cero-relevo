@@ -26,7 +26,7 @@
 | Harness final | ✅ full 13/13 en `00216e3`, `dirty: false` | `harness/evidence/latest.json` |
 | Alto contraste | ✅ axe 0, foco 3 px negro y 360 px sin overflow | `harness/evidence/a11y-contrast.json` |
 | Dirección visual | ✅ papel editorial, Manrope/Fraunces, doble marco, dos columnas desde 1280 | `HIG-DESIGN.md` §16 · `MOTION.md` |
-| Video de respaldo | ✅ 1280×800, MP4 1.2 MB, con motion y cierre versionado | `demo/mercado-cero-demo.mp4` |
+| Video de respaldo | ✅ 1280×800, MP4 1.6 MB, con la capa editorial y cierre versionado | `demo/mercado-cero-demo.mp4` |
 | Film check Stageshow | ✅ 8 beats + contact sheet + motion sheet | `demo/stageshow/` |
 | QR imprimible | ✅ PNG + SVG + HTML + PDF, URL nueva | `demo/qr-demo.*` |
 | Voz del demo | ✅ Kokoro `em_santa` para frases fijas + Piper es-MX dinámico | `web/public/tts/` |
