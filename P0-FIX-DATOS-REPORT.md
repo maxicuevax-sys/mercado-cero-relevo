@@ -88,3 +88,48 @@
 - Un `demo_paid` ya no se puede marcar `fulfilled`; la UI no recibió la etiqueta “Demo entregado” porque no se tocó UI.
 - `p0-integracion` mostró dos fallos intermitentes bajo carga compartida (audio Kokoro y crear pendiente) y pasó limpio 51/51 en la corrida final. No se cambió ningún umbral.
 - Serialización link/QR sigue siendo por proceso (riesgo original).
+
+## Ronda 3 — P0 demo→real (rama `p0/fix-demo-real`)
+
+### Cambios
+
+- `web/src/lib/db.ts`
+  - `customers` gana `demo` y unicidad `(name, demo)`; migración reconstruye la tabla vieja (`name UNIQUE`) con `foreign_keys=OFF` y `PRAGMA foreign_key_check` antes de confirmar. Un cliente real “Juan” ya no reutiliza `demo_seed_cus_*`.
+  - `findOrCreateCustomer` busca/crea por modo (`demo=0/1`) y tolera la carrera con `INSERT OR IGNORE`.
+  - `listCredits`/`countCredits`/`getCredit` filtran por `credit.demo=0` en real, no por `customer_id` ni `order_id`. Un crédito real con cliente demo queda visible y pagable.
+  - `getOrderRequestMatch`/`getOrderByRequestId`/`getOrderByPaymentLink`/`getOrderByNumRef` filtran el modo actual; un requestId/link/QR demo no resuelve un pedido real.
+  - `goals`, `goal_contributions` y `tasks` ganan `demo`; `seedGoal`/`createGoal`/aportaciones y `createTask` lo escriben. En real se filtran `listGoals/getGoal/contribute/listTasks/countTasks/getTask`.
+  - `resetDemoData` detecta datos reales en orders/payments/credits/cash_closes/goals/tasks. Sin `FORCE` responde `409 real_data_present` con desglose. Con `FORCE` borra solo filas demo y conserva pedidos, pagos, créditos, cortes, metas, pendientes y auditoría reales. Backup timestamped siempre.
+- `web/src/lib/orders.ts`
+  - `findOrderForRequest` responde `409 request_id_conflict` si la llave pertenece al otro modo; el INSERT traduce la colisión única a 409.
+  - `fulfillOrder` consulta el crédito abierto por `order_id` (y `credit_id`), sin el filtro de visibilidad, así que un crédito real con cliente demo bloquea la entrega.
+  - `attachPaymentLink`/`attachQr` no degradan `partially_paid`.
+- `web/src/lib/pey-events.ts`
+  - El evento exige `currency` (MXN) y `clientReferenceId`; la moneda de transacción se valida si viene.
+  - Un replay con otra llave de webhook cura `paid_cents`/estado con `recordPayment` en vez de responder `ignored`; no toca transacciones de otro pedido.
+- Tests: nuevo `web/scripts/p0-demo-real-contract.mjs` (32 checks) integrado en `test:fix-datos`; `p0-fix-datos-contract.mjs` cubre la migración real de `customers`; `p0-orders-atomic-contract.mjs` cubre `partially_paid`; `webhook-contract.mjs` cubre replay curador, moneda y `clientReferenceId`.
+
+### Evidencia (ronda 3)
+
+- `npm ci`: PASS.
+- `npm run typecheck`: PASS.
+- `npm run build`: PASS (buildSha `f397419…`, árbol de trabajo previo al commit).
+- `npm run test:fix-datos`: PASS · 63 + 20 + 8 + 32 = 123 checks (DB temporales, puertos aislados).
+- `npm run test:security`: PASS · 48/48.
+- `npm run test:perf-data`: PASS · `ok:true`.
+- `npm run test:harness`: PASS · 48/48.
+- Webhook aislado (`webhook-gate.mjs`): PASS · 40/40 (34 originales + 6 de replay/moneda/`clientReferenceId`).
+- `p0-venta` (`:3280`, DB temporal): PASS · 65/65.
+- `p0-fiado` (`:3281`, DB temporal): PASS · 51/51.
+- `p0-corte` (`:3282` + migración `:3296`, DB temporal): PASS · 69/69.
+- `p0-integracion` (`:3283`, DB temporal): PASS · 51/51.
+- `p0-dinero` (`:3284`, DB temporal): PASS · 45/45 · 3 KNOWN.
+- `npm run verify:fast`: 3/3 gates PASS; `ok:false` únicamente por árbol sucio antes del commit (comportamiento esperado del harness).
+
+### KNOWN de esta ronda
+
+- P2 `demo_paid` vs `paid` con webhook firmado en demo: no se cambió. El `webhook-gate` usa `DEMO_MODE=true` a propósito para ejercitar la transición del webhook firmado; convertirlo a `demo_paid` exigiría separar el modo “webhook real de prueba” del modo demo y habría dejado el gate sin cubrir `paid`. Los pagos con `provider=demo` ya nacen `demo_paid` y nunca `paid`.
+- Las filas demo manuales creadas antes de esta migración y sin prefijo reservado (`demo_seed_*`, `demo_*`, `cash_demo_*`) se tratan como reales. El backfill solo marca prefijos inequívocos; es conservador para no borrar datos reales en `FORCE`.
+- Un requestId cruzado responde 409 (no 404): es una llave existente en el otro modo, no un recurso ausente.
+- La serialización link/QR sigue siendo por proceso (riesgo original, sin cambios).
+- `p0-dinero` mantiene sus 3 KNOWN preexistentes (payload real de pey, reconciliación de red y conteo posterior al cierre).

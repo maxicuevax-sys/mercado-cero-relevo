@@ -433,8 +433,14 @@ def main() -> int:
         "paymentLinkId": retry_order["paymentLinkId"],
         "status": "paid",
         "clientReferenceId": retry_order["id"],
+        "currency": "MXN",
         "transactions": [
-            {"transactionId": transaction_id, "paymentMethod": "CODI", "amount": 1.0}
+            {
+                "transactionId": transaction_id,
+                "paymentMethod": "CODI",
+                "currency": "MXN",
+                "amount": 1.0,
+            }
         ],
     }
     wrong_status, wrong_body, wrong_event_id = send_webhook(wrong_event)
@@ -474,10 +480,12 @@ def main() -> int:
         "paymentLinkId": retry404_order["paymentLinkId"],
         "status": "paid",
         "clientReferenceId": "ord_inexistente_retry",
+        "currency": "MXN",
         "transactions": [
             {
                 "transactionId": f"txn_404_{int(time.time() * 1000)}",
                 "paymentMethod": "CODI",
+                "currency": "MXN",
                 "amount": retry404_order["totalCents"] / 100,
             }
         ],

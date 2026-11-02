@@ -55,20 +55,27 @@ function toCents(value: unknown): number | null {
   return Math.round(amount * 100);
 }
 
-function assertCurrency(value: unknown, context: string): void {
-  if (value === undefined || value === null || value === "") return;
+function assertCurrency(value: unknown, context: string, required = false): void {
+  if (value === undefined || value === null || value === "") {
+    if (required) {
+      throw new PeyWebhookError(`${context}: falta la moneda.`, 422);
+    }
+    return;
+  }
   if (String(value).toUpperCase() !== "MXN") {
     throw new PeyWebhookError(`${context}: la moneda no es MXN.`, 422);
   }
 }
 
-function existingTransactionIds(ids: string[]): Set<string> {
-  if (ids.length === 0) return new Set();
+function existingTransactionOrders(ids: string[]): Map<string, string> {
+  if (ids.length === 0) return new Map();
   const placeholders = ids.map(() => "?").join(", ");
   const rows = getDb()
-    .prepare(`SELECT transaction_id FROM payments WHERE transaction_id IN (${placeholders})`)
-    .all(...ids) as Array<{ transaction_id: string }>;
-  return new Set(rows.map((row) => row.transaction_id));
+    .prepare(
+      `SELECT transaction_id, order_id FROM payments WHERE transaction_id IN (${placeholders})`,
+    )
+    .all(...ids) as Array<{ transaction_id: string; order_id: string }>;
+  return new Map(rows.map((row) => [row.transaction_id, row.order_id]));
 }
 
 function resolvePaymentLinkOrder(event: PaymentLinkEvent): Order {
@@ -78,10 +85,13 @@ function resolvePaymentLinkOrder(event: PaymentLinkEvent): Order {
   }
 
   const clientReferenceId = identifier(event.clientReferenceId);
-  const byClient = clientReferenceId ? getOrder(clientReferenceId) : null;
+  if (!clientReferenceId) {
+    throw new PeyWebhookError("Falta clientReferenceId.", 422);
+  }
+  const byClient = getOrder(clientReferenceId);
   const byLink = getOrderByPaymentLink(paymentLinkId);
 
-  if (clientReferenceId && !byClient) {
+  if (!byClient) {
     throw new PeyWebhookError("clientReferenceId no corresponde a un pedido.", 404);
   }
   if (!byLink) {
@@ -153,7 +163,7 @@ function processPaymentLink(event: PaymentLinkEvent): PeyWebhookOutcome {
   }
 
   const order = resolvePaymentLinkOrder(event);
-  assertCurrency(event.currency, "Evento");
+  assertCurrency(event.currency, "Evento", true);
 
   const rawTransactions = Array.isArray(event.transactions) ? event.transactions : [];
   if (rawTransactions.length === 0) {
@@ -186,12 +196,31 @@ function processPaymentLink(event: PaymentLinkEvent): PeyWebhookOutcome {
     throw new PeyWebhookError("El evento incluye transacciones duplicadas.", 422);
   }
 
-  const existing = existingTransactionIds([...uniqueIds]);
+  const existing = existingTransactionOrders([...uniqueIds]);
   const fresh = transactions.filter(
     (transaction) => !existing.has(transaction.transactionId),
   );
   if (fresh.length === 0) {
-    return { result: "ignored", reason: "transacciones ya registradas" };
+    // Replay con otra llave de webhook: si las transacciones ya son de este
+    // pedido, `recordPayment` cura `paid_cents`/estado en vez de ignorar el
+    // evento. Si alguna pertenece a otro pedido, no se toca nada.
+    const belongsToOrder = transactions.every(
+      (transaction) => existing.get(transaction.transactionId) === order.id,
+    );
+    if (!belongsToOrder) {
+      return { result: "ignored", reason: "transacciones ya registradas" };
+    }
+    for (const transaction of transactions) {
+      recordPayment(order.id, {
+        provider: "pey",
+        method: mapPeyMethod(transaction.paymentMethod),
+        amountCents: transaction.amountCents,
+        transactionId: transaction.transactionId,
+        paymentLinkId: order.paymentLinkId,
+        rawEvent: JSON.stringify(transaction),
+      });
+    }
+    return { result: "processed", orderId: order.id, amountCents: 0 };
   }
 
   const freshTotal = fresh.reduce((sum, transaction) => sum + transaction.amountCents, 0);
@@ -213,7 +242,7 @@ function processPaymentLink(event: PaymentLinkEvent): PeyWebhookOutcome {
 
 function processCodiQr(event: CodiQrEvent): PeyWebhookOutcome {
   const order = resolveQrOrder(event);
-  assertCurrency(event.currency, "Evento QR");
+  assertCurrency(event.currency, "Evento QR", true);
 
   const amountCents = toCents(event.amount);
   if (amountCents === null) {
@@ -225,8 +254,20 @@ function processCodiQr(event: CodiQrEvent): PeyWebhookOutcome {
     throw new PeyWebhookError("El evento QR no incluye transactionId.", 422);
   }
 
-  if (existingTransactionIds([transactionId]).has(transactionId)) {
-    return { result: "ignored", reason: "transacción ya registrada" };
+  const existingOrder = existingTransactionOrders([transactionId]).get(transactionId);
+  if (existingOrder) {
+    if (existingOrder !== order.id) {
+      return { result: "ignored", reason: "transacción ya registrada" };
+    }
+    // Replay del QR con otra llave: cura la orden si `paid_cents` quedó viejo.
+    recordPayment(order.id, {
+      provider: "pey",
+      method: "codi",
+      amountCents,
+      transactionId,
+      rawEvent: JSON.stringify(event),
+    });
+    return { result: "processed", orderId: order.id, amountCents: 0 };
   }
 
   assertExactAmount(order, amountCents, "QR CoDi");

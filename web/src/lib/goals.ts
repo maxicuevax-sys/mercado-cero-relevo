@@ -16,6 +16,7 @@ interface GoalRow {
   saved_cents: number;
   deadline: string | null;
   status: string;
+  demo: number;
   created_at: string;
 }
 
@@ -35,7 +36,7 @@ function mapGoal(row: GoalRow): Goal {
 
   return {
     id: row.id,
-    demo: row.id.startsWith("demo_seed_"),
+    demo: Number(row.demo) === 1 || row.id.startsWith("demo_seed_"),
     title: row.title,
     targetCents,
     savedCents,
@@ -54,7 +55,7 @@ function mapGoal(row: GoalRow): Goal {
 }
 
 export function listGoals(): Goal[] {
-  const demoFilter = isDemoMode() ? "" : "WHERE id NOT LIKE 'demo_seed_%'";
+  const demoFilter = isDemoMode() ? "" : "WHERE demo = 0";
   const rows = getDb()
     .prepare(`SELECT * FROM goals ${demoFilter} ORDER BY status ASC, created_at ASC`)
     .all() as unknown as GoalRow[];
@@ -62,11 +63,14 @@ export function listGoals(): Goal[] {
 }
 
 export function getGoal(id: string): Goal | null {
-  if (!isDemoMode() && id.startsWith("demo_seed_")) return null;
   const row = getDb()
     .prepare("SELECT * FROM goals WHERE id = ?")
     .get(id) as unknown as GoalRow | undefined;
-  return row ? mapGoal(row) : null;
+  if (!row) return null;
+  if (!isDemoMode() && (Number(row.demo) === 1 || id.startsWith("demo_seed_"))) {
+    return null;
+  }
+  return mapGoal(row);
 }
 
 export function createGoal(input: {
@@ -90,9 +94,9 @@ export function createGoal(input: {
   const id = newId("goal");
   getDb()
     .prepare(
-      "INSERT INTO goals (id, title, target_cents, saved_cents, deadline, status, created_at) VALUES (?, ?, ?, 0, ?, 'active', ?)",
+      "INSERT INTO goals (id, title, target_cents, saved_cents, deadline, status, demo, created_at) VALUES (?, ?, ?, 0, ?, 'active', ?, ?)",
     )
-    .run(id, title, targetCents, input.deadline ?? null, nowIso());
+    .run(id, title, targetCents, input.deadline ?? null, isDemoMode() ? 1 : 0, nowIso());
   return getGoal(id)!;
 }
 
@@ -146,13 +150,14 @@ export function contributeToGoal(
     : null;
 
   const database = getDb();
+  const demo = isDemoMode() ? 1 : 0;
   let committed = false;
   database.exec("BEGIN IMMEDIATE");
   try {
     if (request && requestHash) {
       const existing = database
         .prepare(
-          "SELECT goal_id, amount_cents, note, request_hash FROM goal_contributions WHERE request_id = ?",
+          "SELECT goal_id, amount_cents, note, request_hash, demo FROM goal_contributions WHERE request_id = ?",
         )
         .get(request) as
         | {
@@ -160,12 +165,13 @@ export function contributeToGoal(
             amount_cents: number;
             note: string | null;
             request_hash: string | null;
+            demo: number;
           }
         | undefined;
       if (existing) {
-        if (existing.goal_id !== goalId) {
+        if (existing.goal_id !== goalId || Number(existing.demo) !== demo) {
           throw new ConflictError(
-            "Ese requestId ya se usó en otra meta. No se registró nada.",
+            "Ese requestId ya se usó en otra meta o en el otro modo. No se registró nada.",
             "request_id_conflict",
           );
         }
@@ -191,17 +197,26 @@ export function contributeToGoal(
     }
 
     const goalRow = database
-      .prepare("SELECT id FROM goals WHERE id = ?")
-      .get(goalId) as { id: string } | undefined;
-    if (!goalRow) {
+      .prepare("SELECT id, demo FROM goals WHERE id = ?")
+      .get(goalId) as { id: string; demo: number } | undefined;
+    if (!goalRow || Number(goalRow.demo) !== demo) {
       throw new NotFoundError("Meta no encontrada.", "goal_not_found");
     }
 
     database
       .prepare(
-        "INSERT INTO goal_contributions (id, goal_id, amount_cents, note, request_id, request_hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO goal_contributions (id, goal_id, amount_cents, note, request_id, request_hash, demo, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       )
-      .run(newId("gctr"), goalId, amount, cleanNote, request, requestHash, nowIso());
+      .run(
+        newId("gctr"),
+        goalId,
+        amount,
+        cleanNote,
+        request,
+        requestHash,
+        demo,
+        nowIso(),
+      );
     database
       .prepare("UPDATE goals SET saved_cents = saved_cents + ? WHERE id = ?")
       .run(amount, goalId);
