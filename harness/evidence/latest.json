@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
-  "mode": "full",
-  "startedAt": "2026-11-02T01:13:47.153Z",
-  "finishedAt": "2026-11-02T01:16:53.499Z",
-  "durationMs": 186344,
+  "mode": "static",
+  "startedAt": "2026-11-02T02:20:43.310Z",
+  "finishedAt": "2026-11-02T02:21:38.487Z",
+  "durationMs": 55173,
   "baseUrl": "http://localhost:3000",
   "gitAtStart": {
-    "sha": "446f2f74e137c543dd39a5d36836756e923d9930",
-    "branch": "master",
+    "sha": "81c7918211ce353936f8c6d11585b3a7a8c64f15",
+    "branch": "p0/shell",
     "dirty": false
   },
   "git": {
-    "sha": "446f2f74e137c543dd39a5d36836756e923d9930",
-    "branch": "master",
-    "dirty": true
+    "sha": "81c7918211ce353936f8c6d11585b3a7a8c64f15",
+    "branch": "p0/shell",
+    "dirty": false
   },
   "runtime": {
     "node": "v25.7.0",
@@ -22,19 +22,17 @@
   },
   "skipped": [],
   "notRun": [
-    "build",
+    "truth",
+    "webhook",
+    "mobile",
+    "checkout",
+    "hig",
+    "rehearsal",
+    "tunnel",
+    "preflight",
     "film"
   ],
-  "resets": [
-    {
-      "before": "truth",
-      "ok": true
-    },
-    {
-      "before": "preflight",
-      "ok": true
-    }
-  ],
+  "resets": [],
   "gates": [
     {
       "id": "guard",
@@ -42,7 +40,7 @@
       "command": "node scripts/harness-guard.mjs",
       "ok": true,
       "exitCode": 0,
-      "durationMs": 574,
+      "durationMs": 1338,
       "expected": "Guardrails OK.",
       "outputTail": "PASS  AGENTS.md presente\nPASS  HARNESS.md presente\nPASS  ningún .env real trackeado\nPASS  .gitignore protege web/.env.local\nPASS  verify solo acepta provider pey\nPASS  los pagos demo usan demo_paid\nPASS  demo/pay declara provider demo\nPASS  webhook pey existe y valida firma\nPASS  sin secretos con pinta real en archivos versionados\n\nGuardrails OK."
     },
@@ -52,7 +50,7 @@
       "command": "npm run lint",
       "ok": true,
       "exitCode": 0,
-      "durationMs": 18915,
+      "durationMs": 21002,
       "expected": "sin errores",
       "outputTail": "> web@0.1.0 lint\n> eslint"
     },
@@ -62,89 +60,19 @@
       "command": "npx tsc --noEmit",
       "ok": true,
       "exitCode": 0,
-      "durationMs": 7916,
+      "durationMs": 9044,
       "expected": "sin errores",
       "outputTail": ""
     },
     {
-      "id": "truth",
-      "name": "Verdad del comprobante",
-      "command": "node scripts/verify-truth.mjs",
+      "id": "build",
+      "name": "Build de producción",
+      "command": "npm run build",
       "ok": true,
       "exitCode": 0,
-      "durationMs": 217,
-      "expected": "VERDAD OK",
-      "outputTail": "PASS  comprobante demo no verificado — demo_hist_txn_demo_hist_1_ord_20ea7df118404cf7810c\nPASS  respuesta: Ese comprobante no corresponde a un pago confirmado por Mercado Cero.\nVERDAD OK: los pagos demo no pasan como verificados."
-    },
-    {
-      "id": "webhook",
-      "name": "Contrato del webhook",
-      "command": "node scripts/webhook-contract.mjs",
-      "ok": true,
-      "exitCode": 0,
-      "durationMs": 557,
-      "expected": "27/27",
-      "outputTail": "Mercado Cero · contrato de webhook\nBase: http://localhost:3000\nDB: C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero\\web\\data\\mercado-cero.db\nSecreto: 38 caracteres (no se imprime)\n\nPASS  0. reset de demo — status 200\nPASS  1. link válido → 200 — status 200\nPASS  1. respuesta processed — {\"ok\":true,\"result\":\"processed\",\"orderId\":\"ord_90ecc27e5c3d46f88449\",\"amountCents\":1000}\nPASS  1. orden pagada — paid\nPASS  1. base exacta (con propina en el evento) — paidCents=1000\nPASS  1. un solo pago — pagos=1\nPASS  1. evento auditado como processed — {\"result\":\"processed\",\"error\":null,\"signature_valid\":1}\nPASS  2. replay → 200 duplicate — {\"ok\":true,\"duplicate\":true}\nPASS  2. replay no duplica el pago — pagos=1\nPASS  2. orden sigue pagada — paid / 1000\nPASS  3. firma falsa → 401 — status 401\nPASS  3. firma falsa no marca pagado — payment_pending / pagos=0\nPASS  3. intento auditado como rejected — {\"result\":\"rejected\",\"error\":\"Firma de webhook inválida.\",\"signature_valid\":0}\nPASS  4. monto distinto → 409 — status 409\nPASS  4. monto distinto no marca pagado — payment_pending / 0\nPASS  4. rechazo auditado con motivo — {\"result\":\"rejected\",\"error\":\"Link de pago: el monto no coincide con el saldo pendiente (100 vs 1000 centavos).\",\"signature_valid\":1}\nPASS  5. orden inexistente → 404 — status 404\nPASS  5. orden inexistente auditada — {\"result\":\"rejected\",\"error\":\"clientReferenceId no corresponde a un pedido.\",\"signature_valid\":1}\nPASS  6. timestamp viejo → 401 — status 401\nPASS  6. timestamp viejo no marca pagado — payment_pending / pagos=0\nPASS  7. pending posterior → 200 ignored — {\"ok\":true,\"result\":\"ignored\",\"reason\":\"estado pending\"}\nPASS  7. pending no revierte el pago — paid / pagos=1\nPASS  8. JSON inválido → 400 — status 400\nPASS  8. JSON inválido auditado — {\"result\":\"rejected\",\"error\":\"JSON inválido.\",\"signature_valid\":1}\nPASS  9. QR válido → 200 — status 200\nPASS  9. QR procesado — {\"ok\":true,\"result\":\"processed\",\"orderId\":\"ord_6681d0be71e04a4fb65a\",\"amountCents\":700}\nPASS  9. orden QR pagada una vez — paid / 700 / pagos=1\n\n27/27 pruebas en verde\nBase de demo reiniciada."
-    },
-    {
-      "id": "mobile",
-      "name": "Flujo móvil 360 px",
-      "command": "python scripts/mobile-audit.py",
-      "ok": true,
-      "exitCode": 0,
-      "durationMs": 10150,
-      "expected": "25/25",
-      "outputTail": "PASS  360 px sin scroll horizontal — scrollWidth=360 innerWidth=360\nPASS  Sin texto visible menor a 12 px — 0 bloques: []\nPASS  Controles principales con altura >= 40 px — []\nINFO  targets <44 px: 1 (incluye enlaces de texto e inputs compactos)\nPASS  Caja es el destino inicial\nPASS  Venta por texto interpretada\nPASS  Total de la venta $90\nPASS  Pedido creado y cobro visible\nPASS  Sin scroll horizontal al crear el cobro — {\"innerWidth\": 360, \"documentScrollWidth\": 360, \"surfaceScrollLeft\": 0, \"surfaceScrollWidth\": 360}\nPASS  Link de pago generado\nPASS  Sin scroll horizontal con el link generado — {\"innerWidth\": 360, \"documentScrollWidth\": 360, \"surfaceScrollLeft\": 0, \"surfaceScrollWidth\": 360}\nPASS  Pago demo confirmado\nPASS  Sin scroll horizontal tras el pago — {\"innerWidth\": 360, \"documentScrollWidth\": 360, \"surfaceScrollLeft\": 0, \"surfaceScrollWidth\": 360}\nPASS  Hoja de abono visible\nPASS  Abono de fiado registrado\nPASS  Sin scroll horizontal tras el abono — {\"innerWidth\": 360, \"documentScrollWidth\": 360, \"surfaceScrollLeft\": 0, \"surfaceScrollWidth\": 360}\nPASS  Comprobante falso rechazado\nPASS  Sin scroll horizontal en anti-fraude — {\"innerWidth\": 360, \"documentScrollWidth\": 360, \"surfaceScrollLeft\": 0, \"surfaceScrollWidth\": 360}\nPASS  Corte visible — pantalla Corte\nPASS  Corte incluye el abono de fiado\nPASS  Meta visible — pantalla Meta\nPASS  Aportación actualiza la meta\nPASS  Sin scroll horizontal al final del recorrido — {\"innerWidth\": 360, \"documentScrollWidth\": 360, \"surfaceScrollLeft\": 0, \"surfaceScrollWidth\": 360}\nPASS  Flujo completo en menos de 3 minutos — 9.5s\nPASS  Sin errores de consola\nPASS  Sin pageerrors\n\n25/25 checks en verde\nReporte: C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero\\demo\\mobile-audit.json"
-    },
-    {
-      "id": "checkout",
-      "name": "Checkout público",
-      "command": "python scripts/checkout-audit.py",
-      "ok": true,
-      "exitCode": 0,
-      "durationMs": 4774,
-      "expected": "15/15",
-      "outputTail": "INFO  pedido 120.00 MXN · demo_hist_pe…\nPASS  Checkout: 360 px sin scroll horizontal — scrollWidth=360 innerWidth=360\nPASS  Checkout: sin texto visible menor a 12 px — 0 bloques: []\nPASS  Checkout: tres métodos de pago — 3 radios de método\nPASS  Checkout: objetivos táctiles >= 44 px — 0 menores: []\nPASS  Checkout: total visible\nPASS  Checkout: aviso de demo visible\nPASS  Checkout: pago demo confirmado\nPASS  Checkout: explica que el pago fue simulado\nPASS  Confirmación: sin texto visible menor a 12 px — 0 bloques: []\nPASS  Confirmación: sin scroll horizontal — scrollWidth=360\nPASS  Servidor: orden demo pagada tras la simulación — demo_paid · pago=True\nPASS  Éxito: sin texto visible menor a 12 px — 0 bloques: []\nPASS  Éxito: sin scroll horizontal — scrollWidth=360\nPASS  Checkout: sin errores de consola\nPASS  Checkout: sin pageerrors\n\n15/15 checks en verde\nReporte: C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero\\demo\\checkout-audit.json"
-    },
-    {
-      "id": "hig",
-      "name": "HIG / WCAG 2.2 AA",
-      "command": "python scripts/hig-after-audit.py",
-      "ok": true,
-      "exitCode": 0,
-      "durationMs": 120524,
-      "expected": "PASÓ",
-      "outputTail": "VIEWPORT 360x800\n  scroll=360/360 under12=0 under48=0 axe=0 200=360 focus=True escape=True errors=0\n\nVIEWPORT 390x844\n  scroll=390/390 under12=0 under48=0 axe=0 200=390 focus=True escape=True errors=0\n\nVIEWPORT 768x1024\n  scroll=768/768 under12=0 under48=0 axe=0 200=768 focus=True escape=True errors=0\n\nVIEWPORT 1280x800\n  scroll=1280/1280 under12=0 under48=0 axe=0 200=1280 focus=True escape=True errors=0\n\nPASÓ: sin violaciones serias, recortes, solapes ni overflow."
-    },
-    {
-      "id": "rehearsal",
-      "name": "Ensayo del guion",
-      "command": "python scripts/rehearse-demo.py",
-      "ok": true,
-      "exitCode": 0,
-      "durationMs": 15251,
-      "expected": "todo en verde: True",
-      "outputTail": "ENSAYO 2/3\n  PASS  venta interpretada\n  PASS  total $90\n  PASS  cobro visible\n  PASS  link generado\n  PASS  pago demo confirmado\n  PASS  hoja de abono visible\n  PASS  abono confirmado\n  PASS  consulta de ventas\n  PASS  comprobante falso rechazado\n  PASS  corte visible\n  PASS  corte incluye abono de fiado\n  PASS  conteo cuadra\n  PASS  corte guardado\n  PASS  meta visible\n  PASS  meta avanza\n  TIEMPO  3.8s · errores consola: 0\n\nENSAYO 3/3\n  PASS  venta interpretada\n  PASS  total $90\n  PASS  cobro visible\n  PASS  link generado\n  PASS  pago demo confirmado\n  PASS  hoja de abono visible\n  PASS  abono confirmado\n  PASS  consulta de ventas\n  PASS  comprobante falso rechazado\n  PASS  corte visible\n  PASS  corte incluye abono de fiado\n  PASS  conteo cuadra\n  PASS  corte guardado\n  PASS  meta visible\n  PASS  meta avanza\n  TIEMPO  3.9s · errores consola: 0\n\nRESUMEN\n  rápido: 3.8s · lento: 4.1s · promedio: 3.9s\n  todo en verde: True\n  reporte: C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero\\demo\\rehearsal.json"
-    },
-    {
-      "id": "tunnel",
-      "name": "Túnel público",
-      "command": "python scripts/tunnel-smoke.py",
-      "ok": true,
-      "exitCode": 0,
-      "durationMs": 6455,
-      "expected": "8/8",
-      "outputTail": "INFO  https://financial-warcraft-sensitive-sufficient.trycloudflare.com\nPASS  Reset de demo por el túnel — HTTP 200\nPASS  Checkout responde por HTTPS — HTTP 200\nPASS  Checkout muestra el total\nPASS  Checkout se identifica como demo\nPASS  Pago demo por el túnel confirmado\nPASS  Servidor público: orden pagada — demo_paid\nPASS  Sin errores de consola\nPASS  Sin pageerrors\n\n8/8 checks en verde\nReporte: C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero\\demo\\tunnel-smoke.json"
-    },
-    {
-      "id": "preflight",
-      "name": "Preflight de demo",
-      "command": "node scripts/preflight.mjs",
-      "ok": true,
-      "exitCode": 0,
-      "durationMs": 913,
-      "expected": "18/18",
-      "outputTail": "Local:  http://localhost:3000\nPúblico: https://financial-warcraft-sensitive-sufficient.trycloudflare.com\n\nPASS  Servidor local responde — 200\nPASS  Túnel público responde — 200\nPASS  La app está en modo demo\nPASS  Ventas de hoy = $190.00 — $190.00\nPASS  Cobrado = $70.00 — $70.00\nPASS  Por cobrar = $120.00 — $120.00\nPASS  Fiado = $50.00 — $50.00\nPASS  Meta = $300 de $1,800 — $300.00 / $1800.00\nPASS  Corte: base $500, esperado $570 — base $500.00 · esperado $570.00\nPASS  Video MP4 — 841 KB\nPASS  QR PNG — 12 KB\nPASS  QR PDF — 87 KB\nPASS  QR HTML — 18 KB\nPASS  Auditoría móvil — 4 KB\nPASS  Auditoría checkout — 3 KB\nPASS  Humo del túnel — 1 KB\nPASS  El QR apunta al túnel actual — https://financial-warcraft-sensitive-sufficient.trycloudflare.com\nPASS  APP_URL es HTTPS — https://financial-warcraft-sensitive-sufficient.trycloudflare.com\n\nPreflight OK: 18/18."
+      "durationMs": 23782,
+      "expected": "compiled successfully",
+      "outputTail": "  Collecting page data using 7 workers ...\n  Generating static pages using 7 workers (0/21) ...\n  Generating static pages using 7 workers (5/21) \n  Generating static pages using 7 workers (10/21) \n  Generating static pages using 7 workers (15/21) \n✓ Generating static pages using 7 workers (21/21) in 1713ms\n  Finalizing page optimization ...\n\nRoute (app)\n┌ ○ /\n├ ○ /_not-found\n├ ƒ /api/analytics\n├ ƒ /api/cash\n├ ƒ /api/cash/close\n├ ƒ /api/checkout/[id]\n├ ƒ /api/credits\n├ ƒ /api/credits/[id]/pay\n├ ƒ /api/dashboard\n├ ƒ /api/demo/pay\n├ ƒ /api/demo/reset\n├ ƒ /api/goals\n├ ƒ /api/goals/[id]/contribute\n├ ƒ /api/orders\n├ ƒ /api/orders/[id]\n├ ƒ /api/orders/[id]/pay\n├ ƒ /api/reconcile\n├ ƒ /api/tts\n├ ƒ /api/verify\n├ ƒ /api/voice/parse\n├ ƒ /api/voice/transcribe\n├ ƒ /api/webhooks/pey\n├   /pay/[id]\n│ └ ◐ /pay/[id]\n└   /pay/[id]/success\n  └ ◐ /pay/[id]/success\n\n\n○  (Static)             prerendered as static content\n◐  (Partial Prerender)  prerendered as static HTML with dynamic server-streamed content\nƒ  (Dynamic)            server-rendered on demand"
     }
   ],
   "ok": true

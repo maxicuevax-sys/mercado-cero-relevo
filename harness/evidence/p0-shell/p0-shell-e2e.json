@@ -1,0 +1,173 @@
+{
+  "baseUrl": "http://localhost:3101",
+  "started": "2026-11-01T20:24:49",
+  "elapsedSeconds": 20.3,
+  "code": {
+    "commit": "81c7918211ce353936f8c6d11585b3a7a8c64f15",
+    "dirty": false
+  },
+  "passed": 32,
+  "failed": 0,
+  "results": [
+    {
+      "name": "dashboard 500 muestra error persistente",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dashboard 500 conserva DEMO",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dashboard 500 no inventa el comercio",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dashboard 500 no dice 'no hay ventas'",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dashboard 500 no dice 'sin fiados'",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dashboard 500 ofrece Reintentar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Actividad distingue error de vacío",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "sin bucle de /api/dashboard",
+      "ok": true,
+      "detail": "1 llamada(s) y se mantiene"
+    },
+    {
+      "name": "Fiado distingue error de vacío",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Reintentar con el fallo activo no duplica ni entra en bucle",
+      "ok": true,
+      "detail": "2 llamadas"
+    },
+    {
+      "name": "sigue sin bucle tras reintentar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Reintentar recupera el comercio real",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el aviso de error desaparece al recuperar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "la actividad vuelve a mostrar pedidos",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard muestra error si goal=null",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard no dice 'Aún no hay una meta' con error",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GoalCard ofrece Reintentar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-360-200: header <= 30% del viewport",
+      "ok": true,
+      "detail": "18.5%"
+    },
+    {
+      "name": "home-360-200: campo de venta en el primer viewport",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-360-200: campo de venta por encima de la tab bar",
+      "ok": true,
+      "detail": "sale bottom <= tab top (675)"
+    },
+    {
+      "name": "home-360-200: sin palabras partidas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-360-200: sin overflow horizontal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-1280-200: sidebar conserva Fiado y Corte",
+      "ok": true,
+      "detail": "['Caja', 'Fiado', 'Corte', 'Meta']"
+    },
+    {
+      "name": "home-1280-200: sin palabras partidas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "help-1280-200: controles en 1–2 columnas",
+      "ok": true,
+      "detail": "{'cols': 2, 'hasSpeeds': True}"
+    },
+    {
+      "name": "help-1280-200: controles de velocidad presentes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "help-1280-200: sin palabras partidas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "verify-360-200: título completo",
+      "ok": true,
+      "detail": "Verificar comprobante"
+    },
+    {
+      "name": "verify-360-200: sin palabras partidas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "meta-360-200: cifra de meta visible",
+      "ok": true,
+      "detail": "$300.00 de $1,800.00"
+    },
+    {
+      "name": "meta-360-200: Apartar visible por encima de la tab bar",
+      "ok": true,
+      "detail": "top 619 <= tab 675"
+    },
+    {
+      "name": "meta-360-200: sin palabras partidas",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}
