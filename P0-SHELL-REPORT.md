@@ -163,6 +163,7 @@ El `audit.json` contiene todas las medidas; se versionan solo las capturas clave
 - **768–1023 px usa tab bar inferior, no sidebar.** Es una decisión de layout para no comprimir el contenido a 200 %; en tablet el campo de texto también sube antes de la voz. Los cuatro destinos y sus nombres se conservan.
 - **A 200 % se ocultan dos subtítulos redundantes** (“Habla o escribe; tú confirmas.” en Caja y “Una meta a la vez.” en Meta) y la etiqueta visible de `Verificar` (queda el icono con `aria-label="Verificar comprobante"`). El contenido principal y las acciones siguen.
 - **El 200 % es inyección de `font-size`**, no zoom de navegador. No se probó TalkBack/VoiceOver/NVDA, alto contraste, daltonismo, teléfono físico ni una mano.
+- **No se ejecutaron `mobile-audit.py`, `rehearse-demo.py` ni `film-check.py`**: apuntan a `:3000` y solo se actualizaron sus selectores de `Verificar`. Tampoco se corrió `verify:full`; este corte se verificó con `verify:fast`, `verify:static`, HIG y E2E en `:3101`.
 - **El fallo de red es simulado con Playwright** (`route` 500); no se probó desconexión real, DNS, latencia ni un servidor caído de verdad.
 - **El caso de fallo tardío usa “Reiniciar demo”** para disparar la recarga del dashboard; la UI conserva los datos viejos y muestra el aviso. No se añadió un botón “Actualizar” (P0-E).
 - **Descripciones largas introducidas por el usuario** ya no se parten por defecto; el audit con datos de demo no encontró overflow, pero un texto sin espacios podría desbordar en una tarjeta.
