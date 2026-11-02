@@ -169,19 +169,21 @@ const SAMPLE_LABELS: Record<string, string> = {
   "¿Cuánto vendí hoy?": "¿Cuánto vendí?",
 };
 
-// Frases fijas del demo, pre-renderizadas con Kokoro (Apache 2.0, voz ef_dora).
-// Si el texto no está aquí, se usa la voz del navegador como fallback.
+// Frases fijas del demo, pre-renderizadas con Kokoro (Apache 2.0, voz em_santa).
+// Si el texto no está aquí, /api/tts usa Piper (es_MX-claude-high).
+// El ?v= invalida audios viejos que quedaron en la caché del navegador.
 const TTS_FILES: Record<string, string> = {
-  "Escuché 90.00 pesos. ¿Confirmas?": "/tts/son-90-genero-el-cobro.wav",
-  "Venta cobrada. $90.00.": "/tts/venta-cobrada-90.wav",
-  "Pago simulado. $90.00.": "/tts/pago-simulado-90.wav",
-  "Pago verificado: $90.00.": "/tts/pago-verificado-90.wav",
-  "Abono de $50.00 a Juan. Saldo: $0.00.": "/tts/abono-50-juan.wav",
-  "Venta lista para confirmar.": "/tts/venta-lista.wav",
+  "Escuché 90.00 pesos. ¿Confirmas?": "/tts/son-90-genero-el-cobro.wav?v=2",
+  "Venta cobrada. $90.00.": "/tts/venta-cobrada-90.wav?v=2",
+  "Pago simulado. $90.00.": "/tts/pago-simulado-90.wav?v=2",
+  "Pago verificado: $90.00.": "/tts/pago-verificado-90.wav?v=2",
+  "Abono de $50.00 a Juan. Saldo: $0.00.": "/tts/abono-50-juan.wav?v=2",
+  "Revisa el abono de $50.00 a Juan.": "/tts/revisa-abono-50-juan.wav?v=2",
+  "Venta lista para confirmar.": "/tts/venta-lista.wav?v=2",
   "Comprobante verificado en la caja. En producción se valida contra pey.":
-    "/tts/comprobante-verificado-demo.wav",
+    "/tts/comprobante-verificado-demo.wav?v=2",
   "Ese comprobante no está verificado. No entregues el pedido.":
-    "/tts/comprobante-no-verificado.wav",
+    "/tts/comprobante-no-verificado.wav?v=2",
 };
 
 function parseMoney(value: string): number {
