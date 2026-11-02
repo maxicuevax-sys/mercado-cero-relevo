@@ -56,7 +56,7 @@ Si el ID no existe en la cuenta de pey, no es un pago verificable. La app no se 
 
 La voz abre la hoja con el saldo vivo y el monto; no escribe nada sola.
 
-[Revisa el monto y pulsa **Registrar abono**.]
+[Elige **Efectivo** en “¿Cómo lo recibiste?” y pulsa **Registrar abono**.]
 
 El fiado no es una venta nueva: es un abono. El saldo de Juan baja de cincuenta a cero solo al confirmar.
 
