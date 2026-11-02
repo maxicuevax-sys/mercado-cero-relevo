@@ -357,8 +357,9 @@ def main() -> int:
             restored_scroll = page.evaluate("window.scrollY")
             check(
                 "el scroll de Caja se conserva al cambiar de tab",
-                abs(restored_scroll - target_scroll) <= 24,
-                f"scrollY={restored_scroll} target={target_scroll}",
+                target_scroll > 0
+                and abs(restored_scroll - target_scroll) <= 24,
+                f"scrollY={restored_scroll} · objetivo={target_scroll}",
             )
             page.locator('aside button:visible', has_text="Pendientes").first.click()
             page.wait_for_timeout(300)
@@ -814,7 +815,7 @@ def main() -> int:
             check(
                 "la base conserva la venta mixta correcta",
                 bool(order_row)
-                and order_row[0][1] == "fulfilled"
+                and order_row[0][1] == "demo_paid"
                 and int(order_row[0][2]) == 7000
                 and int(order_row[0][3]) == 2000
                 and int(digital_row[0][0]) == 4000,

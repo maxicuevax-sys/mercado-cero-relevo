@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { isDemoMode } from "@/lib/config";
 import { getDb, getOrder, newId, nowIso } from "@/lib/db";
 import {
@@ -8,6 +9,13 @@ import {
   readJsonLimited,
 } from "@/lib/http-security";
 import { recordPayment } from "@/lib/orders";
+
+const bodySchema = z.object({
+  orderId: z.string().trim().min(1),
+  // El efectivo no se simula: el efectivo demo no es dinero real. Solo los
+  // métodos digitales pueden pasar por pey/demo.
+  method: z.enum(["codi", "card", "wallet"]).default("card"),
+});
 
 export async function POST(request: Request) {
   if (!isDemoMode()) {
@@ -20,18 +28,15 @@ export async function POST(request: Request) {
   const limited = enforceRateLimit(request, "demo-pay", 30, 60_000);
   if (limited) return limited;
 
-  let body: { orderId?: string; method?: "codi" | "card" | "wallet" };
+  let rawBody: unknown;
   try {
-    body = await readJsonLimited(request, MAX_SMALL_JSON_BYTES);
+    rawBody = await readJsonLimited(request, MAX_SMALL_JSON_BYTES);
   } catch (error) {
     return bodyErrorResponse(error);
   }
 
   try {
-    if (!body.orderId) {
-      return Response.json({ error: "Falta orderId." }, { status: 400 });
-    }
-
+    const body = bodySchema.parse(rawBody);
     const order = getOrder(body.orderId);
     if (!order) {
       return Response.json({ error: "Pedido no encontrado." }, { status: 404 });
@@ -42,7 +47,7 @@ export async function POST(request: Request) {
       return Response.json({ order });
     }
 
-    const method = body.method ?? "card";
+    const method = body.method;
     const transactionId = `demo_txn_${newId("tx")}`;
     const database = getDb();
     database
@@ -72,6 +77,12 @@ export async function POST(request: Request) {
 
     return Response.json({ order: updated, transactionId });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return Response.json(
+        { error: "Método demo inválido. Usa codi, card o wallet; el efectivo no se simula." },
+        { status: 400 },
+      );
+    }
     return internalErrorResponse("demo pay", error);
   }
 }

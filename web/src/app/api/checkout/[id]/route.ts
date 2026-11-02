@@ -16,6 +16,20 @@ export async function GET(
   const paidPayment = payments
     .filter((payment) => payment.status === "paid" && payment.method !== "cash")
     .at(-1);
+  const cashPaidCents = payments
+    .filter(
+      (payment) =>
+        payment.status === "paid" &&
+        payment.method === "cash" &&
+        payment.provider !== "demo",
+    )
+    .reduce((sum, payment) => sum + payment.amountCents, 0);
+  const demoPaidCents = payments
+    .filter((payment) => payment.status === "paid" && payment.provider === "demo")
+    .reduce((sum, payment) => sum + payment.amountCents, 0);
+  const verifiedPaidCents = payments
+    .filter((payment) => payment.status === "paid" && payment.provider === "pey")
+    .reduce((sum, payment) => sum + payment.amountCents, 0);
 
   return Response.json({
     demoMode: isDemoMode(),
@@ -31,6 +45,9 @@ export async function GET(
       totalCents: order.totalCents,
       paidCents: order.paidCents,
       digitalPaidCents: order.digitalPaidCents,
+      cashPaidCents,
+      demoPaidCents,
+      verifiedPaidCents,
       creditCents: order.creditCents,
       amountDueCents: Math.max(
         0,

@@ -27,7 +27,10 @@ function baseCents(transaction: PeyTransaction): number {
 function methodMatches(local: string, peyMethod?: string): boolean {
   const method = (peyMethod ?? "").toUpperCase();
   if (local === "codi") return method.includes("CODI");
-  if (local === "card" || local === "wallet") return method.includes("CARD");
+  if (local === "card" || local === "wallet") {
+    return method.includes("CARD") || method.includes("CREDIT") || method.includes("DEBIT");
+  }
+  // `unknown` no afirma un método: se compara solo contra monto/estado.
   return true;
 }
 
@@ -79,8 +82,10 @@ export async function getReconciliationReport(): Promise<ReconciliationReport> {
       `SELECT p.order_id, p.transaction_id, p.method, p.amount_cents, p.provider,
               o.payment_link_id, o.qr_id
        FROM payments p JOIN orders o ON o.id = p.order_id
-       WHERE p.status = 'paid' AND p.method != 'cash' AND o.created_at >= ?
-       ORDER BY o.created_at ASC`,
+       WHERE p.status = 'paid' AND p.method != 'cash'
+         AND p.provider != 'demo'
+         AND p.created_at >= ?
+       ORDER BY p.created_at ASC`,
     )
     .all(startIso) as unknown as PaymentRow[];
 

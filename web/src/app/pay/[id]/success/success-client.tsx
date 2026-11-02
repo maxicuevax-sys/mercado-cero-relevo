@@ -16,6 +16,9 @@ interface CheckoutData {
     totalCents: number;
     paidCents: number;
     digitalPaidCents: number;
+    cashPaidCents?: number;
+    demoPaidCents?: number;
+    verifiedPaidCents?: number;
     amountDueCents: number;
     creditCents: number;
   };
@@ -72,7 +75,8 @@ export default function CheckoutSuccessPage() {
   const paid =
     Boolean(data?.payment) ||
     (Boolean(data) && (data?.order.amountDueCents ?? 1) <= 0 && !isCredit);
-  const demo = data?.payment?.provider === "demo";
+  const demo =
+    data?.payment?.provider === "demo" || (data?.order.demoPaidCents ?? 0) > 0;
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -82,7 +86,9 @@ export default function CheckoutSuccessPage() {
   }, [paid, isCredit]);
 
   if (isCredit && data) {
-    const cashPaid = Math.max(0, data.order.paidCents - data.order.digitalPaidCents);
+    const cashPaid =
+      data.order.cashPaidCents ??
+      Math.max(0, data.order.paidCents - data.order.digitalPaidCents);
     const source = [
       cashPaid > 0 ? `${formatMxn(cashPaid)} en efectivo` : null,
       data.payment
@@ -138,9 +144,17 @@ export default function CheckoutSuccessPage() {
     );
   }
 
-  const cashPaid = data ? Math.max(0, data.order.paidCents - data.order.digitalPaidCents) : 0;
-  const cashOnly = Boolean(data) && paid && !data?.payment && cashPaid > 0;
+  const cashPaid = data
+    ? data.order.cashPaidCents ??
+      Math.max(0, data.order.paidCents - data.order.digitalPaidCents)
+    : 0;
+  const cashOnly = Boolean(data) && paid && !data?.payment && cashPaid > 0 && !demo;
   const sourceMixed = Boolean(data?.payment) && paid && cashPaid > 0;
+  const methodLabel = data?.payment
+    ? demo && data.payment.method === "cash"
+      ? "Demo (no es efectivo real)"
+      : METHOD_LABEL[data.payment.method] ?? data.payment.method
+    : null;
 
   return (
     <main className="grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
@@ -221,9 +235,7 @@ export default function CheckoutSuccessPage() {
                 <div className="flex items-center justify-between gap-4">
                   <dt className="text-ink-2">Método</dt>
                   <dd className="font-semibold text-ink">
-                    {sourceMixed
-                      ? `Efectivo + ${METHOD_LABEL[data.payment.method] ?? data.payment.method}`
-                      : METHOD_LABEL[data.payment.method] ?? data.payment.method}
+                    {sourceMixed ? `Efectivo + ${methodLabel}` : methodLabel}
                   </dd>
                 </div>
                 {data.payment.transactionId ? (

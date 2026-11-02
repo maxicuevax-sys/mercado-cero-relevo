@@ -8,7 +8,7 @@ export type OrderStatus =
   | "fulfilled"
   | "cancelled";
 
-export type PaymentMethod = "codi" | "card" | "wallet" | "cash" | "mixed";
+export type PaymentMethod = "codi" | "card" | "wallet" | "cash" | "mixed" | "unknown";
 
 export type PaymentStatus = "pending" | "paid" | "failed";
 
@@ -80,6 +80,8 @@ export interface CreditPayment {
   id: string;
   creditId: string;
   amountCents: number;
+  /** `cash` o `declared`; nunca `pey`. */
+  provider: string;
   method: PaymentMethod;
   requestId: string | null;
   createdAt: string;
@@ -87,11 +89,19 @@ export interface CreditPayment {
 
 export interface DailySummary {
   date: string;
+  /** Pagos confirmados por pey. */
   verifiedDigitalCents: number;
+  /** Abonos digitales de fiado declarados por la comerciante. */
+  declaredDigitalCents: number;
+  /** Pagos digitales simulados (nunca dinero real). */
   demoDigitalCents: number;
+  /** Efectivo simulado de la demo; nunca suma al efectivo real. */
+  demoCashCents: number;
   cashCents: number;
   pendingCents: number;
+  /** Saldo vivo de fiado. En demo incluye fixtures; en real los excluye. */
   creditCents: number;
+  demoCreditCents: number;
   orderCount: number;
   paidOrderCount: number;
   methods: Record<string, number>;
@@ -168,15 +178,25 @@ export interface AnalyticsReport {
   label: string;
   start: string;
   end: string;
+  demoMode: boolean;
   salesCents: number;
+  /** Cobrado real: efectivo + digital verificado + digital declarado. */
   collectedCents: number;
+  /** Cobros simulados, siempre separados del dinero real. */
+  demoCollectedCents: number;
   pendingCents: number;
   creditCents: number;
+  demoCreditCents: number;
   orderCount: number;
   paidOrderCount: number;
   averageTicketCents: number;
   cashCents: number;
+  /** Digital real: verificado por pey + abonos declarados. */
   digitalCents: number;
+  verifiedDigitalCents: number;
+  declaredDigitalCents: number;
+  demoDigitalCents: number;
+  demoCashCents: number;
   methods: Record<string, number>;
   comparison: {
     salesCents: number;
@@ -227,6 +247,8 @@ export interface CashClosePreview {
   expectedCents: number;
   differenceCents: number;
   withdrawalNextCents: number;
+  /** Huella de cashSales/cashCredit/expected del preview. */
+  fingerprint: string;
 }
 
 export interface CashStatus {
@@ -259,6 +281,8 @@ export interface Task {
 
 export interface Goal {
   id: string;
+  /** Fixture de demo; nunca cuenta como meta real. */
+  demo: boolean;
   title: string;
   targetCents: number;
   savedCents: number;

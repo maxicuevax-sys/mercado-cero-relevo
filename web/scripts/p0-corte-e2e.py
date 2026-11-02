@@ -96,7 +96,7 @@ def port_in_use(port: int) -> bool:
 
 
 MIGRATION_PORT = next(
-    (port for port in (3102, 3103, 3104, 3199) if port != PORT and not port_in_use(port)),
+    (port for port in (3131, 3133, 3199) if port != PORT and not port_in_use(port)),
     0,
 )
 if MIGRATION_PORT == 0:
@@ -423,6 +423,11 @@ def run_legacy_migration_case(browser) -> None:
             "requestId": "migracion-v2",
             "expectedVersion": 1,
         }
+        preview_code, preview_body = api_json(
+            f"{mig_base}/api/cash/preview", data=payload
+        )
+        assert preview_code == 200, preview_body
+        payload["previewFingerprint"] = preview_body.get("preview", {}).get("fingerprint")
         code, corrected = api_json(f"{mig_base}/api/cash/close", data=payload)
         close = corrected.get("close") or {}
         check(
@@ -543,6 +548,7 @@ def api_close(
     request_id: str | None,
     expected_version: int,
     reason: str | None = None,
+    fingerprint: str | None = None,
 ):
     payload = dict(amounts)
     if request_id is not None:
@@ -550,6 +556,12 @@ def api_close(
     payload["expectedVersion"] = expected_version
     if reason is not None:
         payload["reason"] = reason
+    if fingerprint is None:
+        preview = page.request.post(f"{BASE}/api/cash/preview", data=amounts)
+        if preview.ok:
+            fingerprint = preview.json().get("preview", {}).get("fingerprint")
+    if fingerprint is not None:
+        payload["previewFingerprint"] = fingerprint
     return page.request.post(f"{BASE}/api/cash/close", data=payload)
 
 
@@ -1157,8 +1169,8 @@ def main() -> int:
             status_v1 = cash(page)
             previous_withdrawal = status_v1["saved"]["withdrawalNextCents"]
             check(
-                "la versión 1 deja un adicional a retirar",
-                previous_withdrawal == 15500,
+                "la versión 1 deja un adicional a retirar (sin efectivo demo)",
+                previous_withdrawal == 8500,
                 str(previous_withdrawal),
             )
             create_cash_order(page, 5000, "Venta entre cierre y corrección")
@@ -1172,7 +1184,8 @@ def main() -> int:
             check(
                 "la corrección ofrece el retiro previo del corte #1",
                 checkbox.count() == 1
-                and "155.00" in checkbox.locator("..").inner_text()
+                and f"{previous_withdrawal / 100:,.2f}"
+                in checkbox.locator("..").inner_text()
                 and "corte #1" in checkbox.locator("..").inner_text(),
                 checkbox.locator("..").inner_text().replace("\n", " · ")[:200],
             )

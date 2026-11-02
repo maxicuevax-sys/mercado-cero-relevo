@@ -112,7 +112,7 @@ export const GATES = [
     args: ["scripts/webhook-contract.mjs"],
     mode: "runtime",
     timeout: 120_000,
-    expected: "27/27",
+    expected: "34/34",
     expectedBasis: "output",
   },
   {

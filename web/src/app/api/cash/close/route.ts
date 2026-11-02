@@ -22,6 +22,11 @@ const closeSchema = z.object({
   // `invalid_close`, y mantener el mismo contrato que el preview.
   countedCents: moneyCents,
   baseNextCents: moneyCents,
+  previewFingerprint: z
+    .string({ error: "Falta la huella del preview del corte." })
+    .trim()
+    .min(1, "Vuelve a calcular la diferencia antes de guardar.")
+    .max(64, "La huella del preview no es válida."),
   reason: z
     .string({ error: "El motivo debe ser texto." })
     .trim()
@@ -77,6 +82,7 @@ export async function POST(request: Request) {
           error: error.message,
           code: error.code,
           currentVersion: error.currentVersion,
+          currentFingerprint: error.currentFingerprint,
         },
         { status: error.status },
       );

@@ -11,6 +11,8 @@ web/data/
 web/.env.local
 web/.env.*.local
 *.log
+__pycache__/
+*.pyc
 SWARM/logs/
 
 # Video crudo de Playwright (el MP4 es el entregable)

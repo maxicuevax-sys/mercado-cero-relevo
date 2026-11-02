@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { audit, getDailySummary, getDb, newId, nowIso } from "./db";
 import { mexicoDateKey } from "./time";
 import type { CashClose, CashClosePreview, CashStatus } from "./types";
@@ -38,24 +39,67 @@ export interface CashCloseInput extends CashCloseAmounts {
   requestId?: string | null;
   /** Versión que el cliente cree vigente; 0 si es el primer corte. */
   expectedVersion: number;
+  /** Huella del preview que la persona revisó. */
+  previewFingerprint?: string | null;
 }
 
 export class CashCloseError extends Error {
   code: string;
   status: number;
   currentVersion?: number;
+  currentFingerprint?: string;
 
   constructor(
     code: string,
     message: string,
     status = 400,
     currentVersion?: number,
+    currentFingerprint?: string,
   ) {
     super(message);
     this.name = "CashCloseError";
     this.code = code;
     this.status = status;
     this.currentVersion = currentVersion;
+    this.currentFingerprint = currentFingerprint;
+  }
+}
+
+/**
+ * Huella de los totales vivos que sostienen el preview. Si entra una venta o
+ * un abono entre preview y guardado, cambia y el cierre se rechaza.
+ */
+function totalsFingerprint(
+  cashSalesCents: number,
+  cashCreditCents: number,
+  expectedCents: number,
+): string {
+  return crypto
+    .createHash("sha256")
+    .update(`${cashSalesCents}:${cashCreditCents}:${expectedCents}`)
+    .digest("hex")
+    .slice(0, 16);
+}
+
+function assertExpectedNotNegative(
+  openingCents: number,
+  cashSalesCents: number,
+  cashCreditCents: number,
+  expensesCents: number,
+  withdrawalsCents: number,
+): void {
+  const available = openingCents + cashSalesCents + cashCreditCents;
+  const outgoing = expensesCents + withdrawalsCents;
+  if (available < outgoing) {
+    throw new CashCloseError(
+      "expected_negative",
+      `Gastos y retiros (${(outgoing / 100).toFixed(
+        2,
+      )}) superan la base inicial, las ventas y los abonos en efectivo (${(
+        available / 100
+      ).toFixed(2)}). Ajusta los montos: el corte no puede guardar un esperado negativo.`,
+      400,
+    );
   }
 }
 
@@ -158,11 +202,14 @@ export function getCashStatus(): CashStatus {
         return Number(previous?.base_next_cents ?? 0);
       })();
 
+  // El efectivo demo nunca es efectivo real. Los abonos digitales tampoco
+  // entran aquí, aunque su provider sea “declared”.
   const cashSales = database
     .prepare(
       `SELECT COALESCE(SUM(amount_cents), 0) AS total
        FROM payments
        WHERE status IN ('paid', 'demo_paid') AND method = 'cash'
+         AND provider != 'demo'
          AND date(created_at, '-6 hours') = ?`,
     )
     .get(date) as unknown as { total: number };
@@ -171,7 +218,8 @@ export function getCashStatus(): CashStatus {
     .prepare(
       `SELECT COALESCE(SUM(amount_cents), 0) AS total
        FROM credit_payments
-       WHERE method = 'cash' AND date(created_at, '-6 hours') = ?`,
+       WHERE method = 'cash' AND provider != 'demo'
+         AND date(created_at, '-6 hours') = ?`,
     )
     .get(date) as unknown as { total: number };
 
@@ -221,6 +269,11 @@ function computePreview(
     expectedCents,
     differenceCents: countedCents - expectedCents,
     withdrawalNextCents: Math.max(0, countedCents - baseNextCents),
+    fingerprint: totalsFingerprint(
+      status.cashSalesCents,
+      status.cashCreditCents,
+      expectedCents,
+    ),
   };
 }
 
@@ -234,6 +287,13 @@ export function previewCashClose(
 ): { status: CashStatus; preview: CashClosePreview; issues: Array<{ code: string; message: string }> } {
   const status = getCashStatus();
   const preview = computePreview(status, input);
+  assertExpectedNotNegative(
+    preview.openingCents,
+    preview.cashSalesCents,
+    preview.cashCreditCents,
+    preview.expensesCents,
+    preview.withdrawalsCents,
+  );
   const issues: Array<{ code: string; message: string }> = [];
 
   if (preview.countedCents <= 0) {
@@ -281,7 +341,28 @@ export function closeCash(input: CashCloseInput): CashClose {
     const status = getCashStatus();
     date = status.date;
     const existing = status.saved;
+    const currentVersion = existing?.version ?? 0;
     const preview = computePreview(status, input);
+
+    assertExpectedNotNegative(
+      preview.openingCents,
+      preview.cashSalesCents,
+      preview.cashCreditCents,
+      preview.expensesCents,
+      preview.withdrawalsCents,
+    );
+    if (
+      input.previewFingerprint &&
+      input.previewFingerprint !== preview.fingerprint
+    ) {
+      throw new CashCloseError(
+        "totals_changed",
+        "Entraron ventas o abonos después del preview. Vuelve a revisar la diferencia antes de guardar; no se guardó nada.",
+        409,
+        currentVersion,
+        preview.fingerprint,
+      );
+    }
 
     if (preview.countedCents <= 0) {
       throw new CashCloseError(
@@ -302,7 +383,6 @@ export function closeCash(input: CashCloseInput): CashClose {
       );
     }
 
-    const currentVersion = existing?.version ?? 0;
     if (input.expectedVersion !== currentVersion) {
       throw new CashCloseError(
         "version_conflict",

@@ -11,7 +11,8 @@
  *   6. un timestamp viejo se rechaza con 401;
  *   7. un evento pending posterior no revierte un pago;
  *   8. un JSON inválido firmado se audita como rechazo;
- *   9. un QR CoDi válido también marca pagado.
+ *   9. un QR CoDi válido también marca pagado;
+ *  10. un 409/404 corregido con el mismo webhook-id sí se reprocesa y cobra.
  *
  * Uso:
  *   node scripts/webhook-contract.mjs
@@ -329,6 +330,40 @@ async function main() {
     JSON.stringify(wrongAmountAudit),
   );
 
+  // 4b. Reintento corregido con el mismo webhook-id.
+  const correctedRetry = {
+    ...wrongAmountEvent,
+    transactions: [
+      {
+        ...wrongAmountEvent.transactions[0],
+        amount: wrongAmountOrder.totalCents / 100,
+      },
+    ],
+  };
+  const correctedRetryResponse = await sendEvent(correctedRetry, {
+    id: wrongAmountResponse.id,
+  });
+  check(
+    "4b. reintento corregido con el mismo webhook-id → 200 processed",
+    correctedRetryResponse.status === 200 &&
+      correctedRetryResponse.body?.result === "processed",
+    JSON.stringify(correctedRetryResponse.body),
+  );
+  const correctedRetryDetail = await getOrderDetail(wrongAmountOrder.id);
+  check(
+    "4b. reintento corregido marca pagado una sola vez",
+    correctedRetryDetail.order.status === "paid" &&
+      correctedRetryDetail.order.paidCents === wrongAmountOrder.totalCents &&
+      correctedRetryDetail.payments.filter((payment) => payment.status === "paid").length === 1,
+    `${correctedRetryDetail.order.status} / ${correctedRetryDetail.order.paidCents} / pagos=${correctedRetryDetail.payments.length}`,
+  );
+  const correctedRetryAudit = auditRow(wrongAmountResponse.id);
+  check(
+    "4b. el evento rechazado se reutiliza como processed",
+    correctedRetryAudit?.result === "processed" && !correctedRetryAudit?.error,
+    JSON.stringify(correctedRetryAudit),
+  );
+
   // 5. Orden inexistente.
   const unknownEvent = {
     type: "payment_link.status_updated",
@@ -350,6 +385,55 @@ async function main() {
     "5. orden inexistente auditada",
     unknownAudit?.result === "rejected",
     JSON.stringify(unknownAudit),
+  );
+
+  // 5b. Un 404 corregido con el mismo webhook-id también se puede cobrar.
+  const retry404Order = await createOrderWithLink(1200);
+  const missingReferenceEvent = {
+    type: "payment_link.status_updated",
+    paymentLinkId: retry404Order.paymentLinkId,
+    status: "paid",
+    clientReferenceId: "ord_inexistente_retry",
+    transactions: [
+      {
+        transactionId: `txn_${crypto.randomUUID()}`,
+        paymentMethod: "CODI",
+        amount: retry404Order.totalCents / 100,
+      },
+    ],
+  };
+  const missingReferenceResponse = await sendEvent(missingReferenceEvent);
+  check(
+    "5b. 404 de referencia → 404",
+    missingReferenceResponse.status === 404,
+    `status ${missingReferenceResponse.status}`,
+  );
+  const corrected404Event = {
+    ...missingReferenceEvent,
+    clientReferenceId: retry404Order.id,
+  };
+  const corrected404Response = await sendEvent(corrected404Event, {
+    id: missingReferenceResponse.id,
+  });
+  check(
+    "5b. reintento corregido con el mismo webhook-id → 200 processed",
+    corrected404Response.status === 200 &&
+      corrected404Response.body?.result === "processed",
+    JSON.stringify(corrected404Response.body),
+  );
+  const corrected404Detail = await getOrderDetail(retry404Order.id);
+  check(
+    "5b. reintento corregido marca pagado una sola vez",
+    corrected404Detail.order.status === "paid" &&
+      corrected404Detail.order.paidCents === retry404Order.totalCents &&
+      corrected404Detail.payments.filter((payment) => payment.status === "paid").length === 1,
+    `${corrected404Detail.order.status} / ${corrected404Detail.order.paidCents} / pagos=${corrected404Detail.payments.length}`,
+  );
+  const corrected404Audit = auditRow(missingReferenceResponse.id);
+  check(
+    "5b. el 404 rechazado se reutiliza como processed",
+    corrected404Audit?.result === "processed" && !corrected404Audit?.error,
+    JSON.stringify(corrected404Audit),
   );
 
   // 6. Timestamp viejo.

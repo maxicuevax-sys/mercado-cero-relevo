@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { previewCashClose } from "@/lib/cash";
+import { CashCloseError, previewCashClose } from "@/lib/cash";
 import {
   bodyErrorResponse,
   enforceRateLimit,
+  internalErrorResponse,
   readJsonLimited,
 } from "@/lib/http-security";
 
@@ -57,10 +58,17 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    console.error("[cash preview] error inesperado", error);
-    return Response.json(
-      { error: "No se pudo calcular el corte.", code: "cash_preview_failed" },
-      { status: 500 },
-    );
+    if (error instanceof CashCloseError) {
+      return Response.json(
+        {
+          error: error.message,
+          code: error.code,
+          currentVersion: error.currentVersion,
+          currentFingerprint: error.currentFingerprint,
+        },
+        { status: error.status },
+      );
+    }
+    return internalErrorResponse("cash preview", error);
   }
 }

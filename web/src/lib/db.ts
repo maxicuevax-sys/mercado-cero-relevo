@@ -146,6 +146,7 @@ function migrate(database: DatabaseSync) {
       credit_id TEXT NOT NULL,
       amount_cents INTEGER NOT NULL,
       method TEXT NOT NULL DEFAULT 'cash',
+      provider TEXT NOT NULL DEFAULT 'cash',
       note TEXT,
       request_id TEXT,
       created_at TEXT NOT NULL,
@@ -269,6 +270,17 @@ function migrate(database: DatabaseSync) {
   if (!creditPaymentColumns.some((column) => column.name === "request_id")) {
     database.exec("ALTER TABLE credit_payments ADD COLUMN request_id TEXT;");
   }
+  if (!creditPaymentColumns.some((column) => column.name === "provider")) {
+    database.exec(
+      "ALTER TABLE credit_payments ADD COLUMN provider TEXT NOT NULL DEFAULT 'cash';",
+    );
+  }
+  // Los abonos digitales viejos se registraron sin proveedor. No son pagos
+  // verificados por pey: se conservan como “declarado”, no como efectivo.
+  database.exec(
+    "UPDATE credit_payments SET provider = 'declared' WHERE method != 'cash' AND provider = 'cash';",
+  );
+
   // Una DB vieja pudo escribir la misma llave más de una vez antes de que
   // existiera el índice. Si no se deduplica, el arranque falla al crear el
   // índice único. Se conserva el primer abono y se anulan las llaves repetidas
@@ -660,42 +672,59 @@ function copyLegacyIntoVersioned(database: DatabaseSync) {
   database.exec("DROP TABLE cash_closes_legacy;");
 }
 
+/**
+ * Fixtures de demo. Nunca se siembran en modo real: una caja que arranca en
+ * producción debe tener 0 pedidos, 0 efectivo, 0 fiado y 0 metas.
+ * Los ids y el proveedor quedan marcados para que los reportes reales los
+ * puedan excluir incluso si alguien cambia DEMO_MODE sobre una base vieja.
+ */
 function seed(database: DatabaseSync) {
+  if (!isDemoMode()) return;
   const count = database.prepare("SELECT COUNT(*) AS n FROM customers").get() as { n: number };
   if (count.n > 0) return;
 
   const createdAt = nowIso();
-  const juanId = newId("cus");
+  const juanId = newId("demo_seed_cus");
   database
     .prepare("INSERT INTO customers (id, name, phone, created_at) VALUES (?, ?, ?, ?)")
     .run(juanId, "Juan", null, createdAt);
 
-  const creditId = newId("cred");
+  const creditId = newId("demo_seed_cred");
   database
     .prepare(
       "INSERT INTO credits (id, customer_id, order_id, original_cents, balance_cents, status, due_date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .run(creditId, juanId, null, 5000, 5000, "open", null, createdAt);
 
-  const orderId = newId("ord");
+  const orderId = newId("demo_seed_ord");
   database
     .prepare(
       "INSERT INTO orders (id, merchant_id, status, total_cents, paid_cents, payment_method, customer_name, credit_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
-    .run(orderId, MERCHANT.id, "paid", 7000, 7000, "cash", null, null, createdAt, createdAt);
+    .run(orderId, MERCHANT.id, "demo_paid", 7000, 7000, "cash", null, null, createdAt, createdAt);
   database
     .prepare(
       "INSERT INTO order_items (id, order_id, description, quantity, unit_price_cents, total_cents) VALUES (?, ?, ?, ?, ?, ?)",
     )
-    .run(newId("itm"), orderId, "Quesadilla", 2, 3500, 7000);
+    .run(newId("demo_seed_itm"), orderId, "Quesadilla", 2, 3500, 7000);
   database
     .prepare(
       "INSERT INTO payments (id, order_id, provider, method, amount_cents, status, transaction_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
     )
-    .run(newId("pay"), orderId, "cash", "cash", 7000, "paid", null, createdAt);
+    .run(
+      newId("demo_seed_pay"),
+      orderId,
+      "demo",
+      "cash",
+      7000,
+      "paid",
+      `demo_seed_txn_${orderId}`,
+      createdAt,
+    );
 }
 
 function seedGoal(database: DatabaseSync) {
+  if (!isDemoMode()) return;
   const count = database.prepare("SELECT COUNT(*) AS n FROM goals").get() as { n: number };
   if (count.n > 0) return;
 
@@ -707,7 +736,7 @@ function seedGoal(database: DatabaseSync) {
       "INSERT INTO goals (id, title, target_cents, saved_cents, deadline, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
     )
     .run(
-      newId("goal"),
+      newId("demo_seed_goal"),
       "Mi primera sombrilla",
       targetCents,
       savedCents,
@@ -901,8 +930,11 @@ function mapOrder(row: Record<string, unknown>): Order {
 
 export function listOrders(limit = 30): Order[] {
   const database = getDb();
+  const demoFilter = isDemoMode()
+    ? ""
+    : "WHERE id NOT LIKE 'demo_%' AND status != 'demo_paid'";
   const rows = database
-    .prepare("SELECT * FROM orders ORDER BY created_at DESC LIMIT ?")
+    .prepare(`SELECT * FROM orders ${demoFilter} ORDER BY created_at DESC LIMIT ?`)
     .all(limit) as Record<string, unknown>[];
   return rows.map(mapOrder);
 }
@@ -917,6 +949,7 @@ export function listPendingOrders(limit = 50): Order[] {
     .prepare(
       `SELECT * FROM orders
        WHERE status IN ('confirmed', 'payment_pending', 'partially_paid')
+         AND MAX(total_cents - paid_cents - credit_cents, 0) > 0
        ORDER BY created_at ASC
        LIMIT ?`,
     )
@@ -1052,58 +1085,138 @@ export function getCredit(id: string): Credit | null {
   };
 }
 
+/**
+ * Resumen del día con dos relojes distintos:
+ * - ventas y pedidos se atribuyen por `orders.created_at`;
+ * - dinero cobrado (pagos, abonos y demo) se atribuye por la fecha del
+ *   movimiento, no por la fecha del pedido.
+ *
+ * `provider = 'demo'` nunca entra en los buckets reales. Los abonos digitales
+ * de fiado son “declarados”: no los verifica pey y se muestran aparte.
+ */
 export function getDailySummary(): DailySummary {
   const database = getDb();
   const startIso = startOfMexicoDay(0).toISOString();
+  const endIso = startOfMexicoDay(-1).toISOString();
+  const includeDemo = isDemoMode();
+  const demoOrderFilter = includeDemo
+    ? ""
+    : "AND o.status != 'demo_paid' AND o.id NOT LIKE 'demo_%'";
 
   const payments = database
     .prepare(
       `SELECT p.method, p.provider, p.amount_cents
-       FROM payments p JOIN orders o ON o.id = p.order_id
-       WHERE p.status = 'paid' AND o.created_at >= ?`,
+       FROM payments p
+       WHERE p.status = 'paid' AND p.created_at >= ? AND p.created_at < ?`,
     )
-    .all(startIso) as Array<{ method: string; provider: string; amount_cents: number }>;
+    .all(startIso, endIso) as Array<{
+    method: string;
+    provider: string;
+    amount_cents: number;
+  }>;
+
+  const creditPayments = database
+    .prepare(
+      `SELECT cp.method, cp.provider, cp.amount_cents
+       FROM credit_payments cp
+       WHERE cp.created_at >= ? AND cp.created_at < ?`,
+    )
+    .all(startIso, endIso) as Array<{
+    method: string;
+    provider: string;
+    amount_cents: number;
+  }>;
 
   let verifiedDigitalCents = 0;
+  let declaredDigitalCents = 0;
   let demoDigitalCents = 0;
+  let demoCashCents = 0;
   let cashCents = 0;
   const methods: Record<string, number> = {};
 
   for (const payment of payments) {
     const amount = Number(payment.amount_cents);
-    methods[payment.method] = (methods[payment.method] ?? 0) + amount;
-    if (payment.method === "cash") cashCents += amount;
+    const method = payment.method;
+    if (payment.provider === "demo") {
+      if (method === "cash") demoCashCents += amount;
+      else demoDigitalCents += amount;
+      continue;
+    }
+    methods[method] = (methods[method] ?? 0) + amount;
+    if (method === "cash") cashCents += amount;
     else if (payment.provider === "pey") verifiedDigitalCents += amount;
-    else if (payment.provider === "demo") demoDigitalCents += amount;
+  }
+
+  for (const payment of creditPayments) {
+    const amount = Number(payment.amount_cents);
+    if (payment.provider === "demo") {
+      if (payment.method === "cash") demoCashCents += amount;
+      else demoDigitalCents += amount;
+      continue;
+    }
+    methods[payment.method] = (methods[payment.method] ?? 0) + amount;
+    // Un abono digital de fiado no pasó por pey: se declara, no se verifica.
+    if (payment.method === "cash") cashCents += amount;
+    else declaredDigitalCents += amount;
   }
 
   const orderRow = database
-    .prepare("SELECT COUNT(*) AS n FROM orders WHERE created_at >= ?")
-    .get(startIso) as { n: number };
+    .prepare(
+      `SELECT COUNT(*) AS n FROM orders o
+       WHERE o.created_at >= ? AND o.created_at < ? ${demoOrderFilter}`,
+    )
+    .get(startIso, endIso) as { n: number };
 
   const paidRow = database
     .prepare(
-      "SELECT COUNT(*) AS n FROM orders WHERE created_at >= ? AND status IN ('paid', 'demo_paid', 'fulfilled')",
+      `SELECT COUNT(*) AS n FROM orders o
+       WHERE o.created_at >= ? AND o.created_at < ?
+         AND (
+           o.status IN ('paid', 'demo_paid')
+           OR (o.status = 'fulfilled' AND o.credit_cents = 0)
+         )
+         ${demoOrderFilter}`,
     )
-    .get(startIso) as { n: number };
+    .get(startIso, endIso) as { n: number };
 
   const pendingRow = database
     .prepare(
-      "SELECT COALESCE(SUM(MAX(total_cents - paid_cents - credit_cents, 0)), 0) AS total FROM orders WHERE created_at >= ? AND status IN ('confirmed', 'payment_pending', 'partially_paid')",
+      `SELECT COALESCE(SUM(MAX(o.total_cents - o.paid_cents - o.credit_cents, 0)), 0) AS total
+       FROM orders o
+       WHERE o.created_at >= ? AND o.created_at < ?
+         AND o.status IN ('confirmed', 'payment_pending', 'partially_paid')
+         ${demoOrderFilter}`,
     )
-    .get(startIso) as { total: number };
+    .get(startIso, endIso) as { total: number };
 
   const creditRow = database
-    .prepare("SELECT COALESCE(SUM(balance_cents), 0) AS total FROM credits WHERE status != 'settled'")
-    .get() as { total: number };
+    .prepare(
+      `SELECT
+         COALESCE(SUM(balance_cents), 0) AS total,
+         COALESCE(SUM(
+           CASE
+             WHEN id LIKE 'demo_seed_%' OR order_id LIKE 'demo_%' THEN balance_cents
+             ELSE 0
+           END
+         ), 0) AS demo_total
+       FROM credits
+       WHERE status != 'settled'`,
+    )
+    .get() as { total: number; demo_total: number };
+
+  const demoCreditCents = Number(creditRow.demo_total);
+  const realCreditCents = Number(creditRow.total) - demoCreditCents;
 
   return {
     date: mexicoDateKey(),
     verifiedDigitalCents,
+    declaredDigitalCents,
     demoDigitalCents,
+    demoCashCents,
     cashCents,
     pendingCents: Number(pendingRow.total),
-    creditCents: Number(creditRow.total),
+    creditCents: includeDemo ? Number(creditRow.total) : realCreditCents,
+    demoCreditCents,
     orderCount: Number(orderRow.n),
     paidOrderCount: Number(paidRow.n),
     methods,

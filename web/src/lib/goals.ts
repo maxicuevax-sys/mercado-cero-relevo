@@ -1,3 +1,4 @@
+import { isDemoMode } from "./config";
 import { audit, getDb, newId, nowIso } from "./db";
 import { ConflictError, NotFoundError, ValidationError } from "./errors";
 import type { Goal } from "./types";
@@ -33,6 +34,7 @@ function mapGoal(row: GoalRow): Goal {
 
   return {
     id: row.id,
+    demo: row.id.startsWith("demo_seed_"),
     title: row.title,
     targetCents,
     savedCents,
@@ -51,13 +53,15 @@ function mapGoal(row: GoalRow): Goal {
 }
 
 export function listGoals(): Goal[] {
+  const demoFilter = isDemoMode() ? "" : "WHERE id NOT LIKE 'demo_seed_%'";
   const rows = getDb()
-    .prepare("SELECT * FROM goals ORDER BY status ASC, created_at ASC")
+    .prepare(`SELECT * FROM goals ${demoFilter} ORDER BY status ASC, created_at ASC`)
     .all() as unknown as GoalRow[];
   return rows.map(mapGoal);
 }
 
 export function getGoal(id: string): Goal | null {
+  if (!isDemoMode() && id.startsWith("demo_seed_")) return null;
   const row = getDb()
     .prepare("SELECT * FROM goals WHERE id = ?")
     .get(id) as unknown as GoalRow | undefined;

@@ -458,8 +458,16 @@ function clearStoredPendingOrder(orderId?: string) {
   }
 }
 
-function isPendingOrderStatus(status: Order["status"]): boolean {
-  return status === "confirmed" || status === "payment_pending" || status === "partially_paid";
+function isPendingOrder(order: Order): boolean {
+  // Un fiado puro también queda `confirmed`, pero no tiene saldo digital
+  // pendiente: no debe ocupar el aviso de “cobro pendiente”.
+  const due = Math.max(0, order.totalCents - order.paidCents - order.creditCents);
+  return (
+    due > 0 &&
+    (order.status === "confirmed" ||
+      order.status === "payment_pending" ||
+      order.status === "partially_paid")
+  );
 }
 
 function validateDraftItems(items: DraftItem[]): Map<string, DraftItemError> {
@@ -867,7 +875,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
           clearStoredPendingOrder(stored.orderId);
           return;
         }
-        if (!isPendingOrderStatus(order.status)) {
+        if (!isPendingOrder(order)) {
           clearStoredPendingOrder(stored.orderId);
           if (!cancelled) {
             showToast(
@@ -919,7 +927,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     // otra pestaña. Se limpia el aviso y la llave local; no se reabre la hoja.
     if (resumableOrder) {
       const order = dashboard.orders.find((item) => item.id === resumableOrder.id);
-      if (order && !isPendingOrderStatus(order.status)) {
+      if (order && !isPendingOrder(order)) {
         clearStoredPendingOrder(order.id);
         setResumableOrder(null);
         showToast(
@@ -939,12 +947,12 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
 
   useEffect(() => {
     if (!activeOrderId || !activeOrderStatus) return;
-    if (isPendingOrderStatus(activeOrderStatus)) {
+    if (isPendingOrder(activeOrder)) {
       writeStoredPendingOrder(activeOrderId);
     } else {
       clearStoredPendingOrder(activeOrderId);
     }
-  }, [activeOrderId, activeOrderStatus]);
+  }, [activeOrder, activeOrderId, activeOrderStatus]);
 
   useEffect(() => {
     document.documentElement.dataset.textSize = textSize;
@@ -1263,19 +1271,24 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       if (/(pendiente|por cobrar|esperando)/.test(lower)) {
         return `Tienes ${formatMxn(dashboard.summary.pendingCents)} esperando confirmación.`;
       }
+      const summary = dashboard.summary;
+      const demoCents = summary.demoDigitalCents + summary.demoCashCents;
       const total =
-        dashboard.summary.verifiedDigitalCents +
-        dashboard.summary.demoDigitalCents +
-        dashboard.summary.cashCents;
-      const detail =
-        dashboard.summary.demoDigitalCents > 0
-          ? `${formatMxn(dashboard.summary.verifiedDigitalCents)} verificados por pey, ${formatMxn(
-              dashboard.summary.demoDigitalCents,
-            )} en demo y ${formatMxn(dashboard.summary.cashCents)} en efectivo.`
-          : `${formatMxn(dashboard.summary.verifiedDigitalCents)} digitales verificados y ${formatMxn(
-              dashboard.summary.cashCents,
-            )} en efectivo.`;
-      return `Hoy llevas ${formatMxn(total)} en ${countText(dashboard.summary.paidOrderCount, "venta", "ventas")}. ${detail}`;
+        summary.verifiedDigitalCents +
+        summary.declaredDigitalCents +
+        summary.cashCents +
+        demoCents;
+      const parts = [
+        `${formatMxn(summary.verifiedDigitalCents)} verificados por pey`,
+        summary.declaredDigitalCents > 0
+          ? `${formatMxn(summary.declaredDigitalCents)} declarados sin verificar`
+          : null,
+        `${formatMxn(summary.cashCents)} en efectivo`,
+        demoCents > 0 ? `${formatMxn(demoCents)} en demo (no es dinero real)` : null,
+      ].filter(Boolean);
+      return `Hoy llevas ${formatMxn(total)} en ${countText(summary.paidOrderCount, "venta", "ventas")}. ${parts.join(
+        ", ",
+      )}.`;
     },
     [dashboard],
   );
@@ -1644,7 +1657,12 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       clearDraft();
       await loadDashboard({ force: true });
 
-      if (order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled") {
+      if (
+        order.status === "paid" ||
+        order.status === "demo_paid" ||
+        order.status === "fulfilled" ||
+        (order.status === "confirmed" && order.creditCents > 0)
+      ) {
         if (order.status === "paid") {
           clearStoredPendingOrder(order.id);
           clearResumableIfMatches(order.id);
@@ -1800,12 +1818,22 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
         setVerifyError("Escribe el ID de la transacción del comprobante.");
         return;
       }
+      // La verificación siempre se compara contra una orden. Usa el cobro
+      // abierto o, si la hoja se abrió desde la cabecera, el pedido más
+      // reciente de la actividad.
+      const orderId = activeOrder?.id ?? dashboard?.orders[0]?.id;
+      if (!orderId) {
+        setVerifyError("Abre o crea un pedido antes de verificar un comprobante.");
+        return;
+      }
       setVerifyId(id);
       setVerifyError(null);
       setVerifying(true);
       setVerifyResult(null);
       try {
-        const response = await fetch(`/api/verify?transactionId=${encodeURIComponent(id)}`);
+        const response = await fetch(
+          `/api/verify?transactionId=${encodeURIComponent(id)}&orderId=${encodeURIComponent(orderId)}`,
+        );
         const data = (await response.json()) as VerifyResult & { error?: string };
         if (!response.ok) throw new Error(data.error ?? "No pude verificar el comprobante.");
         setVerifyResult(data);
@@ -1825,7 +1853,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
         setVerifying(false);
       }
     },
-    [dashboard, speak, verifyId, vibrate],
+    [activeOrder?.id, dashboard, speak, verifyId, vibrate],
   );
 
   const payCredit = useCallback(
@@ -1976,7 +2004,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const closeActiveOrder = useCallback(() => {
     setResumableOrder((current) => {
       if (!activeOrder) return current;
-      if (isPendingOrderStatus(activeOrder.status)) return activeOrder;
+      if (isPendingOrder(activeOrder)) return activeOrder;
       return current?.id === activeOrder.id ? null : current;
     });
     setActiveOrder(null);
@@ -2128,7 +2156,9 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                       ? `Hoy ${formatMxn(
                           dashboard.summary.cashCents +
                             dashboard.summary.verifiedDigitalCents +
+                            dashboard.summary.declaredDigitalCents +
                             dashboard.summary.demoDigitalCents +
+                            dashboard.summary.demoCashCents +
                             dashboard.summary.pendingCents,
                         )} · Por cobrar ${formatMxn(dashboard.summary.pendingCents)} · Fiado ${formatMxn(
                           dashboard.summary.creditCents,
@@ -3268,6 +3298,13 @@ function PaymentPanel(props: {
   const isCredit = order.creditCents > 0;
   const credit = creditForOrder(order, credits);
   const creditSettled = isCreditSettled(credit);
+  const creditOpen = isCredit && !creditSettled;
+  const canDeliver =
+    !creditOpen &&
+    (order.status === "paid" ||
+      order.status === "demo_paid" ||
+      (order.status === "confirmed" &&
+        order.paidCents + order.creditCents >= order.totalCents));
   const waiting = order.status === "payment_pending" || order.status === "confirmed";
   const qrValue = order.qrImage ? null : order.qrString ?? order.paymentUrl;
 
@@ -3423,7 +3460,7 @@ function PaymentPanel(props: {
           ) : null}
         </div>
         <div className="flex gap-2">
-          {order.status === "paid" || order.status === "demo_paid" ? (
+          {canDeliver ? (
             <button
               type="button"
               onClick={onDeliver}
@@ -3482,7 +3519,7 @@ function PaymentPanel(props: {
             </p>
           ) : null}
         </div>
-        <StatusBadge status={order.status} />
+        <StatusBadge order={order} creditSettled={creditSettled} />
       </div>
 
       {isCredit ? (
@@ -3836,10 +3873,13 @@ function BusinessOverview({
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {[
-              { label: "Cobrado", value: report.collectedCents, note: "De las ventas del periodo" },
+              { label: "Cobrado", value: report.collectedCents, note: "Pagos reales recibidos en el periodo" },
               { label: "Por cobrar", value: report.pendingCents, note: "De las ventas del periodo" },
               { label: "Ticket promedio", value: report.averageTicketCents, note: countText(report.orderCount, "venta", "ventas") },
               { label: "Fiado", value: report.creditCents, note: "Saldo pendiente total" },
+              ...(demoMode
+                ? [{ label: "Demo", value: report.demoCollectedCents, note: "Simulado; no es dinero real" }]
+                : []),
             ].map((item) => (
               <div key={item.label} className="rounded-xl bg-surface-2 px-3 py-3">
                 <p className="text-sm font-semibold text-ink-2">{item.label}</p>
@@ -3852,29 +3892,76 @@ function BusinessOverview({
           <div className="mt-5 border-t border-separator/60 pt-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm font-semibold text-ink-2">Cómo te pagaron</p>
-              <div className="flex flex-wrap items-center gap-3 text-sm text-ink-2">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 bg-accent" />
-                  Efectivo {formatMxn(report.cashCents)}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 bg-attention" />
-                  Digital {formatMxn(report.digitalCents)}
-                </span>
-              </div>
+              <p className="text-sm text-ink-2">
+                Real {formatMxn(report.collectedCents)}
+                {report.demoCollectedCents > 0
+                  ? ` · Demo ${formatMxn(report.demoCollectedCents)}`
+                  : ""}
+              </p>
             </div>
+            <dl className="mt-2 space-y-1 text-sm text-ink-2">
+              <div className="flex items-center justify-between gap-3">
+                <dt className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 bg-accent" />
+                  Efectivo
+                </dt>
+                <dd className="tabular font-semibold text-ink">{formatMxn(report.cashCents)}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <dt className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 bg-green" />
+                  Digital verificado por pey
+                </dt>
+                <dd className="tabular font-semibold text-ink">
+                  {formatMxn(report.verifiedDigitalCents)}
+                </dd>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <dt className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 bg-attention" />
+                  Abonos digitales declarados (sin verificar)
+                </dt>
+                <dd className="tabular font-semibold text-ink">
+                  {formatMxn(report.declaredDigitalCents)}
+                </dd>
+              </div>
+              {report.demoCollectedCents > 0 ? (
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 bg-ink-2/40" />
+                    Demo (no es dinero real)
+                  </dt>
+                  <dd className="tabular font-semibold text-ink">
+                    {formatMxn(report.demoCollectedCents)}
+                  </dd>
+                </div>
+              ) : null}
+            </dl>
             <div className="mt-2 flex h-1.5 overflow-hidden bg-line/60">
-              <div
-                className="bg-accent"
-                style={{
-                  width: `${
-                    report.collectedCents > 0
-                      ? (report.cashCents / report.collectedCents) * 100
-                      : 0
-                  }%`,
-                }}
-              />
-              <div className="flex-1 bg-attention" />
+              {(() => {
+                const total = report.collectedCents + report.demoCollectedCents;
+                if (total <= 0) return null;
+                return (
+                  <>
+                    <div
+                      className="bg-accent"
+                      style={{ width: `${(report.cashCents / total) * 100}%` }}
+                    />
+                    <div
+                      className="bg-green"
+                      style={{ width: `${(report.verifiedDigitalCents / total) * 100}%` }}
+                    />
+                    <div
+                      className="bg-attention"
+                      style={{ width: `${(report.declaredDigitalCents / total) * 100}%` }}
+                    />
+                    <div
+                      className="bg-ink-2/30"
+                      style={{ width: `${(report.demoCollectedCents / total) * 100}%` }}
+                    />
+                  </>
+                );
+              })()}
             </div>
           </div>
 
@@ -4426,6 +4513,10 @@ function CashCloseCard({
       reasonRef.current?.focus();
       return;
     }
+    if (!preview?.fingerprint) {
+      setError("Vuelve a calcular la diferencia con el servidor antes de guardar.");
+      return;
+    }
     const usedPreviousWithdrawal = applyPreviousWithdrawal
       ? previousWithdrawalCents
       : 0;
@@ -4441,6 +4532,7 @@ function CashCloseCard({
           reason: status.saved ? reason.trim() : undefined,
           requestId: pendingRequestId,
           expectedVersion: status.saved?.version ?? 0,
+          previewFingerprint: preview.fingerprint,
         }),
       });
       const data = await readJsonBody<{
@@ -4450,11 +4542,17 @@ function CashCloseCard({
         code?: string;
       }>(response);
       if (!response.ok || !data?.close || !data.status) {
-        if (data?.code === "reason_required" || data?.code === "version_conflict") {
+        if (
+          data?.code === "reason_required" ||
+          data?.code === "version_conflict" ||
+          data?.code === "totals_changed"
+        ) {
           const message =
             data.code === "reason_required"
               ? "Alguien guardó un corte antes. Actualiza los totales y escribe el motivo de la corrección."
-              : "Otro corte se guardó antes. Actualicé los totales; revisa y vuelve a intentar.";
+              : data.code === "totals_changed"
+                ? "Entraron ventas o abonos después del preview. Vuelve a revisar la diferencia; no se guardó nada."
+                : "Otro corte se guardó antes. Actualicé los totales; revisa y vuelve a intentar.";
           setPendingRequestId(null);
           // Si la otra pestaña cambió el cierre, el retiro del corte anterior
           // ya no es el mismo; no arrastrar el checkbox marcado.
@@ -6280,7 +6378,28 @@ function QrImage({ value, className }: { value: string; className?: string }) {
 /*                                  Badge                                     */
 /* -------------------------------------------------------------------------- */
 
-function StatusBadge({ status }: { status: Order["status"] }) {
+function StatusBadge({
+  order,
+  creditSettled,
+}: {
+  order: Order;
+  creditSettled: boolean;
+}) {
+  const creditOpen = order.creditCents > 0 && !creditSettled;
+  const creditClosed = order.creditCents > 0 && creditSettled;
+  // Un `fulfilled` viejo con fiado no se presenta como “Entregado”: el
+  // estado dice deuda, no entrega. Un `confirmed` con fiado tampoco es
+  // “Por cobrar” si ya no queda saldo digital.
+  const status: Order["status"] = creditOpen
+    ? "confirmed"
+    : creditClosed && order.status === "confirmed"
+      ? "paid"
+      : order.status;
+  const label = creditOpen
+    ? "Fiado"
+    : creditClosed && order.status === "fulfilled"
+      ? "Fiado saldado"
+      : statusLabel(order.status);
   const styles: Record<Order["status"], string> = {
     draft: "bg-surface-2 text-ink-2",
     confirmed: "bg-terracotta-soft text-attention",
@@ -6301,16 +6420,20 @@ function StatusBadge({ status }: { status: Order["status"] }) {
     fulfilled: Check,
     cancelled: CircleAlert,
   };
-  const Icon = icons[status];
+  const Icon = creditOpen ? NotebookPen : creditClosed ? Check : icons[status];
   return (
     <span
       className={cn(
         "inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-[0.04em]",
-        styles[status],
+        creditOpen
+          ? "bg-terracotta-soft text-attention"
+          : creditClosed
+            ? "bg-green-soft text-green"
+            : styles[status],
       )}
     >
       <Icon className="h-3.5 w-3.5 shrink-0" />
-      <span className="min-w-0">{statusLabel(status)}</span>
+      <span className="min-w-0">{label}</span>
     </span>
   );
 }
@@ -6358,6 +6481,10 @@ function paymentTruth(order: Order) {
 function paymentSheetTitle(order: Order): string {
   const truth = paymentTruth(order);
   const due = Math.max(0, order.totalCents - order.paidCents - order.creditCents);
+  if (order.creditCents > 0 && due <= 0) {
+    // Fiado con el saldo digital resuelto (o fiado puro): nunca “Entregado”.
+    return order.digitalPaidCents > 0 ? "Pago mixto" : "Quedó anotado";
+  }
   if (order.status === "fulfilled") {
     // `fulfilled` también cierra ventas con fiado/demo; no afirmar entrega
     // cuando el pedido solo quedó cobrado o anotado.

@@ -14,23 +14,26 @@ import { DatabaseSync } from "node:sqlite";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..");
-const DB_PATH = path.join(ROOT, "data", "mercado-cero.db");
+const DB_PATH =
+  process.env.DATABASE_PATH ?? path.join(ROOT, "data", "mercado-cero.db");
 const BASE = process.env.BASE_URL ?? "http://localhost:3000";
 
 const db = new DatabaseSync(DB_PATH, { readOnly: true });
 const demo = db
   .prepare(
-    "SELECT transaction_id FROM payments WHERE provider = 'demo' AND transaction_id IS NOT NULL LIMIT 1",
+    "SELECT transaction_id, order_id FROM payments WHERE provider = 'demo' AND transaction_id IS NOT NULL LIMIT 1",
   )
   .get();
 
-if (!demo?.transaction_id) {
-  console.error("FALLA: no hay un pago demo con transactionId para probar.");
+if (!demo?.transaction_id || !demo?.order_id) {
+  console.error("FALLA: no hay un pago demo con transactionId y orderId para probar.");
   process.exit(1);
 }
 
 const response = await fetch(
-  `${BASE}/api/verify?transactionId=${encodeURIComponent(demo.transaction_id)}`,
+  `${BASE}/api/verify?transactionId=${encodeURIComponent(
+    demo.transaction_id,
+  )}&orderId=${encodeURIComponent(demo.order_id)}`,
 );
 const body = await response.json();
 
