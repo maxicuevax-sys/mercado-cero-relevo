@@ -561,8 +561,10 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
 
         page.locator("button:visible", has_text="Corte").first.click()
         page.wait_for_timeout(500)
-        page.get_by_label("Total contado en pesos").fill("1")
-        page.wait_for_timeout(200)
+        # P0-D bloquea base > contado. Usamos un conteo válido con diferencia
+        # para abrir la confirmación sin activar la validación de bloqueo.
+        page.get_by_label("Total contado en pesos").fill("600")
+        page.wait_for_timeout(300)
         page.get_by_role("button", name="Guardar corte").first.click()
         page.wait_for_timeout(400)
         record["corteConfirm"] = measure(page, "corte-confirm")
