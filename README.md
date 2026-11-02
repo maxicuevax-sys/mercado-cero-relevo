@@ -120,7 +120,7 @@ Next.js API
 
 - **Next.js 16 + TypeScript + Tailwind** (PWA mobile-first).
 - **SQLite (`node:sqlite`)** para el prototipo; Postgres para producción.
-- **OpenAI**: transcripción + LLM para estructurar la venta; confirmación hablada con `speechSynthesis` del navegador. Empezar con push-to-talk; el agente de voz en tiempo real es una mejora, no un requisito.
+- **OpenAI**: transcripción + LLM para estructurar la venta; voz con **Kokoro `em_santa`** para frases fijas y **Piper es-MX** para dinámicas, sin depender de la voz del navegador. Empezar con push-to-talk; el agente de voz en tiempo real es una mejora, no un requisito.
 - **pey**: API key, webhook, link de pago y QR CoDi.
 - **Vercel** para el deploy y la URL HTTPS del webhook. Tener un plan B local con ngrok y un video grabado.
 
@@ -167,9 +167,9 @@ Regla de oro: **ningún estado `paid` se alcanza por lógica del cliente, ni por
 | 0:20–0:50 | Dice: «Cóbrale dos quesadillas de 35 y un agua de 20». La app muestra el desglose y pide confirmar. | Voz → estructura → control |
 | 0:50–1:20 | Se genera **un link/QR**. El juez paga $90 (o $0.01) con tarjeta o CoDi. La app muestra «esperando pago». Llega el webhook y dice: «Pago recibido. Noventa pesos. Pedido 18». | Pago real + certeza |
 | 1:20–1:50 | Alguien muestra una captura de transferencia. La app la verifica y responde: «No verificado». | Anti-fraude |
-| 1:50–2:20 | «Juan me pagó cincuenta del fiado». La app abre la hoja con saldo vivo y monto; al confirmar actualiza el saldo. «¿Cuánto vendí hoy?» → desglose. | Fiado confirmado y corte por voz |
-| 2:20–2:40 | Abre **«Mi negocio»**: hoy/semana/mes, ticket promedio y métodos. Cuenta el efectivo y muestra una diferencia de $20. | Analítica y corte de caja |
-| 2:40–3:00 | **«Mi camino»**: aparta $150 para la sombrilla; la meta avanza. Visión: cuenta familiar autorizada y piloto con 10 comerciantes. | Progreso y siguiente paso |
+| 1:50–2:20 | «Juan me pagó cincuenta del fiado». La app abre la hoja con saldo vivo, monto y método; al elegir **Efectivo** y confirmar, actualiza el saldo. «¿Cuánto vendí hoy?» → desglose. | Fiado confirmado y corte por voz |
+| 2:20–2:40 | Abre **Corte**: efectivo, fiado y pendiente digital. Cuenta $620 y muestra el sello **CUADRA**. | Corte de caja |
+| 2:40–3:00 | **Meta**: aparta $25 para la sombrilla y la meta avanza a $325. Visión: cuenta familiar autorizada y piloto con 10 comerciantes. | Progreso y siguiente paso |
 
 **Plan B:** video grabado de la demo completa, QR impreso de respaldo y un pago de $0.01 ya confirmado en la base de datos.
 
