@@ -13,16 +13,16 @@
     "npm run build"
   ],
   "code": {
-    "commit": "9c85107e1ec2e232cb480c33f6e2fcc54095f090",
+    "commit": "9f7d02d9ad4aedc19c5537ead3fe479d0a197298",
     "branch": "master",
-    "dirty": true
+    "dirty": false
   },
   "build": {
     "next": "16.4.3",
     "command": "npm run build"
   },
-  "startedAt": "2026-11-02T06:29:24.305275+00:00",
-  "finishedAt": "2026-11-02T06:30:12.577606+00:00",
+  "startedAt": "2026-11-02T08:09:27.188997+00:00",
+  "finishedAt": "2026-11-02T08:10:15.155027+00:00",
   "summary": {
     "pass": 69,
     "fail": 0,
@@ -133,12 +133,12 @@
     {
       "name": "la primera llave crea la versión 1",
       "ok": true,
-      "detail": "200 · {\"close\": {\"id\": \"cash_ebf0b64ff1cc4b45ab3e\", \"date\": \"2026-11-02\", \"version\": 1, \"openingCents\": 50000, \"cashSalesCents\": 7000, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 57000, \"countedCents\": 57000,"
+      "detail": "200 · {\"close\": {\"id\": \"cash_b936d3ce0be343db93c6\", \"date\": \"2026-11-02\", \"version\": 1, \"openingCents\": 50000, \"cashSalesCents\": 7000, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 57000, \"countedCents\": 57000,"
     },
     {
       "name": "reintentar la misma llave devuelve la misma versión",
       "ok": true,
-      "detail": "200 · {\"close\": {\"id\": \"cash_ebf0b64ff1cc4b45ab3e\", \"date\": \"2026-11-02\", \"version\": 1, \"openingCents\": 50000, \"cashSalesCents\": 7000, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 57000, \"countedCents\": 57000,"
+      "detail": "200 · {\"close\": {\"id\": \"cash_b936d3ce0be343db93c6\", \"date\": \"2026-11-02\", \"version\": 1, \"openingCents\": 50000, \"cashSalesCents\": 7000, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 57000, \"countedCents\": 57000,"
     },
     {
       "name": "una versión esperada vieja responde 409 version_conflict",
@@ -153,7 +153,7 @@
     {
       "name": "con motivo y versión correcta crea la versión 2",
       "ok": true,
-      "detail": "200 · {\"close\": {\"id\": \"cash_c45b8d6e11284e9fbc92\", \"date\": \"2026-11-02\", \"version\": 2, \"openingCents\": 50000, \"cashSalesCents\": 7000, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 57000, \"countedCents\": 57000,"
+      "detail": "200 · {\"close\": {\"id\": \"cash_0cbf8608a64d440fa28b\", \"date\": \"2026-11-02\", \"version\": 2, \"openingCents\": 50000, \"cashSalesCents\": 7000, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 57000, \"countedCents\": 57000,"
     },
     {
       "name": "contado 0 responde 400 counted_required, no invalid_close",
@@ -193,12 +193,12 @@
     {
       "name": "el resumen posterior muestra efectivo, fiado, digital, contado y diferencia",
       "ok": true,
-      "detail": "Corte #1 ·  · Hoy 12:29 a.m. ·  · Efectivo del día · $70.00 · Fiado pendiente · $50.00 · Pendiente digital de hoy · $120.00 · Contado · $555.00 · Diferencia · Cuadra ·  · Esta foto no cambia si hay ventas o cobros después del cierre."
+      "detail": "Corte #1 ·  · Hoy 2:09 a.m. ·  · Efectivo del día · $70.00 · Fiado pendiente · $50.00 · Pendiente digital de hoy · $120.00 · Contado · $555.00 · Diferencia · Cuadra ·  · Esta foto no cambia si hay ventas o cobros después del cierre."
     },
     {
       "name": "el resumen incluye la fecha del cierre",
       "ok": true,
-      "detail": "Corte #1 ·  · Hoy 12:29 a.m. ·  · Efectivo del día · $70.00 · Fiado pendiente · $50.00 · Pendiente digital de hoy · $120.00 · Contado · $555.00 · Diferencia · Cuadra ·  · Esta foto no cambia si hay ve"
+      "detail": "Corte #1 ·  · Hoy 2:09 a.m. ·  · Efectivo del día · $70.00 · Fiado pendiente · $50.00 · Pendiente digital de hoy · $120.00 · Contado · $555.00 · Diferencia · Cuadra ·  · Esta foto no cambia si hay ven"
     },
     {
       "name": "el primer cierre crea la versión 1 en SQLite",
@@ -213,7 +213,7 @@
     {
       "name": "audit cash.close registra versión 1 sin motivo",
       "ok": true,
-      "detail": "{\"date\": \"2026-11-02\", \"version\": 1, \"reason\": null, \"requestId\": \"536e85c8-832a-440f-91e7-ac9ebe380385\", \"expectedVersion\": 0, \"countedCents\": 55500, \"expectedCents\": 55500, \"differenceCents\": 0, \"baseNextCents\": 40000}"
+      "detail": "{\"date\": \"2026-11-02\", \"version\": 1, \"reason\": null, \"requestId\": \"close_0496878a-bc8d-49f3-a32c-0f82a6f2e8bb\", \"expectedVersion\": 0, \"countedCents\": 55500, \"expectedCents\": 55500, \"differenceCents\": 0, \"baseNextCents\": 40000}"
     },
     {
       "name": "la versión 1 deja un adicional a retirar",
@@ -253,12 +253,12 @@
     {
       "name": "el historial muestra la versión 1 y el motivo de la 2",
       "ok": true,
-      "detail": "Cierres de hoy · Corte #2 · 12:29 a.m. ·  · Contado $450.00 · Cuadra ·  · Motivo: Retiré $155 del corte #1 y volví a contar. ·  · Corte #1 · 12:29 a.m. ·  · Contado $555.00 · Cuadra"
+      "detail": "Cierres de hoy · Corte #2 · 02:09 a.m. ·  · Contado $450.00 · Cuadra ·  · Motivo: Retiré $155 del corte #1 y volví a contar. ·  · Corte #1 · 02:09 a.m. ·  · Contado $555.00 · Cuadra"
     },
     {
       "name": "audit cash.close registra versión 2 y su motivo",
       "ok": true,
-      "detail": "{\"date\": \"2026-11-02\", \"version\": 2, \"reason\": \"Retir\\u00e9 $155 del corte #1 y volv\\u00ed a contar.\", \"requestId\": \"98e0554e-7e31-4c40-a81e-0a70c876a5a1\", \"expectedVersion\": 1, \"countedCents\": 45000, \"expectedCents\": 45000, \"differenceCents\": 0, \"baseNextCents\": 40000}"
+      "detail": "{\"date\": \"2026-11-02\", \"version\": 2, \"reason\": \"Retir\\u00e9 $155 del corte #1 y volv\\u00ed a contar.\", \"requestId\": \"close_c8c6fbe0-991e-4be9-987f-a48bae0737d7\", \"expectedVersion\": 1, \"countedCents\": 45000, \"expectedCents\": 45000, \"differenceCents\": 0, \"baseNextCents\": 40000}"
     },
     {
       "name": "el estado sirve la versión 2 como corte vigente",
@@ -343,7 +343,7 @@
     {
       "name": "migración vieja: la corrección crea v2 sin borrar v1",
       "ok": true,
-      "detail": "{\"id\": \"cash_0c5885b127cb4501a932\", \"date\": \"2026-11-02\", \"version\": 2, \"openingCents\": 30000, \"cashSalesCents\": 7000, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 37000, \"countedCents\": 37000, \"differenceCents\": 0, \"baseNextCents\": 30000, \"wi"
+      "detail": "{\"id\": \"cash_81c9dbc90681423c900d\", \"date\": \"2026-11-02\", \"version\": 2, \"openingCents\": 30000, \"cashSalesCents\": 7000, \"cashCreditCents\": 0, \"expensesCents\": 0, \"withdrawalsCents\": 0, \"expectedCents\": 37000, \"countedCents\": 37000, \"differenceCents\": 0, \"baseNextCents\": 30000, \"wi"
     },
     {
       "name": "migración vieja: SQLite conserva v1 desconocida y v2 conocida",
