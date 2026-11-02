@@ -52,12 +52,14 @@
 
 - **F0 completado:** `AUDITORIA-COGNITIVA.md` + `harness/f0-venta.md`, `f0-dinero.md`, `f0-shell.md`.
 - **P0-A/B mergeado:** `c22e85d` — venta manual, cambio, validación inline, borrador durable y pendiente de cobro durable.
-- **Evidencia:** `web/scripts/p0-venta-e2e.py` → 43 PASS · 0 FAIL · 1 KNOWN; `harness/evidence/p0-venta-e2e.json`.
-- **KNOWN:** venta mixta con fiado + saldo digital no ofrece cobrar el remanente desde `PaymentPanel` (P0-C/E).
+- **P0-C mergeado:** `586f1a6` — abono confirmado, saldo vivo, idempotencia durable y migración de `request_id`.
+- **Evidencia P0-A/B:** `web/scripts/p0-venta-e2e.py` → 43 PASS · 0 FAIL · 1 KNOWN.
+- **Evidencia P0-C:** `web/scripts/p0-fiado-e2e.py` → 50 PASS · 0 FAIL · 0 KNOWN; `harness/evidence/p0-fiado-e2e.json`.
+- **KNOWN:** venta mixta con fiado + saldo digital no ofrece cobrar el remanente desde `PaymentPanel` (P0-E/P0-5).
 
 ## Siguiente tarea
 
-**P0-C/E/F:** confirmar abono + saldo vivo; cobros pendientes visibles con fechas/refresh; shell 200 % + estados de error. El módulo completo de “Pendientes” de negocio va después de estos cortes.
+**P0-E/F:** cobros pendientes visibles con fechas/refresh; shell 200 % + estados de error. El módulo completo de “Pendientes” de negocio va después de estos cortes. P0-C ya está mergeado.
 
 ## Bloqueos reales
 

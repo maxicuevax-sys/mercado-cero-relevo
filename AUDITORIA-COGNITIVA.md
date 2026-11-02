@@ -207,3 +207,29 @@ Si `/api/dashboard` falla, se muestra el comercio hardcodeado, desaparece DEMO, 
 **KNOWN de P0-C/E:** una venta mixta con fiado + saldo digital deja los datos correctos (`confirmed`, `paidCents`, `creditCents`) pero el `PaymentPanel` existente no ofrece cobrar el remanente. No se presenta como experiencia aprobada.
 
 **Siguiente orden:** P0-C (abono confirmado + saldo vivo), P0-E (pendientes de cobro visibles, fechas y refresh) y P0-F (200% + estados de error). El módulo completo de “Pendientes” de negocio sigue después de estos cortes.
+
+
+---
+
+## 10 · Resultado P0-C · Fiado confirmado y saldo vivo (2 de noviembre de 2026)
+
+**P0-C mergeado** en `master` (`586f1a6`), tras dos rondas de revisión independiente.
+
+- La voz/chip de abono **ya no escribe**: abre la hoja con cliente, saldo vivo y monto interpretado.
+- La hoja muestra original, abonado, saldo vivo, aplicado y devuelto; método con check/foco, no solo color.
+- `POST /api/credits/:id/pay` tiene idempotencia durable (`request_id` nullable + índice único parcial), transacción `BEGIN IMMEDIATE`, `appliedCents`/`overpayCents`/`balanceCents` y 409 por saldo cambiado/saldado/colisión.
+- `orders.creditCents` sigue siendo el monto original; la libreta, el detalle y la actividad leen el saldo vivo y dicen “Saldado”.
+- El baseline de “borrador sucio” es el monto inicial de la hoja, no el saldo; cerrar sin editar no molesta.
+- Migración compatible con DB vieja (probada manualmente; no automatizada).
+
+**Evidencia:**
+- `p0-fiado-e2e.py` — **50 PASS · 0 FAIL · 0 KNOWN** en `:3101` con DB temporal.
+- `p0-venta-e2e.py` — **43 PASS · 0 FAIL · 1 KNOWN** en `:3101` sobre este árbol.
+- `npm run verify:full` — 11/11; `verify:static` 4/4.
+- Reporte: `P0-FIADO-REPORT.md`; artefacto 360: `harness/evidence/p0-fiado-360.png`.
+
+**KNOWN / siguiente:**
+- Venta mixta con fiado + saldo digital: los datos son correctos, pero `PaymentPanel` no ofrece cobrar el remanente (P0-E/P0-5).
+- Consulta de voz con varias deudas devuelve una; “me transfirió” no preselecciona Digital; un solo slot de pendiente y sin polling inactivo.
+- La idempotencia es por intención de hoja; cerrar y reabrir genera otra llave. No hay reintento automático.
+- Siguiente: **P0-E** (cobros pendientes visibles/fechas/refresh) y **P0-F** (200 % + estados de error).
