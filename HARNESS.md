@@ -93,7 +93,7 @@ Markers exactos: el harness no acepta substrings. `0 FAIL` no coincide con `10 F
 | `mobile-320` | HIG móvil 320/360 en Chromium, Firefox y WebKit | `MOBILE 320/360 E2E` + `42 PASS` + `0 FAIL` | `mobile-320-e2e.json` + capturas 320/360 |
 | `rehearsal` | Guion completo, 3 corridas, 15 pasos por corrida | `REHEARSAL OK` + `todo en verde: True` | `demo/rehearsal.json` |
 | `security` | CSRF, token de reset, límites, rate limit, headers, backups | `SEGURIDAD OK` | — |
-| `data` | Idempotencia, transacciones, migraciones, enlaces | `DATOS OK` | — |
+| `data` | Idempotencia, transacciones, migraciones y enlaces; **85 checks (58+20+7)** | `DATOS OK` + `P0 FIX DATOS` + `P0 DB GUARDS` + `P0 ORDERS ATOMIC` | - |
 | `perf` | Presupuesto de JS, CSS, fuentes, fotos e iconos | `PERF BUDGET OK` | — |
 | `p0-venta` | Venta durable, draft, validaciones, monto y cambio | `65 PASS` + `0 FAIL` + `0 KNOWN` | `harness/evidence/p0-venta-e2e.json` |
 | `p0-fiado` | Abono confirmado, saldo vivo, idempotencia | `51 PASS` + `0 FAIL` + `0 KNOWN` | `p0-fiado-e2e.json` + captura |
