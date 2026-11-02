@@ -1,12 +1,27 @@
 import { z } from "zod";
-import { closeCash, getCashStatus } from "@/lib/cash";
+import { CashCloseError, closeCash, getCashStatus } from "@/lib/cash";
+
+const moneyCents = z
+  .number({ error: "Escribe un monto válido en centavos." })
+  .int("El monto debe estar en centavos enteros.")
+  .min(0, "El monto no puede ser negativo.")
+  .max(100_000_000, "El monto es demasiado grande.");
 
 const closeSchema = z.object({
-  openingCents: z.number().int().nonnegative(),
-  expensesCents: z.number().int().nonnegative(),
-  withdrawalsCents: z.number().int().nonnegative(),
-  countedCents: z.number().int().nonnegative(),
-  baseNextCents: z.number().int().nonnegative(),
+  openingCents: moneyCents,
+  expensesCents: moneyCents,
+  withdrawalsCents: moneyCents,
+  countedCents: z
+    .number({ error: "Escribe cuánto contaste." })
+    .int("El monto debe estar en centavos enteros.")
+    .min(1, "Escribe cuánto contaste. El total contado debe ser mayor que cero.")
+    .max(100_000_000, "El monto es demasiado grande."),
+  baseNextCents: moneyCents,
+  reason: z
+    .string({ error: "El motivo debe ser texto." })
+    .trim()
+    .max(280, "El motivo es demasiado largo; usa 280 caracteres o menos.")
+    .optional(),
 });
 
 export async function POST(request: Request) {
@@ -17,8 +32,18 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return Response.json(
-        { error: "Datos de corte inválidos.", issues: error.issues },
+        {
+          error: error.issues[0]?.message ?? "Datos de corte inválidos.",
+          code: "invalid_close",
+          issues: error.issues,
+        },
         { status: 400 },
+      );
+    }
+    if (error instanceof CashCloseError) {
+      return Response.json(
+        { error: error.message, code: error.code },
+        { status: error.status },
       );
     }
     const message =

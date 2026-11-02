@@ -142,7 +142,8 @@ function migrate(database: DatabaseSync) {
 
     CREATE TABLE IF NOT EXISTS cash_closes (
       id TEXT PRIMARY KEY,
-      date TEXT NOT NULL UNIQUE,
+      date TEXT NOT NULL,
+      version INTEGER NOT NULL DEFAULT 1,
       opening_cents INTEGER NOT NULL DEFAULT 0,
       cash_sales_cents INTEGER NOT NULL DEFAULT 0,
       cash_credit_cents INTEGER NOT NULL DEFAULT 0,
@@ -153,7 +154,12 @@ function migrate(database: DatabaseSync) {
       difference_cents INTEGER NOT NULL DEFAULT 0,
       base_next_cents INTEGER NOT NULL DEFAULT 0,
       withdrawal_next_cents INTEGER NOT NULL DEFAULT 0,
-      created_at TEXT NOT NULL
+      snapshot_cash_cents INTEGER NOT NULL DEFAULT 0,
+      snapshot_credit_cents INTEGER NOT NULL DEFAULT 0,
+      snapshot_pending_digital_cents INTEGER NOT NULL DEFAULT 0,
+      reason TEXT,
+      created_at TEXT NOT NULL,
+      UNIQUE(date, version)
     );
 
     CREATE TABLE IF NOT EXISTS goals (
@@ -229,6 +235,79 @@ function migrate(database: DatabaseSync) {
   // conservan request_id NULL y no compiten en el índice parcial.
   database.exec(
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_credit_payments_request_id ON credit_payments(request_id) WHERE request_id IS NOT NULL;",
+  );
+
+  migrateCashCloses(database);
+}
+
+/**
+ * `cash_closes` nació con una fila por fecha. El corte versionado necesita
+ * conservar cada guardado. Si la base ya existe, se reconstruye la tabla una
+ * sola vez y la fila anterior queda como versión 1.
+ */
+function migrateCashCloses(database: DatabaseSync) {
+  const columns = database.prepare("PRAGMA table_info(cash_closes)").all() as Array<{
+    name: string;
+  }>;
+
+  if (!columns.some((column) => column.name === "version")) {
+    database.exec(`
+      DROP INDEX IF EXISTS idx_cash_closes_date;
+      ALTER TABLE cash_closes RENAME TO cash_closes_legacy;
+      CREATE TABLE cash_closes (
+        id TEXT PRIMARY KEY,
+        date TEXT NOT NULL,
+        version INTEGER NOT NULL DEFAULT 1,
+        opening_cents INTEGER NOT NULL DEFAULT 0,
+        cash_sales_cents INTEGER NOT NULL DEFAULT 0,
+        cash_credit_cents INTEGER NOT NULL DEFAULT 0,
+        expenses_cents INTEGER NOT NULL DEFAULT 0,
+        withdrawals_cents INTEGER NOT NULL DEFAULT 0,
+        expected_cents INTEGER NOT NULL DEFAULT 0,
+        counted_cents INTEGER NOT NULL DEFAULT 0,
+        difference_cents INTEGER NOT NULL DEFAULT 0,
+        base_next_cents INTEGER NOT NULL DEFAULT 0,
+        withdrawal_next_cents INTEGER NOT NULL DEFAULT 0,
+        snapshot_cash_cents INTEGER NOT NULL DEFAULT 0,
+        snapshot_credit_cents INTEGER NOT NULL DEFAULT 0,
+        snapshot_pending_digital_cents INTEGER NOT NULL DEFAULT 0,
+        reason TEXT,
+        created_at TEXT NOT NULL,
+        UNIQUE(date, version)
+      );
+      INSERT INTO cash_closes
+        (id, date, version, opening_cents, cash_sales_cents, cash_credit_cents,
+         expenses_cents, withdrawals_cents, expected_cents, counted_cents,
+         difference_cents, base_next_cents, withdrawal_next_cents,
+         snapshot_cash_cents, snapshot_credit_cents, snapshot_pending_digital_cents,
+         reason, created_at)
+      SELECT
+        id, date, 1, opening_cents, cash_sales_cents, cash_credit_cents,
+        expenses_cents, withdrawals_cents, expected_cents, counted_cents,
+        difference_cents, base_next_cents, withdrawal_next_cents,
+        cash_sales_cents + cash_credit_cents, 0, 0,
+        NULL, created_at
+      FROM cash_closes_legacy;
+      DROP TABLE cash_closes_legacy;
+      CREATE INDEX IF NOT EXISTS idx_cash_closes_date ON cash_closes(date);
+    `);
+    return;
+  }
+
+  const addColumn = (name: string, definition: string) => {
+    const current = database.prepare("PRAGMA table_info(cash_closes)").all() as Array<{
+      name: string;
+    }>;
+    if (!current.some((column) => column.name === name)) {
+      database.exec(`ALTER TABLE cash_closes ADD COLUMN ${name} ${definition};`);
+    }
+  };
+  addColumn("snapshot_cash_cents", "INTEGER NOT NULL DEFAULT 0");
+  addColumn("snapshot_credit_cents", "INTEGER NOT NULL DEFAULT 0");
+  addColumn("snapshot_pending_digital_cents", "INTEGER NOT NULL DEFAULT 0");
+  addColumn("reason", "TEXT");
+  database.exec(
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_cash_closes_date_version ON cash_closes(date, version);",
   );
 }
 
@@ -404,10 +483,11 @@ function seedDemoHistory(database: DatabaseSync) {
     database
       .prepare(
         `INSERT INTO cash_closes
-         (id, date, opening_cents, cash_sales_cents, cash_credit_cents, expenses_cents,
+         (id, date, version, opening_cents, cash_sales_cents, cash_credit_cents, expenses_cents,
           withdrawals_cents, expected_cents, counted_cents, difference_cents,
-          base_next_cents, withdrawal_next_cents, created_at)
-         VALUES (?, ?, 50000, 0, 0, 0, 0, 50000, 50000, 0, 50000, 0, ?)`,
+          base_next_cents, withdrawal_next_cents, snapshot_cash_cents,
+          snapshot_credit_cents, snapshot_pending_digital_cents, reason, created_at)
+         VALUES (?, ?, 1, 50000, 0, 0, 0, 0, 50000, 50000, 0, 50000, 0, 0, 0, 0, NULL, ?)`,
       )
       .run("cash_demo_prev", yesterday, closedAt);
   }

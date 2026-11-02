@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "suite": "p0-corte-e2e",
+  "baseUrl": "http://localhost:3101",
+  "command": "python web/scripts/p0-corte-e2e.py",
+  "artifacts": [
+    "harness/evidence/p0-corte-360.png",
+    "harness/evidence/p0-corte-360-200.png"
+  ],
+  "requires": [
+    "pip install playwright",
+    "python -m playwright install chromium",
+    "npm run build"
+  ],
+  "code": {
+    "commit": "e0fc8cef816c0e34acf238ce486c99b71b109ed1",
+    "branch": "p0/corte",
+    "dirty": false
+  },
+  "build": {
+    "next": "16.4.3",
+    "command": "npm run build"
+  },
+  "startedAt": "2026-11-02T05:24:33.594033+00:00",
+  "finishedAt": "2026-11-02T05:25:01.827354+00:00",
+  "summary": {
+    "pass": 39,
+    "fail": 0,
+    "known": 0,
+    "total": 39
+  },
+  "results": [
+    {
+      "name": "contar marca los cambios sin guardar",
+      "ok": true,
+      "detail": "{\"opening\": \"500\", \"expenses\": \"12\", \"withdrawals\": \"8\", \"counted\": \"123.45\", \"base\": \"40\"}"
+    },
+    {
+      "name": "mercado:refresh no pisa el conteo",
+      "ok": true,
+      "detail": "{\"opening\": \"500\", \"expenses\": \"12\", \"withdrawals\": \"8\", \"counted\": \"123.45\", \"base\": \"40\"}"
+    },
+    {
+      "name": "una venta no pisa el conteo",
+      "ok": true,
+      "detail": "{\"opening\": \"500\", \"expenses\": \"12\", \"withdrawals\": \"8\", \"counted\": \"123.45\", \"base\": \"40\"}"
+    },
+    {
+      "name": "la venta no se envía sola al corte",
+      "ok": true,
+      "detail": "0 POST /api/cash/close"
+    },
+    {
+      "name": "Actualizar totales refresca los totales del servidor",
+      "ok": true,
+      "detail": "antes 7000 · después 12000"
+    },
+    {
+      "name": "el conteo sigue tras el refresco de totales",
+      "ok": true,
+      "detail": "{\"opening\": \"500\", \"expenses\": \"12\", \"withdrawals\": \"8\", \"counted\": \"123.45\", \"base\": \"40\"}"
+    },
+    {
+      "name": "el borrador sobrevive al cambio de tab",
+      "ok": true,
+      "detail": "{\"opening\": \"500\", \"expenses\": \"12\", \"withdrawals\": \"8\", \"counted\": \"123.45\", \"base\": \"40\"}"
+    },
+    {
+      "name": "contado vacío no guarda y enfoca el campo",
+      "ok": true,
+      "detail": "POST 0"
+    },
+    {
+      "name": "contado cero no guarda",
+      "ok": true,
+      "detail": "POST 0"
+    },
+    {
+      "name": "base $400 con contado $1 advierte y bloquea",
+      "ok": true,
+      "detail": "POST 0"
+    },
+    {
+      "name": "base no numérica no guarda y enfoca el campo",
+      "ok": true,
+      "detail": "POST 0"
+    },
+    {
+      "name": "base negativa no guarda",
+      "ok": true,
+      "detail": "POST 0"
+    },
+    {
+      "name": "la copia local dice que cuadra antes de la venta",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "la confirmación usa la diferencia del servidor, no la copia local",
+      "ok": true,
+      "detail": "Confirmar corte ·  · Revisa el conteo antes de guardar. El corte queda registrado con estos montos. ·  · Gastos de caja · $0.00 · Retiros · $0.00 · Debería haber · $620.00 · Total contado · $570.00 · Base para mañana · $400.00 ·  · Falta ·  · $50.00 ·  · Diferencia calculada por "
+    },
+    {
+      "name": "calcular la diferencia del servidor no guarda el corte",
+      "ok": true,
+      "detail": "POST 0"
+    },
+    {
+      "name": "la diferencia local muestra que cuadra",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "la confirmación muestra gastos, retiros y debería haber",
+      "ok": true,
+      "detail": "Confirmar corte ·  · Revisa el conteo antes de guardar. El corte queda registrado con estos montos. ·  · Gastos de caja · $10.00 · Retiros · $5.00 · Debería haber · $555.00 · Total contado · $555.00 · Base para mañana · $400.00 ·  · Cuadra ·  · $0.00 ·  · Dife"
+    },
+    {
+      "name": "la confirmación usa la diferencia del servidor",
+      "ok": true,
+      "detail": "Confirmar corte ·  · Revisa el conteo antes de guardar. El corte queda registrado con estos montos. ·  · Gastos de caja · $10.00 · Retiros · $5.00 · Debería haber · $555.00 · Total contado · $555.00 · Base para mañana · $400.00 ·  · Cuadra ·  · $0.00 ·  · Dife"
+    },
+    {
+      "name": "el resumen posterior muestra efectivo, fiado, digital, contado y diferencia",
+      "ok": true,
+      "detail": "Corte #1 ·  · Hoy 11:24 p.m. ·  · Efectivo del día · $70.00 · Fiado pendiente · $50.00 · Pendiente digital · $120.00 · Contado · $555.00 · Diferencia · Cuadra ·  · Esta foto no cambia si hay ventas o cobros después del cierre."
+    },
+    {
+      "name": "el resumen incluye la fecha del cierre",
+      "ok": true,
+      "detail": "Corte #1 ·  · Hoy 11:24 p.m. ·  · Efectivo del día · $70.00 · Fiado pendiente · $50.00 · Pendiente digital · $120.00 · Contado · $555.00 · Diferencia · Cuadra ·  · Esta foto no cambia si hay ventas o "
+    },
+    {
+      "name": "el primer cierre crea la versión 1 en SQLite",
+      "ok": true,
+      "detail": "[[1, null, 55500, 55500, 0, 7000, 5000, 12000]]"
+    },
+    {
+      "name": "la versión 1 guarda el snapshot de efectivo, fiado y digital",
+      "ok": true,
+      "detail": "[[1, null, 55500, 55500, 0, 7000, 5000, 12000]]"
+    },
+    {
+      "name": "audit cash.close registra versión 1 sin motivo",
+      "ok": true,
+      "detail": "{\"date\": \"2026-11-01\", \"version\": 1, \"reason\": null, \"countedCents\": 55500, \"expectedCents\": 55500, \"differenceCents\": 0, \"baseNextCents\": 40000}"
+    },
+    {
+      "name": "corregir sin motivo no guarda y enfoca el motivo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el segundo guardado crea la versión 2 con motivo",
+      "ok": true,
+      "detail": "[[1, null, 55500, 0], [2, \"Cont\\u00e9 de nuevo: hab\\u00eda un billete de $50.\", 55550, 50]]"
+    },
+    {
+      "name": "la versión 1 sigue visible e intacta",
+      "ok": true,
+      "detail": "[[1, null, 55500, 0], [2, \"Cont\\u00e9 de nuevo: hab\\u00eda un billete de $50.\", 55550, 50]]"
+    },
+    {
+      "name": "el historial muestra la versión 1 y el motivo de la 2",
+      "ok": true,
+      "detail": "Cierres de hoy · Corte #2 · 11:24 p.m. ·  · Contado $555.50 · Sobra $0.50 ·  · Motivo: Conté de nuevo: había un billete de $50. ·  · Corte #1 · 11:24 p.m. ·  · Contado $555.00 · Cuadra"
+    },
+    {
+      "name": "audit cash.close registra versión 2 y su motivo",
+      "ok": true,
+      "detail": "{\"date\": \"2026-11-01\", \"version\": 2, \"reason\": \"Cont\\u00e9 de nuevo: hab\\u00eda un billete de $50.\", \"countedCents\": 55550, \"expectedCents\": 55500, \"differenceCents\": 50, \"baseNextCents\": 40000}"
+    },
+    {
+      "name": "el estado sirve la versión 2 como corte vigente",
+      "ok": true,
+      "detail": "{\"saved\": 2, \"history\": [2, 1]}"
+    },
+    {
+      "name": "una venta posterior no altera el snapshot del cierre",
+      "ok": true,
+      "detail": "{\"snapshot antes\": 7000, \"snapshot despu\\u00e9s\": 7000, \"ventas vivas\": 12000}"
+    },
+    {
+      "name": "un fiado posterior no altera el snapshot de fiado",
+      "ok": true,
+      "detail": "5000 → 5000"
+    },
+    {
+      "name": "SQLite conserva la foto aunque la caja tenga movimientos nuevos",
+      "ok": true,
+      "detail": "[[1, 55500, 7000, 5000], [2, 55550, 7000, 5000]]"
+    },
+    {
+      "name": "el resumen en pantalla sigue mostrando el corte #2",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el corte a 360 px no desborda horizontalmente",
+      "ok": true,
+      "detail": "{\"innerWidth\": 360, \"scrollWidth\": 360, \"bodyWidth\": 360}"
+    },
+    {
+      "name": "el corte a 360 px no parte palabras",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el corte a 360/200 no desborda horizontalmente",
+      "ok": true,
+      "detail": "{\"innerWidth\": 360, \"scrollWidth\": 360, \"bodyWidth\": 360}"
+    },
+    {
+      "name": "el corte a 360/200 no parte palabras",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el navegador no habló con :3000",
+      "ok": true,
+      "detail": "0 peticiones"
+    },
+    {
+      "name": "el carril corre en :3101",
+      "ok": true,
+      "detail": "http://localhost:3101"
+    }
+  ]
+}

@@ -52,6 +52,8 @@ import {
 import { answerDebtQuery } from "@/lib/voice-debts";
 import type {
   AnalyticsReport,
+  CashClose,
+  CashClosePreview,
   CashStatus,
   Credit,
   DailySummary,
@@ -3719,10 +3721,156 @@ function BusinessOverview({
 
 const DENOMINATIONS = [100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100, 50];
 
+type MoneyField = "opening" | "expenses" | "withdrawals" | "counted" | "baseNext";
+
+const MONEY_FIELD_LABEL: Record<MoneyField, string> = {
+  opening: "La base inicial",
+  expenses: "Los gastos",
+  withdrawals: "Los retiros",
+  counted: "El total contado",
+  baseNext: "La base para mañana",
+};
+
+interface ClosePayload {
+  openingCents: number;
+  expensesCents: number;
+  withdrawalsCents: number;
+  countedCents: number;
+  baseNextCents: number;
+}
+
 function denominationLabel(cents: number): string {
   return cents >= 100
     ? `$${(cents / 100).toLocaleString("es-MX")}`
     : `$${(cents / 100).toFixed(2)}`;
+}
+
+function readCentsField(
+  value: string,
+  required = false,
+): { cents: number; error: "required" | "invalid" | "negative" | null } {
+  const trimmed = value.trim();
+  if (!trimmed) return { cents: 0, error: required ? "required" : null };
+  // Acepta 400, 400.5 y 400,50. Rechaza texto, negativos y más de dos decimales.
+  if (!/^-?\d+(?:[.,]\d{1,2})?$/.test(trimmed)) {
+    return { cents: 0, error: "invalid" };
+  }
+  const amount = Number(trimmed.replace(",", "."));
+  if (!Number.isFinite(amount)) return { cents: 0, error: "invalid" };
+  if (amount < 0) return { cents: 0, error: "negative" };
+  return { cents: Math.round(amount * 100), error: null };
+}
+
+function moneyFieldMessage(
+  field: MoneyField,
+  error: "required" | "invalid" | "negative",
+): string {
+  if (field === "counted" && error === "required") {
+    return "Escribe cuánto contaste. El total contado debe ser mayor que cero.";
+  }
+  const label = MONEY_FIELD_LABEL[field];
+  if (error === "required") return `${label}: escribe un monto.`;
+  if (error === "negative") return `${label}: escribe un monto de cero o más.`;
+  return `${label} debe ser un número. Ejemplo: 400.00.`;
+}
+
+function differenceText(cents: number): string {
+  if (cents === 0) return "Cuadra";
+  return `${cents < 0 ? "Falta" : "Sobra"} ${formatMxn(Math.abs(cents))}`;
+}
+
+function CashCloseSummary({
+  close,
+  history,
+}: {
+  close: CashClose;
+  history: CashClose[];
+}) {
+  return (
+    <section
+      aria-labelledby="corte-guardado"
+      className="rounded-xl border border-green/30 bg-green-soft/50 p-4"
+    >
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 id="corte-guardado" className="text-base font-bold text-green">
+          Corte #{close.version}
+        </h3>
+        <p className="text-sm text-ink-2">{formatActivityDate(close.createdAt)}</p>
+      </div>
+      <dl className="mt-3 grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <dt className="text-ink-2">Efectivo del día</dt>
+          <dd className="tabular font-semibold text-ink">
+            {formatMxn(close.snapshotCashCents)}
+          </dd>
+        </div>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <dt className="text-ink-2">Fiado pendiente</dt>
+          <dd className="tabular font-semibold text-ink">
+            {formatMxn(close.snapshotCreditCents)}
+          </dd>
+        </div>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <dt className="text-ink-2">Pendiente digital</dt>
+          <dd className="tabular font-semibold text-ink">
+            {formatMxn(close.snapshotPendingDigitalCents)}
+          </dd>
+        </div>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <dt className="text-ink-2">Contado</dt>
+          <dd className="tabular font-semibold text-ink">
+            {formatMxn(close.countedCents)}
+          </dd>
+        </div>
+        <div className="flex flex-wrap items-baseline justify-between gap-2 sm:col-span-2">
+          <dt className="text-ink-2">Diferencia</dt>
+          <dd
+            className={cn(
+              "tabular font-semibold",
+              close.differenceCents === 0
+                ? "text-green"
+                : close.differenceCents < 0
+                  ? "text-danger"
+                  : "text-attention",
+            )}
+          >
+            {differenceText(close.differenceCents)}
+          </dd>
+        </div>
+      </dl>
+      {close.reason ? (
+        <p className="mt-3 rounded-lg bg-surface px-3 py-2 text-sm leading-relaxed text-ink-2">
+          Motivo de la corrección: <span className="font-semibold text-ink">{close.reason}</span>
+        </p>
+      ) : null}
+      <p className="mt-2 text-sm leading-relaxed text-ink-2">
+        Esta foto no cambia si hay ventas o cobros después del cierre.
+      </p>
+      {history.length > 1 ? (
+        <div className="mt-3 border-t border-green/20 pt-3">
+          <h4 className="text-sm font-bold text-ink">Cierres de hoy</h4>
+          <ul className="mt-2 space-y-2">
+            {history.slice(0, 5).map((item) => (
+              <li key={item.id} className="rounded-lg bg-surface px-3 py-2 text-sm">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <span className="font-semibold text-ink">Corte #{item.version}</span>
+                  <span className="text-ink-2">{formatTime(item.createdAt)}</span>
+                </div>
+                <p className="mt-0.5 text-ink-2">
+                  Contado {formatMxn(item.countedCents)} · {differenceText(item.differenceCents)}
+                </p>
+                {item.reason ? (
+                  <p className="mt-0.5 text-ink-2">
+                    Motivo: <span className="text-ink">{item.reason}</span>
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </section>
+  );
 }
 
 function CashCloseCard({
@@ -3739,35 +3887,77 @@ function CashCloseCard({
   const [counts, setCounts] = useState<Record<number, number>>({});
   const [showCounts, setShowCounts] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldError, setFieldError] = useState<{
+    field: MoneyField;
+    message: string;
+  } | null>(null);
+  const [dirty, setDirty] = useState(false);
+  const [stale, setStale] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [preview, setPreview] = useState<CashClosePreview | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [previewIssues, setPreviewIssues] = useState<string | null>(null);
+  const [pendingPayload, setPendingPayload] = useState<ClosePayload | null>(null);
+  const [reason, setReason] = useState("");
+  const [reasonError, setReasonError] = useState<string | null>(null);
   const [savedNotice, setSavedNotice] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/cash", { cache: "no-store" });
-      if (!response.ok) throw new Error("No se pudo leer la caja.");
-      const data = await readJsonBody<CashStatus>(response);
-      if (!data) throw new Error("No se pudo leer la caja.");
-      setStatus(data);
-      setOpening((data.openingCents / 100).toFixed(2));
-      setExpenses((data.expensesCents / 100).toFixed(2));
-      setWithdrawals((data.withdrawalsCents / 100).toFixed(2));
-      setBaseNext(
-        ((data.saved?.baseNextCents ?? 40000) / 100).toFixed(2),
-      );
-      setCounted(
-        data.saved ? (data.saved.countedCents / 100).toFixed(2) : "",
-      );
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo leer la caja.");
-    } finally {
-      setLoading(false);
-    }
+  const openingRef = useRef<HTMLInputElement>(null);
+  const expensesRef = useRef<HTMLInputElement>(null);
+  const withdrawalsRef = useRef<HTMLInputElement>(null);
+  const countedRef = useRef<HTMLInputElement>(null);
+  const baseRef = useRef<HTMLInputElement>(null);
+  const reasonRef = useRef<HTMLTextAreaElement>(null);
+
+  const fillFromStatus = useCallback((data: CashStatus) => {
+    setOpening((data.openingCents / 100).toFixed(2));
+    setExpenses((data.expensesCents / 100).toFixed(2));
+    setWithdrawals((data.withdrawalsCents / 100).toFixed(2));
+    setBaseNext(((data.saved?.baseNextCents ?? 40000) / 100).toFixed(2));
+    setCounted(data.saved ? (data.saved.countedCents / 100).toFixed(2) : "");
+    setCounts({});
   }, []);
+
+  const load = useCallback(
+    async (options?: { preserveDraft?: boolean }): Promise<boolean> => {
+      const preserve = Boolean(options?.preserveDraft);
+      if (preserve) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+      setError(null);
+      try {
+        const response = await fetch("/api/cash", { cache: "no-store" });
+        if (!response.ok) throw new Error("No se pudo leer la caja.");
+        const data = await readJsonBody<CashStatus>(response);
+        if (!data) throw new Error("No se pudo leer la caja.");
+        setStatus(data);
+        if (!preserve) {
+          fillFromStatus(data);
+          setDirty(false);
+          setStale(false);
+          setSavedNotice(null);
+        } else {
+          setStale(false);
+        }
+        return true;
+      } catch (err) {
+        setError(
+          friendlyError(err, "No se pudo leer la caja. Revisa tu conexión."),
+        );
+        return false;
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [fillFromStatus],
+  );
 
   useEffect(() => {
     // Carga inicial del corte; el formulario se llena una vez.
@@ -3776,15 +3966,23 @@ function CashCloseCard({
   }, [load]);
 
   useEffect(() => {
-    const handler = () => void load();
+    const handler = () => {
+      // Una venta o un refresco no deben borrar un conteo sin guardar.
+      if (dirty) {
+        setStale(true);
+        return;
+      }
+      void load();
+    };
     window.addEventListener("mercado:refresh", handler);
     return () => window.removeEventListener("mercado:refresh", handler);
-  }, [load]);
+  }, [dirty, load]);
 
-  const openingCents = parseMoney(opening);
-  const expensesCents = parseMoney(expenses);
-  const withdrawalsCents = parseMoney(withdrawals);
-  const countedCents = parseMoney(counted);
+  const openingCents = readCentsField(opening).cents;
+  const expensesCents = readCentsField(expenses).cents;
+  const withdrawalsCents = readCentsField(withdrawals).cents;
+  const countedCents = readCentsField(counted).cents;
+  const baseNextCents = readCentsField(baseNext).cents;
   const hasCounted = counted.trim() !== "";
   const expectedCents = status
     ? openingCents +
@@ -3794,10 +3992,18 @@ function CashCloseCard({
       withdrawalsCents
     : 0;
   const differenceCents = countedCents - expectedCents;
-  const withdrawalNextCents = Math.max(0, countedCents - parseMoney(baseNext));
+  const withdrawalNextCents = Math.max(0, countedCents - baseNextCents);
   const differenceLabel =
     differenceCents === 0 ? "Cuadra" : differenceCents > 0 ? "Sobra" : "Falta";
   const differenceAbsCents = Math.abs(differenceCents);
+  const baseExceedsCounted =
+    hasCounted && countedCents > 0 && baseNextCents > countedCents;
+
+  function markDirty() {
+    setDirty(true);
+    setFieldError(null);
+    setError(null);
+  }
 
   function updateCount(denomination: number, quantity: number) {
     const next = { ...counts, [denomination]: Math.max(0, quantity) };
@@ -3807,60 +4013,176 @@ function CashCloseCard({
       0,
     );
     setCounted((total / 100).toFixed(2));
+    markDirty();
+  }
+
+  function validateDraft(): ClosePayload | null {
+    setFieldError(null);
+    setError(null);
+
+    const fields: Array<{
+      field: MoneyField;
+      parsed: ReturnType<typeof readCentsField>;
+      ref: HTMLInputElement | null;
+      positive?: boolean;
+    }> = [
+      { field: "opening", parsed: readCentsField(opening), ref: openingRef.current },
+      { field: "expenses", parsed: readCentsField(expenses), ref: expensesRef.current },
+      {
+        field: "withdrawals",
+        parsed: readCentsField(withdrawals),
+        ref: withdrawalsRef.current,
+      },
+      {
+        field: "counted",
+        parsed: readCentsField(counted, true),
+        ref: countedRef.current,
+        positive: true,
+      },
+      { field: "baseNext", parsed: readCentsField(baseNext), ref: baseRef.current },
+    ];
+
+    for (const field of fields) {
+      if (field.parsed.error || (field.positive && field.parsed.cents <= 0)) {
+        const message = field.parsed.error
+          ? moneyFieldMessage(field.field, field.parsed.error)
+          : "Escribe cuánto contaste. El total contado debe ser mayor que cero.";
+        setFieldError({ field: field.field, message });
+        field.ref?.focus();
+        return null;
+      }
+    }
+
+    const baseCents = readCentsField(baseNext).cents;
+    const countedTotal = readCentsField(counted).cents;
+    if (baseCents > countedTotal) {
+      const message = `La base para mañana (${formatMxn(baseCents)}) no puede ser mayor que el total contado (${formatMxn(countedTotal)}). Baja la base o corrige el conteo.`;
+      setFieldError({ field: "baseNext", message });
+      baseRef.current?.focus();
+      return null;
+    }
+
+    return {
+      openingCents,
+      expensesCents,
+      withdrawalsCents,
+      countedCents: countedTotal,
+      baseNextCents: baseCents,
+    };
+  }
+
+  async function fetchPreview(payload: ClosePayload) {
+    setPreview(null);
+    setPreviewIssues(null);
+    setPreviewError(null);
+    setPreviewLoading(true);
+    try {
+      const response = await fetch("/api/cash/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await readJsonBody<{
+        preview?: CashClosePreview;
+        issues?: Array<{ code: string; message: string }>;
+        error?: string;
+      }>(response);
+      if (!response.ok || !data?.preview) {
+        throw new Error(data?.error ?? "No se pudo calcular el corte.");
+      }
+      setPreview(data.preview);
+      setPreviewIssues(data.issues?.[0]?.message ?? null);
+    } catch (err) {
+      setPreviewError(
+        friendlyError(err, "No se pudo calcular el corte con el servidor."),
+      );
+    } finally {
+      setPreviewLoading(false);
+    }
+  }
+
+  function requestSave() {
+    if (!status || saving) return;
+    const payload = validateDraft();
+    if (!payload) return;
+    setPendingPayload(payload);
+    setReasonError(null);
+    setError(null);
+    setConfirmOpen(true);
+    void fetchPreview(payload);
   }
 
   async function saveClose() {
-    if (!status) return;
+    if (!status || saving || !pendingPayload) return;
+    if (status.saved && !reason.trim()) {
+      setReasonError("Escribe el motivo de la corrección. No se puede guardar sin motivo.");
+      reasonRef.current?.focus();
+      return;
+    }
     setSaving(true);
     setError(null);
+    setReasonError(null);
     try {
       const response = await fetch("/api/cash/close", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          openingCents,
-          expensesCents,
-          withdrawalsCents,
-          countedCents,
-          baseNextCents: parseMoney(baseNext),
+          ...pendingPayload,
+          reason: status.saved ? reason.trim() : undefined,
         }),
       });
-      const data = (await response.json()) as {
-        close?: CashStatus["saved"];
+      const data = await readJsonBody<{
+        close?: CashClose;
         status?: CashStatus;
         error?: string;
-      };
-      if (!response.ok || !data.close || !data.status) {
-        throw new Error(data.error ?? "No se pudo guardar el corte.");
+        code?: string;
+      }>(response);
+      if (!response.ok || !data?.close || !data.status) {
+        if (data?.code === "reason_required") {
+          setConfirmOpen(false);
+          setError(
+            "Alguien guardó otro corte antes. Actualiza los totales y escribe el motivo de la corrección.",
+          );
+          void load({ preserveDraft: true });
+          return;
+        }
+        throw new Error(data?.error ?? "No se pudo guardar el corte.");
       }
+      const close = data.close;
       setStatus(data.status);
-      setSavedNotice(
-        `Corte guardado: ${differenceLabel.toLowerCase()} ${formatMxn(differenceAbsCents)}.`,
-      );
+      setOpening((close.openingCents / 100).toFixed(2));
+      setExpenses((close.expensesCents / 100).toFixed(2));
+      setWithdrawals((close.withdrawalsCents / 100).toFixed(2));
+      setCounted((close.countedCents / 100).toFixed(2));
+      setBaseNext((close.baseNextCents / 100).toFixed(2));
+      setDirty(false);
+      setStale(false);
+      setPendingPayload(null);
+      setReason("");
       setConfirmOpen(false);
-      showToast(
-        "ok",
-        `Corte guardado. ${differenceLabel}: ${formatMxn(differenceAbsCents)}.`,
-      );
+      const notice = `Corte #${close.version} guardado. ${differenceText(close.differenceCents)}.`;
+      setSavedNotice(notice);
+      showToast(close.differenceCents === 0 ? "ok" : "info", notice);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo guardar el corte.");
+      setError(
+        friendlyError(err, "No se pudo guardar el corte. Revisa tu conexión."),
+      );
     } finally {
       setSaving(false);
     }
   }
 
-  function requestSave() {
-    if (!status) return;
-    if (!hasCounted) {
-      setError("Escribe el total contado antes de guardar el corte.");
-      return;
-    }
-    setError(null);
-    if (differenceCents === 0) {
-      void saveClose();
-      return;
-    }
-    setConfirmOpen(true);
+  function fieldErrorText(field: MoneyField) {
+    if (fieldError?.field !== field) return null;
+    return (
+      <p
+        id={`corte-${field}-error`}
+        role="alert"
+        className="mt-1 text-sm font-semibold text-danger"
+      >
+        {fieldError.message}
+      </p>
+    );
   }
 
   return (
@@ -3871,13 +4193,17 @@ function CashCloseCard({
         </h2>
         <button
           type="button"
-          onClick={() => void load()}
-          disabled={loading}
+          onClick={() => void load({ preserveDraft: dirty })}
+          disabled={loading || refreshing}
           className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-ink-2 transition hover:text-ink disabled:opacity-50"
-          title="Actualizar corte"
-          aria-label="Actualizar corte"
+          title={dirty ? "Actualizar totales sin borrar el conteo" : "Actualizar corte"}
+          aria-label={
+            dirty ? "Actualizar totales sin borrar el conteo" : "Actualizar corte"
+          }
         >
-          <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+          <RefreshCw
+            className={cn("h-4 w-4", (loading || refreshing) && "animate-spin")}
+          />
         </button>
       </div>
 
@@ -3887,33 +4213,92 @@ function CashCloseCard({
           <div className="shimmer h-10 rounded-xl" />
         </div>
       ) : error && !status ? (
-        <p className="mt-4 rounded-xl bg-terracotta-soft px-4 py-3 text-sm text-attention">
-          {error}
-        </p>
+        <div className="mt-4 rounded-xl bg-terracotta-soft px-4 py-3 text-sm text-attention">
+          <p>{error}</p>
+          <button
+            type="button"
+            onClick={() => void load()}
+            className="mt-2 flex min-h-12 items-center justify-center rounded-xl border border-separator bg-surface px-4 text-sm font-semibold text-ink-2 transition hover:text-ink"
+          >
+            Reintentar
+          </button>
+        </div>
       ) : status ? (
         <div className="mt-4 space-y-3">
+          {dirty ? (
+            <div
+              role="status"
+              className="rounded-xl border border-attention/30 bg-terracotta-soft/60 px-4 py-3"
+            >
+              <p className="text-sm font-bold text-attention">Hay cambios sin guardar.</p>
+              <p className="mt-0.5 text-sm leading-relaxed text-ink-2">
+                {stale
+                  ? "Llegaron movimientos nuevos. No actualicé los totales para no borrar tu conteo."
+                  : "Puedes actualizar solo los totales del servidor sin borrar tu conteo."}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  void load({ preserveDraft: true }).then((ok) => {
+                    if (ok) {
+                      showToast(
+                        "info",
+                        "Totales actualizados. Tu conteo sigue igual.",
+                      );
+                    }
+                  });
+                }}
+                disabled={refreshing}
+                className="mt-2 flex min-h-12 items-center justify-center rounded-xl border border-separator bg-surface px-4 text-sm font-semibold text-ink-2 transition hover:text-ink disabled:opacity-60"
+              >
+                {refreshing ? "Actualizando…" : "Actualizar totales"}
+              </button>
+            </div>
+          ) : null}
+
           {savedNotice ? (
-            <p role="status" className="rounded-xl border border-green/25 bg-green-soft/70 px-4 py-3 text-sm font-semibold text-green">
-              {savedNotice} Queda registrado en el corte de hoy.
+            <p
+              role="status"
+              className="rounded-xl border border-green/25 bg-green-soft/70 px-4 py-3 text-sm font-semibold text-green"
+            >
+              {savedNotice}
             </p>
+          ) : null}
+
+          {status.saved ? (
+            <CashCloseSummary close={status.saved} history={status.history} />
           ) : null}
 
           <label className="block">
             <span className="text-sm font-semibold text-ink-2">Total contado</span>
-            <div className="mt-1 flex items-center gap-1 rounded-xl border border-separator bg-surface-2 px-[12px] py-2">
+            <div
+              className={cn(
+                "mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[12px] py-2",
+                fieldError?.field === "counted" ? "border-danger" : "border-separator",
+              )}
+            >
               <span className="text-sm text-ink-2">$</span>
               <input
+                ref={countedRef}
+                id="corte-contado"
                 value={counted}
                 onChange={(event) => {
                   setCounted(event.target.value);
                   setCounts({});
+                  markDirty();
                 }}
                 inputMode="decimal"
+                autoComplete="off"
                 placeholder="0.00"
                 aria-label="Total contado en pesos"
-                className="tabular min-h-12 w-full min-w-0 bg-transparent text-lg font-bold text-ink outline-none placeholder:text-ink-2/40"
+                aria-invalid={fieldError?.field === "counted"}
+                aria-describedby={
+                  fieldError?.field === "counted" ? "corte-counted-error" : undefined
+                }
+                className="tabular min-h-12 w-full min-w-0 bg-transparent text-lg font-bold text-ink placeholder:text-ink-2/40"
               />
             </div>
+            {fieldErrorText("counted")}
           </label>
 
           {hasCounted ? (
@@ -3928,7 +4313,7 @@ function CashCloseCard({
                     : "border-attention/25 bg-terracotta-soft/70",
               )}
             >
-              <div>
+              <div className="min-w-0">
                 <p
                   className={cn(
                     "text-sm font-bold",
@@ -3951,7 +4336,7 @@ function CashCloseCard({
               </div>
               <div className="text-right">
                 <p className="text-xs font-semibold uppercase tracking-wide text-ink-2">
-                  Diferencia
+                  Diferencia estimada
                 </p>
                 <p
                   className={cn(
@@ -3972,6 +4357,9 @@ function CashCloseCard({
               Escribe el total contado para ver si cuadra.
             </p>
           )}
+          <p className="text-xs leading-relaxed text-ink-2">
+            La diferencia exacta se calcula otra vez en el servidor al confirmar.
+          </p>
 
           <button
             type="button"
@@ -3990,8 +4378,8 @@ function CashCloseCard({
               </p>
               <div className="grid grid-cols-2 gap-2 rounded-xl bg-surface-2 p-3 sm:grid-cols-3">
                 {DENOMINATIONS.map((denomination) => (
-                  <label key={denomination} className="block">
-                    <span className="text-sm font-semibold text-ink-2">
+                  <label key={denomination} className="block min-w-0">
+                    <span className="block text-sm font-semibold text-ink-2">
                       {denominationLabel(denomination)}
                     </span>
                     <input
@@ -4002,7 +4390,7 @@ function CashCloseCard({
                         updateCount(denomination, Number(event.target.value))
                       }
                       aria-label={`Cantidad de ${denominationLabel(denomination)}`}
-                      className="tabular mt-1 min-h-12 w-full rounded-xl border border-separator bg-surface px-2 py-1.5 text-center text-sm text-ink outline-none focus:border-green"
+                      className="tabular mt-1 min-h-12 w-full rounded-xl border border-separator bg-surface px-2 py-1.5 text-center text-sm text-ink focus:border-green"
                     />
                   </label>
                 ))}
@@ -4014,42 +4402,109 @@ function CashCloseCard({
             <p className="text-sm font-semibold text-ink">De dónde sale el esperado</p>
             <div className="space-y-1.5 text-sm">
               {[
-                { label: "Base inicial", value: openingCents, negative: false },
-                { label: "Ventas en efectivo", value: status.cashSalesCents, negative: false },
-                { label: "Abonos de fiado en efectivo", value: status.cashCreditCents, negative: false },
+                { label: "Ventas en efectivo", value: status.cashSalesCents },
+                { label: "Abonos de fiado en efectivo", value: status.cashCreditCents },
               ].map((row) => (
-                <div key={row.label} className="flex flex-wrap items-center justify-between gap-3">
+                <div
+                  key={row.label}
+                  className="flex flex-wrap items-center justify-between gap-3"
+                >
                   <span className="min-w-0 text-ink-2">{row.label}</span>
-                  <span className="tabular shrink-0 font-semibold text-ink">{formatMxn(row.value)}</span>
+                  <span className="tabular shrink-0 font-semibold text-ink">
+                    {formatMxn(row.value)}
+                  </span>
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              <label className="block">
-                <span className="text-sm font-semibold text-ink-2">Gastos de caja</span>
-                <div className="mt-1 flex items-center gap-1 rounded-xl border border-separator bg-surface-2 px-[10px] py-2">
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+              <label className="block min-w-0">
+                <span className="text-sm font-semibold text-ink-2">Base inicial</span>
+                <div
+                  className={cn(
+                    "mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[10px] py-2",
+                    fieldError?.field === "opening" ? "border-danger" : "border-separator",
+                  )}
+                >
                   <span className="text-sm text-ink-2">$</span>
                   <input
-                    value={expenses}
-                    onChange={(event) => setExpenses(event.target.value)}
+                    ref={openingRef}
+                    id="corte-opening"
+                    value={opening}
+                    onChange={(event) => {
+                      setOpening(event.target.value);
+                      markDirty();
+                    }}
                     inputMode="decimal"
-                    aria-label="Gastos de caja en pesos"
-                    className="tabular min-h-12 w-full bg-transparent text-sm text-ink outline-none"
+                    autoComplete="off"
+                    aria-label="Base inicial en pesos"
+                    aria-invalid={fieldError?.field === "opening"}
+                    aria-describedby={
+                      fieldError?.field === "opening" ? "corte-opening-error" : undefined
+                    }
+                    className="tabular min-h-12 w-full min-w-0 bg-transparent text-sm text-ink"
                   />
                 </div>
+                {fieldErrorText("opening")}
               </label>
-              <label className="block">
-                <span className="text-sm font-semibold text-ink-2">Retiros</span>
-                <div className="mt-1 flex items-center gap-1 rounded-xl border border-separator bg-surface-2 px-[10px] py-2">
+              <label className="block min-w-0">
+                <span className="text-sm font-semibold text-ink-2">Gastos de caja</span>
+                <div
+                  className={cn(
+                    "mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[10px] py-2",
+                    fieldError?.field === "expenses" ? "border-danger" : "border-separator",
+                  )}
+                >
                   <span className="text-sm text-ink-2">$</span>
                   <input
-                    value={withdrawals}
-                    onChange={(event) => setWithdrawals(event.target.value)}
+                    ref={expensesRef}
+                    id="corte-expenses"
+                    value={expenses}
+                    onChange={(event) => {
+                      setExpenses(event.target.value);
+                      markDirty();
+                    }}
                     inputMode="decimal"
-                    aria-label="Retiros en pesos"
-                    className="tabular min-h-12 w-full bg-transparent text-sm text-ink outline-none"
+                    autoComplete="off"
+                    aria-label="Gastos de caja en pesos"
+                    aria-invalid={fieldError?.field === "expenses"}
+                    aria-describedby={
+                      fieldError?.field === "expenses" ? "corte-expenses-error" : undefined
+                    }
+                    className="tabular min-h-12 w-full min-w-0 bg-transparent text-sm text-ink"
                   />
                 </div>
+                {fieldErrorText("expenses")}
+              </label>
+              <label className="block min-w-0">
+                <span className="text-sm font-semibold text-ink-2">Retiros</span>
+                <div
+                  className={cn(
+                    "mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[10px] py-2",
+                    fieldError?.field === "withdrawals" ? "border-danger" : "border-separator",
+                  )}
+                >
+                  <span className="text-sm text-ink-2">$</span>
+                  <input
+                    ref={withdrawalsRef}
+                    id="corte-withdrawals"
+                    value={withdrawals}
+                    onChange={(event) => {
+                      setWithdrawals(event.target.value);
+                      markDirty();
+                    }}
+                    inputMode="decimal"
+                    autoComplete="off"
+                    aria-label="Retiros en pesos"
+                    aria-invalid={fieldError?.field === "withdrawals"}
+                    aria-describedby={
+                      fieldError?.field === "withdrawals"
+                        ? "corte-withdrawals-error"
+                        : undefined
+                    }
+                    className="tabular min-h-12 w-full min-w-0 bg-transparent text-sm text-ink"
+                  />
+                </div>
+                {fieldErrorText("withdrawals")}
               </label>
             </div>
             <div className="flex flex-wrap items-end justify-between gap-3 border-t border-separator pt-2">
@@ -4062,33 +4517,65 @@ function CashCloseCard({
 
           <label className="block">
             <span className="text-sm font-semibold text-ink-2">Base para mañana</span>
-            <div className="mt-1 flex items-center gap-1 rounded-xl border border-separator bg-surface-2 px-[10px] py-2">
+            <div
+              className={cn(
+                "mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[10px] py-2",
+                fieldError?.field === "baseNext" || baseExceedsCounted
+                  ? "border-danger"
+                  : "border-separator",
+              )}
+            >
               <span className="text-sm text-ink-2">$</span>
               <input
+                ref={baseRef}
+                id="corte-base-next"
                 value={baseNext}
-                onChange={(event) => setBaseNext(event.target.value)}
+                onChange={(event) => {
+                  setBaseNext(event.target.value);
+                  markDirty();
+                }}
                 inputMode="decimal"
+                autoComplete="off"
                 aria-label="Base para mañana en pesos"
-                className="tabular min-h-12 w-full bg-transparent text-sm text-ink outline-none"
+                aria-invalid={
+                  fieldError?.field === "baseNext" || baseExceedsCounted
+                }
+                aria-describedby={
+                  fieldError?.field === "baseNext"
+                    ? "corte-baseNext-error"
+                    : baseExceedsCounted
+                      ? "corte-base-warning"
+                      : undefined
+                }
+                className="tabular min-h-12 w-full bg-transparent text-sm text-ink"
               />
             </div>
+            {fieldErrorText("baseNext")}
+            {baseExceedsCounted && fieldError?.field !== "baseNext" ? (
+              <p
+                id="corte-base-warning"
+                role="alert"
+                className="mt-1 text-sm font-semibold text-danger"
+              >
+                La base para mañana no puede ser mayor que el total contado. Baja la base o
+                corrige el conteo.
+              </p>
+            ) : null}
           </label>
           {hasCounted ? (
             <p className="text-sm text-ink-2">
               Adicional a retirar:{" "}
-              <span className="font-semibold text-ink">{formatMxn(withdrawalNextCents)}</span>
-            </p>
-          ) : null}
-
-          {status.saved ? (
-            <p className="rounded-xl bg-surface-2 px-3 py-2 text-sm leading-relaxed text-ink-2">
-              Último corte guardado: contado {formatMxn(status.saved.countedCents)} · diferencia{" "}
-              {formatMxn(status.saved.differenceCents)}. Puedes volver a contar y guardar de nuevo.
+              <span className="font-semibold text-ink">
+                {formatMxn(withdrawalNextCents)}
+              </span>
             </p>
           ) : null}
 
           {error ? (
-            <p role="alert" className="rounded-xl bg-terracotta-soft px-3 py-2 text-sm font-medium text-danger">
+            <p
+              role="alert"
+              className="rounded-xl bg-terracotta-soft px-3 py-2 text-sm font-medium text-danger"
+            >
               {error}
             </p>
           ) : null}
@@ -4096,77 +4583,207 @@ function CashCloseCard({
           <button
             type="button"
             onClick={requestSave}
-            disabled={saving}
+            disabled={saving || baseExceedsCounted}
             aria-busy={saving}
             className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-60"
           >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-            {saving ? "Guardando…" : "Guardar corte"}
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : status.saved ? (
+              <NotebookPen className="h-4 w-4" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" />
+            )}
+            {saving
+              ? "Guardando…"
+              : status.saved
+                ? "Corregir corte"
+                : "Guardar corte"}
           </button>
           <p className="corte-note text-sm leading-relaxed text-ink-2">
-            Los gastos y retiros se registran solo al guardar el corte. No se ajusta el efectivo automáticamente.
+            El corte no se guarda solo. Gastos, retiros y base se registran cuando tú
+            confirmas.
           </p>
         </div>
       ) : null}
 
       <Sheet
         open={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
-        title="Confirmar corte"
+        onClose={() => {
+          if (saving) return;
+          setConfirmOpen(false);
+          setReasonError(null);
+        }}
+        title={status?.saved ? "Corregir corte" : "Confirmar corte"}
         size="sm"
       >
         <div className="space-y-4">
           <p className="text-sm leading-relaxed text-ink-2">
-            Revisa el conteo antes de guardar. El corte queda registrado con estos montos.
+            {status?.saved
+              ? `El corte #${status.saved.version} no se borra. Se guarda una versión nueva con el motivo.`
+              : "Revisa el conteo antes de guardar. El corte queda registrado con estos montos."}
           </p>
-          <dl className="space-y-2 text-sm">
-            <div className="flex items-center justify-between gap-3">
-              <dt className="text-ink-2">Total contado</dt>
-              <dd className="tabular font-semibold text-ink">{formatMxn(countedCents)}</dd>
+
+          {previewLoading ? (
+            <div className="space-y-2" role="status">
+              <div className="shimmer h-8 rounded-lg" />
+              <div className="shimmer h-8 rounded-lg" />
+              <p className="text-sm text-ink-2">Calculando la diferencia con el servidor…</p>
             </div>
-            <div className="flex items-center justify-between gap-3">
-              <dt className="text-ink-2">Debería haber</dt>
-              <dd className="tabular font-semibold text-ink">{formatMxn(expectedCents)}</dd>
+          ) : previewError ? (
+            <div
+              role="alert"
+              className="rounded-xl bg-terracotta-soft px-3 py-2 text-sm font-medium text-danger"
+            >
+              <p>{previewError}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  if (pendingPayload) void fetchPreview(pendingPayload);
+                }}
+                className="mt-2 flex min-h-12 items-center justify-center rounded-xl border border-separator bg-surface px-4 text-sm font-semibold text-ink-2 transition hover:text-ink"
+              >
+                Reintentar
+              </button>
             </div>
-            <div className="flex items-center justify-between gap-3">
-              <dt className="text-ink-2">Base para mañana</dt>
-              <dd className="tabular font-semibold text-ink">{formatMxn(parseMoney(baseNext))}</dd>
-            </div>
-          </dl>
-          <div
-            className={cn(
-              "flex items-center justify-between gap-3 rounded-xl border px-4 py-3",
-              differenceCents === 0
-                ? "border-green/25 bg-green-soft/60"
-                : differenceCents < 0
-                  ? "border-danger/25 bg-terracotta-soft/70"
-                  : "border-attention/25 bg-terracotta-soft/70",
-            )}
-          >
-            <p className="text-sm font-bold text-ink">{differenceLabel}</p>
-            <p className="tabular text-[1.375rem] font-semibold text-ink">
-              {formatMxn(differenceAbsCents)}
-            </p>
-          </div>
+          ) : preview ? (
+            <>
+              <dl className="space-y-2 text-sm">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <dt className="text-ink-2">Gastos de caja</dt>
+                  <dd className="tabular font-semibold text-ink">
+                    {formatMxn(preview.expensesCents)}
+                  </dd>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <dt className="text-ink-2">Retiros</dt>
+                  <dd className="tabular font-semibold text-ink">
+                    {formatMxn(preview.withdrawalsCents)}
+                  </dd>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-separator pt-2">
+                  <dt className="text-ink-2">Debería haber</dt>
+                  <dd className="tabular font-semibold text-ink">
+                    {formatMxn(preview.expectedCents)}
+                  </dd>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <dt className="text-ink-2">Total contado</dt>
+                  <dd className="tabular font-semibold text-ink">
+                    {formatMxn(preview.countedCents)}
+                  </dd>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <dt className="text-ink-2">Base para mañana</dt>
+                  <dd className="tabular font-semibold text-ink">
+                    {formatMxn(preview.baseNextCents)}
+                  </dd>
+                </div>
+              </dl>
+              <div
+                className={cn(
+                  "flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3",
+                  preview.differenceCents === 0
+                    ? "border-green/25 bg-green-soft/60"
+                    : preview.differenceCents < 0
+                      ? "border-danger/25 bg-terracotta-soft/70"
+                      : "border-attention/25 bg-terracotta-soft/70",
+                )}
+              >
+                <p className="text-sm font-bold text-ink">
+                  {preview.differenceCents === 0
+                    ? "Cuadra"
+                    : preview.differenceCents < 0
+                      ? "Falta"
+                      : "Sobra"}
+                </p>
+                <p className="tabular text-[1.375rem] font-semibold text-ink">
+                  {formatMxn(Math.abs(preview.differenceCents))}
+                </p>
+              </div>
+              <p className="text-xs leading-relaxed text-ink-2">
+                Diferencia calculada por el servidor con los movimientos de ahora.
+              </p>
+              {previewIssues ? (
+                <p
+                  role="alert"
+                  className="rounded-xl bg-terracotta-soft px-3 py-2 text-sm font-medium text-danger"
+                >
+                  {previewIssues}
+                </p>
+              ) : null}
+            </>
+          ) : null}
+
+          {status?.saved ? (
+            <label className="block">
+              <span className="text-sm font-semibold text-ink">
+                Motivo de la corrección (obligatorio)
+              </span>
+              <textarea
+                ref={reasonRef}
+                id="corte-reason"
+                value={reason}
+                onChange={(event) => {
+                  setReason(event.target.value);
+                  setReasonError(null);
+                }}
+                maxLength={280}
+                rows={3}
+                aria-invalid={Boolean(reasonError)}
+                aria-describedby={reasonError ? "corte-reason-error" : undefined}
+                placeholder="Ejemplo: conté de nuevo y faltaba un billete."
+                className="mt-1 min-h-24 w-full rounded-xl border border-separator bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-ink-2/60 focus:border-green"
+              />
+              {reasonError ? (
+                <p
+                  id="corte-reason-error"
+                  role="alert"
+                  className="mt-1 text-sm font-semibold text-danger"
+                >
+                  {reasonError}
+                </p>
+              ) : null}
+            </label>
+          ) : null}
+
           {error ? (
-            <p role="alert" className="rounded-xl bg-terracotta-soft px-3 py-2 text-sm font-medium text-danger">
+            <p
+              role="alert"
+              className="rounded-xl bg-terracotta-soft px-3 py-2 text-sm font-medium text-danger"
+            >
               {error}
             </p>
           ) : null}
+
           <button
             type="button"
             onClick={() => void saveClose()}
-            disabled={saving}
+            disabled={
+              saving ||
+              previewLoading ||
+              Boolean(previewError) ||
+              Boolean(previewIssues)
+            }
             aria-busy={saving}
             className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-60"
           >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-            {saving ? "Guardando…" : "Guardar corte"}
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" />
+            )}
+            {saving
+              ? "Guardando…"
+              : status?.saved
+                ? "Guardar corrección"
+                : "Guardar corte"}
           </button>
           <button
             type="button"
             onClick={() => setConfirmOpen(false)}
-            className="flex min-h-12 w-full items-center justify-center rounded-xl border border-separator bg-surface text-sm font-semibold text-ink-2 transition hover:text-ink"
+            disabled={saving}
+            className="flex min-h-12 w-full items-center justify-center rounded-xl border border-separator bg-surface text-sm font-semibold text-ink-2 transition hover:text-ink disabled:opacity-60"
           >
             Volver a contar
           </button>
