@@ -1,6 +1,6 @@
 # STATE — Mercado Cero
 
-> Handoff vivo para agentes. Última actualización: **1 de noviembre de 2026**.
+> Handoff vivo para agentes. Última actualización: **2 de noviembre de 2026**.
 > No reconstruyas el estado de memoria: si un dato no está aquí ni en `latest.json`, no lo asumas.
 
 ## Identidad
@@ -31,16 +31,21 @@
 
 ## Última corrida del harness
 
-- Fecha: **2 nov 2026, 01:13 UTC**
-- Código verificado: **`586f1a6`** (merge P0-C); última corrida full sobre artefactos `446f2f7`, `gitAtStart.dirty: false`.
-- Modo: **full**, 11/11 en verde
-- Evidencia: `harness/evidence/latest.json`; E2E P0-C: 50 PASS / 0 KNOWN; P0-A/B: 43 PASS / 1 KNOWN
-- No ejecutados en esa corrida: `build` (corre con `verify:static`), `film` (corre con `--with-film`)
-- Estado de datos: demo reiniciada antes de `truth` y antes de `preflight`
+- Fecha: **2 nov 2026, 04:34 UTC**
+- Código verificado: **`76bfbc3`** (cierre de la revisión de integración P0); `latest.json` se generó sobre `8a440bf`, que solo añade evidencia.
+- Modo: **static**, 4/4 en verde (`guard`, `lint`, `types`, `build`), `gitAtStart.dirty: false`.
+- E2E: integración **50/0/0**, fiado **50/0/0**, venta **43/0/0**, shell **52/0/0**.
+- HIG/axe aislado `:3101`: 360/390/768/1280 normal y 200 %, axe 0, 0 recortes, 0 controles bajo 48 px.
+- Voz: el botón de $50 reproduce Kokoro `em_santa` (SHA-256 `24EF2C9F…`), 0 llamadas a `speechSynthesis`; las frases dinámicas siguen en Piper.
+- No ejecutados en esta corrida: `verify:full` (truth/webhook/mobile/checkout/tunnel/preflight/film). El pago real de $0.01 sigue bloqueado.
 
 ## Qué está construido
 
 - Caja: venta por voz/texto, draft, efectivo, fiado, link/QR, verificación de comprobante.
+- Cobros pendientes (P0-E): franja en Caja, 3→50, fechas Hoy/Ayer, refresh en focus/visibility y polling de 45 s visible.
+- Pendientes de negocio (P0-G): quinto tab, crear/completar/reabrir/posponer/eliminar, reset de demo sin tareas fantasma.
+- Venta mixta: efectivo + fiado + remanente digital con Link/QR/demo; resultado “Pago mixto”.
+- Voz: Kokoro `em_santa` para frases fijas, Piper para dinámicas, montos hablados (“50 pesos”, no “cincuenta punto cero cero”).
 - Corte: conteo, diferencia, gastos/retiros, guardado.
 - Meta: apartado declarado, progreso.
 - Accesibilidad: 48 px, 200%, alto contraste, voz, repetir, leer pantalla, movimiento reducido.
@@ -53,13 +58,16 @@
 - **F0 completado:** `AUDITORIA-COGNITIVA.md` + `harness/f0-venta.md`, `f0-dinero.md`, `f0-shell.md`.
 - **P0-A/B mergeado:** `c22e85d` — venta manual, cambio, validación inline, borrador durable y pendiente de cobro durable.
 - **P0-C mergeado:** `586f1a6` — abono confirmado, saldo vivo, idempotencia durable y migración de `request_id`.
-- **Evidencia P0-A/B:** `web/scripts/p0-venta-e2e.py` → 43 PASS · 0 FAIL · 1 KNOWN.
-- **Evidencia P0-C:** `web/scripts/p0-fiado-e2e.py` → 50 PASS · 0 FAIL · 0 KNOWN; `harness/evidence/p0-fiado-e2e.json`.
-- **KNOWN:** venta mixta con fiado + saldo digital no ofrece cobrar el remanente desde `PaymentPanel` (P0-E/P0-5).
+- **P0-C.1/E/G integrados:** `96381b9` + `76bfbc3` — cobros pendientes, tareas de negocio, método de abono, venta mixta, carrera de refresco, WCAG 2.5.3 y voz de $50.
+- **Evidencia P0-A/B:** `web/scripts/p0-venta-e2e.py` → 43 PASS · 0 FAIL · 0 KNOWN.
+- **Evidencia P0-C:** `web/scripts/p0-fiado-e2e.py` → 50 PASS · 0 FAIL · 0 KNOWN.
+- **Evidencia integración:** `web/scripts/p0-integracion-e2e.py` → 50 PASS · 0 FAIL · 0 KNOWN.
+- **Evidencia shell:** `web/scripts/p0-shell-e2e.py` → 52 PASS · 0 FAIL; HIG/axe 0.
+- **Resuelto:** la venta mixta ya ofrece cobrar el remanente digital y muestra “Pago mixto”; el fiado conserva su saldo vivo.
 
 ## Siguiente tarea
 
-**P0-E/F:** cobros pendientes visibles con fechas/refresh; shell 200 % + estados de error. El módulo completo de “Pendientes” de negocio va después de estos cortes. P0-C ya está mergeado.
+**P0-D · Corte no destructivo + resumen de cierre** (borrador local del conteo, `load()` que no pisa cambios, validación, resumen de efectivo/fiado/pendiente digital). Después: ensayo con `GUION-3-MIN.md`, contact sheet/motion check, preflight y túnel. Las pruebas humanas (6–8 comerciantes, SUS/NASA-TLX, TalkBack/VoiceOver, teléfono físico) siguen pendientes y no se sustituyen con gates automáticos.
 
 ## Bloqueos reales
 
