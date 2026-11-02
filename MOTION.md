@@ -49,7 +49,7 @@
 cd web
 $env:MOTION_BASE_URL="http://localhost:3000"
 python scripts/motion-check.py   # 19 PASS · 0 FAIL; gate `motion` del harness full
-python scripts/mobile-320-audit.py
+python scripts/mobile-320-e2e.py   # 42 PASS ? 0 FAIL; gate mobile-320 del full
 python scripts/hig-after-audit.py
 ```
 

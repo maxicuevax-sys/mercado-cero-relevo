@@ -31,7 +31,7 @@ demo/stageshow/film-check.json
 demo/stageshow/*-sheet*.png
 harness/evidence/motion*
 harness/evidence/a11y-contrast*
-harness/evidence/mobile-320*
+harness/evidence/mobile-*
 harness/evidence/p0-*
 harness/evidence/p0-shell/
 

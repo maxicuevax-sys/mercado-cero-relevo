@@ -12,17 +12,17 @@
 | Verdad del comprobante | ✅ demo nunca verificado | `scripts/verify-truth.mjs` |
 | Auditoría HIG | ✅ 4 viewports (360/390/768/1280), axe 0, WCAG 2.2 AA, targets 48 px, 200% | `scripts/hig-after-audit.py` |
 | 360 px caja | ✅ 25/25 checks | `demo/mobile-audit.json` (generado, ignorado) |
-| 320 px HIG | ✅ 10/10 checks | `harness/evidence/mobile-320.json` (generado, ignorado) |
+| 320/360 px HIG | ✅ 42 PASS · 0 FAIL en Chromium/Firefox/WebKit | `harness/evidence/mobile-320-e2e.json` (generado, ignorado) |
 | Flujo completo 360 px | ✅ ≈9 s, 0 errores | `scripts/mobile-audit.py` |
-| Checkout público 360 px | ✅ 15/15 checks | `demo/checkout-audit.json` (generado, ignorado) |
+| Checkout público 360 px | ✅ 19/19 checks | `demo/checkout-audit.json` (generado, ignorado) |
 | Túnel público | ✅ 8/8 checks | `demo/tunnel-smoke.json` (generado, ignorado) |
 | Ensayo del guion | ✅ 3/3 corridas, 15/15 pasos, promedio 4.8 s | `demo/rehearsal.json` (generado, ignorado) |
-| P0 venta durable | ✅ 51 PASS · 0 FAIL · 0 KNOWN | `scripts/p0-venta-e2e.py` |
+| P0 venta durable | ✅ 65 PASS · 0 FAIL · 0 KNOWN | `scripts/p0-venta-e2e.py` |
 | P0 fiado | ✅ 50 PASS · 0 FAIL · 0 KNOWN | `scripts/p0-fiado-e2e.py` |
 | P0 corte no destructivo | ✅ 69 PASS · 0 FAIL · 0 KNOWN | `scripts/p0-corte-e2e.py` |
 | P0 integración | ✅ 51 PASS · 0 FAIL · 0 KNOWN | `scripts/p0-integracion-e2e.py` |
 | P0 dinero | ✅ 45 PASS · 0 FAIL · 3 KNOWN | `scripts/p0-dinero-e2e.py` |
-| P0 shell (carril aparte) | ✅ 67 PASS · 0 FAIL, HIG/axe 0 | `scripts/p0-shell-e2e.py` |
+| P0 shell (carril aparte) | ✅ 68 PASS · 0 FAIL, HIG/axe 0 | `scripts/p0-shell-e2e.py` |
 | Cobros pendientes / tareas | ✅ franja, fechas, refresh, polling y quinto tab | `scripts/p0-integracion-e2e.py` |
 | Carrera de refresco | ✅ un poll viejo no revive el saldo cobrado | `scripts/p0-integracion-e2e.py` |
 | Voz del abono de $50 | ✅ Kokoro `em_santa`, dice “50 pesos”, 0 `speechSynthesis` | `VOZ-50-KOKORO.md` |

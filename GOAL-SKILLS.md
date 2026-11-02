@@ -206,7 +206,7 @@ La app dejó de ser un dashboard fintech genérico y se convirtió en un **objet
 - **Build limpio** y **webhook 34/34**.
 - Tarjeta, link, QR, efectivo, fiado, corte y meta probados en navegador real.
 - **Auditoría 360 px emulada:** 25/25 checks, sin scroll horizontal en cada estado, sin texto < 12 px, controles principales ≥ 40 px, flujo completo en 10.2 s en producción (10–17 s en dev), 0 errores de consola.
-- **Checkout público 360 px:** 15/15 checks, tres métodos, pago demo y pantalla de éxito; Lighthouse 100/100/100.
+- **Checkout público 360 px:** 19/19 checks, tres métodos, pago demo y pantalla de éxito; Lighthouse 100/100/100.
 - **Túnel HTTPS:** 8/8 checks por Cloudflare: reset, checkout, pago demo y estado pagado.
 - **Ensayo automatizado:** 3/3 corridas, 15/15 pasos, promedio 4.8 s de flujo mecánico, 0 errores de consola.
 - **Video de respaldo:** `demo/mercado-cero-demo.mp4` (34 s, 1280×800, 1.4 MB) con subtítulos.

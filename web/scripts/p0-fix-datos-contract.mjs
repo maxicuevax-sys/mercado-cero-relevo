@@ -553,6 +553,22 @@ async function main() {
       Number(goalRequestRows[0].n) === 1,
     );
 
+    const savedBeforeNoKey = Number(
+      rows("SELECT saved_cents FROM goals WHERE id = ?", [goalId])[0].saved_cents,
+    );
+    const noKey = await api(`/api/goals/${goalId}/contribute`, {
+      method: "POST",
+      body: { amountCents: 2000, note: "Sin llave" },
+    });
+    const savedAfterNoKey = Number(
+      rows("SELECT saved_cents FROM goals WHERE id = ?", [goalId])[0].saved_cents,
+    );
+    check(
+      "metas: sin requestId responde 400 y no escribe",
+      noKey.status === 400 && savedAfterNoKey === savedBeforeNoKey,
+      `${noKey.status} · antes=${savedBeforeNoKey} después=${savedAfterNoKey}`,
+    );
+
     const secondGoal = await api("/api/goals", {
       method: "POST",
       body: { title: "Meta de contrato", targetCents: 100000 },
@@ -573,7 +589,7 @@ async function main() {
 
     const missingGoal = await api("/api/goals/goal_no_existe/contribute", {
       method: "POST",
-      body: { amountCents: 1000 },
+      body: { amountCents: 1000, requestId: "contrato-goal-missing" },
     });
     check("metas: meta inexistente responde 404", missingGoal.status === 404, String(missingGoal.status));
 

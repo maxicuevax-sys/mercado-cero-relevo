@@ -17,16 +17,16 @@
 | `truth` | `node scripts/verify-truth.mjs` | Un `transactionId` demo devuelve `verified:false` | Un pago pey real | `VERDAD OK` | Reset demo |
 | `webhook` | `node scripts/webhook-contract.mjs` | Firma, replay, monto, orden, timestamp, QR y reintento corregido tras 409/404 | Que el banco emita el evento | `WEBHOOK OK` + `34/34` | Reset demo |
 | `mobile` | `python scripts/mobile-audit.py` | Flujo completo a 360 px | Teléfono físico, TalkBack/VoiceOver | `MOBILE OK` + `25/25` | Reset demo |
-| `checkout` | `python scripts/checkout-audit.py` | Checkout público a 360 px | Pago real por pey | `CHECKOUT OK` + `15/15` | Crea/paga demo |
+| `checkout` | `python scripts/checkout-audit.py` | Checkout público a 360 px | Pago real por pey | `CHECKOUT OK` + `19/19` | Crea/paga demo |
 | `hig` | `python scripts/hig-after-audit.py` | HIG/WCAG 2.2 AA, 48 px, 200%, **4 viewports** | Personas reales | `HIG OK` + `4 viewports` | Reset/recorre |
 | `motion` | `python scripts/motion-check.py` | Duraciones, scroll trigger, reduced-motion | Que el diseño guste | `MOTION OK` + `19 PASS` + `0 FAIL` | Recorre hojas/tabs |
 | `contrast` | `python scripts/a11y-contrast.py` | Alto contraste: axe, foco visible y 360 px | Personas reales | `CONTRAST OK` + `0 FAIL` | Recorre |
-| `mobile-320` | `python scripts/mobile-320-audit.py` | 320 px: overflow, texto < 12 px, targets < 44 px y foco | Teléfono físico | `MOBILE 320 OK` + `10/10` | Solo lee |
+| `mobile-320` | `node scripts/mobile-320-gate.mjs` | 320/360 px en Chromium, Firefox y WebKit: labels, CTA y foco | Teléfono físico, lector real | `MOBILE 320/360 E2E` + `42 PASS` + `0 FAIL` | Servidor aislado + DB temporal |
 | `rehearsal` | `python scripts/rehearse-demo.py` | Guion completo, 3 corridas, 15 pasos por corrida | Que el público entienda | `REHEARSAL OK` + `todo en verde: True` | Reset/recorre |
 | `security` | `node scripts/security-contract.mjs` | CSRF, token de reset, límites de cuerpo, rate limit, headers, backup y protección de pagos reales | Despliegue real detrás de Cloudflare Access | `SEGURIDAD OK` | Servidor aislado + DB temporal |
 | `data` | `node scripts/p0-fix-datos-contract.mjs` | Idempotencia, transacciones, migraciones y mapeo de errores | Carga de producción | `DATOS OK` | Servidor aislado + DB temporal |
 | `perf` | `node scripts/perf-budget.mjs` | Presupuesto de JS, CSS, fuentes, fotos e iconos del build | Latencia de red real | `PERF BUDGET OK` | No |
-| `p0-venta` | `node scripts/p0-venta-gate.mjs` | Venta durable, draft, cambio, validaciones inline | Que una comerciante lo entienda | `51 PASS` + `0 FAIL` + `0 KNOWN` | Servidor aislado + DB temporal |
+| `p0-venta` | `node scripts/p0-venta-gate.mjs` | Venta durable, draft, cambio, validaciones inline | Que una comerciante lo entienda | `65 PASS` + `0 FAIL` + `0 KNOWN` | Servidor aislado + DB temporal |
 | `p0-fiado` | `python scripts/p0-fiado-e2e.py` | Abono confirmado, saldo vivo, idempotencia y carrera | Crédito real | `50 PASS` + `0 FAIL` + `0 KNOWN` | Servidor aislado + DB temporal |
 | `p0-corte` | `python scripts/p0-corte-e2e.py` | Corte no destructivo, versiones, snapshot, migración y 409 | Operación multi-proceso | `69 PASS` + `0 FAIL` + `0 KNOWN` | Servidor aislado + DB temporal |
 | `p0-integracion` | `python scripts/p0-integracion-e2e.py` | Pendientes, tareas, venta mixta y carrera de refresco | Estrés con muchos clientes | `51 PASS` + `0 FAIL` + `0 KNOWN` | Servidor aislado + DB temporal |
@@ -37,7 +37,7 @@
 
 **Conteos canónicos:** catálogo **25** gates; `fast` **3**, `static` **5**, `full` **23** (sin `build` ni `film`) y `full --with-film` **24**. Los markers se comparan con límites de palabra: `0 FAIL` no acepta `10 FAIL` y `25/25` no acepta `125/125`.
 
-**Cobertura p0:** `p0-venta` (51), `p0-fiado` (50), `p0-corte` (69), `p0-integracion` (51) y `p0-dinero` (45 + 3 KNOWN). Cada uno levanta su servidor aislado en 3211–3213 con SQLite temporal. `p0-shell` (67 PASS) sigue siendo evidencia de carril aparte, no un gate del full.
+**Cobertura p0:** `p0-venta` (65), `p0-fiado` (50), `p0-corte` (69), `p0-integracion` (51) y `p0-dinero` (45 + 3 KNOWN). Cada uno levanta su servidor aislado en 3211–3213 con SQLite temporal. `p0-shell` (68 PASS) sigue siendo evidencia de carril aparte, no un gate del full.
 
 **Contratos fuera del catálogo:** CI también corre `test:security`, `test:fix-datos`, `test:perf-budget` y `test:perf-data` (este último sin servidor). No cambian el conteo del full; si fallan, el job estático falla.
 

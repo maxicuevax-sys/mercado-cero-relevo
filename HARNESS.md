@@ -86,16 +86,16 @@ Markers exactos: el harness no acepta substrings. `0 FAIL` no coincide con `10 F
 | `truth` | Un `transactionId` demo responde `verified:false` | `VERDAD OK` | — |
 | `webhook` | Firma, replay, monto, orden, timestamp, QR, 409/404 | `WEBHOOK OK` + `34/34` | — |
 | `mobile` | Flujo completo a 360 px | `MOBILE OK` + `25/25` | `demo/mobile-*` |
-| `checkout` | Checkout público a 360 px | `CHECKOUT OK` + `15/15` | `demo/checkout-*` |
+| `checkout` | Checkout público a 360 px | `CHECKOUT OK` + `19/19` | `demo/checkout-*` |
 | `hig` | HIG/WCAG 2.2 AA, 48 px, 200%, **4 viewports** | `HIG OK` + `4 viewports` | `demo/hig-after/audit.json` |
 | `motion` | Duraciones, scroll trigger, reduced-motion | `MOTION OK` + `19 PASS` + `0 FAIL` | `harness/evidence/motion*` |
 | `contrast` | Alto contraste: axe, foco visible y 360 px | `CONTRAST OK` + `0 FAIL` | `harness/evidence/a11y-contrast*` |
-| `mobile-320` | HIG mínimo 320 px: overflow, texto, targets, foco | `MOBILE 320 OK` + `10/10` | `harness/evidence/mobile-320*` |
+| `mobile-320` | HIG móvil 320/360 en Chromium, Firefox y WebKit | `MOBILE 320/360 E2E` + `42 PASS` + `0 FAIL` | `mobile-320-e2e.json` + capturas 320/360 |
 | `rehearsal` | Guion completo, 3 corridas, 15 pasos por corrida | `REHEARSAL OK` + `todo en verde: True` | `demo/rehearsal.json` |
 | `security` | CSRF, token de reset, límites, rate limit, headers, backups | `SEGURIDAD OK` | — |
 | `data` | Idempotencia, transacciones, migraciones, enlaces | `DATOS OK` | — |
 | `perf` | Presupuesto de JS, CSS, fuentes, fotos e iconos | `PERF BUDGET OK` | — |
-| `p0-venta` | Venta durable, draft, validaciones, monto y cambio | `51 PASS` + `0 FAIL` + `0 KNOWN` | `harness/evidence/p0-venta-e2e.json` |
+| `p0-venta` | Venta durable, draft, validaciones, monto y cambio | `65 PASS` + `0 FAIL` + `0 KNOWN` | `harness/evidence/p0-venta-e2e.json` |
 | `p0-fiado` | Abono confirmado, saldo vivo, idempotencia | `50 PASS` + `0 FAIL` + `0 KNOWN` | `p0-fiado-e2e.json` + captura |
 | `p0-corte` | Corte no destructivo, versiones, migración, 409 | `69 PASS` + `0 FAIL` + `0 KNOWN` | `p0-corte-e2e.json` + capturas |
 | `p0-integracion` | Pendientes, tareas, venta mixta, carrera de refresco | `51 PASS` + `0 FAIL` + `0 KNOWN` | `p0-integracion-e2e.json` + capturas |
@@ -106,7 +106,7 @@ Markers exactos: el harness no acepta substrings. `0 FAIL` no coincide con `10 F
 
 **Aritmética del catálogo:** hay **25 gates** en total. `fast` ejecuta 3, `static` 5 y `full` **23** por defecto (sin `build`, sin `film`). Con `--with-film`, `full` ejecuta 24. Cualquier marcador de un catálogo anterior (menos gates, motion con menos comprobaciones o webhook con 27 aserciones) es histórico y no describe el catálogo actual.
 
-**Cobertura p0:** los cinco gates p0 levantan su propio `next start` aislado con SQLite temporal (puertos 3211–3213) y nunca usan la base de la demo compartida. `p0-venta` usa un wrapper (`p0-venta-gate.mjs`) porque el script original esperaba un servidor externo. Los scripts respetan `BASE_URL`, `CHECKOUT_BASE_URL`, `MOBILE_BASE_URL`, `P0_BASE_URL`, `MOTION_BASE_URL` y `CONTRAST_BASE_URL`; el harness fija los que comparten servidor y registra `baseUrl` por gate.
+**Cobertura p0:** los cinco gates p0 levantan su propio `next start` aislado con SQLite temporal (puertos 3211–3213) y nunca usan la base de la demo compartida. `p0-venta` usa un wrapper (`p0-venta-gate.mjs`) porque el script original esperaba un servidor externo; `mobile-320` usa `mobile-320-gate.mjs` para lo mismo con 3 motores. Los scripts respetan `BASE_URL`, `CHECKOUT_BASE_URL`, `MOBILE_BASE_URL`, `P0_BASE_URL`, `MOTION_BASE_URL` y `CONTRAST_BASE_URL`; el harness fija los que comparten servidor y registra `baseUrl` por gate.
 
 El detalle de cada eval, incluyendo las que son **solo humanas**, está en `harness/EVALS.md`.
 
@@ -205,7 +205,7 @@ El criterio no es “cuánto puede hacer el agente”, sino **cuánto puede hace
 - `latest.json` con `ok: true` y `mode` real (`full`/`static`); nunca `partial` ni `fast` sin `--allow-fast`.
 - Sin secretos en el diff.
 - Si tocó dinero: webhook **34/34**, truth PASS y `p0-dinero` **45 + 3 KNOWN**.
-- Si tocó UI: HIG **4 viewports**, mobile **25/25**, checkout **15/15**, motion **19 PASS**, contraste 0 FAIL y mobile-320 **10/10**.
+- Si tocó UI: HIG **4 viewports**, mobile **25/25**, checkout **19/19**, motion **19 PASS**, contraste 0 FAIL y mobile-320 **42/42** en 3 motores.
 - Si tocó demo: preflight + túnel + video/QR actualizados.
 - Handoff actualizado con `npm run harness:report`; las pruebas humanas no se sustituyen por gates.
 

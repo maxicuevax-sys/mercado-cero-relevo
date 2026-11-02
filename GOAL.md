@@ -121,7 +121,7 @@ Requiere el servidor en `localhost:3000` y `PEY_WEBHOOK_SECRET` en `.env.local`.
 | **F10 · Mi camino: meta, progreso y aportaciones** | ✅ probado; no duplica ventas |
 | **F11 · Guía/FAQ contextual y primeros pasos** | ✅ probada |
 | **F12 · Dirección visual “Mercado de papel”** | ✅ Lighthouse 100/100/100; build limpio |
-| **F13 · Auditoría 360 px, checkout, túnel, ensayo, runbook, video y QR** | 🟡 Caja 25/25 y checkout 15/15; Lighthouse 100; túnel 8/8; video y QR listos; falta teléfono físico y persona ajena |
+| **F13 · Auditoría 360 px, checkout, túnel, ensayo, runbook, video y QR** | 🟡 Caja 25/25 y checkout 19/19; Lighthouse 100; túnel 8/8; video y QR listos; falta teléfono físico y persona ajena |
 
 ### 5.b · Prioridades del hackathon (nueva perspectiva)
 

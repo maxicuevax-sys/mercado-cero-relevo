@@ -24,7 +24,10 @@ from playwright.sync_api import sync_playwright
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-BASE = os.environ.get("P0_BASE_URL", "http://localhost:3101").rstrip("/")
+BASE = os.environ.get(
+    "P0_BASE_URL",
+    os.environ.get("BASE_URL", "http://localhost:3101"),
+).rstrip("/")
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "harness" / "evidence" / "p0-shell"
 OUT.mkdir(parents=True, exist_ok=True)
@@ -338,10 +341,13 @@ def main() -> int:
             has_touch=True,
         )
         page = context.new_page()
-        page.route(
-            "**/api/goals/*/contribute",
-            lambda route: route.fulfill(status=500, content_type="text/plain", body="fallo simulado"),
-        )
+        goal_contribution_payloads: list[dict] = []
+
+        def reject_goal_contribution(route):
+            goal_contribution_payloads.append(route.request.post_data_json or {})
+            route.fulfill(status=500, content_type="text/plain", body="fallo simulado")
+
+        page.route("**/api/goals/*/contribute", reject_goal_contribution)
         page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
         page.wait_for_selector("h1:has-text('Caja')", timeout=20000)
         page.locator("button:visible", has_text="Meta").first.click()
@@ -353,6 +359,12 @@ def main() -> int:
         check("GoalCard muestra 'No pude aportar' en 500", "No pude aportar." in contribute_body)
         check("GoalCard no muestra Unexpected token al aportar", "Unexpected token" not in contribute_body)
         check("GoalCard no muestra el body crudo al aportar", "fallo simulado" not in contribute_body)
+        check(
+            "GoalCard envía una llave goal_ estable",
+            bool(goal_contribution_payloads)
+            and str(goal_contribution_payloads[0].get("requestId", "")).startswith("goal_"),
+            json.dumps(goal_contribution_payloads[:1], ensure_ascii=False),
+        )
         page.screenshot(path=str(OUT / "e2e-goal-contribute-error-360.png"))
         context.close()
 

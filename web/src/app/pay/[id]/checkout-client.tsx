@@ -313,7 +313,7 @@ export default function CheckoutPage() {
             </p>
           </div>
           <div className="border-t border-separator px-[18px] py-4 sm:px-5">
-            <div className="rounded-xl border border-separator bg-surface px-3.5 py-3">
+            <div className="pay-note rounded-xl border border-separator bg-surface px-3.5 py-3">
               <p className="text-sm leading-relaxed text-ink-2">
                 {source ? <>Recibiste {source}. </> : null}
                 Quedó a fiado: <strong>{formatMxn(order.creditCents)}</strong>. Está en la
@@ -425,7 +425,7 @@ export default function CheckoutPage() {
               ) : null}
             </dl>
 
-            <div className="mt-4 rounded-xl border border-separator bg-surface px-3.5 py-3">
+            <div className="pay-note rounded-xl border border-separator bg-surface px-3.5 py-3">
               <p className="text-sm leading-relaxed text-ink-2">
                 {sourceMixed
                   ? demo
@@ -510,7 +510,7 @@ export default function CheckoutPage() {
           </div>
 
           <div className="px-[18px] py-4 sm:px-5">
-            <div className="rounded-xl border border-separator bg-surface px-3.5 py-2">
+            <div className="pay-note rounded-xl border border-separator bg-surface px-3.5 py-2">
               {order.items.map((item) => (
                 <div
                   key={item.id}
@@ -563,7 +563,7 @@ export default function CheckoutPage() {
                         <span className="flex flex-wrap items-center gap-1.5 text-sm font-semibold text-ink">
                           {option.title}
                           {option.tag ? (
-                            <span className="rounded-full bg-green-soft px-2 py-0.5 text-xs font-bold text-green">
+                            <span className="pay-method-tag rounded-full bg-green-soft px-2 py-0.5 text-xs font-bold text-green">
                               {option.tag}
                             </span>
                           ) : null}

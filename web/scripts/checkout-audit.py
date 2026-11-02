@@ -237,8 +237,54 @@ def main() -> int:
             f"scrollWidth={success_metrics['scrollWidth']}",
         )
 
+        # 4. Success de un pedido inexistente: estado honesto, sin banco falso.
+        console_before_missing = list(console_errors)
+        page.goto(
+            f"{BASE}/pay/ord_no_existe_qa/success",
+            wait_until="domcontentloaded",
+        )
+        page.wait_for_selector("h1:has-text('No encontramos este cobro')", timeout=15000)
+        page.wait_for_timeout(400)
+        page.screenshot(path=str(OUT / "checkout-360-missing.png"))
+        missing_body = page.locator("body").inner_text().lower()
+        focused_missing = page.evaluate(
+            """() => {
+                const el = document.activeElement;
+                return el ? `${el.tagName}:${(el.textContent || '').trim()}` : '';
+            }"""
+        )
+        check(
+            "Éxito 404: muestra 'No encontramos este cobro'",
+            "no encontramos este cobro" in missing_body,
+        )
+        check(
+            "Éxito 404: no inventa mensajes bancarios",
+            not any(
+                phrase in missing_body
+                for phrase in (
+                    "estamos confirmando con el banco",
+                    "tu pago ya salió",
+                    "confirmación firmada de pey",
+                )
+            ),
+            missing_body[:160],
+        )
+        check(
+            "Éxito 404: salida pública y foco en el estado",
+            page.get_by_role("button", name="Cerrar esta pestaña").is_visible()
+            and "NO ENCONTRAMOS" in focused_missing.upper(),
+            focused_missing,
+        )
+        missing_console = console_errors[len(console_before_missing):]
+        check(
+            "Éxito 404: solo registra el 404 esperado en consola",
+            bool(missing_console)
+            and all("404" in message for message in missing_console),
+            "; ".join(missing_console[:3]),
+        )
+
         elapsed = time.time() - started
-        check("Checkout: sin errores de consola", len(console_errors) == 0, "; ".join(console_errors[:3]))
+        check("Checkout: sin errores de consola", len(console_before_missing) == 0, "; ".join(console_before_missing[:3]))
         check("Checkout: sin pageerrors", len(page_errors) == 0, "; ".join(page_errors[:3]))
 
         context.request.post(f"{BASE}/api/demo/reset")

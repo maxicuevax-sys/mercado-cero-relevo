@@ -300,6 +300,118 @@ def main() -> int:
             and edited["items"][0]["description"] == "Borrador editado",
         )
 
+        # 2e · 502 después del commit: el reintento no duplica la venta.
+        reset(page)
+        add_item(page, "Reintento 502", 1, 90)
+        page.get_by_label("Efectivo recibido en pesos").fill("90")
+        before = order_ids(page)
+        sale_payloads: list[dict] = []
+        sale_attempts = {"n": 0}
+
+        def intercept_sale_502(route):
+            if route.request.method != "POST":
+                route.continue_()
+                return
+            sale_attempts["n"] += 1
+            sale_payloads.append(route.request.post_data_json or {})
+            if sale_attempts["n"] == 1:
+                # El servidor ya commiteó; la respuesta se pierde como un 502.
+                route.fetch()
+                route.fulfill(
+                    status=502,
+                    content_type="application/json",
+                    body=json.dumps({"error": "El banco tardó en responder. Reintenta."}),
+                )
+            else:
+                route.continue_()
+
+        page.route("**/api/orders", intercept_sale_502)
+        page.get_by_role("button", name="Confirmar venta").click()
+        expect(page.get_by_text("El banco tardó en responder. Reintenta.")).to_be_visible()
+        after_failure = order_ids(page)
+        first_created = new_orders(page, before)
+        check(
+            "502 post-commit: el servidor sí guardó la venta",
+            len(after_failure - before) == 1,
+            f"antes={len(before)} después={len(after_failure)}",
+        )
+        page.get_by_role("button", name="Confirmar venta").click()
+        expect(page.get_by_role("dialog")).to_be_visible()
+        page.wait_for_timeout(300)
+        retried = new_orders(page, before)
+        check(
+            "502 post-commit: el reintento deja una sola orden",
+            len(retried) == 1,
+            f"orders={len(retried)}",
+        )
+        check(
+            "502 post-commit: el reintento devuelve la misma orden",
+            len(first_created) == 1
+            and len(retried) == 1
+            and first_created[0]["id"] == retried[0]["id"],
+            f"{first_created[0]['id'] if first_created else '?'} / "
+            f"{retried[0]['id'] if retried else '?'}",
+        )
+        check(
+            "502 post-commit: el reintento reutiliza la misma requestId",
+            len(sale_payloads) >= 2
+            and bool(sale_payloads[0].get("requestId"))
+            and sale_payloads[0].get("requestId") == sale_payloads[-1].get("requestId"),
+            json.dumps([item.get("requestId") for item in sale_payloads]),
+        )
+        stored_sale_request = page.evaluate(
+            "localStorage.getItem('mercado-cero:sale-request:v1')"
+        )
+        check(
+            "la llave de venta se limpia solo tras el éxito confirmado",
+            stored_sale_request is None,
+            str(stored_sale_request),
+        )
+        page.unroute("**/api/orders")
+        close_dialog(page)
+
+        # 2f · Doble tap: un solo POST y una sola venta.
+        reset(page)
+        add_item(page, "Doble tap", 1, 30)
+        page.get_by_label("Efectivo recibido en pesos").fill("30")
+        before = order_ids(page)
+        double_payloads: list[dict] = []
+
+        def capture_double(request):
+            if (
+                request.method == "POST"
+                and "/api/orders" in request.url
+                and "/pay" not in request.url
+            ):
+                double_payloads.append(request.post_data_json or {})
+
+        page.on("request", capture_double)
+        page.evaluate(
+            """() => {
+                const button = [...document.querySelectorAll('button')]
+                    .find((item) => (item.textContent || '').trim() === 'Confirmar venta');
+                button.click();
+                button.click();
+            }"""
+        )
+        expect(page.get_by_role("dialog")).to_be_visible()
+        page.wait_for_timeout(400)
+        after_double = new_orders(page, before)
+        page.remove_listener("request", capture_double)
+        check(
+            "doble tap crea una sola venta",
+            len(after_double) == 1,
+            f"orders={len(after_double)} · posts={len(double_payloads)}",
+        )
+        check(
+            "doble tap reutiliza la misma llave si alcanza a mandar dos POST",
+            len(double_payloads) <= 1
+            or double_payloads[0].get("requestId")
+            == double_payloads[-1].get("requestId"),
+            json.dumps([item.get("requestId") for item in double_payloads]),
+        )
+        close_dialog(page)
+
         # 3 · El cambio se conserva después de confirmar.
         reset(page)
         add_item(page, "Cambio efectivo", 1, 90)
@@ -404,6 +516,37 @@ def main() -> int:
             json.dumps(typed[0], ensure_ascii=False) if typed else "sin orden",
         )
         close_dialog(page)
+
+        # 3c · Tecleo exacto con press_sequentially: sin reescritura intermedia.
+        for typed_price, expected_cents in (
+            ("0.01", 1),
+            ("00035", 3500),
+            ("35.", 3500),
+            ("35.5", 3550),
+            ("35.50", 3550),
+        ):
+            reset(page)
+            page.get_by_role("button", name="Agregar producto", exact=True).click()
+            page.get_by_role("textbox", name="Producto").last.fill(f"Tecleo {typed_price}")
+            page.get_by_role("spinbutton", name="Cantidad").last.fill("1")
+            price_field = page.get_by_role("textbox", name="Precio unitario").last
+            price_field.click()
+            price_field.press("Control+a")
+            price_field.press_sequentially(typed_price, delay=80)
+            raw_value = price_field.input_value()
+            before = order_ids(page)
+            page.get_by_role("button", name="Confirmar venta").click()
+            expect(page.get_by_role("dialog")).to_be_visible()
+            created = new_orders(page, before)
+            check(
+                f"tecleo {typed_price}: conserva el texto crudo y guarda {expected_cents} cents",
+                raw_value == typed_price
+                and len(created) == 1
+                and created[0]["items"][0]["unitPriceCents"] == expected_cents
+                and created[0]["totalCents"] == expected_cents,
+                f"texto={raw_value!r} orden={json.dumps(created[0], ensure_ascii=False) if created else 'ninguna'}",
+            )
+            close_dialog(page)
 
         # 4 · Foco después de "Sí, limpiar".
         reset(page)
@@ -828,6 +971,47 @@ def main() -> int:
             and page.evaluate(f"localStorage.getItem('{DRAFT_KEY}')") is None
             and page.evaluate(f"localStorage.getItem('{PENDING_KEY}')") is None,
         )
+
+        # 11 · Venta mixta idéntica a 320 y 360: 2 × 35.50 + $100 efectivo
+        # + $40 fiado + Juan. Total 7100, pagado 3100, fiado 4000, cambio 6900.
+        for width in (320, 360):
+            mobile_context = browser.new_context(
+                viewport={"width": width, "height": 800},
+                is_mobile=True,
+                has_touch=True,
+                locale="es-MX",
+            )
+            mobile_page = mobile_context.new_page()
+            reset(mobile_page)
+            mobile_page.get_by_role("button", name="Agregar producto", exact=True).click()
+            mobile_page.get_by_role("textbox", name="Producto").last.fill("Quesadilla mixta")
+            mobile_page.get_by_role("spinbutton", name="Cantidad").last.fill("2")
+            mobile_price = mobile_page.get_by_role("textbox", name="Precio unitario").last
+            mobile_price.click()
+            mobile_price.press("Control+a")
+            mobile_price.press_sequentially("35.50", delay=60)
+            mobile_page.get_by_label("Efectivo recibido en pesos").fill("100")
+            mobile_page.get_by_label("Monto a fiado en pesos").fill("40")
+            mobile_page.get_by_label("¿Quién queda a deber? Ej. Juan").fill("Juan")
+            expect(mobile_page.get_by_text("Cambio $69.00").first).to_be_visible()
+            before = order_ids(mobile_page)
+            mobile_page.get_by_role("button", name="Confirmar venta").click()
+            expect(mobile_page.get_by_role("dialog")).to_be_visible()
+            expect(mobile_page.get_by_role("dialog")).to_contain_text("Cambio $69.00")
+            created = new_orders(mobile_page, before)
+            check(
+                f"venta mixta {width}px: total 7100, pagado 3100, fiado 4000, cambio 6900",
+                len(created) == 1
+                and created[0]["totalCents"] == 7100
+                and created[0]["paidCents"] == 3100
+                and created[0]["creditCents"] == 4000
+                and created[0]["items"][0]["unitPriceCents"] == 3550
+                and created[0]["items"][0]["quantity"] == 2
+                and created[0]["customerName"] == "Juan",
+                json.dumps(created[0], ensure_ascii=False) if created else "sin orden",
+            )
+            close_dialog(mobile_page)
+            mobile_context.close()
 
         browser.close()
 
