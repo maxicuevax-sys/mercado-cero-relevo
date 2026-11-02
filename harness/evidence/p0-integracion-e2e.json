@@ -1,19 +1,19 @@
 {
-  "startedAt": "2026-11-02T04:33:03.292567+00:00",
-  "finishedAt": "2026-11-02T04:33:48.575615+00:00",
+  "startedAt": "2026-11-02T05:02:13.764606+00:00",
+  "finishedAt": "2026-11-02T05:02:59.288381+00:00",
   "baseUrl": "http://localhost:3101",
   "gitAtStart": {
-    "sha": "210496622ee2032285e5ac0974364e4983e9bc28",
+    "sha": "71966cff8d6c093a1403891068fa9823899741d8",
     "branch": "master",
     "dirty": false
   },
   "totals": {
-    "pass": 50,
+    "pass": 51,
     "fail": 0,
     "known": 0
   },
   "requestsTo3000": [],
-  "dashboardCalls": 23,
+  "dashboardCalls": 25,
   "results": [
     {
       "name": "sidebar muestra los cinco destinos",
@@ -108,12 +108,12 @@
     {
       "name": "la actividad usa fecha relativa, no solo hora",
       "ok": true,
-      "detail": "Hoy 10:33 p.m."
+      "detail": "Hoy 11:02 p.m."
     },
     {
       "name": "Ver abre el cobro explícitamente",
       "ok": true,
-      "detail": "Cobro pendiente ·  · Cobro · Pedido ABD3 ·  · $120.00 ·  · 1 Pedido para llevar ·  · ESPERANDO AL BANCO ·  · Pago pendiente; aún no entregues. ·  · Modo demo ·  · Simula la confirm"
+      "detail": "Cobro pendiente ·  · Cobro · Pedido A39F ·  · $120.00 ·  · 1 Pedido para llevar ·  · ESPERANDO AL BANCO ·  · Pago pendiente; aún no entregues. ·  · Modo demo ·  · Simula la confirm"
     },
     {
       "name": "Fiado muestra desde con fecha relativa",
@@ -161,6 +161,11 @@
       "detail": "Efectivo · ELEGIDO"
     },
     {
+      "name": "el botón de $50 usa el WAV Kokoro y no la voz del navegador",
+      "ok": true,
+      "detail": "audio=['http://localhost:3101/tts/revisa-abono-50-juan.wav?v=2'] · speech=[] · wav=True"
+    },
+    {
       "name": "un poll viejo no revive el saldo después del abono",
       "ok": true,
       "detail": "balance=0 · calls=2 · Fiado\n\nLo que te deben, no dinero recibido.\n\nSaldo pendiente\n\n$0.00\n\n0 clientes\n\nFiado es una libreta de deudas: no es dinero recibido ni una venta nueva.\n\nSin "
@@ -168,12 +173,12 @@
     {
       "name": "la venta mixta muestra el remanente de $40",
       "ok": true,
-      "detail": "Cobrar $40.00 ·  · Cobro · Pedido 9BFB ·  · $40.00 ·  · 1 Quesadillas ·  · POR COBRAR ·  · Fiado $20.00 · Cobrado $30.00 · Falta cobrar $40.00 ·  · El fiado vive en la libreta y no se cuenta como dinero recibido. Cobra aquí solo el saldo di"
+      "detail": "Cobrar $40.00 ·  · Cobro · Pedido 972B ·  · $40.00 ·  · 1 Quesadillas ·  · POR COBRAR ·  · Fiado $20.00 · Cobrado $30.00 · Falta cobrar $40.00 ·  · El fiado vive en la libreta y no se cuenta como dinero recibido. Cobra aquí solo el saldo di"
     },
     {
       "name": "la venta mixta muestra fiado, cobrado y link/QR",
       "ok": true,
-      "detail": "Cobrar $40.00 ·  · Cobro · Pedido 9BFB ·  · $40.00 ·  · 1 Quesadillas ·  · POR COBRAR ·  · Fiado $20.00 · Cobrado $30.00 · Falta cobrar $40.00 ·  · El fiado vive en la libreta y no se cuenta como dinero recibido. Cobra aquí solo el saldo di"
+      "detail": "Cobrar $40.00 ·  · Cobro · Pedido 972B ·  · $40.00 ·  · 1 Quesadillas ·  · POR COBRAR ·  · Fiado $20.00 · Cobrado $30.00 · Falta cobrar $40.00 ·  · El fiado vive en la libreta y no se cuenta como dinero recibido. Cobra aquí solo el saldo di"
     },
     {
       "name": "la venta mixta no dice Quedó anotado por el total",
@@ -188,17 +193,17 @@
     {
       "name": "pagar el digital deja el resultado Pago mixto",
       "ok": true,
-      "detail": "Pago mixto ·  · Pago mixto ·  · $90.00 ·  · Pedido 9BFB · $30.00 efectivo + Fiado $20.00 + $40.00 demo ·  · Recibiste $30.00 en efectivo + $40.00 demo. Saldo vivo: $20.00 · original $20.00. Aparece en Fiado; no es dinero"
+      "detail": "Pago mixto ·  · Pago mixto ·  · $90.00 ·  · Pedido 972B · $30.00 efectivo + Fiado $20.00 + $40.00 demo ·  · Recibiste $30.00 en efectivo + $40.00 demo. Saldo vivo: $20.00 · original $20.00. Aparece en Fiado; no es dinero"
     },
     {
       "name": "el resultado declara Fiado + demo, no Quedó anotado",
       "ok": true,
-      "detail": "Pago mixto ·  · Pago mixto ·  · $90.00 ·  · Pedido 9BFB · $30.00 efectivo + Fiado $20.00 + $40.00 demo ·  · Recibiste $30.00 en efectivo + $40.00 demo. Saldo vivo: $20.00 · original $20.00. Aparece en Fiado; no es dinero"
+      "detail": "Pago mixto ·  · Pago mixto ·  · $90.00 ·  · Pedido 972B · $30.00 efectivo + Fiado $20.00 + $40.00 demo ·  · Recibiste $30.00 en efectivo + $40.00 demo. Saldo vivo: $20.00 · original $20.00. Aparece en Fiado; no es dinero"
     },
     {
       "name": "la base conserva la venta mixta correcta",
       "ok": true,
-      "detail": "[[\"ord_bf16591d2c2444a79bfb\", \"fulfilled\", 7000, 2000]] digital=[[4000]]"
+      "detail": "[[\"ord_af75924d730c46be972b\", \"fulfilled\", 7000, 2000]] digital=[[4000]]"
     },
     {
       "name": "el fiado original sigue intacto después del digital",
