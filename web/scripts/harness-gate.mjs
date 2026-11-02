@@ -757,7 +757,9 @@ export function runGate(gate, { serverBuildSha = null } = {}) {
         : artifactProblems.length > 0
           ? "artifacts-missing"
           : "ok";
-  const tail = output.split(/\r?\n/).slice(-40).join("\n");
+  const lines = output.split(/\r?\n/);
+  const tail = lines.slice(-200).join("\n");
+  const consoleTail = lines.slice(-40).join("\n");
   const baseUrl = gate.usesMainServer ? BASE : (gate.baseUrl ?? null);
   const buildSha =
     gate.mode === "runtime"
@@ -776,7 +778,7 @@ export function runGate(gate, { serverBuildSha = null } = {}) {
   if (!ok) {
     console.log("      ---- salida ----");
     console.log(
-      tail
+      consoleTail
         .split(/\r?\n/)
         .map((line) => `      ${line}`)
         .join("\n"),

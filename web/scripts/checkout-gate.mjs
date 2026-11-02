@@ -11,6 +11,7 @@
 
 import { spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
+import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -86,7 +87,26 @@ async function waitForHealth(timeoutMs = 60_000) {
   return { error: "timeout esperando /api/health" };
 }
 
+async function portInUse(port) {
+  return new Promise((resolve) => {
+    const socket = net.createConnection({ host: "127.0.0.1", port });
+    const done = (value) => {
+      socket.destroy();
+      resolve(value);
+    };
+    socket.setTimeout(1_000, () => done(false));
+    socket.once("connect", () => done(true));
+    socket.once("error", () => done(false));
+  });
+}
+
 async function main() {
+  if (await portInUse(PORT)) {
+    console.error(
+      `CHECKOUT GATE: el puerto ${PORT} ya está ocupado; no lo reinicio.`,
+    );
+    return 1;
+  }
   server = spawn(
     process.execPath,
     [NEXT_BIN, "start", "-H", "127.0.0.1", "-p", String(PORT)],
