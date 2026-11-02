@@ -276,6 +276,21 @@ label:has(input[type="checkbox"]:checked) {
   border-color: var(--color-accent);
 }
 
+/* Wrappers que dibujan el borde visible de un campo (Total contado, Base,
+   Gastos, Retiros, Meta, Abono) y labels de efectivo/fiado. */
+.control-frame {
+  border-color: var(--color-control-border);
+}
+
+.control-frame:focus-within {
+  border-color: var(--color-accent);
+}
+
+.control-frame:has(input[aria-invalid="true"]),
+.control-frame:has([aria-invalid="true"]) {
+  border-color: var(--color-danger);
+}
+
 /* El radio real es sr-only: el anillo de foco se dibuja en la tarjeta. */
 .checkout-method:focus-within {
   outline: 3px solid var(--color-focus);
@@ -301,6 +316,61 @@ textarea[aria-invalid="true"] {
 /* La tab bar y el barrido no deben robar el foco al contenido. */
 .mobile-tabs {
   padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+/* -------------------------------------------------------------------------- */
+/* Shell móvil: el contenido scrollea dentro de main y la tab bar ocupa su    */
+/* propia fila. Así ningún control queda geométricamente debajo del chrome.   */
+/* -------------------------------------------------------------------------- */
+@media (max-width: 1023.98px) {
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    overflow: hidden;
+  }
+
+  .app-shell {
+    height: 100dvh;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-main {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-main > .topbar {
+    order: 1;
+    flex: 0 0 auto;
+    position: static;
+  }
+
+  .app-main > main.main-container {
+    order: 2;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-top: 12px;
+    scroll-padding-bottom: 12px;
+  }
+
+  .app-main > .mobile-tabs {
+    order: 3;
+    flex: 0 0 auto;
+    position: relative;
+    inset: auto;
+    z-index: 40;
+  }
 }
 
 button {
@@ -823,61 +893,56 @@ select {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Texto grande: 200 % de reflujo sin tocar el tamaño de la tipografía.       */
-/* El contenedor `.app-main` mide en `em`: con la raíz al 200 % el umbral      */
-/* solo se cruza cuando el texto es grande respecto del ancho.                */
+/* Texto grande: compactación de espacio cuando la raíz tipográfica crece.    */
+/* La detecta CajaApp (data-text-zoom) para no tocar el diseño a 360 normal   */
+/* ni el tamaño de la tipografía.                                             */
 /* -------------------------------------------------------------------------- */
 
-.app-main {
-  container-type: inline-size;
+html[data-text-zoom="large"] .main-container {
+  padding-top: 8px;
 }
 
-@container (max-width: 24em) {
-  /* El header y la tab bar se comen el primer viewport; compactamos solo    */
-  /* espacio, nunca debajo de 12 px de texto.                                */
-  .main-container {
-    padding-top: 8px;
-  }
+html[data-text-zoom="large"] .screen-heading-block {
+  margin-bottom: 8px;
+}
 
-  .screen-heading-block {
-    margin-bottom: 8px;
-  }
+html[data-text-zoom="large"] .screen-heading__subtitle {
+  margin-top: 4px;
+  line-height: 1.25;
+}
 
-  .screen-heading__subtitle {
-    margin-top: 4px;
-    line-height: 1.25;
-  }
+html[data-text-zoom="large"] .caja-panel {
+  padding: 8px;
+}
 
-  .caja-panel {
-    padding: 8px;
-  }
+html[data-text-zoom="large"] .caja-text-entry label {
+  margin-top: 16px;
+}
 
-  .caja-text-entry label {
-    margin-top: 16px;
-  }
+html[data-text-zoom="large"] .caja-text-entry button,
+html[data-text-zoom="large"] .caja-text-entry input,
+html[data-text-zoom="large"] .credit-row button {
+  min-height: 48px;
+}
 
-  .caja-text-entry button,
-  .caja-text-entry input {
-    min-height: 48px;
-  }
+html[data-text-zoom="large"] .goal-card {
+  padding: 8px;
+}
 
-  .goal-card {
-    padding: 8px;
-  }
+html[data-text-zoom="large"] .goal-action-row > div,
+html[data-text-zoom="large"] .goal-action-row > button,
+html[data-text-zoom="large"] .goal-action-row input {
+  min-height: 48px;
+}
 
-  .goal-action-row > div,
-  .goal-action-row > button,
-  .goal-action-row input {
-    min-height: 48px;
-  }
+html[data-text-zoom="large"] .credit-list-card {
+  padding-top: 8px;
+}
 
-  .credit-list-card {
-    padding-top: 8px;
-  }
-
-  .credit-row button {
-    min-height: 48px;
-  }
+/* Los botones de acción no crecen a 96 px con la raíz: el target táctil
+   mínimo sigue siendo 48 px y el texto manda el alto por línea. */
+html[data-text-zoom="large"] button {
+  min-height: 48px;
 }
 
 @container (min-width: 56rem) {
@@ -997,7 +1062,9 @@ select {
   to {
     opacity: 1;
     transform: translateY(0);
-    clip-path: inset(0);
+    /* Deja aire fuera del box para que el outline de foco (3 px + offset) no
+       quede recortado por el clip del reveal. */
+    clip-path: inset(-12px);
   }
 }
 
@@ -1098,6 +1165,19 @@ select {
       animation: scroll-progress linear both;
       animation-timeline: scroll(root block);
     }
+  }
+}
+
+/* En móvil el scroll vive en main: la veta usa un timeline con nombre. */
+@media (max-width: 1023.98px) {
+  main.main-container {
+    scroll-timeline: --mc-main block;
+  }
+}
+
+@media (max-width: 1023.98px) and (prefers-reduced-motion: no-preference) {
+  .scroll-progress {
+    animation-timeline: --mc-main;
   }
 }
 

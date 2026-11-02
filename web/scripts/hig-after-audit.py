@@ -413,34 +413,83 @@ def measure(page, label: str) -> dict:
                 }
             }
 
-            // Bordes visibles de controles: 3:1 contra la superficie.
+            // Bordes visibles de controles y de sus wrappers: 3:1. También
+            // falla un input/select/textarea sin ningún borde visible.
             const borderFailures = [];
-            const borderCandidates = Array.from(root.querySelectorAll('button, input, select, textarea, label'))
-                .filter(el => visible(el))
-                .filter(el => el.tagName !== 'LABEL' || el.querySelector('input[type="radio"], input[type="checkbox"]'));
-            for (const el of borderCandidates) {
+            const measuredBorders = new Set();
+            const readBorder = (el) => {
                 const s = getComputedStyle(el);
-                if (s.borderStyle === 'none' || parseFloat(s.borderTopWidth) < 1) continue;
+                if (s.borderStyle === 'none' || parseFloat(s.borderTopWidth) < 1) return null;
                 const fg = parseColor(s.borderTopColor);
-                if (!fg || fg.a < 0.2) continue;
+                if (!fg || fg.a < 0.2) return null;
                 const bg = solidBackground(el.parentElement || el);
-                const ratio = contrast(blend(fg, bg), bg);
-                if (ratio < 3) {
+                return { color: s.borderTopColor, ratio: contrast(blend(fg, bg), bg) };
+            };
+            const frameFor = (el) => {
+                let node = el.parentElement;
+                for (let depth = 0; node && depth < 4; depth += 1, node = node.parentElement) {
+                    if (node.matches('.control-frame, [class*="control-frame"]')) return node;
+                }
+                return null;
+            };
+            const judgeBorder = (target) => {
+                if (!target || measuredBorders.has(target)) return;
+                measuredBorders.add(target);
+                const border = readBorder(target);
+                if (!border) return;
+                if (border.ratio < 3) {
+                    borderFailures.push({
+                        tag: target.tagName,
+                        text: (target.innerText || target.getAttribute('aria-label') || target.getAttribute('placeholder') || '').trim().replace(/\\s+/g, ' ').slice(0, 40),
+                        color: border.color,
+                        ratio: Math.round(border.ratio * 100) / 100,
+                    });
+                }
+            };
+
+            for (const el of root.querySelectorAll('.control-frame, [class*="control-frame"]')) {
+                if (visible(el)) judgeBorder(el);
+            }
+            for (const el of root.querySelectorAll('button, input, select, textarea, label')) {
+                if (!visible(el)) continue;
+                if (el.tagName === 'LABEL' && !el.matches('.control-frame, [class*="control-frame"]') &&
+                    !el.querySelector('input[type="radio"], input[type="checkbox"]')) {
+                    continue;
+                }
+                const own = readBorder(el);
+                if (own) {
+                    judgeBorder(el);
+                    continue;
+                }
+                const frame = frameFor(el);
+                if (frame) {
+                    judgeBorder(frame);
+                    continue;
+                }
+                if (el.matches('input:not([type="radio"]):not([type="checkbox"]):not([type="hidden"]), select, textarea')) {
                     borderFailures.push({
                         tag: el.tagName,
-                        text: (el.innerText || el.getAttribute('aria-label') || el.getAttribute('placeholder') || '').trim().replace(/\\s+/g, ' ').slice(0, 40),
-                        color: s.borderTopColor,
-                        ratio: Math.round(ratio * 100) / 100,
+                        text: (el.getAttribute('aria-label') || el.getAttribute('placeholder') || '').trim().slice(0, 40),
+                        color: null,
+                        ratio: 0,
+                        reason: 'sin borde visible',
                     });
                 }
             }
 
-            // Controles primarios tapados por el chrome fijo. Solo se marcan
-            // como fallo los que llevan `data-chrome-critical`: el resto del
-            // contenido puede pasar por debajo de la tab bar al hacer scroll.
+            // Controles tapados por el chrome fijo. El rect se recorta primero
+            // por el scroller de main: si el control queda fuera de su caja,
+            // no es un solape visible. Cualquier solape visible de un control
+            // es fallo, no solo los críticos.
             const chromeOverlaps = [];
             const chromeUnderlay = [];
-            if (!dialog && window.scrollY <= 2) {
+            const scrollerEl = document.querySelector('main#main');
+            const scrollerStyle = scrollerEl ? getComputedStyle(scrollerEl) : null;
+            const internalScroll = Boolean(
+                scrollerEl && scrollerStyle && /(auto|scroll)/.test(scrollerStyle.overflowY)
+            );
+            const scrollTop = internalScroll ? scrollerEl.scrollTop : window.scrollY;
+            if (!dialog && scrollTop <= 2) {
                 const header = document.querySelector('header');
                 const chromeRects = [];
                 if (tabBarRect && tabBarRect.height > 0) chromeRects.push(['tab-bar', tabBarRect]);
@@ -451,25 +500,31 @@ def measure(page, label: str) -> dict:
                 for (const el of root.querySelectorAll('[data-chrome-critical], button, a[href], input, select, textarea, label')) {
                     if (!visible(el)) continue;
                     if (el.closest('nav[aria-label="Navegación inferior"], header, [role="dialog"]')) continue;
-                    const r = el.getBoundingClientRect();
-                    if (r.bottom <= 0 || r.top >= window.innerHeight) continue;
+                    const raw = el.getBoundingClientRect();
+                    if (raw.bottom <= 0 || raw.top >= window.innerHeight) continue;
+                    let floating = false;
+                    for (let node = el; node && node !== document.body; node = node.parentElement) {
+                        const position = getComputedStyle(node).position;
+                        if (position === 'fixed' || position === 'sticky') { floating = true; break; }
+                    }
+                    const box = floating ? raw : effectiveRect(el);
+                    if (!box || box.width < 2 || box.height < 2) continue;
                     const critical = el.hasAttribute('data-chrome-critical') || Boolean(el.closest('[data-chrome-critical]'));
                     for (const [name, chrome] of chromeRects) {
-                        const x = Math.max(0, Math.min(r.right, chrome.right) - Math.max(r.left, chrome.left));
-                        const y = Math.max(0, Math.min(r.bottom, chrome.bottom) - Math.max(r.top, chrome.top));
+                        const x = Math.max(0, Math.min(box.right, chrome.right) - Math.max(box.left, chrome.left));
+                        const y = Math.max(0, Math.min(box.bottom, chrome.bottom) - Math.max(box.top, chrome.top));
                         const area = x * y;
                         if (!area) continue;
-                        const ratio = area / (r.width * r.height);
-                        if (ratio > 0.25) {
-                            const entry = {
-                                chrome: name,
-                                tag: el.tagName,
-                                text: (el.innerText || el.getAttribute('aria-label') || el.getAttribute('placeholder') || '').trim().replace(/\\s+/g, ' ').slice(0, 40),
-                                ratio: Math.round(ratio * 100),
-                            };
-                            if (critical) chromeOverlaps.push(entry);
-                            else chromeUnderlay.push(entry);
-                        }
+                        const ratio = area / (box.width * box.height);
+                        if (ratio <= 0.01) continue;
+                        const entry = {
+                            chrome: name,
+                            tag: el.tagName,
+                            text: (el.innerText || el.getAttribute('aria-label') || el.getAttribute('placeholder') || '').trim().replace(/\\s+/g, ' ').slice(0, 40),
+                            ratio: Math.round(ratio * 100),
+                        };
+                        if (critical) chromeOverlaps.push(entry);
+                        else chromeUnderlay.push(entry);
                     }
                 }
             }
@@ -485,6 +540,23 @@ def measure(page, label: str) -> dict:
                 // Los botones que solo muestran un glifo (+/−/×) no son texto
                 // visible: su nombre accesible describe la acción.
                 if (!/[0-9a-z\u00e0-\u00ff]/i.test(visibleText)) continue;
+                if (!label.includes(visibleText)) {
+                    labelMismatches.push({
+                        tag: el.tagName,
+                        text: visibleText.slice(0, 40),
+                        label: label.slice(0, 60),
+                    });
+                }
+            }
+            // En campos, el placeholder visible que contiene palabras también
+            // forma parte del nombre visible; los "Ej." y formatos se omiten.
+            for (const el of root.querySelectorAll('input[aria-label][placeholder], textarea[aria-label][placeholder]')) {
+                if (!visible(el)) continue;
+                const visibleText = normalize(el.getAttribute('placeholder'));
+                const label = normalize(el.getAttribute('aria-label'));
+                if (!visibleText || !label) continue;
+                if (/^ej\\./i.test(visibleText)) continue;
+                if (!/[a-z\\u00e0-\\u00ff]{3,}/i.test(visibleText)) continue;
                 if (!label.includes(visibleText)) {
                     labelMismatches.push({
                         tag: el.tagName,
@@ -528,7 +600,7 @@ def measure(page, label: str) -> dict:
                 saleAboveTabBar,
                 tabBarVisible,
                 tabBarTop: tabBarVisible ? Math.round(tabBarRect.top) : null,
-                scrollY: Math.round(window.scrollY),
+                scrollY: Math.round(scrollTop),
                 metaAmountVisible: Boolean(metaAmount),
                 metaAmountText: metaAmount ? (metaAmount.innerText || '').trim().replace(/\\s+/g, ' ').slice(0, 70) : null,
                 metaActionVisible: metaActionRect
@@ -543,6 +615,7 @@ def measure(page, label: str) -> dict:
                 placeholderFailureCount: placeholderFailures.length,
                 placeholderFailures: placeholderFailures.slice(0, 8),
                 borderFailureCount: borderFailures.length,
+                borderCheckedCount: measuredBorders.size,
                 borderFailures: borderFailures.slice(0, 8),
                 labelMismatchCount: labelMismatches.length,
                 labelMismatches: labelMismatches.slice(0, 8),
@@ -826,7 +899,10 @@ def main() -> int:
     path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
 
     # Gate: any serious/critical axe violation, horizontal overflow, clipped
-    # non-intentional text, overlapping targets, or sub-44px target fails.
+    # non-intentional text, overlapping targets, chrome-overlapped controls,
+    # sub-12px text or sub-44px target fails. Axe moderate/minor se guardan en
+    # el JSON como deuda revisable, pero no bloquean el gate (política explícita
+    # en HIG-DESIGN §10); serious/critical sí lo bloquean.
     failures: list[str] = []
     for record in results:
         view = record.get("viewport", "?")
@@ -863,6 +939,10 @@ def main() -> int:
                         failures.append(
                             f"{view} {key}: overlap {overlap['ratio']}% “{overlap['a']}” / “{overlap['b']}”"
                         )
+                if value.get("under12Count", 0) > 0:
+                    failures.append(
+                        f"{view} {key}: {value['under12Count']} textos bajo 12 px"
+                    )
                 if value.get("under48Count", 0) > 0:
                     failures.append(f"{view} {key}: {value['under48Count']} targets under 44px")
                 if value.get("unnamedCount", 0) > 0:
@@ -877,6 +957,11 @@ def main() -> int:
                         failures.append(
                             f"{view} {key}: control tapado por {item['chrome']} al {item['ratio']}% “{item['text']}”"
                         )
+                if value.get("chromeUnderlayCount", 0) > 0:
+                    for item in value.get("chromeUnderlay", []):
+                        failures.append(
+                            f"{view} {key}: control bajo {item['chrome']} al {item['ratio']}% “{item['text']}”"
+                        )
                 if value.get("placeholderFailureCount", 0) > 0:
                     for item in value.get("placeholderFailures", []):
                         failures.append(
@@ -885,7 +970,8 @@ def main() -> int:
                 if value.get("borderFailureCount", 0) > 0:
                     for item in value.get("borderFailures", []):
                         failures.append(
-                            f"{view} {key}: borde de control {item['ratio']}:1 en {item['tag']} “{item['text']}”"
+                            f"{view} {key}: borde de control {item.get('ratio')}:1 en {item['tag']} “{item['text']}”"
+                            + (f" ({item['reason']})" if item.get("reason") else "")
                         )
                 if value.get("labelMismatchCount", 0) > 0:
                     for item in value.get("labelMismatches", []):
@@ -921,6 +1007,10 @@ def main() -> int:
             failures.append(f"{view}: {len(record['consoleErrors'])} console errors: {record['consoleErrors'][:2]}")
 
     report["failures"] = failures
+    report["axePolicy"] = (
+        "serious/critical bloquean; moderate/minor se guardan en el JSON y se "
+        "revisan como deuda, sin bloquear el gate"
+    )
     path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
 
     if failures:
@@ -929,7 +1019,7 @@ def main() -> int:
             print("  -", failure)
         return 1
 
-    print("\nPASÓ: sin violaciones serias, recortes, solapes ni overflow.")
+    print("\nPASÓ: sin violaciones serias, recortes, controles bajo el chrome ni overflow.")
     return 0
 
 

@@ -107,13 +107,14 @@ def home_metrics(page) -> dict:
           const tr = tab ? tab.getBoundingClientRect() : null;
           const tabVisible = Boolean(tr && tr.height > 0 && tr.top < innerHeight);
           const saleVisible = sr
-            ? sr.top < innerHeight && sr.bottom > 0 && (!tabVisible || sr.bottom <= tr.top + 1)
+            ? sr.top < innerHeight && sr.bottom > 0 && sr.top >= 0 &&
+              (!tabVisible || sr.bottom <= tr.top + 1)
             : null;
           return {
             headerRatio: header ? header.getBoundingClientRect().height / innerHeight : null,
             saleTop: sr ? Math.round(sr.top) : null,
             saleVisible,
-            saleFullyAboveTabBar: sr && tr ? sr.bottom <= tr.top + 1 : null,
+            saleFullyAboveTabBar: sr && tr ? sr.top >= 0 && sr.bottom > 0 && sr.bottom <= tr.top + 1 : null,
             tabBarTop: tr ? Math.round(tr.top) : null,
             scrollWidth: document.documentElement.scrollWidth,
             innerWidth,
@@ -129,6 +130,30 @@ def text200(page) -> None:
 
 def reset_dashboard(page) -> None:
     page.request.post(f"{BASE}/api/demo/reset")
+
+
+def scroll_top(page) -> int:
+    return page.evaluate(
+        """() => {
+          const main = document.getElementById('main');
+          const scroller = main && /(auto|scroll)/.test(getComputedStyle(main).overflowY);
+          return Math.round(scroller ? main.scrollTop : window.scrollY);
+        }"""
+    )
+
+
+def scroll_to(page, value: int) -> None:
+    page.evaluate(
+        """(value) => {
+          const main = document.getElementById('main');
+          if (main && /(auto|scroll)/.test(getComputedStyle(main).overflowY)) {
+            main.scrollTop = value;
+          } else {
+            window.scrollTo(0, value);
+          }
+        }""",
+        value,
+    )
 
 
 def main() -> int:
@@ -403,8 +428,8 @@ def main() -> int:
                 bottom: r ? Math.round(r.bottom) : null,
                 inputBottom: ir ? Math.round(ir.bottom) : null,
                 tabTop: Math.round(tab.top),
-                above: r ? r.bottom <= tab.top + 1 : false,
-                inputAbove: ir ? ir.bottom <= tab.top + 1 : false,
+                above: r ? r.bottom <= tab.top + 1 && r.top >= 0 && r.bottom > 0 : false,
+                inputAbove: ir ? ir.bottom <= tab.top + 1 && ir.top >= 0 && ir.bottom > 0 : false,
               };
             }"""
         )
@@ -418,7 +443,93 @@ def main() -> int:
             bool(caja_action["inputAbove"]),
             f"bottom {caja_action['inputBottom']} <= tab {caja_action['tabTop']}",
         )
+        home_actions = page.evaluate(
+            """() => {
+              const tab = document.querySelector('nav[aria-label="Navegación inferior"]').getBoundingClientRect();
+              const main = document.getElementById('main').getBoundingClientRect();
+              const texts = ['Verificar comprobante', 'Quesadillas $90', 'Juan pagó $50'];
+              const out = [];
+              for (const text of texts) {
+                const el = [...document.querySelectorAll('button')].find(b => ((b.innerText || '').includes(text)) || (b.getAttribute('aria-label') || '').includes(text));
+                if (!el) { out.push({text, found: false, covered: false}); continue; }
+                const r = el.getBoundingClientRect();
+                const clippedBottom = Math.min(r.bottom, main.bottom);
+                const covered = r.top < tab.top && clippedBottom > tab.top && r.top < innerHeight && r.bottom > 0;
+                out.push({text, found: true, top: Math.round(r.top), bottom: Math.round(r.bottom),
+                          clippedBottom: Math.round(clippedBottom), tabTop: Math.round(tab.top), covered});
+              }
+              return out;
+            }"""
+        )
+        check(
+            "home-360-200: acciones de Caja fuera del chrome fijo",
+            all(item["covered"] is False for item in home_actions),
+            str(home_actions),
+        )
         page.screenshot(path=str(OUT / "e2e-caja-360-text200.png"))
+        context.close()
+
+        # Corte: Base inicial normal y Actualizar corte al 200%.
+        context = browser.new_context(
+            viewport={"width": 360, "height": 800},
+            locale="es-MX",
+            is_mobile=True,
+            has_touch=True,
+        )
+        page = context.new_page()
+        page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
+        page.wait_for_selector("h1:has-text('Caja')", timeout=30000)
+        page.wait_for_timeout(900)
+        page.locator('nav[aria-label="Navegación inferior"]').get_by_role(
+            "button", name="Corte", exact=True
+        ).click()
+        page.wait_for_timeout(700)
+        corte_normal = page.evaluate(
+            """() => {
+              const tab = document.querySelector('nav[aria-label="Navegación inferior"]').getBoundingClientRect();
+              const main = document.getElementById('main').getBoundingClientRect();
+              const el = document.querySelector('#corte-opening');
+              const r = el ? el.getBoundingClientRect() : null;
+              const clippedBottom = r ? Math.min(r.bottom, main.bottom) : null;
+              return {
+                found: Boolean(el),
+                top: r ? Math.round(r.top) : null,
+                bottom: r ? Math.round(r.bottom) : null,
+                clippedBottom: clippedBottom === null ? null : Math.round(clippedBottom),
+                tabTop: Math.round(tab.top),
+                covered: Boolean(r && r.top < tab.top && clippedBottom > tab.top && r.bottom > 0),
+              };
+            }"""
+        )
+        check(
+            "corte-360: Base inicial fuera del chrome fijo",
+            bool(corte_normal["found"] and not corte_normal["covered"]),
+            str(corte_normal),
+        )
+        text200(page)
+        corte_200 = page.evaluate(
+            """() => {
+              const tab = document.querySelector('nav[aria-label="Navegación inferior"]').getBoundingClientRect();
+              const main = document.getElementById('main').getBoundingClientRect();
+              const el = [...document.querySelectorAll('button')].find(b => ((b.innerText || '').trim() === 'Actualizar corte') || (b.getAttribute('aria-label') || '').includes('Actualizar corte'));
+              const r = el ? el.getBoundingClientRect() : null;
+              const clippedBottom = r ? Math.min(r.bottom, main.bottom) : null;
+              return {
+                found: Boolean(el),
+                top: r ? Math.round(r.top) : null,
+                bottom: r ? Math.round(r.bottom) : null,
+                clippedBottom: clippedBottom === null ? null : Math.round(clippedBottom),
+                tabTop: Math.round(tab.top),
+                covered: Boolean(r && r.top < tab.top && clippedBottom > tab.top && r.bottom > 0),
+              };
+            }"""
+        )
+        check(
+            "corte-360-200: Actualizar corte fuera del chrome fijo",
+            bool(corte_200["found"] and not corte_200["covered"]),
+            str(corte_200),
+        )
+        page.screenshot(path=str(OUT / "e2e-corte-360-text200.png"))
         context.close()
 
         # 768/200: Registrar abono del primer fiado, completo sobre la tab bar.
@@ -440,7 +551,7 @@ def main() -> int:
                 top: r ? Math.round(r.top) : null,
                 bottom: r ? Math.round(r.bottom) : null,
                 tabTop: Math.round(tab.top),
-                above: r ? r.bottom <= tab.top + 1 : false,
+                above: r ? r.bottom <= tab.top + 1 && r.top >= 0 && r.bottom > 0 : false,
               };
             }"""
         )
@@ -496,16 +607,19 @@ def main() -> int:
         )
         check("teclado: la tab bar va antes de main en el DOM", dom_order)
 
-        page.evaluate("window.scrollTo(0, 800)")
+        scroll_to(page, 800)
         page.wait_for_timeout(200)
         nav = page.locator('nav[aria-label="Navegación inferior"]')
         nav.get_by_role("button", name="Fiado", exact=True).click()
         page.wait_for_timeout(700)
         nav.get_by_role("button", name="Caja", exact=True).click()
         page.wait_for_timeout(700)
-        pointer_return = page.evaluate(
-            """() => ({ scrollY: Math.round(scrollY), active: document.activeElement?.getAttribute('aria-label') || document.activeElement?.innerText?.trim() })"""
-        )
+        pointer_return = {
+            "scrollY": scroll_top(page),
+            "active": page.evaluate(
+                "document.activeElement?.getAttribute('aria-label') || document.activeElement?.innerText?.trim()"
+            ),
+        }
         check(
             "puntero: volver a Caja conserva el scroll guardado",
             abs(pointer_return["scrollY"] - 800) <= 4,
@@ -524,14 +638,20 @@ def main() -> int:
               const r = el?.getBoundingClientRect();
               const tab = document.querySelector('nav[aria-label="Navegación inferior"]').getBoundingClientRect();
               const header = document.querySelector('header').getBoundingClientRect();
+              const main = document.getElementById('main');
+              const scroller = main && /(auto|scroll)/.test(getComputedStyle(main).overflowY);
+              const s = el ? getComputedStyle(el) : null;
               return {
                 id: el?.id,
                 top: r ? Math.round(r.top) : null,
                 bottom: r ? Math.round(r.bottom) : null,
                 headerBottom: Math.round(header.bottom),
                 tabTop: Math.round(tab.top),
-                scrollY: Math.round(scrollY),
+                scrollY: Math.round(scroller ? main.scrollTop : window.scrollY),
                 visible: Boolean(r && r.top >= header.bottom - 1 && r.bottom <= tab.top + 1),
+                outlineWidth: s ? s.outlineWidth : null,
+                outlineStyle: s ? s.outlineStyle : null,
+                clipPath: s ? s.clipPath : null,
               };
             }"""
         )
@@ -543,6 +663,16 @@ def main() -> int:
         check(
             "teclado: el título enfocado queda visible entre header y tab bar",
             bool(keyboard_return["visible"]),
+            str(keyboard_return),
+        )
+        check(
+            "teclado: el anillo del título no queda recortado por heading-in",
+            keyboard_return["outlineStyle"] != "none"
+            and float((keyboard_return["outlineWidth"] or "0px").replace("px", "")) >= 3
+            and (
+                keyboard_return["clipPath"] in ("none", "auto")
+                or "-12px" in (keyboard_return["clipPath"] or "")
+            ),
             str(keyboard_return),
         )
         page.screenshot(path=str(OUT / "e2e-focus-return-360.png"))
@@ -641,7 +771,7 @@ def main() -> int:
               return {
                 amountVisible: ar ? ar.top < innerHeight && ar.bottom > 0 : false,
                 amountText: amount ? amount.innerText.trim() : null,
-                actionVisibleAboveTabBar: br ? br.top < innerHeight && br.bottom <= tab.top + 1 : false,
+                actionVisibleAboveTabBar: br ? br.top >= 0 && br.bottom > 0 && br.bottom <= tab.top + 1 : false,
                 actionTop: br ? Math.round(br.top) : null,
                 tabTop: Math.round(tab.top),
               };
@@ -656,6 +786,51 @@ def main() -> int:
         broken = broken_words(page)
         check("meta-360-200: sin palabras partidas", not broken, ", ".join(item["word"] for item in broken[:5]))
         page.screenshot(path=str(OUT / "e2e-meta-360-text200.png"))
+        context.close()
+
+        # Checkout público: el radio sr-only proyecta el foco en la tarjeta.
+        context = browser.new_context(
+            viewport={"width": 360, "height": 800},
+            locale="es-MX",
+            is_mobile=True,
+            has_touch=True,
+        )
+        page = context.new_page()
+        page.request.post(f"{BASE}/api/demo/reset")
+        dashboard = context.request.get(f"{BASE}/api/dashboard").json()
+        pending = next(
+            (order for order in dashboard["orders"] if order["status"] == "payment_pending"),
+            None,
+        )
+        check("checkout: hay un cobro pendiente", pending is not None)
+        if pending:
+            page.goto(f"{BASE}/pay/{pending['id']}", wait_until="domcontentloaded", timeout=45000)
+            page.wait_for_selector("text=¿Cómo quieres pagar?", timeout=20000)
+            page.locator('input[type="radio"]').first.focus()
+            checkout_focus = page.evaluate(
+                """() => {
+                  const label = document.querySelector('.checkout-method');
+                  const input = document.querySelector('input[type="radio"]');
+                  const s = label ? getComputedStyle(label) : null;
+                  return {
+                    focused: document.activeElement === input,
+                    outlineStyle: s ? s.outlineStyle : null,
+                    outlineWidth: s ? s.outlineWidth : null,
+                    outlineOffset: s ? s.outlineOffset : null,
+                    border: s ? s.borderTopColor : null,
+                  };
+                }"""
+            )
+            check(
+                "checkout: el radio enfocado dibuja anillo visible",
+                bool(
+                    checkout_focus["focused"]
+                    and checkout_focus["outlineStyle"] != "none"
+                    and float((checkout_focus["outlineWidth"] or "0px").replace("px", "")) >= 2
+                ),
+                str(checkout_focus),
+            )
+            page.screenshot(path=str(OUT / "e2e-checkout-radio-focus-360.png"))
         context.close()
 
         browser.close()

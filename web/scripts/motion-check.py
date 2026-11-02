@@ -225,13 +225,25 @@ def main() -> int:
             and seconds(marker["duration"]) <= 0.2,
             json.dumps(marker, ensure_ascii=False),
         )
-        page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
+        page.evaluate(
+            """() => {
+              const main = document.getElementById('main');
+              if (main && /(auto|scroll)/.test(getComputedStyle(main).overflowY)) {
+                main.scrollTop = main.scrollHeight;
+              } else {
+                window.scrollTo(0, document.documentElement.scrollHeight);
+              }
+            }"""
+        )
         page.wait_for_timeout(600)
         bottom = read_motion(page)
         check(
             "el scroll trigger llega al final de la veta",
             bottom["progress"] is not None
-            and bottom["progress"]["timeline"].startswith("scroll(")
+            and (
+                bottom["progress"]["timeline"].startswith("scroll(")
+                or bottom["progress"]["timeline"] == "--mc-main"
+            )
             and scale_x(bottom["progress"]["transform"]) > 0.9,
             json.dumps(bottom["progress"], ensure_ascii=False),
         )
@@ -246,37 +258,41 @@ def main() -> int:
         abono_box = abono.bounding_box()
         nav.get_by_role("button", name="Caja", exact=True).click()
         page.wait_for_timeout(500)
-        # El barrido real dura 300 ms (comprobado arriba). Para que el clic de
-        # prueba caiga con el papel encima, lo alargamos durante este caso.
-        page.add_style_tag(content=".tab-wipe { animation-duration: 800ms !important; }")
-        nav.get_by_role("button", name="Fiado", exact=True).click()
         center_x = abono_box["x"] + abono_box["width"] / 2
         center_y = abono_box["y"] + abono_box["height"] / 2
-        page.wait_for_function(
-            """([x]) => {
+        nav.get_by_role("button", name="Fiado", exact=True).click()
+        # Congelamos el barrido cubriendo el viewport para que el clic caiga
+        # sobre él; sin animación no puede llegar animationend.
+        pause = page.evaluate(
+            """([x, y]) => {
               const el = document.querySelector('.tab-wipe');
-              if (!el) return false;
-              const r = el.getBoundingClientRect();
-              return r.left <= x && r.right >= x;
-            }""",
-            arg=[center_x],
-            timeout=3000,
-        )
-        wipe_state = page.evaluate(
-            """() => {
-              const el = document.querySelector('.tab-wipe');
-              if (!el) return null;
+              if (!el) return { wipe: false };
+              el.style.animation = 'none';
+              el.style.transform = 'translateX(0)';
               const s = getComputedStyle(el);
-              return { duration: s.animationDuration, pointerEvents: s.pointerEvents, zIndex: s.zIndex };
-            }"""
+              const hit = document.elementFromPoint(x, y);
+              return {
+                wipe: true,
+                duration: s.animationDuration,
+                pointerEvents: s.pointerEvents,
+                transform: s.transform,
+                hit: hit ? `${hit.tagName}.${String(hit.className).split(' ').slice(0, 2).join('.')}` : null,
+                hitIsWipe: Boolean(hit && (hit === el || hit.closest('.tab-wipe'))),
+              };
+            }""",
+            [center_x, center_y],
         )
         check(
             "el wipe intercepta clics mientras existe",
-            wipe_state is not None and wipe_state["pointerEvents"] == "auto",
-            json.dumps(wipe_state, ensure_ascii=False),
+            bool(pause["wipe"] and pause["pointerEvents"] == "auto"),
+            json.dumps(pause, ensure_ascii=False),
         )
-        if abono_box:
-            page.mouse.click(abono_box["x"] + abono_box["width"] / 2, abono_box["y"] + abono_box["height"] / 2)
+        check(
+            "durante el wipe el clic cae en el propio barrido",
+            bool(pause["hitIsWipe"]),
+            json.dumps(pause, ensure_ascii=False),
+        )
+        page.mouse.click(center_x, center_y)
         page.wait_for_timeout(400)
         sheet_after_wipe = page.locator('[role="dialog"]').count()
         check(
@@ -284,7 +300,9 @@ def main() -> int:
             sheet_after_wipe == 0,
             f"{sheet_after_wipe} hoja(s)",
         )
-        page.wait_for_timeout(500)
+        # La animación quedó pausada: animationend no puede llegar. Solo el
+        # timeout de seguridad retira el barrido.
+        page.wait_for_timeout(900)
         check(
             "el wipe desaparece aunque no llegue animationend (timeout de seguridad)",
             page.locator(".tab-wipe").count() == 0,

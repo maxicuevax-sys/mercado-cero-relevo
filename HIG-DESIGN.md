@@ -98,7 +98,8 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 - Sidebar 220 px (768–1199) / 240 px (≥1200).
 - En ≥1200, Caja usa dos columnas: venta/draft (640) + resumen/actividad (360).
 - El checkout siempre es una tarjeta centrada de máximo 480 px.
-- La tab bar va antes de `main` en el DOM y es fija; el skip link enfoca `main#main` y `scroll-padding` superior/inferior mide el chrome real.
+- La tab bar va antes de `main` en el DOM. En móvil es una fila del shell y `main` tiene su propio scroll; en escritorio la barra queda fija abajo. Así ningún control puede quedar debajo del chrome.
+- El skip link enfoca `main#main`; `scroll-padding` superior/inferior se alimenta del alto real del header y la tab bar.
 - Al 200 %, las acciones primarias de Caja, Meta y Fiado quedan completas por encima de la tab bar; el contenido nunca queda atrapado bajo el chrome.
 
 ### 3.3 Mapa de pantallas
@@ -149,6 +150,7 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 - `--color-separator` no se usa para texto ni para bordes de controles.
 - `--color-placeholder` es sólido (sin opacidad): ≥4.5:1 en normal y en alto contraste.
 - `--color-control-border` mantiene ≥3:1 en inputs, selects, textareas, radios y botones secundarios.
+- El borde visible puede vivir en un wrapper (`control-frame`): Total contado, Base inicial, Gastos, Retiros, Base para mañana, Meta y Abono; el audit mide el wrapper si el control interno no dibuja borde.
 - Modo oscuro: tokens preparados, **no se implementa en F3**. Si se hace, se prueba contraste y apariencia.
 
 ### 4.2 Tipografía
@@ -511,6 +513,8 @@ Apple HIG describe plataformas Apple; esta app es web. Se adaptan **principios**
 - No hay “desktop = otra app”: mismos destinos y estados.
 - A 768 no se fuerzan dos columnas si el contenido no cabe; se prioriza lectura.
 - El ancho de lectura máximo es 680; el de app 1200.
+- `data-text-zoom="large"` se activa cuando la raíz tipográfica real llega a 24 px (150 % o más). La compactación de espacio no aplica a 360 px normales; el texto nunca baja de 12 px.
+- **Política axe del gate:** `serious` y `critical` bloquean. `moderate` y `minor` se guardan en `audit.json` y se revisan como deuda; no bloquean el gate.
 
 ---
 
@@ -598,4 +602,4 @@ La revisión de diseño pidió una capa más editorial, manteniendo la claridad 
 - **Composición:** Caja a dos columnas desde 1280 (venta + actividad), sidebar con nota “Cuaderno de mercado”, topbar compacto y botones primarios tipo sello/pill.
 - **Movimiento:** el sistema de `MOTION.md`; 140–240 ms, scroll trigger nativo y reduced-motion.
 
-Lo que **no** cambia: 48 px, 200 %, axe 0, foco visible, teclado, estados error≠vacío, distinción demo/efectivo/fiado/pey y la regla de `paid` solo por webhook. Esta sección reemplaza la prohibición absoluta de grano/display de §1 para la capa visual; no autoriza halftone, borde de recibo ni sellos rotados en la ruta transaccional.
+Lo que **no** cambia: 48 px, 200 %, axe serious/critical 0, foco visible, teclado, estados error≠vacío, distinción demo/efectivo/fiado/pey y la regla de `paid` solo por webhook. Esta sección reemplaza la prohibición absoluta de grano/display de §1 para la capa visual; no autoriza halftone, borde de recibo ni sellos rotados en la ruta transaccional.

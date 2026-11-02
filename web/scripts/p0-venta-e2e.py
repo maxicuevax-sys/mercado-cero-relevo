@@ -155,7 +155,7 @@ def main() -> int:
         add_item(page, "Viejo", 1, 90)
         page.get_by_label("Efectivo recibido en pesos").fill("100")
         page.get_by_label("Monto a fiado en pesos").fill("10")
-        page.get_by_label("Nombre del cliente para el fiado").fill("Cliente viejo")
+        page.get_by_label("¿Quién queda a deber? Ej. Juan").fill("Cliente viejo")
         page.get_by_role("button", name="Limpiar").click()
         expect(page.get_by_text("¿Descartar la venta sin confirmar?")).to_be_visible()
         page.get_by_role("button", name="Quitar producto").click()
@@ -170,7 +170,7 @@ def main() -> int:
         check("borrar el último ítem limpia fiado", credit_value == "", credit_value)
         check(
             "borrar el último ítem limpia cliente",
-            page.get_by_label("Nombre del cliente para el fiado").count() == 0,
+            page.get_by_label("¿Quién queda a deber? Ej. Juan").count() == 0,
         )
         check(
             "borrar el último ítem cancela la confirmación de Limpiar",
@@ -308,7 +308,7 @@ def main() -> int:
         add_item(page, "Cambio fiado", 1, 90)
         page.get_by_label("Efectivo recibido en pesos").fill("100")
         page.get_by_label("Monto a fiado en pesos").fill("30")
-        page.get_by_label("Nombre del cliente para el fiado").fill("Cambio")
+        page.get_by_label("¿Quién queda a deber? Ej. Juan").fill("Cambio")
         before = order_ids(page)
         page.get_by_role("button", name="Confirmar venta").click()
         expect(page.get_by_role("dialog")).to_be_visible()
@@ -482,7 +482,7 @@ def main() -> int:
 
         add_item(page, "Fiado ajeno", 1, 20)
         page.get_by_label("Monto a fiado en pesos").fill("20")
-        page.get_by_label("Nombre del cliente para el fiado").fill("Cliente fiado")
+        page.get_by_label("¿Quién queda a deber? Ej. Juan").fill("Cliente fiado")
         before = order_ids(page)
         page.get_by_role("button", name="Confirmar venta").click()
         expect(page.get_by_role("dialog")).to_be_visible()
@@ -527,7 +527,7 @@ def main() -> int:
         add_item(page, "Mixta", 1, 90)
         page.get_by_label("Efectivo recibido en pesos").fill("30")
         page.get_by_label("Monto a fiado en pesos").fill("20")
-        page.get_by_label("Nombre del cliente para el fiado").fill("Ana")
+        page.get_by_label("¿Quién queda a deber? Ej. Juan").fill("Ana")
         before = order_ids(page)
         page.get_by_role("button", name="Confirmar venta").click()
         expect(page.get_by_role("dialog")).to_be_visible()

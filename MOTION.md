@@ -16,7 +16,8 @@
 - **Feedback:** el marcador del tab activo crece en 180 ms; los montos ruedan en
   220 ms; las listas nuevas aparecen con un stagger corto.
 - **Scroll:** una veta de 2 px en el borde superior avanza con
-  `animation-timeline: scroll(root block)`; la tarjeta de Actividad entra con
+  `animation-timeline: scroll(root block)`; en móvil el scroll de `main` usa un
+  timeline con nombre (`--mc-main`) y la misma veta. La tarjeta de Actividad entra con
   `animation-timeline: view()` (`entry 0–60 %`). Si el navegador no lo soporta,
   no se pinta nada y el contenido queda visible.
 - **Presupuesto:** todo es CSS nativo; no hay listeners de scroll ni runtime de
@@ -47,7 +48,7 @@
 ```powershell
 cd web
 $env:MOTION_BASE_URL="http://localhost:3000"
-python scripts/motion-check.py   # 15/15; gate `motion` del harness full (13/13)
+python scripts/motion-check.py   # 19/19; gate `motion` del harness full
 python scripts/hig-after-audit.py
 ```
 

@@ -1,12 +1,12 @@
 {
   "baseUrl": "http://localhost:3120",
-  "started": "2026-11-02T10:15:07",
-  "elapsedSeconds": 47.9,
+  "started": "2026-11-02T11:46:26",
+  "elapsedSeconds": 61.0,
   "code": {
-    "commit": "7bb0dc54a53ea8880415a6af219e19c65529e5d3",
+    "commit": "9193e0ade768d00dba7d41a643e4ae577d0309f4",
     "dirty": true
   },
-  "passed": 61,
+  "passed": 67,
   "failed": 0,
   "results": [
     {
@@ -182,7 +182,7 @@
     {
       "name": "home-360-200: campo de venta por encima de la tab bar",
       "ok": true,
-      "detail": "sale bottom <= tab top (675)"
+      "detail": "sale bottom <= tab top (707)"
     },
     {
       "name": "home-360-200: sin palabras partidas",
@@ -197,7 +197,7 @@
     {
       "name": "home-768-200: campo de venta por encima de la tab bar",
       "ok": true,
-      "detail": "saleTop=571 tabTop=899"
+      "detail": "saleTop=571 tabTop=921"
     },
     {
       "name": "home-768-200: sin palabras partidas",
@@ -212,17 +212,32 @@
     {
       "name": "caja-360-200: Interpretar completo por encima de la tab bar",
       "ok": true,
-      "detail": "bottom 657 <= tab 675"
+      "detail": "bottom 657 <= tab 707"
     },
     {
       "name": "caja-360-200: campo de venta por encima de la tab bar",
       "ok": true,
-      "detail": "bottom 590 <= tab 675"
+      "detail": "bottom 590 <= tab 707"
+    },
+    {
+      "name": "home-360-200: acciones de Caja fuera del chrome fijo",
+      "ok": true,
+      "detail": "[{'text': 'Verificar comprobante', 'found': True, 'top': 174, 'bottom': 222, 'clippedBottom': 222, 'tabTop': 707, 'covered': False}, {'text': 'Quesadillas $90', 'found': True, 'top': 681, 'bottom': 782, 'clippedBottom': 707, 'tabTop': 707, 'covered': False}, {'text': 'Juan pagó $50', 'found': True, 'top': 798, 'bottom': 898, 'clippedBottom': 707, 'tabTop': 707, 'covered': False}]"
+    },
+    {
+      "name": "corte-360: Base inicial fuera del chrome fijo",
+      "ok": true,
+      "detail": "{'found': True, 'top': 786, 'bottom': 834, 'clippedBottom': 731, 'tabTop': 731, 'covered': False}"
+    },
+    {
+      "name": "corte-360-200: Actualizar corte fuera del chrome fijo",
+      "ok": true,
+      "detail": "{'found': True, 'top': 621, 'bottom': 717, 'clippedBottom': 707, 'tabTop': 707, 'covered': False}"
     },
     {
       "name": "fiado-768-200: Registrar abono completo por encima de la tab bar",
       "ok": true,
-      "detail": "bottom 839 <= tab 899"
+      "detail": "bottom 839 <= tab 921"
     },
     {
       "name": "teclado: primer Tab es el skip link",
@@ -247,17 +262,22 @@
     {
       "name": "teclado: volver a Caja sube al top y enfoca el título",
       "ok": true,
-      "detail": "{'id': 'caja-heading', 'top': 87, 'bottom': 122, 'headerBottom': 72, 'tabTop': 731, 'scrollY': 0, 'visible': True}"
+      "detail": "{'id': 'caja-heading', 'top': 99, 'bottom': 134, 'headerBottom': 72, 'tabTop': 731, 'scrollY': 0, 'visible': True, 'outlineWidth': '3px', 'outlineStyle': 'solid', 'clipPath': 'inset(-12px -12px calc(0% - 12px))'}"
     },
     {
       "name": "teclado: el título enfocado queda visible entre header y tab bar",
       "ok": true,
-      "detail": "{'id': 'caja-heading', 'top': 87, 'bottom': 122, 'headerBottom': 72, 'tabTop': 731, 'scrollY': 0, 'visible': True}"
+      "detail": "{'id': 'caja-heading', 'top': 99, 'bottom': 134, 'headerBottom': 72, 'tabTop': 731, 'scrollY': 0, 'visible': True, 'outlineWidth': '3px', 'outlineStyle': 'solid', 'clipPath': 'inset(-12px -12px calc(0% - 12px))'}"
+    },
+    {
+      "name": "teclado: el anillo del título no queda recortado por heading-in",
+      "ok": true,
+      "detail": "{'id': 'caja-heading', 'top': 99, 'bottom': 134, 'headerBottom': 72, 'tabTop': 731, 'scrollY': 0, 'visible': True, 'outlineWidth': '3px', 'outlineStyle': 'solid', 'clipPath': 'inset(-12px -12px calc(0% - 12px))'}"
     },
     {
       "name": "home-1280-200: medida registrada (campo bajo el pliegue documentado)",
       "ok": true,
-      "detail": "saleTop=789 viewport=800"
+      "detail": "saleTop=757 viewport=800"
     },
     {
       "name": "home-1280-200: sin overflow horizontal",
@@ -307,12 +327,22 @@
     {
       "name": "meta-360-200: Apartar visible por encima de la tab bar",
       "ok": true,
-      "detail": "top 606 <= tab 675"
+      "detail": "top 606 <= tab 707"
     },
     {
       "name": "meta-360-200: sin palabras partidas",
       "ok": true,
       "detail": ""
+    },
+    {
+      "name": "checkout: hay un cobro pendiente",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "checkout: el radio enfocado dibuja anillo visible",
+      "ok": true,
+      "detail": "{'focused': True, 'outlineStyle': 'solid', 'outlineWidth': '3px', 'outlineOffset': '2px', 'border': 'rgb(10, 91, 66)'}"
     }
   ]
 }
