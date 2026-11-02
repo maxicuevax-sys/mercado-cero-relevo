@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnimatedAmount } from "@/components/animated-amount";
+import { PendingPayments } from "@/components/pending-payments";
+import { PendingTasksPanel } from "@/components/pending-tasks";
 import {
   ArrowUpRight,
   Banknote,
@@ -17,6 +19,7 @@ import {
   CreditCard,
   FlaskConical,
   Link2,
+  ListTodo,
   Loader2,
   Mic,
   NotebookPen,
@@ -38,6 +41,7 @@ import {
 } from "lucide-react";
 import {
   cn,
+  formatActivityDate,
   formatCompactMxn,
   formatLongDate,
   formatMxn,
@@ -45,6 +49,7 @@ import {
   initials,
   shortOrder,
 } from "@/lib/format";
+import { answerDebtQuery } from "@/lib/voice-debts";
 import type {
   AnalyticsReport,
   CashStatus,
@@ -56,7 +61,7 @@ import type {
   ReconciliationReport,
 } from "@/lib/types";
 
-type Tab = "caja" | "fiado" | "corte" | "meta";
+type Tab = "caja" | "fiado" | "corte" | "meta" | "pendientes";
 type ToastTone = "ok" | "error" | "info";
 type TextSize = "normal" | "large" | "xlarge";
 type ContrastMode = "normal" | "high";
@@ -79,6 +84,7 @@ interface DashboardData {
   demoMode: boolean;
   summary: DailySummary;
   orders: Order[];
+  pendingOrders?: Order[];
   credits: Credit[];
 }
 
@@ -465,6 +471,8 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const [loading, setLoading] = useState(true);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
   const [retryingDashboard, setRetryingDashboard] = useState(false);
+  const [pendingCheckedAt, setPendingCheckedAt] = useState<string | null>(null);
+  const [pendingError, setPendingError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("caja");
   const [today, setToday] = useState("");
   const [helpOpen, setHelpOpen] = useState(false);
@@ -509,7 +517,12 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const [creditPayId, setCreditPayId] = useState<string | null>(null);
   const [creditPayAmount, setCreditPayAmount] = useState("");
   const [creditPayInitialAmount, setCreditPayInitialAmount] = useState("");
-  const [creditPayMethod, setCreditPayMethod] = useState<"cash" | "codi">("cash");
+  const [creditPayMethod, setCreditPayMethod] = useState<
+    "cash" | "codi" | "card" | null
+  >(null);
+  const [creditPayInitialMethod, setCreditPayInitialMethod] = useState<
+    "cash" | "codi" | "card" | null
+  >(null);
   const [creditPayNote, setCreditPayNote] = useState("");
   const [creditPayError, setCreditPayError] = useState<string | null>(null);
   const [creditPayRequestId, setCreditPayRequestId] = useState<string | null>(null);
@@ -523,12 +536,15 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     fiado: 0,
     corte: 0,
     meta: 0,
+    pendientes: 0,
   });
 
   const lastSavedDraftRef = useRef("");
   const restoredDraftSignatureRef = useRef<string | null>(null);
   const creditPayLockRef = useRef(false);
   const toastTimerRef = useRef<number | null>(null);
+  const dashboardAbortRef = useRef<AbortController | null>(null);
+  const dashboardInFlightRef = useRef(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -554,9 +570,18 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     }, 3000);
   }, []);
 
-  const loadDashboard = useCallback(async () => {
+  const loadDashboard = useCallback(async (options?: { broadcast?: boolean }) => {
+    const broadcast = options?.broadcast ?? true;
+    // Una sola lectura en vuelo: focus, visibility y polling no se pisan.
+    if (dashboardInFlightRef.current) return;
+    dashboardInFlightRef.current = true;
+    const controller = new AbortController();
+    dashboardAbortRef.current = controller;
     try {
-      const response = await fetch("/api/dashboard", { cache: "no-store" });
+      const response = await fetch("/api/dashboard", {
+        cache: "no-store",
+        signal: controller.signal,
+      });
       if (!response.ok) {
         let detail = "";
         try {
@@ -568,17 +593,38 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
         throw new Error(detail || "No se pudo cargar la caja.");
       }
       const data = (await response.json()) as DashboardData;
+      if (controller.signal.aborted) return;
       setDashboard(data);
       setDashboardError(null);
-      window.dispatchEvent(new Event("mercado:refresh"));
+      setPendingCheckedAt(new Date().toISOString());
+      setPendingError(null);
+      // El refresco de fondo no debe reiniciar el conteo del corte ni otros
+      // formularios: solo las mutaciones avisan a las demás superficies.
+      if (broadcast) window.dispatchEvent(new Event("mercado:refresh"));
     } catch (error) {
+      if (controller.signal.aborted) return;
       // El fallo se queda en un banner persistente; no hay reintento automático.
       setDashboardError(
         friendlyError(error, "No se pudo cargar la caja. No hay cifras nuevas para mostrar."),
       );
+      // No borramos `dashboard`: los pendientes y su última comprobación siguen
+      // visibles, con el aviso de que la lectura actual falló.
+      setPendingError("Revisa tu conexión.");
     } finally {
-      setLoading(false);
+      if (dashboardAbortRef.current === controller) {
+        dashboardAbortRef.current = null;
+        dashboardInFlightRef.current = false;
+        setLoading(false);
+      }
     }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      dashboardAbortRef.current?.abort();
+      dashboardAbortRef.current = null;
+      dashboardInFlightRef.current = false;
+    };
   }, []);
 
   const retryDashboard = useCallback(async () => {
@@ -615,6 +661,48 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       // Sin almacenamiento local, la voz queda activa.
     }
     void loadDashboard();
+  }, [loadDashboard]);
+
+  useEffect(() => {
+    // Refresco al volver a la pestaña y polling ligero solo mientras es visible.
+    // No abre hojas ni toca el borrador: una venta o un cobro en curso siguen.
+    let pollTimer: number | null = null;
+    const refreshIfVisible = () => {
+      if (document.visibilityState === "visible") {
+        void loadDashboard({ broadcast: false });
+      }
+    };
+    const stopPolling = () => {
+      if (pollTimer !== null) {
+        window.clearInterval(pollTimer);
+        pollTimer = null;
+      }
+    };
+    const startPolling = () => {
+      if (pollTimer !== null || document.visibilityState !== "visible") return;
+      pollTimer = window.setInterval(() => {
+        if (document.visibilityState === "visible") {
+          void loadDashboard({ broadcast: false });
+        }
+      }, 45_000);
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        refreshIfVisible();
+        startPolling();
+      } else {
+        stopPolling();
+      }
+    };
+    const onFocus = () => refreshIfVisible();
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("focus", onFocus);
+    startPolling();
+    return () => {
+      stopPolling();
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("focus", onFocus);
+    };
   }, [loadDashboard]);
 
   useEffect(() => {
@@ -1001,6 +1089,10 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const answerLocal = useCallback(
     (text: string) => {
       if (!dashboard) return "Todavía no tengo el corte de hoy.";
+      // Consultas de fiado: suma todas las deudas abiertas del cliente, no la
+      // primera. Módulo puro, sin OpenAI.
+      const debt = answerDebtQuery(text, dashboard.credits);
+      if (debt) return debt.answer;
       const lower = text.toLowerCase();
       const credit = dashboard.credits.find(
         (item) =>
@@ -1034,17 +1126,26 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     [dashboard],
   );
 
-  const openCreditPay = useCallback((credit: Credit, amountCents?: number) => {
-    const cents = Math.max(0, Math.round(amountCents ?? credit.balanceCents));
-    const amount = (cents / 100).toFixed(2);
-    setCreditPayId(credit.id);
-    setCreditPayAmount(amount);
-    setCreditPayInitialAmount(amount);
-    setCreditPayRequestId(newCreditPayRequestId());
-    setCreditPayMethod("cash");
-    setCreditPayNote("");
-    setCreditPayError(null);
-  }, []);
+  const openCreditPay = useCallback(
+    (
+      credit: Credit,
+      amountCents?: number,
+      method?: "cash" | "codi" | "card" | null,
+    ) => {
+      const cents = Math.max(0, Math.round(amountCents ?? credit.balanceCents));
+      const amount = (cents / 100).toFixed(2);
+      setCreditPayId(credit.id);
+      setCreditPayAmount(amount);
+      setCreditPayInitialAmount(amount);
+      setCreditPayRequestId(newCreditPayRequestId());
+      // Sin señal en la frase no se asume efectivo: la hoja exige elegir.
+      setCreditPayMethod(method ?? null);
+      setCreditPayInitialMethod(method ?? null);
+      setCreditPayNote("");
+      setCreditPayError(null);
+    },
+    [],
+  );
 
   const interpretText = useCallback(
     async (text: string) => {
@@ -1092,7 +1193,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
           }
           const credit = candidates[0];
           // La voz solo propone: el POST ocurre al pulsar "Registrar abono".
-          openCreditPay(credit, parsed.creditCents);
+          openCreditPay(credit, parsed.creditCents, parsed.creditMethod);
           const message = `Revisa el abono de ${formatMxn(parsed.creditCents)} a ${
             credit.customerName ?? "el cliente"
           }. Todavía no se registra.`;
@@ -1468,7 +1569,13 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
         setPaidOverlay(data.order);
         playChime();
         vibrate([30, 50, 30]);
-        speak(`Pago simulado. ${formatMxn(data.order.totalCents)}.`);
+        speak(
+          data.order.creditCents > 0
+            ? `Pago mixto. ${formatMxn(data.order.digitalPaidCents)} simulados y ${formatMxn(
+                data.order.creditCents,
+              )} a fiado.`
+            : `Pago simulado. ${formatMxn(data.order.totalCents)}.`,
+        );
         await loadDashboard();
       } catch (error) {
         showToast("error", error instanceof Error ? error.message : "No pude simular el pago.");
@@ -1484,11 +1591,14 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     if (activeOrder.status === "paid" || activeOrder.status === "fulfilled" || activeOrder.status === "cancelled") {
       return;
     }
+    let cancelled = false;
     const interval = window.setInterval(async () => {
       try {
         const response = await fetch(`/api/orders/${activeOrder.id}`, { cache: "no-store" });
         if (!response.ok) return;
         const data = (await response.json()) as { order: Order };
+        // Una respuesta vieja no debe reabrir la hoja después de cobrar.
+        if (cancelled) return;
         const order = data.order;
         if (order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled") {
           clearStoredPendingOrder(order.id);
@@ -1498,9 +1608,13 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
           setPaidOverlay(order);
           playChime();
           speak(
-            order.lastPaymentProvider === "pey"
-              ? `Pago verificado: ${formatMxn(order.totalCents)}.`
-              : `Pago simulado. ${formatMxn(order.totalCents)}.`,
+            order.creditCents > 0
+              ? `Pago mixto. ${formatMxn(order.digitalPaidCents)} ${
+                  order.lastPaymentProvider === "pey" ? "verificados" : "simulados"
+                } y ${formatMxn(order.creditCents)} a fiado.`
+              : order.lastPaymentProvider === "pey"
+                ? `Pago verificado: ${formatMxn(order.totalCents)}.`
+                : `Pago simulado. ${formatMxn(order.totalCents)}.`,
           );
           await loadDashboard();
         } else {
@@ -1510,7 +1624,10 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
         // El polling se recupera solo en el siguiente intento.
       }
     }, 3000);
-    return () => window.clearInterval(interval);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
     // El polling solo se reinicia cuando cambia el pedido o su estado.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeOrder?.id, activeOrder?.status, clearResumableIfMatches, loadDashboard, playChime, speak]);
@@ -1559,6 +1676,10 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       }
       if (credit.status === "settled" || credit.balanceCents <= 0) {
         setCreditPayError("Ese fiado ya está saldado. No se registró nada.");
+        return;
+      }
+      if (!creditPayMethod) {
+        setCreditPayError("Elige cómo recibiste el abono. No se registró nada.");
         return;
       }
       const requestId = creditPayRequestId;
@@ -1627,6 +1748,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
         setCreditPayId(null);
         setCreditPayAmount("");
         setCreditPayInitialAmount("");
+        setCreditPayInitialMethod(null);
         setCreditPayRequestId(null);
         setCreditPayNote("");
         vibrate(30);
@@ -1835,6 +1957,20 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                     </button>
                   }
                 />
+                {(dashboard?.pendingOrders?.length ?? 0) > 0 || pendingError ? (
+                  <div className="mb-4">
+                    <PendingPayments
+                      orders={dashboard?.pendingOrders ?? []}
+                      lastCheckedAt={pendingCheckedAt}
+                      error={pendingError}
+                      onOpen={(order) => {
+                        setActiveOrder(order);
+                        setTab("caja");
+                      }}
+                      onRetry={() => void loadDashboard()}
+                    />
+                  </div>
+                ) : null}
                 {resumableOrder && !activeOrder ? (
                   <div
                     role="status"
@@ -1989,6 +2125,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                 amount={creditPayAmount}
                 initialAmount={creditPayInitialAmount}
                 method={creditPayMethod}
+                initialMethod={creditPayInitialMethod}
                 note={creditPayNote}
                 paying={creditPaying}
                 error={creditPayError}
@@ -1998,6 +2135,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                 onClose={() => {
                   setCreditPayId(null);
                   setCreditPayInitialAmount("");
+                  setCreditPayInitialMethod(null);
                   setCreditPayRequestId(null);
                   setCreditPayError(null);
                 }}
@@ -2029,6 +2167,10 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
           <section hidden={tab !== "meta"} className="mx-auto max-w-[760px]">
               <ScreenHeading title="Meta" subtitle="Una meta a la vez." compactSubtitle />
               <GoalCard showToast={showToast} />
+            </section>
+
+          <section hidden={tab !== "pendientes"} className="mx-auto max-w-[820px]">
+              <PendingTasksPanel headingId="pendientes-heading" />
             </section>
 
           <footer className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-separator pt-5 text-sm text-ink-2 sm:flex-row sm:flex-wrap sm:items-center">
@@ -2885,9 +3027,13 @@ function PaymentPanel(props: {
   const waiting = order.status === "payment_pending" || order.status === "confirmed";
   const qrValue = order.qrImage ? null : order.qrString ?? order.paymentUrl;
 
-  if (isPaid || isCredit) {
+  // Fiado + saldo digital: mientras quede remanente, se cobra aquí; el fiado
+  // sigue en su libreta y no se presenta como si todo estuviera cubierto.
+  if (isPaid || (isCredit && due <= 0)) {
     const truth = paymentTruth(order);
     const mixed = truth.hasCredit && truth.receivedCents > 0;
+    const creditOnly = truth.hasCredit && !truth.hasDigital;
+    const mixedDigital = truth.hasCredit && truth.hasDigital;
     const source = [
       truth.cashPaidCents > 0 ? `${formatMxn(truth.cashPaidCents)} en efectivo` : null,
       order.digitalPaidCents > 0
@@ -2906,19 +3052,27 @@ function PaymentPanel(props: {
           <div
             className={cn(
               "mx-auto flex h-14 w-14 items-center justify-center rounded-full result-in",
-              truth.hasCredit || (truth.isDemo && !sourceMixed)
+              creditOnly || (mixedDigital && truth.isDemo)
                 ? "bg-terracotta-soft text-attention"
-                : sourceMixed
-                  ? truth.isDemo
-                    ? "bg-terracotta-soft text-attention"
-                    : "bg-green-soft text-green"
-                  : truth.isCash
-                    ? "bg-surface-2 text-ink"
-                    : "bg-green-soft text-green",
+                : mixedDigital
+                  ? "bg-green-soft text-green"
+                  : sourceMixed
+                    ? truth.isDemo
+                      ? "bg-terracotta-soft text-attention"
+                      : "bg-green-soft text-green"
+                    : truth.isCash
+                      ? "bg-surface-2 text-ink"
+                      : "bg-green-soft text-green",
             )}
           >
-            {truth.hasCredit ? (
+            {creditOnly ? (
               <NotebookPen className="h-6 w-6" />
+            ) : mixedDigital ? (
+              truth.isDemo ? (
+                <FlaskConical className="h-6 w-6" />
+              ) : (
+                <Check className="h-6 w-6" />
+              )
             ) : sourceMixed ? (
               truth.isDemo ? (
                 <FlaskConical className="h-6 w-6" />
@@ -2934,17 +3088,19 @@ function PaymentPanel(props: {
             )}
           </div>
           <p className="mt-4 text-[1.625rem] font-semibold tracking-tight text-ink">
-            {truth.hasCredit
+            {creditOnly
               ? "Quedó anotado"
-              : sourceMixed
+              : mixedDigital
                 ? "Pago mixto"
-                : truth.isDemo
-                  ? "Pago simulado"
-                  : truth.isCash
-                    ? "Efectivo recibido"
-                    : truth.isVerified
-                      ? "Pago verificado"
-                      : "Pago sin confirmar"}
+                : sourceMixed
+                  ? "Pago mixto"
+                  : truth.isDemo
+                    ? "Pago simulado"
+                    : truth.isCash
+                      ? "Efectivo recibido"
+                      : truth.isVerified
+                        ? "Pago verificado"
+                        : "Pago sin confirmar"}
           </p>
           <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
             <AnimatedAmount
@@ -2957,19 +3113,29 @@ function PaymentPanel(props: {
           </p>
           <p className="mt-2 text-sm text-ink-2">
             Pedido {shortOrder(order.id)} ·{" "}
-            {truth.hasCredit
+            {creditOnly
               ? mixed
                 ? `${source} + ${formatMxn(order.creditCents)} original a fiado`
                 : `fiado con ${order.customerName ?? "el cliente"} · original ${formatMxn(order.creditCents)}`
-              : sourceMixed
-                ? source
-                : truth.isDemo
-                  ? "simulado en modo demo"
-                  : truth.isCash
-                    ? "recibido en efectivo, sin pasar por pey"
-                    : truth.isVerified
-                      ? "confirmado por pey"
-                      : "sin confirmar"}
+              : mixedDigital
+                ? `${truth.cashPaidCents > 0 ? `${formatMxn(truth.cashPaidCents)} efectivo + ` : ""}Fiado ${formatMxn(
+                    order.creditCents,
+                  )} + ${formatMxn(order.digitalPaidCents)} ${
+                    truth.isDemo
+                      ? "demo"
+                      : truth.isVerified
+                        ? "verificado por pey"
+                        : "sin verificar"
+                  }`
+                : sourceMixed
+                  ? source
+                  : truth.isDemo
+                    ? "simulado en modo demo"
+                    : truth.isCash
+                      ? "recibido en efectivo, sin pasar por pey"
+                      : truth.isVerified
+                        ? "confirmado por pey"
+                        : "sin confirmar"}
           </p>
           {truth.hasCredit ? (
             <OrderCreditNote
@@ -3074,6 +3240,28 @@ function PaymentPanel(props: {
         </div>
         <StatusBadge status={order.status} />
       </div>
+
+      {isCredit ? (
+        <div
+          role="status"
+          className="rounded-xl border border-attention/25 bg-terracotta-soft/60 px-3 py-2.5 text-sm leading-relaxed text-ink-2"
+        >
+          <p className="font-semibold text-ink">
+            Fiado {formatMxn(order.creditCents)} · Cobrado {formatMxn(order.paidCents)} ·
+            Falta cobrar {formatMxn(due)}
+          </p>
+          <p className="mt-1">
+            El fiado vive en la libreta y no se cuenta como dinero recibido. Cobra
+            aquí solo el saldo digital.
+          </p>
+          <OrderCreditNote
+            order={order}
+            credit={credit}
+            settled={creditSettled}
+            className="mt-2"
+          />
+        </div>
+      ) : null}
 
       {waiting ? (
         <p role="status" className="rounded-xl bg-surface-2 px-3 py-2 text-sm font-semibold text-ink-2">
@@ -4431,7 +4619,7 @@ function ActivityList({
                       `Pedido ${shortOrder(order.id)}`}
                   </p>
                   <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs text-ink-2">
-                    <span>{formatTime(order.createdAt)}</span>
+                    <time dateTime={order.createdAt}>{formatActivityDate(order.createdAt)}</time>
                     <span className="h-0.5 w-0.5 rounded-full bg-ink-2/50" />
                     <span
                       className={cn(
@@ -4566,7 +4754,7 @@ function CreditList({
                   </p>
                   <p className="text-sm text-ink-2">
                     {credit.status === "partial" ? "Abono parcial" : "Pendiente"} · desde{" "}
-                    {formatTime(credit.createdAt)}
+                    {formatActivityDate(credit.createdAt)}
                     {credit.orderId ? ` · Pedido ${shortOrder(credit.orderId)}` : " · sin pedido"}
                   </p>
                 </div>
@@ -4608,6 +4796,7 @@ function CreditPaySheet({
   amount,
   initialAmount,
   method,
+  initialMethod,
   note,
   paying,
   error,
@@ -4620,12 +4809,13 @@ function CreditPaySheet({
   credit: Credit | null;
   amount: string;
   initialAmount: string;
-  method: "cash" | "codi";
+  method: "cash" | "codi" | "card" | null;
+  initialMethod: "cash" | "codi" | "card" | null;
   note: string;
   paying: boolean;
   error: string | null;
   onAmount: (value: string) => void;
-  onMethod: (value: "cash" | "codi") => void;
+  onMethod: (value: "cash" | "codi" | "card") => void;
   onNote: (value: string) => void;
   onClose: () => void;
   onPay: () => void;
@@ -4635,11 +4825,14 @@ function CreditPaySheet({
   const requestedCents = Number.isFinite(amountCents) ? Math.max(0, amountCents) : 0;
   const appliedCents = credit ? Math.min(requestedCents, credit.balanceCents) : 0;
   const returnedCents = Math.max(0, requestedCents - appliedCents);
-  const valid = !settled && requestedCents > 0 && appliedCents > 0;
+  const valid =
+    !settled && requestedCents > 0 && appliedCents > 0 && method !== null;
   const [discardOpen, setDiscardOpen] = useState(false);
   const dirty =
     Boolean(credit) &&
-    (amount !== initialAmount || note.trim().length > 0 || method !== "cash");
+    (amount !== initialAmount ||
+      note.trim().length > 0 ||
+      method !== initialMethod);
 
   useEffect(() => {
     // Al abrir otro fiado, la confirmación de descarte deja de aplicar.
@@ -4754,11 +4947,17 @@ function CreditPaySheet({
 
           <fieldset>
             <legend className="text-sm font-semibold text-ink-2">¿Cómo lo recibiste?</legend>
-            <div className="mt-1.5 grid grid-cols-2 gap-2">
+            {method === null ? (
+              <p className="mt-1 text-sm leading-relaxed text-ink-2">
+                Elige un método para registrar el abono.
+              </p>
+            ) : null}
+            <div className="mt-1.5 grid grid-cols-1 gap-2 sm:grid-cols-3">
               {(
                 [
                   { id: "cash", label: "Efectivo", icon: Banknote },
                   { id: "codi", label: "Digital", icon: Smartphone },
+                  { id: "card", label: "Tarjeta", icon: CreditCard },
                 ] as const
               ).map((option) => {
                 const Icon = option.icon;
@@ -5139,7 +5338,13 @@ function paymentTruth(order: Order) {
 
 function paymentSheetTitle(order: Order): string {
   const truth = paymentTruth(order);
+  const due = Math.max(0, order.totalCents - order.paidCents - order.creditCents);
   if (order.status === "fulfilled") return "Pedido entregado";
+  if (due > 0) {
+    return order.paymentUrl || order.qrString
+      ? "Cobro pendiente"
+      : `Cobrar ${formatMxn(due)}`;
+  }
   if (
     truth.hasCredit ||
     truth.isMixedSources ||
@@ -5149,7 +5354,6 @@ function paymentSheetTitle(order: Order): string {
   ) {
     return "Resultado del cobro";
   }
-  if (order.paymentUrl || order.qrString) return "Cobro pendiente";
   return `Cobrar ${formatMxn(order.totalCents)}`;
 }
 
@@ -5192,10 +5396,16 @@ function ScreenHeading({
 }
 
 const TABS = [
-  { id: "caja" as const, label: "Caja", icon: Mic },
-  { id: "fiado" as const, label: "Fiado", icon: NotebookPen },
-  { id: "corte" as const, label: "Corte", icon: ReceiptText },
-  { id: "meta" as const, label: "Meta", icon: Sparkles },
+  { id: "caja" as const, label: "Caja", mobileLabel: "Caja", icon: Mic },
+  { id: "fiado" as const, label: "Fiado", mobileLabel: "Fiado", icon: NotebookPen },
+  { id: "corte" as const, label: "Corte", mobileLabel: "Corte", icon: ReceiptText },
+  { id: "meta" as const, label: "Meta", mobileLabel: "Meta", icon: Sparkles },
+  {
+    id: "pendientes" as const,
+    label: "Pendientes",
+    mobileLabel: "Tareas",
+    icon: ListTodo,
+  },
 ];
 
 function AppSidebar({
@@ -5342,9 +5552,9 @@ function MobileTabBar({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
   return (
     <nav
       aria-label="Navegación inferior"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-separator bg-surface pb-[max(12px,env(safe-area-inset-bottom))] lg:hidden"
+      className="mobile-tabs fixed inset-x-0 bottom-0 z-40 border-t border-separator bg-surface pb-[max(12px,env(safe-area-inset-bottom))] lg:hidden"
     >
-      <div className="mx-auto grid max-w-md grid-cols-4">
+      <div className="mx-auto grid max-w-md grid-cols-5">
         {TABS.map((item) => {
           const active = tab === item.id;
           const Icon = item.icon;
@@ -5354,14 +5564,17 @@ function MobileTabBar({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
               type="button"
               onClick={() => onTab(item.id)}
               aria-current={active ? "page" : undefined}
+              aria-label={item.label}
               className={cn(
-                "relative flex min-h-14 flex-col items-center justify-center gap-1 text-xs font-semibold transition",
+                "relative flex min-h-14 flex-col items-center justify-center gap-1 px-0.5 text-xs font-semibold transition",
                 active ? "text-green" : "text-ink-2",
               )}
             >
-              {active ? <span className="absolute inset-x-7 top-0 h-0.5 rounded-full bg-accent" /> : null}
-              <Icon className="h-5 w-5" strokeWidth={active ? 2.2 : 1.8} />
-              <span className="max-w-full text-center">{item.label}</span>
+              {active ? <span className="absolute inset-x-4 top-0 h-0.5 rounded-full bg-accent" /> : null}
+              <Icon className="h-5 w-5 shrink-0" strokeWidth={active ? 2.2 : 1.8} />
+              <span className="mobile-tab-label max-w-full text-center leading-tight">
+                {item.mobileLabel}
+              </span>
             </button>
           );
         })}
@@ -5531,6 +5744,8 @@ function PaidSheet({
   const credit = creditForOrder(order, credits);
   const creditSettled = isCreditSettled(credit);
   const mixed = truth.hasCredit && truth.receivedCents > 0;
+  const creditOnly = truth.hasCredit && !truth.hasDigital;
+  const mixedDigital = truth.hasCredit && truth.hasDigital;
   const source = [
     truth.cashPaidCents > 0 ? `${formatMxn(truth.cashPaidCents)} en efectivo` : null,
     order.digitalPaidCents > 0
@@ -5549,19 +5764,27 @@ function PaidSheet({
         <div
           className={cn(
             "mx-auto flex h-16 w-16 items-center justify-center rounded-full result-in",
-            truth.hasCredit || (truth.isDemo && !sourceMixed)
+            creditOnly || (mixedDigital && truth.isDemo) || (truth.isDemo && !sourceMixed && !mixedDigital)
               ? "bg-terracotta-soft text-attention"
-              : sourceMixed
-                ? truth.isDemo
-                  ? "bg-terracotta-soft text-attention"
-                  : "bg-green-soft text-green"
-                : truth.isCash
-                  ? "bg-surface-2 text-ink"
-                  : "bg-green-soft text-green",
+              : mixedDigital
+                ? "bg-green-soft text-green"
+                : sourceMixed
+                  ? truth.isDemo
+                    ? "bg-terracotta-soft text-attention"
+                    : "bg-green-soft text-green"
+                  : truth.isCash
+                    ? "bg-surface-2 text-ink"
+                    : "bg-green-soft text-green",
           )}
         >
-          {truth.hasCredit ? (
+          {creditOnly ? (
             <NotebookPen className="h-7 w-7" />
+          ) : mixedDigital ? (
+            truth.isDemo ? (
+              <FlaskConical className="h-7 w-7" />
+            ) : (
+              <Check className="h-7 w-7" />
+            )
           ) : sourceMixed ? (
             truth.isDemo ? (
               <FlaskConical className="h-7 w-7" />
@@ -5577,17 +5800,19 @@ function PaidSheet({
           )}
         </div>
         <p className="mt-4 text-[1.75rem] font-semibold tracking-tight text-ink">
-          {truth.hasCredit
+          {creditOnly
             ? "Quedó anotado"
-            : sourceMixed
+            : mixedDigital
               ? "Pago mixto"
-              : truth.isDemo
-                ? "Pago simulado"
-                : truth.isCash
-                  ? "Efectivo recibido"
-                  : truth.isVerified
-                    ? "Pago verificado"
-                    : "Pago sin confirmar"}
+              : sourceMixed
+                ? "Pago mixto"
+                : truth.isDemo
+                  ? "Pago simulado"
+                  : truth.isCash
+                    ? "Efectivo recibido"
+                    : truth.isVerified
+                      ? "Pago verificado"
+                      : "Pago sin confirmar"}
         </p>
         <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
           <AnimatedAmount
@@ -5600,19 +5825,29 @@ function PaidSheet({
         </p>
         <p className="mt-2 text-sm text-ink-2">
           Pedido {shortOrder(order.id)} ·{" "}
-          {truth.hasCredit
+          {creditOnly
             ? mixed
               ? `${source} + ${formatMxn(order.creditCents)} original a fiado`
               : `fiado con ${order.customerName ?? "el cliente"} · original ${formatMxn(order.creditCents)}`
-            : sourceMixed
-              ? source
-              : truth.isDemo
-                ? "simulado en modo demo"
-                : truth.isCash
-                  ? "recibido en efectivo, sin pasar por pey"
-                  : truth.isVerified
-                    ? "confirmado por pey"
-                    : "sin confirmar"}
+            : mixedDigital
+              ? `${truth.cashPaidCents > 0 ? `${formatMxn(truth.cashPaidCents)} efectivo + ` : ""}Fiado ${formatMxn(
+                  order.creditCents,
+                )} + ${formatMxn(order.digitalPaidCents)} ${
+                  truth.isDemo
+                    ? "demo"
+                    : truth.isVerified
+                      ? "verificado por pey"
+                      : "sin verificar"
+                }`
+              : sourceMixed
+                ? source
+                : truth.isDemo
+                  ? "simulado en modo demo"
+                  : truth.isCash
+                    ? "recibido en efectivo, sin pasar por pey"
+                    : truth.isVerified
+                      ? "confirmado por pey"
+                      : "sin confirmar"}
         </p>
         {changeCents > 0 ? (
           <p className="mt-3 rounded-xl bg-green-soft px-3 py-2 text-sm font-semibold text-green">
