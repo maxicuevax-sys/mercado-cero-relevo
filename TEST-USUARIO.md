@@ -39,6 +39,7 @@ Lee la tarea en voz alta y deja que la persona la resuelva. No des pistas.
 
 3. **“Juan te debía $50 y te acaba de pagar. Regístralo.”**
    - Puede usar la frase de ejemplo o escribir.
+   - Debe elegir **cómo lo recibió** (Efectivo, Digital o Tarjeta) antes de confirmar.
    - Debe entender que es un abono, no una venta nueva.
 
 4. **“Al final del día, cuenta el efectivo y cierra caja.”**
