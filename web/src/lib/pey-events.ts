@@ -1,6 +1,6 @@
 import { getDb, getOrder, getOrderByNumRef, getOrderByPaymentLink } from "./db";
 import { recordPayment } from "./orders";
-import { mapPeyMethod } from "./pey";
+import { mapPeyMethod, transactionBaseCents } from "./pey";
 import type { Order } from "./types";
 
 /**
@@ -53,21 +53,6 @@ function toCents(value: unknown): number | null {
   const amount = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(amount) || amount <= 0) return null;
   return Math.round(amount * 100);
-}
-
-/**
- * El `amount` del checkout puede incluir propina y fee de pey. Para validar
- * contra la venta usamos `amountBreakdown.base`, que es el monto del link.
- */
-function transactionBaseCents(transaction: Record<string, unknown>): number | null {
-  const breakdown = isRecord(transaction.amountBreakdown)
-    ? transaction.amountBreakdown
-    : null;
-  if (breakdown) {
-    const base = toCents(breakdown.base);
-    if (base !== null) return base;
-  }
-  return toCents(transaction.amount);
 }
 
 function assertCurrency(value: unknown, context: string): void {

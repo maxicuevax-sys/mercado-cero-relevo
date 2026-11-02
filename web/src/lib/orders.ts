@@ -9,6 +9,7 @@ import {
   nowIso,
 } from "./db";
 import { formatMxn } from "./format";
+import { assertPaymentProvider, coveredStatus } from "./payment-rules";
 import type {
   CreateOrderInput,
   Credit,
@@ -110,9 +111,11 @@ export function createOrder(input: CreateOrderInput): Order {
 
   const digitalDue = totalCents - cashCents - creditCents;
   if (digitalDue <= 0) {
+    // Un fiado no es una entrega. Si hay crédito abierto, el pedido queda
+    // confirmado y la entrega se decide después, de forma explícita.
     database
       .prepare("UPDATE orders SET status = ?, updated_at = ? WHERE id = ?")
-      .run(creditCents > 0 ? "fulfilled" : "paid", nowIso(), id);
+      .run(creditCents > 0 ? "confirmed" : "paid", nowIso(), id);
   }
 
   audit("order.created", "order", id, { totalCents, cashCents, creditCents, creditId });
@@ -160,6 +163,7 @@ export function recordPayment(
   },
 ): Order {
   const database = getDb();
+  const provider = assertPaymentProvider(input.provider);
   const order = getOrder(orderId);
   if (!order) throw new Error("Pedido no encontrado.");
 
@@ -183,7 +187,7 @@ export function recordPayment(
       .run(
         newId("pay"),
         orderId,
-        input.provider,
+        provider,
         input.method,
         amountCents,
         "paid",
@@ -209,13 +213,11 @@ export function recordPayment(
   const method = methods.length > 1 ? "mixed" : (methods[0]?.method as PaymentMethod) ?? input.method;
 
   const coveredCents = paidCents + order.creditCents;
+  // `fulfilled` ya no se escribe aquí. Un pedido cubierto con fiado sigue
+  // mostrando su deuda; entregar es una acción explícita y separada.
   const status =
     coveredCents >= order.totalCents
-      ? order.creditCents > 0
-        ? "fulfilled"
-        : input.provider === "demo"
-          ? "demo_paid"
-          : "paid"
+      ? coveredStatus(provider)
       : "partially_paid";
   database
     .prepare(
@@ -226,6 +228,7 @@ export function recordPayment(
   audit("payment.recorded", "order", orderId, {
     amountCents,
     method: input.method,
+    provider,
     transactionId: input.transactionId,
     status,
   });
@@ -361,18 +364,21 @@ export function recordCreditPayment(
     }
     const overpayCents = requestedCents - appliedCents;
     const newBalance = credit.balanceCents - appliedCents;
+    // Un abono digital no pasa por pey: se guarda como “declarado”.
+    const provider = method === "cash" ? "cash" : "declared";
 
     database
       .prepare(
         `INSERT INTO credit_payments
-         (id, credit_id, amount_cents, method, note, request_id, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+         (id, credit_id, amount_cents, method, provider, note, request_id, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .run(
         newId("cp"),
         creditId,
         appliedCents,
         method,
+        provider,
         note?.trim() || null,
         request,
         nowIso(),
@@ -387,6 +393,7 @@ export function recordCreditPayment(
       requestedCents,
       overpayCents,
       method,
+      provider,
       note: note?.trim() || null,
       requestId: request,
       newBalance,
@@ -420,8 +427,20 @@ export function fulfillOrder(orderId: string): Order | null {
   const order = getOrder(orderId);
   if (!order) return null;
   if (order.status === "fulfilled") return order;
-  if (order.status !== "paid" && order.status !== "demo_paid") {
-    throw new Error("Solo un pedido pagado puede marcarse como entregado.");
+
+  // La entrega no puede adelantarse a una deuda abierta. Un fiado saldado sí
+  // puede entregarse explícitamente, pero nunca se marca solo.
+  const credit = order.creditId ? getCredit(order.creditId) : null;
+  if (credit && credit.balanceCents > 0) {
+    throw new Error("El fiado sigue abierto. Cóbralo antes de marcar la entrega.");
+  }
+  const coveredCents = order.paidCents + order.creditCents;
+  const canDeliver =
+    order.status === "paid" ||
+    order.status === "demo_paid" ||
+    (order.status === "confirmed" && coveredCents >= order.totalCents);
+  if (!canDeliver) {
+    throw new Error("Solo un pedido cubierto puede marcarse como entregado.");
   }
 
   const database = getDb();

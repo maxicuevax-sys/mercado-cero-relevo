@@ -489,8 +489,8 @@ def main() -> int:
         fulfilled_created = new_orders(page, before)
         assert len(fulfilled_created) == 1, fulfilled_created
         check(
-            "la venta de crédito completo queda fulfilled",
-            fulfilled_created[0]["status"] == "fulfilled"
+            "la venta de crédito completo queda confirmed, no fulfilled",
+            fulfilled_created[0]["status"] == "confirmed"
             and fulfilled_created[0]["creditCents"] == 2000,
         )
         close_dialog(page)

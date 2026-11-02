@@ -40,9 +40,14 @@ function headers() {
   };
 }
 
+const PEY_TIMEOUT_MS = Number(process.env.PEY_TIMEOUT_MS ?? 10_000);
+
 async function peyFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  // Un cuelgue de pey no puede colgar la caja ni el webhook.
+  const signal = init?.signal ?? AbortSignal.timeout(PEY_TIMEOUT_MS);
   const response = await fetch(`${PEY_BASE}${path}`, {
     ...init,
+    signal,
     headers: { ...headers(), ...(init?.headers ?? {}) },
     cache: "no-store",
   });
@@ -156,6 +161,27 @@ export async function getPeyTransaction(id: string): Promise<PeyTransaction | nu
   }
 }
 
+/**
+ * El `amount` del checkout puede incluir propina y fee de pey. Para validar
+ * contra la venta usamos `amountBreakdown.base`, que es el monto del link.
+ */
+export function transactionBaseCents(transaction: {
+  amount?: unknown;
+  amountBreakdown?: unknown;
+}): number | null {
+  const breakdown =
+    typeof transaction.amountBreakdown === "object" &&
+    transaction.amountBreakdown !== null &&
+    !Array.isArray(transaction.amountBreakdown)
+      ? (transaction.amountBreakdown as Record<string, unknown>)
+      : null;
+  const base = breakdown?.base;
+  const value = base !== undefined && base !== null ? base : transaction.amount;
+  const amount = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+  return Math.round(amount * 100);
+}
+
 export function verifyWebhookSignature(
   rawBody: string,
   headerValues: { id: string | null; timestamp: string | null; signature: string | null },
@@ -191,11 +217,26 @@ export function verifyWebhookSignature(
   });
 }
 
-export function mapPeyMethod(method: string | undefined): "codi" | "card" | "wallet" {
-  const normalized = (method ?? "").toUpperCase();
+export function mapPeyMethod(
+  method: string | undefined,
+): "codi" | "card" | "wallet" | "unknown" {
+  const normalized = (method ?? "").trim().toUpperCase();
+  if (!normalized) return "unknown";
   if (normalized.includes("CODI")) return "codi";
-  if (normalized.includes("APPLE") || normalized.includes("GOOGLE") || normalized.includes("WALLET")) {
+  if (
+    normalized.includes("APPLE") ||
+    normalized.includes("GOOGLE") ||
+    normalized.includes("WALLET")
+  ) {
     return "wallet";
   }
-  return "card";
+  if (
+    normalized.includes("CARD") ||
+    normalized.includes("CREDIT") ||
+    normalized.includes("DEBIT") ||
+    normalized.includes("TARJETA")
+  ) {
+    return "card";
+  }
+  return "unknown";
 }

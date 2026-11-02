@@ -323,7 +323,12 @@ def main() -> int:
             # El scroll de Caja se conserva al ir y volver de otro tab.
             page.locator('aside button:visible', has_text="Caja").first.click()
             page.wait_for_timeout(400)
-            page.evaluate("window.scrollTo(0, 500)")
+            # El alto de Caja depende de los datos demo; usa el máximo real en
+            # vez de exigir 500 px cuando la página es más corta.
+            target_scroll = page.evaluate(
+                "Math.min(500, Math.max(0, document.documentElement.scrollHeight - innerHeight))"
+            )
+            page.evaluate(f"window.scrollTo(0, {target_scroll})")
             page.wait_for_timeout(200)
             page.locator('aside button:visible', has_text="Pendientes").first.click()
             page.wait_for_timeout(350)
@@ -332,8 +337,8 @@ def main() -> int:
             restored_scroll = page.evaluate("window.scrollY")
             check(
                 "el scroll de Caja se conserva al cambiar de tab",
-                abs(restored_scroll - 500) <= 24,
-                f"scrollY={restored_scroll}",
+                target_scroll > 0 and abs(restored_scroll - target_scroll) <= 24,
+                f"scrollY={restored_scroll} · objetivo={target_scroll}",
             )
             page.locator('aside button:visible', has_text="Pendientes").first.click()
             page.wait_for_timeout(300)
@@ -789,7 +794,7 @@ def main() -> int:
             check(
                 "la base conserva la venta mixta correcta",
                 bool(order_row)
-                and order_row[0][1] == "fulfilled"
+                and order_row[0][1] == "demo_paid"
                 and int(order_row[0][2]) == 7000
                 and int(order_row[0][3]) == 2000
                 and int(digital_row[0][0]) == 4000,

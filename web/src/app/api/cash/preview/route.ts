@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { previewCashClose } from "@/lib/cash";
+import { CashCloseError, previewCashClose } from "@/lib/cash";
 
 const moneyCents = z
   .number({ error: "Escribe un monto válido en centavos." })
@@ -50,6 +50,17 @@ export async function POST(request: Request) {
           issues: error.issues,
         },
         { status: 400 },
+      );
+    }
+    if (error instanceof CashCloseError) {
+      return Response.json(
+        {
+          error: error.message,
+          code: error.code,
+          currentVersion: error.currentVersion,
+          currentFingerprint: error.currentFingerprint,
+        },
+        { status: error.status },
       );
     }
     const message =

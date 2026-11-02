@@ -14,7 +14,7 @@
 | `types` | `npx tsc --noEmit` | Contratos de TypeScript | Datos reales | No |
 | `build` | `npm run build` | Build de producción Next.js | Servidor sirviendo el build | `.next/` |
 | `truth` | `node scripts/verify-truth.mjs` | Un `transactionId` demo devuelve `verified:false` | Un pago pey real | Reset demo |
-| `webhook` | `node scripts/webhook-contract.mjs` | Firma, replay, monto, orden, timestamp, QR; 27/27 | Que el banco emita el evento | Reset demo |
+| `webhook` | `node scripts/webhook-contract.mjs` | Firma, replay, monto, orden, timestamp, QR y reintento corregido tras 409/404; 34/34 | Que el banco emita el evento | Reset demo |
 | `mobile` | `python scripts/mobile-audit.py` | Flujo completo a 360 px; 25/25 | Teléfono físico, TalkBack/VoiceOver | Reset demo |
 | `checkout` | `python scripts/checkout-audit.py` | Checkout público a 360 px; 15/15 | Pago real por pey | Crea/paga demo |
 | `hig` | `python scripts/hig-after-audit.py` | HIG/WCAG 2.2 AA, 48 px, 200%, 360/390/768/1280 | Personas reales | Reset/recorre |

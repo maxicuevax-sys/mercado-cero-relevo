@@ -35,6 +35,9 @@ interface CheckoutData {
     totalCents: number;
     paidCents: number;
     digitalPaidCents: number;
+    cashPaidCents?: number;
+    demoPaidCents?: number;
+    verifiedPaidCents?: number;
     creditCents: number;
     amountDueCents: number;
     paymentMethod: string | null;
@@ -236,11 +239,17 @@ export default function CheckoutPage() {
   }
 
   const { merchant, order, payment, demoMode } = data;
-  const methodLabel = payment ? METHOD_LABEL[payment.method] ?? payment.method : null;
   const isDemoPayment = payment?.provider === "demo";
+  const methodLabel = payment
+    ? isDemoPayment && payment.method === "cash"
+      ? "Demo (no es efectivo real)"
+      : METHOD_LABEL[payment.method] ?? payment.method
+    : null;
+  const realCashPaid =
+    order.cashPaidCents ?? Math.max(0, order.paidCents - order.digitalPaidCents);
 
   if (isCredit) {
-    const cashPaid = Math.max(0, order.paidCents - order.digitalPaidCents);
+    const cashPaid = realCashPaid;
     const source = [
       cashPaid > 0 ? `${formatMxn(cashPaid)} en efectivo` : null,
       payment ? `${formatMxn(payment.amountCents)} ${isDemoPayment ? "demo" : "verificado por pey"}` : null,
@@ -290,9 +299,9 @@ export default function CheckoutPage() {
   }
 
   if (isPaid) {
-    const demo = isDemoPayment;
-    const cashPaid = Math.max(0, order.paidCents - order.digitalPaidCents);
-    const cashOnly = !payment && cashPaid > 0;
+    const demo = isDemoPayment || (order.demoPaidCents ?? 0) > 0;
+    const cashPaid = realCashPaid;
+    const cashOnly = !payment && cashPaid > 0 && !demo;
     const sourceMixed = Boolean(payment) && cashPaid > 0;
 
     return (

@@ -103,7 +103,9 @@ export function answerQuery(
   transcript: string,
   summary: {
     verifiedDigitalCents: number;
+    declaredDigitalCents?: number;
     demoDigitalCents: number;
+    demoCashCents?: number;
     cashCents: number;
     pendingCents: number;
     creditCents: number;
@@ -128,11 +130,14 @@ export function answerQuery(
     return `Tienes ${(summary.pendingCents / 100).toFixed(2)} pesos esperando confirmación.`;
   }
 
+  const declared = summary.declaredDigitalCents ?? 0;
+  const demoTotals = summary.demoDigitalCents + (summary.demoCashCents ?? 0);
   const total =
-    summary.verifiedDigitalCents + summary.demoDigitalCents + summary.cashCents;
-  const demo =
-    summary.demoDigitalCents > 0
-      ? `, ${(summary.demoDigitalCents / 100).toFixed(2)} en demo`
+    summary.verifiedDigitalCents + declared + demoTotals + summary.cashCents;
+  const declaredText =
+    declared > 0
+      ? `, ${(declared / 100).toFixed(2)} declarados sin verificar`
       : "";
-  return `Hoy llevas ${(total / 100).toFixed(2)} pesos en ${summary.paidOrderCount} ventas. ${(summary.verifiedDigitalCents / 100).toFixed(2)} verificados por pey${demo} y ${(summary.cashCents / 100).toFixed(2)} en efectivo.`;
+  const demo = demoTotals > 0 ? `, ${(demoTotals / 100).toFixed(2)} en demo` : "";
+  return `Hoy llevas ${(total / 100).toFixed(2)} pesos en ${summary.paidOrderCount} ventas. ${(summary.verifiedDigitalCents / 100).toFixed(2)} verificados por pey${declaredText}${demo} y ${(summary.cashCents / 100).toFixed(2)} en efectivo.`;
 }

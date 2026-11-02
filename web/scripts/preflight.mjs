@@ -14,7 +14,7 @@ import path from "node:path";
 const ROOT = process.cwd();
 const DEMO = path.join(ROOT, "..", "demo");
 const ENV_PATH = path.join(ROOT, ".env.local");
-const LOCAL = "http://localhost:3000";
+const LOCAL = (process.env.BASE_URL ?? "http://localhost:3000").replace(/\/+$/, "");
 
 function loadEnv(file) {
   const values = {};
@@ -71,10 +71,16 @@ if (!pubDash.error) {
   const sales =
     (summary.cashCents ?? 0) +
     (summary.verifiedDigitalCents ?? 0) +
+    (summary.declaredDigitalCents ?? 0) +
     (summary.demoDigitalCents ?? 0) +
+    (summary.demoCashCents ?? 0) +
     (summary.pendingCents ?? 0);
   check("Ventas de hoy = $190.00", sales === 19000, `$${(sales / 100).toFixed(2)}`);
-  check("Cobrado = $70.00", summary.cashCents === 7000, `$${((summary.cashCents ?? 0) / 100).toFixed(2)}`);
+  check(
+    "Cobrado real $0 · demo $70",
+    summary.cashCents === 0 && summary.demoCashCents === 7000,
+    `real $${((summary.cashCents ?? 0) / 100).toFixed(2)} · demo $${((summary.demoCashCents ?? 0) / 100).toFixed(2)}`,
+  );
   check("Por cobrar = $120.00", summary.pendingCents === 12000, `$${((summary.pendingCents ?? 0) / 100).toFixed(2)}`);
   check("Fiado = $50.00", summary.creditCents === 5000, `$${((summary.creditCents ?? 0) / 100).toFixed(2)}`);
 }
@@ -92,8 +98,11 @@ const cash = await get(`${appUrl}/api/cash`);
 if (cash.error) {
   check("Corte legible", false, cash.error);
 } else {
-  check("Corte: base $500, esperado $570", cash.openingCents === 50000 && cash.expectedCents === 57000,
-    `base $${(cash.openingCents / 100).toFixed(2)} · esperado $${(cash.expectedCents / 100).toFixed(2)}`);
+  check(
+    "Corte: base $500, esperado $500 (efectivo demo excluido)",
+    cash.openingCents === 50000 && cash.expectedCents === 50000,
+    `base $${(cash.openingCents / 100).toFixed(2)} · esperado $${(cash.expectedCents / 100).toFixed(2)}`,
+  );
 }
 
 const files = [

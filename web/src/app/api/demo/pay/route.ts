@@ -1,6 +1,14 @@
+import { z } from "zod";
 import { isDemoMode } from "@/lib/config";
 import { getDb, getOrder, newId, nowIso } from "@/lib/db";
 import { recordPayment } from "@/lib/orders";
+
+const bodySchema = z.object({
+  orderId: z.string().trim().min(1),
+  // El efectivo no se simula: el efectivo demo no es dinero real. Solo los
+  // métodos digitales pueden pasar por pey/demo.
+  method: z.enum(["codi", "card", "wallet"]).default("card"),
+});
 
 export async function POST(request: Request) {
   if (!isDemoMode()) {
@@ -8,11 +16,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = (await request.json()) as { orderId?: string; method?: "codi" | "card" | "wallet" };
-    if (!body.orderId) {
-      return Response.json({ error: "Falta orderId." }, { status: 400 });
-    }
-
+    const body = bodySchema.parse(await request.json());
     const order = getOrder(body.orderId);
     if (!order) {
       return Response.json({ error: "Pedido no encontrado." }, { status: 404 });
@@ -23,7 +27,7 @@ export async function POST(request: Request) {
       return Response.json({ order });
     }
 
-    const method = body.method ?? "card";
+    const method = body.method;
     const transactionId = `demo_txn_${newId("tx")}`;
     const database = getDb();
     database
@@ -53,6 +57,12 @@ export async function POST(request: Request) {
 
     return Response.json({ order: updated, transactionId });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return Response.json(
+        { error: "Método demo inválido. Usa codi, card o wallet; el efectivo no se simula." },
+        { status: 400 },
+      );
+    }
     const message = error instanceof Error ? error.message : "No se pudo simular el pago.";
     return Response.json({ error: message }, { status: 500 });
   }

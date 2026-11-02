@@ -924,7 +924,11 @@ def main() -> int:
                 len(requests_to_3000) == 0,
                 f"{len(requests_to_3000)} peticiones",
             )
-            check("el carril corre en :3101", PORT == 3101, BASE)
+            check(
+                "el carril corre en un puerto aislado, no en :3000",
+                PORT != 3000,
+                BASE,
+            )
 
             browser.close()
     finally:

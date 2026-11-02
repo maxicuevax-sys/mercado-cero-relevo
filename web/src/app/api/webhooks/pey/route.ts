@@ -112,19 +112,46 @@ export async function POST(request: Request) {
 
   const database = getDb();
   let eventId: string | null = null;
+  let retryingRejected = false;
 
   try {
     // Insertar el evento y aplicarlo en la misma transacción: si el proceso
     // se cae a la mitad, no queda un evento "received" que bloquee el reintento.
     database.exec("BEGIN IMMEDIATE");
 
-    eventId = insertEvent({
-      idempotencyKey: webhookId,
-      eventType,
-      payload: rawBody,
-      signatureValid: true,
-      result: "received",
-    });
+    try {
+      eventId = insertEvent({
+        idempotencyKey: webhookId,
+        eventType,
+        payload: rawBody,
+        signatureValid: true,
+        result: "received",
+      });
+    } catch (error) {
+      if (!isUniqueViolation(error)) throw error;
+      const existing = database
+        .prepare(
+          "SELECT id, result FROM payment_events WHERE idempotency_key = ?",
+        )
+        .get(webhookId) as { id: string; result: string | null } | undefined;
+      // Un replay ya procesado/ignorado se ackea sin volver a escribir. Un
+      // evento rechazado sí se puede corregir: si no, el proveedor reintenta
+      // con el mismo webhook-id y nunca cobra.
+      if (!existing || existing.result !== "rejected") {
+        database.exec("COMMIT");
+        return Response.json({ ok: true, duplicate: true });
+      }
+      retryingRejected = true;
+      eventId = existing.id;
+      database
+        .prepare(
+          `UPDATE payment_events
+           SET event_type = ?, payload = ?, signature_valid = 1,
+               result = 'received', error = NULL, processed_at = ?
+           WHERE id = ?`,
+        )
+        .run(eventType, rawBody, nowIso(), existing.id);
+    }
 
     const outcome = processPeyEvent(event);
 
@@ -141,19 +168,34 @@ export async function POST(request: Request) {
       // La transacción pudo haberse cerrado sola.
     }
 
-    if (eventId === null && isUniqueViolation(error)) {
-      return Response.json({ ok: true, duplicate: true });
-    }
-
     if (error instanceof PeyWebhookError) {
-      auditEvent({
-        idempotencyKey: webhookId,
-        eventType,
-        payload: rawBody,
-        signatureValid: true,
-        result: "rejected",
-        error: error.message,
-      });
+      if (retryingRejected && eventId) {
+        // El reintento tampoco cuadró: conserva la fila única y actualiza el
+        // motivo para que el siguiente intento siga siendo posible.
+        try {
+          database
+            .prepare(
+              `UPDATE payment_events
+               SET event_type = ?, payload = ?, error = ?, processed_at = ?
+               WHERE id = ?`,
+            )
+            .run(eventType, rawBody, error.message, nowIso(), eventId);
+        } catch (updateError) {
+          console.error(
+            "[pey webhook] no se pudo actualizar el rechazo reintentado",
+            updateError,
+          );
+        }
+      } else {
+        auditEvent({
+          idempotencyKey: webhookId,
+          eventType,
+          payload: rawBody,
+          signatureValid: true,
+          result: "rejected",
+          error: error.message,
+        });
+      }
       return Response.json({ error: error.message }, { status: error.status });
     }
 
