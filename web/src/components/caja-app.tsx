@@ -474,7 +474,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const [dashboardError, setDashboardError] = useState<string | null>(null);
   const [retryingDashboard, setRetryingDashboard] = useState(false);
   const [pendingCheckedAt, setPendingCheckedAt] = useState<string | null>(null);
-  const [pendingError, setPendingError] = useState<string | null>(null);
+  const [tasksResetKey, setTasksResetKey] = useState(0);
   const [tab, setTab] = useState<Tab>("caja");
   const [today, setToday] = useState("");
   const [helpOpen, setHelpOpen] = useState(false);
@@ -572,13 +572,18 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     }, 3000);
   }, []);
 
-  const loadDashboard = useCallback(async (options?: { broadcast?: boolean }) => {
+  const loadDashboard = useCallback(
+    async (options?: { broadcast?: boolean; force?: boolean }) => {
     const broadcast = options?.broadcast ?? true;
-    // Una sola lectura en vuelo: focus, visibility y polling no se pisan.
-    if (dashboardInFlightRef.current) return;
+    // El refresco de fondo y el montaje se deduplican. Una mutación o un
+    // reintento usan `force` y abortan la lectura vieja: su respuesta no puede
+    // pisar el saldo que se acaba de cobrar.
+    if (!options?.force && dashboardInFlightRef.current) return;
+    if (options?.force) dashboardAbortRef.current?.abort();
     dashboardInFlightRef.current = true;
     const controller = new AbortController();
     dashboardAbortRef.current = controller;
+    const timeout = window.setTimeout(() => controller.abort("timeout"), 20_000);
     try {
       const response = await fetch("/api/dashboard", {
         cache: "no-store",
@@ -599,20 +604,24 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       setDashboard(data);
       setDashboardError(null);
       setPendingCheckedAt(new Date().toISOString());
-      setPendingError(null);
       // El refresco de fondo no debe reiniciar el conteo del corte ni otros
       // formularios: solo las mutaciones avisan a las demás superficies.
       if (broadcast) window.dispatchEvent(new Event("mercado:refresh"));
     } catch (error) {
-      if (controller.signal.aborted) return;
+      if (controller.signal.aborted) {
+        if (controller.signal.reason === "timeout") {
+          setDashboardError("La carga tardó demasiado. Revisa tu conexión y reintenta.");
+        }
+        return;
+      }
       // El fallo se queda en un banner persistente; no hay reintento automático.
       setDashboardError(
         friendlyError(error, "No se pudo cargar la caja. No hay cifras nuevas para mostrar."),
       );
       // No borramos `dashboard`: los pendientes y su última comprobación siguen
-      // visibles, con el aviso de que la lectura actual falló.
-      setPendingError("Revisa tu conexión.");
+      // visibles. El banner global es el único que ofrece Reintentar.
     } finally {
+      window.clearTimeout(timeout);
       if (dashboardAbortRef.current === controller) {
         dashboardAbortRef.current = null;
         dashboardInFlightRef.current = false;
@@ -632,7 +641,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const retryDashboard = useCallback(async () => {
     setRetryingDashboard(true);
     try {
-      await loadDashboard();
+      await loadDashboard({ force: true });
     } finally {
       setRetryingDashboard(false);
     }
@@ -855,6 +864,11 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       scrollPositions.current[tab] = window.scrollY;
       setToast(null);
       setTab(next);
+      // Al cambiar de destino, el foco va al título para que un lector de
+      // pantalla anuncie la sección sin recorrer toda la página.
+      window.requestAnimationFrame(() => {
+        document.getElementById(TAB_HEADINGS[next])?.focus({ preventScroll: true });
+      });
     },
     [tab],
   );
@@ -1483,7 +1497,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       setLastChange(changeForOrder > 0 ? { orderId: order.id, cents: changeForOrder } : null);
       setActiveOrder(order);
       clearDraft();
-      await loadDashboard();
+      await loadDashboard({ force: true });
 
       if (order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled") {
         if (order.status === "paid") {
@@ -1542,7 +1556,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
         const data = (await response.json()) as { order?: Order; error?: string };
         if (!response.ok || !data.order) throw new Error(data.error ?? "No pude generar el cobro.");
         setActiveOrder(data.order);
-        await loadDashboard();
+        await loadDashboard({ force: true });
       } catch (error) {
         showToast("error", error instanceof Error ? error.message : "No pude generar el cobro.");
       } finally {
@@ -1578,7 +1592,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
               )} a fiado.`
             : `Pago simulado. ${formatMxn(data.order.totalCents)}.`,
         );
-        await loadDashboard();
+        await loadDashboard({ force: true });
       } catch (error) {
         showToast("error", error instanceof Error ? error.message : "No pude simular el pago.");
       } finally {
@@ -1618,7 +1632,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                 ? `Pago verificado: ${formatMxn(order.totalCents)}.`
                 : `Pago simulado. ${formatMxn(order.totalCents)}.`,
           );
-          await loadDashboard();
+          await loadDashboard({ force: true });
         } else {
           setActiveOrder(order);
         }
@@ -1712,7 +1726,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
             const message = data.error ?? "El saldo cambió. Revisa el monto y confirma de nuevo.";
             setCreditPayError(message);
             showToast("info", message);
-            await loadDashboard();
+            await loadDashboard({ force: true });
             return;
           }
           throw new Error(data.error ?? "No pude registrar el abono.");
@@ -1754,7 +1768,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
         setCreditPayRequestId(null);
         setCreditPayNote("");
         vibrate(30);
-        await loadDashboard();
+        await loadDashboard({ force: true });
       } catch (error) {
         setCreditPayError(friendlyError(error, "No pude registrar el abono."));
       } finally {
@@ -1791,7 +1805,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
         clearStoredPendingOrder(orderId);
         clearResumableIfMatches(orderId);
         onDone();
-        await loadDashboard();
+        await loadDashboard({ force: true });
         showToast("ok", "Pedido entregado.");
       } catch (error) {
         setDeliverError(
@@ -1853,7 +1867,10 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       clearDraft();
       setVerifyResult(null);
       setVerifyId("");
-      await loadDashboard();
+      // El panel de tareas está montado aunque esté oculto: sin remontarlo,
+      // el reset del servidor dejaría tareas viejas en pantalla.
+      setTasksResetKey((key) => key + 1);
+      await loadDashboard({ force: true });
       showToast("ok", "Demo reiniciada.");
     } catch (error) {
       showToast("error", error instanceof Error ? error.message : "No pude reiniciar la demo.");
@@ -1959,20 +1976,6 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                     </button>
                   }
                 />
-                {(dashboard?.pendingOrders?.length ?? 0) > 0 || pendingError ? (
-                  <div className="mb-4">
-                    <PendingPayments
-                      orders={dashboard?.pendingOrders ?? []}
-                      lastCheckedAt={pendingCheckedAt}
-                      error={pendingError}
-                      onOpen={(order) => {
-                        setActiveOrder(order);
-                        setTab("caja");
-                      }}
-                      onRetry={() => void loadDashboard()}
-                    />
-                  </div>
-                ) : null}
                 {resumableOrder && !activeOrder ? (
                   <div
                     role="status"
@@ -2089,6 +2092,22 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
               </section>
 
               <div className="caja-aside min-w-0">
+                {/* Cobros pendientes después de la venta: la acción principal
+                    (registrar) no se empuja fuera del primer viewport a 200 %. */}
+                {(dashboard?.pendingOrders?.length ?? 0) > 0 ? (
+                  <div className="mb-4">
+                    <PendingPayments
+                      orders={dashboard?.pendingOrders ?? []}
+                      lastCheckedAt={pendingCheckedAt}
+                      error={null}
+                      onOpen={(order) => {
+                        setActiveOrder(order);
+                        setTab("caja");
+                      }}
+                      onRetry={() => void loadDashboard({ force: true })}
+                    />
+                  </div>
+                ) : null}
                 <ActivityList
                   orders={dashboard?.orders ?? []}
                   credits={dashboard?.credits ?? []}
@@ -2151,6 +2170,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
           <section hidden={tab !== "corte"} className="mx-auto max-w-[1000px]">
               <ScreenHeading
                 title="Corte de caja"
+                headingId="corte-heading"
                 subtitle="Compara lo contado con lo esperado."
               />
               <div className="space-y-5">
@@ -2167,12 +2187,17 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
             </section>
 
           <section hidden={tab !== "meta"} className="mx-auto max-w-[760px]">
-              <ScreenHeading title="Meta" subtitle="Una meta a la vez." compactSubtitle />
+              <ScreenHeading
+                title="Meta"
+                headingId="meta-heading"
+                subtitle="Una meta a la vez."
+                compactSubtitle
+              />
               <GoalCard showToast={showToast} />
             </section>
 
           <section hidden={tab !== "pendientes"} className="mx-auto max-w-[820px]">
-              <PendingTasksPanel headingId="pendientes-heading" />
+              <PendingTasksPanel key={tasksResetKey} headingId="pendientes-heading" />
             </section>
 
           <footer className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-separator pt-5 text-sm text-ink-2 sm:flex-row sm:flex-wrap sm:items-center">
@@ -5341,7 +5366,14 @@ function paymentTruth(order: Order) {
 function paymentSheetTitle(order: Order): string {
   const truth = paymentTruth(order);
   const due = Math.max(0, order.totalCents - order.paidCents - order.creditCents);
-  if (order.status === "fulfilled") return "Pedido entregado";
+  if (order.status === "fulfilled") {
+    // `fulfilled` también cierra ventas con fiado/demo; no afirmar entrega
+    // cuando el pedido solo quedó cobrado o anotado.
+    if (order.creditCents > 0) {
+      return order.digitalPaidCents > 0 ? "Pago mixto" : "Quedó anotado";
+    }
+    return "Pedido entregado";
+  }
   if (due > 0) {
     return order.paymentUrl || order.qrString
       ? "Cobro pendiente"
@@ -5396,6 +5428,14 @@ function ScreenHeading({
     </div>
   );
 }
+
+const TAB_HEADINGS: Record<Tab, string> = {
+  caja: "caja-heading",
+  fiado: "fiado-heading",
+  corte: "corte-heading",
+  meta: "meta-heading",
+  pendientes: "pendientes-heading",
+};
 
 const TABS = [
   { id: "caja" as const, label: "Caja", mobileLabel: "Caja", icon: Mic },
@@ -5566,7 +5606,11 @@ function MobileTabBar({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
               type="button"
               onClick={() => onTab(item.id)}
               aria-current={active ? "page" : undefined}
-              aria-label={item.label}
+              aria-label={
+                item.mobileLabel === item.label
+                  ? item.label
+                  : `${item.mobileLabel} (${item.label})`
+              }
               className={cn(
                 "relative flex min-h-14 flex-col items-center justify-center gap-1 px-0.5 text-xs font-semibold transition",
                 active ? "text-green" : "text-ink-2",

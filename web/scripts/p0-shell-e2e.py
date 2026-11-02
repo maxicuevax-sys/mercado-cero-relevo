@@ -399,7 +399,11 @@ def main() -> int:
             }"""
         )
         broken = broken_words(page)
-        check("home-1280-200: sidebar conserva Fiado y Corte", sidebar == ["Caja", "Fiado", "Corte", "Meta"], str(sidebar))
+        check(
+            "home-1280-200: sidebar conserva los cinco destinos",
+            sidebar == ["Caja", "Fiado", "Corte", "Meta", "Pendientes"],
+            str(sidebar),
+        )
         check("home-1280-200: sin palabras partidas", not broken, ", ".join(item["word"] for item in broken[:5]))
 
         page.get_by_role("button", name="Abrir guía").click()

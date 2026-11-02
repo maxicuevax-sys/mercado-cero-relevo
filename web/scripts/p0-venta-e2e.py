@@ -540,10 +540,8 @@ def main() -> int:
             and mixed["creditCents"] == 2000
             and mixed["totalCents"] - mixed["paidCents"] - mixed["creditCents"] == 4000,
         )
-        note(
-            "HUECO CONOCIDO P0-C/E: el PaymentPanel con fiado no ofrece cobrar el saldo digital",
-            "La orden queda correcta; la acción de cobro del remanente no existe en esta UI.",
-        )
+        # El cobro del remanente digital se cubre en p0-integracion-e2e.py (P0-5):
+        # PaymentPanel muestra Link/QR/demo y termina en “Pago mixto”.
         close_dialog(page)
 
         # 7 · 51 ítems: sin truncamiento silencioso.

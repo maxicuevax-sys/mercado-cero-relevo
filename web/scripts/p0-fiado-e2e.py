@@ -399,6 +399,7 @@ def main() -> int:
             dialog = page.get_by_role("dialog")
             page.get_by_role("spinbutton", name="Monto del abono en pesos").fill("100")
             page.wait_for_timeout(200)
+            dialog.get_by_text("Efectivo", exact=True).click()
             check(
                 "el sobrepago muestra aplicado y devuelto",
                 dialog.get_by_text("Se aplican $50.00").count() >= 1
@@ -442,6 +443,7 @@ def main() -> int:
             pay_posts.clear()
             open_voice_sheet(page)
             dialog = page.get_by_role("dialog")
+            dialog.get_by_text("Efectivo", exact=True).click()
             dialog.get_by_role("button", name="Registrar abono").dblclick()
             wait_credit_balance(page, juan["id"], 0)
             page.wait_for_timeout(400)
@@ -467,6 +469,7 @@ def main() -> int:
             )
             assert external.ok, external.text()
             dialog = page.get_by_role("dialog")
+            dialog.get_by_text("Efectivo", exact=True).click()
             with page.expect_response(
                 lambda response: response.request.method == "POST"
                 and re.search(r"/api/credits/[^/]+/pay$", response.url) is not None
@@ -506,6 +509,7 @@ def main() -> int:
             )
             assert external.ok, external.text()
             dialog = page.get_by_role("dialog")
+            dialog.get_by_text("Efectivo", exact=True).click()
             with page.expect_response(
                 lambda response: response.request.method == "POST"
                 and re.search(r"/api/credits/[^/]+/pay$", response.url) is not None
@@ -659,6 +663,7 @@ def main() -> int:
             )
             pay_bodies.clear()
             page.get_by_role("spinbutton", name="Monto del abono en pesos").fill("40")
+            sheet.get_by_text("Efectivo", exact=True).click()
             sheet.get_by_role("button", name="Registrar abono").click()
             partial_balance = wait_credit_balance(page, credit_id, 6000)
             partial_rows = credit_payments(credit_id)
@@ -718,6 +723,7 @@ def main() -> int:
             )
             pay_bodies.clear()
             page.get_by_role("spinbutton", name="Monto del abono en pesos").fill("60")
+            sheet.get_by_text("Efectivo", exact=True).click()
             sheet.get_by_role("button", name="Registrar abono").click()
             final_balance = wait_credit_balance(page, credit_id, 0)
             final_rows = credit_payments(credit_id)
@@ -829,6 +835,7 @@ def main() -> int:
             juan = credit_by_name(page, "Juan")
             open_voice_sheet(page)
             dialog = page.get_by_role("dialog")
+            dialog.get_by_text("Efectivo", exact=True).click()
             lost_request_id: str | None = None
             pay_bodies.clear()
 
@@ -904,6 +911,7 @@ def main() -> int:
                 and metrics360["dialogScrollWidth"] <= metrics360["innerWidth"] + 1,
                 json.dumps(metrics360),
             )
+            page360.get_by_role("dialog").get_by_text("Efectivo", exact=True).click()
             check(
                 "la hoja a 360 px muestra el método con estado",
                 page360.get_by_role("dialog").get_by_text("ELEGIDO").count() >= 1,

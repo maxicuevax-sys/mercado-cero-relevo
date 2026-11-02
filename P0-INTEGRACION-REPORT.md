@@ -157,4 +157,31 @@ El script levanta su propio servidor en `:3101` si no se le pasa `P0_EXTERNAL_SE
 - **Producto:** `web/src/components/caja-app.tsx`, `web/src/app/globals.css`.
 - **Prueba:** `web/scripts/p0-integracion-e2e.py`; evidencia en `harness/evidence/p0-integracion-*`.
 - **Commits:** `c57a404` (producto), `3da950f` (evidencia E2E); reporte y `harness/evidence/latest.json` en el commit de cierre.
-- **Sin merge a `master`.** Sin cambios en `mercado-cero` ni en `:3000`.
+- **Integrado en `master`:** `96381b9`; correcciones posteriores en `1812e0c` y el commit de cierre de revisión.
+
+---
+
+## 8 · Revisión independiente y correcciones (2 nov 2026)
+
+La revisión independiente dictaminó **CAMBIOS NECESARIOS**. Se corrigieron antes de dar el
+corte por cerrado:
+
+| # | Hallazgo | Corrección | Evidencia |
+|---|---|---|---|
+| 1 | Un poll viejo podía pisar el saldo recién cobrado | `loadDashboard({ force: true })` aborta la lectura en vuelo tras cada mutación; el refresco de fondo se deduplica | `p0-integracion-e2e.py`: retiene un dashboard viejo, cobra el abono y verifica saldo $0; 50/0 |
+| 2 | Reset de demo dejaba tareas fantasma | `tasksResetKey` remonta `PendingTasksPanel` al reiniciar | `p0-integracion-e2e.py`: “el reset de demo limpia las tareas visibles” |
+| 3 | WCAG 2.5.3: tab “Tareas” con nombre accesible “Pendientes” | nombre accesible **“Tareas (Pendientes)”**; foco al `h1` de cada tab | `p0-integracion-e2e.py`: nombre accesible y foco `pendientes-heading` |
+| 4 | La franja P0-E empujaba la venta fuera del primer viewport al 200 % | franja movida al aside, después de la venta; un solo “Reintentar” global | `p0-shell-e2e.py`: 360/768/200 con campo de venta visible; 52/0 |
+| 5 | “Pedido entregado” en un mixto demo | título “Pago mixto” / “Quedó anotado” cuando hay fiado; no afirma entrega | `p0-integracion-e2e.py` |
+| 6 | Gates viejos de P0-C/P0-F desactualizados | `p0-fiado` elige método; `p0-shell` espera 5 destinos; `p0-venta` retira el KNOWN del remanente | `p0-fiado` 50/0 · `p0-venta` 43/0 · `p0-shell` 52/0 |
+| 7 | Evidencia de tabs/fecha engañosa | `labelFits` mide el texto real; la fecha se lee dentro de Actividad | `p0-integracion-e2e.py` 50/0 |
+
+**KNOWN que permanecen**
+
+- El polling de 45 s no se espera en el E2E; se prueban `focus` y `visibilitychange`.
+- El remanente digital mixto se probó con `demo_paid`/demo, no con pey real.
+- `fulfilled` también cierra ventas con fiado/mixto; el estado sirve para “cobro resuelto”,
+  no prueba entrega. No hay `paid` fuera del webhook.
+- TalkBack/VoiceOver, teléfono físico y zoom real siguen sin probar.
+- Un pedido `cancelled` con fiado no está excluido explícitamente del panel de cobro.
+- El timeout de `/api/dashboard` es de 20 s y no tiene backoff.

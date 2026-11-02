@@ -396,6 +396,23 @@ def main() -> int:
                 page.get_by_text("Pagar al proveedor", exact=True).count() == 0,
             )
 
+            # 1c · Reset de demo con Pendientes visible: el panel se remonta y
+            # no deja tareas fantasma del servidor anterior.
+            page.get_by_role("button", name="Anotar pendiente").first.click()
+            page.get_by_label(re.compile("¿Qué quieres recordar?")).fill(
+                "Tarea que el reset debe borrar"
+            )
+            page.get_by_role("button", name="Guardar", exact=True).click()
+            wait_for_text(page, "Tarea que el reset debe borrar", 8000)
+            page.get_by_role("button", name="Demo", exact=True).click()
+            page.get_by_role("button", name="Reiniciar datos de demo").click()
+            page.get_by_role("button", name="Sí, reiniciar").click()
+            page.wait_for_timeout(1400)
+            check(
+                "el reset de demo limpia las tareas visibles",
+                page.get_by_text("Tarea que el reset debe borrar", exact=True).count() == 0,
+            )
+
             # ------------------------------------------------------------------
             # 2 · P0-E: franja de cobros pendientes + refresco.
             # ------------------------------------------------------------------
@@ -479,11 +496,21 @@ def main() -> int:
             wait_for_text(page, "Pedido de ayer", 8000)
             check("el refresco por visibilitychange trae el pendiente nuevo", True)
 
+            activity_time = page.evaluate(
+                """() => {
+                  const heading = [...document.querySelectorAll('h2')].find(
+                    el => (el.innerText || '').includes('Últimos movimientos')
+                  );
+                  const card = heading ? heading.closest('div.rounded-2xl') : null;
+                  const time = card ? card.querySelector('time') : null;
+                  return time ? time.innerText : '';
+                }"""
+            )
             check(
                 "la actividad usa fecha relativa, no solo hora",
-                page.locator("time").first.inner_text().startswith(("Hoy", "Ayer"))
-                or bool(re.match(r"\d{1,2} \w{3}", page.locator("time").first.inner_text())),
-                page.locator("time").first.inner_text(),
+                activity_time.startswith(("Hoy", "Ayer"))
+                or bool(re.match(r"\d{1,2} \w{3}", activity_time)),
+                activity_time,
             )
 
             page.get_by_role("button", name=re.compile("Ver cobro")).first.click()
@@ -580,6 +607,71 @@ def main() -> int:
             page.wait_for_timeout(300)
 
             # ------------------------------------------------------------------
+            # 4b · Carrera: una lectura vieja del dashboard no puede revivir
+            # el saldo que se acaba de cobrar.
+            # ------------------------------------------------------------------
+            reset(page)
+            page.wait_for_timeout(800)
+            stale_dashboard = page.request.get(f"{BASE}/api/dashboard").json()
+            juan_credit = next(
+                credit
+                for credit in stale_dashboard["credits"]
+                if credit["customerName"] == "Juan" and credit["status"] != "settled"
+            )
+            held: list = []
+            calls = {"count": 0}
+
+            def hold_first_dashboard(route):
+                calls["count"] += 1
+                if calls["count"] == 1:
+                    # Se libera recién después del abono, como un poll lento.
+                    held.append(route)
+                else:
+                    route.continue_()
+
+            page.route("**/api/dashboard", hold_first_dashboard)
+            page.evaluate("window.dispatchEvent(new Event('focus'))")
+            page.wait_for_timeout(500)
+            page.locator('aside button:visible', has_text="Fiado").first.click()
+            page.wait_for_timeout(400)
+            page.get_by_role("button", name="Registrar abono").first.click()
+            sheet = page.get_by_role("dialog")
+            sheet.wait_for(timeout=8000)
+            sheet.get_by_text("Efectivo", exact=True).click()
+            sheet.get_by_role("button", name="Registrar abono").click()
+            page.wait_for_timeout(1200)
+
+            for route in held:
+                try:
+                    route.fulfill(
+                        status=200,
+                        content_type="application/json",
+                        body=json.dumps(stale_dashboard),
+                    )
+                except Exception:
+                    # La petición ya fue abortada por el refresco forzado.
+                    pass
+            page.wait_for_timeout(900)
+            page.unroute("**/api/dashboard", hold_first_dashboard)
+
+            juan_after = next(
+                credit
+                for credit in page.request.get(f"{BASE}/api/dashboard").json()["credits"]
+                if credit["id"] == juan_credit["id"]
+            )
+            fiado_text = page.locator(
+                'section:has(h1:has-text("Fiado"))'
+            ).inner_text()
+            check(
+                "un poll viejo no revive el saldo después del abono",
+                juan_after["balanceCents"] == 0
+                and "Juan" not in fiado_text
+                and "Sin fiados pendientes" in fiado_text
+                and calls["count"] >= 2,
+                f"balance={juan_after['balanceCents']} · calls={calls['count']} · {fiado_text[:160]}",
+            )
+
+            # ------------------------------------------------------------------
             # 5 · Venta mixta $30 efectivo + $20 fiado + $40 digital.
             # ------------------------------------------------------------------
             reset(page)
@@ -617,7 +709,9 @@ def main() -> int:
             page.get_by_role("button", name=re.compile("Simular CoDi")).click()
             # El aviso de Actividad también dice "Pago mixto"; esperamos la hoja.
             result_dialog = page.get_by_role("dialog")
-            result_dialog.get_by_text("Pago mixto", exact=True).wait_for(timeout=10000)
+            result_dialog.get_by_role(
+                "heading", name="Pago mixto", exact=True
+            ).wait_for(timeout=10000)
             result_text = result_dialog.inner_text()
             check(
                 "pagar el digital deja el resultado Pago mixto",
@@ -696,7 +790,7 @@ def main() -> int:
                       left: Math.round(r.left),
                       right: Math.round(r.right),
                       width: Math.round(r.width),
-                      labelFits: label ? label.scrollWidth <= label.clientWidth + 1 : false,
+                      labelFits: label ? label.getBoundingClientRect().width <= r.width - 2 : false,
                     };
                   });
                 }"""
@@ -730,8 +824,24 @@ def main() -> int:
             )
             page.screenshot(path=str(SHOT_360))
 
-            page.get_by_role("button", name="Pendientes", exact=True).click()
+            pendientes_tab = page.get_by_role(
+                "button", name="Tareas (Pendientes)", exact=True
+            )
+            check(
+                "el nombre accesible del tab incluye su texto visible",
+                pendientes_tab.count() == 1,
+            )
+            pendientes_tab.click()
             page.wait_for_selector("h1:has-text('Pendientes')", timeout=10000)
+            page.wait_for_timeout(400)
+            focus_id = page.evaluate(
+                "document.activeElement ? document.activeElement.id : ''"
+            )
+            check(
+                "el foco va al título de Pendientes",
+                focus_id == "pendientes-heading",
+                str(focus_id),
+            )
             text200(page)
             broken = broken_words(page)
             check(
@@ -752,7 +862,7 @@ def main() -> int:
                     return {
                       name: b.getAttribute('aria-label'),
                       width: Math.round(r.width),
-                      labelFits: label ? label.scrollWidth <= label.clientWidth + 1 : false,
+                      labelFits: label ? label.getBoundingClientRect().width <= r.width - 2 : false,
                     };
                   });
                 }"""
