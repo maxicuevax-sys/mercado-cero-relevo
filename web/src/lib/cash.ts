@@ -1,10 +1,11 @@
-import { getDb, newId, nowIso } from "./db";
+import { audit, getDailySummary, getDb, newId, nowIso } from "./db";
 import { mexicoDateKey } from "./time";
-import type { CashClose, CashStatus } from "./types";
+import type { CashClose, CashClosePreview, CashStatus } from "./types";
 
 interface CashCloseRow {
   id: string;
   date: string;
+  version: number;
   opening_cents: number;
   cash_sales_cents: number;
   cash_credit_cents: number;
@@ -15,13 +16,58 @@ interface CashCloseRow {
   difference_cents: number;
   base_next_cents: number;
   withdrawal_next_cents: number;
+  snapshot_cash_cents: number;
+  snapshot_credit_cents: number;
+  snapshot_pending_digital_cents: number;
+  snapshot_known: number;
+  reason: string | null;
+  request_id: string | null;
   created_at: string;
+}
+
+export interface CashCloseAmounts {
+  openingCents: number;
+  expensesCents: number;
+  withdrawalsCents: number;
+  countedCents: number;
+  baseNextCents: number;
+}
+
+export interface CashCloseInput extends CashCloseAmounts {
+  reason?: string | null;
+  requestId?: string | null;
+  /** Versión que el cliente cree vigente; 0 si es el primer corte. */
+  expectedVersion: number;
+}
+
+export class CashCloseError extends Error {
+  code: string;
+  status: number;
+  currentVersion?: number;
+
+  constructor(
+    code: string,
+    message: string,
+    status = 400,
+    currentVersion?: number,
+  ) {
+    super(message);
+    this.name = "CashCloseError";
+    this.code = code;
+    this.status = status;
+    this.currentVersion = currentVersion;
+  }
+}
+
+function normalizeCents(value: number): number {
+  return Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
 }
 
 function mapClose(row: CashCloseRow): CashClose {
   return {
     id: row.id,
     date: row.date,
+    version: Number(row.version),
     openingCents: Number(row.opening_cents),
     cashSalesCents: Number(row.cash_sales_cents),
     cashCreditCents: Number(row.cash_credit_cents),
@@ -32,28 +78,81 @@ function mapClose(row: CashCloseRow): CashClose {
     differenceCents: Number(row.difference_cents),
     baseNextCents: Number(row.base_next_cents),
     withdrawalNextCents: Number(row.withdrawal_next_cents),
+    snapshotCashCents: Number(row.snapshot_cash_cents),
+    snapshotCreditCents: Number(row.snapshot_credit_cents),
+    snapshotPendingDigitalCents: Number(row.snapshot_pending_digital_cents),
+    snapshotKnown: Boolean(row.snapshot_known),
+    reason: row.reason ?? null,
+    requestId: row.request_id ?? null,
     createdAt: row.created_at,
   };
 }
 
+export function listCashCloses(date: string, limit = 5): CashClose[] {
+  const rows = getDb()
+    .prepare(
+      "SELECT * FROM cash_closes WHERE date = ? ORDER BY version DESC LIMIT ?",
+    )
+    .all(date, limit) as unknown as CashCloseRow[];
+  return rows.map(mapClose);
+}
+
+/** Última versión del corte de una fecha. La versión 1 nunca se borra. */
 export function getCashClose(date: string): CashClose | null {
   const row = getDb()
-    .prepare("SELECT * FROM cash_closes WHERE date = ?")
+    .prepare(
+      "SELECT * FROM cash_closes WHERE date = ? ORDER BY version DESC LIMIT 1",
+    )
     .get(date) as unknown as CashCloseRow | undefined;
   return row ? mapClose(row) : null;
+}
+
+/** Lectura por id: nunca devuelve “la última” después de un COMMIT ajeno. */
+export function getCashCloseById(id: string): CashClose | null {
+  const row = getDb()
+    .prepare("SELECT * FROM cash_closes WHERE id = ?")
+    .get(id) as unknown as CashCloseRow | undefined;
+  return row ? mapClose(row) : null;
+}
+
+export function getCashCloseByRequestId(requestId: string): CashClose | null {
+  const row = getDb()
+    .prepare("SELECT * FROM cash_closes WHERE request_id = ?")
+    .get(requestId) as unknown as CashCloseRow | undefined;
+  return row ? mapClose(row) : null;
+}
+
+/**
+ * Historial breve: las últimas 5 versiones más la versión 1. La primera no
+ * desaparece aunque haya muchas correcciones.
+ */
+function listCashClosesForHistory(date: string): CashClose[] {
+  const latest = listCashCloses(date, 5);
+  const firstRow = getDb()
+    .prepare(
+      "SELECT * FROM cash_closes WHERE date = ? ORDER BY version ASC LIMIT 1",
+    )
+    .get(date) as unknown as CashCloseRow | undefined;
+  if (!firstRow) return latest;
+  const first = mapClose(firstRow);
+  if (latest.some((item) => item.id === first.id)) return latest;
+  return [...latest, first].sort((a, b) => b.version - a.version);
 }
 
 export function getCashStatus(): CashStatus {
   const database = getDb();
   const date = mexicoDateKey();
   const saved = getCashClose(date);
+  const history = listCashClosesForHistory(date);
 
   const openingCents = saved
     ? saved.openingCents
     : (() => {
         const previous = database
           .prepare(
-            "SELECT base_next_cents FROM cash_closes WHERE date < ? ORDER BY date DESC LIMIT 1",
+            `SELECT base_next_cents FROM cash_closes
+             WHERE date < ?
+             ORDER BY date DESC, version DESC LIMIT 1`,
           )
           .get(date) as unknown as { base_next_cents: number } | undefined;
         return Number(previous?.base_next_cents ?? 0);
@@ -91,66 +190,194 @@ export function getCashStatus(): CashStatus {
     expectedCents:
       openingCents + cashSalesCents + cashCreditCents - expensesCents - withdrawalsCents,
     saved,
+    history,
   };
 }
 
-export function closeCash(input: {
-  openingCents: number;
-  expensesCents: number;
-  withdrawalsCents: number;
-  countedCents: number;
-  baseNextCents: number;
-}): CashClose {
-  const database = getDb();
-  const status = getCashStatus();
-  const date = status.date;
-
-  const openingCents = Math.max(0, Math.round(input.openingCents));
-  const expensesCents = Math.max(0, Math.round(input.expensesCents));
-  const withdrawalsCents = Math.max(0, Math.round(input.withdrawalsCents));
-  const countedCents = Math.max(0, Math.round(input.countedCents));
-  const baseNextCents = Math.max(0, Math.round(input.baseNextCents));
+function computePreview(
+  status: CashStatus,
+  input: CashCloseAmounts,
+): CashClosePreview {
+  const openingCents = normalizeCents(input.openingCents);
+  const expensesCents = normalizeCents(input.expensesCents);
+  const withdrawalsCents = normalizeCents(input.withdrawalsCents);
+  const countedCents = normalizeCents(input.countedCents);
+  const baseNextCents = normalizeCents(input.baseNextCents);
   const expectedCents =
-    openingCents + status.cashSalesCents + status.cashCreditCents - expensesCents - withdrawalsCents;
-  const differenceCents = countedCents - expectedCents;
-  const withdrawalNextCents = Math.max(0, countedCents - baseNextCents);
-  const createdAt = nowIso();
+    openingCents +
+    status.cashSalesCents +
+    status.cashCreditCents -
+    expensesCents -
+    withdrawalsCents;
 
-  database
-    .prepare(
-      `INSERT INTO cash_closes
-       (id, date, opening_cents, cash_sales_cents, cash_credit_cents, expenses_cents,
-        withdrawals_cents, expected_cents, counted_cents, difference_cents,
-        base_next_cents, withdrawal_next_cents, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-       ON CONFLICT(date) DO UPDATE SET
-         opening_cents = excluded.opening_cents,
-         cash_sales_cents = excluded.cash_sales_cents,
-         cash_credit_cents = excluded.cash_credit_cents,
-         expenses_cents = excluded.expenses_cents,
-         withdrawals_cents = excluded.withdrawals_cents,
-         expected_cents = excluded.expected_cents,
-         counted_cents = excluded.counted_cents,
-         difference_cents = excluded.difference_cents,
-         base_next_cents = excluded.base_next_cents,
-         withdrawal_next_cents = excluded.withdrawal_next_cents,
-         created_at = excluded.created_at`,
-    )
-    .run(
-      newId("cash"),
+  return {
+    openingCents,
+    expensesCents,
+    withdrawalsCents,
+    countedCents,
+    baseNextCents,
+    cashSalesCents: status.cashSalesCents,
+    cashCreditCents: status.cashCreditCents,
+    expectedCents,
+    differenceCents: countedCents - expectedCents,
+    withdrawalNextCents: Math.max(0, countedCents - baseNextCents),
+  };
+}
+
+/**
+ * Calcula la diferencia con los totales vivos del servidor sin escribir nada.
+ * La UI muestra este número en la confirmación para no depender de una copia
+ * local que pudo quedar vieja.
+ */
+export function previewCashClose(
+  input: CashCloseAmounts,
+): { status: CashStatus; preview: CashClosePreview; issues: Array<{ code: string; message: string }> } {
+  const status = getCashStatus();
+  const preview = computePreview(status, input);
+  const issues: Array<{ code: string; message: string }> = [];
+
+  if (preview.countedCents <= 0) {
+    issues.push({
+      code: "counted_required",
+      message: "Escribe cuánto contaste. El total contado debe ser mayor que cero.",
+    });
+  }
+  if (preview.baseNextCents > preview.countedCents) {
+    issues.push({
+      code: "base_exceeds_counted",
+      message:
+        "La base para mañana no puede ser mayor que el total contado. Baja la base o corrige el conteo.",
+    });
+  }
+
+  return { status, preview, issues };
+}
+
+export function closeCash(input: CashCloseInput): CashClose {
+  const database = getDb();
+  const cleanReason = (input.reason ?? "").trim();
+  const requestId = (input.requestId ?? "").trim() || null;
+
+  // Reintento con la misma llave: devuelve la fila ya creada.
+  if (requestId) {
+    const existingRequest = getCashCloseByRequestId(requestId);
+    if (existingRequest) return existingRequest;
+  }
+
+  database.exec("BEGIN IMMEDIATE");
+  let date = mexicoDateKey();
+  let closeId = "";
+  try {
+    // Otra pestaña pudo insertar la misma llave entre la lectura y el lock.
+    if (requestId) {
+      const racedRequest = getCashCloseByRequestId(requestId);
+      if (racedRequest) {
+        database.exec("COMMIT");
+        return racedRequest;
+      }
+    }
+
+    // Dentro de la transacción se relee la última versión y los totales vivos.
+    const status = getCashStatus();
+    date = status.date;
+    const existing = status.saved;
+    const preview = computePreview(status, input);
+
+    if (preview.countedCents <= 0) {
+      throw new CashCloseError(
+        "counted_required",
+        "Escribe cuánto contaste. El total contado debe ser mayor que cero.",
+      );
+    }
+    if (preview.baseNextCents > preview.countedCents) {
+      throw new CashCloseError(
+        "base_exceeds_counted",
+        "La base para mañana no puede ser mayor que el total contado. Baja la base o corrige el conteo.",
+      );
+    }
+    if (existing && !cleanReason) {
+      throw new CashCloseError(
+        "reason_required",
+        "Escribe el motivo de la corrección antes de guardar otra versión del corte.",
+      );
+    }
+
+    const currentVersion = existing?.version ?? 0;
+    if (input.expectedVersion !== currentVersion) {
+      throw new CashCloseError(
+        "version_conflict",
+        "Otro corte se guardó antes. Actualiza los totales y vuelve a intentar.",
+        409,
+        currentVersion,
+      );
+    }
+
+    const version = currentVersion + 1;
+    const summary = getDailySummary();
+    closeId = newId("cash");
+
+    database
+      .prepare(
+        `INSERT INTO cash_closes
+         (id, date, version, opening_cents, cash_sales_cents, cash_credit_cents,
+          expenses_cents, withdrawals_cents, expected_cents, counted_cents,
+          difference_cents, base_next_cents, withdrawal_next_cents,
+          snapshot_cash_cents, snapshot_credit_cents, snapshot_pending_digital_cents,
+          snapshot_known, reason, request_id, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)`,
+      )
+      .run(
+        closeId,
+        date,
+        version,
+        preview.openingCents,
+        status.cashSalesCents,
+        status.cashCreditCents,
+        preview.expensesCents,
+        preview.withdrawalsCents,
+        preview.expectedCents,
+        preview.countedCents,
+        preview.differenceCents,
+        preview.baseNextCents,
+        preview.withdrawalNextCents,
+        status.cashSalesCents + status.cashCreditCents,
+        summary.creditCents,
+        summary.pendingCents,
+        existing ? cleanReason : null,
+        requestId,
+        nowIso(),
+      );
+
+    audit("cash.close", "cash_close", closeId, {
       date,
-      openingCents,
-      status.cashSalesCents,
-      status.cashCreditCents,
-      expensesCents,
-      withdrawalsCents,
-      expectedCents,
-      countedCents,
-      differenceCents,
-      baseNextCents,
-      withdrawalNextCents,
-      createdAt,
-    );
+      version,
+      reason: existing ? cleanReason : null,
+      requestId,
+      expectedVersion: input.expectedVersion,
+      countedCents: preview.countedCents,
+      expectedCents: preview.expectedCents,
+      differenceCents: preview.differenceCents,
+      baseNextCents: preview.baseNextCents,
+    });
 
-  return getCashClose(date)!;
+    database.exec("COMMIT");
+  } catch (error) {
+    try {
+      database.exec("ROLLBACK");
+    } catch {
+      // Si SQLite ya cerró la transacción, conservamos el error original.
+    }
+    throw error;
+  }
+
+  // Se lee por id, no “la última”: otra pestaña pudo crear una versión después.
+  const saved = getCashCloseById(closeId);
+  if (!saved) {
+    throw new CashCloseError(
+      "close_not_saved",
+      "El corte se guardó pero no se pudo leer. Actualiza la caja.",
+      500,
+    );
+  }
+  return saved;
 }

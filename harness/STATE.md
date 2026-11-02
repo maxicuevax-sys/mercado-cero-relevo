@@ -46,7 +46,7 @@
 - Pendientes de negocio (P0-G): quinto tab, crear/completar/reabrir/posponer/eliminar, reset de demo sin tareas fantasma.
 - Venta mixta: efectivo + fiado + remanente digital con Link/QR/demo; resultado “Pago mixto”.
 - Voz: Kokoro `em_santa` para frases fijas, Piper para dinámicas, montos hablados (“50 pesos”, no “cincuenta punto cero cero”).
-- Corte: conteo, diferencia, gastos/retiros, guardado.
+- Corte (P0-D, carril sin merge): borrador no destructivo, cierre versionado con snapshot_known, retiro previo explícito, idempotencia, historial con v1 y migración transaccional.
 - Meta: apartado declarado, progreso.
 - Accesibilidad: 48 px, 200%, alto contraste, voz, repetir, leer pantalla, movimiento reducido.
 - Demo: `demo_paid`, sellos, video, QR, runbook.
@@ -67,7 +67,7 @@
 
 ## Siguiente tarea
 
-**P0-D · Corte no destructivo + resumen de cierre** (borrador local del conteo, `load()` que no pisa cambios, validación, resumen de efectivo/fiado/pendiente digital). Después: ensayo con `GUION-3-MIN.md`, contact sheet/motion check, preflight y túnel. Las pruebas humanas (6–8 comerciantes, SUS/NASA-TLX, TalkBack/VoiceOver, teléfono físico) siguen pendientes y no se sustituyen con gates automáticos.
+**P0-D corregido tras revisión en el carril `p0/corte` (sin merge):** carrera de `load()` resuelta con `dirtyRef`, migración transaccional con recovery y `snapshot_known`, retiro previo explícito, idempotencia (`requestId`) y `expectedVersion` 409, historial que conserva v1 y token de preview. Evidencia: `web/scripts/p0-corte-e2e.py` → 69 PASS · 0 FAIL · 0 KNOWN (incluye migración vieja, recovery y esquema ya versionado). Falta revisión/merge y `verify:full` en `master`. Después: ensayo con `GUION-3-MIN.md`, contact sheet, preflight y túnel. Las pruebas humanas (6–8 comerciantes, SUS/NASA-TLX, TalkBack/VoiceOver, teléfono físico) siguen pendientes y no se sustituyen con gates automáticos.
 
 ## Bloqueos reales
 

@@ -190,6 +190,7 @@ export interface AnalyticsReport {
 export interface CashClose {
   id: string;
   date: string;
+  version: number;
   openingCents: number;
   cashSalesCents: number;
   cashCreditCents: number;
@@ -200,7 +201,30 @@ export interface CashClose {
   differenceCents: number;
   baseNextCents: number;
   withdrawalNextCents: number;
+  /** Foto del efectivo cobrado (ventas + abonos de fiado) al cerrar. */
+  snapshotCashCents: number;
+  /** Foto del fiado pendiente total al cerrar. */
+  snapshotCreditCents: number;
+  /** Foto de lo pendiente de cobro digital al cerrar. */
+  snapshotPendingDigitalCents: number;
+  /** false en filas migradas: fiado/digital no se registraban al cerrar. */
+  snapshotKnown: boolean;
+  reason: string | null;
+  requestId: string | null;
   createdAt: string;
+}
+
+export interface CashClosePreview {
+  openingCents: number;
+  expensesCents: number;
+  withdrawalsCents: number;
+  countedCents: number;
+  baseNextCents: number;
+  cashSalesCents: number;
+  cashCreditCents: number;
+  expectedCents: number;
+  differenceCents: number;
+  withdrawalNextCents: number;
 }
 
 export interface CashStatus {
@@ -212,6 +236,8 @@ export interface CashStatus {
   withdrawalsCents: number;
   expectedCents: number;
   saved: CashClose | null;
+  /** Versiones de hoy, la más reciente primero; máximo 5. */
+  history: CashClose[];
 }
 
 export type TaskStatus = "open" | "done" | "deleted";
