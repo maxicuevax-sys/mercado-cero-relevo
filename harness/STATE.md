@@ -31,13 +31,14 @@
 
 ## Última corrida del harness
 
-- Fecha: **2 nov 2026, 05:10 UTC**
-- Código verificado: **`bee3475`** (cierre P0 + accesibilidad + voz sin fallback al navegador); `latest.json` se generó sobre `5f3e8ae`, que solo añade evidencia.
+- Fecha: **2 nov 2026, 06:49 UTC**
+- Código verificado: **`cf8d6fc`** (P0-D mergeado, motion y voz); `latest.json` se generó sobre `87239a3`, que solo añade evidencia.
 - Modo: **full**, **11/11** en verde, `gitAtStart.dirty: false`; `latest.json` con `ok: true`.
-- Gates: `guard`, `lint`, `types`, `truth`, `webhook` 27/27, `mobile` 25/25, `checkout` 15/15, `hig` axe 0, `rehearsal` 3/3, `tunnel` 8/8, `preflight` 18/18.
-- E2E de carril: integración **51/0/0**, fiado **50/0/0**, venta **43/0/0**, shell **52/0/0**.
-- Voz: el botón de $50 reproduce Kokoro `em_santa` (SHA-256 `24EF2C9F…`), 0 llamadas a `speechSynthesis`; las dinámicas siguen en Piper y ya **no hay fallback a la voz del navegador** (si falla el audio, queda el texto).
-- No ejecutado: `film` (`--with-film`), porque el corte es funcional/accesible y no cambió la dirección visual. El pago real de $0.01 sigue bloqueado.
+- Gates: `guard`, `lint`, `types`, `truth`, `webhook` 27/27, `mobile` 25/25, `checkout` 15/15, `hig` axe 0, `rehearsal` 3/3 (4.6 s promedio), `tunnel` 8/8, `preflight` 18/18.
+- E2E de carril: corte **69/0/0**, integración **51/0/0**, fiado **50/0/0**, venta **43/0/0**, shell **52/0/0**, motion **14/0**.
+- Voz: el botón de $50 reproduce Kokoro `em_santa` (SHA-256 `24EF2C9F…`), 0 llamadas a `speechSynthesis`; las dinámicas van a Piper y los montos se normalizan (`70.00 pesos` → “70 pesos”). **No hay fallback a la voz del navegador**.
+- Movimiento: tabs 160 ms, títulos 240 ms, listas 180 ms con stagger ≤84 ms, hojas 220 ms, marcador 180 ms, sello 240 ms y veta de scroll nativa. `motion-check.py` 14/14.
+- `film` regenerado: 8 beats + contact sheet + motion sheet. El pago real de $0.01 sigue bloqueado.
 
 ## Qué está construido
 
@@ -46,7 +47,8 @@
 - Pendientes de negocio (P0-G): quinto tab, crear/completar/reabrir/posponer/eliminar, reset de demo sin tareas fantasma.
 - Venta mixta: efectivo + fiado + remanente digital con Link/QR/demo; resultado “Pago mixto”.
 - Voz: Kokoro `em_santa` para frases fijas, Piper para dinámicas, montos hablados (“50 pesos”, no “cincuenta punto cero cero”).
-- Corte (P0-D, carril sin merge): borrador no destructivo, cierre versionado con snapshot_known, retiro previo explícito, idempotencia, historial con v1 y migración transaccional.
+- Corte (P0-D mergeado): borrador no destructivo, cierre versionado `cash_closes` con `snapshot_known`, retiro previo explícito, idempotencia `requestId`/`expectedVersion` 409, historial con v1 y migración transaccional con recovery.
+- Movimiento: sistema “papel que se asienta” en `MOTION.md`, CSS nativo, scroll trigger y reduced-motion.
 - Meta: apartado declarado, progreso.
 - Accesibilidad: 48 px, 200%, alto contraste, voz, repetir, leer pantalla, movimiento reducido.
 - Demo: `demo_paid`, sellos, video, QR, runbook.
@@ -67,7 +69,7 @@
 
 ## Siguiente tarea
 
-**P0-D corregido tras revisión en el carril `p0/corte` (sin merge):** carrera de `load()` resuelta con `dirtyRef`, migración transaccional con recovery y `snapshot_known`, retiro previo explícito, idempotencia (`requestId`) y `expectedVersion` 409, historial que conserva v1 y token de preview. Evidencia: `web/scripts/p0-corte-e2e.py` → 69 PASS · 0 FAIL · 0 KNOWN (incluye migración vieja, recovery y esquema ya versionado). Falta revisión/merge y `verify:full` en `master`. Después: ensayo con `GUION-3-MIN.md`, contact sheet, preflight y túnel. Las pruebas humanas (6–8 comerciantes, SUS/NASA-TLX, TalkBack/VoiceOver, teléfono físico) siguen pendientes y no se sustituyen con gates automáticos.
+**Demo y pruebas humanas.** P0-A/B/C/C.1/D/E/F/G están mergeados y el harness full está en 11/11. Siguiente: ensayar `GUION-3-MIN.md` con cronómetro, revisar el contact sheet/motion sheet, preflight y túnel el día del evento. Las pruebas humanas (6–8 comerciantes, SUS/NASA-TLX, TalkBack/VoiceOver, teléfono físico, zoom real) siguen pendientes y no se sustituyen con gates automáticos. Endurecimientos opcionales de P0-D: migración multi-proceso, atar `requestId` al payload y tests de 6 versiones en UI.
 
 ## Bloqueos reales
 
