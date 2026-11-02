@@ -233,3 +233,32 @@ Si `/api/dashboard` falla, se muestra el comercio hardcodeado, desaparece DEMO, 
 - Consulta de voz con varias deudas devuelve una; “me transfirió” no preselecciona Digital; un solo slot de pendiente y sin polling inactivo.
 - La idempotencia es por intención de hoja; cerrar y reabrir genera otra llave. No hay reintento automático.
 - Siguiente: **P0-E** (cobros pendientes visibles/fechas/refresh) y **P0-F** (200 % + estados de error).
+
+## 11 · Resultado P0-E/F/G/C.1 e integración (2 de noviembre de 2026)
+
+**Integrado en `master`:** `96381b9` (módulos), `76bfbc3` (revisión) y `3f95307` (accesibilidad).
+
+- **P0-E:** franja de cobros pendientes en Caja, 3→50, fechas Hoy/Ayer, refresh al montar/focus/visibility y polling de 45 s solo visible; el error no vacía la bandeja.
+- **P0-G:** quinto tab **Pendientes**, crear/completar/reabrir/posponer/eliminar, soft delete, reset de demo sin tareas fantasma y foco al título.
+- **P0-C.1:** consultas de deuda que suman varios fiados, consulta general, ambigüedad, método del abono (`cash`/`codi`/`card`/null) y “me transfirió” → Digital.
+- **Venta mixta:** `PaymentPanel` cobra el remanente digital, muestra Link/QR/demo y termina en **Pago mixto**; el fiado conserva su saldo vivo.
+- **Carrera de refresco:** una lectura vieja del dashboard ya no pisa un abono recién confirmado (`loadDashboard({ force: true })` + abort).
+- **WCAG 2.5.3:** el tab móvil “Tareas” tiene nombre accesible “Tareas (Pendientes)” y el foco va al `h1` de cada destino.
+- **Voz:** el abono de $50 usa Kokoro `em_santa`, dice “50 pesos” y no cae a `speechSynthesis`.
+
+**Evidencia final (árbol limpio):**
+
+- `harness/evidence/latest.json` — **full 11/11**, `ok: true`, `gitAtStart.sha = 3f95307`, `dirty: false`.
+- `p0-integracion-e2e.py` — **50 PASS · 0 FAIL · 0 KNOWN**.
+- `p0-fiado-e2e.py` — **50 PASS · 0 FAIL · 0 KNOWN**.
+- `p0-venta-e2e.py` — **43 PASS · 0 FAIL · 0 KNOWN**.
+- `p0-shell-e2e.py` — **52 PASS · 0 FAIL**; HIG/axe 0 a 360/390/768/1280 y 200 %.
+- `mobile` 25/25, `checkout` 15/15, `truth`, `webhook` 27/27, `rehearsal` 3/3, `tunnel` 8/8, `preflight` 18/18.
+- Stageshow regenerado: `demo/stageshow/contact-sheet-1280.png`, `motion-sheet.png` y `flow-1280.webm`.
+
+**KNOWN / siguiente:**
+
+- **P0-D · Corte no destructivo + cierre versionado** es el único P0 funcional pendiente; se trabaja en `p0/corte`.
+- El pago real de $0.01 con pey/CoDi sigue bloqueado por la cuenta/riel; no presentar el demo como pago real.
+- TalkBack/VoiceOver, teléfono físico y 6–8 comerciantes/SUS/NASA-TLX no se sustituyen con gates automáticos.
+- `fulfilled` también cierra mixto/demo: no prueba entrega; no hay `paid` fuera del webhook.
