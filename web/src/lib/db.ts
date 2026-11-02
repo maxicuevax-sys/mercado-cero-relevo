@@ -16,6 +16,8 @@ const dataDir = path.join(process.cwd(), "data");
 const dbPath = process.env.DATABASE_PATH ?? path.join(dataDir, "mercado-cero.db");
 const backupDir =
   process.env.DATABASE_BACKUP_DIR ?? path.join(dataDir, "backups");
+/** Retención local: se conservan los backups más recientes, no todos. */
+const MAX_BACKUPS = 5;
 
 let db: DatabaseSync | null = null;
 
@@ -137,6 +139,7 @@ function migrate(database: DatabaseSync) {
       event_type TEXT NOT NULL,
       idempotency_key TEXT UNIQUE NOT NULL,
       payload TEXT NOT NULL,
+      payload_hash TEXT,
       signature_valid INTEGER NOT NULL,
       processed_at TEXT NOT NULL
     );
@@ -334,6 +337,14 @@ function migrate(database: DatabaseSync) {
   if (!eventColumns.some((column) => column.name === "error")) {
     database.exec("ALTER TABLE payment_events ADD COLUMN error TEXT;");
   }
+  if (!eventColumns.some((column) => column.name === "payload_hash")) {
+    // Hash del cuerpo original. Los eventos con firma inválida guardan solo
+    // un prefijo acotado; el hash permite correlacionar sin retener el payload.
+    database.exec("ALTER TABLE payment_events ADD COLUMN payload_hash TEXT;");
+  }
+  database.exec(
+    "CREATE INDEX IF NOT EXISTS idx_payment_events_rejected ON payment_events(signature_valid, result, processed_at);",
+  );
 
   const creditPaymentColumns = database
     .prepare("PRAGMA table_info(credit_payments)")
@@ -1659,6 +1670,38 @@ function listRealPeyPayments(database: DatabaseSync): RealPaymentRow[] {
     .all() as unknown as RealPaymentRow[];
 }
 
+function pruneBackups(keep = MAX_BACKUPS) {
+  let names: string[];
+  try {
+    names = fs.readdirSync(/*turbopackIgnore: true*/ backupDir);
+  } catch {
+    return;
+  }
+
+  const backups = names
+    .filter((name) => /^mercado-cero-.*\.db$/.test(name))
+    .map((name) => {
+      const fullPath = path.join(/*turbopackIgnore: true*/ backupDir, name);
+      let mtimeMs = 0;
+      try {
+        mtimeMs = fs.statSync(/*turbopackIgnore: true*/ fullPath).mtimeMs;
+      } catch {
+        // Si el archivo desapareció, el nombre descendente decide el orden.
+      }
+      return { name, fullPath, mtimeMs };
+    })
+    // El nombre ISO ordena igual que la fecha; se usa como desempate.
+    .sort((a, b) => b.mtimeMs - a.mtimeMs || b.name.localeCompare(a.name));
+
+  for (const backup of backups.slice(keep)) {
+    try {
+      fs.unlinkSync(backup.fullPath);
+    } catch (error) {
+      console.error(`[db] no se pudo borrar el backup viejo ${backup.name}`, error);
+    }
+  }
+}
+
 /**
  * Copia consistente de SQLite antes de cualquier borrado. `VACUUM INTO`
  * incluye el WAL y deja un archivo standalone que se puede restaurar sin
@@ -1676,6 +1719,7 @@ function backupDatabase(database: DatabaseSync): string {
 
   const escaped = target.replaceAll("'", "''");
   database.exec(`VACUUM INTO '${escaped}'`);
+  pruneBackups();
   return target;
 }
 

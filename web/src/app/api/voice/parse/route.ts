@@ -2,6 +2,7 @@ import {
   bodyErrorResponse,
   enforceRateLimit,
   internalErrorResponse,
+  isJsonObject,
   MAX_VOICE_PARSE_BYTES,
   readJsonLimited,
 } from "@/lib/http-security";
@@ -18,6 +19,13 @@ export async function POST(request: Request) {
     body = await readJsonLimited<{ transcript?: unknown }>(request, MAX_VOICE_PARSE_BYTES);
   } catch (error) {
     return bodyErrorResponse(error);
+  }
+
+  if (!isJsonObject(body)) {
+    return Response.json(
+      { error: "El cuerpo debe ser un objeto JSON.", code: "invalid_json" },
+      { status: 400 },
+    );
   }
 
   const transcript =

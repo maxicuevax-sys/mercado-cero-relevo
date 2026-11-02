@@ -63,9 +63,17 @@ function normalizeOrigin(value: string): string | null {
 function allowedOrigins(request: Request): Set<string> {
   const origins = new Set<string>();
   const url = new URL(request.url);
-  const forwardedHost = firstHeaderValue(request.headers.get("x-forwarded-host"));
+  // Solo un proxy propio (Cloudflare Tunnel, nginx, etc.) puede reescribir
+  // Host/Proto. Sin TRUST_PROXY=1, `X-Forwarded-Host` es una cabecera que el
+  // cliente controla y permitirla dejaría pasar un CSRF con Origin ajeno.
+  const trustProxy = process.env.TRUST_PROXY === "1";
+  const forwardedHost = trustProxy
+    ? firstHeaderValue(request.headers.get("x-forwarded-host"))
+    : null;
   const host = forwardedHost ?? firstHeaderValue(request.headers.get("host")) ?? url.host;
-  const forwardedProto = firstHeaderValue(request.headers.get("x-forwarded-proto"));
+  const forwardedProto = trustProxy
+    ? firstHeaderValue(request.headers.get("x-forwarded-proto"))
+    : null;
   const protocol = forwardedProto ?? url.protocol.replace(":", "");
   const requestOrigin = normalizeOrigin(`${protocol}://${host}`);
   if (requestOrigin) origins.add(requestOrigin);
@@ -281,6 +289,10 @@ async function readBytesLimited(request: Request, maxBytes: number): Promise<Uin
 export async function readTextLimited(request: Request, maxBytes: number): Promise<string> {
   const bytes = await readBytesLimited(request, maxBytes);
   return new TextDecoder().decode(bytes);
+}
+
+export function isJsonObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 export async function readJsonLimited<T = unknown>(

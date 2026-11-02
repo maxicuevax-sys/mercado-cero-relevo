@@ -2,12 +2,22 @@ import {
   bodyErrorResponse,
   enforceRateLimit,
   internalErrorResponse,
+  isSameOriginMutation,
   MAX_TRANSCRIBE_BYTES,
   readFormDataLimited,
 } from "@/lib/http-security";
 import { transcribeAudio } from "@/lib/voice";
 
 export async function POST(request: Request) {
+  // Esta ruta está fuera del matcher del Proxy para no bufferizar 12 MB:
+  // conserva aquí la misma defensa CSRF que el resto de mutadores.
+  if (!isSameOriginMutation(request)) {
+    return Response.json(
+      { error: "El origen de la petición no está permitido.", code: "cross_origin" },
+      { status: 403 },
+    );
+  }
+
   const limited = enforceRateLimit(request, "voice-transcribe", 6, 60_000);
   if (limited) return limited;
 

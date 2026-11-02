@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import {
+  enforceRateLimit,
   hasValidDemoResetToken,
   isSameOriginMutation,
   MAX_ORDERS_BYTES,
@@ -15,11 +16,21 @@ import {
  * Proxy (antes Middleware) de Next 16.
  *
  * 1. Corta mutaciones cross-origin (CSRF) antes de que toquen una ruta.
- * 2. Rechaza cuerpos declarados demasiado grandes antes de leerlos.
- * 3. Exige DEMO_RESET_TOKEN en /api/demo/reset cuando está configurado.
+ * 2. Rechaza cuerpos declarados demasiado grandes. Ojo: Next bufferiza el
+ *    cuerpo antes de ejecutar el Proxy hasta `proxyClientMaxBodySize`; con
+ *    `Content-Length` mayor, el 413 se emite al llenar ese buffer y el cliente
+ *    puede seguir subiendo. No es una defensa "antes de leer": evita que la
+ *    ruta procese el cuerpo y acota la memoria (64 KB en rutas normales).
+ * 3. Exige DEMO_RESET_TOKEN en /api/demo/reset cuando está configurado. El
+ *    rate limit va antes de comparar el token para que no se puedan probar
+ *    tokens ilimitados.
  *
  * /api/webhooks/pey queda fuera del CSRF porque pey no envía Origin; su
  * autenticidad la da la firma Standard Webhooks dentro de la ruta.
+ *
+ * /api/voice/transcribe queda fuera del matcher: es la única ruta que supera
+ * 64 KB. Su ruta lee el multipart por stream con su propio tope de 12 MB y
+ * aplica el mismo CSRF, así Next no clona un cuerpo de 12 MB.
  */
 
 const MUTATING = new Set(["POST", "PUT", "PATCH", "DELETE"]);
@@ -61,12 +72,20 @@ export function proxy(request: NextRequest) {
       );
     }
 
-    if (pathname === "/api/demo/reset" && !hasValidDemoResetToken(request)) {
-      return jsonError(
-        "Se requiere el token de demo para reiniciar.",
-        "demo_token_invalid",
-        401,
-      );
+    if (pathname === "/api/demo/reset") {
+      // Antes de comparar el token: 5 intentos por IP y minuto, incluso si el
+      // token es incorrecto. La ruta vuelve a limitar por defensa en
+      // profundidad.
+      const limited = enforceRateLimit(request, "demo-reset-auth", 5, 60_000);
+      if (limited) return limited;
+
+      if (!hasValidDemoResetToken(request)) {
+        return jsonError(
+          "Se requiere el token de demo para reiniciar.",
+          "demo_token_invalid",
+          401,
+        );
+      }
     }
   }
 
@@ -84,5 +103,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/api/:path*",
+  // Transcribe se excluye para que Next no clone/bufferice 12 MB en el Proxy.
+  // Esa ruta aplica same-origin, rate limit y el tope de 12 MB por su cuenta.
+  matcher: ["/api/((?!voice/transcribe).*)"],
 };

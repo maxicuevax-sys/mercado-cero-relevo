@@ -15,6 +15,7 @@
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import fs from "node:fs";
+import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
@@ -26,6 +27,7 @@ const PORT = Number(process.env.SECURITY_PORT ?? 3191);
 const BASE = `http://127.0.0.1:${PORT}`;
 const ORIGIN = BASE;
 const TOKEN = `sec_test_${Date.now().toString(36)}`;
+const PAYMENT_EVENT_CAP = 20;
 const NEXT_BIN = path.join(WEB, "node_modules", "next", "dist", "bin", "next");
 
 if (!fs.existsSync(path.join(WEB, ".next", "BUILD_ID"))) {
@@ -69,6 +71,7 @@ function startServer(extraEnv = {}) {
         DATABASE_BACKUP_DIR: backupDir,
         DEMO_RESET_TOKEN: TOKEN,
         FORCE_DEMO_RESET: "0",
+        PAYMENT_EVENT_REJECTED_CAP: String(PAYMENT_EVENT_CAP),
         ...extraEnv,
       },
       stdio: ["ignore", "pipe", "pipe"],
@@ -134,6 +137,75 @@ async function request(pathname, options = {}) {
   return { response, body, text };
 }
 
+/**
+ * Sube un cuerpo sobredimensionado en trozos lentos y registra cuándo terminó
+ * el cliente vs cuándo llegó la respuesta. Next bufferiza hasta
+ * `proxyClientMaxBodySize` (64 KB) y luego el Proxy rechaza por
+ * `Content-Length`; no espera a que el cliente termine de subir. Este test
+ * documenta ese comportamiento real (no es una defensa "antes de leer").
+ */
+function oversizedStreamRequest(pathname, totalBytes = 160 * 1024, chunkBytes = 10 * 1024) {
+  return new Promise((resolve, reject) => {
+    let uploadedAt = null;
+    let respondedAt = null;
+    let status = null;
+    let text = "";
+    let settled = false;
+
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      resolve({ status, text, uploadedAt, respondedAt });
+    };
+
+    const req = http.request(
+      {
+        hostname: "127.0.0.1",
+        port: PORT,
+        path: pathname,
+        method: "POST",
+        headers: {
+          ...sameOrigin,
+          "content-type": "application/json",
+          "content-length": String(totalBytes),
+        },
+      },
+      (response) => {
+        respondedAt = Date.now();
+        status = response.statusCode ?? 0;
+        response.setEncoding("utf8");
+        response.on("data", (chunk) => {
+          text += chunk;
+        });
+        response.on("end", finish);
+        response.on("error", finish);
+      },
+    );
+
+    req.on("error", (error) => {
+      if (status !== null) finish();
+      else reject(error);
+    });
+    req.setTimeout(15_000, () => req.destroy(new Error("timeout subiendo el cuerpo")));
+
+    const chunk = Buffer.alloc(chunkBytes, 0x61);
+    let sent = 0;
+    const writeNext = () => {
+      if (sent >= totalBytes) {
+        uploadedAt = Date.now();
+        req.end();
+        return;
+      }
+      const size = Math.min(chunkBytes, totalBytes - sent);
+      req.write(chunk.subarray(0, size), () => {
+        sent += size;
+        setTimeout(writeNext, 25);
+      });
+    };
+    writeNext();
+  });
+}
+
 const sameOrigin = { origin: ORIGIN, "sec-fetch-site": "same-origin" };
 const crossOrigin = { origin: "https://evil.example", "sec-fetch-site": "cross-site" };
 
@@ -160,6 +232,7 @@ function readSecurityDb(query, params = []) {
 }
 
 let server = null;
+let latestBackup = "";
 
 try {
   // Fase 0: sin token configurado, el botón de reset y el harness deben
@@ -249,6 +322,7 @@ try {
     `status ${result.response.status} ${JSON.stringify(result.body)}`,
   );
   const firstBackup = typeof result.body?.backup === "string" ? result.body.backup : "";
+  latestBackup = firstBackup;
   check(
     "reset crea backup timestamped",
     Boolean(firstBackup) && fs.existsSync(path.join(backupDir, firstBackup)),
@@ -286,6 +360,8 @@ try {
     result.response.status === 201 && Boolean(result.body?.order?.id),
     `status ${result.response.status} ${JSON.stringify(result.body)}`,
   );
+  const createdOrderId = result.body?.order?.id ?? "";
+  const jsonHeaders = { ...sameOrigin, "content-type": "application/json" };
 
   result = await request("/api/webhooks/pey", {
     method: "POST",
@@ -296,6 +372,173 @@ try {
     "webhook exento de CSRF, exige firma → 401",
     result.response.status === 401,
     `status ${result.response.status} ${JSON.stringify(result.body)}`,
+  );
+
+  // 3b. Un X-Forwarded-Host del cliente no puede ampliar el allowlist CSRF.
+  result = await request("/api/orders", {
+    method: "POST",
+    headers: {
+      origin: "https://evil.example",
+      "x-forwarded-host": "evil.example",
+      "x-forwarded-proto": "https",
+      "content-type": "application/json",
+    },
+    body: orderPayload,
+  });
+  check(
+    "CSRF no confía en X-Forwarded-Host → 403",
+    result.response.status === 403 && result.body?.code === "cross_origin",
+    `status ${result.response.status} ${JSON.stringify(result.body)}`,
+  );
+
+  // 3c. Cuerpos JSON `null` deben ser 400 de validación, no 500.
+  result = await request(`/api/orders/${encodeURIComponent(createdOrderId)}`, {
+    method: "PATCH",
+    headers: jsonHeaders,
+    body: "null",
+  });
+  check(
+    "PATCH orders/[id] body null → 400",
+    result.response.status === 400,
+    `status ${result.response.status} ${JSON.stringify(result.body)}`,
+  );
+
+  result = await request("/api/voice/parse", {
+    method: "POST",
+    headers: jsonHeaders,
+    body: "null",
+  });
+  check(
+    "voice/parse body null → 400",
+    result.response.status === 400,
+    `status ${result.response.status} ${JSON.stringify(result.body)}`,
+  );
+
+  result = await request("/api/demo/pay", {
+    method: "POST",
+    headers: jsonHeaders,
+    body: "null",
+  });
+  check(
+    "demo/pay body null → 400",
+    result.response.status === 400,
+    `status ${result.response.status} ${JSON.stringify(result.body)}`,
+  );
+
+  result = await request(`/api/orders/${encodeURIComponent(createdOrderId)}/pay`, {
+    method: "POST",
+    headers: jsonHeaders,
+    body: "null",
+  });
+  check(
+    "orders/[id]/pay body null → 400",
+    result.response.status === 400,
+    `status ${result.response.status} ${JSON.stringify(result.body)}`,
+  );
+
+  // 3d. Errores de dominio seguros: mensaje estable, nunca SQLite.
+  result = await request("/api/orders/ord_missing/pay", {
+    method: "POST",
+    headers: jsonHeaders,
+    body: "{}",
+  });
+  check(
+    "order pay inexistente → 404 con mensaje de dominio",
+    result.response.status === 404 &&
+      result.body?.error === "Pedido no encontrado." &&
+      !/sqlite|constraint|database/i.test(result.text),
+    `status ${result.response.status} ${JSON.stringify(result.body)}`,
+  );
+
+  result = await request("/api/demo/pay", {
+    method: "POST",
+    headers: jsonHeaders,
+    body: JSON.stringify({ orderId: "ord_missing", method: "card" }),
+  });
+  check(
+    "demo/pay inexistente → 404 con mensaje de dominio",
+    result.response.status === 404 &&
+      result.body?.error === "Pedido no encontrado." &&
+      !/sqlite|constraint|database/i.test(result.text),
+    `status ${result.response.status} ${JSON.stringify(result.body)}`,
+  );
+
+  result = await request("/api/credits/cred_missing/pay", {
+    method: "POST",
+    headers: jsonHeaders,
+    body: JSON.stringify({ amountCents: 100 }),
+  });
+  check(
+    "credit pay inexistente → 404 con mensaje de dominio",
+    result.response.status === 404 &&
+      result.body?.error === "Fiado no encontrado." &&
+      !/sqlite|constraint|database/i.test(result.text),
+    `status ${result.response.status} ${JSON.stringify(result.body)}`,
+  );
+
+  result = await request("/api/orders/ord_missing", {
+    method: "PATCH",
+    headers: jsonHeaders,
+    body: JSON.stringify({ action: "fulfill" }),
+  });
+  check(
+    "fulfill inexistente → 404 con mensaje de dominio",
+    result.response.status === 404 &&
+      result.body?.error === "Pedido no encontrado." &&
+      !/sqlite|constraint|database/i.test(result.text),
+    `status ${result.response.status} ${JSON.stringify(result.body)}`,
+  );
+
+  result = await request("/api/orders", {
+    method: "POST",
+    headers: jsonHeaders,
+    body: JSON.stringify({
+      items: [{ description: "Fiado de prueba", quantity: 1, unitPriceCents: 5000 }],
+      creditCents: 5000,
+      customerName: "Cliente Seguridad",
+    }),
+  });
+  const creditOrderId = result.body?.order?.id ?? "";
+  result = await request(`/api/orders/${encodeURIComponent(creditOrderId)}`, {
+    method: "PATCH",
+    headers: jsonHeaders,
+    body: JSON.stringify({ action: "fulfill" }),
+  });
+  check(
+    "fulfill con fiado abierto → 409 con mensaje de dominio",
+    result.response.status === 409 &&
+      result.body?.code === "credit_open" &&
+      /fiado sigue abierto/i.test(result.body?.error ?? "") &&
+      !/sqlite|constraint|database/i.test(result.text),
+    `status ${result.response.status} ${JSON.stringify(result.body)}`,
+  );
+
+  const duplicateRequestId = `sec_dup_${Date.now().toString(36)}`;
+  const duplicateBody = {
+    items: [{ description: "Quesadilla", quantity: 1, unitPriceCents: 3500 }],
+    requestId: duplicateRequestId,
+  };
+  result = await request("/api/orders", {
+    method: "POST",
+    headers: jsonHeaders,
+    body: JSON.stringify(duplicateBody),
+  });
+  const firstDuplicateStatus = result.response.status;
+  result = await request("/api/orders", {
+    method: "POST",
+    headers: jsonHeaders,
+    body: JSON.stringify({
+      ...duplicateBody,
+      items: [{ description: "Otra cosa", quantity: 1, unitPriceCents: 3500 }],
+    }),
+  });
+  check(
+    "create con requestId reutilizado → 409 con mensaje de dominio",
+    firstDuplicateStatus === 201 &&
+      result.response.status === 409 &&
+      result.body?.code === "request_id_conflict" &&
+      !/sqlite|constraint|database/i.test(result.text),
+    `primero ${firstDuplicateStatus}, luego ${result.response.status} ${JSON.stringify(result.body)}`,
   );
 
   // 4. Límites de cuerpo antes/durante la lectura.
@@ -346,9 +589,21 @@ try {
     body: audio,
   });
   check(
-    "transcribe archivo >12 MB → 413",
-    result.response.status === 413,
+    "transcribe archivo >12 MB → 413 de la ruta (sin truncar a 64 KB)",
+    result.response.status === 413 &&
+      result.body?.error === "El audio es demasiado grande.",
     `status ${result.response.status} ${JSON.stringify(result.body)}`,
+  );
+
+  // 4b. Documenta el comportamiento real: Next bufferiza hasta el tope del
+  // Proxy y el 413 se emite en cuanto lo alcanza, sin esperar los 160 KB.
+  const slowOversized = await oversizedStreamRequest("/api/orders");
+  check(
+    "413 al llenar el buffer del Proxy, no al terminar la subida",
+    slowOversized.status === 413 &&
+      (slowOversized.uploadedAt === null ||
+        slowOversized.respondedAt < slowOversized.uploadedAt),
+    `status ${slowOversized.status}, subida ${slowOversized.uploadedAt}, respuesta ${slowOversized.respondedAt}`,
   );
 
   // 5. Rate limit por IP + ruta. CF-Connecting-IP evita compartir bucket.
@@ -367,6 +622,114 @@ try {
     "rate limit incluye Retry-After",
     Number(last.response.headers.get("retry-after") ?? "0") > 0,
     last.response.headers.get("retry-after") ?? "ausente",
+  );
+
+  // 5b. El token de reset se compara después del rate limit: 30 intentos
+  // fallidos no pueden probar tokens ilimitados.
+  let firstTokenAttempt = null;
+  let lastTokenAttempt = null;
+  for (let index = 0; index < 30; index += 1) {
+    lastTokenAttempt = await request("/api/demo/reset", {
+      method: "POST",
+      headers: {
+        ...sameOrigin,
+        "x-demo-token": "token_incorrecto",
+        "cf-connecting-ip": "203.0.113.210",
+      },
+    });
+    if (index === 0) firstTokenAttempt = lastTokenAttempt;
+  }
+  check(
+    "reset token inválido: primer intento → 401",
+    firstTokenAttempt?.response.status === 401,
+    `status ${firstTokenAttempt?.response.status}`,
+  );
+  check(
+    "reset token: 30 intentos → 429",
+    lastTokenAttempt?.response.status === 429 &&
+      lastTokenAttempt.body?.code === "rate_limited",
+    `status ${lastTokenAttempt?.response.status} ${JSON.stringify(lastTokenAttempt?.body)}`,
+  );
+
+  // 5c. Webhooks inválidos: payload truncado + hash y cap de rechazos no
+  // firmados, sin borrar auditoría válida.
+  const validEventDb = new DatabaseSync(dbPath);
+  try {
+    validEventDb.exec("PRAGMA busy_timeout = 5000;");
+    validEventDb
+      .prepare(
+        `INSERT INTO payment_events
+         (id, provider, event_type, idempotency_key, payload, payload_hash, signature_valid, processed_at, result)
+         VALUES ('evt_sec_valid', 'pey', 'audit.valid', 'valid:sec', ?, ?, 1, ?, 'processed')`,
+      )
+      .run("valid-audit-payload", "valid-audit-hash", new Date().toISOString());
+  } finally {
+    validEventDb.close();
+  }
+
+  let floodLast = null;
+  for (let index = 0; index < 30; index += 1) {
+    floodLast = await request("/api/webhooks/pey", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "cf-connecting-ip": "203.0.113.88",
+      },
+      body: JSON.stringify({ index, junk: "a".repeat(8 * 1024) }),
+    });
+    if (floodLast.response.status !== 401) break;
+  }
+  const rejectedRows = readSecurityDb(
+    "SELECT payload, payload_hash FROM payment_events WHERE signature_valid = 0 AND result = 'rejected'",
+  );
+  const validRows = readSecurityDb(
+    "SELECT payload FROM payment_events WHERE id = 'evt_sec_valid'",
+  );
+  check(
+    "webhook inválido: payload acotado (≤4 KB) y hash sha256",
+    floodLast?.response.status === 401 &&
+      rejectedRows.length > 0 &&
+      rejectedRows.every(
+        (row) =>
+          Buffer.byteLength(String(row.payload ?? ""), "utf8") <= 4 * 1024 &&
+          /^[a-f0-9]{64}$/.test(String(row.payload_hash ?? "")),
+      ),
+    `filas ${rejectedRows.length}`,
+  );
+  check(
+    "payment_events: rechazos no firmados acotados",
+    rejectedRows.length <= PAYMENT_EVENT_CAP,
+    `${rejectedRows.length} > ${PAYMENT_EVENT_CAP}`,
+  );
+  check(
+    "payment_events: la auditoría válida se conserva",
+    validRows.length === 1 && validRows[0]?.payload === "valid-audit-payload",
+    `filas ${validRows.length}`,
+  );
+
+  // 5d. Backups de reset con retención: últimos 5, no crecimiento infinito.
+  let retentionReset = null;
+  for (let index = 0; index < 7; index += 1) {
+    retentionReset = await request("/api/demo/reset", {
+      method: "POST",
+      headers: resetHeaders({
+        "cf-connecting-ip": `198.51.100.${index + 1}`,
+      }),
+    });
+    if (retentionReset.response.status !== 200) break;
+  }
+  const retainedBackup =
+    typeof retentionReset?.body?.backup === "string" ? retentionReset.body.backup : "";
+  latestBackup = retainedBackup;
+  check(
+    "reset retiene como máximo 5 backups",
+    retentionReset?.response.status === 200 && countBackups() === 5,
+    `${countBackups()} backups`,
+  );
+  check(
+    "el backup más reciente sobrevive a la poda",
+    Boolean(retainedBackup) && fs.existsSync(path.join(backupDir, retainedBackup)),
+    retainedBackup || "sin nombre",
   );
 
   // 6. Un pago pey real bloquea el reset sin FORCE.
@@ -421,7 +784,6 @@ try {
   // 7. FORCE_DEMO_RESET=1 permite limpiar, pero conserva pago y auditoría.
   server = startServer({ FORCE_DEMO_RESET: "1" });
   await waitForServer(server);
-  const backupsBeforeForce = countBackups();
 
   result = await request("/api/demo/reset", {
     method: "POST",
@@ -442,10 +804,15 @@ try {
     readSecurityDb("SELECT id FROM audit_log WHERE id = 'aud_security_real'").length === 1,
     "auditoría desapareció",
   );
+  const forceBackup =
+    typeof result.body?.backup === "string" ? result.body.backup : "";
   check(
-    "force crea otro backup",
-    countBackups() > backupsBeforeForce,
-    `${backupsBeforeForce} → ${countBackups()}`,
+    "force crea otro backup (sin crecer más allá de 5)",
+    Boolean(forceBackup) &&
+      forceBackup !== latestBackup &&
+      fs.existsSync(path.join(backupDir, forceBackup)) &&
+      countBackups() <= 5,
+    `${latestBackup} → ${forceBackup}, ${countBackups()} backups`,
   );
 
   // 8. No se filtra el mensaje interno de validación de SQLite/dominio.

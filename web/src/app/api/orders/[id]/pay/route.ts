@@ -12,6 +12,7 @@ import {
 import {
   bodyErrorResponse,
   enforceRateLimit,
+  isJsonObject,
   MAX_SMALL_JSON_BYTES,
   readOptionalJsonLimited,
 } from "@/lib/http-security";
@@ -130,6 +131,13 @@ export async function POST(request: Request, ctx: RouteContext<"/api/orders/[id]
     );
   } catch (error) {
     return bodyErrorResponse(error);
+  }
+
+  if (!isJsonObject(body)) {
+    return Response.json(
+      { error: "El cuerpo debe ser un objeto JSON.", code: "invalid_json" },
+      { status: 400 },
+    );
   }
 
   try {

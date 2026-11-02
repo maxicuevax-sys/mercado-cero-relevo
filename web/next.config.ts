@@ -110,10 +110,13 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   experimental: {
-    // Proxy clona el cuerpo para que la ruta pueda releerlo. El default de
-    // 10 MB truncaría el audio de 12 MB sin devolver error. La ruta valida el
-    // límite real del archivo y responde 413 antes de procesarlo.
-    proxyClientMaxBodySize: "13mb",
+    // Next bufferiza el cuerpo para que el Proxy y la ruta puedan leerlo. Este
+    // tope acota esa copia a 64 KB (máximo de las rutas normales) y permite
+    // responder 413 al llenarlo, sin esperar a que el cliente termine. No es
+    // una defensa "antes de leer": el cuerpo se lee hasta el tope.
+    // /api/voice/transcribe queda fuera del matcher del Proxy y lee su
+    // multipart por stream con su propio tope de 12 MB.
+    proxyClientMaxBodySize: "64kb",
     // Evita que los barrels de iconos y QR entren completos al bundle.
     optimizePackageImports: ["lucide-react", "qrcode"],
   },

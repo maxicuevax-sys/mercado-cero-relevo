@@ -494,7 +494,7 @@ export function recordPayment(
   const database = getDb();
   const provider = assertPaymentProvider(input.provider);
   const order = getOrder(orderId);
-  if (!order) throw new Error("Pedido no encontrado.");
+  if (!order) throw new NotFoundError("Pedido no encontrado.", "order_not_found");
 
   // Un reintento con la misma transacción no debe volver a insertar, pero sí
   // puede reparar una orden que quedó con `paid_cents` viejo por un fallo
@@ -603,7 +603,7 @@ function recalculateOrderTotals(
         status: OrderStatus;
       }
     | undefined;
-  if (!row) throw new Error("Pedido no encontrado.");
+  if (!row) throw new NotFoundError("Pedido no encontrado.", "order_not_found");
 
   const sum = database
     .prepare(
@@ -688,7 +688,7 @@ function healOrderFromPayments(
   }
 
   const healed = getOrder(orderId);
-  if (!healed) throw new Error("Pedido no encontrado.");
+  if (!healed) throw new NotFoundError("Pedido no encontrado.", "order_not_found");
   return healed;
 }
 

@@ -15,6 +15,11 @@ export async function POST(request: Request) {
     );
   }
 
+  // El rate limit va antes de comparar el token: así un atacante no puede
+  // probar tokens ilimitados contra este endpoint público.
+  const limited = enforceRateLimit(request, "demo-reset", 5, 60_000);
+  if (limited) return limited;
+
   if (!hasValidDemoResetToken(request)) {
     return Response.json(
       { error: "Se requiere el token de demo para reiniciar.", code: "demo_token_invalid" },
@@ -28,9 +33,6 @@ export async function POST(request: Request) {
       { status: 403 },
     );
   }
-
-  const limited = enforceRateLimit(request, "demo-reset", 5, 60_000);
-  if (limited) return limited;
 
   try {
     const result = resetDemoData({
