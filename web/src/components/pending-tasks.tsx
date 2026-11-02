@@ -569,7 +569,7 @@ export function PendingTasksPanel({
             id={resolvedHeadingId}
             data-sheet-fallback
             tabIndex={-1}
-            className="heading-in min-w-0 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none"
+            className="heading-in min-w-0 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink"
           >
             Pendientes
           </h1>
@@ -582,7 +582,7 @@ export function PendingTasksPanel({
           data-focus="create"
           onClick={openForm}
           aria-expanded={formOpen}
-          aria-controls="pendientes-form"
+          aria-controls={formOpen ? "pendientes-form" : undefined}
           className="on-accent inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent-press"
         >
           <Plus className="h-5 w-5 shrink-0" aria-hidden="true" />
@@ -622,7 +622,7 @@ export function PendingTasksPanel({
               aria-describedby={
                 formErrorField === "title" ? formErrorId : undefined
               }
-              className="mt-1.5 min-h-12 w-full rounded-xl border border-separator bg-canvas px-3 py-2 text-ink placeholder:text-ink-2/70"
+              className="mt-1.5 min-h-12 w-full rounded-xl border border-separator bg-canvas px-3 py-2 text-ink placeholder:text-placeholder"
               placeholder="Pagar al proveedor"
             />
             <p className="mt-1 text-right text-xs text-ink-2">
@@ -650,7 +650,7 @@ export function PendingTasksPanel({
               aria-describedby={
                 formErrorField === "note" ? formErrorId : undefined
               }
-              className="mt-1.5 min-h-20 w-full resize-y rounded-xl border border-separator bg-canvas px-3 py-2 text-ink placeholder:text-ink-2/70"
+              className="mt-1.5 min-h-20 w-full resize-y rounded-xl border border-separator bg-canvas px-3 py-2 text-ink placeholder:text-placeholder"
               placeholder="A las 11, por la puerta de atrás"
             />
             <p className="mt-1 text-right text-xs text-ink-2">
@@ -901,7 +901,7 @@ export function PendingTasksPanel({
                           onClick={() => startPostpone(task.id)}
                           disabled={actionsDisabled}
                           aria-expanded={isPostponing}
-                          aria-controls={`postpone-${task.id}`}
+                          aria-controls={isPostponing ? `postpone-${task.id}` : undefined}
                           className="inline-flex min-h-12 items-center gap-1.5 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           <CalendarDays

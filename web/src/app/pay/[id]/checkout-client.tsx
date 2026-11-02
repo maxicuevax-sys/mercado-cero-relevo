@@ -481,7 +481,7 @@ export default function CheckoutPage() {
                     <label
                       key={option.id}
                       className={cn(
-                        "relative block w-full min-w-0 rounded-xl border p-[14px] pr-[44px] transition focus-within:ring-2 focus-within:ring-accent/30",
+                        "checkout-method relative block w-full min-w-0 rounded-xl border p-[14px] pr-[44px] transition",
                         selected
                           ? "border-accent/40 bg-green-soft/50"
                           : "border-separator bg-surface hover:border-accent/30",
@@ -517,8 +517,9 @@ export default function CheckoutPage() {
                         </span>
                       </span>
                       <span
+                        data-selected={selected ? "true" : "false"}
                         className={cn(
-                          "absolute right-[14px] top-[14px] flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
+                          "radio-dot absolute right-[14px] top-[14px] flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
                           selected ? "border-accent bg-accent text-white" : "border-separator bg-surface",
                         )}
                       >

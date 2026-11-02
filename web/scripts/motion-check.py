@@ -128,7 +128,13 @@ def main() -> int:
         )
         page.screenshot(path=str(SHOTS / "1280-home.png"))
 
-        page.locator("aside button:visible", has_text="Fiado").first.click()
+        page.evaluate(
+            """() => {
+              const btn = [...document.querySelectorAll('aside button')]
+                .find(el => (el.innerText || '').trim() === 'Fiado');
+              btn?.click();
+            }"""
+        )
         page.wait_for_timeout(80)
         fiado = read_motion(page)
         check(
@@ -229,6 +235,61 @@ def main() -> int:
             and scale_x(bottom["progress"]["transform"]) > 0.9,
             json.dumps(bottom["progress"], ensure_ascii=False),
         )
+
+        # Barrido: dura 300 ms, intercepta clics y la nav sigue por encima.
+        nav = page.locator('nav[aria-label="Navegación inferior"]')
+        nav.get_by_role("button", name="Fiado", exact=True).click()
+        page.wait_for_timeout(500)
+        abono = page.get_by_role("button", name="Registrar abono").first
+        abono.scroll_into_view_if_needed()
+        page.wait_for_timeout(200)
+        abono_box = abono.bounding_box()
+        nav.get_by_role("button", name="Caja", exact=True).click()
+        page.wait_for_timeout(500)
+        # El barrido real dura 300 ms (comprobado arriba). Para que el clic de
+        # prueba caiga con el papel encima, lo alargamos durante este caso.
+        page.add_style_tag(content=".tab-wipe { animation-duration: 800ms !important; }")
+        nav.get_by_role("button", name="Fiado", exact=True).click()
+        center_x = abono_box["x"] + abono_box["width"] / 2
+        center_y = abono_box["y"] + abono_box["height"] / 2
+        page.wait_for_function(
+            """([x]) => {
+              const el = document.querySelector('.tab-wipe');
+              if (!el) return false;
+              const r = el.getBoundingClientRect();
+              return r.left <= x && r.right >= x;
+            }""",
+            arg=[center_x],
+            timeout=3000,
+        )
+        wipe_state = page.evaluate(
+            """() => {
+              const el = document.querySelector('.tab-wipe');
+              if (!el) return null;
+              const s = getComputedStyle(el);
+              return { duration: s.animationDuration, pointerEvents: s.pointerEvents, zIndex: s.zIndex };
+            }"""
+        )
+        check(
+            "el wipe intercepta clics mientras existe",
+            wipe_state is not None and wipe_state["pointerEvents"] == "auto",
+            json.dumps(wipe_state, ensure_ascii=False),
+        )
+        if abono_box:
+            page.mouse.click(abono_box["x"] + abono_box["width"] / 2, abono_box["y"] + abono_box["height"] / 2)
+        page.wait_for_timeout(400)
+        sheet_after_wipe = page.locator('[role="dialog"]').count()
+        check(
+            "un clic durante el wipe no abre una hoja",
+            sheet_after_wipe == 0,
+            f"{sheet_after_wipe} hoja(s)",
+        )
+        page.wait_for_timeout(500)
+        check(
+            "el wipe desaparece aunque no llegue animationend (timeout de seguridad)",
+            page.locator(".tab-wipe").count() == 0,
+        )
+
         page.get_by_role("button", name="Tareas (Pendientes)", exact=True).click()
         page.wait_for_timeout(300)
         pending = read_motion(page)

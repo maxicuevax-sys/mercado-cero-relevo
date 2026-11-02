@@ -378,6 +378,176 @@ def main() -> int:
         page.screenshot(path=str(OUT / "e2e-home-768-text200.png"))
         context.close()
 
+        # 360/200: la acción de venta no queda debajo de la tab bar.
+        context = browser.new_context(
+            viewport={"width": 360, "height": 800},
+            locale="es-MX",
+            is_mobile=True,
+            has_touch=True,
+        )
+        page = context.new_page()
+        page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
+        page.wait_for_selector("h1:has-text('Caja')", timeout=30000)
+        page.wait_for_timeout(900)
+        text200(page)
+        caja_action = page.evaluate(
+            """() => {
+              const tab = document.querySelector('nav[aria-label="Navegación inferior"]').getBoundingClientRect();
+              const el = [...document.querySelectorAll('button')].find(b => (b.innerText || '').includes('Interpretar'));
+              const inp = document.querySelector('#sale-text');
+              const r = el ? el.getBoundingClientRect() : null;
+              const ir = inp ? inp.getBoundingClientRect() : null;
+              return {
+                found: Boolean(el),
+                top: r ? Math.round(r.top) : null,
+                bottom: r ? Math.round(r.bottom) : null,
+                inputBottom: ir ? Math.round(ir.bottom) : null,
+                tabTop: Math.round(tab.top),
+                above: r ? r.bottom <= tab.top + 1 : false,
+                inputAbove: ir ? ir.bottom <= tab.top + 1 : false,
+              };
+            }"""
+        )
+        check(
+            "caja-360-200: Interpretar completo por encima de la tab bar",
+            bool(caja_action["found"] and caja_action["above"]),
+            f"bottom {caja_action['bottom']} <= tab {caja_action['tabTop']}",
+        )
+        check(
+            "caja-360-200: campo de venta por encima de la tab bar",
+            bool(caja_action["inputAbove"]),
+            f"bottom {caja_action['inputBottom']} <= tab {caja_action['tabTop']}",
+        )
+        page.screenshot(path=str(OUT / "e2e-caja-360-text200.png"))
+        context.close()
+
+        # 768/200: Registrar abono del primer fiado, completo sobre la tab bar.
+        context = browser.new_context(viewport={"width": 768, "height": 1024}, locale="es-MX")
+        page = context.new_page()
+        page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
+        page.wait_for_selector("h1:has-text('Caja')", timeout=30000)
+        page.wait_for_timeout(900)
+        page.locator("button:visible", has_text="Fiado").first.click()
+        page.wait_for_timeout(700)
+        text200(page)
+        fiado_action = page.evaluate(
+            """() => {
+              const tab = document.querySelector('nav[aria-label="Navegación inferior"]').getBoundingClientRect();
+              const el = [...document.querySelectorAll('button')].find(b => (b.innerText || '').includes('Registrar abono'));
+              const r = el ? el.getBoundingClientRect() : null;
+              return {
+                found: Boolean(el),
+                top: r ? Math.round(r.top) : null,
+                bottom: r ? Math.round(r.bottom) : null,
+                tabTop: Math.round(tab.top),
+                above: r ? r.bottom <= tab.top + 1 : false,
+              };
+            }"""
+        )
+        check(
+            "fiado-768-200: Registrar abono completo por encima de la tab bar",
+            bool(fiado_action["found"] and fiado_action["above"]),
+            f"bottom {fiado_action['bottom']} <= tab {fiado_action['tabTop']}",
+        )
+        page.screenshot(path=str(OUT / "e2e-fiado-768-text200.png"))
+        context.close()
+
+        # Teclado: skip link, foco en main, tab bar antes de main y scroll/foco
+        # al volver a un tab con posición guardada.
+        context = browser.new_context(
+            viewport={"width": 360, "height": 800},
+            locale="es-MX",
+            is_mobile=True,
+            has_touch=True,
+        )
+        page = context.new_page()
+        page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
+        page.wait_for_selector("h1:has-text('Caja')", timeout=30000)
+        page.wait_for_timeout(900)
+        page.keyboard.press("Tab")
+        first_focus = page.evaluate("document.activeElement?.innerText?.trim()")
+        check("teclado: primer Tab es el skip link", first_focus == "Saltar al contenido", str(first_focus))
+        page.keyboard.press("Enter")
+        page.wait_for_timeout(300)
+        skip_state = page.evaluate(
+            """() => {
+              const el = document.activeElement;
+              const main = document.getElementById('main');
+              return {
+                id: el?.id,
+                tag: el?.tagName,
+                isMain: el === main,
+                tabIndex: main?.getAttribute('tabindex'),
+                scrollY: Math.round(scrollY),
+              };
+            }"""
+        )
+        check(
+            "teclado: el skip link enfoca main#main",
+            bool(skip_state["isMain"] and skip_state["tabIndex"] == "-1"),
+            str(skip_state),
+        )
+        dom_order = page.evaluate(
+            """() => {
+              const nav = document.querySelector('nav[aria-label="Navegación inferior"]');
+              const main = document.querySelector('main#main');
+              return Boolean(nav && main && (nav.compareDocumentPosition(main) & Node.DOCUMENT_POSITION_FOLLOWING));
+            }"""
+        )
+        check("teclado: la tab bar va antes de main en el DOM", dom_order)
+
+        page.evaluate("window.scrollTo(0, 800)")
+        page.wait_for_timeout(200)
+        nav = page.locator('nav[aria-label="Navegación inferior"]')
+        nav.get_by_role("button", name="Fiado", exact=True).click()
+        page.wait_for_timeout(700)
+        nav.get_by_role("button", name="Caja", exact=True).click()
+        page.wait_for_timeout(700)
+        pointer_return = page.evaluate(
+            """() => ({ scrollY: Math.round(scrollY), active: document.activeElement?.getAttribute('aria-label') || document.activeElement?.innerText?.trim() })"""
+        )
+        check(
+            "puntero: volver a Caja conserva el scroll guardado",
+            abs(pointer_return["scrollY"] - 800) <= 4,
+            str(pointer_return),
+        )
+
+        # Activación por teclado: vuelve al top y enfoca el título visible.
+        nav.get_by_role("button", name="Fiado", exact=True).click()
+        page.wait_for_timeout(700)
+        nav.get_by_role("button", name="Caja", exact=True).focus()
+        page.keyboard.press("Enter")
+        page.wait_for_timeout(700)
+        keyboard_return = page.evaluate(
+            """() => {
+              const el = document.activeElement;
+              const r = el?.getBoundingClientRect();
+              const tab = document.querySelector('nav[aria-label="Navegación inferior"]').getBoundingClientRect();
+              const header = document.querySelector('header').getBoundingClientRect();
+              return {
+                id: el?.id,
+                top: r ? Math.round(r.top) : null,
+                bottom: r ? Math.round(r.bottom) : null,
+                headerBottom: Math.round(header.bottom),
+                tabTop: Math.round(tab.top),
+                scrollY: Math.round(scrollY),
+                visible: Boolean(r && r.top >= header.bottom - 1 && r.bottom <= tab.top + 1),
+              };
+            }"""
+        )
+        check(
+            "teclado: volver a Caja sube al top y enfoca el título",
+            keyboard_return["id"] == "caja-heading" and keyboard_return["scrollY"] == 0,
+            str(keyboard_return),
+        )
+        check(
+            "teclado: el título enfocado queda visible entre header y tab bar",
+            bool(keyboard_return["visible"]),
+            str(keyboard_return),
+        )
+        page.screenshot(path=str(OUT / "e2e-focus-return-360.png"))
+        context.close()
+
         context = browser.new_context(viewport={"width": 1280, "height": 800}, locale="es-MX")
         page = context.new_page()
         page.goto(BASE, wait_until="domcontentloaded", timeout=45000)

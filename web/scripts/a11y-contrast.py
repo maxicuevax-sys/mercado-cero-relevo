@@ -41,6 +41,62 @@ def git_value(*args: str) -> str:
         return ""
 
 
+PLACEHOLDER_JS = """() => {
+  const parse = (value) => {
+    const m = String(value || '').match(/rgba?\\(([^)]+)\\)/);
+    if (!m) return null;
+    const p = m[1].split(',').map(v => parseFloat(v.trim()));
+    if (p.length < 3) return null;
+    return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 };
+  };
+  const blend = (fg, bg) => ({ r: fg.r * fg.a + bg.r * (1 - fg.a),
+                               g: fg.g * fg.a + bg.g * (1 - fg.a),
+                               b: fg.b * fg.a + bg.b * (1 - fg.a), a: 1 });
+  const lum = (c) => {
+    const ch = (v) => { const x = v / 255; return x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); };
+    return 0.2126 * ch(c.r) + 0.7152 * ch(c.g) + 0.0722 * ch(c.b);
+  };
+  const ratio = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+  const bgOf = (el) => {
+    let node = el;
+    while (node && node !== document.documentElement) {
+      const c = parse(getComputedStyle(node).backgroundColor);
+      if (c && c.a >= 0.95) return c;
+      node = node.parentElement;
+    }
+    return parse(getComputedStyle(document.documentElement).backgroundColor)
+        || parse(getComputedStyle(document.body).backgroundColor)
+        || { r: 255, g: 255, b: 255, a: 1 };
+  };
+  const rows = [];
+  for (const el of document.querySelectorAll('input[placeholder], textarea[placeholder]')) {
+    const r = el.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2) continue;
+    const s = getComputedStyle(el);
+    if (s.visibility === 'hidden' || s.display === 'none') continue;
+    const raw = getComputedStyle(el, '::placeholder').color;
+    const fg = parse(raw);
+    if (!fg) continue;
+    const bg = bgOf(el);
+    const cr = ratio(blend(fg, bg), bg);
+    rows.push({ text: (el.getAttribute('placeholder') || '').slice(0, 40), color: raw,
+                bg: `rgb(${Math.round(bg.r)}, ${Math.round(bg.g)}, ${Math.round(bg.b)})`,
+                ratio: Math.round(cr * 100) / 100 });
+  }
+  return rows;
+}"""
+
+
+def check_placeholders(page, mode: str) -> None:
+    rows = page.evaluate(PLACEHOLDER_JS)
+    failures = [row for row in rows if row["ratio"] < 4.5]
+    check(
+        f"placeholders ≥4.5:1 en {mode}",
+        not failures,
+        json.dumps(failures[:5] if failures else rows[:3], ensure_ascii=False),
+    )
+
+
 def main() -> int:
     start_code = {
         "commit": git_value("rev-parse", "HEAD"),
@@ -104,6 +160,8 @@ def main() -> int:
         else:
             check("axe disponible", False, str(AXE))
 
+        check_placeholders(page, "alto contraste")
+
         page.keyboard.press("Tab")
         focus = page.evaluate(
             """() => {
@@ -129,6 +187,22 @@ def main() -> int:
         page.screenshot(path=str(SHOT))
         check("sin errores de consola", not errors, " · ".join(errors[:3]))
         context.close()
+
+        # Placeholders en el tema normal (sin localStorage de alto contraste).
+        normal = browser.new_context(
+            viewport={"width": 360, "height": 800},
+            locale="es-MX",
+            is_mobile=True,
+            has_touch=True,
+        )
+        normal_page = normal.new_page()
+        normal_page.goto(BASE, wait_until="networkidle", timeout=60000)
+        normal_page.wait_for_function(
+            "document.body.innerText.includes('Hoy $')", timeout=20000
+        )
+        normal_page.wait_for_timeout(300)
+        check_placeholders(normal_page, "tema normal")
+        normal.close()
         browser.close()
 
     passed = sum(1 for item in results if item["ok"])

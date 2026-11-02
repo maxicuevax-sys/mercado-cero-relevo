@@ -1,12 +1,12 @@
 {
-  "baseUrl": "http://localhost:3101",
-  "started": "2026-11-02T00:31:35",
-  "elapsedSeconds": 25.3,
+  "baseUrl": "http://localhost:3120",
+  "started": "2026-11-02T10:15:07",
+  "elapsedSeconds": 47.9,
   "code": {
-    "commit": "9c85107e1ec2e232cb480c33f6e2fcc54095f090",
-    "dirty": false
+    "commit": "7bb0dc54a53ea8880415a6af219e19c65529e5d3",
+    "dirty": true
   },
-  "passed": 52,
+  "passed": 61,
   "failed": 0,
   "results": [
     {
@@ -172,7 +172,7 @@
     {
       "name": "home-360-200: header <= 30% del viewport",
       "ok": true,
-      "detail": "18.5%"
+      "detail": "19.4%"
     },
     {
       "name": "home-360-200: campo de venta en el primer viewport",
@@ -197,7 +197,7 @@
     {
       "name": "home-768-200: campo de venta por encima de la tab bar",
       "ok": true,
-      "detail": "saleTop=679 tabTop=899"
+      "detail": "saleTop=571 tabTop=899"
     },
     {
       "name": "home-768-200: sin palabras partidas",
@@ -210,9 +210,54 @@
       "detail": ""
     },
     {
+      "name": "caja-360-200: Interpretar completo por encima de la tab bar",
+      "ok": true,
+      "detail": "bottom 657 <= tab 675"
+    },
+    {
+      "name": "caja-360-200: campo de venta por encima de la tab bar",
+      "ok": true,
+      "detail": "bottom 590 <= tab 675"
+    },
+    {
+      "name": "fiado-768-200: Registrar abono completo por encima de la tab bar",
+      "ok": true,
+      "detail": "bottom 839 <= tab 899"
+    },
+    {
+      "name": "teclado: primer Tab es el skip link",
+      "ok": true,
+      "detail": "Saltar al contenido"
+    },
+    {
+      "name": "teclado: el skip link enfoca main#main",
+      "ok": true,
+      "detail": "{'id': 'main', 'tag': 'MAIN', 'isMain': True, 'tabIndex': '-1', 'scrollY': 0}"
+    },
+    {
+      "name": "teclado: la tab bar va antes de main en el DOM",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "puntero: volver a Caja conserva el scroll guardado",
+      "ok": true,
+      "detail": "{'scrollY': 800, 'active': 'Caja'}"
+    },
+    {
+      "name": "teclado: volver a Caja sube al top y enfoca el título",
+      "ok": true,
+      "detail": "{'id': 'caja-heading', 'top': 87, 'bottom': 122, 'headerBottom': 72, 'tabTop': 731, 'scrollY': 0, 'visible': True}"
+    },
+    {
+      "name": "teclado: el título enfocado queda visible entre header y tab bar",
+      "ok": true,
+      "detail": "{'id': 'caja-heading', 'top': 87, 'bottom': 122, 'headerBottom': 72, 'tabTop': 731, 'scrollY': 0, 'visible': True}"
+    },
+    {
       "name": "home-1280-200: medida registrada (campo bajo el pliegue documentado)",
       "ok": true,
-      "detail": "saleTop=899 viewport=800"
+      "detail": "saleTop=789 viewport=800"
     },
     {
       "name": "home-1280-200: sin overflow horizontal",
@@ -262,7 +307,7 @@
     {
       "name": "meta-360-200: Apartar visible por encima de la tab bar",
       "ok": true,
-      "detail": "top 619 <= tab 675"
+      "detail": "top 606 <= tab 675"
     },
     {
       "name": "meta-360-200: sin palabras partidas",

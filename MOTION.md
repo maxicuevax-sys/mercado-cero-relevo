@@ -30,6 +30,7 @@
 - `prefers-reduced-motion: reduce`: duración 0.01 ms, delays 0 y veta de scroll
   apagada. La información y el foco se conservan.
 - No se animan `width`, `height`, `top`, `left` ni márgenes.
+- El barrido de papel dura 300 ms, intercepta clics mientras existe y la tab bar queda por encima (z-40); un timeout de 1 s lo retira si `animationend` no llega.
 - El foco de teclado y los estados de error siguen siendo la prioridad.
 
 ## Dónde vive
