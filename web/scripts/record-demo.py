@@ -166,6 +166,16 @@ def main() -> int:
         page.screenshot(path=str(OUT / "demo-step-4-corte.png"))
         page.wait_for_timeout(1800)
 
+        # Cierre versionado: la foto del corte no cambia con movimientos posteriores.
+        page.evaluate("document.getElementById('demo-caption')?.remove()")
+        page.get_by_role("button", name="Guardar corte").click()
+        page.wait_for_selector("[role=dialog]", timeout=8000)
+        page.get_by_role("dialog").get_by_role("button", name="Guardar corte").click()
+        page.get_by_text("Corte #1 guardado", exact=False).first.wait_for(timeout=12000)
+        caption(page, "Corte #1: la foto no cambia con ventas o cobros posteriores")
+        page.screenshot(path=str(OUT / "demo-step-4-corte-guardado.png"))
+        page.wait_for_timeout(1800)
+
         page.locator("text=Así va la caja").scroll_into_view_if_needed()
         page.wait_for_timeout(800)
         caption(page, "7. Mi negocio: hoy, semana y mes")
