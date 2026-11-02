@@ -94,6 +94,7 @@ Cuando aparezca el sello **DEMO** o **PAGADO**, señálalo.
 - En **Corte**, arriba está **Corte de caja**.
 - Pulsa **Actualizar corte**: el abono de Juan sumó **$50 en efectivo**, así que “Debería haber” pasa de $570 a **$620**.
 - Pulsa **Contar por billetes y monedas** y escribe: **5** de $100, **2** de $50 y **1** de $20. Muestra el sello **CUADRA**.
+- Pulsa **Guardar corte**, revisa la hoja de confirmación (gastos, retiros, debería haber) y confirma. Queda **Corte #1**; la foto no cambia con ventas o cobros posteriores.
 
 > “La comerciante ve cuánto vendió, cuánto cobró de verdad, cuánto le deben y cuánto debería haber en la caja. Todo sale del mismo registro.”
 

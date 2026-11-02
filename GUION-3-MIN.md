@@ -78,6 +78,8 @@ El abono de Juan sumó cincuenta pesos en efectivo: debería haber seiscientos v
 
 Cuadra. Todo sale del mismo registro.
 
+[Pulsa **Guardar corte** y confirma la hoja. Queda **Corte #1**.]
+
 ## 2:40–3:00 · Mi camino y cierre
 
 [Abre **Meta**. Escribe **25** y pulsa **Apartar**.]
