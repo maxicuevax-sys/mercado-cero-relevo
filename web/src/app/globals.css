@@ -540,6 +540,22 @@ button {
   animation: heading-in 240ms var(--mc-ease-out) both;
 }
 
+@keyframes tab-marker-in {
+  from {
+    opacity: 0.4;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+.tab-marker {
+  transform-origin: 50% 50%;
+  animation: tab-marker-in 180ms var(--mc-ease-out) both;
+}
+
 /* La lista aparece como lista: stagger corto y acotado, no una coreografía. */
 @keyframes list-item-in {
   from {

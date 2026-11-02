@@ -5585,7 +5585,9 @@ function MobileTabBar({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
                 active ? "text-green" : "text-ink-2",
               )}
             >
-              {active ? <span className="absolute inset-x-4 top-0 h-0.5 rounded-full bg-accent" /> : null}
+              {active ? (
+                <span className="tab-marker absolute inset-x-4 top-0 h-0.5 rounded-full bg-accent" />
+              ) : null}
               <Icon className="h-5 w-5 shrink-0" strokeWidth={active ? 2.2 : 1.8} />
               <span className="mobile-tab-label max-w-full text-center leading-tight">
                 {item.mobileLabel}

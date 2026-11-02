@@ -182,6 +182,21 @@ def main() -> int:
         page.wait_for_function("document.body.innerText.includes('Hoy $')", timeout=20000)
         page.wait_for_timeout(250)
         page.screenshot(path=str(SHOTS / "360-home.png"))
+        marker = page.evaluate(
+            """() => {
+              const el = document.querySelector('.tab-marker');
+              if (!el) return null;
+              const s = getComputedStyle(el);
+              return { name: s.animationName, duration: s.animationDuration };
+            }"""
+        )
+        check(
+            "el marcador del tab entra en 180 ms",
+            marker is not None
+            and marker["name"] == "tab-marker-in"
+            and seconds(marker["duration"]) <= 0.2,
+            json.dumps(marker, ensure_ascii=False),
+        )
         page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
         page.wait_for_timeout(600)
         bottom = read_motion(page)
