@@ -179,11 +179,42 @@ export function compareTasks(a: Task, b: Task): number {
   return a.createdAt.localeCompare(b.createdAt);
 }
 
-export function listTasks(limit = TASK_LIST_LIMIT): Task[] {
+export function listTasks(
+  limit = TASK_LIST_LIMIT,
+  offset = 0,
+): Task[] {
+  const safeLimit = Math.max(1, Math.floor(limit));
+  const safeOffset = Math.max(0, Math.floor(offset));
+  // El mismo orden de `compareTasks`, pero resuelto por SQLite para poder
+  // paginar sin cargar la bandeja completa. Abiertas primero; vencidas por
+  // fecha, luego sin fecha, luego creación. Las hechas, por completion.
   const rows = getDb()
-    .prepare("SELECT * FROM tasks WHERE status IN ('open', 'done')")
-    .all() as unknown as TaskRow[];
-  return rows.map(mapTask).sort(compareTasks).slice(0, Math.max(1, limit));
+    .prepare(
+      `SELECT * FROM tasks
+       WHERE status IN ('open', 'done')
+       ORDER BY
+         CASE WHEN status = 'open' THEN 0 ELSE 1 END ASC,
+         CASE
+           WHEN status != 'done' AND COALESCE(postponed_until, due_at) IS NULL
+           THEN 1 ELSE 0
+         END ASC,
+         CASE
+           WHEN status != 'done' THEN COALESCE(postponed_until, due_at)
+         END ASC,
+         CASE WHEN status = 'done' THEN completed_at END DESC,
+         CASE WHEN status = 'done' THEN created_at END DESC,
+         CASE WHEN status != 'done' THEN created_at END ASC
+       LIMIT ? OFFSET ?`,
+    )
+    .all(safeLimit, safeOffset) as unknown as TaskRow[];
+  return rows.map(mapTask);
+}
+
+export function countTasks(): number {
+  const row = getDb()
+    .prepare("SELECT COUNT(*) AS n FROM tasks WHERE status IN ('open', 'done')")
+    .get() as unknown as { n: number };
+  return Number(row.n);
 }
 
 export function getTask(id: string): Task | null {

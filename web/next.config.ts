@@ -73,6 +73,9 @@ const privateHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // gzip de respuestas y assets en `next start`. Si un proxy/túnel comprime
+  // por su cuenta, este valor no desactiva esa capa; se verifica con
+  // `Accept-Encoding: gzip` y `Content-Encoding` en el contrato de perf.
   compress: true,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
@@ -128,10 +131,24 @@ const nextConfig: NextConfig = {
       { source: "/puesto-flores.jpg", headers: publicAssetHeaders },
       { source: "/tianguis-metepequense.jpg", headers: publicAssetHeaders },
       { source: "/tianguis-zitacuaro.jpg", headers: publicAssetHeaders },
-      {
-        source: "/api/:path*",
-        headers: privateHeaders,
-      },
+      // Las rutas de lectura de perf-data negocian su propio Cache-Control
+      // privado con ETag/304. Solo los endpoints sensibles o mutadores quedan
+      // forzados a no-store; no se pisa la caché de dashboard/orders/credits/
+      // analytics/tasks.
+      { source: "/api/cash", headers: privateHeaders },
+      { source: "/api/cash/:path+", headers: privateHeaders },
+      { source: "/api/checkout/:path+", headers: privateHeaders },
+      { source: "/api/credits/:path+", headers: privateHeaders },
+      { source: "/api/demo/:path+", headers: privateHeaders },
+      { source: "/api/goals", headers: privateHeaders },
+      { source: "/api/goals/:path+", headers: privateHeaders },
+      { source: "/api/orders/:path+", headers: privateHeaders },
+      { source: "/api/reconcile", headers: privateHeaders },
+      { source: "/api/tasks/:path+", headers: privateHeaders },
+      { source: "/api/tts", headers: privateHeaders },
+      { source: "/api/verify", headers: privateHeaders },
+      { source: "/api/voice/:path+", headers: privateHeaders },
+      { source: "/api/webhooks/:path+", headers: privateHeaders },
       {
         source: "/pay/:path*",
         headers: privateHeaders,

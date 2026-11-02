@@ -40,10 +40,14 @@ function headers() {
   };
 }
 
-const PEY_TIMEOUT_MS = Number(process.env.PEY_TIMEOUT_MS ?? 10_000);
+const PEY_TIMEOUT_MS = Math.max(
+  1_000,
+  Number(process.env.PEY_TIMEOUT_MS ?? 10_000) || 10_000,
+);
 
 async function peyFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  // Un cuelgue de pey no puede colgar la caja ni el webhook.
+  // Un cuelgue de pey no puede colgar la caja, la conciliación ni el webhook.
+  // La conciliación puede imponer un timeout global pasando su propio signal.
   const signal = init?.signal ?? AbortSignal.timeout(PEY_TIMEOUT_MS);
   const response = await fetch(`${PEY_BASE}${path}`, {
     ...init,
@@ -151,10 +155,16 @@ export async function createCodiQr(input: {
   };
 }
 
-export async function getPeyTransaction(id: string): Promise<PeyTransaction | null> {
+export async function getPeyTransaction(
+  id: string,
+  signal?: AbortSignal,
+): Promise<PeyTransaction | null> {
   if (isDemoMode()) return null;
   try {
-    return await peyFetch<PeyTransaction>(`/transaction/${encodeURIComponent(id)}`);
+    return await peyFetch<PeyTransaction>(
+      `/transaction/${encodeURIComponent(id)}`,
+      { signal },
+    );
   } catch (error) {
     if (error instanceof Error && error.message.includes("404")) return null;
     throw error;

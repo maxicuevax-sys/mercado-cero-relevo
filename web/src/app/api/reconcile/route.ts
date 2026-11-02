@@ -6,7 +6,9 @@ export async function GET(request: Request) {
   if (limited) return limited;
 
   try {
-    return Response.json(await getReconciliationReport());
+    return Response.json(await getReconciliationReport(), {
+      headers: { "Cache-Control": "no-store" },
+    });
   } catch (error) {
     return internalErrorResponse("reconcile", error);
   }
