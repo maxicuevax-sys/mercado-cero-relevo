@@ -108,7 +108,7 @@ def add_item(page, description: str, quantity: float, price: float) -> None:
     page.get_by_role("button", name="Agregar producto", exact=True).click()
     page.get_by_role("textbox", name="Producto").last.fill(description)
     page.get_by_role("spinbutton", name="Cantidad").last.fill(str(quantity))
-    page.get_by_role("spinbutton", name="Precio unitario").last.fill(str(price))
+    page.get_by_role("textbox", name="Precio unitario").last.fill(str(price))
 
 
 def close_dialog(page) -> None:
@@ -320,6 +320,75 @@ def main() -> int:
             and created[0]["paidCents"] == 6000
             and created[0]["creditCents"] == 3000,
             f"orden={created[0]['id'] if created else 'ninguna'}",
+        )
+        close_dialog(page)
+
+        # 3b · P0: teclear dinero no reformatea el texto en cada tecla.
+        reset(page)
+        page.get_by_role("button", name="Agregar producto", exact=True).click()
+        page.get_by_role("textbox", name="Producto").last.fill("Tecleo P0")
+        page.get_by_role("spinbutton", name="Cantidad").last.fill("2")
+        price = page.get_by_role("textbox", name="Precio unitario").last
+        price.click()
+        price.press("Control+a")
+        price.press_sequentially("35", delay=80)
+        check(
+            "precio 35 conserva el texto crudo mientras se teclea",
+            price.input_value() == "35",
+            price.input_value(),
+        )
+        cash = page.get_by_label("Efectivo recibido en pesos")
+        cash.click()
+        check(
+            "precio se formatea a 35.00 solo al salir",
+            price.input_value() == "35.00",
+            price.input_value(),
+        )
+        cash.press_sequentially("100", delay=80)
+        check(
+            "efectivo 100 conserva el texto crudo mientras se teclea",
+            cash.input_value() == "100",
+            cash.input_value(),
+        )
+        credit = page.get_by_label("Monto a fiado en pesos")
+        credit.click()
+        check(
+            "efectivo se formatea a 100.00 solo al salir",
+            cash.input_value() == "100.00",
+            cash.input_value(),
+        )
+        credit.press_sequentially("40", delay=80)
+        check(
+            "fiado 40 conserva el texto crudo mientras se teclea",
+            credit.input_value() == "40",
+            credit.input_value(),
+        )
+        page.get_by_label("Nombre del cliente para el fiado").fill("Tecleo")
+        check(
+            "fiado se formatea a 40.00 solo al salir",
+            credit.input_value() == "40.00",
+            credit.input_value(),
+        )
+        expect(page.get_by_text("Cambio $70.00")).to_be_visible()
+        check(
+            "efectivo 100 + fiado 40 sobre 35 × 2 deja cambio 70",
+            "$70.00" in page.locator("#cash-change").inner_text(),
+            page.locator("#cash-change").inner_text().replace("\n", " · "),
+        )
+        before = order_ids(page)
+        page.get_by_role("button", name="Confirmar venta").click()
+        expect(page.get_by_role("dialog")).to_be_visible()
+        expect(page.get_by_role("dialog")).to_contain_text("Cambio $70.00")
+        typed = new_orders(page, before)
+        check(
+            "la venta tecleada guarda precio 3500, efectivo 3000 y fiado 4000",
+            len(typed) == 1
+            and typed[0]["items"][0]["unitPriceCents"] == 3500
+            and typed[0]["items"][0]["quantity"] == 2
+            and typed[0]["totalCents"] == 7000
+            and typed[0]["paidCents"] == 3000
+            and typed[0]["creditCents"] == 4000,
+            json.dumps(typed[0], ensure_ascii=False) if typed else "sin orden",
         )
         close_dialog(page)
 
@@ -588,7 +657,7 @@ def main() -> int:
         quantity_invalid = page.get_by_role("spinbutton", name="Cantidad").get_attribute(
             "aria-invalid"
         )
-        price_invalid = page.get_by_role("spinbutton", name="Precio unitario").get_attribute(
+        price_invalid = page.get_by_role("textbox", name="Precio unitario").get_attribute(
             "aria-invalid"
         )
         check(
@@ -601,7 +670,7 @@ def main() -> int:
         page.get_by_role("textbox", name="Producto").fill("Solo precio")
         page.get_by_role("button", name="Confirmar venta").click()
         expect(page.get_by_text("El precio debe ser mayor a cero.")).to_be_visible()
-        price_invalid = page.get_by_role("spinbutton", name="Precio unitario").get_attribute(
+        price_invalid = page.get_by_role("textbox", name="Precio unitario").get_attribute(
             "aria-invalid"
         )
         check(

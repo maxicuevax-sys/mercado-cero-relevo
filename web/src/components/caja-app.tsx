@@ -194,6 +194,44 @@ function parseMoney(value: string): number {
   return Number.isFinite(amount) ? Math.round(amount * 100) : 0;
 }
 
+/**
+ * Dinero mientras se teclea: el texto crudo manda. El campo se formatea a dos
+ * decimales al salir, nunca en cada tecla (teclear 35 no debe dejar 0.01).
+ */
+function parseMoneyInput(value: string): number {
+  const clean = value.trim().replace(",", ".");
+  if (!clean) return 0;
+  const amount = Number(clean);
+  return Number.isFinite(amount) ? Math.max(0, Math.round(amount * 100)) : 0;
+}
+
+function formatMoneyInput(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (!/^\d*(?:[.,]\d*)?$/.test(trimmed) || trimmed === "." || trimmed === ",") {
+    return value;
+  }
+  const amount = Number(trimmed.replace(",", "."));
+  if (!Number.isFinite(amount)) return value;
+  return Math.max(0, amount).toFixed(2);
+}
+
+function countText(count: number, singular: string, plural: string): string {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+const dayKeyFormatter = new Intl.DateTimeFormat("es-MX", {
+  timeZone: "America/Mexico_City",
+  day: "numeric",
+  month: "short",
+});
+
+function formatDayKey(key: string): string {
+  const date = new Date(`${key}T12:00:00-06:00`);
+  if (Number.isNaN(date.getTime())) return key;
+  return dayKeyFormatter.format(date).replace(/\.$/, "");
+}
+
 function friendlyError(error: unknown, fallback: string): string {
   if (
     error instanceof TypeError ||
@@ -481,6 +519,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const [retryingDashboard, setRetryingDashboard] = useState(false);
   const [pendingCheckedAt, setPendingCheckedAt] = useState<string | null>(null);
   const [tasksResetKey, setTasksResetKey] = useState(0);
+  const [cashCloseKey, setCashCloseKey] = useState(0);
   const [tab, setTab] = useState<Tab>("caja");
   const [tabWipe, setTabWipe] = useState(0);
   const [today, setToday] = useState("");
@@ -502,6 +541,9 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   const [draftItems, setDraftItems] = useState<DraftItem[]>([]);
   const [cashCents, setCashCents] = useState(0);
   const [creditCents, setCreditCents] = useState(0);
+  // Texto crudo de los campos de dinero: se formatea recién al salir.
+  const [cashInput, setCashInput] = useState("");
+  const [creditInput, setCreditInput] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [itemErrors, setItemErrors] = useState<Record<string, DraftItemError>>({});
   const [restoredDraftAt, setRestoredDraftAt] = useState<string | null>(null);
@@ -534,6 +576,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   >(null);
   const [creditPayNote, setCreditPayNote] = useState("");
   const [creditPayError, setCreditPayError] = useState<string | null>(null);
+  const [creditPayNotice, setCreditPayNotice] = useState<string | null>(null);
   const [creditPayRequestId, setCreditPayRequestId] = useState<string | null>(null);
   const [creditPaying, setCreditPaying] = useState(false);
   const [saleError, setSaleError] = useState<string | null>(null);
@@ -576,6 +619,26 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       toastTimerRef.current = null;
       setToast(null);
     }, 3000);
+  }, []);
+
+  const changeCashInput = useCallback((value: string) => {
+    setCashInput(value);
+    setCashCents(parseMoneyInput(value));
+  }, []);
+
+  const blurCashInput = useCallback((value: string) => {
+    setCashInput(formatMoneyInput(value));
+    setCashCents(parseMoneyInput(value));
+  }, []);
+
+  const changeCreditInput = useCallback((value: string) => {
+    setCreditInput(value);
+    setCreditCents(parseMoneyInput(value));
+  }, []);
+
+  const blurCreditInput = useCallback((value: string) => {
+    setCreditInput(formatMoneyInput(value));
+    setCreditCents(parseMoneyInput(value));
   }, []);
 
   const loadDashboard = useCallback(
@@ -730,6 +793,8 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       setDraftItems(stored.items);
       setCashCents(stored.cashCents);
       setCreditCents(stored.creditCents);
+      setCashInput(stored.cashCents > 0 ? (stored.cashCents / 100).toFixed(2) : "");
+      setCreditInput(stored.creditCents > 0 ? (stored.creditCents / 100).toFixed(2) : "");
       setCustomerName(stored.customerName);
       setTextInput(stored.textInput);
       setTranscript(stored.transcript);
@@ -797,8 +862,22 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
         if (!response.ok) return;
         const data = (await response.json()) as { order?: Order };
         const order = data.order;
-        if (!order || !isPendingOrderStatus(order.status)) {
+        if (!order) {
           clearStoredPendingOrder(stored.orderId);
+          return;
+        }
+        if (!isPendingOrderStatus(order.status)) {
+          clearStoredPendingOrder(stored.orderId);
+          if (!cancelled) {
+            showToast(
+              "info",
+              order.status === "paid" ||
+                order.status === "demo_paid" ||
+                order.status === "fulfilled"
+                ? "Ese cobro ya se pagó."
+                : "Ese cobro ya no está pendiente.",
+            );
+          }
           return;
         }
         if (!cancelled) setResumableOrder(order);
@@ -810,7 +889,49 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [showToast]);
+
+  useEffect(() => {
+    if (!dashboard) return;
+
+    // El fiado se saldó en otra pestaña o terminal: no cerramos la hoja en
+    // silencio ni dejamos que el abono se intente contra un saldo que ya no existe.
+    if (creditPayId && !creditPaying) {
+      const credit = dashboard.credits.find((item) => item.id === creditPayId);
+      const alreadySettled =
+        !credit || credit.status === "settled" || credit.balanceCents <= 0;
+      if (alreadySettled) {
+        /* eslint-disable react-hooks/set-state-in-effect */
+        setCreditPayId(null);
+        setCreditPayAmount("");
+        setCreditPayInitialAmount("");
+        setCreditPayInitialMethod(null);
+        setCreditPayRequestId(null);
+        setCreditPayError(null);
+        setCreditPayNotice("Ese fiado ya está saldado. No se registró nada.");
+        /* eslint-enable react-hooks/set-state-in-effect */
+        showToast("info", "Ese fiado ya está saldado. No se registró nada.");
+      }
+    }
+
+    // El aviso de cobro pendiente puede quedar viejo si la orden se pagó en
+    // otra pestaña. Se limpia el aviso y la llave local; no se reabre la hoja.
+    if (resumableOrder) {
+      const order = dashboard.orders.find((item) => item.id === resumableOrder.id);
+      if (order && !isPendingOrderStatus(order.status)) {
+        clearStoredPendingOrder(order.id);
+        setResumableOrder(null);
+        showToast(
+          "info",
+          order.status === "paid" ||
+            order.status === "demo_paid" ||
+            order.status === "fulfilled"
+            ? "Ese cobro ya se pagó."
+            : "Ese cobro ya no está pendiente.",
+        );
+      }
+    }
+  }, [creditPayId, creditPaying, dashboard, resumableOrder, showToast]);
 
   const activeOrderId = activeOrder?.id;
   const activeOrderStatus = activeOrder?.status;
@@ -1113,7 +1234,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
           : `${formatMxn(dashboard.summary.verifiedDigitalCents)} digitales verificados y ${formatMxn(
               dashboard.summary.cashCents,
             )} en efectivo.`;
-      return `Hoy llevas ${formatMxn(total)} en ${dashboard.summary.paidOrderCount} ventas. ${detail}`;
+      return `Hoy llevas ${formatMxn(total)} en ${countText(dashboard.summary.paidOrderCount, "venta", "ventas")}. ${detail}`;
     },
     [dashboard],
   );
@@ -1130,6 +1251,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       setCreditPayAmount(amount);
       setCreditPayInitialAmount(amount);
       setCreditPayRequestId(newCreditPayRequestId());
+      setCreditPayNotice(null);
       // Sin señal en la frase no se asume efectivo: la hoja exige elegir.
       setCreditPayMethod(method ?? null);
       setCreditPayInitialMethod(method ?? null);
@@ -1209,6 +1331,8 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
           );
           setCashCents(parsed.cashCents);
           setCreditCents(parsed.creditCents);
+          setCashInput(parsed.cashCents > 0 ? (parsed.cashCents / 100).toFixed(2) : "");
+          setCreditInput(parsed.creditCents > 0 ? (parsed.creditCents / 100).toFixed(2) : "");
           setCustomerName(parsed.customerName ?? "");
           setTranscript(clean);
           // El parseo nuevo reemplaza al borrador recuperado: su banner ya no aplica.
@@ -1336,6 +1460,8 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     setDraftItems([]);
     setCashCents(0);
     setCreditCents(0);
+    setCashInput("");
+    setCreditInput("");
     setCustomerName("");
     setTextInput("");
     setTranscript("");
@@ -1364,6 +1490,8 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     if (items.length === 0) {
       setCashCents(0);
       setCreditCents(0);
+      setCashInput("");
+      setCreditInput("");
       setCustomerName("");
       setRestoredDraftAt(null);
     }
@@ -1843,9 +1971,14 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       clearDraft();
       setVerifyResult(null);
       setVerifyId("");
+      setCreditPayId(null);
+      setCreditPayNotice(null);
       // El panel de tareas está montado aunque esté oculto: sin remontarlo,
       // el reset del servidor dejaría tareas viejas en pantalla.
       setTasksResetKey((key) => key + 1);
+      // El corte conserva un conteo local aunque el servidor reinicie. La key
+      // descarta ese conteo no guardado y vuelve a leer la caja vacía.
+      setCashCloseKey((key) => key + 1);
       await loadDashboard({ force: true });
       showToast("ok", "Demo reiniciada.");
     } catch (error) {
@@ -2038,8 +2171,9 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                   textInput={textInput}
                   showTextInput={showTextInput}
                   draftItems={draftItems}
-                  cashCents={cashCents}
                   creditCents={creditCents}
+                  cashInput={cashInput}
+                  creditInput={creditInput}
                   customerName={customerName}
                   draftTotal={draftTotal}
                   appliedCashCents={appliedCashCents}
@@ -2068,8 +2202,10 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                     void interpretText(phrase);
                   }}
                   onDraftItems={updateDraftItems}
-                  onCash={setCashCents}
-                  onCredit={setCreditCents}
+                  onCash={changeCashInput}
+                  onCashBlur={blurCashInput}
+                  onCredit={changeCreditInput}
+                  onCreditBlur={blurCreditInput}
                   onCustomer={setCustomerName}
                   onCreate={() => void createOrder()}
                   onClear={clearDraft}
@@ -2084,7 +2220,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                     <PendingPayments
                       orders={dashboard?.pendingOrders ?? []}
                       lastCheckedAt={pendingCheckedAt}
-                      error={null}
+                      error={dashboardError}
                       onOpen={(order) => {
                         setActiveOrder(order);
                         setTab("caja");
@@ -2120,6 +2256,24 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                 headingId="fiado-heading"
                 subtitle="Lo que te deben, no dinero recibido."
               />
+              {creditPayNotice ? (
+                <div
+                  role="alert"
+                  className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-attention/30 bg-terracotta-soft/70 px-4 py-3 text-sm text-ink"
+                >
+                  <p className="flex min-w-0 items-center gap-2 font-medium">
+                    <CircleAlert className="h-4 w-4 shrink-0 text-attention" />
+                    {creditPayNotice}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setCreditPayNotice(null)}
+                    className="flex min-h-12 items-center rounded-xl px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
+                  >
+                    Entendido
+                  </button>
+                </div>
+              ) : null}
               <CreditList
                 credits={pendingCredits}
                 loading={loading}
@@ -2159,7 +2313,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
                 subtitle="Compara lo contado con lo esperado."
               />
               <div className="space-y-5">
-                <CashCloseCard showToast={showToast} />
+                <CashCloseCard key={cashCloseKey} showToast={showToast} />
                 <BusinessOverview
                   demoMode={demoMode}
                   onSpeak={(text) => {
@@ -2349,8 +2503,9 @@ function CajaPanel(props: {
   textInput: string;
   showTextInput: boolean;
   draftItems: DraftItem[];
-  cashCents: number;
   creditCents: number;
+  cashInput: string;
+  creditInput: string;
   customerName: string;
   draftTotal: number;
   appliedCashCents: number;
@@ -2370,8 +2525,10 @@ function CajaPanel(props: {
   onInterpret: () => void;
   onSample: (phrase: string) => void;
   onDraftItems: (items: DraftItem[]) => void;
-  onCash: (value: number) => void;
-  onCredit: (value: number) => void;
+  onCash: (value: string) => void;
+  onCashBlur: (value: string) => void;
+  onCredit: (value: string) => void;
+  onCreditBlur: (value: string) => void;
   onCustomer: (value: string) => void;
   onCreate: () => void;
   onClear: () => void;
@@ -2383,8 +2540,9 @@ function CajaPanel(props: {
     transcript,
     textInput,
     draftItems,
-    cashCents,
     creditCents,
+    cashInput,
+    creditInput,
     customerName,
     draftTotal,
     appliedCashCents,
@@ -2404,13 +2562,17 @@ function CajaPanel(props: {
     onSample,
     onDraftItems,
     onCash,
+    onCashBlur,
     onCredit,
+    onCreditBlur,
     onCustomer,
     onCreate,
     onClear,
   } = props;
 
   const [confirmingClear, setConfirmingClear] = useState(false);
+  // El precio se guarda como texto crudo por producto mientras se teclea.
+  const [priceInputs, setPriceInputs] = useState<Record<string, string>>({});
 
   useEffect(() => {
     // Si la venta queda vacía por otra vía (recuperación, demo, descarte),
@@ -2687,7 +2849,9 @@ function CajaPanel(props: {
         {draftItems.length > 0 ? (
           <div className="mt-4 space-y-2.5">
             {draftItems.map((item, index) => {
-              const priceText = (item.unitPriceCents / 100).toFixed(2);
+              const priceText =
+                priceInputs[item.id] ??
+                (item.unitPriceCents > 0 ? (item.unitPriceCents / 100).toFixed(2) : "");
               const itemError = itemErrors[item.id];
               return (
                 <div
@@ -2774,25 +2938,37 @@ function CajaPanel(props: {
                       $
                       <input
                         id={`draft-price-${item.id}`}
-                        type="number"
-                        min={0}
-                        step={0.5}
+                        type="text"
+                        inputMode="decimal"
+                        autoComplete="off"
                         value={priceText}
+                        placeholder="0.00"
+                        onFocus={(event) => event.currentTarget.select()}
                         onChange={(event) => {
+                          const raw = event.target.value;
+                          setPriceInputs((current) => ({ ...current, [item.id]: raw }));
                           const next = [...draftItems];
-                          const value = Number(event.target.value);
                           next[index] = {
                             ...item,
-                            unitPriceCents: Number.isFinite(value)
-                              ? Math.max(0, Math.round(value * 100))
-                              : 0,
+                            unitPriceCents: parseMoneyInput(raw),
                           };
                           commitItems(next);
+                        }}
+                        onBlur={(event) => {
+                          const raw = event.target.value;
+                          const cents = parseMoneyInput(raw);
+                          setPriceInputs((current) => ({
+                            ...current,
+                            [item.id]: formatMoneyInput(raw),
+                          }));
+                          const next = [...draftItems];
+                          next[index] = { ...item, unitPriceCents: cents };
+                          if (cents !== item.unitPriceCents) commitItems(next);
                         }}
                         aria-invalid={itemError?.field === "price"}
                         aria-describedby={itemError ? `item-error-${item.id}` : undefined}
                         style={{ width: `${Math.max(7, priceText.length + 1)}ch` }}
-                        className="tabular h-12 rounded-lg border border-transparent bg-transparent px-1 text-right text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
+                        className="tabular h-12 rounded-lg border border-transparent bg-transparent px-1 text-right text-[1rem] font-semibold text-ink outline-none placeholder:text-ink-2/40 focus:border-separator focus:bg-surface"
                         aria-label="Precio unitario"
                       />
                     </label>
@@ -2856,14 +3032,13 @@ function CajaPanel(props: {
                   <span className="text-sm text-ink-2">$</span>
                   <input
                     id="cash-received"
-                    type="number"
-                    min={0}
-                    step={0.5}
-                    value={cashCents === 0 ? "" : (cashCents / 100).toFixed(2)}
-                    onChange={(event) => {
-                      const value = Number(event.target.value);
-                      onCash(Number.isFinite(value) ? Math.max(0, Math.round(value * 100)) : 0);
-                    }}
+                    type="text"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    value={cashInput}
+                    onFocus={(event) => event.currentTarget.select()}
+                    onChange={(event) => onCash(event.target.value)}
+                    onBlur={(event) => onCashBlur(event.target.value)}
                     placeholder="0.00"
                     aria-label="Efectivo recibido en pesos"
                     aria-describedby={changeCents > 0 ? "cash-change" : undefined}
@@ -2891,14 +3066,13 @@ function CajaPanel(props: {
                   <span className="text-sm text-ink-2">$</span>
                   <input
                     id="fiado-amount"
-                    type="number"
-                    min={0}
-                    step={0.5}
-                    value={creditCents === 0 ? "" : (creditCents / 100).toFixed(2)}
-                    onChange={(event) => {
-                      const value = Number(event.target.value);
-                      onCredit(Number.isFinite(value) ? Math.max(0, Math.round(value * 100)) : 0);
-                    }}
+                    type="text"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    value={creditInput}
+                    onFocus={(event) => event.currentTarget.select()}
+                    onChange={(event) => onCredit(event.target.value)}
+                    onBlur={(event) => onCreditBlur(event.target.value)}
                     placeholder="0.00"
                     aria-label="Monto a fiado en pesos"
                     aria-invalid={overpay}
@@ -3503,7 +3677,11 @@ function BusinessOverview({
   function speakReport() {
     if (!report) return;
     onSpeak(
-      `${report.label}: ${formatMxn(report.salesCents)} en ${report.orderCount} ventas. Cobrado ${formatMxn(
+      `${report.label}: ${formatMxn(report.salesCents)} en ${countText(
+        report.orderCount,
+        "venta",
+        "ventas",
+      )}. Cobrado ${formatMxn(
         report.collectedCents,
       )}. Por cobrar ${formatMxn(report.pendingCents)}.`,
     );
@@ -3606,7 +3784,7 @@ function BusinessOverview({
             {[
               { label: "Cobrado", value: report.collectedCents, note: "De las ventas del periodo" },
               { label: "Por cobrar", value: report.pendingCents, note: "De las ventas del periodo" },
-              { label: "Ticket promedio", value: report.averageTicketCents, note: `${report.orderCount} ventas` },
+              { label: "Ticket promedio", value: report.averageTicketCents, note: countText(report.orderCount, "venta", "ventas") },
               { label: "Fiado", value: report.creditCents, note: "Saldo pendiente total" },
             ].map((item) => (
               <div key={item.label} className="rounded-xl bg-surface-2 px-3 py-3">
@@ -3653,7 +3831,7 @@ function BusinessOverview({
               </p>
               {report.bestDay ? (
                 <p className="text-sm text-ink-2">
-                  Mejor día: {report.bestDay.date.slice(5)} ·{" "}
+                  Mejor día: {formatDayKey(report.bestDay.date)} ·{" "}
                   {formatCompactMxn(report.bestDay.salesCents)}
                 </p>
               ) : null}
@@ -3663,7 +3841,7 @@ function BusinessOverview({
                 <div
                   key={point.date}
                   className="group relative h-full flex-1"
-                  title={`${point.date}: ${formatMxn(point.salesCents)} · ${point.orders} ventas`}
+                  title={`${formatDayKey(point.date)}: ${formatMxn(point.salesCents)} · ${countText(point.orders, "venta", "ventas")}`}
                 >
                   <div
                     className={cn(
@@ -3811,6 +3989,24 @@ function CashCloseSummary({
             {formatMxn(close.countedCents)}
           </dd>
         </div>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <dt className="text-ink-2">Esperado con movimientos</dt>
+          <dd className="tabular font-semibold text-ink">
+            {formatMxn(close.expectedCents)}
+          </dd>
+        </div>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <dt className="text-ink-2">Retiros</dt>
+          <dd className="tabular font-semibold text-ink">
+            {formatMxn(close.withdrawalsCents)}
+          </dd>
+        </div>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <dt className="text-ink-2">Base para mañana</dt>
+          <dd className="tabular font-semibold text-ink">
+            {formatMxn(close.baseNextCents)}
+          </dd>
+        </div>
         <div className="flex flex-wrap items-baseline justify-between gap-2 sm:col-span-2">
           <dt className="text-ink-2">Diferencia</dt>
           <dd
@@ -3922,7 +4118,9 @@ function CashCloseCard({
     setOpening((data.openingCents / 100).toFixed(2));
     setExpenses((data.expensesCents / 100).toFixed(2));
     setWithdrawals((data.withdrawalsCents / 100).toFixed(2));
-    setBaseNext(((data.saved?.baseNextCents ?? 40000) / 100).toFixed(2));
+    setBaseNext(
+      ((data.saved?.baseNextCents ?? data.openingCents) / 100).toFixed(2),
+    );
     setCounted(data.saved ? (data.saved.countedCents / 100).toFixed(2) : "");
     setCounts({});
     setApplyPreviousWithdrawal(false);
@@ -3995,12 +4193,27 @@ function CashCloseCard({
     return () => window.removeEventListener("mercado:refresh", handler);
   }, [dirty, load]);
 
-  const openingCents = readCentsField(opening).cents;
-  const expensesCents = readCentsField(expenses).cents;
-  const withdrawalsCents = readCentsField(withdrawals).cents;
-  const countedCents = readCentsField(counted).cents;
-  const baseNextCents = readCentsField(baseNext).cents;
+  const openingField = readCentsField(opening);
+  const expensesField = readCentsField(expenses);
+  const withdrawalsField = readCentsField(withdrawals);
+  const countedField = readCentsField(counted);
+  const baseNextField = readCentsField(baseNext);
+  const openingCents = openingField.cents;
+  const expensesCents = expensesField.cents;
+  const withdrawalsCents = withdrawalsField.cents;
+  const countedCents = countedField.cents;
+  const baseNextCents = baseNextField.cents;
   const hasCounted = counted.trim() !== "";
+  // Un campo inválido se lee como 0: no mostramos una diferencia calculada
+  // sobre un cero que la persona no escribió.
+  const hasMoneyInputError = [
+    openingField.error,
+    expensesField.error,
+    withdrawalsField.error,
+    countedField.error,
+    baseNextField.error,
+  ].some(Boolean);
+  const canShowDifference = hasCounted && !hasMoneyInputError;
   const previousWithdrawalCents = status?.saved?.withdrawalNextCents ?? 0;
   const appliedPreviousWithdrawalCents = applyPreviousWithdrawal
     ? previousWithdrawalCents
@@ -4362,7 +4575,7 @@ function CashCloseCard({
             {fieldErrorText("counted")}
           </label>
 
-          {hasCounted ? (
+          {canShowDifference ? (
             <div
               role="status"
               className={cn(
@@ -4415,7 +4628,9 @@ function CashCloseCard({
             </div>
           ) : (
             <p className="rounded-xl bg-surface-2 px-3 py-2.5 text-sm text-ink-2">
-              Escribe el total contado para ver si cuadra.
+              {hasMoneyInputError
+                ? "Corrige los montos marcados para calcular la diferencia."
+                : "Escribe el total contado para ver si cuadra."}
             </p>
           )}
           <p className="text-xs leading-relaxed text-ink-2">
@@ -4654,7 +4869,7 @@ function CashCloseCard({
               </p>
             ) : null}
           </label>
-          {hasCounted ? (
+          {canShowDifference ? (
             <p className="text-sm text-ink-2">
               Adicional a retirar:{" "}
               <span className="font-semibold text-ink">
@@ -5270,7 +5485,7 @@ function ActivityList({
           </h2>
         </div>
         <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-semibold text-ink-2">
-          {failedWithoutData ? "Sin datos" : `${orders.length} pedidos`}
+          {failedWithoutData ? "Sin datos" : countText(orders.length, "pedido", "pedidos")}
         </span>
       </div>
 
@@ -5768,16 +5983,18 @@ function CreditPaySheet({
             </p>
           ) : null}
 
-          <button
-            type="button"
-            onClick={onPay}
-            disabled={paying || !valid || settled}
-            aria-busy={paying}
-            className="on-accent flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-50"
-          >
-            {paying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-            {paying ? "Registrando…" : "Registrar abono"}
-          </button>
+          <div className="sticky bottom-0 z-10 -mx-[18px] mt-1 border-t border-separator bg-surface px-[18px] pb-[max(12px,env(safe-area-inset-bottom))] pt-3 sm:-mx-5 sm:px-5">
+            <button
+              type="button"
+              onClick={onPay}
+              disabled={paying || !valid || settled}
+              aria-busy={paying}
+              className="on-accent flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-50"
+            >
+              {paying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+              {paying ? "Registrando…" : "Registrar abono"}
+            </button>
+          </div>
           <p className="text-sm leading-relaxed text-ink-2">
             Se registra el monto aplicado, no el billete completo. Un abono reduce la deuda; no
             crea una venta nueva ni cuenta como dinero cobrado hoy.
@@ -6870,7 +7087,8 @@ function DemoContent({ demoMode, onReset }: { demoMode: boolean; onReset: () => 
           <div className="space-y-3">
             <p className="text-sm font-semibold text-ink">¿Reiniciar los datos de demo?</p>
             <p className="text-sm leading-relaxed text-ink-2">
-              Se borran ventas, fiado, corte y meta de la demo. No se puede deshacer.
+              Se borran ventas, fiado, corte, meta y pendientes de la demo. También se
+              pierde el conteo no guardado. No se puede deshacer.
             </p>
             <div className="flex gap-2">
               <button
