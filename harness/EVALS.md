@@ -39,6 +39,8 @@
 
 **Cobertura p0:** `p0-venta` (51), `p0-fiado` (50), `p0-corte` (69), `p0-integracion` (51) y `p0-dinero` (45 + 3 KNOWN). Cada uno levanta su servidor aislado en 3211–3213 con SQLite temporal. `p0-shell` (67 PASS) sigue siendo evidencia de carril aparte, no un gate del full.
 
+**Contratos fuera del catálogo:** CI también corre `test:security`, `test:fix-datos`, `test:perf-budget` y `test:perf-data` (este último sin servidor). No cambian el conteo del full; si fallan, el job estático falla.
+
 ### Cuándo correr qué
 
 - **`verify:fast`**: 3 gates; cada cambio pequeño antes de commit.

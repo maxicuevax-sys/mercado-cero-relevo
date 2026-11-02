@@ -26,7 +26,7 @@
     "verify:list": "node scripts/harness-gate.mjs --list",
     "verify:evidence": "node scripts/verify-evidence.mjs",
     "harness:report": "node scripts/harness-report.mjs",
-    "test:contracts": "npm run test:security && npm run test:fix-datos && npm run test:perf-budget"
+    "test:contracts": "npm run test:security && npm run test:fix-datos && npm run test:perf-budget && npm run test:perf-data"
   },
   "dependencies": {
     "lucide-react": "^1.65.0",
