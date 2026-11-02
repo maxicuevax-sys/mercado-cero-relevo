@@ -176,7 +176,7 @@ def main() -> int:
         page.wait_for_timeout(700)
         caption(page, "8. Mi camino: aparta para la sombrilla")
         page.wait_for_timeout(1300)
-        page.get_by_placeholder("¿Cuánto apartaste?").fill("25")
+        page.get_by_label("¿Cuánto apartaste?").fill("25")
         page.get_by_role("button", name="Apartar", exact=True).click()
         page.wait_for_selector("text=$325.00", timeout=12000)
         caption(page, "9. La meta avanza")
