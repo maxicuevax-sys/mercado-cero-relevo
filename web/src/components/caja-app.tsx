@@ -498,6 +498,26 @@ function focusDraftField(itemId: string, field: DraftItemError["field"]) {
   });
 }
 
+function mobileScroller(): HTMLElement | null {
+  if (typeof window === "undefined") return null;
+  if (!window.matchMedia("(max-width: 1023.98px)").matches) return null;
+  return document.getElementById("main");
+}
+
+function currentScrollTop(): number {
+  const scroller = mobileScroller();
+  return scroller ? scroller.scrollTop : window.scrollY;
+}
+
+function setScrollTop(value: number): void {
+  const scroller = mobileScroller();
+  if (scroller) {
+    scroller.scrollTop = value;
+    return;
+  }
+  window.scrollTo(0, value);
+}
+
 function restoredDraftLabel(iso: string): string {
   const updated = new Date(iso);
   const now = new Date();
@@ -973,6 +993,26 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
   }, [contrast]);
 
   useEffect(() => {
+    // El zoom de texto no cambia el viewport: detectamos la raíz tipográfica
+    // real para compactar solo cuando el texto creció, no a 360 px normales.
+    const syncTextZoom = () => {
+      const rootSize = parseFloat(
+        getComputedStyle(document.documentElement).fontSize,
+      );
+      document.documentElement.dataset.textZoom =
+        rootSize >= 24 ? "large" : "normal";
+    };
+    syncTextZoom();
+    const observer = new MutationObserver(syncTextZoom);
+    observer.observe(document.head, { childList: true });
+    window.addEventListener("resize", syncTextZoom);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", syncTextZoom);
+    };
+  }, []);
+
+  useEffect(() => {
     voiceRateRef.current =
       voiceRate === "slow" ? 0.85 : voiceRate === "fast" ? 1.15 : 1;
     try {
@@ -997,7 +1037,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
 
   const selectTab = useCallback(
     (next: Tab, viaKeyboard = false) => {
-      scrollPositions.current[tab] = window.scrollY;
+      scrollPositions.current[tab] = currentScrollTop();
       keyboardTabRef.current = viaKeyboard;
       setToast(null);
       if (next !== tab) setTabWipe((key) => key + 1);
@@ -1012,7 +1052,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
     // título: el foco nunca queda 800 px fuera de la pantalla.
     const restore = keyboardTabRef.current ? 0 : (scrollPositions.current[tab] ?? 0);
     const frame = window.requestAnimationFrame(() => {
-      window.scrollTo(0, restore);
+      setScrollTop(restore);
       if (keyboardTabRef.current) {
         document.getElementById(TAB_HEADINGS[tab])?.focus({ preventScroll: true });
       }
@@ -2093,7 +2133,6 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       />
 
       <div className="app-main">
-        <div className="scroll-progress" aria-hidden="true" />
         <TopBar
           merchant={merchant}
           today={today}
@@ -2106,7 +2145,8 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
         />
 
         {/* La tab bar va antes de main en el DOM: el orden de Tab entra en la
-            navegación y luego en el contenido. Es fixed, no cambia el dibujo. */}
+            navegación y luego en el contenido. En móvil es una fila del shell;
+            en escritorio sigue fija abajo. */}
         <MobileTabBar tab={tab} onTab={selectTab} />
 
         <main
@@ -2114,6 +2154,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
           tabIndex={-1}
           className="main-container mx-auto w-full max-w-[1200px] px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:pb-10"
         >
+          <div className="scroll-progress" aria-hidden="true" />
           {dashboardError ? (
             <div
               role="alert"
@@ -2941,7 +2982,7 @@ function CajaPanel(props: {
                 <div
                   key={item.id}
                   className={cn(
-                    "draft-item rounded-xl border bg-surface-2 p-3",
+                    "control-frame draft-item rounded-xl border bg-surface-2 p-3",
                     itemError ? "border-danger/50" : "border-separator",
                   )}
                 >
@@ -2990,6 +3031,8 @@ function CajaPanel(props: {
                         type="number"
                         min={0.25}
                         step={0.25}
+                        inputMode="decimal"
+                        autoComplete="off"
                         value={item.quantity}
                         onChange={(event) => {
                           const next = [...draftItems];
@@ -3107,7 +3150,7 @@ function CajaPanel(props: {
         {draftItems.length > 0 ? (
           <>
             <div className="split-fields mt-4 grid gap-2.5">
-              <label className="rounded-xl bg-surface-2 p-3">
+              <label className="control-frame rounded-xl border border-separator bg-surface-2 p-3">
                 <span className="flex items-center gap-1.5 text-sm font-semibold text-ink-2">
                   <Banknote className="h-4 w-4" />
                   Efectivo recibido
@@ -3141,7 +3184,7 @@ function CajaPanel(props: {
                 ) : null}
               </label>
 
-              <label className="rounded-xl bg-surface-2 p-3">
+              <label className="control-frame rounded-xl border border-separator bg-surface-2 p-3">
                 <span className="flex items-center gap-1.5 text-sm font-semibold text-ink-2">
                   <NotebookPen className="h-4 w-4" />
                   A fiado
@@ -3174,14 +3217,14 @@ function CajaPanel(props: {
             ) : null}
 
             {creditCents > 0 ? (
-              <label className="mt-2.5 flex min-h-12 items-center gap-2 rounded-xl border border-attention/25 bg-terracotta-soft/60 px-3">
+              <label className="control-frame mt-2.5 flex min-h-12 items-center gap-2 rounded-xl border border-attention/25 bg-terracotta-soft/60 px-3">
                 <UserRound className="h-4 w-4 shrink-0 text-attention" />
                 <input
                   id="fiado-customer"
                   value={customerName}
                   onChange={(event) => onCustomer(event.target.value)}
                   placeholder="¿Quién queda a deber? Ej. Juan"
-                  aria-label="Nombre del cliente para el fiado"
+                  aria-label="¿Quién queda a deber? Ej. Juan"
                   aria-invalid={Boolean(saleError) && creditCents > 0 && !customerName.trim()}
                   aria-describedby={saleError ? "sale-error" : undefined}
                   className="min-w-0 flex-1 bg-transparent text-[1rem] font-semibold text-ink outline-none placeholder:text-placeholder"
@@ -4699,7 +4742,7 @@ function CashCloseCard({
             <span className="text-sm font-semibold text-ink-2">Total contado</span>
             <div
               className={cn(
-                "mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[12px] py-2",
+                "control-frame mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[12px] py-2",
                 fieldError?.field === "counted" ? "border-danger" : "border-separator",
               )}
             >
@@ -4849,7 +4892,7 @@ function CashCloseCard({
                 <span className="text-sm font-semibold text-ink-2">Base inicial</span>
                 <div
                   className={cn(
-                    "mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[10px] py-2",
+                    "control-frame mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[10px] py-2",
                     fieldError?.field === "opening" ? "border-danger" : "border-separator",
                   )}
                 >
@@ -4878,7 +4921,7 @@ function CashCloseCard({
                 <span className="text-sm font-semibold text-ink-2">Gastos de caja</span>
                 <div
                   className={cn(
-                    "mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[10px] py-2",
+                    "control-frame mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[10px] py-2",
                     fieldError?.field === "expenses" ? "border-danger" : "border-separator",
                   )}
                 >
@@ -4907,7 +4950,7 @@ function CashCloseCard({
                 <span className="text-sm font-semibold text-ink-2">Retiros</span>
                 <div
                   className={cn(
-                    "mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[10px] py-2",
+                    "control-frame mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[10px] py-2",
                     fieldError?.field === "withdrawals" ? "border-danger" : "border-separator",
                   )}
                 >
@@ -4978,7 +5021,7 @@ function CashCloseCard({
             <span className="text-sm font-semibold text-ink-2">Base para mañana</span>
             <div
               className={cn(
-                "mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[10px] py-2",
+                "control-frame mt-1 flex items-center gap-1 rounded-xl border bg-surface-2 px-[10px] py-2",
                 fieldError?.field === "baseNext" || baseExceedsCounted
                   ? "border-danger"
                   : "border-separator",
@@ -5381,13 +5424,13 @@ function GoalCard({
         </div>
 
         <div className="goal-action-row flex flex-col gap-2 sm:flex-row">
-          <div className="flex min-h-12 flex-1 items-center gap-1 rounded-xl border border-separator bg-surface-2 px-3">
+          <div className="control-frame flex min-h-12 flex-1 items-center gap-1 rounded-xl border border-separator bg-surface-2 px-3">
             <span className="text-sm text-ink-2">$</span>
             <input
               value={amount}
               onChange={(event) => setAmount(event.target.value)}
               inputMode="decimal"
-              placeholder="Monto"
+              placeholder="¿Cuánto apartaste?"
               aria-label="¿Cuánto apartaste?"
               className="tabular min-h-12 w-full bg-transparent text-[1rem] text-ink outline-none placeholder:text-placeholder"
             />
@@ -6020,7 +6063,7 @@ function CreditPaySheet({
 
           <label className="block">
             <span className="text-sm font-semibold text-ink-2">Monto del abono</span>
-            <div className="mt-1 flex min-h-12 items-center gap-1 rounded-xl border border-separator bg-surface-2 px-3">
+            <div className="control-frame mt-1 flex min-h-12 items-center gap-1 rounded-xl border border-separator bg-surface-2 px-3">
               <span className="text-sm text-ink-2">$</span>
               <input
                 type="number"
@@ -6794,6 +6837,9 @@ function Sheet({
     previousFocus.current = document.activeElement as HTMLElement | null;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    // El fondo deja de ser interactivo y de exponerse a AT mientras hay hoja.
+    const appShell = document.querySelector<HTMLElement>(".app-shell");
+    if (appShell) appShell.inert = true;
 
     const focusables = () => {
       const root = panelRef.current;
@@ -6841,6 +6887,7 @@ function Sheet({
       window.clearTimeout(timer);
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
+      if (appShell) appShell.inert = false;
       const target = previousFocus.current;
       if (
         target &&
