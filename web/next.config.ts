@@ -43,8 +43,39 @@ const securityHeaders = [
     : []),
 ];
 
+/**
+ * Los chunks de Next ya llevan hash de contenido; se pueden cachear para
+ * siempre. No se cachean HTML ni APIs: el primero cambia entre despliegues y
+ * las segundas devuelven datos privados de la caja.
+ */
+const immutableStaticHeaders = [
+  { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+];
+
+/**
+ * Assets públicos sin hash (fotos, iconos, audio TTS). Una semana con
+ * revalidación en segundo plano evita descargas repetidas sin arriesgar
+ * servir una versión vieja durante meses.
+ */
+const publicAssetHeaders = [
+  {
+    key: "Cache-Control",
+    value: "public, max-age=604800, stale-while-revalidate=86400",
+  },
+];
+
+/** Datos de la caja y enlaces de pago: nunca en caché compartida ni del navegador. */
+const privateHeaders = [
+  {
+    key: "Cache-Control",
+    value: "private, no-store, max-age=0, must-revalidate",
+  },
+];
+
 const nextConfig: NextConfig = {
-  /* config options here */
+  compress: true,
+  poweredByHeader: false,
+  productionBrowserSourceMaps: false,
   cacheComponents: true,
   partialPrefetching: true,
   experimental: {
@@ -52,6 +83,17 @@ const nextConfig: NextConfig = {
     // 10 MB truncaría el audio de 12 MB sin devolver error. La ruta valida el
     // límite real del archivo y responde 413 antes de procesarlo.
     proxyClientMaxBodySize: "13mb",
+    // Evita que los barrels de iconos y QR entren completos al bundle.
+    optimizePackageImports: ["lucide-react", "qrcode"],
+  },
+  images: {
+    // AVIF primero para el menor peso; WebP como respaldo universal.
+    formats: ["image/avif", "image/webp"],
+    // Solo tamaños que la app puede pedir en un teléfono de 360–430 px.
+    deviceSizes: [360, 420, 640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 31536000,
+    qualities: [75],
   },
   // El indicador de desarrollo sale en capturas y en el video de respaldo.
   devIndicators: false,
@@ -68,6 +110,42 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         headers: securityHeaders,
+      },
+      // En dev Next necesita sus propios headers para el hot reload; en
+      // producción el valor coincide con el que ya emite Next y lo deja explícito.
+      ...(isProduction
+        ? [{ source: "/_next/static/:path*", headers: immutableStaticHeaders }]
+        : []),
+      {
+        source: "/icons/:path*",
+        headers: publicAssetHeaders,
+      },
+      {
+        source: "/tts/:path*",
+        headers: publicAssetHeaders,
+      },
+      { source: "/favicon.ico", headers: publicAssetHeaders },
+      { source: "/puesto-flores.jpg", headers: publicAssetHeaders },
+      { source: "/tianguis-metepequense.jpg", headers: publicAssetHeaders },
+      { source: "/tianguis-zitacuaro.jpg", headers: publicAssetHeaders },
+      {
+        source: "/api/:path*",
+        headers: privateHeaders,
+      },
+      {
+        source: "/pay/:path*",
+        headers: privateHeaders,
+      },
+      {
+        // Shell público de la caja: el navegador revalida, el CDN puede
+        // reutilizarlo un minuto. Los datos se piden por API con no-store.
+        source: "/",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, s-maxage=60, stale-while-revalidate=300",
+          },
+        ],
       },
     ];
   },
