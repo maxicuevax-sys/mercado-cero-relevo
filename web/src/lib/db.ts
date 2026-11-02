@@ -463,6 +463,23 @@ export function listOrders(limit = 30): Order[] {
   return rows.map(mapOrder);
 }
 
+/**
+ * Cobros pendientes de cualquier fecha. No usa el resumen diario, que solo
+ * mira pedidos creados hoy. La franja de P0-E lista estos pedidos.
+ */
+export function listPendingOrders(limit = 50): Order[] {
+  const database = getDb();
+  const rows = database
+    .prepare(
+      `SELECT * FROM orders
+       WHERE status IN ('confirmed', 'payment_pending', 'partially_paid')
+       ORDER BY created_at ASC
+       LIMIT ?`,
+    )
+    .all(limit) as Record<string, unknown>[];
+  return rows.map(mapOrder);
+}
+
 export function getOrder(id: string): Order | null {
   const database = getDb();
   const row = database.prepare("SELECT * FROM orders WHERE id = ?").get(id) as
