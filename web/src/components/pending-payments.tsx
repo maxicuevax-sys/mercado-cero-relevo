@@ -171,7 +171,7 @@ export function PendingPayments({
       ) : null}
 
       {hasOrders ? (
-        <ul id={listId} className="border-t border-separator">
+        <ul id={listId} className="motion-list border-t border-separator">
           {visibleOrders.map((order) => {
             const meta = statusMeta(order.status);
             const Icon = meta.Icon;

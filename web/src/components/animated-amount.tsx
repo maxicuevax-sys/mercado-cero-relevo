@@ -24,7 +24,7 @@ export function AnimatedAmount({
 
     const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches
       ? 1
-      : 320;
+      : 220;
     const started = performance.now();
     let frame = 0;
     const tick = (now: number) => {

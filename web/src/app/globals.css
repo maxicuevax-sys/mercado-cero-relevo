@@ -49,6 +49,7 @@
   --mc-motion-base: 220ms;
   --mc-motion-slow: 300ms;
   --mc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --mc-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   /* El sidebar crece con la raíz tipográfica: a 200 % no comprime sus labels. */
   --sidebar-width: 13.75rem;
 }
@@ -162,16 +163,30 @@ button {
 @keyframes sheet-in {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(18px) scale(0.985);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
 .sheet-in {
-  animation: sheet-in 220ms var(--mc-ease) both;
+  animation: sheet-in 220ms var(--mc-ease-out) both;
+  will-change: transform, opacity;
+}
+
+@keyframes sheet-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sheet-backdrop {
+  animation: sheet-backdrop-in 140ms linear both;
 }
 
 @keyframes draft-in {
@@ -186,22 +201,26 @@ button {
 }
 
 .draft-item {
-  animation: draft-in 240ms var(--mc-ease) both;
+  animation: draft-in 180ms var(--mc-ease-out) both;
 }
 
 @keyframes result-in {
-  from {
+  0% {
     opacity: 0;
-    transform: scale(0.86);
+    transform: scale(1.08) rotate(-1.5deg);
   }
-  to {
+  55% {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(0.98) rotate(0.3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
   }
 }
 
 .result-in {
-  animation: result-in 260ms var(--mc-ease) both;
+  animation: result-in 240ms var(--mc-ease-out) both;
 }
 
 .split-fields {
@@ -482,7 +501,146 @@ button {
 
 .bar-grow {
   transform-origin: bottom;
-  animation: bar-grow 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: bar-grow 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Movimiento de mostrador: rápido, con causa y sin bloquear la tarea.         */
+/* -------------------------------------------------------------------------- */
+
+/* El cambio de tab se siente como una hoja que se asienta: opacidad corta;
+   el encabezado y la lista hacen el resto del gesto en cascada. */
+@keyframes tab-panel-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.tab-panel {
+  animation: tab-panel-in 160ms linear both;
+}
+
+@keyframes heading-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    clip-path: inset(0 0 92% 0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0);
+  }
+}
+
+.heading-in {
+  animation: heading-in 240ms var(--mc-ease-out) both;
+}
+
+/* La lista aparece como lista: stagger corto y acotado, no una coreografía. */
+@keyframes list-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.motion-list > * {
+  animation: list-item-in 180ms var(--mc-ease-out) both;
+}
+
+.motion-list > :nth-child(2) {
+  animation-delay: 12ms;
+}
+
+.motion-list > :nth-child(3) {
+  animation-delay: 24ms;
+}
+
+.motion-list > :nth-child(4) {
+  animation-delay: 36ms;
+}
+
+.motion-list > :nth-child(5) {
+  animation-delay: 48ms;
+}
+
+.motion-list > :nth-child(6) {
+  animation-delay: 60ms;
+}
+
+.motion-list > :nth-child(7) {
+  animation-delay: 72ms;
+}
+
+.motion-list > :nth-child(n + 8) {
+  animation-delay: 84ms;
+}
+
+/* Scroll trigger nativo: una veta de papel que avanza con la lectura.
+   Sin soporte, no se pinta; nunca estorba. */
+.scroll-progress {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 70;
+  height: 2px;
+  pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-terracotta)
+  );
+  opacity: 0.9;
+}
+
+@keyframes scroll-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@supports (animation-timeline: scroll(root block)) {
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-progress {
+      animation: scroll-progress linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
+}
+
+/* Aparición al entrar en viewport, solo donde el scroll ya es narrativo:
+   la actividad y el pie. El contenido queda visible si no hay soporte. */
+@keyframes view-reveal {
+  from {
+    opacity: 0.92;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .view-reveal {
+      animation: view-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -490,8 +648,10 @@ button {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
     scroll-behavior: auto !important;
   }
 }

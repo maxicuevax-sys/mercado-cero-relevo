@@ -543,10 +543,20 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
         page.wait_for_timeout(500)
         page.get_by_role("button", name="Registrar abono").first.click()
         page.wait_for_timeout(400)
+        # El estado “Elegido” solo existe después de elegir método; hay que
+        # medirlo y pasarle axe, no solo la hoja vacía.
+        page.get_by_role("dialog").get_by_text("Efectivo", exact=True).click()
+        page.wait_for_timeout(200)
         record["fiadoSheet"] = measure(page, "fiado-sheet")
-        record["fiadoSheetText200"] = measure_text200(page, "fiado-sheet-text-200", f"fiado-sheet-{w}-text200")
+        record["fiadoSheetAxe"] = run_axe(page)
+        record["fiadoSheetText200"] = measure_text200(
+            page, "fiado-sheet-text-200", f"fiado-sheet-{w}-text200", with_axe=True
+        )
         shot(page, f"fiado-sheet-{w}")
         page.keyboard.press("Escape")
+        page.wait_for_timeout(250)
+        if page.get_by_role("button", name="Descartar abono").count():
+            page.get_by_role("button", name="Descartar abono").click()
         page.wait_for_timeout(300)
 
         page.locator("button:visible", has_text="Corte").first.click()

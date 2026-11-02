@@ -569,7 +569,7 @@ export function PendingTasksPanel({
             id={resolvedHeadingId}
             data-sheet-fallback
             tabIndex={-1}
-            className="min-w-0 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none"
+            className="heading-in min-w-0 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none"
           >
             Pendientes
           </h1>
@@ -825,7 +825,7 @@ export function PendingTasksPanel({
           </button>
         </div>
       ) : (
-        <ul aria-label="Pendientes abiertos" className="space-y-3">
+        <ul aria-label="Pendientes abiertos" className="motion-list space-y-3">
           {openTasks.map((task) => {
             const due = dueMeta(task, now);
             const isBusy = busyId === task.id;
@@ -1124,7 +1124,7 @@ export function PendingTasksPanel({
               Aún no has completado pendientes.
             </p>
           ) : (
-            <ul aria-label="Pendientes hechos" className="space-y-2">
+            <ul aria-label="Pendientes hechos" className="motion-list space-y-2">
               {doneTasks.map((task) => (
                 <li
                   key={task.id}

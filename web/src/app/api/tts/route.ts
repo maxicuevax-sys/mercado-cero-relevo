@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync } from "node:fs";
 import { readFile, rename } from "node:fs/promises";
 import path from "node:path";
+import { toSpeechText } from "@/lib/speech";
 
 const ROOT = process.cwd();
 const PIPER_DIR = process.env.PIPER_DIR ?? path.join(ROOT, "data", "piper");
@@ -21,23 +22,6 @@ const FIXED_KOKORO: Record<string, string> = {
   "Revisa el abono de 50 pesos a Juan.": "revisa-abono-50-juan.wav",
   "Abono de 50 pesos a Juan. Saldo: cero pesos.": "abono-50-juan.wav",
 };
-
-/** Convierte montos escritos ("$1,800.00") en texto que se entiende al oírlo. */
-function toSpeechText(text: string): string {
-  const withPesos = text.replace(
-    /\$\s?(\d[\d,]*(?:\.\d{1,2})?)/g,
-    (_match, raw: string) => {
-      const [wholeRaw, centsRaw = ""] = raw.replace(/,/g, "").split(".");
-      const whole = Number(wholeRaw);
-      if (!Number.isFinite(whole)) return raw;
-      const cents = Number(centsRaw.padEnd(2, "0").slice(0, 2));
-      if (!cents) return whole === 0 ? "cero pesos" : `${whole} pesos`;
-      if (!whole) return `${cents} centavos`;
-      return `${whole} pesos con ${cents} centavos`;
-    },
-  );
-  return withPesos.replace(/\s+/g, " ").trim();
-}
 
 const inflight = new Map<string, Promise<string>>();
 const buckets = new Map<string, { count: number; reset: number }>();

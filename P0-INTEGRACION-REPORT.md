@@ -15,7 +15,7 @@ Los tres módulos ya construidos quedaron conectados en `web/src/components/caja
 - **P0-G:** quinto tab **Pendientes** en sidebar y tab bar, con `PendingTasksPanel` montado en el `main`.
 - **P0-C.1:** consultas de fiado que suman varias deudas, método de abono tomado del parser y venta mixta con remanente digital cobrable desde el panel.
 
-**E2E:** `web/scripts/p0-integracion-e2e.py` — **46 PASS · 0 FAIL · 0 KNOWN** en `:3101` con DB temporal. Ninguna petición a `:3000`.
+**E2E:** `web/scripts/p0-integracion-e2e.py` — **51 PASS · 0 FAIL · 0 KNOWN** en `:3101` con DB temporal. Ninguna petición a `:3000`. (La cifra 46 era el corte original; §8 recoge las correcciones y el guard de voz.)
 
 ---
 
@@ -182,7 +182,7 @@ corte por cerrado:
 - El polling de 45 s no se espera en el E2E; se prueban `focus` y `visibilitychange`.
 - El remanente digital mixto se probó con `demo_paid`/demo, no con pey real.
 - `fulfilled` también cierra ventas con fiado/mixto; el estado sirve para “cobro resuelto”,
-  no prueba entrega. No hay `paid` fuera del webhook.
+  no prueba entrega. No hay `paid` **digital** fuera del webhook; el efectivo se registra como pagado al crear la venta.
 - TalkBack/VoiceOver, teléfono físico y zoom real siguen sin probar.
 - Un pedido `cancelled` con fiado no está excluido explícitamente del panel de cobro.
 - El timeout de `/api/dashboard` es de 20 s y no tiene backoff.

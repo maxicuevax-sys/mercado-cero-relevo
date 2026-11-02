@@ -1869,6 +1869,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
       />
 
       <div className="app-main">
+        <div className="scroll-progress" aria-hidden="true" />
         <TopBar
           merchant={merchant}
           today={today}
@@ -1912,7 +1913,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
               </button>
             </div>
           ) : null}
-          <div hidden={tab !== "caja"}>
+          <div hidden={tab !== "caja"} className="tab-panel">
             <div className="caja-layout">
               <section className="min-w-0">
                 <ScreenHeading
@@ -2097,7 +2098,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
             </div>
           </div>
 
-          <section hidden={tab !== "fiado"} className="mx-auto max-w-[760px]">
+          <section hidden={tab !== "fiado"} className="tab-panel mx-auto max-w-[760px]">
               <ScreenHeading
                 title="Fiado"
                 headingId="fiado-heading"
@@ -2135,7 +2136,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
               />
             </section>
 
-          <section hidden={tab !== "corte"} className="mx-auto max-w-[1000px]">
+          <section hidden={tab !== "corte"} className="tab-panel mx-auto max-w-[1000px]">
               <ScreenHeading
                 title="Corte de caja"
                 headingId="corte-heading"
@@ -2154,7 +2155,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
               </div>
             </section>
 
-          <section hidden={tab !== "meta"} className="mx-auto max-w-[760px]">
+          <section hidden={tab !== "meta"} className="tab-panel mx-auto max-w-[760px]">
               <ScreenHeading
                 title="Meta"
                 headingId="meta-heading"
@@ -2164,7 +2165,7 @@ export default function CajaApp({ initialDemoMode }: { initialDemoMode: boolean 
               <GoalCard showToast={showToast} />
             </section>
 
-          <section hidden={tab !== "pendientes"} className="mx-auto max-w-[820px]">
+          <section hidden={tab !== "pendientes"} className="tab-panel mx-auto max-w-[820px]">
               <PendingTasksPanel key={tasksResetKey} headingId="pendientes-heading" />
             </section>
 
@@ -2524,7 +2525,7 @@ function CajaPanel(props: {
 
           <div className="min-w-[7rem] flex-1 pt-1">
             {transcript ? (
-              <div className="rounded-xl border-l-4 border-accent bg-surface-2 px-3 py-2 text-sm leading-relaxed text-ink">
+              <div className="rounded-xl border border-separator bg-surface-2 px-3 py-2 text-sm leading-relaxed text-ink">
                 {transcript}
               </div>
             ) : (
@@ -4511,7 +4512,7 @@ function ActivityList({
   const failedWithoutData = Boolean(error) && orders.length === 0;
 
   return (
-    <div className="rounded-2xl border border-separator bg-surface p-4 shadow-card sm:p-5">
+    <div className="view-reveal rounded-2xl border border-separator bg-surface p-4 shadow-card sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-ink-2">Actividad</p>
@@ -4524,7 +4525,7 @@ function ActivityList({
         </span>
       </div>
 
-      <div className="mt-3 max-h-80 space-y-1 overflow-y-auto pr-1">
+      <div className="motion-list mt-3 max-h-80 space-y-1 overflow-y-auto pr-1">
         {loading && orders.length === 0 ? (
           Array.from({ length: 3 }).map((_, index) => (
             <div key={index} className="shimmer h-14 rounded-xl" />
@@ -4736,7 +4737,7 @@ function CreditList({
           <p className="mt-1 text-sm text-ink-2">Cuando apuntes uno, aparecerá aquí.</p>
         </div>
       ) : (
-        <div className="space-y-2.5">
+        <div className="motion-list space-y-2.5">
           {credits.map((credit) => (
             <div key={credit.id} className="rounded-2xl border border-separator bg-surface p-4">
               <div className="flex flex-wrap items-center gap-3">
@@ -4990,7 +4991,7 @@ function CreditPaySheet({
                     <Icon className="h-4 w-4" />
                     {option.label}
                     {selected ? (
-                      <span className="text-[0.625rem] font-bold uppercase tracking-wide text-green">
+                      <span className="text-xs font-bold uppercase tracking-wide text-green">
                         Elegido
                       </span>
                     ) : null}
@@ -5379,7 +5380,7 @@ function ScreenHeading({
           id={headingId}
           data-sheet-fallback
           tabIndex={-1}
-          className="screen-heading__title text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none"
+          className="screen-heading__title heading-in text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none"
         >
           {title}
         </h1>
@@ -5691,7 +5692,7 @@ function Sheet({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-ink/40 p-0 backdrop-blur-[2px] sm:items-center sm:p-4"
+      className="sheet-backdrop fixed inset-0 z-[60] flex items-end justify-center bg-ink/40 p-0 backdrop-blur-[2px] sm:items-center sm:p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           event.preventDefault();

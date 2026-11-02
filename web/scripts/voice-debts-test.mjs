@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
+import { toSpeechText } from "../src/lib/speech.ts";
 import { answerDebtQuery } from "../src/lib/voice-debts.ts";
 import { mockParse } from "../src/lib/voice-local.ts";
 
@@ -216,4 +217,15 @@ test("una venta normal sigue siendo venta y no lleva método de abono", () => {
   const paidSale = mockParse("dos quesadillas, me pagó con 100");
   assert.equal(paidSale.intent, "sale");
   assert.equal(paidSale.creditMethod, null);
+});
+
+test("el TTS convierte montos con y sin signo de pesos", () => {
+  assert.equal(
+    toSpeechText("Escuché 70.00 pesos. ¿Confirmas?"),
+    "Escuché 70 pesos. ¿Confirmas?",
+  );
+  assert.equal(toSpeechText("Cuesta $50.50."), "Cuesta 50 pesos con 50 centavos.");
+  assert.equal(toSpeechText("Saldo: $0.00."), "Saldo: cero pesos.");
+  assert.equal(toSpeechText("Hoy $1,800.00."), "Hoy 1800 pesos.");
+  assert.equal(toSpeechText("Son 0.00 pesos."), "Son cero pesos.");
 });
