@@ -64,7 +64,7 @@ function pctChange(current: number, previous: number): number | null {
 function orderRows(startIso: string, endIso: string, includeDemo: boolean): OrderRow[] {
   const demoFilter = includeDemo
     ? ""
-    : "AND status != 'demo_paid' AND id NOT LIKE 'demo_%'";
+    : "AND demo = 0 AND status != 'demo_paid' AND id NOT LIKE 'demo_%'";
   return getDb()
     .prepare(
       `SELECT id, total_cents, paid_cents, credit_cents, status, created_at
@@ -96,7 +96,7 @@ function seriesFor(
   const start = startOfMexicoDay(days - 1);
   const demoFilter = includeDemo
     ? ""
-    : "AND status != 'demo_paid' AND id NOT LIKE 'demo_%'";
+    : "AND demo = 0 AND status != 'demo_paid' AND id NOT LIKE 'demo_%'";
   const rows = getDb()
     .prepare(
       `SELECT date(created_at, '-6 hours') AS day,
@@ -156,7 +156,7 @@ export function getAnalytics(period: AnalyticsPeriod): AnalyticsReport {
 
   const payments = getDb()
     .prepare(
-      `SELECT p.method, p.provider, p.amount_cents
+      `SELECT p.method, p.provider, p.amount_cents, p.demo
        FROM payments p
        WHERE p.status = 'paid'
          AND p.created_at >= ? AND p.created_at < ?`,
@@ -165,11 +165,12 @@ export function getAnalytics(period: AnalyticsPeriod): AnalyticsReport {
     method: string;
     provider: string;
     amount_cents: number;
+    demo: number;
   }>;
 
   const creditPayments = getDb()
     .prepare(
-      `SELECT cp.method, cp.provider, cp.amount_cents
+      `SELECT cp.method, cp.provider, cp.amount_cents, cp.demo
        FROM credit_payments cp
        WHERE cp.created_at >= ? AND cp.created_at < ?`,
     )
@@ -177,6 +178,7 @@ export function getAnalytics(period: AnalyticsPeriod): AnalyticsReport {
     method: string;
     provider: string;
     amount_cents: number;
+    demo: number;
   }>;
 
   let cashCents = 0;
@@ -188,7 +190,10 @@ export function getAnalytics(period: AnalyticsPeriod): AnalyticsReport {
 
   for (const payment of payments) {
     const amount = Number(payment.amount_cents);
-    if (payment.provider === "demo") {
+    if (
+      payment.provider === "demo" ||
+      (!includeDemo && Number(payment.demo) === 1)
+    ) {
       if (payment.method === "cash") demoCashCents += amount;
       else demoDigitalCents += amount;
       continue;
@@ -200,7 +205,10 @@ export function getAnalytics(period: AnalyticsPeriod): AnalyticsReport {
 
   for (const payment of creditPayments) {
     const amount = Number(payment.amount_cents);
-    if (payment.provider === "demo") {
+    if (
+      payment.provider === "demo" ||
+      (!includeDemo && Number(payment.demo) === 1)
+    ) {
       if (payment.method === "cash") demoCashCents += amount;
       else demoDigitalCents += amount;
       continue;
@@ -220,7 +228,7 @@ export function getAnalytics(period: AnalyticsPeriod): AnalyticsReport {
          COALESCE(SUM(balance_cents), 0) AS total,
          COALESCE(SUM(
            CASE
-             WHEN id LIKE 'demo_seed_%' OR order_id LIKE 'demo_%' THEN balance_cents
+             WHEN id LIKE 'demo_seed_%' OR order_id LIKE 'demo_%' OR demo = 1 THEN balance_cents
              ELSE 0
            END
          ), 0) AS demo_total
@@ -246,7 +254,7 @@ export function getAnalytics(period: AnalyticsPeriod): AnalyticsReport {
 
   const demoFilter = includeDemo
     ? ""
-    : "AND status != 'demo_paid' AND id NOT LIKE 'demo_%'";
+    : "AND demo = 0 AND status != 'demo_paid' AND id NOT LIKE 'demo_%'";
   const bestHourRow = getDb()
     .prepare(
       `SELECT CAST(strftime('%H', created_at, '-6 hours') AS INTEGER) AS hour,

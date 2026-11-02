@@ -1,6 +1,7 @@
 import { isDemoMode } from "./config";
 import { audit, getDb, newId, nowIso } from "./db";
 import { ConflictError, NotFoundError, ValidationError } from "./errors";
+import { requestPayloadHash } from "./request-hash";
 import type { Goal } from "./types";
 
 export const MAX_GOAL_TITLE_CHARS = 120;
@@ -132,19 +133,44 @@ export function contributeToGoal(
       "request_id_too_long",
     );
   }
+  const requestHash = request
+    ? requestPayloadHash({ goalId, amountCents: amount, note: cleanNote })
+    : null;
 
   const database = getDb();
   let committed = false;
   database.exec("BEGIN IMMEDIATE");
   try {
-    if (request) {
+    if (request && requestHash) {
       const existing = database
-        .prepare("SELECT goal_id FROM goal_contributions WHERE request_id = ?")
-        .get(request) as { goal_id: string } | undefined;
+        .prepare(
+          "SELECT goal_id, amount_cents, note, request_hash FROM goal_contributions WHERE request_id = ?",
+        )
+        .get(request) as
+        | {
+            goal_id: string;
+            amount_cents: number;
+            note: string | null;
+            request_hash: string | null;
+          }
+        | undefined;
       if (existing) {
         if (existing.goal_id !== goalId) {
           throw new ConflictError(
             "Ese requestId ya se usó en otra meta. No se registró nada.",
+            "request_id_conflict",
+          );
+        }
+        const storedHash =
+          existing.request_hash ??
+          requestPayloadHash({
+            goalId: existing.goal_id,
+            amountCents: Number(existing.amount_cents),
+            note: existing.note ?? null,
+          });
+        if (storedHash !== requestHash) {
+          throw new ConflictError(
+            "Ese requestId ya se usó con otro monto o nota. No se registró nada.",
             "request_id_conflict",
           );
         }
@@ -165,9 +191,9 @@ export function contributeToGoal(
 
     database
       .prepare(
-        "INSERT INTO goal_contributions (id, goal_id, amount_cents, note, request_id, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO goal_contributions (id, goal_id, amount_cents, note, request_id, request_hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
       )
-      .run(newId("gctr"), goalId, amount, cleanNote, request, nowIso());
+      .run(newId("gctr"), goalId, amount, cleanNote, request, requestHash, nowIso());
     database
       .prepare("UPDATE goals SET saved_cents = saved_cents + ? WHERE id = ?")
       .run(amount, goalId);

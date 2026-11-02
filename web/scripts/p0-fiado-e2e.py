@@ -804,9 +804,10 @@ def main() -> int:
             second_pay = page.request.post(
                 f"{BASE}/api/credits/{juan['id']}/pay",
                 data={
-                    "amountCents": 3000,
-                    "method": "codi",
+                    "amountCents": 2000,
+                    "method": "cash",
                     "requestId": request_id,
+                    "expectedBalanceCents": 3000,
                 },
             )
             second_data = second_pay.json()
@@ -816,7 +817,7 @@ def main() -> int:
                 (juan["id"],),
             )
             check(
-                "reintentar con otro monto no duplica ni inventa devuelto",
+                "reintentar el mismo payload devuelve duplicate=true sin duplicar",
                 second_pay.status == 200
                 and second_data.get("duplicate") is True
                 and second_data.get("appliedCents") == 2000
@@ -827,6 +828,24 @@ def main() -> int:
                 and stored_request
                 and stored_request[0][0] == request_id,
                 json.dumps({"rows": rows, "second": second_data})[:340],
+            )
+            changed_pay = page.request.post(
+                f"{BASE}/api/credits/{juan['id']}/pay",
+                data={
+                    "amountCents": 3000,
+                    "method": "codi",
+                    "requestId": request_id,
+                },
+            )
+            changed_data = changed_pay.json()
+            rows_after = credit_payments(juan["id"])
+            check(
+                "otro monto con el mismo requestId responde request_id_conflict",
+                changed_pay.status == 409
+                and changed_data.get("code") == "request_id_conflict"
+                and len(rows_after) == 1
+                and rows_after[0]["amountCents"] == 2000,
+                f"{changed_pay.status} · {json.dumps(changed_data)[:260]}",
             )
 
             # 8b · La misma requestId en otro fiado no se acepta.

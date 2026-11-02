@@ -4,18 +4,21 @@ import {
   getCredit,
   getDb,
   getOrder,
-  getOrderByRequestId,
+  getOrderRequestMatch,
   listPayments,
   newId,
   nowIso,
 } from "./db";
+import { MERCHANT, isDemoMode } from "./config";
 import { ConflictError, NotFoundError, ValidationError } from "./errors";
 import { formatMxn } from "./format";
 import { assertPaymentProvider, coveredStatus } from "./payment-rules";
+import { requestPayloadHash } from "./request-hash";
 import type {
   CreateOrderInput,
   Credit,
   Order,
+  OrderStatus,
   Payment,
   PaymentMethod,
 } from "./types";
@@ -38,6 +41,27 @@ function normalizeRequestId(value: string | null | undefined): string | null {
     );
   }
   return requestId;
+}
+
+/**
+ * Un requestId solo es idempotente si el payload es el mismo. Si la llave ya
+ * existe con otro hash, responde 409 en lugar de devolver un pedido viejo.
+ * Los pedidos migrados sin hash se aceptan como reintento (no conocemos su
+ * payload original).
+ */
+function findOrderForRequest(
+  requestId: string,
+  requestHash: string,
+): Order | null {
+  const match = getOrderRequestMatch(requestId, MERCHANT.id);
+  if (!match) return null;
+  if (match.requestHash !== null && match.requestHash !== requestHash) {
+    throw new ConflictError(
+      "Ese identificador de solicitud ya se usó con otros datos. No se creó otro pedido.",
+      "request_id_conflict",
+    );
+  }
+  return match.order;
 }
 
 export interface OrderDetail {
@@ -143,12 +167,25 @@ export function createOrder(input: CreateOrderInput): Order {
   }
   const customerName = rawCustomerName || null;
 
+  const requestHash = requestId
+    ? requestPayloadHash({
+        items: items.map((item) => ({
+          description: item.description,
+          quantity: item.quantity,
+          unitPriceCents: item.unitPriceCents,
+        })),
+        cashCents,
+        creditCents,
+        customerName,
+      })
+    : null;
+
   const database = getDb();
 
   // Reintento con la misma llave antes de abrir transacción: el caso normal
   // de un doble POST (o de una respuesta perdida) no vuelve a escribir nada.
-  if (requestId) {
-    const existing = getOrderByRequestId(requestId);
+  if (requestId && requestHash) {
+    const existing = findOrderForRequest(requestId, requestHash);
     if (existing) return existing;
   }
 
@@ -159,8 +196,8 @@ export function createOrder(input: CreateOrderInput): Order {
   database.exec("BEGIN IMMEDIATE");
   try {
     // Otra petición pudo ganar entre la lectura y el lock.
-    if (requestId) {
-      const raced = getOrderByRequestId(requestId);
+    if (requestId && requestHash) {
+      const raced = findOrderForRequest(requestId, requestHash);
       if (raced) {
         database.exec("COMMIT");
         committed = true;
@@ -171,12 +208,12 @@ export function createOrder(input: CreateOrderInput): Order {
     database
       .prepare(
         `INSERT INTO orders
-         (id, merchant_id, status, total_cents, paid_cents, payment_method, customer_name, credit_cents, request_id, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (id, merchant_id, status, total_cents, paid_cents, payment_method, customer_name, credit_cents, request_id, request_hash, demo, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .run(
         id,
-        "lupita",
+        MERCHANT.id,
         "confirmed",
         totalCents,
         cashCents,
@@ -184,6 +221,8 @@ export function createOrder(input: CreateOrderInput): Order {
         customerName,
         creditCents,
         requestId,
+        requestHash,
+        isDemoMode() ? 1 : 0,
         createdAt,
         createdAt,
       );
@@ -206,10 +245,20 @@ export function createOrder(input: CreateOrderInput): Order {
     if (cashCents > 0) {
       database
         .prepare(
-          `INSERT INTO payments (id, order_id, provider, method, amount_cents, status, transaction_id, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO payments (id, order_id, provider, method, amount_cents, status, transaction_id, demo, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
-        .run(newId("pay"), id, "cash", "cash", cashCents, "paid", null, createdAt);
+        .run(
+          newId("pay"),
+          id,
+          "cash",
+          "cash",
+          cashCents,
+          "paid",
+          null,
+          isDemoMode() ? 1 : 0,
+          createdAt,
+        );
     }
 
     let creditId: string | null = null;
@@ -218,10 +267,20 @@ export function createOrder(input: CreateOrderInput): Order {
       creditId = newId("cred");
       database
         .prepare(
-          `INSERT INTO credits (id, customer_id, order_id, original_cents, balance_cents, status, due_date, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO credits (id, customer_id, order_id, original_cents, balance_cents, status, due_date, demo, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
-        .run(creditId, customer.id, id, creditCents, creditCents, "open", null, createdAt);
+        .run(
+          creditId,
+          customer.id,
+          id,
+          creditCents,
+          creditCents,
+          "open",
+          null,
+          isDemoMode() ? 1 : 0,
+          createdAt,
+        );
       database
         .prepare("UPDATE orders SET credit_id = ?, customer_name = ? WHERE id = ?")
         .run(creditId, customer.name, id);
@@ -263,6 +322,8 @@ export function createOrder(input: CreateOrderInput): Order {
   return created;
 }
 
+const COVERED_ORDER_STATUSES = new Set(["paid", "demo_paid", "fulfilled"]);
+
 export function attachPaymentLink(
   orderId: string,
   link: { id: string; url: string },
@@ -272,11 +333,30 @@ export function attachPaymentLink(
   database.exec("BEGIN IMMEDIATE");
   try {
     const row = database
-      .prepare("SELECT payment_url, payment_link_id FROM orders WHERE id = ?")
+      .prepare(
+        "SELECT status, total_cents, paid_cents, credit_cents, payment_url, payment_link_id FROM orders WHERE id = ?",
+      )
       .get(orderId) as
-      | { payment_url: string | null; payment_link_id: string | null }
+      | {
+          status: string;
+          total_cents: number;
+          paid_cents: number;
+          credit_cents: number;
+          payment_url: string | null;
+          payment_link_id: string | null;
+        }
       | undefined;
     if (!row) throw new NotFoundError("Pedido no encontrado.", "order_not_found");
+
+    // Un cobro tardío no puede degradar un pedido ya pagado o entregado.
+    // Se devuelve tal cual, sin escribir el link.
+    if (COVERED_ORDER_STATUSES.has(row.status)) {
+      database.exec("COMMIT");
+      committed = true;
+      const existing = getOrder(orderId);
+      if (!existing) throw new NotFoundError("Pedido no encontrado.", "order_not_found");
+      return existing;
+    }
 
     // Si otro POST ganó la carrera, devolvemos el link ya adjunto.
     if (row.payment_url) {
@@ -287,12 +367,19 @@ export function attachPaymentLink(
       return existing;
     }
 
+    // Solo se marca `payment_pending` si de verdad queda saldo por cobrar.
+    const outstandingCents =
+      Number(row.total_cents) - Number(row.paid_cents) - Number(row.credit_cents);
+    const nextStatus = outstandingCents > 0 ? "payment_pending" : row.status;
     database
       .prepare(
-        "UPDATE orders SET payment_link_id = ?, payment_url = ?, status = 'payment_pending', updated_at = ? WHERE id = ?",
+        "UPDATE orders SET payment_link_id = ?, payment_url = ?, status = ?, updated_at = ? WHERE id = ?",
       )
-      .run(link.id, link.url, nowIso(), orderId);
-    audit("payment_link.attached", "order", orderId, link);
+      .run(link.id, link.url, nextStatus, nowIso(), orderId);
+    audit("payment_link.attached", "order", orderId, {
+      ...link,
+      status: nextStatus,
+    });
     database.exec("COMMIT");
     committed = true;
   } finally {
@@ -320,9 +407,28 @@ export function attachQr(
   database.exec("BEGIN IMMEDIATE");
   try {
     const row = database
-      .prepare("SELECT qr_string FROM orders WHERE id = ?")
-      .get(orderId) as { qr_string: string | null } | undefined;
+      .prepare(
+        "SELECT status, total_cents, paid_cents, credit_cents, qr_string FROM orders WHERE id = ?",
+      )
+      .get(orderId) as
+      | {
+          status: string;
+          total_cents: number;
+          paid_cents: number;
+          credit_cents: number;
+          qr_string: string | null;
+        }
+      | undefined;
     if (!row) throw new NotFoundError("Pedido no encontrado.", "order_not_found");
+
+    // Igual que el link: nunca se revierte un pedido pagado o entregado.
+    if (COVERED_ORDER_STATUSES.has(row.status)) {
+      database.exec("COMMIT");
+      committed = true;
+      const existing = getOrder(orderId);
+      if (!existing) throw new NotFoundError("Pedido no encontrado.", "order_not_found");
+      return existing;
+    }
 
     if (row.qr_string) {
       database.exec("COMMIT");
@@ -344,12 +450,19 @@ export function attachQr(
       );
     }
 
+    const outstandingCents =
+      Number(row.total_cents) - Number(row.paid_cents) - Number(row.credit_cents);
+    const nextStatus = outstandingCents > 0 ? "payment_pending" : row.status;
     database
       .prepare(
-        "UPDATE orders SET qr_id = ?, qr_string = ?, qr_image = ?, num_ref = ?, status = 'payment_pending', updated_at = ? WHERE id = ?",
+        "UPDATE orders SET qr_id = ?, qr_string = ?, qr_image = ?, num_ref = ?, status = ?, updated_at = ? WHERE id = ?",
       )
-      .run(qr.id, qr.qrString, qr.qrImage, numRef, nowIso(), orderId);
-    audit("codi_qr.attached", "order", orderId, { id: qr.id, numRef });
+      .run(qr.id, qr.qrString, qr.qrImage, numRef, nextStatus, nowIso(), orderId);
+    audit("codi_qr.attached", "order", orderId, {
+      id: qr.id,
+      numRef,
+      status: nextStatus,
+    });
     database.exec("COMMIT");
     committed = true;
   } finally {
@@ -383,73 +496,200 @@ export function recordPayment(
   const order = getOrder(orderId);
   if (!order) throw new Error("Pedido no encontrado.");
 
+  // Un reintento con la misma transacción no debe volver a insertar, pero sí
+  // puede reparar una orden que quedó con `paid_cents` viejo por un fallo
+  // anterior entre el INSERT del pago y el UPDATE de la orden.
   if (input.transactionId) {
     const existing = database
       .prepare("SELECT id FROM payments WHERE transaction_id = ?")
       .get(input.transactionId) as { id: string } | undefined;
-    if (existing) return order;
+    if (existing) return healOrderFromPayments(database, orderId, "duplicate_transaction");
   }
 
   const amountCents = Math.max(0, Math.round(input.amountCents));
   if (amountCents <= 0) return order;
 
+  // SAVEPOINT funciona igual en autocommit que dentro de la transacción del
+  // webhook: el INSERT del pago, el UPDATE de la orden y la auditoría son una
+  // sola unidad. Si el UPDATE falla, el pago no queda huérfano.
+  database.exec("SAVEPOINT payment_record");
+  let released = false;
   try {
-    database
-      .prepare(
-        `INSERT INTO payments
-         (id, order_id, provider, method, amount_cents, status, transaction_id, payment_link_id, raw_event, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      )
-      .run(
-        newId("pay"),
-        orderId,
-        provider,
-        input.method,
-        amountCents,
-        "paid",
-        input.transactionId,
-        input.paymentLinkId ?? null,
-        input.rawEvent ?? null,
-        nowIso(),
-      );
-  } catch (error) {
-    if (error instanceof Error && error.message.includes("UNIQUE")) {
-      return order;
+    if (input.transactionId) {
+      const raced = database
+        .prepare("SELECT id FROM payments WHERE transaction_id = ?")
+        .get(input.transactionId) as { id: string } | undefined;
+      if (raced) {
+        database.exec("RELEASE SAVEPOINT payment_record");
+        released = true;
+        return healOrderFromPayments(database, orderId, "duplicate_transaction");
+      }
     }
-    throw error;
+
+    try {
+      database
+        .prepare(
+          `INSERT INTO payments
+           (id, order_id, provider, method, amount_cents, status, transaction_id, payment_link_id, raw_event, demo, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .run(
+          newId("pay"),
+          orderId,
+          provider,
+          input.method,
+          amountCents,
+          "paid",
+          input.transactionId,
+          input.paymentLinkId ?? null,
+          input.rawEvent ?? null,
+          provider === "demo" || isDemoMode() ? 1 : 0,
+          nowIso(),
+        );
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("UNIQUE")) {
+        database.exec("ROLLBACK TO SAVEPOINT payment_record");
+        database.exec("RELEASE SAVEPOINT payment_record");
+        released = true;
+        return healOrderFromPayments(database, orderId, "transaction_race");
+      }
+      throw error;
+    }
+
+    const totals = recalculateOrderTotals(database, orderId);
+    audit("payment.recorded", "order", orderId, {
+      amountCents,
+      method: input.method,
+      provider,
+      transactionId: input.transactionId,
+      status: totals.status,
+    });
+
+    database.exec("RELEASE SAVEPOINT payment_record");
+    released = true;
+  } finally {
+    if (!released) {
+      try {
+        database.exec("ROLLBACK TO SAVEPOINT payment_record");
+        database.exec("RELEASE SAVEPOINT payment_record");
+      } catch {
+        // Si SQLite ya cerró la transacción, conservamos el error original.
+      }
+    }
   }
 
+  return getOrder(orderId)!;
+}
+
+/**
+ * Recalcula `paid_cents`, método y estado desde la tabla `payments`. Se usa
+ * para curar una orden cuyo pago sí quedó guardado pero cuyo UPDATE no llegó
+ * a ejecutarse. Nunca degrada un pedido `fulfilled`.
+ */
+function recalculateOrderTotals(
+  database: ReturnType<typeof getDb>,
+  orderId: string,
+): { paidCents: number; method: PaymentMethod; status: OrderStatus; changed: boolean } {
+  const row = database
+    .prepare(
+      "SELECT total_cents, credit_cents, paid_cents, payment_method, status FROM orders WHERE id = ?",
+    )
+    .get(orderId) as
+    | {
+        total_cents: number;
+        credit_cents: number;
+        paid_cents: number;
+        payment_method: PaymentMethod | null;
+        status: OrderStatus;
+      }
+    | undefined;
+  if (!row) throw new Error("Pedido no encontrado.");
+
   const sum = database
-    .prepare("SELECT COALESCE(SUM(amount_cents), 0) AS total FROM payments WHERE order_id = ? AND status = 'paid'")
+    .prepare(
+      "SELECT COALESCE(SUM(amount_cents), 0) AS total FROM payments WHERE order_id = ? AND status = 'paid'",
+    )
     .get(orderId) as { total: number };
   const paidCents = Number(sum.total);
   const methods = database
-    .prepare("SELECT DISTINCT method FROM payments WHERE order_id = ? AND status = 'paid'")
-    .all(orderId) as Array<{ method: string }>;
-  const method = methods.length > 1 ? "mixed" : (methods[0]?.method as PaymentMethod) ?? input.method;
-
-  const coveredCents = paidCents + order.creditCents;
-  // `fulfilled` ya no se escribe aquí. Un pedido cubierto con fiado sigue
-  // mostrando su deuda; entregar es una acción explícita y separada.
-  const status =
-    coveredCents >= order.totalCents
-      ? coveredStatus(provider)
-      : "partially_paid";
-  database
     .prepare(
-      "UPDATE orders SET paid_cents = ?, status = ?, payment_method = ?, updated_at = ? WHERE id = ?",
+      "SELECT DISTINCT method FROM payments WHERE order_id = ? AND status = 'paid'",
     )
-    .run(paidCents, status, method, nowIso(), orderId);
+    .all(orderId) as Array<{ method: string }>;
+  const method =
+    methods.length > 1
+      ? "mixed"
+      : ((methods[0]?.method as PaymentMethod) ?? row.payment_method ?? "unknown");
 
-  audit("payment.recorded", "order", orderId, {
-    amountCents,
-    method: input.method,
-    provider,
-    transactionId: input.transactionId,
-    status,
-  });
+  const latestProvider = database
+    .prepare(
+      `SELECT provider FROM payments
+       WHERE order_id = ? AND status = 'paid'
+       ORDER BY created_at DESC, rowid DESC LIMIT 1`,
+    )
+    .get(orderId) as { provider: string } | undefined;
 
-  return getOrder(orderId)!;
+  const coveredCents = paidCents + Number(row.credit_cents);
+  let status: OrderStatus;
+  if (row.status === "fulfilled") {
+    status = "fulfilled";
+  } else if (coveredCents >= Number(row.total_cents)) {
+    // Nunca `fulfilled`: entregar sigue siendo una acción explícita.
+    status = coveredStatus(latestProvider?.provider === "demo" ? "demo" : "pey");
+  } else if (paidCents > 0) {
+    status = "partially_paid";
+  } else {
+    status = row.status;
+  }
+
+  const changed =
+    paidCents !== Number(row.paid_cents) ||
+    method !== (row.payment_method ?? null) ||
+    status !== row.status;
+  if (changed) {
+    database
+      .prepare(
+        "UPDATE orders SET paid_cents = ?, status = ?, payment_method = ?, updated_at = ? WHERE id = ?",
+      )
+      .run(paidCents, status, method, nowIso(), orderId);
+  }
+
+  return { paidCents, method, status, changed };
+}
+
+function healOrderFromPayments(
+  database: ReturnType<typeof getDb>,
+  orderId: string,
+  reason: string,
+): Order {
+  database.exec("SAVEPOINT payment_heal");
+  let released = false;
+  try {
+    const totals = recalculateOrderTotals(database, orderId);
+    if (totals.changed) {
+      audit("payment.reconciled", "order", orderId, {
+        reason,
+        paidCents: totals.paidCents,
+        method: totals.method,
+        status: totals.status,
+      });
+    }
+    database.exec("RELEASE SAVEPOINT payment_heal");
+    released = true;
+  } finally {
+    if (!released) {
+      try {
+        database.exec("ROLLBACK TO SAVEPOINT payment_heal");
+        database.exec("RELEASE SAVEPOINT payment_heal");
+      } catch {
+        // Si SQLite ya cerró la transacción, conservamos el error original.
+      }
+    }
+  }
+
+  const healed = getOrder(orderId);
+  if (!healed) throw new Error("Pedido no encontrado.");
+  return healed;
 }
 
 export type CreditPaymentConflictCode =
@@ -513,21 +753,55 @@ export function recordCreditPayment(
     throw new ValidationError("El abono debe ser mayor a cero.");
   }
   const request = requestId?.trim() || null;
+  const cleanNote = note?.trim() || null;
+  const requestHash = request
+    ? requestPayloadHash({
+        creditId,
+        amountCents: requestedCents,
+        method,
+        note: cleanNote,
+      })
+    : null;
 
   database.exec("BEGIN IMMEDIATE");
   let committed = false;
   try {
-    if (request) {
+    if (request && requestHash) {
       const existing = database
         .prepare(
-          "SELECT credit_id, amount_cents FROM credit_payments WHERE request_id = ?",
+          "SELECT credit_id, amount_cents, method, note, request_hash FROM credit_payments WHERE request_id = ?",
         )
-        .get(request) as { credit_id: string; amount_cents: number } | undefined;
+        .get(request) as
+        | {
+            credit_id: string;
+            amount_cents: number;
+            method: string;
+            note: string | null;
+            request_hash: string | null;
+          }
+        | undefined;
       if (existing) {
         if (existing.credit_id !== creditId) {
           throw new CreditPaymentConflict(
             "request_id_conflict",
             "Ese requestId ya se usó en otro fiado. No se registró nada.",
+            null,
+          );
+        }
+        // Un requestId repetido solo es idempotente si el abono es el mismo.
+        // Si cambió el monto, el método o la nota, es una llave reutilizada.
+        const storedHash =
+          existing.request_hash ??
+          requestPayloadHash({
+            creditId: existing.credit_id,
+            amountCents: Number(existing.amount_cents),
+            method: existing.method,
+            note: existing.note ?? null,
+          });
+        if (storedHash !== requestHash) {
+          throw new CreditPaymentConflict(
+            "request_id_conflict",
+            "Ese requestId ya se usó con otro monto o método. No se registró nada.",
             null,
           );
         }
@@ -586,8 +860,8 @@ export function recordCreditPayment(
     database
       .prepare(
         `INSERT INTO credit_payments
-         (id, credit_id, amount_cents, method, provider, note, request_id, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+         (id, credit_id, amount_cents, method, provider, note, request_id, request_hash, demo, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .run(
         newId("cp"),
@@ -595,8 +869,10 @@ export function recordCreditPayment(
         appliedCents,
         method,
         provider,
-        note?.trim() || null,
+        cleanNote,
         request,
+        requestHash,
+        isDemoMode() ? 1 : 0,
         nowIso(),
       );
 
@@ -610,7 +886,7 @@ export function recordCreditPayment(
       overpayCents,
       method,
       provider,
-      note: note?.trim() || null,
+      note: cleanNote,
       requestId: request,
       newBalance,
     });
@@ -643,6 +919,14 @@ export function fulfillOrder(orderId: string): Order | null {
   const order = getOrder(orderId);
   if (!order) return null;
   if (order.status === "fulfilled") return order;
+  // Un pago simulado no es una entrega real. La UI no debe leer “Entregado”
+  // sobre `demo_paid`; se deja explícito que esa transición no existe.
+  if (order.status === "demo_paid") {
+    throw new ConflictError(
+      "Un pago demo no se puede marcar como entregado. Es una simulación.",
+      "demo_not_deliverable",
+    );
+  }
   // La entrega no puede adelantarse a una deuda abierta. Un fiado saldado sí
   // puede entregarse explícitamente, pero nunca se marca solo.
   const credit = order.creditId ? getCredit(order.creditId) : null;
@@ -655,7 +939,6 @@ export function fulfillOrder(orderId: string): Order | null {
   const coveredCents = order.paidCents + order.creditCents;
   const canDeliver =
     order.status === "paid" ||
-    order.status === "demo_paid" ||
     (order.status === "confirmed" && coveredCents >= order.totalCents);
   if (!canDeliver) {
     throw new ConflictError(

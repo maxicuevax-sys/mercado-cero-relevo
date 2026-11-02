@@ -86,6 +86,7 @@ function seedOldDatabase() {
         difference_cents INTEGER NOT NULL DEFAULT 0,
         base_next_cents INTEGER NOT NULL DEFAULT 0,
         withdrawal_next_cents INTEGER NOT NULL DEFAULT 0,
+        request_id TEXT,
         created_at TEXT NOT NULL,
         UNIQUE(date, version)
       );
@@ -106,20 +107,68 @@ function seedOldDatabase() {
         created_at TEXT NOT NULL
       );
     `);
-    db.prepare(
+    const insertClose = db.prepare(
       `INSERT INTO cash_closes
-       (id, date, version, opening_cents, counted_cents, created_at)
-       VALUES ('cash_overlap', '2020-01-01', 1, 1000, 1000, '2020-01-01T00:00:00.000Z')`,
-    ).run();
+       (id, date, version, opening_cents, counted_cents, request_id, created_at)
+       VALUES (?, ?, 1, ?, ?, ?, ?)`,
+    );
+    // Misma fila, legacy más nueva: debe actualizar sin mover de versión.
+    insertClose.run(
+      "cash_overlap",
+      "2020-01-01",
+      1000,
+      1000,
+      null,
+      "2020-01-01T00:00:00.000Z",
+    );
+    // Existente más nuevo que la legacy: la legacy entra como versión nueva.
+    insertClose.run(
+      "cash_old",
+      "2020-02-01",
+      7000,
+      7000,
+      null,
+      "2020-02-01T02:00:00.000Z",
+    );
+    // Mismo id en otra fecha: la fila existente no se borra ni se mueve.
+    insertClose.run(
+      "cash_move",
+      "2020-03-01",
+      8000,
+      8000,
+      null,
+      "2020-03-01T01:00:00.000Z",
+    );
+    // Duplicado de request_id antes del índice único.
+    insertClose.run(
+      "cash_dup_a",
+      "2020-04-01",
+      1000,
+      1000,
+      "cash-dup-key",
+      "2020-04-01T00:00:00.000Z",
+    );
+    insertClose.run(
+      "cash_dup_b",
+      "2020-04-02",
+      1200,
+      1200,
+      "cash-dup-key",
+      "2020-04-02T00:00:01.000Z",
+    );
     const legacy = db.prepare(
       `INSERT INTO cash_closes_legacy
        (id, date, version, opening_cents, counted_cents, created_at)
-       VALUES (?, '2020-01-01', 1, ?, ?, ?)`,
+       VALUES (?, ?, 1, ?, ?, ?)`,
     );
-    // Misma PK que la tabla versionada: debe actualizar, no ignorar.
-    legacy.run("cash_overlap", 2000, 2000, "2020-01-01T00:00:00.000Z");
+    // Misma PK que la tabla versionada y más nueva: debe actualizar.
+    legacy.run("cash_overlap", "2020-01-01", 2000, 2000, "2020-01-01T00:00:05.000Z");
     // Misma (date, version) que otra fila: debe subir a v2.
-    legacy.run("cash_extra", 3000, 3000, "2020-01-01T00:00:01.000Z");
+    legacy.run("cash_extra", "2020-01-01", 3000, 3000, "2020-01-01T00:00:06.000Z");
+    // Misma PK, misma versión, legacy más vieja: no debe pisar la existente.
+    legacy.run("cash_old", "2020-02-01", 6000, 6000, "2020-02-01T01:00:00.000Z");
+    // Misma PK en otra fecha: no debe mover ni borrar la versión existente.
+    legacy.run("cash_move", "2020-03-02", 9000, 9000, "2020-03-02T02:00:00.000Z");
   } finally {
     db.close();
   }
@@ -274,21 +323,44 @@ async function main() {
     check("migración: crea el índice único de request_id", Number(cpIndex[0].n) === 1);
 
     const cashRows = rows(
-      "SELECT id, version, counted_cents FROM cash_closes WHERE date = '2020-01-01' ORDER BY version",
+      "SELECT id, date, version, counted_cents, request_id FROM cash_closes ORDER BY date, version",
     );
+    const closeBy = Object.fromEntries(cashRows.map((row) => [row.id, row]));
     check(
-      "migración: upsert de la legacy por id conserva la fila y actualiza datos",
-      cashRows.some(
-        (row) => row.id === "cash_overlap" && Number(row.version) === 1 && Number(row.counted_cents) === 2000,
-      ),
-      JSON.stringify(cashRows),
+      "migración: legacy más nueva actualiza la misma fila y conserva su id",
+      closeBy.cash_overlap?.date === "2020-01-01" &&
+        Number(closeBy.cash_overlap.version) === 1 &&
+        Number(closeBy.cash_overlap.counted_cents) === 2000,
+      JSON.stringify(closeBy.cash_overlap),
     );
     check(
       "migración: la legacy que choca en (date, version) sube a v2",
-      cashRows.some(
-        (row) => row.id === "cash_extra" && Number(row.version) === 2 && Number(row.counted_cents) === 3000,
-      ),
-      JSON.stringify(cashRows),
+      Number(closeBy.cash_extra?.version) === 2 &&
+        Number(closeBy.cash_extra.counted_cents) === 3000,
+      JSON.stringify(closeBy.cash_extra),
+    );
+    const oldRows = cashRows.filter((row) => row.date === "2020-02-01");
+    const oldV1 = oldRows.find((row) => Number(row.version) === 1);
+    const oldV2 = oldRows.find((row) => Number(row.version) === 2);
+    check(
+      "migración: una legacy más vieja no pisa la versión existente",
+      oldV1?.id === "cash_old" &&
+        Number(oldV1.counted_cents) === 7000 &&
+        oldV2?.id !== "cash_old" &&
+        Number(oldV2?.counted_cents) === 6000,
+      JSON.stringify(oldRows),
+    );
+    check(
+      "migración: una legacy con el mismo id en otra fecha no mueve la existente",
+      closeBy.cash_move?.date === "2020-03-01" &&
+        Number(closeBy.cash_move.counted_cents) === 8000 &&
+        cashRows.some(
+          (row) =>
+            row.date === "2020-03-02" &&
+            row.id !== "cash_move" &&
+            Number(row.counted_cents) === 9000,
+        ),
+      JSON.stringify(cashRows.filter((row) => row.date.startsWith("2020-03"))),
     );
     const legacyLeft = rows(
       "SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'table' AND name = 'cash_closes_legacy'",
@@ -297,7 +369,30 @@ async function main() {
     const cashAudit = rows(
       "SELECT COUNT(*) AS n FROM audit_log WHERE action = 'cash_close.legacy_merged'",
     );
-    check("migración: audita el merge de legacy", Number(cashAudit[0].n) === 2);
+    check("migración: audita cada fila del merge de legacy", Number(cashAudit[0].n) === 4);
+    const cashDupRows = rows(
+      "SELECT id, request_id FROM cash_closes WHERE id IN ('cash_dup_a', 'cash_dup_b') ORDER BY id",
+    );
+    check(
+      "migración: deduplica request_id de cash_closes y conserva la primera",
+      cashDupRows[0]?.request_id === "cash-dup-key" &&
+        cashDupRows[1]?.request_id === null,
+      JSON.stringify(cashDupRows),
+    );
+    const cashDupAudit = rows(
+      "SELECT COUNT(*) AS n FROM audit_log WHERE action = 'cash_close.request_id_deduped'",
+    );
+    check(
+      "migración: audita el request_id repetido de cash_closes",
+      Number(cashDupAudit[0].n) === 1,
+    );
+    const cashRequestIndex = rows(
+      "SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'index' AND name = 'idx_cash_closes_request_id'",
+    );
+    check(
+      "migración: crea el índice único de request_id de cash_closes",
+      Number(cashRequestIndex[0].n) === 1,
+    );
 
     // ---------------------------------------------------------------------
     // 2 · createOrder idempotente, atómico y con límites.
@@ -325,6 +420,99 @@ async function main() {
       "SELECT COUNT(*) AS n FROM orders WHERE request_id = 'contrato-order-idem'",
     );
     check("createOrder: la DB tiene una sola fila con esa llave", Number(idemRows[0].n) === 1);
+
+    const conflictPayload = {
+      items: [{ description: "Conflicto", quantity: 1, unitPriceCents: 5000 }],
+      cashCents: 5000,
+      requestId: "contrato-order-conflict",
+    };
+    const conflictA = await api("/api/orders", {
+      method: "POST",
+      body: conflictPayload,
+    });
+    const conflictSame = await api("/api/orders", {
+      method: "POST",
+      body: conflictPayload,
+    });
+    const conflictChanged = await api("/api/orders", {
+      method: "POST",
+      body: {
+        items: [{ description: "Conflicto", quantity: 1, unitPriceCents: 6000 }],
+        cashCents: 6000,
+        requestId: "contrato-order-conflict",
+      },
+    });
+    const conflictCustomer = await api("/api/orders", {
+      method: "POST",
+      body: { ...conflictPayload, customerName: "Otra persona" },
+    });
+    const conflictRows = rows(
+      "SELECT id, total_cents FROM orders WHERE request_id = 'contrato-order-conflict'",
+    );
+    check(
+      "createOrder: el mismo payload sigue siendo idempotente (201)",
+      conflictA.status === 201 &&
+        conflictSame.status === 201 &&
+        conflictA.json?.order?.id === conflictSame.json?.order?.id,
+      `${conflictA.status}/${conflictSame.status}`,
+    );
+    check(
+      "createOrder: otro monto con el mismo requestId responde 409 request_id_conflict",
+      conflictChanged.status === 409 &&
+        conflictChanged.json?.code === "request_id_conflict",
+      `${conflictChanged.status} · ${conflictChanged.json?.code ?? ""}`,
+    );
+    check(
+      "createOrder: otro cliente con el mismo requestId responde 409",
+      conflictCustomer.status === 409 &&
+        conflictCustomer.json?.code === "request_id_conflict",
+      `${conflictCustomer.status} · ${conflictCustomer.json?.code ?? ""}`,
+    );
+    check(
+      "createOrder: el conflicto no escribe otra orden ni cambia el total",
+      conflictRows.length === 1 && Number(conflictRows[0].total_cents) === 5000,
+      JSON.stringify(conflictRows),
+    );
+
+    // La llave de pedido está scopeada por comercio: el índice compuesto
+    // permite que otro comercio use el mismo requestId.
+    const merchantRequestId = "contrato-merchant-scope";
+    let merchantInsertError = "";
+    try {
+      const now = new Date().toISOString();
+      withDb((db) => {
+        db.prepare(
+          `INSERT INTO orders
+           (id, merchant_id, status, total_cents, request_id, created_at, updated_at)
+           VALUES (?, 'otra', 'confirmed', 100, ?, ?, ?)`,
+        ).run("ord_otra_merchant", merchantRequestId, now, now);
+      });
+    } catch (error) {
+      merchantInsertError = String(error);
+    }
+    const scopedOrder = await api("/api/orders", {
+      method: "POST",
+      body: {
+        items: [{ description: "Scope", quantity: 1, unitPriceCents: 2500 }],
+        cashCents: 2500,
+        requestId: merchantRequestId,
+      },
+    });
+    const scopedRows = rows(
+      "SELECT id, merchant_id FROM orders WHERE request_id = ? ORDER BY merchant_id",
+      [merchantRequestId],
+    );
+    check(
+      "createOrder: el mismo requestId en otro comercio no rompe el índice",
+      !merchantInsertError &&
+        scopedOrder.status === 201 &&
+        scopedOrder.json?.order?.id !== "ord_otra_merchant" &&
+        scopedRows.length === 2,
+      `${scopedOrder.status} · ${merchantInsertError || JSON.stringify(scopedRows)}`,
+    );
+    withDb((db) => {
+      db.prepare("DELETE FROM orders WHERE request_id = ?").run(merchantRequestId);
+    });
 
     const zeroTotal = await api("/api/orders", {
       method: "POST",
@@ -571,11 +759,77 @@ async function main() {
       `${reusedKey.status} · saved=${secondSaved}`,
     );
 
+    const goalConflictRequest = "contrato-goal-conflict";
+    const goalConflictPayload = {
+      amountCents: 700,
+      note: "Conflicto de meta",
+      requestId: goalConflictRequest,
+    };
+    const goalSavedBefore = Number(
+      rows("SELECT saved_cents FROM goals WHERE id = ?", [goalId])[0].saved_cents,
+    );
+    const goalConflictA = await api(`/api/goals/${goalId}/contribute`, {
+      method: "POST",
+      body: goalConflictPayload,
+    });
+    const goalConflictSame = await api(`/api/goals/${goalId}/contribute`, {
+      method: "POST",
+      body: goalConflictPayload,
+    });
+    const goalSavedAfterSame = Number(
+      rows("SELECT saved_cents FROM goals WHERE id = ?", [goalId])[0].saved_cents,
+    );
+    const goalConflictAmount = await api(`/api/goals/${goalId}/contribute`, {
+      method: "POST",
+      body: { ...goalConflictPayload, amountCents: 800 },
+    });
+    const goalConflictNote = await api(`/api/goals/${goalId}/contribute`, {
+      method: "POST",
+      body: { ...goalConflictPayload, note: "Otra nota" },
+    });
+    const goalSavedAfterConflict = Number(
+      rows("SELECT saved_cents FROM goals WHERE id = ?", [goalId])[0].saved_cents,
+    );
+    check(
+      "metas: el mismo payload sigue siendo idempotente",
+      goalConflictA.status === 200 &&
+        goalConflictSame.status === 200 &&
+        goalSavedAfterSame === goalSavedBefore + 700,
+      `${goalConflictA.status}/${goalConflictSame.status} · saved=${goalSavedAfterSame}`,
+    );
+    check(
+      "metas: otro monto con el mismo requestId responde 409 request_id_conflict",
+      goalConflictAmount.status === 409 &&
+        goalConflictAmount.json?.code === "request_id_conflict",
+      `${goalConflictAmount.status} · ${goalConflictAmount.json?.code ?? ""}`,
+    );
+    check(
+      "metas: otra nota con el mismo requestId responde 409",
+      goalConflictNote.status === 409 &&
+        goalConflictNote.json?.code === "request_id_conflict",
+      `${goalConflictNote.status} · ${goalConflictNote.json?.code ?? ""}`,
+    );
+    check(
+      "metas: los conflictos no inflan el ahorro",
+      goalSavedAfterConflict === goalSavedAfterSame,
+      `después=${goalSavedAfterConflict}`,
+    );
+
     const missingGoal = await api("/api/goals/goal_no_existe/contribute", {
+      method: "POST",
+      body: { amountCents: 1000, requestId: "contrato-goal-missing" },
+    });
+    check("metas: meta inexistente responde 404", missingGoal.status === 404, String(missingGoal.status));
+
+    const missingRequestId = await api(`/api/goals/${goalId}/contribute`, {
       method: "POST",
       body: { amountCents: 1000 },
     });
-    check("metas: meta inexistente responde 404", missingGoal.status === 404, String(missingGoal.status));
+    check(
+      "metas: aportación sin requestId responde 400",
+      missingRequestId.status === 400,
+      String(missingRequestId.status),
+    );
 
     const savedBeforeFailure = Number(
       rows("SELECT saved_cents FROM goals WHERE id = ?", [goalId])[0].saved_cents,
@@ -643,6 +897,50 @@ async function main() {
       check(
         "fiado: el reintento no inserta otro abono",
         Number(creditRows[0].n) === 1,
+      );
+
+      const creditConflictRequest = "contrato-credit-conflict";
+      const creditConflictPayload = {
+        amountCents: 100,
+        method: "cash",
+        note: "Conflicto de fiado",
+        requestId: creditConflictRequest,
+      };
+      const creditConflictA = await api(`/api/credits/${openCredit.id}/pay`, {
+        method: "POST",
+        body: creditConflictPayload,
+      });
+      const creditConflictSame = await api(`/api/credits/${openCredit.id}/pay`, {
+        method: "POST",
+        body: creditConflictPayload,
+      });
+      const creditConflictAmount = await api(`/api/credits/${openCredit.id}/pay`, {
+        method: "POST",
+        body: { ...creditConflictPayload, amountCents: 200 },
+      });
+      const creditConflictRows = rows(
+        "SELECT amount_cents FROM credit_payments WHERE request_id = ?",
+        [creditConflictRequest],
+      );
+      check(
+        "fiado: el mismo payload devuelve duplicate=true sin duplicar",
+        creditConflictA.status === 200 &&
+          creditConflictA.json?.duplicate === false &&
+          creditConflictSame.status === 200 &&
+          creditConflictSame.json?.duplicate === true,
+        `${creditConflictA.status}/${creditConflictSame.status}`,
+      );
+      check(
+        "fiado: otro monto con el mismo requestId responde 409 request_id_conflict",
+        creditConflictAmount.status === 409 &&
+          creditConflictAmount.json?.code === "request_id_conflict",
+        `${creditConflictAmount.status} · ${creditConflictAmount.json?.code ?? ""}`,
+      );
+      check(
+        "fiado: el conflicto no inserta otro abono",
+        creditConflictRows.length === 1 &&
+          Number(creditConflictRows[0].amount_cents) === 100,
+        JSON.stringify(creditConflictRows),
       );
     }
 

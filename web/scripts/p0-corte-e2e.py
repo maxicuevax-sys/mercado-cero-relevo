@@ -95,7 +95,7 @@ def port_in_use(port: int) -> bool:
         return sock.connect_ex(("127.0.0.1", port)) == 0
 
 
-MIGRATION_PORT = next(
+MIGRATION_PORT = int(os.environ.get("P0_MIGRATION_PORT", "0")) or next(
     (port for port in (3131, 3133, 3199) if port != PORT and not port_in_use(port)),
     0,
 )

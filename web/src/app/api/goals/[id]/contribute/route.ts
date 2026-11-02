@@ -16,7 +16,13 @@ import {
 const contributionSchema = z.object({
   amountCents: z.number().int().positive().max(MAX_GOAL_CONTRIBUTION_CENTS),
   note: z.string().max(MAX_GOAL_NOTE_CHARS).nullable().optional(),
-  requestId: z.string().trim().max(MAX_REQUEST_ID_CHARS).optional(),
+  // Obligatorio para que dos POST concurrentes no sumen dos veces. Un doble
+  // clic reenvía la misma llave y el servidor devuelve la meta sin duplicar.
+  requestId: z
+    .string({ error: "Falta la llave de la aportación." })
+    .trim()
+    .min(1, "La llave de la aportación no puede estar vacía.")
+    .max(MAX_REQUEST_ID_CHARS),
 });
 
 export async function POST(

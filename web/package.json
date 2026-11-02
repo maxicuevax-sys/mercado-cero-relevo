@@ -14,7 +14,7 @@
     "lighthouse:mobile": "node scripts/lighthouse-mobile.mjs",
     "perf:mobile": "python scripts/perf-mobile.py",
     "test:voice": "node --no-warnings --test scripts/voice-debts-test.mjs",
-    "test:fix-datos": "node scripts/p0-fix-datos-contract.mjs",
+    "test:fix-datos": "node scripts/p0-fix-datos-contract.mjs && node scripts/p0-db-guards-contract.mjs && node scripts/p0-orders-atomic-contract.mjs",
     "test:security": "node --no-warnings scripts/security-contract.mjs",
     "test:harness": "node --test scripts/harness-gate.test.mjs scripts/check-deps.test.mjs scripts/evidence-integrity.test.mjs",
     "test:perf-data": "node scripts/perf-data-contract.mjs",

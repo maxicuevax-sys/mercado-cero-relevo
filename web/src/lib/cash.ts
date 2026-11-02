@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { isDemoMode } from "./config";
 import { audit, getDailySummary, getDb, newId, nowIso } from "./db";
 import { mexicoDateKey, startOfMexicoDay } from "./time";
 import type { CashClose, CashClosePreview, CashStatus } from "./types";
@@ -107,6 +108,14 @@ function normalizeCents(value: number): number {
   return Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
 }
 
+/**
+ * Un corte guardado en demo no se puede leer como corte real si la misma base
+ * se reutiliza con DEMO_MODE=false. La marca `demo` se escribe al guardar.
+ */
+function visibleCloseFilter(): string {
+  return isDemoMode() ? "" : "AND demo = 0";
+}
+
 function mapClose(row: CashCloseRow): CashClose {
   return {
     id: row.id,
@@ -135,7 +144,8 @@ function mapClose(row: CashCloseRow): CashClose {
 export function listCashCloses(date: string, limit = 5): CashClose[] {
   const rows = getDb()
     .prepare(
-      "SELECT * FROM cash_closes WHERE date = ? ORDER BY version DESC LIMIT ?",
+      `SELECT * FROM cash_closes WHERE date = ? ${visibleCloseFilter()}
+       ORDER BY version DESC LIMIT ?`,
     )
     .all(date, limit) as unknown as CashCloseRow[];
   return rows.map(mapClose);
@@ -145,7 +155,8 @@ export function listCashCloses(date: string, limit = 5): CashClose[] {
 export function getCashClose(date: string): CashClose | null {
   const row = getDb()
     .prepare(
-      "SELECT * FROM cash_closes WHERE date = ? ORDER BY version DESC LIMIT 1",
+      `SELECT * FROM cash_closes WHERE date = ? ${visibleCloseFilter()}
+       ORDER BY version DESC LIMIT 1`,
     )
     .get(date) as unknown as CashCloseRow | undefined;
   return row ? mapClose(row) : null;
@@ -154,14 +165,16 @@ export function getCashClose(date: string): CashClose | null {
 /** Lectura por id: nunca devuelve “la última” después de un COMMIT ajeno. */
 export function getCashCloseById(id: string): CashClose | null {
   const row = getDb()
-    .prepare("SELECT * FROM cash_closes WHERE id = ?")
+    .prepare(`SELECT * FROM cash_closes WHERE id = ? ${visibleCloseFilter()}`)
     .get(id) as unknown as CashCloseRow | undefined;
   return row ? mapClose(row) : null;
 }
 
 export function getCashCloseByRequestId(requestId: string): CashClose | null {
   const row = getDb()
-    .prepare("SELECT * FROM cash_closes WHERE request_id = ?")
+    .prepare(
+      `SELECT * FROM cash_closes WHERE request_id = ? ${visibleCloseFilter()}`,
+    )
     .get(requestId) as unknown as CashCloseRow | undefined;
   return row ? mapClose(row) : null;
 }
@@ -174,7 +187,8 @@ function listCashClosesForHistory(date: string): CashClose[] {
   const latest = listCashCloses(date, 5);
   const firstRow = getDb()
     .prepare(
-      "SELECT * FROM cash_closes WHERE date = ? ORDER BY version ASC LIMIT 1",
+      `SELECT * FROM cash_closes WHERE date = ? ${visibleCloseFilter()}
+       ORDER BY version ASC LIMIT 1`,
     )
     .get(date) as unknown as CashCloseRow | undefined;
   if (!firstRow) return latest;
@@ -199,7 +213,7 @@ export function getCashStatus(): CashStatus {
         const previous = database
           .prepare(
             `SELECT base_next_cents FROM cash_closes
-             WHERE date < ?
+             WHERE date < ? ${visibleCloseFilter()}
              ORDER BY date DESC, version DESC LIMIT 1`,
           )
           .get(date) as unknown as { base_next_cents: number } | undefined;
@@ -208,12 +222,13 @@ export function getCashStatus(): CashStatus {
 
   // El efectivo demo nunca es efectivo real. Los abonos digitales tampoco
   // entran aquí, aunque su provider sea “declared”.
+  const demoFilter = isDemoMode() ? "" : "AND demo = 0";
   const cashSales = database
     .prepare(
       `SELECT COALESCE(SUM(amount_cents), 0) AS total
        FROM payments
        WHERE status IN ('paid', 'demo_paid') AND method = 'cash'
-         AND provider != 'demo'
+         AND provider != 'demo' ${demoFilter}
          AND created_at >= ? AND created_at < ?`,
     )
     .get(startIso, endIso) as unknown as { total: number };
@@ -222,7 +237,7 @@ export function getCashStatus(): CashStatus {
     .prepare(
       `SELECT COALESCE(SUM(amount_cents), 0) AS total
        FROM credit_payments
-       WHERE method = 'cash' AND provider != 'demo'
+       WHERE method = 'cash' AND provider != 'demo' ${demoFilter}
          AND created_at >= ? AND created_at < ?`,
     )
     .get(startIso, endIso) as unknown as { total: number };
@@ -397,6 +412,15 @@ export function closeCash(input: CashCloseInput): CashClose {
     }
 
     const version = currentVersion + 1;
+    // En una base demo reutilizada en real, una versión demo oculta puede
+    // ocupar (date, version). La nueva versión real salta por encima de todas
+    // las filas de la fecha para no chocar con el índice único.
+    const maxAnyVersion = database
+      .prepare(
+        "SELECT COALESCE(MAX(version), 0) AS version FROM cash_closes WHERE date = ?",
+      )
+      .get(date) as { version: number };
+    const nextVersion = Math.max(version, Number(maxAnyVersion.version) + 1);
     const summary = getDailySummary();
     closeId = newId("cash");
 
@@ -407,13 +431,13 @@ export function closeCash(input: CashCloseInput): CashClose {
           expenses_cents, withdrawals_cents, expected_cents, counted_cents,
           difference_cents, base_next_cents, withdrawal_next_cents,
           snapshot_cash_cents, snapshot_credit_cents, snapshot_pending_digital_cents,
-          snapshot_known, reason, request_id, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)`,
+          snapshot_known, reason, request_id, demo, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)`,
       )
       .run(
         closeId,
         date,
-        version,
+        nextVersion,
         preview.openingCents,
         status.cashSalesCents,
         status.cashCreditCents,
@@ -429,12 +453,13 @@ export function closeCash(input: CashCloseInput): CashClose {
         summary.pendingCents,
         existing ? cleanReason : null,
         requestId,
+        isDemoMode() ? 1 : 0,
         nowIso(),
       );
 
     audit("cash.close", "cash_close", closeId, {
       date,
-      version,
+      version: nextVersion,
       reason: existing ? cleanReason : null,
       requestId,
       expectedVersion: input.expectedVersion,
