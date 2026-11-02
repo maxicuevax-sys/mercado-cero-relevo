@@ -162,7 +162,7 @@ npm run harness:report    # tabla Markdown desde latest.json
 
 `verify:evidence` comprueba, entre otras cosas:
 
-- `schemaVersion >= 2`, `mode` `full`/`static` (o `fast` con `--allow-fast`), `partial:false`.
+- `schemaVersion === 2`, `mode` `full`/`static` (o `fast` con `--allow-fast`), `partial:false`.
 - `complete:true`, `ok:true`, `error:null`.
 - `gitAtStart.sha === HEAD`, `gitAtStart.dirty === false`.
 - `gitAtEnd.sha === gitAtStart.sha`, `gitAtEnd.dirty === false`.

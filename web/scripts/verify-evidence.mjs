@@ -168,8 +168,8 @@ export function validateEvidence(
     : [];
 
   check(
-    "schemaVersion >= 2",
-    Number(evidence.schemaVersion) >= 2,
+    "schemaVersion === 2",
+    Number(evidence.schemaVersion) === 2,
     `schemaVersion=${evidence.schemaVersion}`,
   );
   check(

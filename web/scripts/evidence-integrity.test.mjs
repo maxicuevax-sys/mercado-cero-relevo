@@ -275,7 +275,7 @@ test("evidencia full sin reset de truth falla", () => {
   assert.equal(result.ok, false);
 });
 
-test("schemaVersion 1 o sin endedAt falla", () => {
+test("schemaVersion distinto de 2 o sin endedAt falla", () => {
   const oldSchema = makeEvidence("static");
   oldSchema.schemaVersion = 1;
   assert.equal(validate(oldSchema).ok, false);
