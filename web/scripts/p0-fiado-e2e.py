@@ -783,45 +783,100 @@ def main() -> int:
             second_pay = page.request.post(
                 f"{BASE}/api/credits/{juan['id']}/pay",
                 data={
-                    "amountCents": 2000,
-                    "method": "cash",
-                    "requestId": request_id,
-                    "expectedBalanceCents": 5000,
-                },
-            )
-            second_data = second_pay.json()
-            check(
-                "reintentar la misma requestId devuelve el abono existente",
-                second_pay.status == 200
-                and second_data.get("duplicate") is True
-                and second_data.get("appliedCents") == 2000
-                and second_data.get("balanceCents") == 3000,
-                json.dumps(second_data)[:260],
-            )
-            third_pay = page.request.post(
-                f"{BASE}/api/credits/{juan['id']}/pay",
-                data={
                     "amountCents": 3000,
                     "method": "codi",
                     "requestId": request_id,
                 },
             )
-            third_data = third_pay.json()
+            second_data = second_pay.json()
             rows = credit_payments(juan["id"])
             stored_request = db_rows(
                 "SELECT request_id FROM credit_payments WHERE credit_id = ?",
                 (juan["id"],),
             )
             check(
-                "la misma requestId con otro monto tampoco duplica",
-                third_pay.status == 200
-                and third_data.get("duplicate") is True
-                and third_data.get("appliedCents") == 2000
+                "reintentar con otro monto no duplica ni inventa devuelto",
+                second_pay.status == 200
+                and second_data.get("duplicate") is True
+                and second_data.get("appliedCents") == 2000
+                and second_data.get("overpayCents") == 0
+                and second_data.get("balanceCents") == 3000
                 and len(rows) == 1
                 and rows[0]["amountCents"] == 2000
                 and stored_request
                 and stored_request[0][0] == request_id,
-                json.dumps({"rows": rows, "third": third_data})[:320],
+                json.dumps({"rows": rows, "second": second_data})[:340],
+            )
+
+            # 8b · La misma requestId en otro fiado no se acepta.
+            other_order = create_credit_order(page, "Otra Persona", 3000, "Otra deuda")
+            other_credit_id = other_order["creditId"]
+            conflict_pay = page.request.post(
+                f"{BASE}/api/credits/{other_credit_id}/pay",
+                data={"amountCents": 1000, "method": "cash", "requestId": request_id},
+            )
+            conflict_data = conflict_pay.json()
+            check(
+                "la misma requestId en otro fiado responde request_id_conflict",
+                conflict_pay.status == 409
+                and conflict_data.get("code") == "request_id_conflict"
+                and len(credit_payments(other_credit_id)) == 0,
+                f"{conflict_pay.status} · {json.dumps(conflict_data)[:220]}",
+            )
+
+            # 9 · Respuesta perdida: el reintento de la misma hoja no muestra “devuelve”.
+            reset(page)
+            juan = credit_by_name(page, "Juan")
+            open_voice_sheet(page)
+            dialog = page.get_by_role("dialog")
+            lost_request_id: str | None = None
+            pay_bodies.clear()
+
+            def lose_first_response(route):
+                nonlocal lost_request_id
+                try:
+                    body = json.loads(route.request.post_data or "{}")
+                    lost_request_id = body.get("requestId")
+                    route.fetch()
+                finally:
+                    route.abort()
+
+            page.route("**/api/credits/*/pay", lose_first_response)
+            dialog.get_by_role("button", name="Registrar abono").click()
+            try:
+                page.get_by_text(re.compile("Revisa tu conexión")).first.wait_for(timeout=5000)
+                lost_visible = True
+            except Exception:
+                lost_visible = False
+            page.unroute("**/api/credits/*/pay")
+            lost_balance = wait_credit_balance(page, juan["id"], 0)
+            dialog.get_by_role("button", name="Registrar abono").click()
+            try:
+                page.get_by_text("Abono ya registrado").first.wait_for(timeout=5000)
+                duplicate_toast = page.get_by_text("Abono ya registrado").first.inner_text()
+                duplicate_visible = True
+            except Exception:
+                duplicate_toast = ""
+                duplicate_visible = False
+            page.wait_for_timeout(300)
+            rows = credit_payments(juan["id"])
+            check(
+                "una respuesta perdida deja un solo abono y conserva el requestId",
+                lost_visible
+                and lost_request_id is not None
+                and lost_balance.get("balanceCents") == 0
+                and len(rows) == 1
+                and rows[0]["amountCents"] == 5000
+                and len(pay_bodies) >= 2
+                and pay_bodies[-1].get("requestId") == lost_request_id,
+                f"requestId={lost_request_id} · rows={json.dumps(rows)}",
+            )
+            check(
+                "el reintento dice Abono ya registrado sin devuelve",
+                duplicate_visible
+                and "Se aplicaron $50.00" in duplicate_toast
+                and "devuelve" not in duplicate_toast.lower(),
+                duplicate_toast[:260],
             )
 
             # 9 · Chequeo 360 px con artefacto.

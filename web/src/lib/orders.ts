@@ -319,7 +319,9 @@ export function recordCreditPayment(
           credit,
           appliedCents: applied,
           balanceCents: credit.balanceCents,
-          overpayCents: Math.max(0, requestedCents - applied),
+          // No guardamos el monto pedido original. En un reintento no hubo
+          // un nuevo cambio que devolver, así que no inventamos overpay.
+          overpayCents: 0,
           duplicate: true,
         };
         database.exec("COMMIT");

@@ -1567,18 +1567,25 @@ export default function CajaApp() {
           throw new Error("El abono se registró pero no pude leer el saldo nuevo.");
         }
         const appliedCents = data.appliedCents;
-        const overpayCents =
-          typeof data.overpayCents === "number"
+        const overpayCents = data.duplicate
+          ? 0
+          : typeof data.overpayCents === "number"
             ? data.overpayCents
             : Math.max(0, requested - appliedCents);
         const returnedNote =
-          overpayCents > 0
+          !data.duplicate && overpayCents > 0
             ? ` Se aplicaron ${formatMxn(appliedCents)}; devuelve ${formatMxn(overpayCents)}.`
             : "";
-        const duplicateNote = data.duplicate ? " No se duplicó." : "";
+        const duplicateNote = data.duplicate
+          ? ` Se aplicaron ${formatMxn(appliedCents)}. No se duplicó.`
+          : "";
         showToast(
           "ok",
-          `${data.duplicate ? "Abono ya registrado" : "Abono registrado"}.${returnedNote}${duplicateNote} ${
+          `${
+            data.duplicate
+              ? "Abono ya registrado"
+              : "Abono registrado"
+          }.${returnedNote}${duplicateNote} ${
             credit.customerName ?? "Cliente"
           } debe ${formatMxn(data.balanceCents)}.`,
         );
