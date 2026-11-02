@@ -22,7 +22,7 @@ import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const WEB = path.resolve(HERE, "..");
-const PORT = 3121;
+const PORT = Number(process.env.SECURITY_PORT ?? 3191);
 const BASE = `http://127.0.0.1:${PORT}`;
 const ORIGIN = BASE;
 const TOKEN = `sec_test_${Date.now().toString(36)}`;

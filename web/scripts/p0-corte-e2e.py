@@ -44,7 +44,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 BASE = os.environ.get(
     "P0_BASE_URL",
-    os.environ.get("BASE_URL", "http://localhost:3101"),
+    os.environ.get("RUNTIME_BASE_URL", os.environ.get("BASE_URL", "http://localhost:3101")),
 ).rstrip("/")
 PORT = urlparse(BASE).port or 80
 if PORT == 3000:
@@ -98,8 +98,8 @@ def port_in_use(port: int) -> bool:
         return sock.connect_ex(("127.0.0.1", port)) == 0
 
 
-MIGRATION_PORT = next(
-    (port for port in (3131, 3133, 3199) if port != PORT and not port_in_use(port)),
+MIGRATION_PORT = int(os.environ.get("P0_MIGRATION_PORT", "0")) or next(
+    (port for port in (3296, 3297, 3298) if port != PORT and not port_in_use(port)),
     0,
 )
 if MIGRATION_PORT == 0:

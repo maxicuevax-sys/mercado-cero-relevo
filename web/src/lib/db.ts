@@ -54,14 +54,30 @@ function ensureDir() {
 export function getDb(): DatabaseSync {
   if (db) return db;
   ensureDir();
-  db = new DatabaseSync(dbPath);
-  db.exec("PRAGMA journal_mode = WAL;");
-  db.exec("PRAGMA busy_timeout = 5000;");
-  db.exec("PRAGMA foreign_keys = ON;");
-  migrate(db);
-  seed(db);
-  seedGoal(db);
-  seedDemoHistory(db);
+
+  // La conexión solo se publica cuando la migración y el seed terminaron.
+  // Si algo falla, se cierra y `db` sigue en null: la siguiente petición
+  // vuelve a intentar el arranque completo en vez de servir una base a medias.
+  const database = new DatabaseSync(dbPath);
+  try {
+    database.exec("PRAGMA journal_mode = WAL;");
+    database.exec("PRAGMA busy_timeout = 5000;");
+    database.exec("PRAGMA foreign_keys = ON;");
+    migrate(database);
+    seed(database);
+    seedGoal(database);
+    seedDemoHistory(database);
+  } catch (error) {
+    try {
+      database.close();
+    } catch {
+      // La conexión pudo quedar inutilizable; conservamos el error original.
+    }
+    db = null;
+    throw error;
+  }
+
+  db = database;
   return db;
 }
 
@@ -84,6 +100,8 @@ function migrate(database: DatabaseSync) {
       qr_image TEXT,
       num_ref TEXT,
       request_id TEXT,
+      request_hash TEXT,
+      demo INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
@@ -108,6 +126,7 @@ function migrate(database: DatabaseSync) {
       transaction_id TEXT UNIQUE,
       payment_link_id TEXT,
       raw_event TEXT,
+      demo INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL,
       FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
     );
@@ -137,6 +156,7 @@ function migrate(database: DatabaseSync) {
       balance_cents INTEGER NOT NULL,
       status TEXT NOT NULL DEFAULT 'open',
       due_date TEXT,
+      demo INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL,
       FOREIGN KEY (customer_id) REFERENCES customers(id)
     );
@@ -149,6 +169,8 @@ function migrate(database: DatabaseSync) {
       provider TEXT NOT NULL DEFAULT 'cash',
       note TEXT,
       request_id TEXT,
+      request_hash TEXT,
+      demo INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL,
       FOREIGN KEY (credit_id) REFERENCES credits(id) ON DELETE CASCADE
     );
@@ -182,6 +204,7 @@ function migrate(database: DatabaseSync) {
       snapshot_known INTEGER NOT NULL DEFAULT 1,
       reason TEXT,
       request_id TEXT,
+      demo INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL,
       UNIQUE(date, version)
     );
@@ -202,6 +225,7 @@ function migrate(database: DatabaseSync) {
       amount_cents INTEGER NOT NULL,
       note TEXT,
       request_id TEXT,
+      request_hash TEXT,
       created_at TEXT NOT NULL,
       FOREIGN KEY (goal_id) REFERENCES goals(id) ON DELETE CASCADE
     );
@@ -264,17 +288,42 @@ function migrate(database: DatabaseSync) {
   if (!columns.some((column) => column.name === "request_id")) {
     database.exec("ALTER TABLE orders ADD COLUMN request_id TEXT;");
   }
+  if (!columns.some((column) => column.name === "request_hash")) {
+    database.exec("ALTER TABLE orders ADD COLUMN request_hash TEXT;");
+  }
+  if (!columns.some((column) => column.name === "demo")) {
+    database.exec("ALTER TABLE orders ADD COLUMN demo INTEGER NOT NULL DEFAULT 0;");
+  }
+  const paymentColumns = database.prepare("PRAGMA table_info(payments)").all() as Array<{
+    name: string;
+  }>;
+  if (!paymentColumns.some((column) => column.name === "demo")) {
+    database.exec("ALTER TABLE payments ADD COLUMN demo INTEGER NOT NULL DEFAULT 0;");
+  }
   // La llave de idempotencia es opcional: los pedidos viejos quedan NULL.
   // Si un arranque anterior quedó a medias, deduplicamos antes del índice.
+  // El índice viejo era global; ahora la llave se limita al comercio para que
+  // dos comercios puedan usar el mismo requestId sin chocar.
+  database.exec("DROP INDEX IF EXISTS idx_orders_request_id;");
   dedupeRequestIds(database, {
     table: "orders",
-    index: "idx_orders_request_id",
+    index: "idx_orders_merchant_request_id",
+    keyColumns: ["merchant_id", "request_id"],
     action: "order.request_id_deduped",
     entity: "order",
   });
   database.exec(
-    "CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_request_id ON orders(request_id) WHERE request_id IS NOT NULL;",
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_merchant_request_id ON orders(merchant_id, request_id) WHERE request_id IS NOT NULL;",
   );
+
+  const creditColumns = database.prepare("PRAGMA table_info(credits)").all() as Array<{
+    name: string;
+  }>;
+  if (!creditColumns.some((column) => column.name === "demo")) {
+    // Las filas viejas de demo se siguen detectando por sus ids `demo_seed_*`
+    // y por el pedido demo; las nuevas quedan marcadas explícitamente.
+    database.exec("ALTER TABLE credits ADD COLUMN demo INTEGER NOT NULL DEFAULT 0;");
+  }
 
   const eventColumns = database.prepare("PRAGMA table_info(payment_events)").all() as Array<{
     name: string;
@@ -294,6 +343,14 @@ function migrate(database: DatabaseSync) {
   }
   if (!creditPaymentColumns.some((column) => column.name === "request_id")) {
     database.exec("ALTER TABLE credit_payments ADD COLUMN request_id TEXT;");
+  }
+  if (!creditPaymentColumns.some((column) => column.name === "request_hash")) {
+    database.exec("ALTER TABLE credit_payments ADD COLUMN request_hash TEXT;");
+  }
+  if (!creditPaymentColumns.some((column) => column.name === "demo")) {
+    database.exec(
+      "ALTER TABLE credit_payments ADD COLUMN demo INTEGER NOT NULL DEFAULT 0;",
+    );
   }
   if (!creditPaymentColumns.some((column) => column.name === "provider")) {
     database.exec(
@@ -328,6 +385,9 @@ function migrate(database: DatabaseSync) {
   if (!goalContributionColumns.some((column) => column.name === "request_id")) {
     database.exec("ALTER TABLE goal_contributions ADD COLUMN request_id TEXT;");
   }
+  if (!goalContributionColumns.some((column) => column.name === "request_hash")) {
+    database.exec("ALTER TABLE goal_contributions ADD COLUMN request_hash TEXT;");
+  }
   dedupeRequestIds(database, {
     table: "goal_contributions",
     index: "idx_goal_contributions_request_id",
@@ -343,34 +403,46 @@ function migrate(database: DatabaseSync) {
 
 /**
  * Antes de crear un índice único parcial, conserva la primera fila de cada
- * `request_id` repetido y anula la llave de las demás. Es idempotente: si el
- * índice ya existe, no hay nada que deduplicar.
+ * llave repetida y anula la llave de las demás. Es idempotente: si el índice
+ * ya existe, no hay nada que deduplicar.
+ *
+ * Usa un SAVEPOINT para poder ejecutarse dentro de una migración que ya abrió
+ * su propia transacción (por ejemplo, `cash_closes`). Al anular solo la llave
+ * nunca se borran filas ni se tocan montos.
  */
 function dedupeRequestIds(
   database: DatabaseSync,
-  options: { table: string; index: string; action: string; entity: string },
+  options: {
+    table: string;
+    index: string;
+    action: string;
+    entity: string;
+    keyColumns?: string[];
+  },
 ) {
   const indexExists = database
     .prepare("SELECT 1 AS found FROM sqlite_master WHERE type = 'index' AND name = ?")
     .get(options.index) as { found: number } | undefined;
   if (indexExists) return;
 
+  const keyColumns = options.keyColumns ?? ["request_id"];
+  const keyList = keyColumns.join(", ");
   const duplicates = database
     .prepare(
-      `SELECT request_id, COUNT(*) AS n
+      `SELECT ${keyList}, COUNT(*) AS n
        FROM ${options.table}
        WHERE request_id IS NOT NULL
-       GROUP BY request_id
+       GROUP BY ${keyList}
        HAVING COUNT(*) > 1`,
     )
-    .all() as Array<{ request_id: string; n: number }>;
+    .all() as Array<Record<string, string | number>>;
   if (duplicates.length === 0) return;
 
-  database.exec("BEGIN IMMEDIATE");
+  database.exec("SAVEPOINT dedupe_request_ids");
   try {
     const rowsStmt = database.prepare(
       `SELECT id FROM ${options.table}
-       WHERE request_id = ?
+       WHERE ${keyColumns.map((column) => `${column} = ?`).join(" AND ")}
        ORDER BY created_at ASC, rowid ASC`,
     );
     const clearStmt = database.prepare(
@@ -381,7 +453,12 @@ function dedupeRequestIds(
     );
 
     for (const duplicate of duplicates) {
-      const rows = rowsStmt.all(duplicate.request_id) as Array<{ id: string }>;
+      const keyValues = Object.fromEntries(
+        keyColumns.map((column) => [column, duplicate[column]]),
+      );
+      const rows = rowsStmt.all(
+        ...keyColumns.map((column) => duplicate[column]),
+      ) as Array<{ id: string }>;
       const [kept, ...cleared] = rows;
       if (!kept || cleared.length === 0) continue;
       for (const row of cleared) clearStmt.run(row.id);
@@ -391,7 +468,7 @@ function dedupeRequestIds(
         options.entity,
         kept.id,
         JSON.stringify({
-          requestId: duplicate.request_id,
+          ...keyValues,
           keptId: kept.id,
           clearedIds: cleared.map((row) => row.id),
           clearedCount: cleared.length,
@@ -399,14 +476,15 @@ function dedupeRequestIds(
         nowIso(),
       );
       console.warn(
-        `[db] ${options.table}: request_id repetido ${duplicate.request_id}; conservé ${kept.id} y anulé ${cleared.length}.`,
+        `[db] ${options.table}: request_id repetido ${keyValues.request_id}; conservé ${kept.id} y anulé ${cleared.length}.`,
       );
     }
 
-    database.exec("COMMIT");
+    database.exec("RELEASE SAVEPOINT dedupe_request_ids");
   } catch (error) {
     try {
-      database.exec("ROLLBACK");
+      database.exec("ROLLBACK TO SAVEPOINT dedupe_request_ids");
+      database.exec("RELEASE SAVEPOINT dedupe_request_ids");
     } catch {
       // Si SQLite ya cerró la transacción, conservamos el error original.
     }
@@ -472,6 +550,7 @@ function migrateCashCloses(database: DatabaseSync) {
           snapshot_known INTEGER NOT NULL DEFAULT 1,
           reason TEXT,
           request_id TEXT,
+          demo INTEGER NOT NULL DEFAULT 0,
           created_at TEXT NOT NULL,
           UNIQUE(date, version)
         );
@@ -492,9 +571,19 @@ function migrateCashCloses(database: DatabaseSync) {
         CREATE INDEX IF NOT EXISTS idx_cash_closes_date ON cash_closes(date);
         CREATE UNIQUE INDEX IF NOT EXISTS idx_cash_closes_date_version
           ON cash_closes(date, version);
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_cash_closes_request_id
-          ON cash_closes(request_id) WHERE request_id IS NOT NULL;
       `);
+      // Las llaves de corte también se deduplican antes del índice único.
+      // La migración vieja inserta request_id NULL, pero una recuperación
+      // interrumpida pudo haber conservado llaves repetidas.
+      dedupeRequestIds(database, {
+        table: "cash_closes",
+        index: "idx_cash_closes_request_id",
+        action: "cash_close.request_id_deduped",
+        entity: "cash_close",
+      });
+      database.exec(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_cash_closes_request_id ON cash_closes(request_id) WHERE request_id IS NOT NULL;",
+      );
       database.exec("COMMIT");
       return;
     }
@@ -513,6 +602,7 @@ function migrateCashCloses(database: DatabaseSync) {
     addColumn("snapshot_known", "INTEGER NOT NULL DEFAULT 0");
     addColumn("reason", "TEXT");
     addColumn("request_id", "TEXT");
+    addColumn("demo", "INTEGER NOT NULL DEFAULT 0");
 
     if (tableExists(database, "cash_closes_legacy")) {
       copyLegacyIntoVersioned(database);
@@ -526,9 +616,19 @@ function migrateCashCloses(database: DatabaseSync) {
           OR snapshot_pending_digital_cents != 0);
       CREATE UNIQUE INDEX IF NOT EXISTS idx_cash_closes_date_version
         ON cash_closes(date, version);
-      CREATE UNIQUE INDEX IF NOT EXISTS idx_cash_closes_request_id
-        ON cash_closes(request_id) WHERE request_id IS NOT NULL;
     `);
+    // El merge de la legacy pudo traer la misma llave dos veces, o una llave
+    // que ya existía en la tabla versionada. Se conserva la primera y se anula
+    // el resto antes de crear el índice único.
+    dedupeRequestIds(database, {
+      table: "cash_closes",
+      index: "idx_cash_closes_request_id",
+      action: "cash_close.request_id_deduped",
+      entity: "cash_close",
+    });
+    database.exec(
+      "CREATE UNIQUE INDEX IF NOT EXISTS idx_cash_closes_request_id ON cash_closes(request_id) WHERE request_id IS NOT NULL;",
+    );
     database.exec("COMMIT");
   } catch (error) {
     try {
@@ -555,9 +655,16 @@ function tableColumns(database: DatabaseSync, table: string): Array<{ name: stri
 
 /**
  * Recupera filas de una `cash_closes_legacy` parcial en una tabla ya
- * versionada. No usa `INSERT OR IGNORE`: si una fila choca con otra del mismo
- * `id` se actualiza, y si choca en `(date, version)` se le asigna la siguiente
- * versión libre. Cada merge queda auditado.
+ * versionada sin borrar ni pisar versiones existentes.
+ *
+ * - Mismo `id`, misma `(date, version)` y legacy más nueva: actualiza esa fila.
+ * - Mismo `id` en otra `(date, version)` o legacy más vieja/igual: inserta la
+ *   legacy como versión nueva, con id nuevo si el id ya está ocupado.
+ * - `(date, version)` ocupada por otra fila: usa la siguiente versión libre.
+ *
+ * Cada fila mergeada queda auditada con la acción y las versiones de origen y
+ * destino. Una llave `request_id` que ya pertenece a otra fila no se duplica:
+ * se deja NULL y se registra en la auditoría.
  */
 function copyLegacyIntoVersioned(database: DatabaseSync) {
   const legacyColumns = tableColumns(database, "cash_closes_legacy").map(
@@ -569,7 +676,7 @@ function copyLegacyIntoVersioned(database: DatabaseSync) {
     .all() as unknown as Array<Record<string, unknown>>;
 
   const findById = database.prepare(
-    "SELECT date, version FROM cash_closes WHERE id = ?",
+    "SELECT date, version, created_at, request_id, demo FROM cash_closes WHERE id = ?",
   );
   const findByDateVersion = database.prepare(
     "SELECT id FROM cash_closes WHERE date = ? AND version = ?",
@@ -577,14 +684,17 @@ function copyLegacyIntoVersioned(database: DatabaseSync) {
   const maxVersion = database.prepare(
     "SELECT COALESCE(MAX(version), 0) AS version FROM cash_closes WHERE date = ?",
   );
+  const findRequestOwner = database.prepare(
+    "SELECT id FROM cash_closes WHERE request_id = ?",
+  );
   const upsert = database.prepare(
     `INSERT INTO cash_closes
       (id, date, version, opening_cents, cash_sales_cents, cash_credit_cents,
        expenses_cents, withdrawals_cents, expected_cents, counted_cents,
        difference_cents, base_next_cents, withdrawal_next_cents,
        snapshot_cash_cents, snapshot_credit_cents, snapshot_pending_digital_cents,
-       snapshot_known, reason, request_id, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       snapshot_known, reason, request_id, demo, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(id) DO UPDATE SET
        date = excluded.date,
        version = excluded.version,
@@ -604,11 +714,40 @@ function copyLegacyIntoVersioned(database: DatabaseSync) {
        snapshot_known = excluded.snapshot_known,
        reason = excluded.reason,
        request_id = excluded.request_id,
+       demo = excluded.demo,
        created_at = excluded.created_at`,
   );
   const auditStmt = database.prepare(
     "INSERT INTO audit_log (id, action, entity, entity_id, detail, created_at) VALUES (?, ?, ?, ?, ?, ?)",
   );
+
+  const isNewer = (candidate: string, current: string): boolean => {
+    const candidateTime = Date.parse(candidate);
+    const currentTime = Date.parse(current);
+    if (
+      Number.isFinite(candidateTime) &&
+      Number.isFinite(currentTime) &&
+      candidateTime !== currentTime
+    ) {
+      return candidateTime > currentTime;
+    }
+    return candidate > current;
+  };
+
+  const nextFreeVersion = (targetDate: string, preferred: number): number => {
+    let candidate = Math.max(1, Math.trunc(preferred));
+    for (let guard = 0; guard < 10_000; guard += 1) {
+      const occupant = findByDateVersion.get(targetDate, candidate) as
+        | { id: string }
+        | undefined;
+      if (!occupant) return candidate;
+      const max = maxVersion.get(targetDate) as { version: number };
+      candidate = Math.max(candidate + 1, Number(max.version) + 1);
+    }
+    throw new Error(
+      `No pude encontrar una versión libre para cash_closes_legacy en ${targetDate}.`,
+    );
+  };
 
   for (const row of rows) {
     const id = row.id == null ? "" : String(row.id);
@@ -628,34 +767,79 @@ function copyLegacyIntoVersioned(database: DatabaseSync) {
     };
 
     const originalVersion = Math.max(1, Math.trunc(num("version", 1)));
-    let version = originalVersion;
+    const createdAt = text("created_at") ?? nowIso();
     const existingById = findById.get(id) as
-      | { date: string; version: number }
+      | {
+          date: string;
+          version: number;
+          created_at: string;
+          request_id: string | null;
+          demo: number;
+        }
       | undefined;
-    let action: "updated" | "version_bumped" | null = existingById ? "updated" : null;
 
-    // Si otra fila ya ocupa (date, version), buscamos la siguiente libre.
-    for (let guard = 0; guard < 10_000; guard += 1) {
-      const occupant = findByDateVersion.get(date, version) as
+    let targetId = id;
+    let version = originalVersion;
+    let action: "updated" | "version_bumped" | "id_reassigned" | "inserted" =
+      "inserted";
+    let existingRequestId: string | null = null;
+    let existingDemo = 0;
+
+    if (existingById) {
+      existingRequestId = existingById.request_id ?? null;
+      existingDemo = Number(existingById.demo ?? 0);
+      const sameSlot =
+        existingById.date === date &&
+        Number(existingById.version) === originalVersion;
+      if (sameSlot && isNewer(createdAt, existingById.created_at)) {
+        // La legacy es la misma fila y es más nueva: se actualiza sin moverla.
+        action = "updated";
+      } else {
+        // El id ya pertenece a otra versión, o la legacy es más vieja. Nunca
+        // se pisa: se conserva lo existente y la legacy entra como versión
+        // nueva con un id distinto.
+        action = sameSlot ? "version_bumped" : "id_reassigned";
+        targetId = newId("cash_legacy");
+        version = nextFreeVersion(date, originalVersion);
+      }
+    } else {
+      const occupant = findByDateVersion.get(date, originalVersion) as
         | { id: string }
         | undefined;
-      if (!occupant || occupant.id === id) break;
-      const max = maxVersion.get(date) as { version: number };
-      version = Math.max(version + 1, Number(max.version) + 1);
-      action = "version_bumped";
+      if (occupant) {
+        action = "version_bumped";
+        version = nextFreeVersion(date, originalVersion);
+      }
     }
 
     const stillOccupied = findByDateVersion.get(date, version) as
       | { id: string }
       | undefined;
-    if (stillOccupied && stillOccupied.id !== id) {
+    if (stillOccupied && stillOccupied.id !== targetId) {
       throw new Error(
         `No pude acomodar cash_closes_legacy ${id}: (${date}, ${version}) sigue ocupada.`,
       );
     }
 
+    let requestId = text("request_id");
+    // Al actualizar una fila, una legacy de esquema viejo sin request_id no
+    // debe borrar la llave que ya estaba guardada.
+    if (!requestId && action === "updated") requestId = existingRequestId;
+    let demo = has("demo") ? num("demo") : 0;
+    if (!has("demo") && action === "updated") demo = existingDemo;
+    let requestIdDropped = false;
+    if (requestId) {
+      const owner = findRequestOwner.get(requestId) as
+        | { id: string }
+        | undefined;
+      if (owner && owner.id !== targetId) {
+        requestId = null;
+        requestIdDropped = true;
+      }
+    }
+
     upsert.run(
-      id,
+      targetId,
       date,
       version,
       num("opening_cents"),
@@ -673,25 +857,34 @@ function copyLegacyIntoVersioned(database: DatabaseSync) {
       num("snapshot_pending_digital_cents"),
       num("snapshot_known"),
       text("reason"),
-      text("request_id"),
-      text("created_at") ?? nowIso(),
+      requestId,
+      demo,
+      createdAt,
     );
 
-    if (action) {
-      auditStmt.run(
-        newId("aud"),
-        "cash_close.legacy_merged",
-        "cash_close",
-        id,
-        JSON.stringify({
-          action,
-          date,
-          fromVersion: originalVersion,
-          toVersion: version,
-        }),
-        nowIso(),
-      );
-    }
+    auditStmt.run(
+      newId("aud"),
+      "cash_close.legacy_merged",
+      "cash_close",
+      targetId,
+      JSON.stringify({
+        action,
+        legacyId: id,
+        idChanged: targetId !== id,
+        date,
+        fromVersion: originalVersion,
+        toVersion: version,
+        existing: existingById
+          ? {
+              date: existingById.date,
+              version: Number(existingById.version),
+              createdAt: existingById.created_at,
+            }
+          : null,
+        requestIdDropped,
+      }),
+      nowIso(),
+    );
   }
 
   database.exec("DROP TABLE cash_closes_legacy;");
@@ -717,14 +910,14 @@ function seed(database: DatabaseSync) {
   const creditId = newId("demo_seed_cred");
   database
     .prepare(
-      "INSERT INTO credits (id, customer_id, order_id, original_cents, balance_cents, status, due_date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO credits (id, customer_id, order_id, original_cents, balance_cents, status, due_date, demo, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)",
     )
     .run(creditId, juanId, null, 5000, 5000, "open", null, createdAt);
 
   const orderId = newId("demo_seed_ord");
   database
     .prepare(
-      "INSERT INTO orders (id, merchant_id, status, total_cents, paid_cents, payment_method, customer_name, credit_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO orders (id, merchant_id, status, total_cents, paid_cents, payment_method, customer_name, credit_id, demo, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)",
     )
     .run(orderId, MERCHANT.id, "demo_paid", 7000, 7000, "cash", null, null, createdAt, createdAt);
   database
@@ -734,7 +927,7 @@ function seed(database: DatabaseSync) {
     .run(newId("demo_seed_itm"), orderId, "Quesadilla", 2, 3500, 7000);
   database
     .prepare(
-      "INSERT INTO payments (id, order_id, provider, method, amount_cents, status, transaction_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO payments (id, order_id, provider, method, amount_cents, status, transaction_id, demo, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)",
     )
     .run(
       newId("demo_seed_pay"),
@@ -811,8 +1004,8 @@ function seedDemoHistory(database: DatabaseSync) {
     database
       .prepare(
         `INSERT INTO orders
-         (id, merchant_id, status, total_cents, paid_cents, payment_method, created_at, updated_at)
-         VALUES (?, ?, 'demo_paid', ?, ?, ?, ?, ?)`,
+         (id, merchant_id, status, total_cents, paid_cents, payment_method, demo, created_at, updated_at)
+         VALUES (?, ?, 'demo_paid', ?, ?, ?, 1, ?, ?)`,
       )
       .run(
         id,
@@ -837,8 +1030,8 @@ function seedDemoHistory(database: DatabaseSync) {
     database
       .prepare(
         `INSERT INTO payments
-         (id, order_id, provider, method, amount_cents, status, transaction_id, created_at)
-         VALUES (?, ?, 'demo', ?, ?, 'paid', ?, ?)`,
+         (id, order_id, provider, method, amount_cents, status, transaction_id, demo, created_at)
+         VALUES (?, ?, 'demo', ?, ?, 'paid', ?, 1, ?)`,
       )
       .run(
         newId("pay"),
@@ -857,8 +1050,8 @@ function seedDemoHistory(database: DatabaseSync) {
     .prepare(
       `INSERT INTO orders
        (id, merchant_id, status, total_cents, paid_cents, payment_method,
-        payment_link_id, payment_url, created_at, updated_at)
-       VALUES (?, ?, 'payment_pending', 12000, 0, NULL, ?, ?, ?, ?)`,
+        payment_link_id, payment_url, demo, created_at, updated_at)
+       VALUES (?, ?, 'payment_pending', 12000, 0, NULL, ?, ?, 1, ?, ?)`,
     )
     .run(
       pendingId,
@@ -889,8 +1082,8 @@ function seedDemoHistory(database: DatabaseSync) {
          (id, date, version, opening_cents, cash_sales_cents, cash_credit_cents, expenses_cents,
           withdrawals_cents, expected_cents, counted_cents, difference_cents,
           base_next_cents, withdrawal_next_cents, snapshot_cash_cents,
-          snapshot_credit_cents, snapshot_pending_digital_cents, reason, created_at)
-         VALUES (?, ?, 1, 50000, 0, 0, 0, 0, 50000, 50000, 0, 50000, 0, 0, 0, 0, NULL, ?)`,
+          snapshot_credit_cents, snapshot_pending_digital_cents, reason, demo, created_at)
+         VALUES (?, ?, 1, 50000, 0, 0, 0, 0, 50000, 50000, 0, 50000, 0, 0, 0, 0, NULL, 1, ?)`,
       )
       .run("cash_demo_prev", yesterday, closedAt);
   }
@@ -1048,7 +1241,7 @@ export function listOrders(limit = 30, offset = 0): Order[] {
   const database = getDb();
   const demoFilter = isDemoMode()
     ? ""
-    : "WHERE id NOT LIKE 'demo_%' AND status != 'demo_paid'";
+    : "WHERE demo = 0 AND id NOT LIKE 'demo_%' AND status != 'demo_paid'";
   const safeLimit = Math.max(1, Math.floor(limit));
   const safeOffset = Math.max(0, Math.floor(offset));
   const rows = database
@@ -1065,7 +1258,7 @@ export function countOrders(): number {
   const database = getDb();
   const demoFilter = isDemoMode()
     ? ""
-    : "WHERE id NOT LIKE 'demo_%' AND status != 'demo_paid'";
+    : "WHERE demo = 0 AND id NOT LIKE 'demo_%' AND status != 'demo_paid'";
   const row = database
     .prepare(`SELECT COUNT(*) AS n FROM orders ${demoFilter}`)
     .get() as { n: number };
@@ -1085,6 +1278,7 @@ export function listPendingOrders(limit = 50, offset = 0): Order[] {
       `SELECT * FROM orders
        WHERE status IN ('confirmed', 'payment_pending', 'partially_paid')
          AND MAX(total_cents - paid_cents - credit_cents, 0) > 0
+         ${isDemoMode() ? "" : "AND demo = 0 AND id NOT LIKE 'demo_%' AND status != 'demo_paid'"}
        ORDER BY created_at ASC, id ASC
        LIMIT ? OFFSET ?`,
     )
@@ -1098,7 +1292,8 @@ export function countPendingOrders(): number {
     .prepare(
       `SELECT COUNT(*) AS n FROM orders
        WHERE status IN ('confirmed', 'payment_pending', 'partially_paid')
-         AND MAX(total_cents - paid_cents - credit_cents, 0) > 0`,
+         AND MAX(total_cents - paid_cents - credit_cents, 0) > 0
+         ${isDemoMode() ? "" : "AND demo = 0 AND id NOT LIKE 'demo_%' AND status != 'demo_paid'"}`,
     )
     .get() as { n: number };
   return Number(row.n);
@@ -1109,15 +1304,42 @@ export function getOrder(id: string): Order | null {
   const row = database.prepare("SELECT * FROM orders WHERE id = ?").get(id) as
     | Record<string, unknown>
     | undefined;
+  if (!row) return null;
+  if (!isDemoMode() && (Number(row.demo) === 1 || id.startsWith("demo_"))) {
+    return null;
+  }
+  return mapOrder(row);
+}
+
+export function getOrderByRequestId(
+  requestId: string,
+  merchantId: string = MERCHANT.id,
+): Order | null {
+  const database = getDb();
+  const row = database
+    .prepare("SELECT * FROM orders WHERE request_id = ? AND merchant_id = ?")
+    .get(requestId, merchantId) as Record<string, unknown> | undefined;
   return row ? mapOrder(row) : null;
 }
 
-export function getOrderByRequestId(requestId: string): Order | null {
+/**
+ * Devuelve el pedido y el hash canónico guardado con su `requestId`. El hash
+ * permite distinguir un reintento idéntico de una llave reutilizada con otro
+ * payload. Un pedido viejo puede tener `request_hash` NULL.
+ */
+export function getOrderRequestMatch(
+  requestId: string,
+  merchantId: string = MERCHANT.id,
+): { order: Order; requestHash: string | null } | null {
   const database = getDb();
   const row = database
-    .prepare("SELECT * FROM orders WHERE request_id = ?")
-    .get(requestId) as Record<string, unknown> | undefined;
-  return row ? mapOrder(row) : null;
+    .prepare("SELECT * FROM orders WHERE request_id = ? AND merchant_id = ?")
+    .get(requestId, merchantId) as Record<string, unknown> | undefined;
+  if (!row) return null;
+  return {
+    order: mapOrder(row),
+    requestHash: (row.request_hash as string) ?? null,
+  };
 }
 
 export function getOrderByPaymentLink(paymentLinkId: string): Order | null {
@@ -1196,11 +1418,20 @@ export function listCredits(limit?: number, offset = 0): Credit[] {
   const safeOffset = Math.max(0, Math.floor(offset));
   const safeLimit =
     limit === undefined ? null : Math.max(1, Math.floor(limit));
+  // Una base demo reutilizada en modo real no debe mostrar sus fixtures.
+  // Se excluyen por id de crédito, id de cliente y pedido demo.
+  const demoFilter = isDemoMode()
+    ? ""
+    : `WHERE c.demo = 0
+        AND c.id NOT LIKE 'demo_seed_%'
+        AND cu.id NOT LIKE 'demo_seed_%'
+        AND (c.order_id IS NULL OR c.order_id NOT LIKE 'demo_%')`;
   const rows = database
     .prepare(
       `SELECT c.*, cu.name AS customer_name
        FROM credits c INDEXED BY idx_credits_status_created
        JOIN customers cu ON cu.id = c.customer_id
+       ${demoFilter}
        ORDER BY c.status ASC, c.created_at DESC, c.id DESC
        ${safeLimit === null ? "" : "LIMIT ? OFFSET ?"}`,
     )
@@ -1222,16 +1453,24 @@ export function listCredits(limit?: number, offset = 0): Credit[] {
 
 export function countCredits(): number {
   const database = getDb();
+  const demoFilter = isDemoMode()
+    ? ""
+    : `WHERE c.demo = 0
+        AND c.id NOT LIKE 'demo_seed_%'
+        AND cu.id NOT LIKE 'demo_seed_%'
+        AND (c.order_id IS NULL OR c.order_id NOT LIKE 'demo_%')`;
   const row = database
     .prepare(
       `SELECT COUNT(*) AS n
-       FROM credits c JOIN customers cu ON cu.id = c.customer_id`,
+       FROM credits c JOIN customers cu ON cu.id = c.customer_id
+       ${demoFilter}`,
     )
     .get() as { n: number };
   return Number(row.n);
 }
 
 export function getCredit(id: string): Credit | null {
+  if (!isDemoMode() && id.startsWith("demo_seed_")) return null;
   const database = getDb();
   const row = database
     .prepare(
@@ -1241,6 +1480,14 @@ export function getCredit(id: string): Credit | null {
     )
     .get(id) as Record<string, unknown> | undefined;
   if (!row) return null;
+  if (
+    !isDemoMode() &&
+    (Number(row.demo) === 1 ||
+      (row.order_id as string | null)?.startsWith("demo_") ||
+      (row.customer_id as string | null)?.startsWith("demo_seed_"))
+  ) {
+    return null;
+  }
   return {
     id: row.id as string,
     customerId: row.customer_id as string,
@@ -1270,11 +1517,11 @@ export function getDailySummary(): DailySummary {
   const includeDemo = isDemoMode();
   const demoOrderFilter = includeDemo
     ? ""
-    : "AND o.status != 'demo_paid' AND o.id NOT LIKE 'demo_%'";
+    : "AND o.demo = 0 AND o.status != 'demo_paid' AND o.id NOT LIKE 'demo_%'";
 
   const payments = database
     .prepare(
-      `SELECT p.method, p.provider, p.amount_cents
+      `SELECT p.method, p.provider, p.amount_cents, p.demo
        FROM payments p
        WHERE p.status = 'paid' AND p.created_at >= ? AND p.created_at < ?`,
     )
@@ -1282,11 +1529,12 @@ export function getDailySummary(): DailySummary {
     method: string;
     provider: string;
     amount_cents: number;
+    demo: number;
   }>;
 
   const creditPayments = database
     .prepare(
-      `SELECT cp.method, cp.provider, cp.amount_cents
+      `SELECT cp.method, cp.provider, cp.amount_cents, cp.demo
        FROM credit_payments cp
        WHERE cp.created_at >= ? AND cp.created_at < ?`,
     )
@@ -1294,6 +1542,7 @@ export function getDailySummary(): DailySummary {
     method: string;
     provider: string;
     amount_cents: number;
+    demo: number;
   }>;
 
   let verifiedDigitalCents = 0;
@@ -1306,7 +1555,10 @@ export function getDailySummary(): DailySummary {
   for (const payment of payments) {
     const amount = Number(payment.amount_cents);
     const method = payment.method;
-    if (payment.provider === "demo") {
+    if (
+      payment.provider === "demo" ||
+      (!includeDemo && Number(payment.demo) === 1)
+    ) {
       if (method === "cash") demoCashCents += amount;
       else demoDigitalCents += amount;
       continue;
@@ -1318,7 +1570,10 @@ export function getDailySummary(): DailySummary {
 
   for (const payment of creditPayments) {
     const amount = Number(payment.amount_cents);
-    if (payment.provider === "demo") {
+    if (
+      payment.provider === "demo" ||
+      (!includeDemo && Number(payment.demo) === 1)
+    ) {
       if (payment.method === "cash") demoCashCents += amount;
       else demoDigitalCents += amount;
       continue;
@@ -1360,7 +1615,7 @@ export function getDailySummary(): DailySummary {
          COALESCE(SUM(balance_cents), 0) AS total,
          COALESCE(SUM(
            CASE
-             WHEN id LIKE 'demo_seed_%' OR order_id LIKE 'demo_%' THEN balance_cents
+             WHEN id LIKE 'demo_seed_%' OR order_id LIKE 'demo_%' OR demo = 1 THEN balance_cents
              ELSE 0
            END
          ), 0) AS demo_total

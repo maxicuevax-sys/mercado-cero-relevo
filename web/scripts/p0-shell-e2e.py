@@ -26,7 +26,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 BASE = os.environ.get(
     "P0_BASE_URL",
-    os.environ.get("BASE_URL", "http://localhost:3101"),
+    os.environ.get("RUNTIME_BASE_URL", os.environ.get("BASE_URL", "http://localhost:3101")),
 ).rstrip("/")
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "harness" / "evidence" / "p0-shell"

@@ -32,13 +32,13 @@
 | Motion | 19 PASS · 0 FAIL | 2 nov 2026 |
 | Alto contraste | 0 FAIL | 2 nov 2026 |
 | P0 venta | 65 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
-| P0 fiado | 50 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
+| P0 fiado | 51 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
 | P0 corte | 69 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
 | P0 integración | 51 PASS · 0 FAIL · 0 KNOWN | 2 nov 2026 |
 | P0 dinero | 45 PASS · 0 FAIL · 3 KNOWN | 2 nov 2026 |
 | P0 shell (carril aparte) | 68 PASS · 0 FAIL; HIG/axe 0 | 2 nov 2026 |
 | Seguridad | contrato `SEGURIDAD OK` | 2 nov 2026 |
-| Datos | contrato `DATOS OK` | 2 nov 2026 |
+| Datos | 85 checks (58+20+7), `DATOS OK` | 2 nov 2026 |
 | Performance | `PERF BUDGET OK` | 2 nov 2026 |
 | Film check | 8 beats + contact sheet + motion sheet | 2 nov 2026 |
 
@@ -87,7 +87,7 @@
 - **P0-C mergeado:** `586f1a6` — abono confirmado, saldo vivo, idempotencia durable y migración de `request_id`.
 - **P0-C.1/E/G integrados:** `96381b9` + `76bfbc3` — cobros pendientes, tareas de negocio, método de abono, venta mixta, carrera de refresco, WCAG 2.5.3 y voz de $50.
 - **Evidencia P0-A/B:** `web/scripts/p0-venta-e2e.py` → 65 PASS · 0 FAIL · 0 KNOWN.
-- **Evidencia P0-C:** `web/scripts/p0-fiado-e2e.py` → 50 PASS · 0 FAIL · 0 KNOWN.
+- **Evidencia P0-C:** `web/scripts/p0-fiado-e2e.py` → 51 PASS · 0 FAIL · 0 KNOWN.
 - **Evidencia integración:** `web/scripts/p0-integracion-e2e.py` → 51 PASS · 0 FAIL · 0 KNOWN.
 - **Evidencia corte:** `web/scripts/p0-corte-e2e.py` → 69 PASS · 0 FAIL · 0 KNOWN.
 - **Evidencia dinero:** `web/scripts/p0-dinero-e2e.py` → 45 PASS · 0 FAIL · 3 KNOWN.

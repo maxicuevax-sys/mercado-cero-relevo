@@ -38,7 +38,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 BASE = os.environ.get(
     "P0_BASE_URL",
-    os.environ.get("BASE_URL", "http://localhost:3101"),
+    os.environ.get("RUNTIME_BASE_URL", os.environ.get("BASE_URL", "http://localhost:3101")),
 ).rstrip("/")
 DRAFT_KEY = "mercado-cero:draft:v1"
 PENDING_KEY = "mercado-cero:pending-order:v1"

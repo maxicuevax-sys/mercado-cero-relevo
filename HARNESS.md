@@ -96,7 +96,7 @@ Markers exactos: el harness no acepta substrings. `0 FAIL` no coincide con `10 F
 | `data` | Idempotencia, transacciones, migraciones, enlaces | `DATOS OK` | — |
 | `perf` | Presupuesto de JS, CSS, fuentes, fotos e iconos | `PERF BUDGET OK` | — |
 | `p0-venta` | Venta durable, draft, validaciones, monto y cambio | `65 PASS` + `0 FAIL` + `0 KNOWN` | `harness/evidence/p0-venta-e2e.json` |
-| `p0-fiado` | Abono confirmado, saldo vivo, idempotencia | `50 PASS` + `0 FAIL` + `0 KNOWN` | `p0-fiado-e2e.json` + captura |
+| `p0-fiado` | Abono confirmado, saldo vivo, idempotencia | `51 PASS` + `0 FAIL` + `0 KNOWN` | `p0-fiado-e2e.json` + captura |
 | `p0-corte` | Corte no destructivo, versiones, migración, 409 | `69 PASS` + `0 FAIL` + `0 KNOWN` | `p0-corte-e2e.json` + capturas |
 | `p0-integracion` | Pendientes, tareas, venta mixta, carrera de refresco | `51 PASS` + `0 FAIL` + `0 KNOWN` | `p0-integracion-e2e.json` + capturas |
 | `p0-dinero` | Dinero, webhook, verify, fiado, corte, negativos | `45 PASS` + `0 FAIL` + `3 KNOWN` | `p0-dinero-e2e.json` |
@@ -106,7 +106,7 @@ Markers exactos: el harness no acepta substrings. `0 FAIL` no coincide con `10 F
 
 **Aritmética del catálogo:** hay **25 gates** en total. `fast` ejecuta 3, `static` 5 y `full` **23** por defecto (sin `build`, sin `film`). Con `--with-film`, `full` ejecuta 24. Cualquier marcador de un catálogo anterior (menos gates, motion con menos comprobaciones o webhook con 27 aserciones) es histórico y no describe el catálogo actual.
 
-**Cobertura p0:** los cinco gates p0 levantan su propio `next start` aislado con SQLite temporal (puertos 3211–3213) y nunca usan la base de la demo compartida. `p0-venta` usa un wrapper (`p0-venta-gate.mjs`) porque el script original esperaba un servidor externo; `mobile-320` usa `mobile-320-gate.mjs` para lo mismo con 3 motores. Los scripts respetan `BASE_URL`, `CHECKOUT_BASE_URL`, `MOBILE_BASE_URL`, `P0_BASE_URL`, `MOTION_BASE_URL` y `CONTRAST_BASE_URL`; el harness fija los que comparten servidor y registra `baseUrl` por gate.
+**Cobertura p0:** los cinco gates p0 levantan su propio `next start` aislado con SQLite temporal (puertos 3211–3213) y nunca usan la base de la demo compartida. `p0-venta` usa un wrapper (`p0-venta-gate.mjs`) porque el script original esperaba un servidor externo; `mobile-320` usa `mobile-320-gate.mjs` para lo mismo con 3 motores. Los puertos aislados viven en 3190+ (`security` 3191, `data` 3192, `mobile-320` 3214) o 3211–3213 (p0), siempre con DB temporal; nunca el `:3000` de demo. Los scripts respetan `BASE_URL`, `RUNTIME_BASE_URL`, `CHECKOUT_BASE_URL`, `MOBILE_BASE_URL`, `P0_BASE_URL`, `MOTION_BASE_URL` y `CONTRAST_BASE_URL`; el harness fija los que comparten servidor y registra `baseUrl` por gate.
 
 El detalle de cada eval, incluyendo las que son **solo humanas**, está en `harness/EVALS.md`.
 
