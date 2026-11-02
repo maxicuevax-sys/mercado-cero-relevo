@@ -149,7 +149,7 @@ Para una persona mayor, antes de empezar: activa **Texto grande** y **Alto contr
 - **No** prometas tarjeta/Apple Pay/Google Pay si el checkout real solo muestra CoDi. Di: “CoDi funciona hoy; tarjeta y wallets dependen de la cuenta Stripe.”
 - **No** digas que la app ve el saldo o los movimientos de la cuenta de Ana. Solo ve los cobros generados por el negocio.
 - **No** digas que los apartados son una cuenta de ahorro o dinero custodiado. Son **declarados**.
-- **No** inventes un pago real de $0.01 si no ocurrió. En esta demo no ocurrió. Puedes decir: “El contrato del webhook está en 34/34 (última corrida conocida); el riel bancario es lo que estamos esperando.”
+- **No** inventes un pago real de $0.01 si no ocurrió. En esta demo no ocurrió. Puedes decir: “El contrato del webhook está en 40/40 (última corrida conocida); el riel bancario es lo que estamos esperando.”
 
 ---
 
@@ -240,4 +240,4 @@ Comisión por transacción o suscripción. CoDi es el riel gratuito; la tarjeta 
 6. Si el webhook no llega en 2 minutos, la orden queda **pendiente**. No la marques pagada ni muestres una captura como prueba.
 7. Si el riel falla, vuelve a `DEMO_MODE=true`, reinicia y usa el sello **DEMO** y, solo como último recurso, el video histórico (advirtiendo que es de la UI anterior).
 
-> El contrato del webhook está en 34/34 (última corrida conocida); lo que falta es el riel bancario, no la app. El ensayo del guion ya pasó en master `75179c7`: 3/3, 19/19, ~8.1 s, todo en verde.
+> El contrato del webhook está en 40/40 (última corrida conocida); lo que falta es el riel bancario, no la app. El ensayo del guion ya pasó en master `75179c7`: 3/3, 19/19, ~8.1 s, todo en verde.

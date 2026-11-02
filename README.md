@@ -236,7 +236,7 @@ Para probar el contrato del webhook:
 node scripts/webhook-contract.mjs
 ```
 
-Requiere `PEY_WEBHOOK_SECRET` en `.env.local` y el servidor en `localhost:3000` (o `BASE_URL`). El script firma eventos como Standard Webhooks y verifica **34/34 aserciones en la última corrida conocida (2 nov 2026)**: pago válido, replay, firma falsa, monto distinto, orden inexistente, timestamp viejo, evento fuera de orden, JSON inválido, QR CoDi y los reintentos corregidos tras 409/404.
+Requiere `PEY_WEBHOOK_SECRET` en `.env.local` y el servidor en `localhost:3000` (o `BASE_URL`). El script firma eventos como Standard Webhooks y verifica **40/40 aserciones en la última corrida conocida (2 nov 2026)**: pago válido, replay, firma falsa, monto distinto, orden inexistente, timestamp viejo, evento fuera de orden, JSON inválido, QR CoDi y los reintentos corregidos tras 409/404.
 
 Para revisar que los pagos digitales del día cuadren con pey:
 

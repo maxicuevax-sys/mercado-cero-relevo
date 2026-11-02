@@ -31,7 +31,7 @@
 | Servidor de producción | ⚠️ `665d72e` en `:3000`; no coincide con HEAD `3fe1cc9` | `/api/health` devuelve `buildSha` |
 | UI nueva “Mostrador claro” | ✅ F3 aprobado por verificación independiente | `VERIFICACION-F3-FINAL-5.md` |
 | Preflight de demo | 🟡 18/18, última corrida conocida (2 nov 2026); correr tras el reset | `node scripts/preflight.mjs` |
-| Webhook firmado | 🟡 34/34, última corrida conocida (2 nov 2026) | `scripts/webhook-contract.mjs` |
+| Webhook firmado | 🟡 40/40, última corrida conocida (2 nov 2026) | `scripts/webhook-contract.mjs` |
 | Verdad del comprobante | 🟡 demo nunca verificado, última corrida conocida | `scripts/verify-truth.mjs` |
 | Auditoría HIG | 🟡 5 viewports (320/360/390/768/1280), axe 0, WCAG 2.2 AA, targets 48 px, 200% — última corrida conocida | `scripts/hig-after-audit.py` |
 | 360 px caja | 🟡 25/25, última corrida conocida | `demo/mobile-audit.json` (generado, ignorado) |
@@ -79,7 +79,7 @@
 
 ## Rojo
 
-- **Pago real de $0.01:** **no hubo pago real**. BBVA/CoDi se queda trabado al seleccionar cuenta. La app está en modo demo (`demo_paid`), el contrato del webhook está en 34/34 (última corrida conocida) y el ensayo pasó 19/19. Falta un banco/cuenta que funcione o las credenciales del hackathon.
+- **Pago real de $0.01:** **no hubo pago real**. BBVA/CoDi se queda trabado al seleccionar cuenta. La app está en modo demo (`demo_paid`), el contrato del webhook está en 40/40 (última corrida conocida) y el ensayo pasó 19/19. Falta un banco/cuenta que funcione o las credenciales del hackathon.
 - No se debe afirmar que el pago demo es real. El sello **DEMO** y el copy lo distinguen.
 - **Matiz de `paid`:** el webhook firmado es el único camino `payment_pending → paid` para pagos digitales. El efectivo se crea directamente como `paid` (no pasa por `payment_pending`) y el demo usa `demo_paid`. `paid` también aparece en lecturas y en `payments.status` del efectivo. No afirmar “sin `paid` fuera del webhook” sin esta aclaración.
 

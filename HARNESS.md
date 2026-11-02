@@ -85,7 +85,7 @@ Markers exactos: el harness no acepta substrings. `0 FAIL` no coincide con `10 F
 | `deps` | `npm audit --omit=dev --audit-level=high`; 0 high/critical | `DEPS OK` | — |
 | `build` | Build Next.js con `BUILD_SHA` y `.next/BUILD_SHA`; **solo `static`** | `BUILD OK` + `compiled successfully` | `.next/BUILD_SHA` |
 | `truth` | Un `transactionId` demo responde `verified:false` | `VERDAD OK` | — |
-| `webhook` | Firma, replay, monto, orden, timestamp, QR, 409/404 | `WEBHOOK OK` + `34/34` | — |
+| `webhook` | Firma, replay, monto, orden, timestamp, QR, 409/404 | `WEBHOOK OK` + `40/40` | — |
 | `mobile` | Flujo completo a 360 px | `MOBILE OK` + `25/25` | `demo/mobile-*` |
 | `checkout` | Checkout público a 360 px en servidor aislado (3215) | `CHECKOUT OK` + `19/19` | `demo/checkout-*` |
 | `hig` | HIG/WCAG 2.2 AA, 48 px, 200%, **5 viewports** | `HIG OK` + `5 viewports` | `demo/hig-after/audit.json` |
@@ -205,7 +205,7 @@ El criterio no es “cuánto puede hacer el agente”, sino **cuánto puede hace
 - `npm run verify:evidence` PASS contra el HEAD entregado: `gitAtStart.sha === HEAD`, `gitAtStart.dirty:false`, árbol actual limpio, `serverBuildSha === gitAtStart.sha`, `buildSha` por gate runtime, `complete:true`, `expected` recalculado desde `outputTail`, set canónico de artefactos y todos los hashes correctos.
 - `latest.json` (full) o `latest-static.json` (static) con `ok: true` y `mode` real; nunca `partial` ni `fast` sin `--allow-fast`. Un static posterior no pisa el full.
 - Sin secretos en el diff.
-- Si tocó dinero: webhook **34/34**, truth PASS y `p0-dinero` **45 + 3 KNOWN**.
+- Si tocó dinero: webhook **40/40**, truth PASS y `p0-dinero` **45 + 3 KNOWN**.
 - Si tocó UI: HIG **5 viewports**, mobile **25/25**, checkout **19/19**, motion **19 PASS**, contraste **7 PASS · 0 FAIL** y mobile-320 **42/42** en 3 motores.
 - Si tocó demo: preflight + túnel + video/QR actualizados.
 - Handoff actualizado con `npm run harness:report`; las pruebas humanas no se sustituyen por gates.

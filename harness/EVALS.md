@@ -15,7 +15,7 @@
 | `deps` | `node scripts/check-deps.mjs` | `npm audit --omit=dev --audit-level=high`; 0 high/critical | Explotabilidad real, devDependencies | `DEPS OK` | No |
 | `build` | `node scripts/build-gate.mjs` | Build Next.js con `BUILD_SHA` y `.next/BUILD_SHA`; **solo `static`** | Servidor sirviendo el build | `BUILD OK` + `compiled successfully` | `.next/` (ignorado) |
 | `truth` | `node scripts/verify-truth.mjs` | Un `transactionId` demo devuelve `verified:false` | Un pago pey real | `VERDAD OK` | Reset demo |
-| `webhook` | `node scripts/webhook-contract.mjs` | Firma, replay, monto, orden, timestamp, QR y reintento corregido tras 409/404 | Que el banco emita el evento | `WEBHOOK OK` + `34/34` | Reset demo |
+| `webhook` | `node scripts/webhook-contract.mjs` | Firma, replay, monto, orden, timestamp, QR y reintento corregido tras 409/404 | Que el banco emita el evento | `WEBHOOK OK` + `40/40` | Reset demo |
 | `mobile` | `python scripts/mobile-audit.py` | Flujo completo a 360 px | Teléfono físico, TalkBack/VoiceOver | `MOBILE OK` + `25/25` | Reset demo |
 | `checkout` | `node scripts/checkout-gate.mjs` | Checkout público a 360 px en servidor aislado | Pago real por pey | `CHECKOUT OK` + `19/19` | Servidor aislado + DB temporal |
 | `hig` | `python scripts/hig-after-audit.py` | HIG/WCAG 2.2 AA, 48 px, 200%, **5 viewports** | Personas reales | `HIG OK` + `5 viewports` | Reset/recorre |

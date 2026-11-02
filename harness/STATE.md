@@ -20,7 +20,7 @@
 
 | Gate | Resultado | Fecha |
 |---|---|---|
-| Webhook firmado | 34/34 | 2 nov 2026 |
+| Webhook firmado | 40/40 | 2 nov 2026 |
 | Verdad del comprobante | demo no verificado | 2 nov 2026 |
 | HIG/WCAG 2.2 AA | 5 viewports: 320/360/390/768/1280, axe 0, 48 px, 200% | 2 nov 2026 |
 | Móvil 360 px | 25/25 | 2 nov 2026 |
@@ -102,7 +102,7 @@
 - **Evidencia corte:** `web/scripts/p0-corte-e2e.py` → 69 PASS · 0 FAIL · 0 KNOWN.
 - **Evidencia dinero:** `web/scripts/p0-dinero-e2e.py` → 45 PASS · 0 FAIL · 3 KNOWN.
 - **Evidencia shell:** `web/scripts/p0-shell-e2e.py` → 68 PASS · 0 FAIL; HIG/axe 0. Es carril aparte, no gate del full.
-- **Pagos intactos:** `orders.ts`, `pey-events.ts`, `/api/webhooks/pey` y `/api/verify` no cambiaron desde `586f1a6`; `truth` y webhook 34/34 siguen como última corrida conocida, no re-corridos contra HEAD.
+- **Pagos intactos:** `orders.ts`, `pey-events.ts`, `/api/webhooks/pey` y `/api/verify` no cambiaron desde `586f1a6`; `truth` y webhook 40/40 siguen como última corrida conocida, no re-corridos contra HEAD.
 
 ## Siguiente tarea
 
