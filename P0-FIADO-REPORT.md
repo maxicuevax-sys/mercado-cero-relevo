@@ -14,13 +14,15 @@
 
 El abono ahora tiene **idempotencia durable** (`requestId` en SQLite + índice único parcial), **transacción `BEGIN IMMEDIATE`** para leer saldo, insertar y descontar, y respuestas explícitas `409` para crédito saldado o saldo incompatible. El cliente genera una llave estable por intento de hoja y usa `appliedCents`/`overpayCents` de la respuesta.
 
+El último bug de duplicado quedó corregido: si se reintenta la misma `requestId` con **otro monto**, el servidor devuelve `duplicate: true`, `overpayCents: 0` y el `appliedCents` del abono original; el cliente muestra “Abono ya registrado” con ese monto aplicado, **sin** nota de “devuelve”.
+
 El detalle del pedido (`PaymentPanel`) y Actividad muestran el saldo vivo y llaman “original” al monto de `orders.creditCents`; al liquidar, ambos dicen **Saldado** y conservan el original.
 
 **Commits de esta corrección:**
-- `0eddea2` — producto y E2E (`feat(fiado): idempotencia durable y borrador honesto`).
-- `7ea5f67` — evidencia de regresión P0-A/B.
-- `62ca6f2` — evidencia E2E P0-C + captura 360.
-- `5a857f8` — evidencia de gate estático.
+- `80bd574` — producto y E2E (`fix(fiado): no inventar devuelto en abonos duplicados`).
+- `0c67f77` — evidencia de regresión P0-A/B.
+- `1181967` — evidencia E2E P0-C (50 PASS).
+- `40f5d67` — evidencia de gate estático.
 
 **Sin merge.** La rama queda solo en el worktree.
 
@@ -65,7 +67,7 @@ El transcript dice “Revisa el abono… Todavía no se registra”; la voz dice
 - `credit_payments.request_id TEXT` nullable.
 - Migración compatible: si una DB existente no tiene la columna, `ALTER TABLE ... ADD COLUMN request_id TEXT`; después se crea `CREATE UNIQUE INDEX IF NOT EXISTS idx_credit_payments_request_id ... WHERE request_id IS NOT NULL`.
 - Los abonos viejos conservan `request_id NULL`; el índice parcial permite múltiples `NULL`.
-- Probado con una DB de esquema viejo creada a mano: al arrancar, la columna se agrega, el índice se crea y la fila vieja queda con `request_id = NULL`.
+- La prueba de migración vieja es **manual, no automatizada** (ver §4.3).
 
 **`recordCreditPayment` (`web/src/lib/orders.ts`):**
 
@@ -81,7 +83,7 @@ recordCreditPayment(
 ```
 
 - Abre `BEGIN IMMEDIATE` antes de leer el saldo.
-- Si `requestId` ya existe en el mismo crédito, devuelve el abono existente con `duplicate: true` y **no inserta**.
+- Si `requestId` ya existe en el mismo crédito, devuelve el abono existente con `duplicate: true`, `appliedCents` del abono original, `balanceCents` actual y **`overpayCents: 0`**; no inserta y no inventa un “devuelve” para el monto del reintento.
 - Si `requestId` existe en otro crédito, devuelve `409 request_id_conflict`.
 - Si el crédito está saldado o el saldo es 0, no escribe y devuelve `409 credit_settled`.
 - Si `expectedBalanceCents` no coincide con el saldo actual, no escribe y devuelve `409 balance_changed`.
@@ -98,8 +100,8 @@ recordCreditPayment(
 **Cliente:**
 
 - Genera `requestId` una vez al abrir la hoja (`crypto.randomUUID()` con fallback) y lo conserva mientras la hoja sigue abierta.
-- Envía `amountCents` pedido (no el aplicado), `requestId` y `expectedBalanceCents` del saldo con el que abrió.
-- Usa `appliedCents`/`overpayCents` de la respuesta para el mensaje; si `duplicate: true`, avisa “Abono ya registrado… No se duplicó”.
+- Envía `amountCents` pedido (no el aplicado), `requestId` y `expectedBalanceCents` **del saldo del render actual**, no necesariamente del momento exacto de apertura. Si el dashboard se refrescó mientras la hoja estaba abierta, `expectedBalanceCents` puede ser el saldo nuevo; por eso el 409 cubre la ventana en que el cliente no se ha refrescado, no toda la vida de la hoja.
+- Usa `appliedCents`/`overpayCents` de la respuesta para el mensaje; si `duplicate: true`, muestra “Abono ya registrado. Se aplicaron $X. No se duplicó.”, sin nota de cambio/devuelve.
 - Si recibe `409`, muestra el mensaje del servidor, refresca el dashboard y no anuncia un abono falso.
 
 **Referencia correcta:** esto cierra el candidato de auditoría **P0-1 / P0-C**, no una tarea P0-4. La idempotencia durable ya está implementada en este corte.
@@ -139,7 +141,7 @@ El build de Next 16 con Cache Components prerenderizaba `GET /api/credits` como 
 5. **“Saldado” manda sobre “pendiente”.** Si `credits.balance_cents = 0` o `status = settled`, el detalle y Actividad dicen Saldado y conservan el original.
 6. **El método por defecto sigue siendo efectivo, pero es visible y editable.** No hay default silencioso: la hoja muestra check, texto ELEGIDO y foco. La frase “me transfirió” no cambia el método automáticamente; la persona debe elegir Digital.
 7. **Una llave por intento de hoja.** `requestId` se genera al abrir la hoja y se reutiliza en los reintentos de esa hoja; una hoja nueva genera otra llave. La deduplicación durable cubre el reintento de la misma llave, no “dos intenciones distintas”.
-8. **Saldo esperado explícito.** El cliente envía `expectedBalanceCents` para que una hoja abierta con saldo viejo reciba 409 en vez de escribir sobre un saldo que cambió.
+8. **Saldo esperado explícito, del render actual.** El cliente envía `expectedBalanceCents` con el saldo que tiene en ese render. Si el dashboard se refrescó mientras la hoja estaba abierta, el valor puede ser el nuevo; no es una fotografía inmutable del momento de apertura.
 9. **No se cambió la verdad del pago.** Ni `paymentTruth`, ni webhook, ni `/api/verify`, ni `PaidSheet` en su lógica de verdad.
 
 ---
@@ -148,7 +150,7 @@ El build de Next 16 con Cache Components prerenderizaba `GET /api/credits` como 
 
 ### 4.1 · Gates
 
-Ejecutados desde `web/` sobre el árbol de producto `0eddea2` (los commits posteriores solo agregan evidencia/reporte):
+Ejecutados desde `web/` sobre el árbol de producto `80bd574` (los commits posteriores solo agregan evidencia/reporte):
 
 | Comando | Resultado |
 |---|---|
@@ -158,7 +160,7 @@ Ejecutados desde `web/` sobre el árbol de producto `0eddea2` (los commits poste
 | `npm run verify:fast` | **PASS** · 3/3 (guard, lint, types) |
 | `npm run verify:static` | **PASS** · 4/4 (guard, lint, types, build) |
 
-Evidencia de gate: `harness/evidence/latest.json`, `mode: static`, `gitAtStart.sha = 62ca6f2`, `dirty: false`, `ok: true`. El gate se ejecutó después de las evidencias E2E, sobre el mismo código de producto (`0eddea2`); no hubo cambios de producto entre esos commits.
+Evidencia de gate: `harness/evidence/latest.json`, `mode: static`, `gitAtStart.sha = 1181967`, `dirty: false`, `ok: true`. El gate se ejecutó después de las evidencias E2E, sobre el mismo código de producto (`80bd574`); no hubo cambios de producto entre esos commits.
 
 > Los gates `static` no contactan `:3000`; el banner `http://localhost:3000` del harness es informativo y no se ejecutó ningún gate runtime contra ese servidor.
 
@@ -167,8 +169,8 @@ Evidencia de gate: `harness/evidence/latest.json`, `mode: static`, `gitAtStart.s
 **Archivo:** `web/scripts/p0-fiado-e2e.py`.
 **Servidor:** el propio script levanta `npm start` en **`:3101`** con `DATABASE_PATH` temporal, `DEMO_MODE=true` y `OPENAI_API_KEY=""`; reinicia la demo entre casos y borra la base al terminar. Se niega a correr contra `:3000`. También acepta `P0_EXTERNAL_SERVER=1` + `P0_DB_PATH`.
 
-**Resultado:** **48 PASS · 0 FAIL · 0 KNOWN**.
-**Evidencia:** `harness/evidence/p0-fiado-e2e.json` (`baseUrl = http://localhost:3101`, `code.commit = 7ea5f67`, `code.dirty = false`; el código de producto es `0eddea2`, entre ambos commits solo cambió el JSON de regresión P0-A/B).
+**Resultado:** **50 PASS · 0 FAIL · 0 KNOWN**.
+**Evidencia:** `harness/evidence/p0-fiado-e2e.json` (`baseUrl = http://localhost:3101`, `code.commit = 0c67f77`, `code.dirty = false`; el código de producto es `80bd574`, entre ambos commits solo cambió el JSON de regresión P0-A/B).
 **Artefacto 360:** `harness/evidence/p0-fiado-360.png` (capturado por el E2E; documentScrollWidth 360, diálogo 358).
 
 Casos cubiertos:
@@ -188,13 +190,15 @@ Casos cubiertos:
 13. La hoja de abono muestra `Saldo vivo: $60.00 · original $100.00 · abonado $40.00`.
 14. Liquidar desde la hoja registra el abono final; `orders.credit_cents` sigue siendo 10000 en SQLite.
 15. Tras liquidar, Actividad dice `Saldado` y el detalle “Fiado Saldado · original $100.00”.
-16. La misma `requestId` dos veces devuelve `duplicate: true` y un solo `credit_payment`; con otro monto tampoco duplica.
-17. La hoja a 360 px no desborda horizontalmente y muestra el método con estado; el artefacto queda en `harness/evidence/p0-fiado-360.png`.
-18. Ninguna petición del navegador fue a `:3000`; el carril corrió en `:3101`.
+16. **Duplicado con otro monto:** primera petición de $20 sobre saldo $50 con `requestId X`; reintento con `requestId X` y $30 devuelve `duplicate: true`, `appliedCents: 2000`, `overpayCents: 0`, un solo `credit_payment`.
+17. **Misma `requestId` en otro fiado:** devuelve `409 request_id_conflict` y no inserta en el otro crédito.
+18. **Respuesta perdida en UI:** la primera petición llega al servidor pero se corta la respuesta; el reintento desde la misma hoja reutiliza el `requestId`, muestra “Abono ya registrado. Se aplicaron $50.00. No se duplicó.” y no contiene “devuelve”; queda un solo abono.
+19. La hoja a 360 px no desborda horizontalmente y muestra el método con estado; artefacto en `harness/evidence/p0-fiado-360.png`.
+20. Ninguna petición del navegador fue a `:3000`; el carril corrió en `:3101`.
 
 ### 4.3 · Migración de una DB existente
 
-Prueba manual separada del E2E, sobre una DB temporal con el esquema viejo de `credit_payments` (sin `request_id`):
+Prueba **manual, no automatizada**, sobre una DB temporal con el esquema viejo de `credit_payments` (sin `request_id`):
 
 - Al arrancar la app, `PRAGMA table_info(credit_payments)` muestra `request_id`.
 - Se crea `idx_credit_payments_request_id` (índice único parcial).
@@ -209,7 +213,7 @@ Se corrió `web/scripts/p0-venta-e2e.py` contra un servidor aislado `:3101` con 
 
 **43 PASS · 0 FAIL · 1 KNOWN**.
 
-Evidencia: `harness/evidence/p0-venta-e2e.json` (`baseUrl = http://localhost:3101`, `code.commit = 0eddea2`, `code.dirty = false`). El KNOWN es el hueco pre-existente del `PaymentPanel` mixto con saldo digital, ya reportado en P0-A/B.
+Evidencia: `harness/evidence/p0-venta-e2e.json` (`baseUrl = http://localhost:3101`, `code.commit = 80bd574`, `code.dirty = false`). El KNOWN es el hueco pre-existente del `PaymentPanel` mixto con saldo digital, ya reportado en P0-A/B.
 
 ### 4.5 · Chequeo 360
 
@@ -227,14 +231,14 @@ No sustituye una prueba con lector de pantalla, alto contraste, daltonismo ni te
 
 - **Consulta de voz con varias deudas:** `answerLocal` sigue devolviendo el primer crédito que coincide al preguntar “¿cuánto me debe Juan?”. No suma varias deudas ni desambigua. El abono sí bloquea la ambigüedad; la consulta no. Es un KNOWN de P0-E/P1.
 - **Método “me transfirió”:** el parser no devuelve método y la hoja abre en Efectivo. La persona debe elegir Digital; no se infiere de la frase. Es visible, no silencioso, pero sigue siendo un paso manual.
-- **“Saldado” en la hoja de abono:** la rama existe como guarda, pero no es alcanzable porque la hoja solo recibe créditos pendientes. “Saldado” se ve en detalle y Actividad. No se afirma lo contrario.
+- **“Saldado” en la hoja de abono:** la rama existe como guarda, pero no es alcanzable porque la hoja solo recibe créditos pendientes. “Saldado” se ve en detalle y Actividad.
 - **Historial de saldados:** la libreta solo lista créditos abiertos; un crédito liquidado desaparece de la libreta. No hay sección de historial de saldados (P0-2/P1).
 - **Título del detalle:** `paymentSheetTitle` sigue devolviendo “Pedido entregado” para un pedido `fulfilled` con crédito abierto. Es el riesgo R5/P0-5 de la auditoría; la nota de saldo vivo sí es correcta.
 - **`PaidSheet` con crédito:** se actualizó su presentación para no mostrar el original como “Saldo pendiente”, pero el flujo normal de fiado abre `PaymentPanel`, no `PaidSheet`. La rama de `PaidSheet` con crédito no es alcanzable en el camino probado.
-- **Sin polling:** la hoja y las superficies usan `dashboard.credits` al cargar. Si otra pestaña abona mientras la pantalla está quieta, el cambio se ve al refrescar o al confirmar (el `expectedBalanceCents` produce 409). Actualización viva/polling es P0-E.
-- **Idempotencia por intención:** `requestId` se genera por hoja abierta. Si la primera petición llegó al servidor pero se perdió la respuesta y la persona **cierra y vuelve a abrir** la hoja, se genera otra llave y el nuevo intento no está deduplicado contra el anterior. El reintento dentro de la misma hoja sí está cubierto. No hay reintento automático.
+- **Sin polling:** la hoja y las superficies usan `dashboard.credits` al cargar. Si otra pestaña abona mientras la pantalla está quieta, el cambio se ve al refrescar o al confirmar. `expectedBalanceCents` es el saldo del render actual, no necesariamente el de apertura; si el dashboard se refrescó, el cliente puede enviar el saldo nuevo y no recibir 409. Actualización viva/polling es P0-E.
+- **Idempotencia por intención:** `requestId` se genera por hoja abierta. Si la primera petición llegó al servidor pero se perdió la respuesta y la persona **cierra y vuelve a abrir** la hoja, se genera otra llave y el nuevo intento no está deduplicado contra el anterior. El reintento dentro de la misma hoja sí está cubierto (probado con respuesta perdida). No hay reintento automático.
 - **Atomicidad:** la transacción `BEGIN IMMEDIATE` cubre el camino normal y los conflictos; no se forzó una caída entre `INSERT` y `UPDATE` ni se probó concurrencia multi-proceso. SQLite usa `busy_timeout = 5000` y el proceso es único en el prototipo.
-- **Migración:** se probó contra una DB de esquema viejo; no se probó contra una DB con `request_id` duplicados preexistentes (el índice único fallaría, como debe).
+- **Migración:** la prueba de esquema viejo es manual, no automatizada; no se probó una DB con `request_id` duplicados preexistentes (el índice único fallaría, como debe).
 - **Voz real:** se probó el chip y `interpretText` con el parser local (`mockParse`). No se probó micrófono real, `MediaRecorder`, transcripción OpenAI ni una frase con nombre que el parser devuelva distinto al nombre del cliente. Si el nombre del parser no coincide exactamente, la app no ejecuta (comportamiento seguro).
 - **Métodos:** solo se ofrecen Efectivo y Digital (`codi`), como antes. No se añadieron tarjeta/wallet.
 - **“N clientes”:** cuenta `customerId` distintos, no créditos. No deduplica personas por nombre; “José” y “Jose” siguen siendo dos clientes.
@@ -249,11 +253,11 @@ No sustituye una prueba con lector de pantalla, alto contraste, daltonismo ni te
 - **Prueba reproducible:** `web/scripts/p0-fiado-e2e.py`.
 - **Guion/demo actualizados:** `mobile-audit.py`, `rehearse-demo.py`, `GUION-3-MIN.md`, `RUNBOOK-DEMO.md`, `README.md`.
 - **Evidencia:**
-  - `harness/evidence/p0-fiado-e2e.json` (48 PASS · 0 FAIL · 0 KNOWN, `:3101`, `dirty: false`).
+  - `harness/evidence/p0-fiado-e2e.json` (50 PASS · 0 FAIL · 0 KNOWN, `:3101`, `dirty: false`).
   - `harness/evidence/p0-fiado-360.png` (artefacto 360).
-  - `harness/evidence/p0-venta-e2e.json` (43 PASS · 0 FAIL · 1 KNOWN, `:3101`, `code.commit = 0eddea2`, `dirty: false`).
-  - `harness/evidence/latest.json` (static 4/4, `gitAtStart.sha = 62ca6f2`, `dirty: false`).
-- **Commits:** `0eddea2` (producto), `7ea5f67` (regresión P0-A/B), `62ca6f2` (E2E P0-C + 360), `5a857f8` (gate estático). El reporte se commitea después de este archivo.
+  - `harness/evidence/p0-venta-e2e.json` (43 PASS · 0 FAIL · 1 KNOWN, `:3101`, `code.commit = 80bd574`, `dirty: false`).
+  - `harness/evidence/latest.json` (static 4/4, `gitAtStart.sha = 1181967`, `dirty: false`).
+- **Commits:** `80bd574` (producto), `0c67f77` (regresión P0-A/B), `1181967` (E2E P0-C + 360), `40f5d67` (gate estático). El reporte se commitea después de este archivo.
 - **Sin merge a `master`.** Sin tocar `mercado-cero` ni el servidor `:3000`.
 
 ### Reproducir P0-C
