@@ -111,7 +111,14 @@ def run_once(page, iteration: int) -> dict:
     page.get_by_label("Cantidad de $20", exact=True).fill("1")
     step("conteo cuadra", wait_text(page, "Cuadra"))
     page.get_by_role("button", name="Guardar corte").click()
-    step("corte guardado", wait_text(page, "Corte guardado"))
+    page.wait_for_selector("[role=dialog]", timeout=8000)
+    page.get_by_role("dialog").get_by_role("button", name="Guardar corte").click()
+    try:
+        page.get_by_text(re.compile(r"Corte #\d+ guardado")).first.wait_for(timeout=12000)
+        corte_ok = True
+    except Exception:
+        corte_ok = False
+    step("corte guardado", corte_ok)
 
     # 7. Meta.
     page.get_by_role("button", name="Meta", exact=True).first.click()
