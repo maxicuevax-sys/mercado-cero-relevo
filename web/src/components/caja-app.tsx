@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, memo, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnimatedAmount } from "@/components/animated-amount";
+import { ClosingChecklist } from "@/components/closing-checklist";
 import { PendingPayments } from "@/components/pending-payments";
 import { PendingTasksPanel } from "@/components/pending-tasks";
 import { ScreenHeading } from "@/components/screen-heading";
@@ -2257,6 +2258,7 @@ export default function CajaApp({
     setTab("caja");
   }, []);
   const goToCaja = useCallback(() => selectTab("caja"), [selectTab]);
+  const goToTasks = useCallback(() => selectTab("pendientes"), [selectTab]);
   const speakOverview = useCallback(
     (text: string) => {
       showToast("info", text);
@@ -2611,6 +2613,12 @@ export default function CajaApp({
                 subtitle="Compara lo contado con lo esperado."
               />
               <div className="space-y-5">
+                <MemoClosingChecklist
+                  active={tab === "corte"}
+                  pendingOrders={dashboard?.pendingOrders ?? []}
+                  onOpenOrder={selectOrder}
+                  onGoToTasks={goToTasks}
+                />
                 <MemoCashCloseCard
                   key={cashCloseKey}
                   active={tab === "corte"}
@@ -7707,6 +7715,7 @@ function DemoContent({ demoMode, onReset }: { demoMode: boolean; onReset: () => 
    corte, la meta o la actividad completa. */
 
 const MemoBusinessOverview = memo(BusinessOverview);
+const MemoClosingChecklist = memo(ClosingChecklist);
 const MemoCashCloseCard = memo(CashCloseCard);
 const MemoGoalCard = memo(GoalCard);
 const MemoReconcileCard = memo(ReconcileCard);

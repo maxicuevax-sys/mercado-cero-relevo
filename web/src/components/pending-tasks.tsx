@@ -24,19 +24,16 @@ import {
 } from "lucide-react";
 import { ScreenHeading } from "@/components/screen-heading";
 import { cn } from "@/lib/format";
+import {
+  addDaysToDateKey,
+  MEXICO_TZ,
+  mexicoAt,
+  mexicoDateKey,
+} from "@/lib/mexico-date";
 import type { Task } from "@/lib/types";
 
-const MEXICO_TZ = "America/Mexico_City";
-const DAY_MS = 24 * 60 * 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
 const MINUTE_MS = 60 * 1000;
-
-const dateKeyFormatter = new Intl.DateTimeFormat("en-CA", {
-  timeZone: MEXICO_TZ,
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-});
 
 const shortDateFormatter = new Intl.DateTimeFormat("es-MX", {
   timeZone: MEXICO_TZ,
@@ -49,35 +46,6 @@ const timeFormatter = new Intl.DateTimeFormat("es-MX", {
   hour: "2-digit",
   minute: "2-digit",
 });
-
-function mexicoDateKey(date: Date): string {
-  const parts = dateKeyFormatter.formatToParts(date);
-  const value = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((part) => part.type === type)?.value ?? "";
-  return `${value("year")}-${value("month")}-${value("day")}`;
-}
-
-function addDaysToDateKey(key: string, days: number): string {
-  const [year, month, day] = key.split("-").map(Number);
-  const date = new Date(Date.UTC(year, month - 1, day + days));
-  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(
-    2,
-    "0",
-  )}-${String(date.getUTCDate()).padStart(2, "0")}`;
-}
-
-function mexicoMidnight(key: string): Date {
-  // México ya no usa horario de verano: UTC-6 todo el año.
-  return new Date(`${key}T00:00:00-06:00`);
-}
-
-function mexicoAt(daysAhead: number, hour: number, now = new Date()): Date {
-  return new Date(
-    mexicoMidnight(mexicoDateKey(now)).getTime() +
-      daysAhead * DAY_MS +
-      hour * HOUR_MS,
-  );
-}
 
 function subscribeToClock(onChange: () => void): () => void {
   const timer = window.setInterval(onChange, 30_000);
