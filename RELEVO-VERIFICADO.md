@@ -8,26 +8,28 @@
 
 ## Estado en una frase
 
-La rama final `p0/final-cognitive` (`fabe7cc`) tiene corregidos P0-1, P0-2,
-P1-1, P1-3 y P1-5, y `master` (`a85d903`) es su ancestro (28 commits atrás),
-pero **no hay build ni `latest.json`/full del HEAD, `:3000` está caído, el
-túnel/QR vigente está muerto y el video es histórico**. El cierre no está
-hecho y no se debe mergear todavía.
+La rama de trabajo **`p0/consolidacion`** contiene la final `p0/final-cognitive`
+(`fabe7cc`) más los documentos verificados. `master` es su ancestro y el
+fast-forward es posible **a `p0/consolidacion`**, no a la final sola. P0-1,
+P0-2, P1-1, P1-3 y P1-5 están corregidos, pero **no hay build ni
+`latest.json`/full del HEAD, `:3000` está caído, el túnel/QR vigente está
+muerto y el video es histórico**. El cierre no está hecho y no se debe mergear
+todavía.
 
 | Dato | Valor verificado |
 |---|---|
-| `master` | `a85d903936af607e3c209fedceb2a40d8410a66e` |
-| Rama final | `p0/final-cognitive` = `fabe7cc09bca0031233ac893a4d3d9c330c921c5` |
-| Worktree de consolidación | `p0/consolidacion` = `fabe7cc` + commit de docs (SHA en la entrega) |
-| Relación | `master` es ancestro de la final; `master..final` = **28**, `final..master` = 0. El worktree suma 1 commit de docs (29). ff posible, **no ejecutado** |
+| `master` | `git rev-parse master`; al generar: `529bddb` (solo docs) |
+| Rama de código | `p0/final-cognitive` = `fabe7cc09bca0031233ac893a4d3d9c330c921c5` |
+| Worktree de consolidación | `p0/consolidacion` = `fabe7cc` + docs; al generar: `2eecf09` |
+| Relación | `master` es ancestro de `p0/consolidacion`; **ff-only a consolidación**, no a la final sola. `master..consolidacion` = 30 al generar; verifica con git |
 | Build conocido | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990` (2026-11-03T04:21:10Z); padre de `fabe7cc` |
-| Diferencia build→`fabe7cc` | solo `payment-truth-e2e.py` y `companion-preferences-e2e.json`; **código de app idéntico**. El HEAD del worktree añade docs. |
+| Diferencia build→`fabe7cc` | solo `payment-truth-e2e.py` y `companion-preferences-e2e.json`; **código de app idéntico**. El HEAD de consolidación añade docs. |
 | `:3000` | **no responde** |
 | Preview `:3230` / pública | `397039d212452b2950935d745cd8a1781040923e` (`involve-picking-wellness-retreat.trycloudflare.com`) |
 | `:3302` | `2a1f166...` |
 | Túnel `timing-brought-lamp-aberdeen...` | **DNS no resuelve**; el QR lo usa |
 | `harness/evidence/latest*.json` | **no existen** en este worktree |
-| `master` contiene la final | **No** (28 commits de diferencia) |
+| `master` contiene la final/consolidación | **No**; la rama de trabajo está 30 commits adelante |
 
 ## 5 cosas que sí están hechas (verificadas)
 
