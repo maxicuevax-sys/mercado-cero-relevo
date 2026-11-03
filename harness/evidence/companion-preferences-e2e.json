@@ -1,13 +1,13 @@
 {
-  "startedAt": "2026-11-03T02:00:39.484498+00:00",
-  "finishedAt": "2026-11-03T02:01:07.588891+00:00",
+  "startedAt": "2026-11-03T02:51:52.623545+00:00",
+  "finishedAt": "2026-11-03T02:52:06.046460+00:00",
   "baseUrl": "http://localhost:3305",
   "port": 3305,
-  "database": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\mercado-cero-preferencias-kns51rud\\mercado-cero.db",
+  "database": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\mercado-cero-preferencias-i735nr3o\\mercado-cero.db",
   "gitAtStart": {
-    "sha": "a1439c3dd84e8411f8916823d0904e6a3b67af3a",
-    "branch": "p0/preferencias",
-    "dirty": false
+    "sha": "e6f310739622b8905bd025875abfce7b04322380",
+    "branch": "p0/final-cognitive",
+    "dirty": true
   },
   "totals": {
     "pass": 26,
@@ -16,23 +16,23 @@
   "screenshots": [
     {
       "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\01-ayuda-abierta.png",
-      "sha256": "8a69164a4248e8456ec82f7ebb8998d0da3d2a905abf507ae0c790db9932158b"
+      "sha256": "75d5add7266d499d7612ee06c779b734a9d07e075f81dd24220577c6628311ba"
     },
     {
       "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\02-sugerencias-apagadas.png",
-      "sha256": "3e130f85ed64aba11c26b907e63deec8c94fcfebf823f17cfbad485f8c042381"
+      "sha256": "7a4184d60a7959d5a0b4be7385c06cd680efa6ad20f75d386ceaf9117efa42e1"
     },
     {
       "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\03-recarga-apagada.png",
-      "sha256": "f9541f54a47e4e65fe30d6222f0b5c844a0c3358cede1fc4020c6d44b6d04ed2"
+      "sha256": "5e6cf26fac6399ac36026a40e15dbab265a0e50f2a03a748bf2d83ff60dee220"
     },
     {
       "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\04-cobro-pendiente-sugerencias-apagadas.png",
-      "sha256": "734c2b8fe491d6733d95272d7377c948d4fb7b1c298a296c8ce4f4d3724416f1"
+      "sha256": "0deec7f183c5928984401d5cd565d8121cd52df2e915e3cd335920891cf1d1d7"
     },
     {
       "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\05-sugerencias-encendidas.png",
-      "sha256": "ac1db6da1061852134ac1750e101ecda2830a3e0d111b58f2a2082f3164a5b27"
+      "sha256": "2886727366eceab35a3d14ed329ae558144a5ec9c0a953c874ec62c2ef5ceb13"
     },
     {
       "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\06-360-texto-grande.png",
@@ -68,7 +68,7 @@
     {
       "name": "los tres controles miden al menos 48 px de alto",
       "ok": true,
-      "detail": "[{\"label\": \"Sugerencias para revisar\", \"height\": 103, \"width\": 484, \"describedBy\": \"_r_1_-suggestions\"}, {\"label\": \"Recordatorios de pendientes\", \"height\": 131, \"width\": 484, \"describedBy\": \"_r_1_-reminders\"}, {\"label\": \"Explicaciones en contexto\", \"height\": 131, \"width\": 484, \"describedBy\": \"_r_1_-explanations\"}]"
+      "detail": "[{\"label\": \"Sugerencias para revisar\", \"height\": 103, \"width\": 483, \"describedBy\": \"_r_1_-suggestions\"}, {\"label\": \"Recordatorios de pendientes\", \"height\": 130, \"width\": 483, \"describedBy\": \"_r_1_-reminders\"}, {\"label\": \"Explicaciones en contexto\", \"height\": 130, \"width\": 483, \"describedBy\": \"_r_1_-explanations\"}]"
     },
     {
       "name": "cada control expone aria-pressed y aria-describedby",
@@ -113,7 +113,7 @@
     {
       "name": "con Sugerencias apagadas, el aviso crítico de cobros sigue visible",
       "ok": true,
-      "detail": "Cobros pendientes · 2 ·  · Última comprobación: Hoy 8:00 p.m. ·  · Total pendiente · $185.00 ·  · 1 × Pedido para llevar ·  · Esperando confirmación · Hoy 7:50 p.m. · Saldo$120.00 · Ver ·  · 1 × Cobro crítico E2E ·  · Sin link · Hoy 8:00 p.m. · Saldo$65.00 · V"
+      "detail": "Cobros pendientes (todas las fechas) · 2 ·  · Última comprobación: Hoy 8:51 p.m. ·  · Total pendiente · $185.00 ·  · 1 × Pedido para llevar ·  · Esperando confirmación · Hoy 8:41 p.m. · Saldo$120.00 · Ver ·  · 1 × Cobro crítico E2E ·  · Sin link · Hoy 8:51"
     },
     {
       "name": "el aviso crítico no reactiva la preferencia de Sugerencias",
