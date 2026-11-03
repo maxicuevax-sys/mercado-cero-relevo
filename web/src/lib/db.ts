@@ -1191,7 +1191,15 @@ function seedDemoHistory(database: DatabaseSync) {
       );
   }
 
-  const pendingCreatedAt = new Date(Date.now() - 10 * 60 * 1000);
+  // A las 00:00–00:10, "hace 10 minutos" cae en el día anterior y el fixture
+  // deja de contar como pendiente de hoy. Se ancla al menos a las 00:01 de
+  // México para que la demo y el preflight no dependan de la hora de arranque.
+  const pendingCreatedAt = new Date(
+    Math.max(
+      Date.now() - 10 * 60 * 1000,
+      startOfMexicoDay(0).getTime() + 60 * 1000,
+    ),
+  );
   const pendingId = `demo_hist_pending_${newId("ord")}`;
   const appUrl = (process.env.APP_URL ?? "http://localhost:3000").replace(/\/+$/, "");
   database
