@@ -1,0 +1,255 @@
+{
+  "schemaVersion": 1,
+  "audit": "adversarial",
+  "product": "Mercado Cero",
+  "branch": "p0/adversarial",
+  "audited_sha": "b7154caaa2185b2cafb44a02a6bf5f8b69bef045",
+  "base_sha": "b7154caaa2185b2cafb44a02a6bf5f8b69bef045",
+  "generated_at": "2026-11-03T03:50:00Z",
+  "method": [
+    "lectura independiente de web/src, rutas API, tests, migraciones y docs",
+    "npm ci",
+    "npm run build (BUILD OK, b7154ca)",
+    "npm run verify:fast (3/3)",
+    "node scripts/webhook-gate.mjs (40/40, :3193, DB temporal, DEMO_MODE=true)",
+    "node scripts/security-contract.mjs (48/48, :3121, DB temporal)",
+    "next start aislado en :3317 con SQLite temporal y DEMO_MODE=true",
+    "webhook HMAC real, Playwright 320/360/200%, axe, limites 51/101",
+    "mock de pey en :3320 + Next aislado :3318 para /api/verify"
+  ],
+  "counts": {
+    "P0": 2,
+    "P1": 5,
+    "P2": 7,
+    "total": 14,
+    "confirmed": 13,
+    "not_verified": 1
+  },
+  "findings": [
+    {
+      "id": "P0-1",
+      "severity": "P0",
+      "status": "CONFIRMADO",
+      "title": "El reset de demo borra un pago firmado de pey y reporta preservedRealPayments: 1",
+      "files": [
+        "web/src/lib/orders.ts:591",
+        "web/src/lib/orders.ts:677-683",
+        "web/src/lib/db.ts:1848-1855",
+        "web/src/lib/db.ts:1943-1957",
+        "web/src/lib/db.ts:1973",
+        "web/src/lib/db.ts:2005",
+        "README.md:231",
+        "SECURITY.md:84-86"
+      ],
+      "repro": "Crear orden de 1000, generar link demo, enviar webhook firmado paid/MXN por 10.00, comprobar payments.provider=pey y payments.demo=1, PATCH fulfill=200, POST /api/demo/reset=200 con preservedRealPayments=1; despues orders y payments del pedido ya no existen.",
+      "why": "Destruye evidencia de un pago firmado y la respuesta afirma que lo conservo; contradice README y SECURITY.",
+      "missing_test": "Reset despues de un pago firmado por el camino real en DEMO_MODE=true; exigir 409 o conservacion real y comparar preservedRealPayments con la base. security-contract inserta el pago manual con demo=0 y no cubre este caso."
+    },
+    {
+      "id": "P0-2",
+      "severity": "P0",
+      "status": "CONFIRMADO",
+      "title": "La home SSR contiene el dashboard privado y declara Cache-Control publico con s-maxage=60",
+      "files": [
+        "web/src/app/page.tsx:12-17",
+        "web/next.config.ts:190-195",
+        "web/src/lib/dashboard.ts:97-102"
+      ],
+      "repro": "GET / devuelve 200 con 'Cache-Control: public, max-age=0, s-maxage=60, stale-while-revalidate=300'; el HTML (111 KB) contiene nombres de clientes, '100 personas', saldo de fiado, paymentUrl y qrString.",
+      "why": "Una cache compartida que honre s-maxage puede servir datos privados de la caja; el comentario de next.config dice que los datos se piden por API, pero ya vienen en el HTML.",
+      "missing_test": "Assert de Cache-Control private/no-store en / y de ausencia de PII en el HTML sin credenciales. security-contract solo revisa nosniff/CSP/etc."
+    },
+    {
+      "id": "P1-1",
+      "severity": "P1",
+      "status": "CONFIRMADO",
+      "title": "Un webhook firmado en modo demo produce paid (no demo_paid), permite fulfill y suma a verifiedDigitalCents",
+      "files": [
+        "web/src/lib/orders.ts:591",
+        "web/src/lib/orders.ts:677-683",
+        "web/src/lib/orders.ts:968-974",
+        "web/src/lib/db.ts:1744-1757"
+      ],
+      "repro": "Webhook firmado valido en DEMO_MODE=true: order.status=paid, payments.demo=1, provider=pey; GET /api/dashboard verifiedDigitalCents=1000, demoDigitalCents=0; PATCH fulfill devuelve 200 fulfilled.",
+      "why": "Contradice que la demo solo use demo_paid y que no se entregue; el contrato del webhook codifica paid en demo y no prueba fulfill ni el resumen.",
+      "missing_test": "En DEMO_MODE=true, webhook firmado debe producir demo_paid o 409; fulfill debe rechazar; verifiedDigitalCents no debe sumarlo."
+    },
+    {
+      "id": "P1-2",
+      "severity": "P1",
+      "status": "CONFIRMADO",
+      "title": "No hay autenticacion de sesion; la caja y sus mutaciones son publicas",
+      "files": [
+        "web/src/proxy.ts:60-103",
+        "web/SECURITY.md:168",
+        "web/src/app/page.tsx:12-17"
+      ],
+      "repro": "Sin cookies ni Authorization: GET /api/dashboard=200 con ventas/fiado, POST /api/orders=201, GET /api/credits=200 con nombres y saldos, POST /api/demo/reset=200 sin token.",
+      "why": "Con el tunel publico cualquiera lee o muta la caja; Cloudflare Access es la unica barrera y no esta en el repo. Es una limitacion declarada, no una afirmacion falsa.",
+      "missing_test": "Test de despliegue sin sesion: 401/302 en /, /api/dashboard, /api/orders, /api/credits y /api/demo/reset; verificar Access."
+    },
+    {
+      "id": "P1-3",
+      "severity": "P1",
+      "status": "CONFIRMADO",
+      "title": "/api/verify acepta una transaccion PAID sin referencias si el monto coincide",
+      "files": [
+        "web/src/app/api/verify/route.ts:172-190",
+        "web/src/app/api/verify/route.ts:229-240"
+      ],
+      "repro": "Mock de pey devuelve {id:txn_no_refs,status:PAID,amount:10,currency:MXN,paymentMethod:CODI} sin payableId/payableType/metadata/clientReferenceId; GET /api/verify?transactionId=txn_no_refs&orderId=<orden de 1000> devuelve verified:true, source:pey.",
+      "why": "La verificacion puede aceptar una transaccion no atada al pedido; el comerciante podria entregar con un comprobante de otra operacion del mismo monto.",
+      "missing_test": "Mock PAID con monto correcto y sin referencias debe dar verified:false. p0-dinero solo prueba A contra B con referencias."
+    },
+    {
+      "id": "P1-4",
+      "severity": "P1",
+      "status": "CONFIRMADO",
+      "title": "Checkout y success inexistentes devuelven HTTP 200",
+      "files": [
+        "web/src/app/pay/[id]/page.tsx:26",
+        "web/src/app/pay/[id]/success/page.tsx",
+        "web/scripts/checkout-audit.py:296-331"
+      ],
+      "repro": "Playwright networkidle: /pay/ord_no_existe=200 y /pay/ord_no_existe/success=200; ambos muestran el body 'No encontramos este cobro'.",
+      "why": "Rastreadores, previews y caches ven un 200; el link invalido no es semanticamente 404. checkout-audit revisa texto y foco, no status.",
+      "missing_test": "Assert response.status == 404 para ambos paths."
+    },
+    {
+      "id": "P1-5",
+      "severity": "P1",
+      "status": "CONFIRMADO",
+      "title": "Totales de cobros y fiado se calculan sobre 50/100 filas sin paginacion visible",
+      "files": [
+        "web/src/lib/pagination.ts:13-16",
+        "web/src/lib/dashboard.ts:97-102",
+        "web/src/components/pending-payments.tsx:99-103",
+        "web/src/components/caja-app.tsx:2324-2326",
+        "web/src/components/caja-app.tsx:3035-3040",
+        "web/src/components/caja-app.tsx:6398",
+        "web/src/lib/db.ts:1420",
+        "web/src/lib/db.ts:1618"
+      ],
+      "repro": "51 pendientes: dashboard pendingOrders=50, total=52, summary.pendingCents=17100, suma cargada=16900; UI '50' y 'Total pendiente $169.00' vs 'Por cobrar de hoy $171.00'. 101 creditos: dashboard=100, creditsTotal=103; UI '100 personas $100.00'; /api/credits?limit=200 suma $151.00 y omite el credito viejo de Juan ($50).",
+      "why": "El cierre y la libreta subestiman deudas; 'todas las fechas' es falso y 'Ver todos' solo expande a 50.",
+      "missing_test": "Tests con 51+ pendientes y 101+ creditos que comparen total visible con la base y exijan paginacion/total del servidor."
+    },
+    {
+      "id": "P2-1",
+      "severity": "P2",
+      "status": "CONFIRMADO",
+      "title": "Las preferencias Recordatorios y Explicaciones se guardan pero no tienen efecto",
+      "files": [
+        "web/src/components/companion-preferences.tsx:41-48",
+        "web/src/components/companion-preferences.tsx:73-81",
+        "web/src/components/closing-checklist.tsx:85-117"
+      ],
+      "repro": "Solo 'suggestions' se lee en closing-checklist; no hay consumidor de reminders/explanations en web/src. El E2E de preferencias verifica persistencia, no efecto.",
+      "why": "Falsa affordance: la persona configura algo y la interfaz no cambia.",
+      "missing_test": "E2E que apague Explicaciones y compruebe que desaparece un texto concreto; otro para Recordatorios."
+    },
+    {
+      "id": "P2-2",
+      "severity": "P2",
+      "status": "CONFIRMADO",
+      "title": "Antes de cerrar llama 'Esperando confirmacion' a pedidos 'Sin link'",
+      "files": [
+        "web/src/components/closing-checklist.tsx:306-320",
+        "web/src/components/closing-checklist.tsx:592-610"
+      ],
+      "repro": "chargeRows incluye confirmed/payment_pending/partially_paid con saldo; el texto esta hardcodeado a 'Esperando confirmacion'. Un confirmed sin paymentUrl/qrString no espera ningun cobro.",
+      "why": "En el cierre la comerciante puede esperar una confirmacion que nunca va a llegar; la franja de Caja si distingue 'Sin link'.",
+      "missing_test": "E2E con un confirmed sin link y un payment_pending; la tarjeta debe distinguirlos."
+    },
+    {
+      "id": "P2-3",
+      "severity": "P2",
+      "status": "CONFIRMADO",
+      "title": "El success de un fiado saldado sigue diciendo 'Quedo a fiado'",
+      "files": [
+        "web/src/app/pay/[id]/success/success-client.tsx:104-110",
+        "web/src/lib/checkout.ts:88-104"
+      ],
+      "repro": "Crear fiado de 5000, pagar el credito completo, abrir /pay/{id}/success: sigue mostrando 'Quedo a fiado: $50.00. Esta en la libreta de fiado'.",
+      "why": "Un comprador o la comerciante puede leer que la deuda sigue; el payload no expone el saldo del credito.",
+      "missing_test": "Abrir el success despues de saldar y exigir 'Fiado saldado' o saldo $0.00."
+    },
+    {
+      "id": "P2-4",
+      "severity": "P2",
+      "status": "CONFIRMADO",
+      "title": "'Lo que me deben' cuenta creditos, no personas",
+      "files": [
+        "web/src/components/caja-app.tsx:3035"
+      ],
+      "repro": "CajaBook usa credits.length para 'N personas'; un cliente con dos fiados abiertos cuenta como dos personas. CreditList si usa Set(customerId) en :6397.",
+      "why": "El numero de personas de la libreta es incorrecto.",
+      "missing_test": "Dos creditos del mismo customerId y assert de '1 persona'."
+    },
+    {
+      "id": "P2-5",
+      "severity": "P2",
+      "status": "CONFIRMADO (ausencia)",
+      "title": "No hay reglas forced-colors; el foco/contraste en ese modo no esta probado",
+      "files": [
+        "web/src/app/globals.css",
+        "web/src/app/barrio.css",
+        "web/src/app/checkout.css:543-544"
+      ],
+      "repro": "Busqueda sin resultados de '@media (forced-colors: active)'. Playwright emula forced_colors=active y el body cambia a blanco/negro, pero no se inspecciono el foco de todos los controles.",
+      "why": "En modo de alto contraste del sistema el foco o los bordes pueden perderse; el handoff ya lo reconocia.",
+      "missing_test": "Captura/axe en forced-colors con foco de teclado en Cobrar, Fiar, Completar y Verificar."
+    },
+    {
+      "id": "P2-6",
+      "severity": "P2",
+      "status": "NO VERIFICADO",
+      "title": "/api/demo/pay no es atomico en multi-proceso; posible doble simulacion",
+      "files": [
+        "web/src/app/api/demo/pay/route.ts:60-85",
+        "web/src/lib/orders.ts:591"
+      ],
+      "repro": "No reproducido. El codigo lee getOrder, calcula amountDue y llama recordPayment sin BEGIN IMMEDIATE ni requestId; en un solo proceso el tramo es sincrono, en varias instancias podria duplicar.",
+      "why": "Doble pago demo en despliegue multi-proceso; no afecta el single next start validado.",
+      "missing_test": "Dos procesos/peticiones concurrentes con barrera; exigir un solo pago demo."
+    },
+    {
+      "id": "P2-7",
+      "severity": "P2",
+      "status": "CONFIRMADO (proceso)",
+      "title": "La documentacion de cierre no coincide con la evidencia del arbol",
+      "files": [
+        "README.md:8",
+        "demo/STATUS.md:3",
+        "demo/STATUS.md:56",
+        "HANDOFF-CIERRE.md:41",
+        "HANDOFF-CIERRE.md:118"
+      ],
+      "repro": "README dice F3 verificado y desplegado; demo/STATUS dice servidor 665d72e, latest.json ausente y full no corrido contra HEAD; harness/evidence/latest.json no existe.",
+      "why": "No se puede declarar cierre/verificacion con la evidencia disponible; el handoff es mas honesto que el README.",
+      "missing_test": "verify:full + verify:evidence sobre este HEAD y actualizar README/demo STATUS con el SHA servido."
+    }
+  ],
+  "not_verified": [
+    "Pago real con pey/BBVA/CoDi; no se movio dinero real",
+    "Payload real de pey y si siempre incluye payableId/payableType/metadata",
+    "Full 23/23, verify:evidence y latest.json",
+    "Gates mobile, checkout, hig, motion, contrast, mobile-320, p0-venta, p0-fiado, p0-corte, p0-integracion, p0-dinero, rehearsal, tunnel, preflight y film",
+    "TalkBack/VoiceOver, lector real, telefono fisico, zoom real y estudio con comerciantes",
+    "Cloudflare Access, cache del CDN y preview",
+    "Carrera multi-proceso de /api/demo/pay",
+    "forced-colors real y contraste completo con todas las opacidades",
+    "Migraciones de bases viejas"
+  ],
+  "limits": [
+    "Auditoria de codigo y runtime aislado, no certificacion de produccion",
+    "No mide carga cognitiva percibida ni comprension humana",
+    "No valida cifras externas de negocio",
+    "No se mergeo ni corrigio codigo; los hallazgos quedan documentados"
+  ],
+  "deliverables": [
+    "AUDITORIA-ADVERSARIA.md",
+    "adversarial-report.md",
+    "adversarial.json"
+  ]
+}

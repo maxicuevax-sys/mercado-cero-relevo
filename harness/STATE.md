@@ -9,7 +9,7 @@
 - App: `web/` (Next.js 16, TypeScript, Tailwind, SQLite `node:sqlite`)
 - Modo actual: **demo** (`demo_paid` para simulación; en el camino digital `paid` solo por webhook pey firmado; el efectivo se registra `paid` al crear la venta)
 - URL local: `http://localhost:3000` (o `BASE_URL`)
-- URL pública (2 nov 2026): `https://timing-brought-lamp-aberdeen.trycloudflare.com` — quick tunnel efímero. Si cambia, regenerar `APP_URL`, QR y PDF (ver `demo/STATUS.md`).
+- URL pública (2 nov 2026): `https://involve-picking-wellness-retreat.trycloudflare.com` — preview `397039d`, **no** el build final; quick tunnel efímero. El túnel `timing...` del QR no resuelve. Si cambia, regenerar `APP_URL`, QR y PDF (ver `demo/STATUS.md`).
 - Base de datos: `web/data/mercado-cero.db` (ignorada por git)
 - Evidencia: `harness/evidence/latest.json` (full) o `latest-static.json` (static), locales e ignorados; solo con `ok:true`
 - Reporte: `npm run harness:report` genera la tabla desde el latest correspondiente
@@ -44,21 +44,24 @@
 
 **Nota:** para el commit actual manda el latest correspondiente (`latest.json` para full, `latest-static.json` para static); si `verify:evidence` falla, la tabla no se usa como prueba.
 
-## Corte actual (2 nov 2026)
+## Corte actual (2 nov 2026, 22:40)
 
-- **SHA de partida (base auditada):** `3fe1cc9` (`p0/fix-demo-docs`).
-- **Servidor `:3000` observado:** `665d72e` — build anterior, **no coincide con la base**.
-- **Evidencia atada a la base/HEAD:** ❌ pendiente. `latest.json`/`latest-static.json` son locales y no están en el árbol; `full` no se corrió contra `3fe1cc9`.
-- **Video:** `demo/mercado-cero-demo.mp4` es **histórico** (39.8 s, 1,704,744 B, UI vieja, muestra $570); se regrabará tras el rediseño. No es respaldo actual.
+- **Rama final:** `p0/final-cognitive` = `fabe7cc`; `p0/consolidacion` = `fabe7cc` + commit de docs (SHA en la entrega).
+- **`master`:** `a85d903`; 28 commits atrás de la final (29 del worktree con docs); es ancestro; fast-forward posible pero **no ejecutado**.
+- **Build conocido:** `2a1f166` (2026-11-03T04:21:10Z), padre de `fabe7cc`; mismo código de app, pero `buildSha !== HEAD`.
+- **Servidor `:3000`:** ❌ no responde. **Preview `:3230` / pública:** `397039d`. **`:3302`:** `2a1f166`.
+- **Evidencia atada al HEAD:** ❌ pendiente. `latest.json`/`latest-static.json` **no existen** en este worktree; `full` no se corrió contra el HEAD (base `fabe7cc` + docs).
+- **P0/P1 corregidos:** P0-1, P0-2, P1-1, P1-3 y P1-5 (`ac9e5a6`/`2a1f166`). Abiertos: P1-2 (auth), P1-4 (404 HTTP 200) y P2 conocidos.
+- **Video:** `demo/mercado-cero-demo.mp4` es **histórico** (39.8 s, 1,704,744 B, UI vieja, muestra $570); los scripts de `p0/fix-video` no están integrados. No es respaldo actual.
 - **Pruebas humanas:** **0/6–8**; TalkBack/VoiceOver y teléfono físico pendientes.
 - **Pago real:** ❌ no hubo; BBVA/CoDi bloqueado; demo `demo_paid`.
 - **Veredicto:** cierre pendiente; no declarar el cierre.
 
 ## Última corrida del harness
 
-- **El SHA de la tabla de gates no se hardcodea.** El código verificado es el `gitAtStart.sha` de `harness/evidence/latest.json` (full) o `latest-static.json` (static); `npm run verify:evidence` lo compara con HEAD y exige árbol limpio, `serverBuildSha === gitAtStart.sha`, `buildSha` por gate runtime, set canónico de artefactos y hashes. El corte actual de arriba referencia `3fe1cc9` para orientar, no como evidencia.
+- **El SHA de la tabla de gates no se hardcodea.** El código verificado es el `gitAtStart.sha` de `harness/evidence/latest.json` (full) o `latest-static.json` (static); `npm run verify:evidence` lo compara con HEAD y exige árbol limpio, `serverBuildSha === gitAtStart.sha`, `buildSha` por gate runtime, set canónico de artefactos y hashes. El corte actual de arriba referencia `fabe7cc`/`2a1f166` para orientar, no como evidencia.
 - **Catálogo actual:** **25 gates**. `fast` 3, `static` 5, `full` **23** por defecto (build fuera, film opcional) y `full --with-film` **24**.
-- **Cierre de este carril de harness:** `npm run test:harness` (58/58), `node scripts/harness-gate.mjs --list`, `node scripts/checkout-gate.mjs` y el gate `p0-dinero` aislado sobre build de HEAD. No se corrió `verify:full` contra `:3000`; el full queda para el orquestador con servidor y túnel.
+- **Cierre de este carril de harness:** `npm run test:harness` (58/58), `node scripts/harness-gate.mjs --list`, `node scripts/checkout-gate.mjs` y el gate `p0-dinero` aislado sobre build de HEAD. No se corrió `verify:full` contra `:3000`; el full queda para el orquestador con servidor y túnel. El fix adversario dejó `p0-adversarial-e2e.py` 28/28 contra build `2a1f166`, pero sin `gitAtStart`/`dirty`.
 - **`full` no se ejecutó en este worktree.** Este carril no toca `mercado-cero`, `:3000` ni `:3101`. El full requiere que el orquestador arranque el servidor **construido desde HEAD** y el túnel fuera de este carril. No se cita como verde actual.
 - **Build identity:** `npm run build` sella `BUILD_SHA`/`.next/BUILD_SHA` y `/api/health` devuelve el SHA. Un servidor de otro commit se rechaza antes de correr runtime.
 - **Artefactos:** los JSON/PNG de mobile, checkout, motion, contraste, mobile-320, p0, rehearsal, tunnel y film están ignorados; escribirlos no ensucia `gitAtEnd`. El JSON de `p0-dinero` está ignorado y **no trackeado**; correr ese gate deja `git status` limpio. `latest.json`/`latest-static.json` y `runs/` también son locales. El QR y el video siguen siendo entregables versionados; el MP4 existente es histórico y se regrabará.
@@ -106,7 +109,7 @@
 
 ## Siguiente tarea
 
-**Corrida final y pruebas humanas.** El ensayo del guion ya pasó en master `75179c7`: 3/3 corridas, 19/19 pasos, ~8.1 s, `todo en verde: True`. El harness actual exige `static` 5/5 y `full` 23/23 (24 con film) sobre árbol limpio y servidor con `buildSha` del mismo commit. En este worktree solo se corre `static`; el full requiere que el orquestador arranque servidor y túnel fuera de este carril. Siguiente: construir desde HEAD, arrancar servidor con la DB correcta, `npm run verify:full`, `npm run verify:evidence`, y ensayar `GUION-3-MIN.md` con cronómetro. Las pruebas humanas (0/6–8 comerciantes, SUS/NASA-TLX, TalkBack/VoiceOver, teléfono físico, zoom real) siguen pendientes y no se sustituyen con gates automáticos.
+**Corrida final y pruebas humanas.** La base de código es `fabe7cc`; el HEAD del worktree añade el commit de docs. El build conocido es `2a1f166` y no vale como identidad de ese HEAD. El harness exige `static` 5/5 y `full` 23/23 (24 con film) sobre árbol limpio y servidor con `buildSha` del mismo commit. Siguiente: construir desde el HEAD del worktree (docs ya commiteados), arrancar `:3000` con la DB correcta y `APP_URL` en `.env.local`, generar los artefactos de preflight, `npm run verify:full`, `npm run verify:evidence`, repetir los cuatro E2E cognitivos y ensayar `GUION-3-MIN.md` con cronómetro. Las pruebas humanas (0/6–8 comerciantes, SUS/NASA-TLX, TalkBack/VoiceOver, teléfono físico, zoom real) siguen pendientes y no se sustituyen con gates automáticos.
 
 ## Corrida final (instrucciones)
 
@@ -122,10 +125,10 @@
 - **Pago real de $0.01:** no hubo pago real. BBVA/CoDi se traba al seleccionar cuenta. No presentar demo como real; la demo usa `demo_paid`.
 - **Teléfono físico 360/320 px + TalkBack/VoiceOver:** no probado.
 - **6–8 comerciantes + SUS/NASA-TLX:** protocolo disponible en `TEST-USUARIO.md`; **0/6–8 ejecutadas**.
-- **Full runtime:** no ejecutado contra HEAD (`3fe1cc9`); el servidor observado es `665d72e`. `:3000` y `:3101` son de otros carriles y no se tocan aquí. Falta la corrida final 23/23 (24 con film) con servidor y túnel controlados por el orquestador.
+- **Full runtime:** no ejecutado contra el HEAD (base `fabe7cc` + docs); `:3000` no responde y el build conocido es `2a1f166`. Falta la corrida final 23/23 (24 con film) con servidor y túnel controlados por el orquestador.
 - **Offline para ventas no bancarias:** no implementado.
 - **Hermes:** capa separada; no iniciada en este repo.
-- **Túnel:** quick tunnel efímero; vigente al 2 nov 2026: `https://timing-brought-lamp-aberdeen.trycloudflare.com`. Si cambia, actualizar `APP_URL`, QR, PDF y preflight.
+- **Túnel:** quick tunnel efímero; vivo al 2 nov 2026: `https://involve-picking-wellness-retreat.trycloudflare.com` (preview `397039d`). El del QR (`timing...`) no resuelve. Si cambia, actualizar `APP_URL`, QR, PDF y preflight.
 
 ## Cómo refrescar este estado
 

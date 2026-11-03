@@ -1,0 +1,389 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-02T21:56:21-06:00",
+  "repo": "mercado-cero",
+  "worktree": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero-context",
+  "branch": "p0/context-recovery",
+  "branchHead": "65c9b4fd79cb41ce97c772dc2a9f1ea4e385d98e",
+  "head": "b7154caaa2185b2cafb44a02a6bf5f8b69bef045",
+  "headShort": "b7154ca",
+  "headSubject": "Merge branch 'master' into p0/final-cognitive",
+  "base": "b7154caaa2185b2cafb44a02a6bf5f8b69bef045",
+  "finalCandidate": {
+    "branch": "p0/final-cognitive",
+    "sha": "2a786f14184567744b15b211993a4da30436e8a0",
+    "productCodeSha": "b7154caaa2185b2cafb44a02a6bf5f8b69bef045",
+    "sameAsHead": false,
+    "mergedToMaster": false,
+    "note": "2a786f1 es un merge del doc de bloqueo; el código de producto sigue en b7154ca."
+  },
+  "master": {
+    "sha": "a85d903936af607e3c209fedceb2a40d8410a66e",
+    "short": "a85d903",
+    "subject": "docs(relevo): bloquear merge hasta corregir P0 adversarios",
+    "isAncestorOfFinal": true,
+    "containsFinal": false
+  },
+  "mergeBase": "a85d903936af607e3c209fedceb2a40d8410a66e",
+  "aheadOfMaster": 24,
+  "behindMaster": 0,
+  "fastForwardPossible": true,
+  "mergeBlocked": true,
+  "mergeBlockReason": "HANDOFF-CIERRE.md en master: NO MERGEAR TODAVIA por 2 P0 (reset borra pago pey; home cachea datos privados).",
+  "treeClean": true,
+  "stashes": 0,
+  "remotes": 0,
+  "tags": [
+    {
+      "name": "pre-hig",
+      "sha": "4d33a468776d74415cfe7f5cc99ef1536d546741"
+    },
+    {
+      "name": "hig-baseline",
+      "sha": "7f107f9b449279c0280faf28e197b4aa42593dbe"
+    },
+    {
+      "name": "pre-hig-merge",
+      "sha": "74730e15cf5d7265f387c4a5b0bad0111d8ba7a3"
+    },
+    {
+      "name": "pre-remediation",
+      "sha": "7bb0dc54a53ea8880415a6af219e19c65529e5d3"
+    }
+  ],
+  "worktrees": {
+    "count": 49,
+    "key": [
+      {
+        "path": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero",
+        "branch": "master",
+        "sha": "a85d903936af607e3c209fedceb2a40d8410a66e"
+      },
+      {
+        "path": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero-context",
+        "branch": "p0/context-recovery",
+        "sha": "65c9b4fd79cb41ce97c772dc2a9f1ea4e385d98e"
+      },
+      {
+        "path": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero-rehearsal",
+        "branch": "p0/final-cognitive",
+        "sha": "2a786f14184567744b15b211993a4da30436e8a0"
+      },
+      {
+        "path": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero-supervisor",
+        "branch": "p0/supervisor",
+        "sha": "ca3f95c0716f0415dfcee6b5f6c8839900bedf64"
+      },
+      {
+        "path": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero-adversarial",
+        "branch": "p0/adversarial",
+        "sha": "39391336ce4b4dcef98035b215d01653292a0f77"
+      },
+      {
+        "path": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero-fix-adversarial",
+        "branch": "p0/fix-adversarial",
+        "sha": "b7154caaa2185b2cafb44a02a6bf5f8b69bef045"
+      },
+      {
+        "path": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero-design-preview",
+        "branch": null,
+        "detached": true,
+        "sha": "572847db04ab22ae354f25e092388c9c1a230c9a"
+      },
+      {
+        "path": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero-design-structure",
+        "branch": "p0/design-structure",
+        "sha": "7a178a5827a5f1c8b277be02d70502ac3c274f72"
+      },
+      {
+        "path": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero-fix-video",
+        "branch": "p0/fix-video",
+        "sha": "c395e3e503ecba1effce6b27e65b0983da3b9ad0"
+      },
+      {
+        "path": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero-integration",
+        "branch": "p0/cognitive-integration",
+        "sha": "ddd87dc6271181adf628513f30753948d003681a"
+      }
+    ]
+  },
+  "preview": {
+    "localUrl": "http://127.0.0.1:3230",
+    "publicUrl": "https://involve-picking-wellness-retreat.trycloudflare.com",
+    "buildSha": "397039d212452b2950935d745cd8a1781040923e",
+    "isFinal": false,
+    "note": "Sirve el diseño barrio, pero no los merges cognitivos finales (e6f3107, fe97c00, b7154ca)."
+  },
+  "demoServer3000": {
+    "url": "http://127.0.0.1:3000",
+    "status": "down",
+    "observedAt": "2026-11-02T21:43:41-06:00",
+    "error": "No es posible conectar con el servidor remoto"
+  },
+  "demoTunnel": {
+    "url": "https://timing-brought-lamp-aberdeen.trycloudflare.com",
+    "status": "dns_failure",
+    "observedAt": "2026-11-02T21:43:41-06:00",
+    "note": "El QR/PDF apunta a esta URL; no resuelve."
+  },
+  "buildSha": {
+    "expected": "b7154caaa2185b2cafb44a02a6bf5f8b69bef045",
+    "worktree": null,
+    "preview": "397039d212452b2950935d745cd8a1781040923e",
+    "server3000": null,
+    "matchesHead": false
+  },
+  "gates": {
+    "catalog": 25,
+    "fast": 3,
+    "static": 5,
+    "full": 23,
+    "fullWithFilm": 24,
+    "latestJson": null,
+    "latestStaticJson": null,
+    "adversarialAudit": {
+      "branch": "p0/adversarial",
+      "sha": "39391336ce4b4dcef98035b215d01653292a0f77",
+      "auditedSha": "b7154caaa2185b2cafb44a02a6bf5f8b69bef045",
+      "build": "BUILD OK",
+      "verifyFast": "3/3",
+      "webhook": "40/40",
+      "security": "48/48",
+      "counts": {
+        "P0": 2,
+        "P1": 5,
+        "P2": 7,
+        "confirmed": 13,
+        "notVerified": 1
+      },
+      "files": [
+        "AUDITORIA-ADVERSARIA.md",
+        "adversarial-report.md",
+        "adversarial.json"
+      ],
+      "isFull": false
+    },
+    "evidenceFiles": [
+      "harness/evidence/README.md",
+      "harness/evidence/companion-preferences-e2e.json"
+    ],
+    "companionPreferences": {
+      "pass": 26,
+      "fail": 0,
+      "gitAtStart": {
+        "sha": "e6f310739622b8905bd025875abfce7b04322380",
+        "branch": "p0/final-cognitive",
+        "dirty": true
+      },
+      "validForHandoff": false
+    },
+    "knownClaims": {
+      "webhook": "40/40",
+      "mobile": "25/25",
+      "checkout": "19/19",
+      "hig": "5 viewports",
+      "motion": "19 PASS",
+      "contrast": "7 PASS",
+      "mobile320": "42 PASS",
+      "rehearsal": "3/3, 19/19",
+      "data": "85 checks",
+      "p0Venta": "65 PASS",
+      "p0Fiado": "51 PASS",
+      "p0Corte": "69 PASS",
+      "p0Integracion": "51 PASS",
+      "p0Dinero": "45 PASS + 3 KNOWN",
+      "paymentTruth": "35/35",
+      "sinIa": "21/21 + 1 NOTE",
+      "closingChecklist": "18/18",
+      "companionPreferences": "26/26 (JSON sucio)",
+      "full": "23/23 (sin latest)"
+    },
+    "note": "Todos los conteos, salvo companion preferences, son NO VERIFICADOS para b7154ca: no hay latest.json ni JSON de E2E en el árbol."
+  },
+  "unmergedBranches": [
+    {
+      "branch": "p0/fix-video",
+      "sha": "c395e3e503ecba1effce6b27e65b0983da3b9ad0",
+      "uniqueCommits": [
+        "c395e3e fix(video): grabar demo por roles y verificar mp4/stageshow"
+      ],
+      "risk": "Los scripts nuevos de video no están en HEAD; la grabación final no se puede hacer con el tooling viejo."
+    },
+    {
+      "branch": "p0/design-final",
+      "sha": "dd3e3c944c765f55675653a2954b4092764728f9",
+      "uniqueCommits": [
+        "dd3e3c9 feat(diseno): direccion amable de barrio",
+        "572847d wip(diseno): direccion amable de barrio"
+      ],
+      "risk": "Dirección visual alternativa no integrada; no hay decisión documentada de adoptarla."
+    },
+    {
+      "branch": "p0/perf-data",
+      "sha": "87ebd0c06cc30365ba92dc094f3c25c70473d702",
+      "uniqueCommits": [
+        "87ebd0c docs(perf-data): reporte de rendimiento y contrato",
+        "669ab50 evidence(perf-data): verify:fast sobre el commit del carril"
+      ],
+      "risk": "Incluye harness/evidence/latest.json trackeado, contra la regla de no versionar evidencia."
+    },
+    {
+      "branch": "p0/cognitive-integration",
+      "sha": "ddd87dc6271181adf628513f30753948d003681a",
+      "uniqueCommits": [
+        "ddd87dc Merge branch 'master' into p0/cognitive-integration",
+        "7b1ab92 Merge branch 'p0/sin-ia' into p0/cognitive-integration"
+      ],
+      "risk": "Obsoleta según HANDOFF-CIERRE.md:122-123; no mergear."
+    }
+  ],
+  "contradictions": [
+    {
+      "id": "C2",
+      "summary": "No hay latest.json/latest-static.json; los 23/23 son NO VERIFICADOS.",
+      "status": "VERIFICADO"
+    },
+    {
+      "id": "C3",
+      "summary": "companion-preferences-e2e.json declara dirty:true; el reporte dice árbol limpio.",
+      "status": "VERIFICADO"
+    },
+    {
+      "id": "C4",
+      "summary": "La página /pay/[id] inexistente devuelve 200 en preview 397039d; la API devuelve 404.",
+      "status": "VERIFICADO"
+    },
+    {
+      "id": "C5",
+      "summary": "El túnel de demo no resuelve; el QR apunta a esa URL.",
+      "status": "VERIFICADO"
+    },
+    {
+      "id": "C7",
+      "summary": "HIG-DESIGN/STATE/STATUS dicen Manrope; layout.tsx usa Atkinson.",
+      "status": "VERIFICADO"
+    },
+    {
+      "id": "C8",
+      "summary": "DESIGN-BARRIO/HIG-DESIGN describen mesh; barrio.css usa gradiente plano desde 72d405f.",
+      "status": "VERIFICADO"
+    },
+    {
+      "id": "C10",
+      "summary": "README/RUNBOOK dicen speechSynthesis; caja-app.tsx no tiene fallback al navegador.",
+      "status": "VERIFICADO"
+    },
+    {
+      "id": "C11",
+      "summary": "El MP4 se llama 'UI vieja'; en realidad es 'Mostrador claro', no la UI de papel.",
+      "status": "CONTRADICTORIO en el adjetivo"
+    },
+    {
+      "id": "C16",
+      "summary": "SWARM/P0-DINERO dicen webhook 34/34; README/HARNESS dicen 40/40; el script tiene 40 checks.",
+      "status": "HISTÓRICO vs VIGENTE"
+    },
+    {
+      "id": "C23",
+      "summary": "El handoff decía 'mergear'; master a85d903 dice 'NO MERGEAR TODAVÍA' por 2 P0.",
+      "status": "VERIFICADO"
+    },
+    {
+      "id": "C24",
+      "summary": "Reset demo borra un pago firmado de pey (demo=1) y reporta preservedRealPayments:1.",
+      "status": "VERIFICADO por código + auditoría"
+    },
+    {
+      "id": "C25",
+      "summary": "/ SSR contiene datos privados y declara Cache-Control public, s-maxage=60.",
+      "status": "VERIFICADO por código + auditoría"
+    },
+    {
+      "id": "C26",
+      "summary": "Webhook firmado en DEMO_MODE=true produce paid, no demo_paid, y permite fulfill.",
+      "status": "VERIFICADO por código + auditoría"
+    },
+    {
+      "id": "C27",
+      "summary": "/api/verify acepta una transacción PAID sin referencias si el monto coincide.",
+      "status": "VERIFICADO con mock"
+    },
+    {
+      "id": "C28",
+      "summary": "Totales de cobros/fiado se calculan sobre 50/100 filas; subestiman deudas.",
+      "status": "VERIFICADO por auditoría"
+    }
+  ],
+  "risks": {
+    "p0": [
+      "Sin latest.json/full atado a b7154ca.",
+      "master (a85d903) no contiene los 24 commits finales y bloquea el merge por 2 P0.",
+      "Reset demo borra un pago firmado de pey y reporta preservedRealPayments:1.",
+      "/ SSR con datos privados y Cache-Control public, s-maxage=60.",
+      "Webhook firmado en demo produce paid (no demo_paid) y permite fulfill.",
+      "/api/verify acepta PAID sin referencias si el monto coincide.",
+      "Totales de cobros/fiado truncados a 50/100 filas.",
+      "No hay servidor :3000 del HEAD final.",
+      "Túnel de demo muerto; QR/PDF no sirven.",
+      "Checkout inexistente devuelve HTTP 200 (preview 397039d).",
+      "Pago real $0.01 no probado; demo_paid.",
+      "Sin auth/sesión; solo CSRF + Cloudflare Access.",
+      "Pruebas humanas 0/6–8; TalkBack/VoiceOver/teléfono pendientes.",
+      "Único JSON de evidencia con dirty:true.",
+      "Video/Stageshow no son de la UI final barrio."
+    ],
+    "p1": [
+      "forced-colors no implementado.",
+      "Conteo cero del corte rechazado.",
+      "Sin offline real ni cola.",
+      "Sin exportación.",
+      "Sin cancelar/anular venta.",
+      "Sin crear meta desde UI.",
+      "Sin reconocimiento de productos/clientes recientes.",
+      "Recordatorios no envían nada.",
+      "Rate limit en memoria/por proceso.",
+      "Migración de un solo proceso.",
+      "TTS depende de Piper local.",
+      "p0/fix-video no mergeado."
+    ],
+    "p2": [
+      "49 worktrees y listeners en :3211 / :3230.",
+      "p0/perf-data versiona latest.json.",
+      "p0/design-final no integrada.",
+      "p0/cognitive-integration obsoleta.",
+      "Docs con cifras históricas (34/50/52).",
+      "GOAL-HIG/PLAN congelados en F3 parked.",
+      "Sin remoto: solo copias locales."
+    ]
+  },
+  "humanTests": {
+    "executed": 0,
+    "expected": "6-8",
+    "evidence": "demo/feedback.md vacío",
+    "status": "INFERIDO"
+  },
+  "realPayment": {
+    "executed": false,
+    "evidence": "sin transacción, portal ni webhook productivo en el repo",
+    "declaredInDocs": "no ocurrió; BBVA/CoDi bloqueado",
+    "status": "NO VERIFICADO / ausencia"
+  },
+  "video": {
+    "path": "demo/mercado-cero-demo.mp4",
+    "durationSeconds": 39.76,
+    "sizeBytes": 1704744,
+    "codec": "h264",
+    "resolution": "1280x800",
+    "sha256": "C605F810D7B884C33A20C51110261B5B40F250B5E0268D52B24BD0A7A3403424",
+    "ui": "Mostrador claro (sidebar), no la libreta barrio",
+    "shows": "$90 venta, $570 corte, $325 meta",
+    "isCurrent": false
+  },
+  "qr": {
+    "html": "demo/qr-demo.html",
+    "url": "https://timing-brought-lamp-aberdeen.trycloudflare.com",
+    "pdfSha256": "65DB5D445F3981938EEA5A68BBF8EA7CAF3D9062EF1AA2EF019AA9DA18015684",
+    "pngSha256": "E37B334819DF2F98299988CDFBB7BB9CD04BF0D5464FC73D0AFB0D7557E51976",
+    "works": false
+  }
+}

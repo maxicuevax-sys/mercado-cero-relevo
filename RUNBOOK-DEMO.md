@@ -2,7 +2,8 @@
 
 > **Estado:** demo mode con datos sembrados. El riel real de CoDi sigue bloqueado por BBVA; la demo se presenta como **modo demo**. No hubo pago real.
 > **Video:** `demo/mercado-cero-demo.mp4` es **histórico**: 39.8 s, 1,704,744 B, UI vieja y muestra $570. No es respaldo de la UI actual; se regrabará tras el rediseño. No borrar.
-> **Túnel vigente (2 nov 2026):** `https://timing-brought-lamp-aberdeen.trycloudflare.com` — quick tunnel efímero. Si cambia, regenerar `APP_URL`, QR y PDF; el actual no es estable.
+> **Túnel vivo (2 nov 2026):** `https://involve-picking-wellness-retreat.trycloudflare.com` — sirve la preview `397039d`, **no** el build final; quick tunnel efímero. El túnel `timing-brought-lamp-aberdeen...` de este documento y del QR **no resuelve**. Si cambia, regenerar `APP_URL`, QR y PDF.
+> **P0/P1:** P0-1, P0-2, P1-1, P1-3 y P1-5 corregidos en `ac9e5a6`/`fabe7cc`; siguen abiertos P1-2 (auth) y P1-4 (404 HTTP 200). **Full 23/23 y `latest.json` del HEAD siguen pendientes.** Detalle: `HANDOFF-CIERRE.md`.
 > **Declaración honesta:** Estamos en modo demo: los pagos se simulan con `demo_paid`. No hubo pago real de $0.01; BBVA/CoDi sigue bloqueado. Solo el webhook firmado de pey marca `paid`. Las pruebas con comerciantes y lectores de pantalla están pendientes.
 > **Verdad:** los pagos demo usan `demo_paid`; `/api/verify` solo marca `pey`. Comprobación: `node scripts/verify-truth.mjs`.
 > **Auditoría móvil:** última corrida conocida (2 nov 2026) — 25/25 checks, 360 px emulado con Playwright, ≈9 s de flujo en producción (10–17 s en dev), 0 errores de consola. Artefacto ignorado, no en el árbol. Falta la prueba en un teléfono físico.
@@ -13,7 +14,7 @@
 
 ## 1 · Antes de salir (10 minutos)
 
-- [ ] `mercado-cero/web/.env.local` tiene `DEMO_MODE=true`.
+- [ ] `mercado-cero/web/.env.local` tiene `DEMO_MODE=true` y `APP_URL=https://<túnel-vivo>` (el preflight lee `APP_URL` de ese archivo, no de `$env:APP_URL`).
 - [ ] El servidor corre: `npm run build && next start -H 127.0.0.1` (recomendado; es el modo validado) o `npm run dev`.
 - [ ] Abre `http://localhost:3000` y confirma:
   - [ ] La pantalla inicial es **Caja** y muestra **¿Qué vendiste?**.
@@ -31,28 +32,26 @@
 - [ ] QR impreso de respaldo (`demo/qr-demo.png` o el HTML imprimible).
 - [ ] Micrófono probado; si falla, la demo funciona con texto.
 - [ ] Túnel HTTPS vivo si vas a mostrar un link/QR (demo). URL vigente al **2 nov 2026**:
-  `https://timing-brought-lamp-aberdeen.trycloudflare.com`
+  `https://involve-picking-wellness-retreat.trycloudflare.com` (preview `397039d`, no final)
   Es un **quick tunnel efímero**: si cambia, actualiza `APP_URL`, reinicia el servidor y regenera QR/PDF (`node scripts/make-demo-qr.mjs` + `python scripts/print-qr-pdf.py`).
-- [ ] Prueba el túnel antes de salir: `python scripts/tunnel-smoke.py` (última corrida conocida 8/8, 2 nov 2026; repetir contra la URL vigente).
-- [ ] Corre el preflight completo **después del reset**: `node scripts/preflight.mjs` (última corrida conocida 18/18, 2 nov 2026).
+- [ ] Prueba el túnel antes de salir: `python scripts/tunnel-smoke.py` (última corrida conocida 8/8, 2 nov 2026; repetir contra la URL del servidor final, no contra `397039d`).
+- [ ] Corre el preflight completo **después del reset**: `node scripts/preflight.mjs` (la última corrida conocida fue 18/18, pero hoy no es ejecutable: faltan `APP_URL` y `mobile-audit.json`, `checkout-audit.json`, `tunnel-smoke.json`).
 - [ ] No corras el contrato de webhook justo antes de la demo; reinicia los datos después si lo haces.
 
 ### Limpieza operativa antes de arrancar (solo documentada; no la ejecutes desde un carril de docs)
 
-Conservar **solo**:
-- el servidor de demo en `:3000`;
-- el proceso `cloudflared` **PID 13932** (túnel vigente).
+Conservar:
+- el servidor de demo en `:3000` cuando exista;
+- la preview `:3230` y su túnel si vas a mostrar el link/QR actual (**sirve `397039d`; no es la final**).
 
-Detener antes de arrancar:
-- `:3125`, `:3195`, `:3211`, `:3220`, `:3230` (servidores de gates/carriles);
-- el túnel asociado al `:3230`.
+No confundir: el `cloudflared` **PID 13932** apunta a `:3000` (caído), no a la preview. Detener solo servidores de gates/carriles que no estés usando (`:3125`, `:3195`, `:3211`, `:3220`) y no matar `:3230` si se va a mostrar.
 
 Arranque limpio:
 1. `cd web`
 2. `npm run build`
 3. `next start -H 127.0.0.1` (o `npm start -- -H 127.0.0.1`) en `:3000`.
 4. Reiniciar demo (`POST /api/demo/reset` o el botón **Reiniciar demo**).
-5. `node scripts/preflight.mjs` **después** del reset, no antes.
+5. `node scripts/preflight.mjs` **después** del reset, con `APP_URL` en `.env.local` y los artefactos mobile/checkout/túnel generados.
 
 ---
 
@@ -220,12 +219,12 @@ Comisión por transacción o suscripción. CoDi es el riel gratuito; la tarjeta 
 - `scripts/checkout-audit.py` — valida checkout, pago demo y pantalla de éxito.
 - `scripts/tunnel-smoke.py` — valida el camino público por Cloudflare.
 - `scripts/verify-env.mjs` — revisa demo/real sin imprimir secretos.
-- `scripts/preflight.mjs` — última corrida conocida: 18/18 (servidor, túnel, datos, QR y respaldos).
+- `scripts/preflight.mjs` — última corrida conocida: 18/18, pero **hoy falla** sin `APP_URL` en `.env.local` y sin `mobile-audit.json`, `checkout-audit.json` y `tunnel-smoke.json`.
 - `scripts/rehearse-demo.py` — última corrida en master `75179c7`: 3/3, 19/19, ~8.1 s.
 - `scripts/verify-truth.mjs` — un `transactionId` demo no se verifica.
 - `scripts/make-demo-qr.mjs` + `scripts/print-qr-pdf.py` — regeneran el QR y el PDF del túnel vigente.
 - `demo/feedback.md` — registro de pruebas con personas (0/6–8 ejecutadas).
-- `demo/qr-demo.png` — QR del túnel vigente al 2 nov 2026 (`https://timing-brought-lamp-aberdeen.trycloudflare.com`, ver `demo/qr-demo.html`); verificar antes de imprimir y regenerar si cambia la URL.
+- `demo/qr-demo.png` — QR del túnel **muerto** `timing-brought-lamp-aberdeen...`; no imprimir. Regenerar con el túnel del servidor final (`node scripts/make-demo-qr.mjs` + `python scripts/print-qr-pdf.py`).
 - `scripts/mobile-audit.py`, `scripts/record-demo.py` — reproducibles.
 
 ---
