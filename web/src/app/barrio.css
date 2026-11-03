@@ -5,21 +5,10 @@
    ========================================================================== */
 
 :root {
-  /* ColorFlow mesh-paper: traducciÃ³n CSS del mesh, no una imagen. */
-  --mesh-paper:
-    radial-gradient(60% 50% at 12% 8%, rgba(217, 154, 61, 0.16), transparent 62%),
-    radial-gradient(55% 55% at 88% 6%, rgba(185, 85, 53, 0.13), transparent 58%),
-    radial-gradient(65% 60% at 78% 82%, rgba(14, 90, 69, 0.1), transparent 60%),
-    radial-gradient(55% 50% at 18% 88%, rgba(255, 248, 234, 0.9), transparent 65%),
-    linear-gradient(180deg, #f6eedf 0%, #f1e7d7 100%);
-  /* La hoja: el mismo mesh, mÃ¡s luz de lÃ¡mpara y menos saturaciÃ³n. */
-  --mesh-sheet:
-    radial-gradient(55% 45% at 10% 0%, rgba(255, 250, 238, 0.6), transparent 60%),
-    radial-gradient(50% 45% at 95% 8%, rgba(217, 154, 61, 0.2), transparent 62%),
-    radial-gradient(55% 50% at 92% 95%, rgba(185, 85, 53, 0.18), transparent 62%),
-    radial-gradient(60% 50% at 10% 90%, rgba(14, 90, 69, 0.15), transparent 62%),
-    linear-gradient(180deg, #fbf2e2 0%, #f6ead7 100%);
-  --paper-fiber: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.055'/%3E%3C/svg%3E");
+  /* Papel plano cálido: sin blooms amarillo/verde que ensucien la lectura. */
+  --mesh-paper: linear-gradient(180deg, #f6eedf 0%, #f1e7d7 100%);
+  --mesh-sheet: linear-gradient(180deg, #fdf7ec 0%, #f9f0e0 100%);
+  --paper-fiber: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
   --mc-margin: rgba(185, 85, 53, 0.35);
   --mc-rule: rgba(95, 87, 76, 0.16);
   --mc-ledger-line: rgba(143, 63, 37, 0.11);
