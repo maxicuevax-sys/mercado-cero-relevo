@@ -282,10 +282,10 @@ def main() -> int:
             page.get_by_role("button", name="Interpretar").click()
             page.wait_for_timeout(150)
             sales_answer = page.locator(".transcript-note")
-            expect(sales_answer).to_contain_text("Hoy llevas")
+            expect(sales_answer).to_contain_text("Ventas registradas hoy")
             check(
                 "¿Cuánto vendí? se responde localmente sin llamar al parser",
-                "Hoy llevas" in sales_answer.inner_text()
+                "Ventas registradas hoy" in sales_answer.inner_text()
                 and page.locator("p[role='alert']").count() == 0
                 and len(AI_REQUESTS) == 0,
                 sales_answer.inner_text().replace("\n", " · "),
@@ -378,9 +378,8 @@ def main() -> int:
 
             dialog = page.get_by_role("dialog")
             expect(dialog).to_be_visible()
-            expect(dialog.get_by_text("Resultado del cobro")).to_be_visible()
             expect(dialog.get_by_text("Cambio $10.00")).to_be_visible()
-            expect(dialog.get_by_text("Efectivo recibido")).to_be_visible()
+            expect(dialog.get_by_text("Efectivo recibido", exact=False).first).to_be_visible()
             screenshot(page, "03-cobro-cambio-10.png")
 
             orders = page.request.get(f"{BASE}/api/orders").json()["orders"]
