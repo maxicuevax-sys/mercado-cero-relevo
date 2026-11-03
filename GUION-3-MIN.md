@@ -28,7 +28,7 @@ Lupita no navega menús: habla.
 
 Si hay ruido, también puede escribirlo. ✂ *Si el tiempo aprieta, omite esta frase.*
 
-[Pulsa **Confirmar venta**.]
+[Pulsa **Cobrar**.]
 
 ## 0:50–1:20 · El cobro
 
@@ -40,11 +40,11 @@ Un solo link, un solo QR. El cliente paga con CoDi; si la cuenta tiene Stripe, t
 
 La caja no dice “pagado” hasta que llega el webhook firmado de pey. Una captura no cuenta.
 
-[Si es demo, pulsa **Simular CoDi** y di: “Esto es modo demo; el sello lo indica.”]
+[Si es demo, pulsa **Simular CoDi**. Sale **Pago demo (simulado)**; di: “Esto es modo demo; el sello lo indica.” Cierra con **Cerrar demo**.]
 
 ## 1:20–1:50 · Anti-fraude
 
-[Cierra el overlay con **Listo para entregar**. Pulsa **Verificar** en la cabecera y luego **Probar con un comprobante falso**.]
+[Cierra el overlay con **Cerrar demo**. Pulsa **Verificar** en la cabecera y luego **Probar con un comprobante falso**.]
 
 Si el ID no existe en la cuenta de pey, no es un pago verificable. La app no se impresiona con capturas.
 
@@ -70,7 +70,7 @@ La voz también sirve para consultar, pero el dinero verificado y la deuda viven
 
 La comerciante ve cuánto vendió, cuánto cobró de verdad, cuánto le deben y su ticket promedio.
 
-[En **Corte**, arriba, pulsa **Actualizar corte**.]
+[En **Corte**, revisa **Antes de cerrar** y pulsa el icono **Actualizar corte**.]
 
 El abono de Juan sumó cincuenta pesos en efectivo: debería haber quinientos cincuenta.
 

@@ -1,54 +1,69 @@
 """
-Film check estilo Stageshow para la interfaz real de Mercado Cero.
-
-Captura los momentos que cuentan la historia (no una maqueta): caja en reposo,
-venta dictada, cobro pendiente, link/QR, pago simulado, anti-fraude, corte y meta.
-Graba el flujo de venta y arma una hoja de contactos para revisar encuadre,
-jerarquía y movimiento.
+Film check de Mercado Cero: verifica el MP4 y arma las hojas del stageshow.
 
 Uso:
-  python scripts/film-check.py
+  cd web
+  python scripts/record-demo.py     # primero graba MP4 + frames
+  python scripts/film-check.py      # verifica y arma contact/motion sheets
 
-Requiere el servidor en http://localhost:3000 y ffmpeg en PATH para el MP4.
-No imprime secretos.
+Variables de entorno:
+  DEMO_BASE_URL / BASE_URL  URL usada en la grabación (solo metadato)
+  DEMO_OUT_DIR              misma carpeta que usó record-demo.py
+                            (por defecto <repo>/demo)
+
+Si falta el MP4, el manifiesto o algún frame, falla con un mensaje claro.
+No vuelve a recorrer la app: la evidencia visual sale de lo grabado.
+Marcadores de salida: MP4, SHEET, MOTION, FILM OK.
 """
 
 from __future__ import annotations
 
 import json
-import os
-import re
 import shutil
 import subprocess
 import sys
 import time
+from datetime import date
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
-from playwright.sync_api import Page, sync_playwright
+
+from demo_ui import (
+    BASE,
+    FILM_JSON,
+    MP4,
+    RECORD_MANIFEST,
+    STAGESHOW,
+    STAGE_FRAMES,
+    DemoFailure,
+    display_path,
+    probe_video,
+    write_json,
+)
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-
-BASE = os.environ.get("BASE_URL", "http://localhost:3000")
-ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "demo" / "stageshow"
-VIDEO_DIR = OUT / "video"
-WIDTH, HEIGHT = 1280, 800
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 FRAMES: list[tuple[str, str, str]] = [
     ("01", "Caja en reposo", "Voz primero, jerarquía clara y un solo foco."),
     ("02", "Venta dictada", "El pedido aparece con su total y la confirmación a la vista."),
     ("03", "Cobro pendiente", "Un solo cobro, estado pendiente explícito."),
-    ("04", "QR y demo", "El QR queda a la vista y la simulación se hace arriba."),
-    ("05", "Pago simulado", "El resultado se lee de un vistazo y distingue demo."),
+    ("04", "Link y QR", "El QR queda a la vista y la simulación se hace arriba."),
+    ("05", "Pago demo", "El resultado dice 'Pago demo (simulado)' y ofrece 'Cerrar demo'."),
     ("06", "Comprobante falso", "La caja rechaza sin ambigüedad."),
-    ("07", "Corte", "El conteo se compara con lo esperado."),
+    ("07", "Corte", "El conteo compara $550.00 con lo esperado y marca Cuadra."),
     ("08", "Meta", "El avance tiene causa y se queda en pantalla."),
 ]
 
 
-def font(name: str, size: int) -> ImageFont.FreeTypeFont:
+MIN_DURATION_SECONDS = 150.0
+MIN_BYTES = 1_000_000
+EXPECTED_SIZE = (1280, 800)
+
+
+def font(name: str, size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
     candidates = [
         Path("C:/Windows/Fonts") / name,
         Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
@@ -59,85 +74,64 @@ def font(name: str, size: int) -> ImageFont.FreeTypeFont:
     return ImageFont.load_default()
 
 
-def reset(page: Page) -> None:
-    page.context.request.post(f"{BASE}/api/demo/reset")
-    page.goto(BASE, wait_until="domcontentloaded")
-    page.wait_for_selector("h1:has-text('Caja')", timeout=15000)
-    page.wait_for_function("() => document.body.innerText.includes('Hoy $')", timeout=20000)
-    page.wait_for_timeout(500)
+def load_manifest() -> dict:
+    if not RECORD_MANIFEST.exists():
+        raise DemoFailure(
+            f"Falta el manifiesto {display_path(RECORD_MANIFEST)}. "
+            "Corre primero: python scripts/record-demo.py"
+        )
+    try:
+        manifest = json.loads(RECORD_MANIFEST.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise DemoFailure(
+            f"No pude leer {display_path(RECORD_MANIFEST)}: {exc}"
+        ) from exc
+    if not manifest.get("ok") or not manifest.get("allPassed"):
+        failed = [
+            item
+            for item in manifest.get("checks", [])
+            if not item.get("ok", False)
+        ]
+        raise DemoFailure(
+            f"El manifiesto de grabación no está en verde: {failed or manifest.get('error')}"
+        )
+    required = {
+        "venta de $90",
+        "pago demo confirmado",
+        "abono de $50 en efectivo",
+        "corte espera $550",
+        "corte cuadra",
+        "meta avanza a $325",
+    }
+    present = {item.get("name") for item in manifest.get("checks", [])}
+    missing = sorted(required - present)
+    if missing:
+        raise DemoFailure(
+            "La grabación no incluye las verificaciones requeridas: "
+            + ", ".join(missing)
+        )
+    return manifest
 
 
-def shot(page: Page, slug: str, title: str, note: str, anchor: str | None = None) -> None:
-    page.wait_for_timeout(450)
-    if anchor:
-        # Sin esto el frame corta el texto a media frase: el viewport mide 800 px
-        # y el contenido de Corte/Meta es más alto. Desplazamos lo justo para que
-        # el ancla quede dentro del cuadro.
-        page.locator(f"text={anchor}").first.scroll_into_view_if_needed()
-        page.wait_for_timeout(250)
-    page.screenshot(path=str(OUT / f"{slug}-{title.lower().replace(' ', '-')}.png"))
-    print(f"  {slug} {title}: {page.evaluate('window.scrollY')} px")
+def check_frames() -> dict[str, Path]:
+    missing: list[str] = []
+    images: dict[str, Path] = {}
+    for slug, filename in STAGE_FRAMES.items():
+        path = STAGESHOW / filename
+        if not path.exists() or path.stat().st_size <= 0:
+            missing.append(display_path(path))
+        else:
+            images[slug] = path
+    if missing:
+        raise DemoFailure(
+            "Faltan frames del stageshow: "
+            + ", ".join(missing)
+            + ". Corre: python scripts/record-demo.py"
+        )
+    return images
 
 
-def capture_flow(page: Page) -> None:
-    reset(page)
-    shot(page, "01", "Caja en reposo", FRAMES[0][2])
-
-    page.get_by_role(
-        "button", name="Dos quesadillas de 35 y un agua de 20"
-    ).click()
-    page.wait_for_selector("text=2 productos", timeout=15000)
-    page.wait_for_selector("text=Escuché $90.00. ¿Confirmas?", timeout=8000)
-    shot(page, "02", "Venta dictada", FRAMES[1][2])
-
-    page.get_by_role("button", name="Confirmar venta").click()
-    page.wait_for_selector("text=Link de pago", timeout=15000)
-    shot(page, "03", "Cobro pendiente", FRAMES[2][2])
-
-    page.get_by_role("button", name="Link de pago").click()
-    page.wait_for_selector("text=Simular CoDi", timeout=15000)
-    shot(page, "04", "Link y QR", FRAMES[3][2])
-
-    page.get_by_role("button", name="Simular CoDi").click()
-    page.wait_for_selector("[role=dialog] p:has-text('Pago simulado')", timeout=15000)
-    shot(page, "05", "Pago simulado", FRAMES[4][2])
-    page.wait_for_timeout(800)
-
-
-def capture_verify(page: Page) -> None:
-    reset(page)
-    page.get_by_role("button", name="Verificar comprobante", exact=True).click()
-    page.wait_for_selector("text=Probar con un comprobante falso", timeout=10000)
-    page.get_by_role("button", name="Probar con un comprobante falso").click()
-    page.wait_for_selector("text=No verificado", timeout=10000)
-    shot(page, "06", "Comprobante falso", FRAMES[5][2])
-
-
-def capture_corte(page: Page) -> None:
-    reset(page)
-    page.get_by_role("button", name="Corte", exact=True).first.click()
-    page.wait_for_selector("text=Corte de caja", timeout=10000)
-    total = page.get_by_label("Total contado en pesos")
-    total.wait_for(state="visible", timeout=10000)
-    page.wait_for_timeout(600)
-    cash = page.context.request.get(f"{BASE}/api/cash").json()
-    total.fill(f"{cash['expectedCents'] / 100:.2f}")
-    page.wait_for_selector("text=El efectivo cuadra con lo esperado.", timeout=5000)
-    page.evaluate("document.activeElement instanceof HTMLElement && document.activeElement.blur()")
-    page.wait_for_timeout(150)
-    shot(page, "07", "Corte", FRAMES[6][2])
-
-
-def capture_meta(page: Page) -> None:
-    reset(page)
-    page.get_by_role("button", name="Meta", exact=True).first.click()
-    page.wait_for_selector("text=Mi camino", timeout=10000)
-    # La foto del mercado empuja la tarjeta fuera del viewport de 800 px y el
-    # descargo legal quedaba cortado a media frase. Anclamos en el descargo.
-    shot(page, "08", "Meta", FRAMES[7][2], anchor="Apartado declarado")
-
-
-def contact_sheet(images: dict[str, Path]) -> Path:
+def contact_sheet(images: dict[str, Path], manifest: dict) -> Path:
     columns = 2
     cell_w, cell_h = 600, 375
     label_h = 46
@@ -158,10 +152,12 @@ def contact_sheet(images: dict[str, Path]) -> Path:
     ink = "#1B241F"
     muted = "#5F6B63"
 
+    duration = manifest.get("video", {}).get("durationSeconds")
+    duration_text = f" · {duration:.1f} s" if isinstance(duration, (int, float)) else ""
     draw.text((margin, 28), "Mercado Cero · film check", font=serif, fill=ink)
     draw.text(
         (margin, 68),
-        "1280 × 800 · flujo real · 1 de noviembre de 2026",
+        f"1280 × 800 · flujo real{duration_text} · {date.today().isoformat()}",
         font=sans,
         fill=muted,
     )
@@ -180,59 +176,74 @@ def contact_sheet(images: dict[str, Path]) -> Path:
         draw.rectangle([x, y, x + cell_w, y + cell_h], outline="#D9D2C5", width=1)
         draw.text((x, y + cell_h + 9), f"{slug}  {title}", font=sans_bold, fill=ink)
         draw.text((x, y + cell_h + 29), note, font=sans, fill=muted)
-        draw.rectangle(
-            [x, y, x + 4, y + cell_h],
-            fill=accent,
-        )
+        draw.rectangle([x, y, x + 4, y + cell_h], fill=accent)
 
-    destination = OUT / "contact-sheet-1280.png"
+    destination = STAGESHOW / "contact-sheet-1280.png"
     sheet.save(destination)
     return destination
 
 
-def motion_sheet() -> Path | None:
-    video = OUT / "flow-1280.mp4"
-    if not video.exists() or not shutil.which("ffmpeg"):
-        return None
-    frames_dir = OUT / "motion"
+def motion_sheet(video: Path, duration: float) -> Path:
+    if not shutil.which("ffmpeg"):
+        raise DemoFailure(
+            "ffmpeg no está en PATH; no puedo extraer los cuadros del MP4."
+        )
+    frames_dir = STAGESHOW / "motion"
     if frames_dir.exists():
         shutil.rmtree(frames_dir)
     frames_dir.mkdir(parents=True)
-    subprocess.run(
-        [
-            "ffmpeg",
-            "-y",
-            "-loglevel",
-            "error",
-            "-ss",
-            "0.5",
-            "-i",
-            str(video),
-            "-vf",
-            "fps=2",
-            str(frames_dir / "frame-%02d.png"),
-        ],
-        check=False,
-    )
-    frames = sorted(frames_dir.glob("frame-*.png"))[:8]
-    if not frames:
-        return None
+
+    count = 8
+    samples: list[tuple[Path, float]] = []
+    for index in range(count):
+        timestamp = max(0.2, duration * (index + 0.5) / count)
+        target = frames_dir / f"frame-{index + 1:02d}.png"
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-y",
+                "-loglevel",
+                "error",
+                "-ss",
+                f"{timestamp:.2f}",
+                "-i",
+                str(video),
+                "-frames:v",
+                "1",
+                "-vf",
+                "scale=400:250",
+                str(target),
+            ],
+            check=False,
+        )
+        if target.exists() and target.stat().st_size > 0:
+            samples.append((target, timestamp))
+    if len(samples) < 4:
+        raise DemoFailure(
+            f"No pude extraer cuadros de {display_path(video)}; "
+            f"solo {len(samples)}/{count}."
+        )
 
     cell_w, cell_h = 400, 250
     gap, margin, columns = 12, 20, 4
-    rows = (len(frames) + columns - 1) // columns
+    rows = (len(samples) + columns - 1) // columns
     width = margin * 2 + columns * cell_w + (columns - 1) * gap
     height = 74 + rows * (cell_h + 26) + (rows - 1) * gap + margin
     sheet = Image.new("RGB", (width, height), "#F3EEE5")
     draw = ImageDraw.Draw(sheet)
-    draw.text((margin, 18), "Mercado Cero · motion check", font=font("georgia.ttf", 24), fill="#1B241F")
+    draw.text(
+        (margin, 18),
+        "Mercado Cero · motion check",
+        font=font("georgia.ttf", 24),
+        fill="#1B241F",
+    )
     draw.text(
         (margin, 48),
-        "Flujo de venta · 1280 × 800 · cada cuadro ≈ 0.5 s",
+        f"MP4 · 1280 × 800 · {len(samples)} momentos de {duration:.1f} s",
         font=font("segoeui.ttf", 12),
         fill="#5F6B63",
     )
-    for index, frame in enumerate(frames):
+    for index, (frame, timestamp) in enumerate(samples):
         row, column = divmod(index, columns)
         x = margin + column * (cell_w + gap)
         y = 74 + row * (cell_h + 26 + gap)
@@ -241,119 +252,136 @@ def motion_sheet() -> Path | None:
         draw.rectangle([x, y, x + cell_w, y + cell_h], outline="#D9D2C5", width=1)
         draw.text(
             (x, y + cell_h + 5),
-            f"{(index * 0.5) + 0.5:.1f}s",
+            f"{timestamp:.1f}s",
             font=font("segoeui.ttf", 14),
             fill="#1B241F",
         )
-    destination = OUT / "motion-sheet.png"
+    destination = STAGESHOW / "motion-sheet.png"
     sheet.save(destination)
     return destination
 
 
-def main() -> None:
-    OUT.mkdir(parents=True, exist_ok=True)
-    VIDEO_DIR.mkdir(parents=True, exist_ok=True)
-    for old in VIDEO_DIR.glob("*.webm"):
-        old.unlink()
+def verify_manifest_matches(manifest: dict, video: dict) -> None:
+    recorded_bytes = manifest.get("mp4Bytes")
+    if isinstance(recorded_bytes, int) and recorded_bytes != video["bytes"]:
+        raise DemoFailure(
+            "El MP4 no corresponde al manifiesto de grabación "
+            f"(bytes {video['bytes']} vs {recorded_bytes}). "
+            "Vuelve a correr python scripts/record-demo.py."
+        )
+    recorded_duration = manifest.get("video", {}).get("durationSeconds")
+    if isinstance(recorded_duration, (int, float)):
+        if abs(float(recorded_duration) - float(video["durationSeconds"])) > 1.5:
+            raise DemoFailure(
+                "La duración del MP4 no corresponde al manifiesto "
+                f"({video['durationSeconds']} s vs {recorded_duration} s)."
+            )
 
+
+def verify_video_is_final(video: dict) -> None:
+    """Rechaza el MP4 histórico (39.8 s) aunque exista y se llame igual."""
+    if float(video["durationSeconds"]) < MIN_DURATION_SECONDS:
+        raise DemoFailure(
+            f"El MP4 dura {video['durationSeconds']:.1f} s, menos de "
+            f"{MIN_DURATION_SECONDS:.0f} s: parece el video viejo, no el guion "
+            "de ~3 minutos. Vuelve a correr python scripts/record-demo.py."
+        )
+    if int(video["bytes"]) < MIN_BYTES:
+        raise DemoFailure(
+            f"El MP4 pesa {video['bytes']} B, menos de {MIN_BYTES} B: "
+            "no parece la grabación final. Vuelve a correr record-demo.py."
+        )
+    size = (int(video["width"]), int(video["height"]))
+    if size != EXPECTED_SIZE:
+        raise DemoFailure(
+            f"El MP4 mide {size[0]}x{size[1]}; se esperaba "
+            f"{EXPECTED_SIZE[0]}x{EXPECTED_SIZE[1]}."
+        )
+
+
+def main() -> int:
     started = time.time()
-    with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=True)
-        context = browser.new_context(
-            viewport={"width": WIDTH, "height": HEIGHT},
-            device_scale_factor=1,
-            record_video_dir=str(VIDEO_DIR),
-            record_video_size={"width": WIDTH, "height": HEIGHT},
-            locale="es-MX",
-        )
-        page = context.new_page()
-        capture_flow(page)
-        context.close()
-        browser.close()
+    try:
+        if not MP4.exists():
+            raise DemoFailure(
+                f"Falta el MP4 {display_path(MP4)}. "
+                "Corre primero: python scripts/record-demo.py"
+            )
+        manifest = load_manifest()
+        video = probe_video(MP4)
+        verify_video_is_final(video)
+        verify_manifest_matches(manifest, video)
+        images = check_frames()
+        sheet = contact_sheet(images, manifest)
+        motion = motion_sheet(MP4, video["durationSeconds"])
+    except DemoFailure as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
+    except Exception as exc:  # noqa: BLE001
+        print(f"ERROR inesperado en film-check: {exc!r}", file=sys.stderr)
+        return 1
 
-        browser = playwright.chromium.launch(headless=True)
-        context = browser.new_context(
-            viewport={"width": WIDTH, "height": HEIGHT},
-            device_scale_factor=1,
-            locale="es-MX",
-        )
-        page = context.new_page()
-        capture_verify(page)
-        capture_corte(page)
-        capture_meta(page)
-        context.close()
-        browser.close()
-
-    target = OUT / "flow-1280.webm"
-    time.sleep(1)
-    videos = sorted(VIDEO_DIR.glob("*.webm"), key=lambda path: path.stat().st_mtime)
-    if videos:
-        source = videos[-1]
-        moved = False
-        for _attempt in range(20):
-            try:
-                if target.exists():
-                    target.unlink()
-                shutil.move(str(source), str(target))
-                moved = True
-                break
-            except PermissionError:
-                time.sleep(0.5)
-        if moved:
-            print(f"VIDEO {target}")
-            if shutil.which("ffmpeg"):
-                subprocess.run(
-                    [
-                        "ffmpeg",
-                        "-y",
-                        "-loglevel",
-                        "error",
-                        "-i",
-                        str(target),
-                        "-c:v",
-                        "libx264",
-                        "-pix_fmt",
-                        "yuv420p",
-                        "-crf",
-                        "23",
-                        str(OUT / "flow-1280.mp4"),
-                    ],
-                    check=False,
-                )
-        else:
-            print(f"AVISO: no pude mover el video; queda en {source}")
-
-    images = {
-        slug: next(OUT.glob(f"{slug}-*.png"))
-        for slug, _title, _note in FRAMES
-    }
-    sheet = contact_sheet(images)
-    motion = motion_sheet()
     elapsed = time.time() - started
-    (OUT / "film-check.json").write_text(
-        json.dumps(
-            {
-                "base": BASE,
-                "viewport": {"width": WIDTH, "height": HEIGHT},
-                "frames": [
-                    {"slug": slug, "title": title, "note": note}
-                    for slug, title, note in FRAMES
-                ],
-                "contactSheet": sheet.relative_to(ROOT).as_posix(),
-                "motionSheet": motion.relative_to(ROOT).as_posix() if motion else None,
-                "video": (OUT / "flow-1280.webm").relative_to(ROOT).as_posix(),
-                "elapsedSeconds": round(elapsed, 1),
-            },
-            ensure_ascii=False,
-            indent=2,
+    checks = {
+        "mp4Exists": True,
+        "mp4DurationSeconds": video["durationSeconds"],
+        "mp4Bytes": video["bytes"],
+        "mp4Codec": video["codec"],
+        "mp4Size": f"{video['width']}x{video['height']}",
+        "frames": len(images),
+        "framesExpected": len(STAGE_FRAMES),
+        "recordManifest": display_path(RECORD_MANIFEST),
+        "recordAllPassed": bool(manifest.get("allPassed")),
+        "corte550": any(
+            item.get("name") == "corte espera $550" and item.get("ok")
+            for item in manifest.get("checks", [])
         ),
-        encoding="utf-8",
+        "cuadra": any(
+            item.get("name") == "corte cuadra" and item.get("ok")
+            for item in manifest.get("checks", [])
+        ),
+        "contactSheet": display_path(sheet),
+        "motionSheet": display_path(motion),
+    }
+    payload = {
+        "ok": True,
+        "base": manifest.get("base") or BASE,
+        "mp4": display_path(MP4),
+        "mp4Sha256": video["sha256"],
+        "video": {
+            "durationSeconds": video["durationSeconds"],
+            "bytes": video["bytes"],
+            "codec": video["codec"],
+            "width": video["width"],
+            "height": video["height"],
+            "frameRate": video["frameRate"],
+        },
+        "frames": [
+            {
+                "slug": slug,
+                "title": title,
+                "note": note,
+                "path": display_path(images[slug]),
+            }
+            for slug, title, note in FRAMES
+        ],
+        "checks": checks,
+        "elapsedSeconds": round(elapsed, 1),
+    }
+    write_json(FILM_JSON, payload)
+
+    print(
+        f"MP4 {display_path(MP4)} · {video['durationSeconds']:.1f} s · "
+        f"{video['bytes'] / 1024 / 1024:.1f} MB · "
+        f"{video['width']}x{video['height']} {video['codec']}"
     )
-    print(f"SHEET {sheet}")
-    if motion:
-        print(f"MOTION {motion}")
+    print(f"FRAMES {len(images)}/{len(STAGE_FRAMES)}")
+    print(f"SHEET {display_path(sheet)}")
+    print(f"MOTION {display_path(motion)}")
+    print(f"JSON {display_path(FILM_JSON)}")
     print(f"LISTO {elapsed:.1f} s")
     print("FILM OK")
+    return 0
 
 
 if __name__ == "__main__":

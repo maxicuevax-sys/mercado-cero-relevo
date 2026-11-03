@@ -6,7 +6,7 @@
 >
 > **Declaración honesta:** Estamos en modo demo: los pagos se simulan con `demo_paid`. No hubo pago real de $0.01; BBVA/CoDi sigue bloqueado. Solo el webhook firmado de pey marca `paid`. Las pruebas con comerciantes y lectores de pantalla están pendientes.
 >
-> **Video:** `demo/mercado-cero-demo.mp4` es **histórico** (39.8 s, 1,704,744 B, UI vieja, muestra $570). No es respaldo actual; se regrabará tras el rediseño. No borrar. Los scripts de `p0/fix-video` (`c395e3e`) **no están integrados** en HEAD.
+> **Video:** `demo/mercado-cero-demo.mp4` es el **video final** de la UI actual: 183.7 s, 5,406,880 B, 1280×800, H.264; corte **$550.00** y **Cuadra**. SHA-256 `ba4d068e6da68c68263b9d9a96e4f451320260dfefaf4263e9213c812604bbd0`. Los scripts de `p0/fix-video` ya están integrados y adaptados al copy final. Detalle: `video-final-report.md`.
 >
 > **Túnel vivo (2 nov 2026):** `https://auction-margaret-mapping-deputy.trycloudflare.com` — sirve `:3000` con build de código `0d7251d`; quick tunnel efímero. El túnel `timing-brought-lamp-aberdeen...` de este documento y del QR **no resuelve**. Si cambia la URL, regenerar `APP_URL`, QR y PDF.
 
@@ -64,8 +64,8 @@
 | Harness full | ❌ no ejecutado contra HEAD; el catálogo actual es 25 gates y `full` son 23 (24 con film) | `harness/STATE.md` |
 | Alto contraste | 🟡 7/7 PASS · 0 FAIL; axe 0, foco 3 px negro y 360 px sin overflow — última corrida conocida | `harness/evidence/a11y-contrast.json` (generado, ignorado) |
 | Dirección visual | ✅ papel editorial, Manrope/Fraunces, doble marco, dos columnas desde 1280 | `HIG-DESIGN.md` §16 + `MOTION.md` |
-| Video | ⚠️ **histórico**: 39.8 s, 1,704,744 B, UI vieja, muestra $570; regrabar tras el rediseño. No es respaldo actual | `demo/mercado-cero-demo.mp4` |
-| Film check Stageshow | 🟡 8 beats + contact sheet + motion sheet — última corrida conocida; los sheets se generan y no se versionan | `demo/stageshow/` |
+| Video | ✅ **final**: 183.7 s, 5,406,880 B, 1280×800, UI actual, corte $550.00 y Cuadra | `demo/mercado-cero-demo.mp4` + `video-final-report.md` |
+| Film check Stageshow | ✅ MP4 + 8 frames + contact/motion sheets; `FILM OK`, `SHEET` conservado; los sheets se generan y no se versionan | `demo/stageshow/` |
 | QR imprimible | ❌ el HTML apunta a `timing-brought-lamp-aberdeen...`, que **no resuelve**; no imprimir. Regenerar con el túnel final | `demo/qr-demo.*` |
 | Voz del demo | ✅ Kokoro `em_santa` para frases fijas + Piper es-MX dinámico | `web/public/tts/` |
 | Accesibilidad | 🟡 texto grande, alto contraste, voz lenta, leer pantalla implementados; falta validación con personas y lectores | `verify-a11y` |
@@ -119,11 +119,17 @@ node scripts/make-demo-qr.mjs
 python scripts/print-qr-pdf.py
 ```
 
-Para re-grabar el video (pendiente; el MP4 existente es histórico y muestra la UI vieja):
+Para re-grabar el video y las hojas (servidor aislado, sin usar `:3000`):
 
 ```powershell
+$env:DEMO_BASE_URL="http://127.0.0.1:3310"
 python scripts/record-demo.py
+python scripts/film-check.py
 ```
+
+`DEMO_OUT_DIR` es opcional; sin él escribe en `demo/`. El script exige el corte
+**$550.00** y **Cuadra**, y falla con screenshot + `record-demo-error.json` si
+no aparecen.
 
 Para repetir la evidencia:
 

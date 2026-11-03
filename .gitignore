@@ -30,6 +30,8 @@ demo/rehearsal-error.*
 demo/tunnel-*
 demo/stageshow/film-check.json
 demo/stageshow/*-sheet*.png
+demo/record-demo.json
+demo/record-demo-error.*
 harness/evidence/motion*
 harness/evidence/a11y-contrast*
 harness/evidence/mobile-*

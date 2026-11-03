@@ -1,7 +1,7 @@
 # Runbook de demo — Mercado Cero
 
 > **Estado:** demo mode con datos sembrados. El riel real de CoDi sigue bloqueado por BBVA; la demo se presenta como **modo demo**. No hubo pago real.
-> **Video:** `demo/mercado-cero-demo.mp4` es **histórico**: 39.8 s, 1,704,744 B, UI vieja y muestra $570. No es respaldo de la UI actual; se regrabará tras el rediseño. No borrar.
+> **Video:** `demo/mercado-cero-demo.mp4` es el **video final** de la UI actual: 183.7 s, 5,406,880 B, 1280×800, H.264. El corte se grabó con **$550.00** y **Cuadra**. SHA-256 `ba4d068e6da68c68263b9d9a96e4f451320260dfefaf4263e9213c812604bbd0`. Detalle: `video-final-report.md`.
 > **Túnel vivo (2 nov 2026):** `https://auction-margaret-mapping-deputy.trycloudflare.com` — sirve la preview `2a1f166`, **no** el build final; quick tunnel efímero. El túnel `timing-brought-lamp-aberdeen...` de este documento y del QR **no resuelve**. Si cambia, regenerar `APP_URL`, QR y PDF.
 > **P0/P1:** P0-1, P0-2, P1-1, P1-3 y P1-5 corregidos en `ac9e5a6`/`fabe7cc`; siguen abiertos P1-2 (auth) y P1-4 (404 HTTP 200). **Full 23/23 y `latest.json` del HEAD siguen pendientes.** Detalle: `HANDOFF-CIERRE.md`.
 > **Declaración honesta:** Estamos en modo demo: los pagos se simulan con `demo_paid`. No hubo pago real de $0.01; BBVA/CoDi sigue bloqueado. Solo el webhook firmado de pey marca `paid`. Las pruebas con comerciantes y lectores de pantalla están pendientes.
@@ -204,8 +204,10 @@ Comisión por transacción o suscripción. CoDi es el riel gratuito; la tarjeta 
 
 ## 7 · Archivos de respaldo
 
-- `demo/mercado-cero-demo.mp4` — **histórico**: 39.8 s, 1,704,744 B, 1280×800, UI vieja, muestra $570. Se regrabará tras el rediseño; no es respaldo actual. No borrar.
-- `demo/stageshow/flow-1280.webm` — original del stageshow (no es el MP4 histórico de la demo).
+- `demo/mercado-cero-demo.mp4` — **video final**: 183.7 s, 5,406,880 B, 1280×800, H.264, UI actual, corte **$550.00** y **Cuadra**. SHA-256 `ba4d068e6da68c68263b9d9a96e4f451320260dfefaf4263e9213c812604bbd0`.
+- `demo/record-demo.json` — manifiesto de la grabación (15/15 checks); generado, ignorado.
+- `demo/stageshow/flow-1280.webm` — original del stageshow anterior (no es el MP4 de la demo).
+- `demo/stageshow/01-caja-en-reposo.png` … `08-meta.png` — 8 frames finales de la UI actual; versionados.
 - `demo/stageshow/contact-sheet-1280.png` — 8 beats del flujo real; generado por `film-check.py`, no versionado.
 - `demo/stageshow/motion-sheet.png` — revisión de movimiento a 2 fps; generada, no versionada.
 - `demo/mobile-360-fold.png` — primer viewport a 360 px; generado por `mobile-audit.py`, no versionado.
