@@ -1,6 +1,6 @@
 # Estado de demo — 2 de noviembre de 2026
 
-> **Corte de estado (22:40):** rama final `p0/final-cognitive` = `fabe7cc`; `master` = `a85d903` (28 commits atrás, ancestro; fast-forward posible pero **no ejecutado**). Build conocido = `2a1f166` (padre de `fabe7cc`, mismo código de app). `:3000` **no responde**; `:3230` y el túnel público sirven `397039d`; `:3302` sirve `2a1f166`. No hay `latest.json` ni `full` atado al HEAD: **cierre pendiente, no declarar listo.**
+> **Corte de estado (22:40, revisado):** rama de trabajo `p0/consolidacion` = `fabe7cc` + docs; `master` = `git rev-parse master` (al corte `a85d903`, solo docs; ff-only a consolidación, **no ejecutado**). Build conocido = `2a1f166` (padre de `fabe7cc`, mismo código de app). `:3000` **no responde**; `:3230` y el túnel público sirven `2a1f166` (build con fixes P0, no el HEAD); `:3302` sirve `2a1f166`. No hay `latest.json` ni `full` atado al HEAD: **cierre pendiente, no declarar listo.**
 >
 > **P0/P1:** P0-1 (reset con pago pey firmado), P0-2 (`/` privado), P1-1 (webhook demo → `demo_paid`, fulfill 409), P1-3 (verify sin referencias) y P1-5 (totales honestos) están corregidos en `ac9e5a6`/`fabe7cc`. Siguen abiertos P1-2 (auth), P1-4 (404 HTTP 200) y varios P2. Detalle: `HANDOFF-CIERRE.md` §2.
 >
@@ -18,7 +18,7 @@
 | `master` | `a85d903936af607e3c209fedceb2a40d8410a66e`; 28 commits atrás; ancestro |
 | Build conocido | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990` (2026-11-03T04:21:10Z); no es el HEAD |
 | Servidor `:3000` | ❌ no responde; no hay servidor del HEAD |
-| Preview `:3230` / pública | `397039d212452b2950935d745cd8a1781040923e`; no es la final |
+| Preview `:3230` / pública | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990`; no es la final |
 | Evidencia atada al HEAD | ❌ pendiente: no hay `latest.json`/`latest-static.json`; `full` no corrido contra el HEAD (base `fabe7cc` + docs) |
 | E2E adversario | ✅ 28/28 contra build `2a1f166`; artefacto local, sin `gitAtStart` |
 | E2E cognitivos | conteos declarados sobre `2a1f166`: payment 35/35 (sin JSON), closing 18/18, sin-ia 21/21, preferences 26/26 (`dirty:true`) |
