@@ -657,9 +657,13 @@ function restoredDraftLabel(iso: string): string {
 export default function CajaApp({
   initialDashboard,
   initialDemoMode,
+  initialTab = "caja",
+  initialHelpOpen = false,
 }: {
   initialDashboard?: DashboardData;
   initialDemoMode: boolean;
+  initialTab?: Tab;
+  initialHelpOpen?: boolean;
 }) {
   const [dashboard, setDashboard] = useState<DashboardData | null>(
     initialDashboard ?? null,
@@ -670,13 +674,13 @@ export default function CajaApp({
   const [pendingCheckedAt, setPendingCheckedAt] = useState<string | null>(null);
   const [tasksResetKey, setTasksResetKey] = useState(0);
   const [cashCloseKey, setCashCloseKey] = useState(0);
-  const [tab, setTab] = useState<Tab>("caja");
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [visitedTabs, setVisitedTabs] = useState<ReadonlySet<Tab>>(
-    () => new Set<Tab>(["caja"]),
+    () => new Set<Tab>([initialTab]),
   );
   const [tabWipe, setTabWipe] = useState(0);
   const [today, setToday] = useState("");
-  const [helpOpen, setHelpOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(initialHelpOpen);
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -7381,7 +7385,7 @@ function AppSidebar({
 }) {
   return (
     <aside className="app-sidebar" aria-label="Índice de la libreta">
-      <div className="brand-lockup">
+      <a className="brand-lockup" href="/inicio" aria-label="Ir a Inicio">
         <div className="brand-mark flex h-[40px] w-[40px] shrink-0 items-center justify-center font-display text-xl font-bold text-white">
           <Image
             src={iconTienda}
@@ -7395,7 +7399,7 @@ function AppSidebar({
           <p className="brand-name">Mercado Cero</p>
           <p className="brand-tagline">La caja que habla</p>
         </div>
-      </div>
+      </a>
 
       <nav aria-label="Navegación principal">
         {TABS.map((item, index) => {
@@ -7471,13 +7475,15 @@ function TopBar({
       <div className="mx-auto flex min-h-14 max-w-[1200px] flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6 lg:px-8">
         <div className="min-w-0 flex-1 basis-[8rem]">
           <div className="flex items-center gap-2">
-            <Image
-              src={iconTienda}
-              alt=""
-              aria-hidden="true"
-              className="topbar-brand-mark h-7 w-7 shrink-0 lg:hidden"
-              sizes="28px"
-            />
+            <a href="/inicio" aria-label="Ir a Inicio" className="shrink-0 lg:hidden">
+              <Image
+                src={iconTienda}
+                alt=""
+                aria-hidden="true"
+                className="topbar-brand-mark h-7 w-7"
+                sizes="28px"
+              />
+            </a>
             <div className="min-w-0">
               <p className="topbar-merchant truncate" title={merchant?.name}>
                 {merchant?.name ?? (unavailable ? "Negocio sin datos" : "Cargando el negocio…")}

@@ -2315,3 +2315,7 @@ html[data-text-zoom="large"] .caja-voice {
 html[data-text-zoom="large"] .caja-entry {
   width: 100%;
 }
+
+.app-sidebar .brand-lockup {
+  text-decoration: none;
+}

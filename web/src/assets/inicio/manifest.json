@@ -1,0 +1,53 @@
+{
+  "note": "Recortes exactos de la referencia canonica de Inicio. No son capas editables ni assets generados.",
+  "items": [
+    {
+      "file": "hero-registradora.png",
+      "source": "00_REFERENCIA_CANONICA_INICIO_1448x1086.png",
+      "crop": [
+        268,
+        520,
+        510,
+        792
+      ],
+      "width": 277,
+      "height": 272
+    },
+    {
+      "file": "sugerencia-lupita.png",
+      "source": "00_REFERENCIA_CANONICA_INICIO_1448x1086.png",
+      "crop": [
+        272,
+        842,
+        555,
+        1015
+      ],
+      "width": 362,
+      "height": 200
+    },
+    {
+      "file": "papel-picado.png",
+      "source": "00_REFERENCIA_CANONICA_INICIO_1448x1086.png",
+      "crop": [
+        960,
+        100,
+        1448,
+        202
+      ],
+      "width": 488,
+      "height": 106
+    },
+    {
+      "file": "sidebar-plantas.png",
+      "source": "00_REFERENCIA_CANONICA_INICIO_1448x1086.png",
+      "crop": [
+        0,
+        798,
+        236,
+        1086
+      ],
+      "width": 236,
+      "height": 288
+    }
+  ]
+}
