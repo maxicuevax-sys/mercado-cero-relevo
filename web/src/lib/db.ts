@@ -1601,6 +1601,7 @@ export function getDailySummary(): DailySummary {
     .prepare(
       `SELECT
          COUNT(*) AS n,
+         COALESCE(SUM(o.total_cents), 0) AS sales,
          COALESCE(SUM(
            CASE
              WHEN o.status IN ('paid', 'demo_paid')
@@ -1618,7 +1619,12 @@ export function getDailySummary(): DailySummary {
        FROM orders o
        WHERE o.created_at >= ? AND o.created_at < ? ${demoOrderFilter}`,
     )
-    .get(startIso, endIso) as { n: number; paid: number; pending: number };
+    .get(startIso, endIso) as {
+    n: number;
+    sales: number;
+    paid: number;
+    pending: number;
+  };
 
   const creditRow = database
     .prepare(
@@ -1640,6 +1646,7 @@ export function getDailySummary(): DailySummary {
 
   return {
     date: mexicoDateKey(),
+    salesCents: Number(orderRow.sales),
     verifiedDigitalCents,
     declaredDigitalCents,
     demoDigitalCents,

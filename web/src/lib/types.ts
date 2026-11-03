@@ -89,6 +89,8 @@ export interface CreditPayment {
 
 export interface DailySummary {
   date: string;
+  /** Ventas registradas hoy (suma de totales; incluye fiado y pendiente). */
+  salesCents: number;
   /** Pagos confirmados por pey. */
   verifiedDigitalCents: number;
   /** Abonos digitales de fiado declarados por la comerciante. */

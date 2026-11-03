@@ -14,6 +14,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { cn, formatMxn } from "@/lib/format";
+import { PAYMENT_STATES } from "@/lib/payment-labels";
 import type { CheckoutData } from "@/lib/checkout";
 
 type CheckoutMethod = "codi" | "card" | "wallet";
@@ -337,28 +338,38 @@ export default function CheckoutPage({
                     demo ? "stamp--sim" : cashOnly ? "stamp--cash" : "stamp--paid",
                   )}
                 >
-                  {demo ? "Simulado" : cashOnly ? "Cobrado" : "Pagado"}
+                  {demo
+                    ? "Pago demo"
+                    : cashOnly
+                      ? PAYMENT_STATES.cash_received.label
+                      : payment?.provider === "pey"
+                        ? PAYMENT_STATES.digital_verified.label
+                        : "Pagado"}
                 </span>
               </div>
               <p className="receipt-result__method">
                 {sourceMixed
                   ? demo
-                    ? "Efectivo + demo"
-                    : "Efectivo + verificado"
+                    ? "Efectivo + pago demo"
+                    : "Efectivo + pago verificado por pey"
                   : demo
-                    ? "Pago simulado · demo"
+                    ? "Simulación"
                     : cashOnly
                       ? "Cobrado en caja"
-                      : "Pago confirmado"}
+                      : payment?.provider === "pey"
+                        ? "Confirmación firmada"
+                        : "Pago sin confirmar"}
               </p>
               <h1 ref={resultHeadingRef} tabIndex={-1}>
                 {sourceMixed
                   ? "Pago mixto"
                   : demo
-                    ? "Pago simulado"
+                    ? PAYMENT_STATES.demo.label
                     : cashOnly
-                      ? "Efectivo recibido"
-                      : "Listo para entregar"}
+                      ? PAYMENT_STATES.cash_received.label
+                      : payment?.provider === "pey"
+                        ? PAYMENT_STATES.digital_verified.label
+                        : "Pago recibido"}
               </h1>
               <p className="receipt-result__amount">
                 {formatMxn(
@@ -398,13 +409,15 @@ export default function CheckoutPage({
                 <p className="text-sm leading-relaxed text-ink-2">
                   {sourceMixed
                     ? demo
-                      ? `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(payment?.amountCents ?? 0)} en un pago simulado. El efectivo sí es dinero real; el digital es demo.`
+                      ? `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(payment?.amountCents ?? 0)} en un pago demo. El efectivo sí es dinero real; el digital es demo y el pedido no se entrega.`
                       : `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(payment?.amountCents ?? 0)} verificados por pey.`
                     : demo
-                      ? "Pago simulado para la demo; no se movió dinero."
+                      ? PAYMENT_STATES.demo.detail
                       : cashOnly
                         ? "Recibiste el efectivo en la caja. No pasó por pey ni es un pago verificado por el banco."
-                        : "pey confirmó este pago. La comerciante ya puede entregar el pedido."}
+                        : payment?.provider === "pey"
+                          ? "pey confirmó este pago con una confirmación firmada. La comerciante ya puede entregar el pedido."
+                          : "Este pago no tiene una confirmación firmada de pey. No lo presentes como verificado."}
                 </p>
               </div>
 
@@ -421,7 +434,9 @@ export default function CheckoutPage({
                 <p className="mt-3 text-center text-xs text-ink-2">
                   {cashOnly
                     ? "La caja ya registró el efectivo."
-                    : "La caja de la comerciante ya recibió la confirmación."}
+                    : demo
+                      ? "La caja registró el pago demo (simulado)."
+                      : "La caja de la comerciante ya recibió la confirmación."}
                 </p>
               ) : null}
             </div>

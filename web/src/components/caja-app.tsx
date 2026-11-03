@@ -51,6 +51,12 @@ import {
   shortOrder,
 } from "@/lib/format";
 import { answerDebtQuery } from "@/lib/voice-debts";
+import {
+  DEMO_CLOSE_LABEL,
+  PAYMENT_STATES,
+  orderStatusCopy,
+  verifySourceCopy,
+} from "@/lib/payment-labels";
 import type { DashboardData } from "@/lib/dashboard";
 import type {
   AnalyticsReport,
@@ -1023,11 +1029,11 @@ export default function CajaApp({
           if (!cancelled) {
             showToast(
               "info",
-              order.status === "paid" ||
-                order.status === "demo_paid" ||
-                order.status === "fulfilled"
-                ? "Ese cobro ya se pagó."
-                : "Ese cobro ya no está pendiente.",
+              order.status === "demo_paid"
+                ? "Ese cobro es un pago demo (simulado)."
+                : order.status === "paid" || order.status === "fulfilled"
+                  ? "Ese cobro ya se pagó."
+                  : "Ese cobro ya no está pendiente.",
             );
           }
           return;
@@ -1075,11 +1081,11 @@ export default function CajaApp({
         setResumableOrder(null);
         showToast(
           "info",
-          order.status === "paid" ||
-            order.status === "demo_paid" ||
-            order.status === "fulfilled"
-            ? "Ese cobro ya se pagó."
-            : "Ese cobro ya no está pendiente.",
+          order.status === "demo_paid"
+            ? "Ese cobro es un pago demo (simulado)."
+            : order.status === "paid" || order.status === "fulfilled"
+              ? "Ese cobro ya se pagó."
+              : "Ese cobro ya no está pendiente.",
         );
       }
     }
@@ -1441,23 +1447,23 @@ export default function CajaApp({
         return `Tienes ${formatMxn(dashboard.summary.pendingCents)} esperando confirmación.`;
       }
       const summary = dashboard.summary;
+      // Misma verdad que la cabecera: ventas registradas, cobrado confirmado
+      // (solo efectivo + pey) y por cobrar de hoy. Declarado y demo van aparte.
       const demoCents = summary.demoDigitalCents + summary.demoCashCents;
-      const total =
-        summary.verifiedDigitalCents +
-        summary.declaredDigitalCents +
-        summary.cashCents +
-        demoCents;
+      const confirmed =
+        summary.cashCents + summary.verifiedDigitalCents;
       const parts = [
-        `${formatMxn(summary.verifiedDigitalCents)} verificados por pey`,
+        `Ventas registradas hoy ${formatMxn(summary.salesCents)}`,
+        `Cobrado confirmado ${formatMxn(confirmed)}`,
+        `Por cobrar de hoy ${formatMxn(summary.pendingCents)}`,
         summary.declaredDigitalCents > 0
-          ? `${formatMxn(summary.declaredDigitalCents)} declarados sin verificar`
+          ? `Declarado sin verificar ${formatMxn(summary.declaredDigitalCents)}`
           : null,
-        `${formatMxn(summary.cashCents)} en efectivo`,
-        demoCents > 0 ? `${formatMxn(demoCents)} en demo (no es dinero real)` : null,
+        demoCents > 0
+          ? `Demo ${formatMxn(demoCents)} (no es dinero real)`
+          : null,
       ].filter(Boolean);
-      return `Hoy llevas ${formatMxn(total)} en ${countText(summary.paidOrderCount, "venta", "ventas")}. ${parts.join(
-        ", ",
-      )}.`;
+      return `${parts.join(" · ")}.`;
     },
     [dashboard],
   );
@@ -2031,11 +2037,7 @@ export default function CajaApp({
         setVerifyResult(data);
         vibrate(data.verified ? 25 : [15, 50, 15]);
         if (data.verified) {
-          speak(
-            dashboard?.demoMode
-              ? "Comprobante verificado en la caja. En producción se valida contra pey."
-              : "Comprobante verificado. El dinero sí llegó.",
-          );
+          speak(verifySourceCopy(data.source).speech);
         } else {
           speak("Ese comprobante no está verificado. No entregues el pedido.");
         }
@@ -2045,7 +2047,7 @@ export default function CajaApp({
         setVerifying(false);
       }
     },
-    [activeOrder?.id, activityOrders, dashboard, speak, verifyId, vibrate],
+    [activeOrder?.id, activityOrders, speak, verifyId, vibrate],
   );
 
   const payCredit = useCallback(
@@ -2153,8 +2155,15 @@ export default function CajaApp({
   );
 
   const fulfillOrder = useCallback(
-    async (orderId: string | undefined, onDone: () => void) => {
-      if (!orderId) return;
+    async (order: Order | null | undefined, onDone: () => void) => {
+      if (!order) return;
+      // Defensa extra: aunque un botón viejo llamara a entrega, un demo solo
+      // se cierra. El servidor también responde 409 `demo_not_deliverable`.
+      if (order.status === "demo_paid" || order.lastPaymentProvider === "demo") {
+        onDone();
+        return;
+      }
+      const orderId = order.id;
       setDelivering(true);
       setDeliverError(null);
       try {
@@ -2184,13 +2193,13 @@ export default function CajaApp({
   );
 
   const deliverOrder = useCallback(
-    () => fulfillOrder(paidOverlay?.id, () => setPaidOverlay(null)),
-    [fulfillOrder, paidOverlay?.id],
+    () => fulfillOrder(paidOverlay, () => setPaidOverlay(null)),
+    [fulfillOrder, paidOverlay],
   );
 
   const deliverActiveOrder = useCallback(
-    () => fulfillOrder(activeOrder?.id, () => setActiveOrder(null)),
-    [activeOrder?.id, fulfillOrder],
+    () => fulfillOrder(activeOrder, () => setActiveOrder(null)),
+    [activeOrder, fulfillOrder],
   );
 
   const closeActiveOrder = useCallback(() => {
@@ -2362,14 +2371,14 @@ export default function CajaApp({
                   headingId="caja-heading"
                   subtitle={
                     dashboard
-                      ? `Hoy ${formatMxn(
+                      ? `Ventas registradas hoy ${formatMxn(
+                          dashboard.summary.salesCents,
+                        )} · Cobrado confirmado ${formatMxn(
                           dashboard.summary.cashCents +
-                            dashboard.summary.verifiedDigitalCents +
-                            dashboard.summary.declaredDigitalCents +
-                            dashboard.summary.demoDigitalCents +
-                            dashboard.summary.demoCashCents +
-                            dashboard.summary.pendingCents,
-                        )} · Por cobrar ${formatMxn(dashboard.summary.pendingCents)}`
+                            dashboard.summary.verifiedDigitalCents,
+                        )} · Por cobrar de hoy ${formatMxn(
+                          dashboard.summary.pendingCents,
+                        )}`
                       : dashboardError
                         ? "No pudimos cargar los totales. No hay cifras nuevas."
                         : "Cargando la caja…"
@@ -2399,7 +2408,7 @@ export default function CajaApp({
                     <span className="flex min-w-0 items-center gap-2">
                       <Clock3 className="h-4 w-4 shrink-0 text-attention" />
                       <span className="min-w-0">
-                        Por cobrar{" "}
+                        Por cobrar de hoy{" "}
                         <strong className="tabular font-semibold text-ink">
                           {formatMxn(dashboard?.summary.pendingCents ?? 0)}
                         </strong>
@@ -2844,8 +2853,11 @@ function CajaBook({
 }) {
   const cash = summary?.cashCents ?? 0;
   const verified = summary?.verifiedDigitalCents ?? 0;
+  const declared = summary?.declaredDigitalCents ?? 0;
+  const demo =
+    (summary?.demoCashCents ?? 0) + (summary?.demoDigitalCents ?? 0);
   const pending = summary?.pendingCents ?? 0;
-  const collected = cash + verified;
+  const confirmed = cash + verified;
   const shown = credits.slice(0, 4);
 
   return (
@@ -2860,30 +2872,42 @@ function CajaBook({
             <table className="ledger">
               <tbody>
                 <tr>
-                  <th scope="row">Efectivo</th>
+                  <th scope="row">{PAYMENT_STATES.cash_received.label}</th>
                   <td>{formatMxn(cash)}</td>
                 </tr>
                 <tr>
-                  <th scope="row">Digital verificado</th>
+                  <th scope="row">{PAYMENT_STATES.digital_verified.label}</th>
                   <td>{formatMxn(verified)}</td>
                 </tr>
+                {declared > 0 ? (
+                  <tr>
+                    <th scope="row">{PAYMENT_STATES.digital_declared.label}</th>
+                    <td>{formatMxn(declared)}</td>
+                  </tr>
+                ) : null}
                 <tr>
-                  <th scope="row">Por cobrar</th>
+                  <th scope="row">Por cobrar de hoy</th>
                   <td>{formatMxn(pending)}</td>
                 </tr>
+                {demo > 0 ? (
+                  <tr>
+                    <th scope="row">{PAYMENT_STATES.demo.label}</th>
+                    <td>{formatMxn(demo)}</td>
+                  </tr>
+                ) : null}
               </tbody>
               <tfoot>
                 <tr>
-                  <th scope="row">Cobrado hoy</th>
+                  <th scope="row">Cobrado confirmado de hoy</th>
                   <td>
-                    <AnimatedAmount cents={collected} />
+                    <AnimatedAmount cents={confirmed} />
                   </td>
                 </tr>
               </tfoot>
             </table>
             <p className="book-note">
-              Cobrado hoy es efectivo más digital verificado por pey. Por cobrar
-              todavía no entró a la caja.
+              Cobrado confirmado es efectivo más pagos verificados por pey. Lo
+              declarado, el demo y lo pendiente no entran a la caja.
             </p>
           </>
         ) : (
@@ -3694,10 +3718,11 @@ function PaymentPanel(props: {
   const credit = creditForOrder(order, credits);
   const creditSettled = isCreditSettled(credit);
   const creditOpen = isCredit && !creditSettled;
+  // Un pago demo nunca se entrega: el servidor lo rechaza con 409 y la UI no
+  // debe ofrecer el botón. Solo un pago real cubierto habilita la entrega.
   const canDeliver =
     !creditOpen &&
     (order.status === "paid" ||
-      order.status === "demo_paid" ||
       (order.status === "confirmed" &&
         order.paidCents + order.creditCents >= order.totalCents));
   const waiting = order.status === "payment_pending" || order.status === "confirmed";
@@ -3771,11 +3796,11 @@ function PaymentPanel(props: {
                 : sourceMixed
                   ? "Pago mixto"
                   : truth.isDemo
-                    ? "Pago simulado"
+                    ? PAYMENT_STATES.demo.label
                     : truth.isCash
-                      ? "Efectivo recibido"
+                      ? PAYMENT_STATES.cash_received.label
                       : truth.isVerified
-                        ? "Pago verificado"
+                        ? PAYMENT_STATES.digital_verified.label
                         : "Pago sin confirmar"}
           </p>
           <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
@@ -3808,9 +3833,9 @@ function PaymentPanel(props: {
                   : truth.isDemo
                     ? "simulado en modo demo"
                     : truth.isCash
-                      ? "recibido en efectivo, sin pasar por pey"
+                      ? PAYMENT_STATES.cash_received.detail
                       : truth.isVerified
-                        ? "confirmado por pey"
+                        ? PAYMENT_STATES.digital_verified.detail
                         : "sin confirmar"}
           </p>
           {truth.hasCredit ? (
@@ -3831,8 +3856,8 @@ function PaymentPanel(props: {
             </p>
           ) : truth.isDemo ? (
             <p className="mt-3 rounded-xl border border-separator bg-surface px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
-              En producción, este estado solo se actualiza con la confirmación firmada de pey. No
-              se movió dinero real.
+              {PAYMENT_STATES.demo.detail} En producción, este estado solo se actualiza con la
+              confirmación firmada de pey.
             </p>
           ) : truth.isCash ? (
             <p className="mt-3 rounded-xl border border-separator bg-surface px-3 py-2 text-left text-sm leading-relaxed text-ink-2">
@@ -3872,7 +3897,11 @@ function PaymentPanel(props: {
               onClick={onClose}
               className="on-accent flex min-h-12 flex-1 items-center justify-center rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press"
             >
-              {truth.hasCredit ? "Entendido" : "Cerrar"}
+              {truth.isDemo
+                ? DEMO_CLOSE_LABEL
+                : truth.hasCredit
+                  ? "Entendido"
+                  : "Cerrar"}
             </button>
           )}
           <button
@@ -4165,6 +4194,9 @@ function BusinessOverview({
 
   const comparison = report?.comparison.salesChangePct ?? null;
   const maxSeries = Math.max(...(report?.series.map((point) => point.salesCents) ?? [0]), 1);
+  const confirmedCents = report
+    ? report.cashCents + report.verifiedDigitalCents
+    : 0;
 
   function speakReport() {
     if (!report) return;
@@ -4173,8 +4205,10 @@ function BusinessOverview({
         report.orderCount,
         "venta",
         "ventas",
-      )}. Cobrado ${formatMxn(
-        report.collectedCents,
+      )}. Cobrado confirmado ${formatMxn(
+        confirmedCents,
+      )}. Declarado sin verificar ${formatMxn(
+        report.declaredDigitalCents,
       )}. Por cobrar ${formatMxn(report.pendingCents)}.`,
     );
   }
@@ -4274,7 +4308,8 @@ function BusinessOverview({
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {[
-              { label: "Cobrado", value: report.collectedCents, note: "Pagos reales recibidos en el periodo" },
+              { label: "Cobrado confirmado", value: confirmedCents, note: "Efectivo + pagos verificados por pey" },
+              { label: "Declarado sin verificar", value: report.declaredDigitalCents, note: "Abonos digitales; pey no los confirmó" },
               { label: "Por cobrar", value: report.pendingCents, note: "De las ventas del periodo" },
               { label: "Ticket promedio", value: report.averageTicketCents, note: countText(report.orderCount, "venta", "ventas") },
               { label: "Fiado", value: report.creditCents, note: "Saldo pendiente total" },
@@ -4294,7 +4329,8 @@ function BusinessOverview({
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm font-semibold text-ink-2">Cómo te pagaron</p>
               <p className="text-sm text-ink-2">
-                Real {formatMxn(report.collectedCents)}
+                Confirmado {formatMxn(confirmedCents)} · Declarado{" "}
+                {formatMxn(report.declaredDigitalCents)}
                 {report.demoCollectedCents > 0
                   ? ` · Demo ${formatMxn(report.demoCollectedCents)}`
                   : ""}
@@ -4483,7 +4519,9 @@ function moneyFieldMessage(
 
 function differenceText(cents: number): string {
   if (cents === 0) return "Cuadra";
-  return `${cents < 0 ? "Falta" : "Sobra"} ${formatMxn(Math.abs(cents))}`;
+  return `Hay ${formatMxn(Math.abs(cents))} ${
+    cents < 0 ? "menos" : "más"
+  } de lo esperado`;
 }
 
 function CashCloseSummary({
@@ -4777,7 +4815,11 @@ function CashCloseCard({
   const differenceCents = countedCents - expectedCents;
   const withdrawalNextCents = Math.max(0, countedCents - baseNextCents);
   const differenceLabel =
-    differenceCents === 0 ? "Cuadra" : differenceCents > 0 ? "Sobra" : "Falta";
+    differenceCents === 0
+      ? "Cuadra"
+      : differenceCents > 0
+        ? "Hay más de lo esperado"
+        : "Hay menos de lo esperado";
   const differenceAbsCents = Math.abs(differenceCents);
   const baseExceedsCounted =
     hasCounted && countedCents > 0 && baseNextCents > countedCents;
@@ -5161,9 +5203,11 @@ function CashCloseCard({
                 <p className="mt-0.5 text-sm text-ink-2">
                   {differenceCents === 0
                     ? "El efectivo cuadra con lo esperado."
-                    : differenceCents < 0
-                      ? "Falta dinero en la caja."
-                      : "Hay más dinero del esperado."}
+                    : `Hay ${formatMxn(
+                        differenceAbsCents,
+                      )} ${
+                        differenceCents < 0 ? "menos" : "más"
+                      } de lo esperado. Puedes contar de nuevo, revisar retiros o guardar con motivo.`}
                 </p>
               </div>
               <div className="text-right">
@@ -5568,8 +5612,8 @@ function CashCloseCard({
                   {preview.differenceCents === 0
                     ? "Cuadra"
                     : preview.differenceCents < 0
-                      ? "Falta"
-                      : "Sobra"}
+                      ? "Hay menos de lo esperado"
+                      : "Hay más de lo esperado"}
                 </p>
                 <p className="tabular text-[1.375rem] font-semibold text-ink">
                   {formatMxn(Math.abs(preview.differenceCents))}
@@ -6173,13 +6217,15 @@ function ActivityList({
                         ? `${mixed ? "Pago mixto" : "Fiado"} · ${creditLabel}`
                         : sourceMixed
                           ? truth.isDemo
-                            ? "Efectivo + demo"
-                            : "Efectivo + pey"
+                            ? "Efectivo + demo (simulado)"
+                            : "Efectivo + pago verificado por pey"
                           : demo
-                            ? "Demo"
+                            ? PAYMENT_STATES.demo.label
                             : cash
-                              ? "Efectivo"
-                              : statusLabel(order.status)}
+                              ? PAYMENT_STATES.cash_received.label
+                              : truth.isVerified
+                                ? PAYMENT_STATES.digital_verified.label
+                                : statusLabel(order.status)}
                     </span>
                   </p>
                 </div>
@@ -6624,6 +6670,11 @@ function VerifyCard({
   onFake: () => void;
 }) {
   const isDemoResult = result?.source === "demo";
+  const sourceCopy = result ? verifySourceCopy(result.source) : null;
+  const verifiedTitle =
+    result?.verified && result.source !== "demo"
+      ? sourceCopy?.label ?? PAYMENT_STATES.digital_verified.label
+      : "No verificado";
   const feedbackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -6706,13 +6757,7 @@ function VerifyCard({
             ) : (
               <ShieldAlert className="h-4 w-4 text-danger" />
             )}
-            <p className="text-sm font-bold text-ink">
-              {result.verified
-                ? isDemoResult
-                  ? "Verificado en la demo"
-                  : "Comprobante verificado"
-                : "No verificado"}
-            </p>
+            <p className="text-sm font-bold text-ink">{verifiedTitle}</p>
           </div>
           <p className="mt-1 text-sm leading-relaxed text-ink-2">
             {result.verified
@@ -6721,6 +6766,11 @@ function VerifyCard({
                 }`
               : result.message ?? "Ese comprobante no corresponde a un pago confirmado."}
           </p>
+          {result.verified && sourceCopy ? (
+            <p className="mt-1 text-sm leading-relaxed text-ink-2">
+              {sourceCopy.detail}
+            </p>
+          ) : null}
           {!result.verified ? (
             <p className="mt-2 text-sm font-bold text-danger">No entregues el pedido.</p>
           ) : null}
@@ -6833,7 +6883,13 @@ function StatusBadge({
     ? "Fiado"
     : creditClosed && order.status === "fulfilled"
       ? "Fiado saldado"
-      : statusLabel(order.status);
+      : order.status === "demo_paid"
+        ? PAYMENT_STATES.demo.label
+        : order.status === "paid" && order.lastPaymentProvider === "pey"
+          ? PAYMENT_STATES.digital_verified.label
+          : order.status === "paid" && order.lastPaymentProvider === "cash"
+            ? PAYMENT_STATES.cash_received.label
+            : statusLabel(order.status);
   const styles: Record<Order["status"], string> = {
     draft: "border border-separator bg-surface text-ink-2",
     confirmed: "bg-terracotta-soft text-attention",
@@ -6873,17 +6929,7 @@ function StatusBadge({
 }
 
 function statusLabel(status: Order["status"]): string {
-  const labels: Record<Order["status"], string> = {
-    draft: "Borrador",
-    confirmed: "Por cobrar",
-    payment_pending: "Esperando confirmación",
-    partially_paid: "Pago parcial",
-    paid: "Pagado",
-    demo_paid: "Pago demo",
-    fulfilled: "Entregado",
-    cancelled: "Cancelado",
-  };
-  return labels[status];
+  return orderStatusCopy(status).label;
 }
 
 /**
@@ -6932,13 +6978,10 @@ function paymentSheetTitle(order: Order): string {
       ? "Cobro pendiente"
       : `Cobrar ${formatMxn(due)}`;
   }
-  if (
-    truth.hasCredit ||
-    truth.isMixedSources ||
-    truth.isDemo ||
-    truth.isCash ||
-    truth.isVerified
-  ) {
+  if (truth.isDemo) return PAYMENT_STATES.demo.label;
+  if (truth.isCash) return PAYMENT_STATES.cash_received.label;
+  if (truth.isVerified) return PAYMENT_STATES.digital_verified.label;
+  if (truth.hasCredit || truth.isMixedSources) {
     return "Resultado del cobro";
   }
   return `Cobrar ${formatMxn(order.totalCents)}`;
@@ -7377,11 +7420,11 @@ function PaidSheet({
               : sourceMixed
                 ? "Pago mixto"
                 : truth.isDemo
-                  ? "Pago simulado"
+                  ? PAYMENT_STATES.demo.label
                   : truth.isCash
-                    ? "Efectivo recibido"
+                    ? PAYMENT_STATES.cash_received.label
                     : truth.isVerified
-                      ? "Pago verificado"
+                      ? PAYMENT_STATES.digital_verified.label
                       : "Pago sin confirmar"}
         </p>
         <p className="tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
@@ -7414,9 +7457,9 @@ function PaidSheet({
                 : truth.isDemo
                   ? "simulado en modo demo"
                   : truth.isCash
-                    ? "recibido en efectivo, sin pasar por pey"
+                    ? PAYMENT_STATES.cash_received.detail
                     : truth.isVerified
-                      ? "confirmado por pey"
+                      ? PAYMENT_STATES.digital_verified.detail
                       : "sin confirmar"}
         </p>
         {changeCents > 0 ? (
@@ -7443,7 +7486,7 @@ function PaidSheet({
                   : truth.isVerified ? "verificados por pey." : "sin verificar."}
               </>
             ) : truth.isDemo ? (
-              "En producción, este estado solo se actualiza con la confirmación firmada de pey. No se movió dinero real."
+              `${PAYMENT_STATES.demo.detail} En producción, este estado solo se actualiza con la confirmación firmada de pey.`
             ) : truth.isCash ? (
               "Recibiste el efectivo en la caja. No pasó por pey ni es un pago verificado por el banco."
             ) : (
@@ -7458,13 +7501,21 @@ function PaidSheet({
         ) : null}
         <button
           type="button"
-          onClick={truth.hasCredit ? onClose : onDeliver}
-          disabled={delivering}
-          aria-busy={delivering}
+          onClick={truth.hasCredit || truth.isDemo ? onClose : onDeliver}
+          disabled={!truth.hasCredit && !truth.isDemo && delivering}
+          aria-busy={!truth.hasCredit && !truth.isDemo && delivering}
           className="on-accent mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-white transition hover:bg-accent-press disabled:opacity-70"
         >
-          {delivering ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-          {truth.hasCredit ? "Entendido" : delivering ? "Entregando…" : "Listo para entregar"}
+          {!truth.hasCredit && !truth.isDemo && delivering ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : null}
+          {truth.isDemo
+            ? DEMO_CLOSE_LABEL
+            : truth.hasCredit
+              ? "Entendido"
+              : delivering
+                ? "Entregando…"
+                : "Listo para entregar"}
         </button>
       </div>
     </Sheet>
@@ -7503,8 +7554,9 @@ function HelpContent({
   ];
   const faqs = [
     ["¿Cómo cobro?", "Dicta o escribe la venta, confirma el total y genera un link o QR. El cliente paga desde su banco o wallet."],
-    ["¿Cuándo está pagado?", "Solo cuando la app muestra “Pago confirmado” después de un webhook firmado de pey. Mientras diga pendiente, no entregues el pedido."],
-    ["¿Puedo cobrar en efectivo?", "Sí. El efectivo se registra como declarado; no es una confirmación bancaria. El corte separa efectivo, digital verificado y fiado."],
+    ["¿Cuándo está pagado?", "Solo cuando la app muestra “Pago verificado por pey”: llegó un evento firmado de pey. “Por cobrar” y “Pago demo (simulado)” no son entregables."],
+    ["¿Qué es un pago demo?", "Es una simulación para probar la app. No es dinero real, no se entrega y no cuenta como cobrado confirmado."],
+    ["¿Puedo cobrar en efectivo?", "Sí. El efectivo se registra como recibido; no es una confirmación bancaria. El corte separa efectivo, pagos verificados por pey, declarado y fiado."],
     ["¿Qué es el fiado?", "Es una libreta de deudas y abonos. Un abono reduce el saldo, pero no cuenta como venta nueva ni como pago bancario verificado."],
     ["¿La cuenta es de mi hija?", "La app muestra únicamente los cobros generados por el negocio. No accede al saldo ni a los movimientos personales del titular."],
     ["¿Qué es el corte?", "Base inicial más ventas en efectivo y abonos de fiado, menos gastos y retiros. Si lo contado no coincide, se muestra la diferencia; no se ajusta sola."],
