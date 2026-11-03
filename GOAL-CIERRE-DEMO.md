@@ -28,6 +28,10 @@
 9. **Límites declarados:** sin auth de sesión, pago real $0.01 bloqueado,
    TalkBack/VoiceOver/teléfono físico y 6–8 comerciantes pendientes. No se
    afirman como verdes.
+10. **Carga cognitiva:** “Antes de cerrar” con pendientes de hoy/mañana y
+    cobros por confirmar; venta manual con `/api/voice/parse` caído; borrador
+    recuperable; pendientes completar/posponer/eliminar; copy sin diagnóstico
+    ni culpa. Gates nuevos PASS. No se afirma reducción de estrés sin estudio.
 
 ## Fases y orden
 
@@ -39,6 +43,26 @@
       mesh/fibra en hoja/recibo, margen 52–56, 200 % editor (precio/CTA),
       forced-colors, p0-shell SSR, 404 checkout HTTP 404.
 - [ ] Rebuild + `test:harness` 58/58 + `checkout-gate` 19/19.
+
+### Fase 2.5 — Carga cognitiva y acompañamiento
+> Contrato: `GOAL-ACOMPANAMIENTO.md` + `docs/CARGA-COGNITIVA.md`.
+> La auditoría histórica `AUDITORIA-COGNITIVA.md` es un snapshot del 1 nov;
+> no se usa como estado actual sin verificar el código.
+- [ ] Informe `AUDITORIA-CARGA-COGNITIVA.md` con Implementado/Parcial/Falta y
+      evidencia `archivo:línea` del build actual.
+- [ ] Integrar `p0/cierre-cognitivo`: “Antes de cerrar” con pendientes de hoy,
+      vencidos y mañana + cobros por confirmar; completar, posponer y “Ahora no”
+      sin borrar datos ni ocultar avisos de dinero.
+- [ ] Integrar `p0/sin-ia`: venta manual de 2 ítems con `/api/voice/parse` en
+      500, sin bloquear el cobro; borrador recuperable con decidir.
+- [ ] Preferencias “¿Cómo quieres que te ayude?” (sugerencias, recordatorios,
+      explicaciones y voz); apagar sugerencias no oculta avisos críticos.
+- [ ] Copy sin diagnóstico emocional ni culpa; separar verificado / manual /
+      sugerencia; no confundir venta con ganancia.
+- [ ] Gates nuevos: `closing-checklist-e2e.py`, `sin-ia-e2e.py`, recuperación
+      de borrador, completar/posponer/eliminar pendiente y copy.
+- [ ] Declarar límites: no se afirma reducción de estrés o carga sin estudio
+      con comerciantes.
 
 ### Fase 2 — Video/Stageshow final
 - [ ] Actualizar `record-demo.py`/`film-check.py` si el diseño cambió labels.
