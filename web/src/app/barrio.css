@@ -893,10 +893,12 @@ body {
 }
 
 .ledger tfoot td {
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-size: 1.5rem;
+  font-weight: 700;
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
 }
 
 .sheet-panel button {
@@ -933,8 +935,10 @@ body {
 }
 
 .debt-note__total strong {
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--color-attention);
   font-variant-numeric: tabular-nums;
 }
@@ -1011,8 +1015,10 @@ body {
 
 .pending-strip__total strong {
   display: block;
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--color-ink);
   font-variant-numeric: tabular-nums;
 }
@@ -2273,3 +2279,7 @@ html[data-text-zoom="large"] .help-qr {
   color: #8f2d1c;
 }
 
+
+html[data-text-zoom="large"] .help-steps {
+  grid-template-columns: 1fr;
+}

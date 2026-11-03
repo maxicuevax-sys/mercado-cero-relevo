@@ -7967,6 +7967,24 @@ function HelpContent({
         />
       </div>
 
+      <div className="help-steps grid gap-2 sm:grid-cols-3">
+        <div className="rounded-xl border border-separator bg-surface p-3">
+          <p className="text-xs font-bold uppercase tracking-[0.04em] text-attention">Registrar</p>
+          <p className="mt-1 text-sm font-semibold text-ink">La venta queda en tu libreta.</p>
+          <p className="mt-1 text-xs leading-snug text-ink-2">Todavía no es dinero recibido.</p>
+        </div>
+        <div className="rounded-xl border border-separator bg-surface p-3">
+          <p className="text-xs font-bold uppercase tracking-[0.04em] text-green">Cobrar</p>
+          <p className="mt-1 text-sm font-semibold text-ink">Solo se marca verificado con pey.</p>
+          <p className="mt-1 text-xs leading-snug text-ink-2">Un demo o una captura no cuentan.</p>
+        </div>
+        <div className="rounded-xl border border-separator bg-surface p-3">
+          <p className="text-xs font-bold uppercase tracking-[0.04em] text-attention">Fiar</p>
+          <p className="mt-1 text-sm font-semibold text-ink">Queda como deuda.</p>
+          <p className="mt-1 text-xs leading-snug text-ink-2">Un abono no crea una venta nueva.</p>
+        </div>
+      </div>
+
       <div className="rounded-xl border border-separator bg-surface p-4">
         <p className="text-base font-bold text-ink">Accesibilidad</p>
         <p className="mt-1 text-sm leading-relaxed text-ink-2">
@@ -8172,6 +8190,7 @@ const MemoActivityList = memo(ActivityList);
 const MemoCreditList = memo(CreditList);
 const MemoPendingPayments = memo(PendingPayments);
 const MemoPendingTasksPanel = memo(PendingTasksPanel);
+
 
 
 

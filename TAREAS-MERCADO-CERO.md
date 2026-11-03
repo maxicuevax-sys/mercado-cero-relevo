@@ -58,7 +58,7 @@
 
 Objetivo: que todos los módulos se sientan parte del mismo producto **sin ampliar alcance**. No hay pantallas nuevas ni backend nuevo.
 
-> **Estado:** C1 (estados), C3 (ilustraciones por dominio) y C6 (teléfono económico) cerrados; C2 (primitivas) y C5 (primer uso) parciales; C4 (tipografía de dinero) queda como excepción documentada: Fraunces sólo en totales hero, Inter tabular en tablas; C7 parcial: `verify:full --skip=tunnel,preflight` ejecutó **21/21 gates en verde** sobre `3c596ba`, incluido p0-integracion 51/0 tras corregir la codificación de `pending-payments.tsx`. Sólo quedan `tunnel` y `preflight`, bloqueados por el `APP_URL` muerto; no se pueden declarar sin un túnel vivo.
+> **Estado:** C1 (estados), C3 (ilustraciones por dominio), C4 (tipografía de dinero), C5 (primer uso) y C6 (teléfono económico) cerrados; C2 (primitivas) parcial: se limpiaron clases muertas y se unificaron estados, pero la extracción completa de primitivas queda como deuda. C7 parcial: `verify:full --skip=tunnel,preflight` ejecutó **21/21 gates en verde** sobre `3c596ba`, incluido p0-integracion 51/0 tras corregir la codificación de `pending-payments.tsx`. Sólo quedan `tunnel` y `preflight`, bloqueados por el `APP_URL` muerto; no se pueden declarar sin un túnel vivo.
 
 | ID | Tarea | Dueño | Archivos | Criterio |
 |---|---|---|---|---|
