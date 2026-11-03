@@ -9,7 +9,7 @@
   --mesh-paper: linear-gradient(180deg, #f6eedf 0%, #f1e7d7 100%);
   --mesh-sheet: linear-gradient(180deg, #fdf7ec 0%, #f9f0e0 100%);
   --paper-fiber: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
-  --mc-margin: rgba(185, 85, 53, 0.35);
+  --mc-margin: rgba(185, 85, 53, 0.22);
   --mc-rule: rgba(95, 87, 76, 0.16);
   --mc-ledger-line: rgba(143, 63, 37, 0.11);
   --mc-ledger-step: 30px;
@@ -485,12 +485,16 @@ body {
   border-radius: 50%;
   background: var(--color-accent);
   color: #fff8ea;
-  border: 2px solid #07382d;
+  border: 1.5px solid #07382d;
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.22),
-    inset 0 -6px 0 rgba(0, 0, 0, 0.24),
-    3px 4px 0 rgba(36, 31, 25, 0.3);
+    inset 0 2px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.16),
+    0 1px 2px rgba(36, 31, 25, 0.16);
   transition: transform 120ms var(--mc-ease);
+}
+
+.mic-halo {
+  display: none;
 }
 
 .mic-button:hover {
