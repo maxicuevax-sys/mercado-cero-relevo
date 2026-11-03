@@ -1,259 +1,210 @@
 # Handoff — cierre de Mercado Cero
 
-> **Fecha:** 2 de noviembre de 2026, 22:40 (America/Mexico_City).
-> **Worktree:** `mercado-cero-consolidacion` — rama `p0/consolidacion`, base de código `fabe7cc` + docs verificados; el SHA exacto se confirma con `git rev-parse HEAD`.
-> **Regla:** este documento manda sobre reportes viejos. No mergear ni declarar
-> listo sin `verify:full` 23/23 y `verify:evidence` sobre el HEAD entregado.
-
-> **⛔ NO MERGEAR TODAVÍA / NO DECLARAR LISTO.** Los P0 adversarios están
-> corregidos y el build de código es `0d7251d`, pero **no existe full ni
-> `latest.json` atado al HEAD de docs**, el fast-forward a `master` sigue sin
-> ejecutarse y el video es histórico. `:3000` y el túnel `auction...` ya
-> responden con `0d7251d`; el QR ya apunta a ese túnel.
+> **Fecha:** 3 de noviembre de 2026 (America/Mexico_City).
+> **Worktree:** `mercado-cero-final-closure` — rama `p0/final-closure`.
+> **Código base:** `3bf0482` (`feat(demo): grabar video final de la UI definitiva`),
+> que incluye el video final y los scripts de grabación.
+> **HEAD de docs:** el commit que contiene este archivo; se confirma con
+> `git rev-parse HEAD`. No se hardcodea aquí para no declarar un SHA falso.
+> **Estado:** **cierre técnico pendiente de full.** Los P0/P1 de dinero están
+> corregidos y el video/UX finales están integrados. El full y la evidencia se
+> ejecutan sobre este HEAD; la fuente es `harness/evidence/latest.json`.
+> **Regla:** no se mergea ni se declara listo hasta que `verify:full` y
+> `verify:evidence` pasen sobre el mismo HEAD, con `dirty:false` y
+> `buildSha === HEAD`.
 
 ## 0. Estado en una frase
 
-La rama de trabajo **`p0/consolidacion`** contiene la final
-`p0/final-cognitive` (`fabe7cc`: diseño, carriles cognitivos y fix adversario) más
-los documentos verificados; `master` es su ancestro, pero **falta
-full/evidencia del HEAD de docs y video final**. `:3000` y el túnel
-`auction...` ya sirven el build de código `0d7251d`. La demo no está cerrada.
+La rama **`p0/final-closure`** contiene la app final (`3bf0482`), el **video
+final** (183.72 s, corte **$550/Cuadra**, 8 frames, `FILM OK`), el reporte UX
+(**PASS 99/0**, sin P0/P1 nuevos) y estos documentos. `master` sigue en
+`3bf0482` y el fast-forward a esta rama está pendiente de que full/evidencia
+pasen. `:3000` se reconstruye desde este HEAD y el túnel `auction...` apunta a
+`:3000`; la preview `:3230` no se toca.
 
 ## 1. SHAs y relación de ramas
 
-Verificado con `git rev-parse`, `git merge-base --is-ancestor` y
-`git rev-list --left-right --count` el 2 nov 2026. **Confirma los SHA con git**:
-los commits de docs cambian `master` y la rama de trabajo.
+Verifica siempre con git: el commit de docs cambia el HEAD.
 
-| Objeto | SHA | Nota |
+| Objeto | Valor | Nota |
 |---|---|---|
-| `master` | `git rev-parse master`; al generar `529bddb` | Solo docs de bloqueo/consolidación; no contiene la app final. |
-| `p0/final-cognitive` | `fabe7cc09bca0031233ac893a4d3d9c330c921c5` | Código de app final; no incluye los docs posteriores de master. |
-| Worktree de consolidación | `p0/consolidacion`; al generar `2eecf09` | `fabe7cc` + docs de master; es la rama que se avanza. |
-| Merge-base | `master` | `master` es ancestro de `p0/consolidacion`. |
-| Commits que consolidación tiene de más | **30** al generar | `git rev-list --count master..p0/consolidacion`; verifica. |
-| Fast-forward | **Posible a `p0/consolidacion`, no ejecutado** | `master` es ancestro de consolidación. **No** hagas ff a `p0/final-cognitive` sola: master tiene docs que la final no tiene. |
-| Build conocido | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990` | Construido 2026-11-03T04:21:10Z; es el padre de `fabe7cc`. |
-| `:3000` | ✅ | Responde con `0d7251d`; el build de cierre se sella en el commit de docs. |
-| Preview `:3230` | detenida | Se apagó para el full; el túnel apunta a `:3000`. |
-| `:3302` | detenido | Servidor de pruebas apagado. |
-| Preview pública | `https://auction-margaret-mapping-deputy.trycloudflare.com` | Sirve `:3000` con `0d7251d`; quick tunnel efímero. |
-| Túnel del QR y de docs históricos | `https://timing-brought-lamp-aberdeen.trycloudflare.com` | **DNS no resuelve**; el QR ya apunta al túnel `auction...`. |
+| Código base | `3bf0482` (`3bf04827833e89db17384b47a0162598f947a38f`) | Incluye el video final y los scripts. No cambia `web/src`. |
+| HEAD de docs | `git rev-parse HEAD` | Este documento vive en ese commit; es el SHA que se construye y verifica. |
+| `master` | `3bf0482` al redactar | Ancestro de `p0/final-closure`; el ff-only se ejecuta **después** del full/evidencia. |
+| `p0/final-closure` | `3bf0482` + commit de docs | Rama entregable. |
+| Build de cierre | `git rev-parse HEAD` | `npm run build` sella `BUILD_SHA`; `/api/health` debe devolver ese SHA. |
+| Servidor local | `http://127.0.0.1:3000` | Se detiene el `:3000` de otro worktree y se reconstruye desde este HEAD. |
+| Preview `:3230` | **no se toca** | Queda fuera de este cierre. |
+| URL pública | `https://auction-margaret-mapping-deputy.trycloudflare.com` | Quick tunnel que apunta a `:3000`; si cambia, actualizar `APP_URL`, QR y PDF. |
 
-**Diferencia entre `2a1f166` y `fabe7cc`:** solo
-`web/scripts/payment-truth-e2e.py` (3 líneas de asserts) y
-`harness/evidence/companion-preferences-e2e.json`. **No cambia código de app**
-(`git diff --name-only 2a1f166..fabe7cc -- web/src web/next.config.ts web/package.json`
-vacío). Aun así, `buildSha !== HEAD`; para el cierre hay que reconstruir.
+**Video vs. código:** el MP4 se grabó con build `791b590`; `791b590..3bf0482`
+solo añade video, frames, reporte y scripts de demo, **sin cambios en
+`web/src`, `next.config.ts` ni `package.json`**. El video muestra el mismo
+código de app que se construye en este HEAD.
 
-## 2. P0/P1: qué está corregido y con qué evidencia
-
-El fix está en `ac9e5a6` (código/tests) y `7131f4e` (reporte), mergeado en
-`2a1f166`. El E2E adversario se corrió contra build `2a1f166`, no contra
-`fabe7cc`; el código de app es el mismo, pero la identidad no.
+## 2. P0/P1: qué está corregido
 
 | ID | Estado | Evidencia verificada | Límite |
 |---|---|---|---|
-| **P0-1** reset con pago pey firmado | **Corregido** | `resetDemoData` bloquea con 409 si hay cualquier `provider='pey' AND status='paid'`, aunque `demo=1` (`web/src/lib/db.ts:1997-2011`); el DELETE conserva esos pagos y sus pedidos (`:2017-2049`); `preservedRealPayments` se cuenta **después** del borrado (`:2053-2058`). E2E: 409, filas sobreviven, FORCE 200 conserva pago/pedido. | `preservedRealPayments` cuenta **pedidos distintos** con pago firmado, no filas de pago; el número de filas es `realPayments`/`realPaymentCount`. El E2E compara contra `SELECT DISTINCT order_id`, por eso su PASS es consistente, pero el nombre del campo puede confundir. Varios de sus detalles imprimen "fila borrada" aun en PASS; el assert sí comprueba existencia. |
-| **P0-2** `/` con caché pública | **Corregido** | `next.config.ts:187-193` aplica `private, no-store, max-age=0, must-revalidate` a `/`. Runtime en `:3302` (build `2a1f166`): `Cache-Control: private, no-store, max-age=0, must-revalidate`. E2E exige `private`, `no-store`, sin `public`/`s-maxage`. | La preview `:3230`/pública sigue sirviendo `397039d` con `public, s-maxage=60`; no es el build corregido. El HTML privado sigue en el primer paint; hace falta Access/auth para exponerlo. |
-| **P1-1** webhook firmado en demo | **Corregido** | `recalculateOrderTotals` decide por `payments.demo` (`web/src/lib/orders.ts:669-687`): un pago `demo=1` deja `demo_paid`; `fulfillOrder` devuelve 409 `demo_not_deliverable` (`:967-977`); `getDailySummary` manda cualquier `payments.demo=1` al bucket demo (`web/src/lib/db.ts:1794-1808`). E2E: `demo_paid`, `verifiedDigitalCents` sin cambio, `demoDigitalCents +1000`, fulfill 409. | El caso mixto demo/real en una misma orden no está cubierto por el E2E; el webhook demo probado sí. |
-| **P1-2** auth de sesión | **Abierto (limitación)** | No hay middleware/sesión; solo CSRF, rate limit y token de reset. `web/SECURITY.md` lo declara. | No presentar la demo pública como protegida. Cloudflare Access es la única barrera externa. |
-| **P1-3** `/api/verify` sin referencias | **Corregido** | `hasReferenceMismatch` devuelve `true` si una transacción PAID no trae `metadata.orderId`, `externalMetadata.orderId`, `clientReferenceId` ni `payableId` (`web/src/app/api/verify/route.ts:212-248`). E2E con mock: sin refs `verified:false`/`reference_mismatch`; con `metadata.orderId` correcto `verified:true`. | Validado con mock, no con payload real de pey. |
-| **P1-4** 404 de checkout/success | **Abierto** | GET `/pay/no-existe` y `/pay/no-existe/success` devuelven **HTTP 200** en `:3230` (`397039d`) y `:3302` (`2a1f166`); el body sí muestra "No encontramos este cobro". | Next 16 + Cache Components; el status HTTP no es 404. La UI es correcta, el contrato HTTP no. |
-| **P1-5** totales/conteos truncados | **Corregido (honestidad, no paginación completa)** | `pendingCentsTotal`, `creditsOpenTotal`, `creditsCustomersTotal`, `creditsBalanceCents` en `web/src/lib/dashboard.ts:49-64,111-144`; queries en `db.ts:1437-1465,1670-1713`; UI muestra "50 de 52", "$171.00", "100 de 102 fiados", "$151.00" (`pending-payments.tsx:104-150,231-234`; `caja-app.tsx:3001-3008,6562-6565`). E2E contra 52 pendientes/102 fiados. | No hay botón para cargar pendientes 51+ ni fiados 101+; la UI declara el truncamiento y el total es del servidor. Límites de API siguen en 100/200. |
+| **P0-1** reset con pago pey firmado | **Corregido** | `resetDemoData` responde 409 si existe cualquier pago `provider='pey' AND status='paid'`, aunque `demo=1`; el 409 no borra pedido ni pago y `FORCE` los conserva. Código: `web/src/lib/db.ts:2005-2085`; E2E adversario: 409, filas sobreviven, FORCE 200. | `preservedRealPayments` cuenta pedidos distintos con pago firmado, no filas de pago; para filas está `realPayments`. |
+| **P0-2** `/` con caché pública | **Corregido** | `next.config.ts` aplica `private, no-store, max-age=0, must-revalidate` a `/`; runtime y UX lo comprobaron. | El HTML privado sigue en el primer paint; no hay auth de sesión. |
+| **P1-1** webhook demo | **Corregido** | Un pago `demo=1` deja `demo_paid`; `fulfillOrder` responde 409 `demo_not_deliverable`; el resumen manda el demo al bucket `demoDigitalCents`. E2E: `demo_paid`, sin cambio en `verifiedDigitalCents`, fulfill 409. | El caso mixto demo/real en una misma orden no está cubierto por el E2E. |
+| **P1-3** `/api/verify` sin referencias | **Corregido** | `hasReferenceMismatch` rechaza una transacción PAID sin `metadata.orderId`, `externalMetadata.orderId`, `clientReferenceId` ni `payableId`: `verified:false`/`reference_mismatch`; con la referencia correcta, `verified:true`. Código: `web/src/app/api/verify/route.ts:212-248`. | Validado con mock, no con payload real de pey. |
+| **P1-5** totales/conteos truncados | **Corregido (honestidad, no paginación completa)** | `pendingCentsTotal`, `creditsOpenTotal`, `creditsCustomersTotal` y `creditsBalanceCents` salen del servidor; la UI declara el truncamiento ("50 de 52", "100 de 102 fiados") y muestra el total real. | No hay botón para cargar pendientes 51+ ni fiados 101+; los límites de API siguen en 100/200. |
 
-### P2 conocidos que siguen abiertos o parciales
+### Knowns y límites heredados
 
-- **P2-1:** "Recordatorios" y "Explicaciones" se guardan pero solo "Sugerencias"
-  tiene consumidor; el E2E de preferencias prueba persistencia, no efecto.
-- **P2-2:** "Antes de cerrar" sigue diciendo "Esperando confirmación" a un
-  pedido `confirmed` sin link (`closing-checklist.tsx:606`).
-- **P2-3:** el success de un fiado ya saldado sigue mostrando "Quedó a fiado".
-- **P2-4:** el conteo de personas se corrigió en Caja con
-  `creditsCustomersTotal`; no hay E2E específico de dos fiados del mismo cliente.
-- **P2-5:** no hay reglas `@media (forced-colors: active)` (0 coincidencias).
-- **P2-6:** `/api/demo/pay` no es atómico multi-proceso; no reproducido.
-- **P2-7:** README sigue diciendo "desplegado en producción"; la única URL viva
+- **P1-2 — auth de sesión: abierto.** No hay middleware/sesión; solo CSRF,
+  rate limit y token de reset. `web/SECURITY.md` lo declara. No presentar la
+  demo pública como protegida; Cloudflare Access es la única barrera externa.
+- **P1-4 — 404 de checkout/success: abierto.** `GET /pay/no-existe` y
+  `/pay/no-existe/success` devuelven **HTTP 200** (comprobado el 3 nov 2026);
+  el body sí muestra “No encontramos este cobro”. El contrato HTTP no es 404.
+- **P2-1** “Recordatorios” y “Explicaciones” se guardan pero solo “Sugerencias”
+  tiene consumidor.
+- **P2-2** “Antes de cerrar” puede decir “Esperando confirmación” a un pedido
+  `confirmed` sin link.
+- **P2-3** el success de un fiado ya saldado sigue mostrando “Quedó a fiado”.
+- **P2-5** no hay reglas `@media (forced-colors: active)`.
+- **P2-6** `/api/demo/pay` no es atómico multi-proceso; no reproducido.
+- **P2-7** README sigue diciendo “desplegado en producción”; la única URL viva
   es un quick tunnel de preview.
+- **Sin pago real:** no hubo pago pey/CoDi; la verificación es de modo demo.
+  El efectivo se registra `paid` al crear la venta; el demo usa `demo_paid`.
 
-## 3. Evidencia E2E: qué prueba y qué no
+## 3. Video final
 
-Todo se corrió el 2 nov entre 22:21 y 22:24, **después del build `2a1f166` y
-antes del commit `fabe7cc` (22:25)**. El código de app es idéntico, pero la
-evidencia no está atada a `fabe7cc` y el árbol estaba sucio en algunos casos.
+| Artefacto | Valor |
+|---|---|
+| MP4 | `demo/mercado-cero-demo.mp4` |
+| SHA-256 | `ba4d068e6da68c68263b9d9a96e4f451320260dfefaf4263e9213c812604bbd0` |
+| Bytes | `5,406,880` |
+| Duración | `183.72 s` (3:03.7) |
+| Resolución / códec | `1280×800`, H.264, 25 fps |
+| Frames | `demo/stageshow/01-caja-en-reposo.png` … `08-meta.png` (8) |
+| Verificación | `python scripts/film-check.py` → `FRAMES 8/8`, `SHEET …`, `FILM OK` |
+| Corte | **$550.00** y **Cuadra**; 5 × $100 + 1 × $50 + 0 × $20; `Corte #1` guardado |
+| Meta | `$325.00` tras apartar `$25` |
 
-| Suite | Resultado | Artefacto | Build/SHA | ¿Vale para cierre? |
-|---|---|---|---|---|
-| `p0-adversarial-e2e.py` | **28/28 PASS** | `mercado-cero-rehearsal/harness/evidence/p0-adversarial-e2e.json` | `buildSha=2a1f166`; sin `gitAtStart` | **No**: build viejo y sin SHA/dirty. Sirve como prueba del fix. |
-| `payment-truth-e2e.py` | **35/35 declarado** | solo capturas en `%TEMP%\opencode\verdad-pago` (22:23); sin JSON | sin SHA/build | **No**: no hay artefacto machine-readable; el script cambió en `fabe7cc` **después** del build. |
-| `closing-checklist-e2e.py` | **18/18 PASS** | `%TEMP%\opencode\cierre-cognitivo\closing-checklist-e2e.json` | `baseUrl=:3302`, un result dice build `2a1f166`; sin `gitAtStart` | **No**: build viejo y sin SHA/dirty. |
-| `sin-ia-e2e.py` | **21/21 PASS + 1 NOTE** | `%TEMP%\opencode\sin-ia\sin-ia-e2e.json` (22:24) | sin SHA/build | **No**: sin identidad. |
-| `companion-preferences-e2e.py` | **26/26 PASS** | `harness/evidence/companion-preferences-e2e.json` (versionado) | `gitAtStart.sha=2a1f166`, `dirty:true` | **No**: HARNESS exige `dirty:false` y SHA del HEAD. |
+Manifiesto de la grabación: `demo/record-demo.json` (15/15 checks; ignorado por
+git). Contact/motion sheets en `demo/stageshow/` (generados, ignorados).
+Detalle: `video-final-report.md`.
 
-**El full 23/23 no incluye estos cuatro E2E cognitivos.** El catálogo tiene 25
-gates; `full` corre 23 (24 con film). No se puede sustituir su corrida por el
-full. Hay que repetirlos sobre el build del HEAD y guardar JSON con
-`gitAtStart.sha`, `buildSha` y `dirty:false` (o dejar constancia explícita de
-que el script no lo escribe).
+## 4. UX final
 
-## 4. Lo que falta, en orden
+`FINAL-UX-REPORT.md` (copiado del carril `p0/final-ux`):
 
-1. **Commit de docs** (este trabajo). Después de este commit, el HEAD de la
-   rama final cambia; cualquier build/full anterior deja de ser evidencia.
-2. **Build desde ese HEAD** y servidor `:3000`:
-   `npm ci && npm run build`, `npx next start -H 127.0.0.1 -p 3000`.
-   `/api/health` debe devolver `buildSha === HEAD`.
-3. **Entorno**: en `web/.env.local` (ignorado, no versionar)
-   `DEMO_MODE=true` y `APP_URL=https://<túnel-vivo>`. El preflight lee
-   `APP_URL` de `.env.local`, **no** de `$env:APP_URL`.
-4. **Reset demo** y artefactos que exige el preflight:
-   `python scripts/mobile-audit.py`, `python scripts/checkout-audit.py`,
-   `python scripts/tunnel-smoke.py`, luego `node scripts/preflight.mjs`.
-   Ya se generaron en este cierre; si cambia el túnel o el build, regenerar.
-   El preflight da **18/18** con `APP_URL` en `.env.local`.
-5. **Full 23/23** y `npm run verify:evidence` sobre el mismo HEAD. Sin
-   `--skip`/`--only`; un `partial` no cuenta.
-6. **Repetir E2E** sobre el mismo build y persistir JSON con SHA:
-   adversarial, payment-truth, sin-ia, closing (necesita `:3302`, se niega a
-   `:3000`/`:3230`) y preferences. `closing` requiere un servidor aparte;
-   no reutilizar el `:3302` actual sin detenerlo/rebuild.
-7. **Túnel/QR**: el túnel `auction...` ya apunta al `:3000` final; el QR
-   `demo/qr-demo.*` ya se regeneró con esa URL. Si el quick tunnel muere,
-   crear otro, actualizar `APP_URL` y regenerar QR/PDF.
-8. **Video/Stageshow final**: los scripts de `p0/fix-video` (`c395e3e`)
-   **no están integrados**; `demo_ui.py` no existe en HEAD y `record-demo.py`
-   hardcodea `:3000`. Integrar los scripts, rebuild y grabar con corte $550.
-   El MP4 actual es histórico (39.8 s, $570).
-9. **Docs viejos**: README sigue diciendo "producción"; `demo/STATUS`,
-   `RUNBOOK`, `STATE` y `GOAL` ya tienen el estado actualizado, pero conservan
-   tablas históricas. No convertirlas en evidencia.
-10. **Solo después**: `git checkout master && git merge --ff-only
-    p0/consolidacion`, verificar que `master` apunta al HEAD entregado y que
-    el servidor sigue sirviendo ese SHA. Si se exige que la rama final sea
-    `p0/final-cognitive`, primero hay que llevar estos docs a esa rama
-    (`git checkout p0/final-cognitive && git merge --ff-only p0/consolidacion`)
-    y reconstruir; no construir desde `fabe7cc` y añadir docs después. No hay
-    merge que resolver; el fast-forward es posible, pero **no se ejecutó en
-    este carril**.
+- **PASS 99/0**, 4 knowns, **sin P0/P1 nuevos**.
+- Superficies: local y túnel público; Playwright/Chromium 320×640, 360×800,
+  1280×1000 y texto al 200 %.
+- Flujos verificados: salud/build/caché, Caja (parser 500, venta manual,
+  borrador, consultas locales), Fiado (sin doble POST), Corte (“Antes de
+  cerrar”, $550/Cuadra, no destructivo), pago demo/fulfill 409, checkout
+  pendiente, preferencias y reset final.
+- **Knowns UX:** Fiar/Cobrar bajo el pliegue en móvil; TTS dinámico 503 en este
+  entorno; efectivo demo rotulado “Efectivo recibido” en Actividad; “Ahora no”
+  solo por sesión; link/QR dependen del túnel efímero.
+- **Salvedad:** 0 pageerrors y 0 errores de consola JS; los 4 errores de red son
+  1 × 500 forzado por la prueba y 3 × 503 esperados de `/api/tts`.
 
-## 5. Comandos siguientes (PowerShell)
+## 5. Lo que falta, en orden
 
-Verificación de git antes de tocar nada:
+1. **Commit de docs** (este trabajo). Ese commit es el HEAD final; cualquier
+   build/full anterior deja de ser evidencia.
+2. **`web/.env.local`** (ignorado, no versionar):
+   `DEMO_MODE=true`, `APP_URL=https://auction-margaret-mapping-deputy.trycloudflare.com`,
+   `OPENAI_API_KEY=` y
+   `DATABASE_PATH=C:\Users\Elitebook 840 G8\AppData\Local\Temp\opencode\final-closure.db`.
+3. **Detener el `:3000` actual** (es de otro worktree) y reconstruir desde este
+   HEAD: `npm ci`, `npm run build`,
+   `npx next start -H 127.0.0.1 -p 3000` con la DB temporal.
+4. **Reset demo** y `node scripts/preflight.mjs` → **18/18**. Los artefactos
+   `mobile-audit.json`, `checkout-audit.json` y `tunnel-smoke.json` se generan
+   con sus scripts o con el propio full antes de su gate `preflight`.
+5. **Full** con `DATABASE_PATH` y `BASE_URL=http://127.0.0.1:3000` en el
+   entorno: `npm run verify:full` → **23/23**, `ok:true`, `dirty:false`,
+   `buildSha === HEAD`.
+6. **Evidencia:** `npm run verify:evidence` → **PASS** contra `latest.json`.
+7. **Solo si 5–6 pasan:** fast-forward de `master` a `p0/final-closure` desde el
+   worktree master (`git -C ..\mercado-cero merge --ff-only p0/final-closure`)
+   y copiar a ese worktree `harness/evidence/latest.json` y los artefactos
+   ignorados necesarios para que `verify:evidence` también pase allí.
+8. **No editar archivos después de la evidencia.** Un doc o test tocado después
+   del full cambia el SHA y obliga a reconstruir y repetir full/evidencia.
+
+## 6. Comandos de cierre (PowerShell)
 
 ```powershell
-cd "C:\Users\Elitebook 840 G8\Documents\Default Project\mercado-cero-consolidacion"
+cd "C:\Users\Elitebook 840 G8\Documents\Default Project\mercado-cero-final-closure"
 git status --short
-git rev-parse HEAD master p0/final-cognitive p0/consolidacion
-# HEAD = p0/consolidacion = fabe7cc + docs; final = fabe7cc (sin docs de master)
-git merge-base --is-ancestor master HEAD; $LASTEXITCODE   # 0
-git rev-list --left-right --count master...p0/consolidacion  # 0   N
-git rev-list --left-right --count master...HEAD              # 0   N
-```
+git rev-parse HEAD master
 
-Build y servidor final (desde el HEAD que se va a entregar):
+# Detener el :3000 de otro worktree (identifica el PID antes)
+Get-NetTCPConnection -State Listen -LocalPort 3000 | Select OwningProcess
+Stop-Process -Id <PID>
 
-```powershell
 cd web
 npm ci
 npm run build
-$env:DATABASE_PATH="$env:TEMP\opencode\demo-final.db"
-$env:DEMO_MODE='true'
-$env:APP_URL='https://TU-TUNEL.trycloudflare.com'
-$env:OPENAI_API_KEY=''
 npx next start -H 127.0.0.1 -p 3000
 ```
 
-En otra terminal, `web/.env.local` (ignorado) con:
-
-```text
-DEMO_MODE=true
-APP_URL=https://TU-TUNEL.trycloudflare.com
-```
-
-Reset, artefactos y preflight:
+En otra terminal:
 
 ```powershell
-Invoke-RestMethod -Method Post http://127.0.0.1:3000/api/demo/reset `
-  -ContentType 'application/json' -Body '{}'
-python scripts/mobile-audit.py
-python scripts/checkout-audit.py
-python scripts/tunnel-smoke.py
+cd "C:\Users\Elitebook 840 G8\Documents\Default Project\mercado-cero-final-closure\web"
+Invoke-RestMethod -Method Post http://127.0.0.1:3000/api/demo/reset -ContentType 'application/json' -Body '{}'
 node scripts/preflight.mjs
-```
 
-Full y evidencia:
-
-```powershell
+$env:DATABASE_PATH="C:\Users\Elitebook 840 G8\AppData\Local\Temp\opencode\final-closure.db"
+$env:BASE_URL="http://127.0.0.1:3000"
 npm run verify:full       # 23/23, sin --skip/--only
-npm run verify:evidence   # PASS, latest.json del HEAD
+npm run verify:evidence   # PASS contra HEAD
 ```
 
-E2E cognitivos (mismo build; guardar stdout/JSON con SHA):
+Solo después:
 
 ```powershell
-python scripts/p0-adversarial-e2e.py
-python scripts/payment-truth-e2e.py
-python scripts/sin-ia-e2e.py
-python scripts/companion-preferences-e2e.py
-
-# closing-checklist exige :3302 y rechaza :3000/:3230
-$env:DATABASE_PATH="$env:TEMP\opencode\closing-final.db"
-$env:DEMO_MODE='true'
-npx next start -p 3302
-python scripts/closing-checklist-e2e.py
+git -C ..\mercado-cero merge --ff-only p0/final-closure
+git -C ..\mercado-cero rev-parse HEAD
 ```
 
-> `payment-truth-e2e.py` no escribe JSON: guarda su stdout y el
-> `git rev-parse HEAD` + `/api/health` junto a las capturas. `closing` y
-> `sin-ia` escriben JSON sin SHA; anexa la identidad manualmente si no se
-> modifica el script. `p0-adversarial` sí escribe `buildSha`, pero no
-> `gitAtStart`; no lo declares evidencia de cierre sin ese dato.
+## 7. Definición de terminado
 
-## 6. Definición de terminado
-
-- [ ] `master` contiene la rama entregada (`p0/consolidacion`, fabe7cc + docs); árbol limpio.
+- [ ] `master` contiene la rama entregada (`p0/final-closure`) y apunta al
+      mismo SHA; árbol limpio.
 - [ ] `npm run build` desde HEAD; `/api/health` devuelve ese SHA.
-- [ ] `npm run verify:full` → 23/23, `ok:true`, `dirty:false`, `buildMatches`.
+- [ ] `npm run verify:full` → 23/23, `ok:true`, `dirty:false`,
+      `buildSha === HEAD`; la fuente es `harness/evidence/latest.json`.
 - [ ] `npm run verify:evidence` → PASS contra HEAD.
-- [ ] E2E cognitivos PASS sobre el mismo build, con evidencia identificable.
 - [ ] Preflight 18/18 con `APP_URL` en `.env.local` y los tres artefactos.
 - [ ] Túnel/QR apuntan al servidor final; `tunnel-smoke` 8/8.
-- [ ] Video/Stageshow finales con corte $550 y scripts integrados.
-- [ ] Docs sin SHA/URL/conteos falsos; README sin "producción".
-- [ ] Computer use final sin P0/P1 **nuevos**; los conocidos (404 HTTP,
-      forced-colors, 320/200 %) están corregidos o listados y aceptados.
+- [ ] Video final con corte $550/Cuadra y `FILM OK`; frames versionados.
+- [ ] UX PASS 99/0 sin P0/P1 nuevos; knowns listados y aceptados.
+- [ ] Docs sin SHA/URL/conteos falsos.
 - [ ] Límites declarados: sin auth de sesión, sin pago real, sin
       TalkBack/VoiceOver ni estudio con comerciantes.
 
-## 7. Qué no creer
+## 8. Qué no creer
 
-- **No hay full 23/23.** No existe `harness/evidence/latest.json` en este
-  worktree; el único JSON versionado de evidencia es
-  `companion-preferences-e2e.json`, con `dirty:true`.
-- **La preview no es el HEAD.** `:3230` y el túnel público sirven `2a1f166`
-  (build con fixes P0); `:3302` sirve `2a1f166`; la base de código es `fabe7cc`
-  y el HEAD del worktree añade docs.
-- **El túnel `timing...` está muerto.** El QR actual no se debe imprimir.
-- **"35/35" de payment-truth** no tiene JSON ni SHA; el script cambió después
-  del build. No es evidencia de cierre.
-- **"26/26" de preferences** es un conteo real, pero la evidencia está dirty y
-  atada a `2a1f166`.
-- **`master` no contiene la final** (28 commits de diferencia).
-- **El 404 de checkout sigue siendo HTTP 200**; no lo declares resuelto.
-- **No hay auth de sesión, offline real, pago real de $0.01 ni pruebas
-  humanas.** No los presentes como verdes.
-- **`p0/cognitive-integration` está obsoleta**; no mergear. `p0/fix-video`
-  sigue fuera de la final.
+- **“Ya hay full 23/23”** — no se declara aquí; se comprueba en
+  `harness/evidence/latest.json` y `npm run verify:evidence`.
+- **“La preview `:3230` es la final”** — no se toca en este cierre.
+- **“El video es histórico”** — el MP4 actual es el final: 183.72 s, $550,
+  Cuadra, 8 frames.
+- **“El 404 de checkout está resuelto”** — `/pay/no-existe` y `/success`
+  siguen devolviendo HTTP 200.
+- **“Hay auth/offline/pago real/pruebas humanas”** — no.
+- **“El túnel `timing...` sirve”** — no resuelve; el vigente es `auction...`.
 
-## 8. Dónde consultar
+## 9. Dónde consultar
 
 | Archivo | Para qué |
 |---|---|
-| `RELEVO-VERIFICADO.md` | Página de entrada: estado, hechos, pendientes y qué no creer. |
-| `CONTEXTO-VERIFICADO.md` | Índice del contexto importado y de las auditorías; qué es vigente y qué es histórico. |
-| `consolidation-report.md` | Método, contradicciones resueltas y límites de esta consolidación. |
-| `RELEVO/claims.json` | Tabla máquina-legible de afirmaciones con estado y evidencia. |
-| `GOAL-CIERRE-DEMO.md` | DoD y fases de cierre. |
+| `FINAL-UX-REPORT.md` | Pasada UX final: PASS 99/0, knowns y capturas. |
+| `video-final-report.md` | Grabación, hashes, frames y `FILM OK`. |
+| `FINAL-CLOSURE.md` | Estado de cierre, comandos y knowns. |
+| `RELEVO-VERIFICADO.md` | Página de entrada y qué no creer. |
 | `demo/STATUS.md` | Estado de demo, cifras, video y límites. |
 | `RUNBOOK-DEMO.md` | Operación, túnel, reset, QR/PDF y guion. |
 | `harness/STATE.md` | Handoff del harness y estado de gates. |

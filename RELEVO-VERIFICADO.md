@@ -1,103 +1,89 @@
 # Relevo verificado — Mercado Cero
 
-> **Para empezar aquí.** Fecha: 2 nov 2026, 22:40. Worktree:
-> `mercado-cero-consolidacion`, rama `p0/consolidacion`, base `fabe7cc` más un commit de docs (SHA en la entrega).
-> **No se mergeó nada; no se tocó la app, `:3000`, `:3230`, la preview ni
-> otros worktrees.** Cada afirmación de abajo se contrastó con git, código,
-> tests o `GET` de solo lectura; los reportes viejos se tratan como hipótesis.
+> **Para empezar aquí.** Fecha: 3 de noviembre de 2026. Worktree:
+> `mercado-cero-final-closure`, rama `p0/final-closure`, código base
+> `3bf0482` + commit de docs (HEAD = `git rev-parse HEAD`).
+> **No se ha mergeado nada; no se tocó la app, `:3230`, la preview ni otros
+> worktrees.** Cada afirmación de abajo se contrastó con git, código, tests o
+> `GET` de solo lectura; los reportes viejos se tratan como hipótesis.
 
 ## Estado en una frase
 
-La rama de trabajo **`p0/consolidacion`** contiene la final `p0/final-cognitive`
-(`fabe7cc`) más los documentos verificados. `master` es su ancestro y el
-fast-forward es posible **a `p0/consolidacion`**, no a la final sola. P0-1,
-P0-2, P1-1, P1-3 y P1-5 están corregidos, pero **no hay build ni
-`latest.json`/full del HEAD, `:3000` está caído, el túnel/QR vigente está
-muerto y el video es histórico**. El cierre no está hecho y no se debe mergear
-todavía.
+La rama **`p0/final-closure`** contiene la app final (`3bf0482`), el **video
+final** (183.72 s, $550/Cuadra, 8 frames, `FILM OK`), el reporte UX
+(**PASS 99/0**, sin P0/P1 nuevos) y estos documentos. Los P0/P1 de dinero están
+corregidos. **Falta el full/evidencia sobre este HEAD**: se ejecuta con
+`npm run verify:full` y la fuente es `harness/evidence/latest.json`. `master`
+sigue en `3bf0482`; el ff-only se hace solo si full/evidencia pasan.
 
 | Dato | Valor verificado |
 |---|---|
-| `master` | `git rev-parse master`; al generar: `529bddb` (solo docs) |
-| Rama de código | `p0/final-cognitive` = `fabe7cc09bca0031233ac893a4d3d9c330c921c5` |
-| Worktree de consolidación | `p0/consolidacion` = `fabe7cc` + docs; al generar: `2eecf09` |
-| Relación | `master` es ancestro de `p0/consolidacion`; **ff-only a consolidación**, no a la final sola. `master..consolidacion` = 30 al generar; verifica con git |
-| Build conocido | `0d7251ded3916984a5548c47dc1f5ef9b0024f4c`; build de código final previo al commit de docs |
-| Diferencia build→HEAD docs | el commit de docs cambia el SHA; el código de app es el mismo. El build de cierre se sella en el HEAD de docs. |
-| `:3000` | ✅ responde con `0d7251d` |
-| Preview `:3230` / pública | `0d7251ded3916984a5548c47dc1f5ef9b0024f4c` (`auction-margaret-mapping-deputy.trycloudflare.com`) | Sirve `:3000`; no es el HEAD de docs |
-| `:3302` | detenido |
-| Túnel `timing-brought-lamp-aberdeen...` | **DNS no resuelve**; el QR apunta a `auction...` |
-| `harness/evidence/latest*.json` | **no existen** en este worktree |
-| `master` contiene la final/consolidación | **No**; la rama de trabajo está 30 commits adelante |
+| Código base | `3bf0482` (`3bf04827833e89db17384b47a0162598f947a38f`) |
+| HEAD de docs | `git rev-parse HEAD` (el commit que contiene este archivo) |
+| `master` | `3bf0482` al redactar; ancestro de la rama; ff-only pendiente |
+| `p0/final-closure` | `3bf0482` + commit de docs |
+| Build de cierre | `git rev-parse HEAD`; se sella al construir desde HEAD |
+| `:3000` | se detiene el servidor de otro worktree y se reconstruye desde HEAD |
+| Preview `:3230` | **no se toca** |
+| Túnel público | `https://auction-margaret-mapping-deputy.trycloudflare.com`; apunta a `:3000`; quick tunnel efímero |
+| Video | `demo/mercado-cero-demo.mp4`; 5,406,880 B; 183.72 s; 1280×800; SHA-256 `ba4d068e…`; `FILM OK`; 8 frames |
+| UX | `FINAL-UX-REPORT.md`: PASS 99/0; 0 FAIL; sin P0/P1 nuevos; 4 knowns |
+| Evidencia | `harness/evidence/latest.json` **aún no existe**; full pendiente |
 
 ## 5 cosas que sí están hechas (verificadas)
 
 1. **P0-1 — reset seguro.** `resetDemoData` responde 409 si existe cualquier
    pago `provider='pey' AND status='paid'`, aunque `demo=1`; el 409 no borra
-   pedido ni pago; `FORCE` los conserva. `preservedRealPayments` se calcula
-   después del borrado. Código: `web/src/lib/db.ts:1997-2078`;
-   `web/src/app/api/demo/reset/route.ts`. E2E: 409, filas sobreviven, FORCE 200.
-   **Matiz:** `preservedRealPayments` cuenta pedidos distintos, no filas de
-   pago; para filas está `realPayments`.
-2. **P0-2 — `/` privada.** `next.config.ts:187-193` aplica
-   `private, no-store, max-age=0, must-revalidate` a `/`. Runtime en `:3302`
-   (build `2a1f166`): header correcto. La preview `397039d` todavía sirve
-   `public, s-maxage=60`; no es el build corregido.
+   pedido ni pago; `FORCE` los conserva. Código:
+   `web/src/lib/db.ts:2005-2085`; `web/src/app/api/demo/reset/route.ts`.
+   E2E: 409, filas sobreviven, FORCE 200. **Matiz:** `preservedRealPayments`
+   cuenta pedidos distintos, no filas de pago; para filas está `realPayments`.
+2. **P0-2 — `/` privada.** `next.config.ts` aplica
+   `private, no-store, max-age=0, must-revalidate` a `/`; el runtime y la
+   pasada UX lo comprobaron en local y por el túnel.
 3. **P1-1 — webhook demo aislado.** Un webhook firmado en demo deja
    `demo_paid`, no suma a `verifiedDigitalCents`, suma a `demoDigitalCents` y
    `fulfill` responde 409 `demo_not_deliverable`. Código:
-   `web/src/lib/orders.ts:669-687,967-977`; `db.ts:1794-1808`. E2E lo prueba.
+   `web/src/lib/orders.ts:669-687,967-977`; `db.ts:1794-1808`.
 4. **P1-3 — verify exige referencias.** Una transacción PAID sin
    `metadata.orderId`/`externalMetadata.orderId`/`clientReferenceId`/`payableId`
-   devuelve `verified:false`/`reference_mismatch`; con la referencia correcta
-   devuelve `verified:true`. Código: `web/src/app/api/verify/route.ts:212-248`.
+   devuelve `verified:false`/`reference_mismatch`; con la referencia correcta,
+   `verified:true`. Código: `web/src/app/api/verify/route.ts:212-248`.
 5. **P1-5 — totales honestos.** `pendingCentsTotal`, `creditsOpenTotal`,
    `creditsCustomersTotal` y `creditsBalanceCents` salen del servidor; la UI
-   dice "50 de 52", "$171.00", "100 de 102 fiados", "$151.00". Código:
-   `web/src/lib/dashboard.ts`, `db.ts:1437-1465,1670-1713`,
-   `pending-payments.tsx`, `caja-app.tsx`. E2E con 52 pendientes/102 fiados.
-   No hay paginación completa: solo se declara el truncamiento.
+   declara el truncamiento y muestra el total real. E2E con 52 pendientes y
+   102 fiados. No hay paginación completa.
 
 ## 5 cosas que faltan (bloquean el cierre)
 
-1. **Full + evidencia del HEAD.** No existe `latest.json`; el full 23/23,
-   `verify:evidence`, `serverBuildSha === HEAD` y `dirty:false` siguen
-   pendientes. El build conocido es `2a1f166`, no `fabe7cc`.
-2. **Servidor final `:3000` + preflight.** `:3000` está caído. El preflight
-   lee `APP_URL` de `web/.env.local` (no de `$env:APP_URL`) y exige
-   `mobile-audit.json`, `checkout-audit.json` y `tunnel-smoke.json`; hoy no
-   puede dar 18/18.
-3. **Túnel/QR/video final.** El túnel vivo (`auction...`) sirve `0d7251d`
-   (build de código final, no el HEAD de docs); el túnel `timing...` del QR no resuelve. El MP4 es histórico
-   (39.8 s, $570); los scripts de `p0/fix-video` (`c395e3e`) no están
-   integrados (`demo_ui.py` ausente; `record-demo.py` hardcodea `:3000`).
-4. **P1-4 / accesibilidad / auth / pago real.** El 404 de checkout sigue
-   siendo **HTTP 200**; no hay `@media (forced-colors: active)`. El audit de
-   `b7154ca` reportó que a 320 px/200 % Fiar/Cobrar quedan bajo el pliegue,
-   pero no se re-midió en este carril. No hay auth de sesión, pago real de
-   $0.01, TalkBack/VoiceOver ni teléfono físico/estudio.
-5. **Merge y docs viejos.** `master` no contiene la final; README sigue
-   diciendo "desplegado en producción"; `demo/STATUS`, `RUNBOOK`, `STATE` y
-   `GOAL` ya tienen el estado actualizado pero conservan tablas históricas.
-   No mergear hasta que 1–3 estén verdes.
+1. **Full + evidencia del HEAD.** No existe `latest.json`; `verify:full`,
+   `verify:evidence`, `serverBuildSha === HEAD` y `dirty:false` se ejecutan
+   sobre este commit. La fuente será `harness/evidence/latest.json`.
+2. **Servidor final `:3000` + preflight.** Hay que detener el `:3000` de otro
+   worktree, reconstruir desde este HEAD y correr el reset + preflight 18/18
+   con `APP_URL` en `web/.env.local`.
+3. **Túnel/QR.** El túnel `auction...` está vivo y apunta a `:3000`; si el
+   quick tunnel cambia, hay que actualizar `APP_URL`, QR y PDF. No se toca la
+   preview `:3230`.
+4. **P1-4 / accesibilidad / auth / pago real.** El 404 de checkout sigue siendo
+   **HTTP 200** (comprobado el 3 nov 2026); no hay `@media (forced-colors:
+   active)`. No hay auth de sesión, pago real de $0.01, TalkBack/VoiceOver ni
+   teléfono físico/estudio. Fiar/Cobrar queda bajo el pliegue en móvil (P2 UX).
+5. **Merge y docs viejos.** `master` no contiene el commit de docs; README
+   sigue diciendo “desplegado en producción”. El merge queda pendiente de que
+   1–2 estén verdes y `verify:evidence` dé PASS.
 
 ## Comandos siguientes (correctos)
 
 ```powershell
-cd "C:\Users\Elitebook 840 G8\Documents\Default Project\mercado-cero-consolidacion"
+cd "C:\Users\Elitebook 840 G8\Documents\Default Project\mercado-cero-final-closure"
 git status --short
-git rev-parse HEAD master p0/final-cognitive
+git rev-parse HEAD master
 git merge-base --is-ancestor master HEAD; $LASTEXITCODE   # 0
-git rev-list --left-right --count master...HEAD           # 0   28
 
 cd web
 npm ci
 npm run build
-$env:DATABASE_PATH="$env:TEMP\opencode\demo-final.db"
-$env:DEMO_MODE='true'
-$env:APP_URL='https://TU-TUNEL.trycloudflare.com'
-$env:OPENAI_API_KEY=''
 npx next start -H 127.0.0.1 -p 3000
 ```
 
@@ -105,68 +91,51 @@ En `web/.env.local` (ignorado; no versionar):
 
 ```text
 DEMO_MODE=true
-APP_URL=https://TU-TUNEL.trycloudflare.com
+APP_URL=https://auction-margaret-mapping-deputy.trycloudflare.com
+OPENAI_API_KEY=
+DATABASE_PATH=C:\Users\Elitebook 840 G8\AppData\Local\Temp\opencode\final-closure.db
 ```
 
-Reset, artefactos, preflight y evidencia:
+Reset, preflight, full y evidencia:
 
 ```powershell
 Invoke-RestMethod -Method Post http://127.0.0.1:3000/api/demo/reset `
   -ContentType 'application/json' -Body '{}'
-python scripts/mobile-audit.py
-python scripts/checkout-audit.py
-python scripts/tunnel-smoke.py
 node scripts/preflight.mjs
-npm run verify:full       # 23/23; no --skip/--only
+$env:DATABASE_PATH="C:\Users\Elitebook 840 G8\AppData\Local\Temp\opencode\final-closure.db"
+$env:BASE_URL="http://127.0.0.1:3000"
+npm run verify:full       # 23/23; sin --skip/--only
 npm run verify:evidence   # PASS contra HEAD
 ```
 
-E2E (mismo build; cerrar `:3302` o usar otro puerto para el de cierre):
+Si un gate falla por un flake conocido (webhook, p0-venta, p0-corte, data):
+repítelo aislado y vuelve a correr el full; documenta el reintento. Si es un
+bug real, detente y repórtalo.
+
+Solo después de full/evidence:
 
 ```powershell
-python scripts/p0-adversarial-e2e.py
-python scripts/payment-truth-e2e.py
-python scripts/sin-ia-e2e.py
-python scripts/companion-preferences-e2e.py
-
-# closing-checklist exige :3302 y rechaza :3000/:3230
-$env:DATABASE_PATH="$env:TEMP\opencode\closing-final.db"
-$env:DEMO_MODE='true'
-npx next start -p 3302
-python scripts/closing-checklist-e2e.py
+git -C ..\mercado-cero merge --ff-only p0/final-closure
+git -C ..\mercado-cero rev-parse HEAD
 ```
 
-Solo después de full/evidence y de que el servidor sirva el HEAD:
-
-```powershell
-git checkout master
-git merge --ff-only p0/consolidacion   # fabe7cc + docs; si se exige final, ff de final a consolidacion primero
-```
-
-> No prometas 23/23: no se ejecutó. Si cambias un doc o un test después del
+> No prometas 23/23 antes de correrlo. Si cambias un doc o un test después del
 > full, el SHA cambia y hay que reconstruir y repetir full/evidence.
 
 ## Qué no creer
 
-- **"Full 23/23"** — no existe `latest.json`; es pendiente.
-- **"La preview es la final"** — `:3230`/pública sirven `397039d`; `:3302`
-  sirve `2a1f166`; la base de código es `fabe7cc` y el HEAD del worktree
-  añade el commit de docs.
-- **"El túnel/QR está vivo"** — `timing...` no resuelve; el QR actual no se
-  imprime.
-- **"payment-truth 35/35"** — no hay JSON ni SHA; el script cambió en
-  `fabe7cc` después del build. Las capturas son de `2a1f166`.
-- **"preferences 26/26 es evidencia válida"** — el JSON dice `dirty:true` y
-  `sha=2a1f166`; HARNESS exige `dirty:false` y SHA del HEAD.
-- **"master ya tiene la final"** — 28 commits de diferencia.
-- **"El 404 está resuelto"** — `/pay/no-existe` y `/success` devuelven 200.
-- **"Hay auth/offline/pago real/pruebas humanas"** — no.
-- **"p0/cognitive-integration se puede mergear"** — está obsoleta. Tampoco
-  está integrada `p0/fix-video`.
+- **“Full 23/23 ya está”** — no existe `latest.json`; es pendiente.
+- **“La preview `:3230` es la final”** — no se toca en este cierre.
+- **“El video es histórico”** — el MP4 actual es el final: 183.72 s, $550,
+  Cuadra, 8 frames, `FILM OK`.
+- **“El 404 está resuelto”** — `/pay/no-existe` y `/success` devuelven 200.
+- **“Hay auth/offline/pago real/pruebas humanas”** — no.
+- **“El túnel está garantizado”** — es un quick tunnel efímero; si cambia,
+  hay que regenerar `APP_URL`, QR y PDF.
 
 ## Regla de cierre
 
-**No mergear ni declarar listo sin `verify:full` 23/23 y
-`verify:evidence` PASS sobre el mismo HEAD, con `dirty:false`,
-`serverBuildSha === HEAD` y los E2E repetidos/identificados.** Un `--skip`,
-`--only`, un build de otro SHA o un JSON `dirty:true` no cuentan.
+**El merge y el cierre requieren `verify:full` 23/23 y `verify:evidence`
+PASS sobre el mismo HEAD, con `dirty:false`, `serverBuildSha === HEAD` y
+`buildSha` por gate.** Un `--skip`, `--only`, un build de otro SHA o un JSON
+`dirty:true` no cuentan.

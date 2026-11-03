@@ -1,10 +1,11 @@
 # Runbook de demo — Mercado Cero
 
 > **Estado:** demo mode con datos sembrados. El riel real de CoDi sigue bloqueado por BBVA; la demo se presenta como **modo demo**. No hubo pago real.
-> **Video:** `demo/mercado-cero-demo.mp4` es el **video final** de la UI actual: 183.7 s, 5,406,880 B, 1280×800, H.264. El corte se grabó con **$550.00** y **Cuadra**. SHA-256 `ba4d068e6da68c68263b9d9a96e4f451320260dfefaf4263e9213c812604bbd0`. Detalle: `video-final-report.md`.
-> **Túnel vivo (2 nov 2026):** `https://auction-margaret-mapping-deputy.trycloudflare.com` — sirve la preview `2a1f166`, **no** el build final; quick tunnel efímero. El túnel `timing-brought-lamp-aberdeen...` de este documento y del QR **no resuelve**. Si cambia, regenerar `APP_URL`, QR y PDF.
-> **P0/P1:** P0-1, P0-2, P1-1, P1-3 y P1-5 corregidos en `ac9e5a6`/`fabe7cc`; siguen abiertos P1-2 (auth) y P1-4 (404 HTTP 200). **Full 23/23 y `latest.json` del HEAD siguen pendientes.** Detalle: `HANDOFF-CIERRE.md`.
-> **Declaración honesta:** Estamos en modo demo: los pagos se simulan con `demo_paid`. No hubo pago real de $0.01; BBVA/CoDi sigue bloqueado. Solo el webhook firmado de pey marca `paid`. Las pruebas con comerciantes y lectores de pantalla están pendientes.
+> **Cierre:** rama `p0/final-closure`, código base `3bf0482` + commit de docs. El `:3000` de otro worktree se detiene y se reconstruye desde este HEAD; la preview `:3230` **no se toca**. **Full 23/23 y `latest.json` del HEAD se ejecutan sobre este commit; la fuente es `harness/evidence/latest.json`.** Detalle: `HANDOFF-CIERRE.md`.
+> **Video:** `demo/mercado-cero-demo.mp4` es el **video final** de la UI actual: 183.72 s, 5,406,880 B, 1280×800, H.264, 8 frames, `FILM OK`. El corte se grabó con **$550.00** y **Cuadra**. SHA-256 `ba4d068e6da68c68263b9d9a96e4f451320260dfefaf4263e9213c812604bbd0`. Detalle: `video-final-report.md`.
+> **Túnel vivo (3 nov 2026):** `https://auction-margaret-mapping-deputy.trycloudflare.com` — apunta a `:3000`; quick tunnel efímero. El túnel `timing-brought-lamp-aberdeen...` de documentos viejos **no resuelve**. Si cambia, regenerar `APP_URL`, QR y PDF.
+> **P0/P1:** P0-1 (reset 409), P0-2 (caché privada), P1-1 (webhook demo → `demo_paid`), P1-3 (verify con referencias) y P1-5 (totales honestos) corregidos; siguen abiertos P1-2 (auth) y P1-4 (404 HTTP 200). **UX final PASS 99/0, sin P0/P1 nuevos** (`FINAL-UX-REPORT.md`).
+> **Declaración honesta:** Estamos en modo demo: los pagos se simulan con `demo_paid`. No hubo pago real de $0.01; BBVA/CoDi sigue bloqueado. Solo el webhook firmado de pey marca `paid` en el camino digital. Las pruebas con comerciantes y lectores de pantalla están pendientes.
 > **Verdad:** los pagos demo usan `demo_paid`; `/api/verify` solo marca `pey`. Comprobación: `node scripts/verify-truth.mjs`.
 > **Auditoría móvil:** última corrida conocida (2 nov 2026) — 25/25 checks, 360 px emulado con Playwright, ≈9 s de flujo en producción (10–17 s en dev), 0 errores de consola. Artefacto ignorado, no en el árbol. Falta la prueba en un teléfono físico.
 > **Checkout público:** última corrida conocida (2 nov 2026) — 19/19 checks a 360 px, pago demo y pantalla de éxito; Lighthouse 100/100/100. Artefacto ignorado.
@@ -14,8 +15,9 @@
 
 ## 1 · Antes de salir (10 minutos)
 
-- [ ] `mercado-cero/web/.env.local` tiene `DEMO_MODE=true` y `APP_URL=https://<túnel-vivo>` (el preflight lee `APP_URL` de ese archivo, no de `$env:APP_URL`).
-- [ ] El servidor corre: `npm run build && next start -H 127.0.0.1` (recomendado; es el modo validado) o `npm run dev`.
+- [ ] `mercado-cero-final-closure/web/.env.local` tiene `DEMO_MODE=true`, `APP_URL=https://auction-margaret-mapping-deputy.trycloudflare.com` y `DATABASE_PATH` temporal (el preflight lee `APP_URL` de ese archivo, no de `$env:APP_URL`).
+- [ ] El servidor corre desde el HEAD de cierre: `npm ci && npm run build && npx next start -H 127.0.0.1 -p 3000` (recomendado; es el modo validado) o `npm run dev`.
+- [ ] `/api/health` devuelve `buildSha` igual a `git rev-parse HEAD`.
 - [ ] Abre `http://localhost:3000` y confirma:
   - [ ] La pantalla inicial es **Caja** y muestra **¿Qué vendiste?**.
   - [ ] El pill **DEMO** está visible en la cabecera.
@@ -28,30 +30,32 @@
   - [ ] Corte: base **$500.00** y esperado **$500.00** (el efectivo demo no cuenta como real)
   - [ ] Meta: **$300.00 de $1,800.00**
 - [ ] Batería, cargador, hotspot y cable.
-- [ ] Video **histórico** descargado en el teléfono (solo último recurso; muestra la UI vieja y $570; no es respaldo actual).
+- [ ] Video **final** descargado en el teléfono (183.72 s, $550/Cuadra; es el respaldo actual, no la UI vieja).
 - [ ] QR impreso de respaldo (`demo/qr-demo.png` o el HTML imprimible).
 - [ ] Micrófono probado; si falla, la demo funciona con texto.
-- [ ] Túnel HTTPS vivo si vas a mostrar un link/QR (demo). URL vigente al **2 nov 2026**:
-  `https://auction-margaret-mapping-deputy.trycloudflare.com` (preview `2a1f166`, no final)
+- [ ] Túnel HTTPS vivo si vas a mostrar un link/QR (demo). URL vigente al **3 nov 2026**:
+  `https://auction-margaret-mapping-deputy.trycloudflare.com` (apunta a `:3000`; sirve el build que se reconstruya desde HEAD)
   Es un **quick tunnel efímero**: si cambia, actualiza `APP_URL`, reinicia el servidor y regenera QR/PDF (`node scripts/make-demo-qr.mjs` + `python scripts/print-qr-pdf.py`).
-- [ ] Prueba el túnel antes de salir: `python scripts/tunnel-smoke.py` (última corrida conocida 8/8, 2 nov 2026; repetir contra la URL del servidor final, no contra `2a1f166`).
-- [ ] Corre el preflight completo **después del reset**: `node scripts/preflight.mjs` (la última corrida conocida fue 18/18, pero hoy no es ejecutable: faltan `APP_URL` y `mobile-audit.json`, `checkout-audit.json`, `tunnel-smoke.json`).
+- [ ] Prueba el túnel antes de salir: `python scripts/tunnel-smoke.py` (8/8; repetir contra la URL del servidor final).
+- [ ] Corre el preflight completo **después del reset**: `node scripts/preflight.mjs` (18/18; si faltan artefactos, genéralos con `python scripts/mobile-audit.py`, `python scripts/checkout-audit.py` y `python scripts/tunnel-smoke.py`).
 - [ ] No corras el contrato de webhook justo antes de la demo; reinicia los datos después si lo haces.
 
 ### Limpieza operativa antes de arrancar (solo documentada; no la ejecutes desde un carril de docs)
 
 Conservar:
-- el servidor de demo en `:3000` cuando exista;
-- la preview `:3230` y su túnel si vas a mostrar el link/QR actual (**sirve `2a1f166`; no es la final**).
+- el servidor de demo en `:3000` cuando sea el del HEAD de cierre;
+- la preview `:3230` (**no se toca** en este cierre).
 
-No confundir: el `cloudflared` **PID 13932** apunta a `:3000` (caído), no a la preview. Detener solo servidores de gates/carriles que no estés usando (`:3125`, `:3195`, `:3211`, `:3220`) y no matar `:3230` si se va a mostrar.
+No confundir: el `cloudflared` del túnel `auction...` apunta a `:3000`, no a la preview. Detener solo servidores de gates/carriles que no estés usando (`:3125`, `:3195`, `:3211`, `:3220`) y no matar `:3230`.
 
 Arranque limpio:
-1. `cd web`
-2. `npm run build`
-3. `next start -H 127.0.0.1` (o `npm start -- -H 127.0.0.1`) en `:3000`.
-4. Reiniciar demo (`POST /api/demo/reset` o el botón **Reiniciar demo**).
-5. `node scripts/preflight.mjs` **después** del reset, con `APP_URL` en `.env.local` y los artefactos mobile/checkout/túnel generados.
+1. Detener el `:3000` de otro worktree (identifica el PID con `Get-NetTCPConnection -State Listen -LocalPort 3000`).
+2. `cd web`
+3. `npm ci`
+4. `npm run build`
+5. `npx next start -H 127.0.0.1 -p 3000` con la DB temporal de `.env.local`.
+6. Reiniciar demo (`POST /api/demo/reset` o el botón **Reiniciar demo**).
+7. `node scripts/preflight.mjs` **después** del reset, con `APP_URL` en `.env.local` y los artefactos mobile/checkout/túnel generados.
 
 ---
 
@@ -85,11 +89,11 @@ Señala el total **$90.00** y pulsa **Confirmar venta**.
 
 > “La caja no dice pagado hasta que llega el webhook firmado de pey. Una captura de pantalla no cuenta.”
 
-Cuando aparezca el sello **DEMO** o **PAGADO**, señálalo.
+Cuando aparezca la hoja **Pago demo (simulado)**, señálala y ciérrala con **Cerrar demo**. Nunca digas “Listo para entregar” para un pago demo.
 
 ### 1:20–1:50 · Anti-fraude
 
-- Cierra el overlay con **Listo para entregar**.
+- Cierra el overlay con **Cerrar demo**.
 - Pulsa **Verificar** en la cabecera de Caja.
 - Pulsa **Probar con un comprobante falso**.
 
@@ -157,13 +161,13 @@ Para una persona mayor, antes de empezar: activa **Texto grande** y **Alto contr
 | Falla | Qué hacer |
 |---|---|
 | Micrófono | Usa las frases de ejemplo o **Escribir venta**. La demo sigue. |
-| Link/QR no genera | Cambia a QR CoDi; si también falla, muestra el estado pendiente y, solo como último recurso, el video histórico (UI vieja; no es respaldo actual). |
+| Link/QR no genera | Cambia a QR CoDi; si también falla, muestra el estado pendiente y, solo como último recurso, el video final. |
 | BBVA/CoDi rechaza | **Simular CoDi** y dilo: “modo demo; el webhook real es el que manda en producción.” |
-| Internet | La app local sigue; el teléfono no. Usa el video histórico solo como último recurso y di que es de la UI anterior. |
-| Servidor caído | `npm run dev`, espera “Ready”, recarga. Si no, video histórico con la misma advertencia. |
+| Internet | La app local sigue; el teléfono no. Usa el video final como último recurso. |
+| Servidor caído | `npm run dev`, espera “Ready”, recarga. Si no, video final. |
 | Datos sucios | Icono de reiniciar demo; si no, reinicia el servidor. |
 | Túnel caído | Relanza cloudflared, actualiza `APP_URL`, reinicia, regenera QR/PDF. |
-| Proyector no muestra | Abre el video histórico en el teléfono; el guion va en este documento. |
+| Proyector no muestra | Abre el video final en el teléfono; el guion va en este documento. |
 
 ---
 
@@ -221,12 +225,12 @@ Comisión por transacción o suscripción. CoDi es el riel gratuito; la tarjeta 
 - `scripts/checkout-audit.py` — valida checkout, pago demo y pantalla de éxito.
 - `scripts/tunnel-smoke.py` — valida el camino público por Cloudflare.
 - `scripts/verify-env.mjs` — revisa demo/real sin imprimir secretos.
-- `scripts/preflight.mjs` — última corrida conocida: 18/18, pero **hoy falla** sin `APP_URL` en `.env.local` y sin `mobile-audit.json`, `checkout-audit.json` y `tunnel-smoke.json`.
+- `scripts/preflight.mjs` — corre **después del reset**; exige 18/18 y los artefactos `mobile-audit.json`, `checkout-audit.json` y `tunnel-smoke.json` (se generan con sus scripts o con el full antes del gate).
 - `scripts/rehearse-demo.py` — última corrida en master `75179c7`: 3/3, 19/19, ~8.1 s.
 - `scripts/verify-truth.mjs` — un `transactionId` demo no se verifica.
 - `scripts/make-demo-qr.mjs` + `scripts/print-qr-pdf.py` — regeneran el QR y el PDF del túnel vigente.
 - `demo/feedback.md` — registro de pruebas con personas (0/6–8 ejecutadas).
-- `demo/qr-demo.png` — QR del túnel **muerto** `timing-brought-lamp-aberdeen...`; no imprimir. Regenerar con el túnel del servidor final (`node scripts/make-demo-qr.mjs` + `python scripts/print-qr-pdf.py`).
+- `demo/qr-demo.png` — QR del túnel vivo `auction-margaret-mapping-deputy...`; si el quick tunnel cambia, regenerarlo con `node scripts/make-demo-qr.mjs` + `python scripts/print-qr-pdf.py`.
 - `scripts/mobile-audit.py`, `scripts/record-demo.py` — reproducibles.
 
 ---
@@ -239,6 +243,6 @@ Comisión por transacción o suscripción. CoDi es el riel gratuito; la tarjeta 
 4. Reinicia el servidor y recarga: el pill **DEMO** debe desaparecer y la app debe hablar de modo real.
 5. Cobra **$0.01** y paga desde el banco. Espera el webhook firmado; verifica el estado **pagado** y la conciliación.
 6. Si el webhook no llega en 2 minutos, la orden queda **pendiente**. No la marques pagada ni muestres una captura como prueba.
-7. Si el riel falla, vuelve a `DEMO_MODE=true`, reinicia y usa el sello **DEMO** y, solo como último recurso, el video histórico (advirtiendo que es de la UI anterior).
+7. Si el riel falla, vuelve a `DEMO_MODE=true`, reinicia y usa el sello **DEMO** y, solo como último recurso, el video final.
 
 > El contrato del webhook está en 40/40 (última corrida conocida); lo que falta es el riel bancario, no la app. El ensayo del guion ya pasó en master `75179c7`: 3/3, 19/19, ~8.1 s, todo en verde.
