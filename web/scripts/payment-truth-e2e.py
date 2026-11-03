@@ -322,9 +322,9 @@ def main() -> int:
                     f"confirmado {match.group(2)}, pendiente {mxn(before['pendingCents'])}",
                 )
             check(
-                "franja de cobros dice todas las fechas",
-                page.get_by_text("Cobros pendientes (todas las fechas)", exact=False).count()
-                > 0,
+                "franja de cobros ya no promete todas las fechas",
+                page.get_by_text("Cobros pendientes", exact=False).count() > 0
+                and "todas las fechas" not in page.locator("body").inner_text(),
             )
             check(
                 "libreta separa cobrado confirmado de por cobrar",

@@ -1,11 +1,11 @@
 {
-  "startedAt": "2026-11-03T02:51:52.623545+00:00",
-  "finishedAt": "2026-11-03T02:52:06.046460+00:00",
+  "startedAt": "2026-11-03T04:24:35.969960+00:00",
+  "finishedAt": "2026-11-03T04:24:48.644764+00:00",
   "baseUrl": "http://localhost:3305",
   "port": 3305,
-  "database": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\mercado-cero-preferencias-i735nr3o\\mercado-cero.db",
+  "database": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\mercado-cero-preferencias-ix206pl1\\mercado-cero.db",
   "gitAtStart": {
-    "sha": "e6f310739622b8905bd025875abfce7b04322380",
+    "sha": "2a1f166ba5b11990b6ddd0319caba01fcf2d1990",
     "branch": "p0/final-cognitive",
     "dirty": true
   },
@@ -16,23 +16,23 @@
   "screenshots": [
     {
       "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\01-ayuda-abierta.png",
-      "sha256": "75d5add7266d499d7612ee06c779b734a9d07e075f81dd24220577c6628311ba"
+      "sha256": "3c210f4665cbe14b806603b5de29717dda548f857563733507c1e9d18a7a4e6d"
     },
     {
       "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\02-sugerencias-apagadas.png",
-      "sha256": "7a4184d60a7959d5a0b4be7385c06cd680efa6ad20f75d386ceaf9117efa42e1"
+      "sha256": "5ab83edff1b4303d9910b80b3f2fcb9b4d340731c7a865b0826df1f7b47f5e14"
     },
     {
       "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\03-recarga-apagada.png",
-      "sha256": "5e6cf26fac6399ac36026a40e15dbab265a0e50f2a03a748bf2d83ff60dee220"
+      "sha256": "36edea996f8de8ffeb8123fe64757c3e5df1f4a8047506d72783047eefa29154"
     },
     {
       "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\04-cobro-pendiente-sugerencias-apagadas.png",
-      "sha256": "0deec7f183c5928984401d5cd565d8121cd52df2e915e3cd335920891cf1d1d7"
+      "sha256": "f9a2bd9ee053436e43867290ef1093c1cb59cf210db04d3dbc1729a7e6060914"
     },
     {
       "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\05-sugerencias-encendidas.png",
-      "sha256": "2886727366eceab35a3d14ed329ae558144a5ec9c0a953c874ec62c2ef5ceb13"
+      "sha256": "68c11a353a1d1c914eddadcdef97f928a36a97818010b9147246f411bcf05599"
     },
     {
       "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\06-360-texto-grande.png",
@@ -68,7 +68,7 @@
     {
       "name": "los tres controles miden al menos 48 px de alto",
       "ok": true,
-      "detail": "[{\"label\": \"Sugerencias para revisar\", \"height\": 103, \"width\": 483, \"describedBy\": \"_r_1_-suggestions\"}, {\"label\": \"Recordatorios de pendientes\", \"height\": 130, \"width\": 483, \"describedBy\": \"_r_1_-reminders\"}, {\"label\": \"Explicaciones en contexto\", \"height\": 130, \"width\": 483, \"describedBy\": \"_r_1_-explanations\"}]"
+      "detail": "[{\"label\": \"Sugerencias para revisar\", \"height\": 103, \"width\": 483, \"describedBy\": \"_r_1_-suggestions\"}, {\"label\": \"Recordatorios de pendientes\", \"height\": 131, \"width\": 483, \"describedBy\": \"_r_1_-reminders\"}, {\"label\": \"Explicaciones en contexto\", \"height\": 131, \"width\": 483, \"describedBy\": \"_r_1_-explanations\"}]"
     },
     {
       "name": "cada control expone aria-pressed y aria-describedby",
@@ -113,7 +113,7 @@
     {
       "name": "con Sugerencias apagadas, el aviso crítico de cobros sigue visible",
       "ok": true,
-      "detail": "Cobros pendientes (todas las fechas) · 2 ·  · Última comprobación: Hoy 8:51 p.m. ·  · Total pendiente · $185.00 ·  · 1 × Pedido para llevar ·  · Esperando confirmación · Hoy 8:41 p.m. · Saldo$120.00 · Ver ·  · 1 × Cobro crítico E2E ·  · Sin link · Hoy 8:51"
+      "detail": "Cobros pendientes · 2 ·  · Última comprobación: Hoy 10:24 p.m. ·  · Total pendiente · $185.00 ·  · 1 × Pedido para llevar ·  · Esperando confirmación · Hoy 10:14 p.m. · Saldo$120.00 · Ver ·  · 1 × Cobro crítico E2E ·  · Sin link · Hoy 10:24 p.m. · Saldo$65.0"
     },
     {
       "name": "el aviso crítico no reactiva la preferencia de Sugerencias",
