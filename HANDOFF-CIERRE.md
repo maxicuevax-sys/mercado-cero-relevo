@@ -73,7 +73,7 @@ Reset + preflight:
 ```powershell
 Invoke-RestMethod -Method Post http://127.0.0.1:3000/api/demo/reset `
   -ContentType 'application/json' -Body '{}'
-npm run preflight
+node scripts/preflight.mjs
 ```
 
 Full y evidencia:
