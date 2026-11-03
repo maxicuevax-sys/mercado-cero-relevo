@@ -64,6 +64,15 @@
 - [ ] Declarar límites: no se afirma reducción de estrés o carga sin estudio
       con comerciantes.
 
+Carriles y orden de integración:
+1. `p0/cognitive-audit` (`42d8f3f`) — informe, sin código.
+2. `p0/verdad-pago` — demo no entregable, estados canónicos, cifras y success.
+3. `p0/sin-ia` — venta manual con parser 500 y consultas locales.
+4. `p0/cierre-cognitivo` — “Antes de cerrar”.
+5. `p0/preferencias` — “¿Cómo quieres que te ayude?”.
+6. `p0/design-structure` → master; después master → build/full.
+
+
 ### Fase 2 — Video/Stageshow final
 - [ ] Actualizar `record-demo.py`/`film-check.py` si el diseño cambió labels.
 - [ ] Grabar MP4 final, verificar Caja “¿Qué vendiste?”, corte $550, duración.
