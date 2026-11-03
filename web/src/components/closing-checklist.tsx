@@ -98,10 +98,12 @@ function subscribeToSuggestions(onChange: () => void): () => void {
   window.addEventListener("focus", handler);
   // Evento para una futura pantalla de preferencias en la misma pestaña.
   window.addEventListener("mercado:preferences", handler);
+  window.addEventListener("mercado-cero:companion-changed", handler);
   return () => {
     window.removeEventListener("storage", handler);
     window.removeEventListener("focus", handler);
     window.removeEventListener("mercado:preferences", handler);
+    window.removeEventListener("mercado-cero:companion-changed", handler);
   };
 }
 

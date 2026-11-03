@@ -1,0 +1,174 @@
+{
+  "startedAt": "2026-11-03T02:00:39.484498+00:00",
+  "finishedAt": "2026-11-03T02:01:07.588891+00:00",
+  "baseUrl": "http://localhost:3305",
+  "port": 3305,
+  "database": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\mercado-cero-preferencias-kns51rud\\mercado-cero.db",
+  "gitAtStart": {
+    "sha": "a1439c3dd84e8411f8916823d0904e6a3b67af3a",
+    "branch": "p0/preferencias",
+    "dirty": false
+  },
+  "totals": {
+    "pass": 26,
+    "fail": 0
+  },
+  "screenshots": [
+    {
+      "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\01-ayuda-abierta.png",
+      "sha256": "8a69164a4248e8456ec82f7ebb8998d0da3d2a905abf507ae0c790db9932158b"
+    },
+    {
+      "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\02-sugerencias-apagadas.png",
+      "sha256": "3e130f85ed64aba11c26b907e63deec8c94fcfebf823f17cfbad485f8c042381"
+    },
+    {
+      "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\03-recarga-apagada.png",
+      "sha256": "f9541f54a47e4e65fe30d6222f0b5c844a0c3358cede1fc4020c6d44b6d04ed2"
+    },
+    {
+      "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\04-cobro-pendiente-sugerencias-apagadas.png",
+      "sha256": "734c2b8fe491d6733d95272d7377c948d4fb7b1c298a296c8ce4f4d3724416f1"
+    },
+    {
+      "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\05-sugerencias-encendidas.png",
+      "sha256": "ac1db6da1061852134ac1750e101ecda2830a3e0d111b58f2a2082f3164a5b27"
+    },
+    {
+      "path": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\preferencias\\06-360-texto-grande.png",
+      "sha256": "0b3af621f6d6b226c9d064db4a972808ffc7c522b13f11684348cc34d63e0e03"
+    }
+  ],
+  "results": [
+    {
+      "name": "la hoja de Ayuda muestra “¿Cómo quieres que te ayude?”",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "los tres controles abren activados por defecto",
+      "ok": true,
+      "detail": "{\"Sugerencias para revisar\": \"true\", \"Recordatorios de pendientes\": \"true\", \"Explicaciones en contexto\": \"true\"}"
+    },
+    {
+      "name": "la voz se integra como referencia, sin duplicar controles",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "la nota de privacidad nombra a OpenAI y no promete retención del audio",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "la sección aclara que no apaga avisos críticos de dinero",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "los tres controles miden al menos 48 px de alto",
+      "ok": true,
+      "detail": "[{\"label\": \"Sugerencias para revisar\", \"height\": 103, \"width\": 484, \"describedBy\": \"_r_1_-suggestions\"}, {\"label\": \"Recordatorios de pendientes\", \"height\": 131, \"width\": 484, \"describedBy\": \"_r_1_-reminders\"}, {\"label\": \"Explicaciones en contexto\", \"height\": 131, \"width\": 484, \"describedBy\": \"_r_1_-explanations\"}]"
+    },
+    {
+      "name": "cada control expone aria-pressed y aria-describedby",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Space apaga Sugerencias y actualiza aria-pressed",
+      "ok": true,
+      "detail": "false"
+    },
+    {
+      "name": "el cambio publica el evento para la tarjeta Antes de cerrar",
+      "ok": true,
+      "detail": "{\"v\": 1, \"suggestions\": false, \"reminders\": true, \"explanations\": true}"
+    },
+    {
+      "name": "el JSON versionado guarda sólo Sugerencias apagada",
+      "ok": true,
+      "detail": "{\"v\": 1, \"suggestions\": false, \"reminders\": true, \"explanations\": true}"
+    },
+    {
+      "name": "la llave compartida de sugerencias queda en off",
+      "ok": true,
+      "detail": "off"
+    },
+    {
+      "name": "tras recargar, Sugerencias sigue apagada",
+      "ok": true,
+      "detail": "{\"prefs\": {\"v\": 1, \"suggestions\": false, \"reminders\": true, \"explanations\": true}, \"mirror\": \"off\"}"
+    },
+    {
+      "name": "recargar no enciende Recordatorios ni Explicaciones",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el cobro pendiente se creó sin pago",
+      "ok": true,
+      "detail": "status=confirmed paidCents=0"
+    },
+    {
+      "name": "con Sugerencias apagadas, el aviso crítico de cobros sigue visible",
+      "ok": true,
+      "detail": "Cobros pendientes · 2 ·  · Última comprobación: Hoy 8:00 p.m. ·  · Total pendiente · $185.00 ·  · 1 × Pedido para llevar ·  · Esperando confirmación · Hoy 7:50 p.m. · Saldo$120.00 · Ver ·  · 1 × Cobro crítico E2E ·  · Sin link · Hoy 8:00 p.m. · Saldo$65.00 · V"
+    },
+    {
+      "name": "el aviso crítico no reactiva la preferencia de Sugerencias",
+      "ok": true,
+      "detail": "{\"prefs\": {\"v\": 1, \"suggestions\": false, \"reminders\": true, \"explanations\": true}, \"mirror\": \"off\"}"
+    },
+    {
+      "name": "Enter enciende Sugerencias y actualiza aria-pressed",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "el JSON y el espejo vuelven a on",
+      "ok": true,
+      "detail": "{\"prefs\": {\"v\": 1, \"suggestions\": true, \"reminders\": true, \"explanations\": true}, \"mirror\": \"on\"}"
+    },
+    {
+      "name": "tras recargar, Sugerencias sigue encendida",
+      "ok": true,
+      "detail": "{\"prefs\": {\"v\": 1, \"suggestions\": true, \"reminders\": true, \"explanations\": true}, \"mirror\": \"on\"}"
+    },
+    {
+      "name": "Recordatorios y Explicaciones se guardan por separado",
+      "ok": true,
+      "detail": "{\"v\": 1, \"suggestions\": true, \"reminders\": false, \"explanations\": false}"
+    },
+    {
+      "name": "Recordatorios y Explicaciones siguen apagadas tras recargar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "si localStorage falla, el control cambia y la app sigue",
+      "ok": true,
+      "detail": "false"
+    },
+    {
+      "name": "al recuperar el almacenamiento, la preferencia vuelve a on",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "a 360 px y texto grande los controles conservan 48 px",
+      "ok": true,
+      "detail": "[{\"height\": 268, \"width\": 280}, {\"height\": 302, \"width\": 280}, {\"height\": 302, \"width\": 280}]"
+    },
+    {
+      "name": "a 360 px y texto grande no hay desborde horizontal",
+      "ok": true,
+      "detail": "360/360"
+    },
+    {
+      "name": "ninguna petición a :3000 ni a :3230",
+      "ok": true,
+      "detail": "[]"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, memo, type Re
 import { createPortal } from "react-dom";
 import { AnimatedAmount } from "@/components/animated-amount";
 import { ClosingChecklist } from "@/components/closing-checklist";
+import { CompanionPreferences } from "@/components/companion-preferences";
 import { PendingPayments } from "@/components/pending-payments";
 import { PendingTasksPanel } from "@/components/pending-tasks";
 import { ScreenHeading } from "@/components/screen-heading";
@@ -7727,6 +7728,8 @@ function HelpContent({
           </div>
         </div>
       </div>
+
+      <CompanionPreferences />
 
       <div className="rounded-xl bg-green-soft p-4 text-green">
         <p className="text-sm font-semibold">Primeros pasos</p>
