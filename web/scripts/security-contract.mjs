@@ -298,6 +298,90 @@ try {
     result.response.status === 409 && Number(result.body?.realPayments) === 1,
     JSON.stringify(result.body),
   );
+
+  // P1: un webhook firmado en DEMO_MODE=true es simulación. Ninguna superficie
+  // debe presentarlo como verificado ni entregable.
+  result = await request(
+    `/api/verify?transactionId=txn_security_signed_demo&orderId=${signedOrderId}`,
+  );
+  check(
+    "verify de pago pey demo → verified false y source demo",
+    result.response.status === 200 &&
+      result.body?.verified === false &&
+      result.body?.source === "demo" &&
+      result.body?.reason === "demo_payment",
+    JSON.stringify(result.body),
+  );
+
+  result = await request(`/api/checkout/${signedOrderId}`);
+  check(
+    "checkout de pago pey demo → payment.demo y 0 verificado",
+    result.response.status === 200 &&
+      result.body?.payment?.demo === true &&
+      Number(result.body?.order?.demoPaidCents) === 1000 &&
+      Number(result.body?.order?.verifiedPaidCents) === 0,
+    JSON.stringify({
+      payment: result.body?.payment,
+      demoPaidCents: result.body?.order?.demoPaidCents,
+      verifiedPaidCents: result.body?.order?.verifiedPaidCents,
+    }),
+  );
+
+  result = await request(`/pay/${signedOrderId}`);
+  check(
+    "checkout HTML de pago pey demo no dice verificado",
+    result.response.status === 200 &&
+      result.text.includes("Pago demo") &&
+      !result.text.includes("Pago verificado por pey") &&
+      !result.text.toLowerCase().includes("puede entregar"),
+    `status ${result.response.status}`,
+  );
+
+  result = await request(`/pay/${signedOrderId}/success`);
+  check(
+    "success HTML de pago pey demo no dice verificado",
+    result.response.status === 200 &&
+      result.text.includes("Pago demo") &&
+      !result.text.includes("Pago verificado por pey") &&
+      !result.text.toLowerCase().includes("puede entregar"),
+    `status ${result.response.status}`,
+  );
+
+  result = await request("/api/dashboard");
+  const signedDashboardOrder = (result.body?.orders ?? []).find(
+    (order) => order.id === signedOrderId,
+  );
+  check(
+    "Caja recibe lastPaymentDemo y no lo suma a verificado",
+    result.response.status === 200 &&
+      signedDashboardOrder?.lastPaymentDemo === true &&
+      signedDashboardOrder?.lastPaymentProvider === "pey" &&
+      Number(result.body?.summary?.verifiedDigitalCents) >= 0 &&
+      Number(result.body?.summary?.demoDigitalCents) >= 1000,
+    JSON.stringify({
+      order: signedDashboardOrder
+        ? {
+            lastPaymentProvider: signedDashboardOrder.lastPaymentProvider,
+            lastPaymentDemo: signedDashboardOrder.lastPaymentDemo,
+          }
+        : null,
+      verified: result.body?.summary?.verifiedDigitalCents,
+      demoDigital: result.body?.summary?.demoDigitalCents,
+    }),
+  );
+
+  result = await request("/api/analytics?period=today");
+  check(
+    "analytics separa el pago pey demo de verifiedDigitalCents",
+    result.response.status === 200 &&
+      Number(result.body?.demoDigitalCents) >= 1000 &&
+      Number(result.body?.verifiedDigitalCents) >= 0,
+    JSON.stringify({
+      verifiedDigitalCents: result.body?.verifiedDigitalCents,
+      demoDigitalCents: result.body?.demoDigitalCents,
+    }),
+  );
+
   {
     const db = new DatabaseSync(dbPath);
     try {

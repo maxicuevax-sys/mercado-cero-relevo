@@ -28,7 +28,7 @@ function expectedDigitalCents(order: Order): number {
     .prepare(
       `SELECT COALESCE(SUM(amount_cents), 0) AS total
        FROM payments
-       WHERE order_id = ? AND status = 'paid' AND method = 'cash' AND provider != 'demo'`,
+       WHERE order_id = ? AND status = 'paid' AND method = 'cash' AND provider != 'demo' AND demo = 0`,
     )
     .get(order.id) as { total: number };
   return Math.max(
@@ -74,7 +74,7 @@ export async function GET(request: Request) {
   const local = database
     .prepare(
       `SELECT p.id, p.order_id, p.method, p.amount_cents, p.transaction_id,
-              p.payment_link_id, p.created_at
+              p.payment_link_id, p.demo, p.created_at
        FROM payments p
        WHERE p.transaction_id = ? AND p.status = 'paid' AND p.provider = 'pey'
        LIMIT 1`,
@@ -87,6 +87,7 @@ export async function GET(request: Request) {
         amount_cents: number;
         transaction_id: string;
         payment_link_id: string | null;
+        demo: number;
         created_at: string;
       }
     | undefined;
@@ -98,13 +99,31 @@ export async function GET(request: Request) {
     );
   }
 
+  if (local && Number(local.demo ?? 0) === 1) {
+    // Un webhook firmado en DEMO_MODE=true es evidencia de una simulación,
+    // no de dinero real. No se presenta como verificado ni se entrega.
+    return Response.json({
+      verified: false,
+      source: "demo",
+      reason: "demo_payment",
+      message:
+        "Pago demo (simulado): no es dinero real. No lo presentes como verificado ni entregues el pedido.",
+      transactionId: local.transaction_id,
+      orderId: local.order_id,
+      method: local.method,
+      amountCents: Number(local.amount_cents),
+      createdAt: local.created_at,
+    });
+  }
+
   if (local) {
     const expected = expectedDigitalCents(order);
     const digital = database
       .prepare(
         `SELECT COALESCE(SUM(amount_cents), 0) AS total
          FROM payments
-         WHERE order_id = ? AND status = 'paid' AND method != 'cash' AND provider = 'pey'`,
+         WHERE order_id = ? AND status = 'paid' AND method != 'cash'
+           AND provider = 'pey' AND demo = 0`,
       )
       .get(order.id) as { total: number };
     if (Number(digital.total) !== expected) {

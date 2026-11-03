@@ -1324,15 +1324,15 @@ function loadDigitalTotals(
 function loadLastPaymentProviders(
   database: DatabaseSync,
   ids: string[],
-): Map<string, string> {
-  const providers = new Map<string, string>();
+): Map<string, { provider: string; demo: boolean }> {
+  const providers = new Map<string, { provider: string; demo: boolean }>();
   for (const chunk of chunks(ids, ORDER_HYDRATION_CHUNK)) {
     // Misma prioridad que la consulta por pedido: primero digital, luego el
     // pago más reciente. La ventana se evalúa una sola vez por lote.
     const rows = database
       .prepare(
-        `SELECT order_id, provider FROM (
-           SELECT order_id, provider,
+        `SELECT order_id, provider, method, demo FROM (
+           SELECT order_id, provider, method, demo,
                   ROW_NUMBER() OVER (
                     PARTITION BY order_id
                     ORDER BY CASE WHEN method != 'cash' THEN 0 ELSE 1 END,
@@ -1342,8 +1342,20 @@ function loadLastPaymentProviders(
            WHERE order_id IN (${placeholders(chunk.length)}) AND status = 'paid'
          ) WHERE rn = 1`,
       )
-      .all(...chunk) as Array<{ order_id: string; provider: string }>;
-    for (const row of rows) providers.set(row.order_id, row.provider);
+      .all(...chunk) as Array<{
+      order_id: string;
+      provider: string;
+      method: string;
+      demo: number;
+    }>;
+    for (const row of rows) {
+      providers.set(row.order_id, {
+        provider: row.provider,
+        // El efectivo demo conserva su etiqueta "Efectivo recibido" (known de
+        // UX); el flag demo es para el pago digital simulado (pey + demo=1).
+        demo: Number(row.demo ?? 0) === 1 && row.method !== "cash",
+      });
+    }
   }
   return providers;
 }
@@ -1370,7 +1382,8 @@ function mapOrders(
       paidCents: Number(row.paid_cents),
       digitalPaidCents: digitalByOrder.get(id) ?? 0,
       paymentMethod: (row.payment_method as Order["paymentMethod"]) ?? null,
-      lastPaymentProvider: providerByOrder.get(id) ?? null,
+      lastPaymentProvider: providerByOrder.get(id)?.provider ?? null,
+      lastPaymentDemo: providerByOrder.get(id)?.demo ?? false,
       customerName: (row.customer_name as string) ?? null,
       creditId: (row.credit_id as string) ?? null,
       creditCents: Number(row.credit_cents ?? 0),
@@ -1569,6 +1582,7 @@ export function listPayments(orderId: string): Payment[] {
     status: row.status as Payment["status"],
     transactionId: (row.transaction_id as string) ?? null,
     paymentLinkId: (row.payment_link_id as string) ?? null,
+    demo: Number(row.demo ?? 0) === 1,
     createdAt: row.created_at as string,
   }));
 }

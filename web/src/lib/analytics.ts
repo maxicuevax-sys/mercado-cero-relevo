@@ -190,10 +190,8 @@ export function getAnalytics(period: AnalyticsPeriod): AnalyticsReport {
 
   for (const payment of payments) {
     const amount = Number(payment.amount_cents);
-    if (
-      payment.provider === "demo" ||
-      (!includeDemo && Number(payment.demo) === 1)
-    ) {
+    if (payment.provider === "demo" || Number(payment.demo) === 1) {
+      // Un pago marcado demo nunca es verificado, aunque su provider sea pey.
       if (payment.method === "cash") demoCashCents += amount;
       else demoDigitalCents += amount;
       continue;

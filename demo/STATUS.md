@@ -1,20 +1,21 @@
 # Estado de demo — 3 de noviembre de 2026
 
 > **Corte de estado:** rama `p0/final-closure`, código base `3bf0482` (incluye
-> el video final) + commit de docs; HEAD = `git rev-parse HEAD`. `master` sigue
-> en `3bf0482` y el ff-only se hace **después** de que full/evidencia pasen.
-> El `:3000` de otro worktree se detiene y se reconstruye desde este HEAD; la
-> preview `:3230` **no se toca**.
+> el video final) + fix de etiquetado demo/HIG + docs/QR; HEAD =
+> `git rev-parse HEAD`. `master` sigue en `3bf0482` y el ff-only se hace
+> **después** de que full/evidencia pasen. El `:3000` de otro worktree se
+> detiene y se reconstruye desde este HEAD; la preview `:3230` **no se toca**.
 >
 > **Cierre técnico pendiente de full.** No hay `latest.json` todavía. El full y
 > la evidencia se ejecutan sobre este HEAD; la fuente es
 > `harness/evidence/latest.json`.
 >
 > **P0/P1:** P0-1 (reset con pago pey firmado → 409), P0-2 (`/` con caché
-> privada), P1-1 (webhook demo → `demo_paid`, fulfill 409), P1-3 (verify con
-> referencias) y P1-5 (totales honestos) están corregidos. Siguen abiertos
-> P1-2 (auth de sesión) y P1-4 (404 de checkout devuelve HTTP 200). Detalle:
-> `HANDOFF-CIERRE.md` §2.
+> privada), P1-1 (webhook demo → `demo_paid`, fulfill 409), P1-1b (checkout,
+> success, Caja, analytics y `/api/verify` ya no llaman “verificado” a un pago
+> `demo=1`), P1-3 (verify con referencias) y P1-5 (totales honestos) están
+> corregidos. Siguen abiertos P1-2 (auth de sesión) y P1-4 (404 de checkout
+> devuelve HTTP 200). Detalle: `HANDOFF-CIERRE.md` §2.
 >
 > **UX final:** `FINAL-UX-REPORT.md` — **PASS 99/0**, sin P0/P1 nuevos; knowns:
 > Fiar/Cobrar bajo el pliegue en móvil, TTS dinámico 503, efectivo demo vs
@@ -23,10 +24,11 @@
 > **Video:** `demo/mercado-cero-demo.mp4` es el **video final** de la UI
 > actual: 183.72 s, 5,406,880 B, 1280×800, H.264; corte **$550.00** y
 > **Cuadra**; 8 frames y `FILM OK`. SHA-256
-> `ba4d068e6da68c68263b9d9a96e4f451320260dfefaf4263e9213c812604bbd0`. Detalle:
-> `video-final-report.md`.
+> `ba4d068e6da68c68263b9d9a96e4f451320260dfefaf4263e9213c812604bbd0`. Se grabó
+> con build `791b590`; los fixes posteriores de etiquetado/HIG no cambian el
+> guion. Detalle: `video-final-report.md`.
 >
-> **Túnel vivo:** `https://auction-margaret-mapping-deputy.trycloudflare.com` —
+> **Túnel vivo:** `https://languages-native-greene-bit.trycloudflare.com` —
 > apunta a `:3000`; quick tunnel efímero. Si cambia la URL, regenerar `APP_URL`,
 > QR y PDF.
 >
@@ -39,16 +41,17 @@
 
 | Campo | Valor |
 |---|---|
-| Código base | `3bf0482` (video final incluido; sin cambios de `web/src`) |
+| Código base | `3bf0482` (video final incluido) + fix de etiquetado demo/HIG |
 | HEAD de docs | `git rev-parse HEAD` |
 | `master` | `3bf0482` al redactar; ff-only a `p0/final-closure`, no ejecutado |
 | Build de cierre | se sella al construir desde HEAD; `/api/health` debe devolverlo |
 | Servidor `:3000` | se reconstruye desde este HEAD con DB temporal |
 | Preview `:3230` | **no se toca** |
-| Preview pública | `auction-margaret-mapping-deputy...`; apunta a `:3000` |
+| Preview pública | `languages-native-greene-bit.trycloudflare.com`; apunta a `:3000` |
 | Evidencia atada al HEAD | ❌ pendiente: `verify:full` + `verify:evidence` |
 | Video | ✅ final: 183.72 s, 5,406,880 B, $550/Cuadra, 8 frames, `FILM OK` |
 | UX | ✅ PASS 99/0; sin P0/P1 nuevos |
+| P1 demo | ✅ etiquetado corregido; gate `security` 58/58 |
 | Pruebas humanas | 0/6–8; TalkBack/VoiceOver y teléfono físico pendientes |
 | Pago real | ❌ no hubo; BBVA/CoDi bloqueado; demo `demo_paid` |
 | Veredicto | **Cierre técnico pendiente de full**; P0 corregidos y video/UX finales |
@@ -91,7 +94,7 @@ efectivo**: base $500 + $50 = $550. No confundir con el estado del reset
 | Auditoría HIG | 🟡 5 viewports, axe 0, WCAG 2.2 AA, targets 48 px, 200 % | `scripts/hig-after-audit.py` |
 | UX final | ✅ PASS 99/0; 0 FAIL; 4 knowns; sin P0/P1 nuevos | `FINAL-UX-REPORT.md` |
 | 360 px caja | 🟡 25/25, última corrida conocida | `demo/mobile-audit.json` |
-| 320/360 px HIG | 🟡 42/42 PASS · 0 FAIL en 3 motores | `harness/evidence/mobile-320-e2e.json` |
+| 320/360 px HIG | 🟡 60/60 PASS · 0 FAIL en 3 motores | `harness/evidence/mobile-320-e2e.json` |
 | Flujo completo 360 px | 🟡 ≈9 s, 0 errores | `scripts/mobile-audit.py` |
 | Checkout público 360 px | 🟡 19/19 | `demo/checkout-audit.json` |
 | Túnel público | 🟡 8/8, repetir contra URL vigente | `demo/tunnel-smoke.json` |
@@ -100,7 +103,8 @@ efectivo**: base $500 + $50 = $550. No confundir con el estado del reset
 | P0 corte no destructivo | 🟡 69 PASS · 0 FAIL · 0 KNOWN | `scripts/p0-corte-e2e.py` |
 | P0 integración | 🟡 51 PASS · 0 FAIL · 0 KNOWN | `scripts/p0-integracion-e2e.py` |
 | P0 dinero | 🟡 45 PASS · 0 FAIL · 3 KNOWN | `harness/evidence/p0-dinero-e2e.json` |
-| P0 adversario (reset/caché/demo/verify/totales) | ✅ 28/28 contra build `2a1f166` | `p0-adversarial-e2e.json` |
+| P0 adversario (reset/caché/demo/verify/totales) | ✅ 28/28 (histórico) | `p0-adversarial-e2e.json` |
+| P1 etiquetado demo | ✅ `security-contract` 58/58 (6 checks nuevos) | `scripts/security-contract.mjs` |
 | Datos | 🟡 85 checks (58+20+7), `DATOS OK` | `npm run test:fix-datos` |
 | Movimiento | 🟡 19/19 PASS · 0 FAIL | `MOTION.md` |
 | Harness static | 🟡 5/5 última corrida; `latest.json`/`latest-static.json` no existen | `harness/STATE.md` |
@@ -130,6 +134,19 @@ efectivo**: base $500 + $50 = $550. No confundir con el estado del reset
   dentro del lock. El 200 % es inyección de `font-size`, no zoom real.
 - **Harness full pendiente:** requiere servidor **construido desde HEAD**
   (`buildSha === gitAtStart.sha`) y túnel vivo.
+- **P1-4 (HTTP 200):** `/pay/...` y `/success` inexistentes muestran el estado
+  correcto, pero el status sigue siendo 200; Next 16 + Cache Components mantiene
+  el shell. No se fuerza con proxy.
+- **`forced-colors`:** 0 reglas; no afirmar que está cubierto.
+- **A 320/200 %:** nombre del comercio truncado y H1 del checkout topado;
+  Fiar/Cobrar bajo el pliegue. `mobile-320` es **60/60**, no 42/42.
+- **Cognitive:** “Antes de cerrar” etiqueta “Esperando confirmación” a
+  `confirmed` sin link y no avisa truncamiento de 50; “Recordatorios” y
+  “Explicaciones” solo persisten; un parseo nuevo puede pisar el borrador
+  recuperado; “¿Cuánto dinero hay en caja?” responde ventas/cobrado, no
+  efectivo/base/gastos/retiros.
+- **Exportación/offline:** no implementados; `GOAL-ACOMPANAMIENTO` no se
+  declara cumplido completo (sí PASS P0 demo con reservas).
 - Los artefactos de auditoría están ignorados por git y se regeneran; el QR y
   el video sí son entregables versionados.
 
@@ -161,7 +178,7 @@ efectivo**: base $500 + $50 = $550. No confundir con el estado del reset
    `.env.local` y los artefactos mobile/checkout/túnel generados.
 
 Abrir `http://localhost:3000`. En `.env.local`, `DEMO_MODE=true` y
-`APP_URL=https://auction-margaret-mapping-deputy.trycloudflare.com` (el
+`APP_URL=https://languages-native-greene-bit.trycloudflare.com` (el
 preflight lee `APP_URL` de ese archivo, no de `$env:APP_URL`). El build sella
 `BUILD_SHA`; `/api/health` lo devuelve.
 

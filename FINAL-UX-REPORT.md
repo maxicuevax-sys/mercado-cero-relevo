@@ -1,5 +1,12 @@
 # FINAL-UX-REPORT — build `791b590`
 
+> **Nota de cierre (3 nov 2026):** esta pasada se ejecutó contra el túnel
+> `https://auction-margaret-mapping-deputy.trycloudflare.com`, hoy **NXDOMAIN**.
+> La URL viva del cierre es
+> `https://languages-native-greene-bit.trycloudflare.com`; el resto del reporte
+> (PASS 99/0, knowns y capturas) se conserva como evidencia histórica de la
+> pasada UX.
+
 - **Fecha:** 2026-11-03 (America/Mexico_City)
 - **Rama:** `p0/final-ux`
 - **Base / build servido:** `791b5906d57d0a8fc04eaa9f557b04eb0c6b1bd8` (`791b590`, “test(webhook): elegir puerto libre y evitar salud de servidor viejo”)

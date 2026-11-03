@@ -255,7 +255,7 @@ export default function CheckoutPage({
   }
 
   const { merchant, order, payment, demoMode } = data;
-  const isDemoPayment = payment?.provider === "demo";
+  const isDemoPayment = payment?.demo === true || payment?.provider === "demo";
   const methodLabel = payment
     ? isDemoPayment && payment.method === "cash"
       ? "Demo (no es efectivo real)"

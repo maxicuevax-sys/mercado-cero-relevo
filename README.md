@@ -175,7 +175,7 @@ Regla de oro: **ningún estado `paid` se alcanza por lógica del cliente, ni por
 | 2:20–2:40 | Abre **Corte**: efectivo, fiado y pendiente digital. Cuenta **$550** (5×$100 + 1×$50 + 0×$20) y muestra el sello **CUADRA**. | Corte de caja |
 | 2:40–3:00 | **Meta**: aparta $25 para la sombrilla y la meta avanza a $325. Visión: cuenta familiar autorizada y piloto con 10 comerciantes. | Progreso y siguiente paso |
 
-**Plan B:** demo local en modo `demo_paid` + QR impreso de respaldo. El MP4 existente es **histórico** (39.8 s, UI vieja, muestra $570): no es respaldo actual y se regrabará tras el rediseño. **No hay un pago real de $0.01 confirmado.**
+**Plan B:** demo local en modo `demo_paid` + QR impreso de respaldo. El MP4 actual es el **video final** (183.72 s, $550/Cuadra, 8 frames). **No hay un pago real de $0.01 confirmado.**
 
 > **Declaración honesta:** Estamos en modo demo: los pagos se simulan con `demo_paid`. No hubo pago real de $0.01; BBVA/CoDi sigue bloqueado. Solo el webhook firmado de pey marca paid. Las pruebas con comerciantes y lectores de pantalla están pendientes.
 
@@ -283,12 +283,12 @@ Inspiración: `mono-color-skill` (un ink dominante, halftone, papel), `taste-ski
 - **`GUION-3-MIN.md`** — narración palabra por palabra, versión de 60 s y checklist de ensayo.
 - **`PITCH.md`** — 5 slides, evidencia y notas para el speaker.
 - **`TEST-USUARIO.md`** — protocolo para probar con una persona ajena.
-- **`demo/mercado-cero-demo.mp4`** — **video histórico**: 39.8 s, 1,704,744 B, 1280×800, UI vieja y muestra $570. No es respaldo actual; se regrabará tras el rediseño. No borrar.
+- **`demo/mercado-cero-demo.mp4`** — **video final**: 183.72 s, 5,406,880 B, 1280×800, corte $550/Cuadra, 8 frames, `FILM OK`. SHA-256 `ba4d068e…`. Grabado con build `791b590`; no borrar.
 - **`demo/mobile-audit.json`** — última corrida conocida (2 nov 2026): 25/25 checks a 360 px emulado, flujo de ≈9 s en producción, 0 errores. Generado por el gate `mobile`; no se versiona.
 - **`demo/checkout-audit.json`** — última corrida conocida (2 nov 2026): 19/19 checks del checkout público y la pantalla de éxito a 360 px. Generado; no se versiona.
 - **`demo/tunnel-smoke.json`** — última corrida conocida (2 nov 2026): 8/8 checks del camino público por Cloudflare. Generado; no se versiona. Repetir contra el túnel vigente.
 - **`demo/rehearsal.json`** — última corrida en master `75179c7` (2 nov 2026): **3/3 corridas, 19/19 pasos, ~8.1 s, todo en verde**. Generado; no se versiona.
-- **`demo/qr-demo.pdf`** — QR imprimible para abrir la demo; la URL vigente al 2 nov 2026 está en `demo/qr-demo.html` (`https://timing-brought-lamp-aberdeen.trycloudflare.com`). Es un quick tunnel efímero: verificar antes de imprimir y regenerar si cambia.
+- **`demo/qr-demo.pdf`** — QR imprimible para abrir la demo; la URL vigente está en `demo/qr-demo.html` (`https://languages-native-greene-bit.trycloudflare.com`). Es un quick tunnel efímero: verificar antes de imprimir y regenerar si cambia.
 - **`web/scripts/mobile-audit.py`**, **`checkout-audit.py`**, **`tunnel-smoke.py`**, **`record-demo.py`**, **`rehearse-demo.py`**, **`mobile-320-e2e.py`** — reproducibles.
 - **`web/scripts/verify-env.mjs`** — revisa demo/real sin imprimir secretos.
 - **`web/scripts/preflight.mjs`** — última corrida conocida 18/18 (2 nov 2026); correr tras el reset.

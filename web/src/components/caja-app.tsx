@@ -2051,11 +2051,15 @@ export default function CajaApp({
           speak(
             order.creditCents > 0
               ? `Pago mixto. ${formatMxn(order.digitalPaidCents)} ${
-                  order.lastPaymentProvider === "pey" ? "verificados" : "simulados"
+                  order.lastPaymentDemo || order.lastPaymentProvider === "demo"
+                    ? "simulados"
+                    : "verificados"
                 } y ${formatMxn(order.creditCents)} a fiado.`
-              : order.lastPaymentProvider === "pey"
-                ? `Pago verificado: ${formatMxn(order.totalCents)}.`
-                : `Pago simulado. ${formatMxn(order.totalCents)}.`,
+              : order.lastPaymentDemo || order.lastPaymentProvider === "demo"
+                ? `Pago simulado. ${formatMxn(order.totalCents)}.`
+                : order.lastPaymentProvider === "pey"
+                  ? `Pago verificado: ${formatMxn(order.totalCents)}.`
+                  : `Pago simulado. ${formatMxn(order.totalCents)}.`,
           );
           await loadDashboard({ force: true });
         } else {
@@ -3890,6 +3894,8 @@ function PaymentPanel(props: {
   // debe ofrecer el botón. Solo un pago real cubierto habilita la entrega.
   const canDeliver =
     !creditOpen &&
+    !order.lastPaymentDemo &&
+    order.status !== "demo_paid" &&
     (order.status === "paid" ||
       (order.status === "confirmed" &&
         order.paidCents + order.creditCents >= order.totalCents));
@@ -4154,7 +4160,7 @@ function PaymentPanel(props: {
               <span className="pay-option-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/15">
                 <Link2 className="h-5 w-5" />
               </span>
-              <span className="min-w-0">
+              <span className="min-w-0 break-words">
                 <span className="block text-sm font-bold">Link de pago</span>
                 <span className="block text-sm text-white/90">CoDi + tarjeta + wallets</span>
               </span>
@@ -4176,7 +4182,7 @@ function PaymentPanel(props: {
               <span className="pay-option-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-soft text-green">
                 <QrCode className="h-5 w-5" />
               </span>
-              <span className="min-w-0">
+              <span className="min-w-0 break-words">
                 <span className="block text-sm font-bold">QR CoDi directo</span>
                 <span className="block text-sm text-ink-2">Solo transferencia CoDi</span>
               </span>
@@ -6853,8 +6859,9 @@ function VerifyCard({
 }) {
   const isDemoResult = result?.source === "demo";
   const sourceCopy = result ? verifySourceCopy(result.source) : null;
-  const verifiedTitle =
-    result?.verified && result.source !== "demo"
+  const verifiedTitle = isDemoResult
+    ? PAYMENT_STATES.demo.label
+    : result?.verified
       ? sourceCopy?.label ?? PAYMENT_STATES.digital_verified.label
       : "No verificado";
   const feedbackRef = useRef<HTMLDivElement>(null);
@@ -6921,32 +6928,38 @@ function VerifyCard({
       {result ? (
         <div
           ref={feedbackRef}
-          role={result.verified ? "status" : "alert"}
+          role={result.verified || isDemoResult ? "status" : "alert"}
           aria-live="polite"
           tabIndex={-1}
           className={cn(
             "rounded-xl border p-4 outline-none",
-            result.verified
-              ? isDemoResult
-                ? "border-info/25 bg-blue-soft/60"
-                : "border-green/25 bg-green-soft/70"
-              : "border-danger/25 bg-terracotta-soft/60",
+            isDemoResult
+              ? "border-attention/25 bg-terracotta-soft/60"
+              : result.verified
+                ? "border-green/25 bg-green-soft/70"
+                : "border-danger/25 bg-terracotta-soft/60",
           )}
         >
           <div className="flex items-center gap-2">
-            {result.verified ? (
-              <ShieldCheck className={cn("h-4 w-4", isDemoResult ? "text-info" : "text-green")} />
+            {isDemoResult ? (
+              <FlaskConical className="h-4 w-4 text-attention" />
+            ) : result.verified ? (
+              <ShieldCheck className="h-4 w-4 text-green" />
             ) : (
               <ShieldAlert className="h-4 w-4 text-danger" />
             )}
             <p className="text-sm font-bold text-ink">{verifiedTitle}</p>
           </div>
           <p className="mt-1 text-sm leading-relaxed text-ink-2">
-            {result.verified
+            {isDemoResult
               ? `${formatMxn(result.amountCents ?? 0)} · ${result.method ?? "pago"} · pedido ${
                   result.orderId ? shortOrder(result.orderId) : "—"
-                }`
-              : result.message ?? "Ese comprobante no corresponde a un pago confirmado."}
+                }. ${PAYMENT_STATES.demo.detail}`
+              : result.verified
+                ? `${formatMxn(result.amountCents ?? 0)} · ${result.method ?? "pago"} · pedido ${
+                    result.orderId ? shortOrder(result.orderId) : "—"
+                  }`
+                : result.message ?? "Ese comprobante no corresponde a un pago confirmado."}
           </p>
           {result.verified && sourceCopy ? (
             <p className="mt-1 text-sm leading-relaxed text-ink-2">
@@ -6954,7 +6967,11 @@ function VerifyCard({
             </p>
           ) : null}
           {!result.verified ? (
-            <p className="mt-2 text-sm font-bold text-danger">No entregues el pedido.</p>
+            <p className="mt-2 text-sm font-bold text-danger">
+              {isDemoResult
+                ? "Pago demo (simulado): no es dinero real. No entregues el pedido."
+                : "No entregues el pedido."}
+            </p>
           ) : null}
         </div>
       ) : null}
@@ -7065,7 +7082,7 @@ function StatusBadge({
     ? "Fiado"
     : creditClosed && order.status === "fulfilled"
       ? "Fiado saldado"
-      : order.status === "demo_paid"
+      : order.status === "demo_paid" || order.lastPaymentDemo
         ? PAYMENT_STATES.demo.label
         : order.status === "paid" && order.lastPaymentProvider === "pey"
           ? PAYMENT_STATES.digital_verified.label
@@ -7130,9 +7147,9 @@ function paymentTruth(order: Order) {
     hasCash: cashPaidCents > 0,
     hasDigital: order.digitalPaidCents > 0,
     isMixedSources: cashPaidCents > 0 && order.digitalPaidCents > 0,
-    isDemo: provider === "demo",
+    isDemo: provider === "demo" || order.lastPaymentDemo,
     isCash: provider === "cash",
-    isVerified: provider === "pey",
+    isVerified: provider === "pey" && !order.lastPaymentDemo,
     isPaid:
       order.status === "paid" ||
       order.status === "demo_paid" ||

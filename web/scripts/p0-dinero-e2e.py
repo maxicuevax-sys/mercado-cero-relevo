@@ -533,8 +533,11 @@ def main() -> int:
         f"/api/verify?{urllib.parse.urlencode({'transactionId': transaction_id, 'orderId': retry_order['id']})}",
     )
     check(
-        "verify: transacción de A contra orden A → verified true",
-        verify_ok_status == 200 and verify_ok.get("verified") is True,
+        "verify: transacción demo de A contra orden A → verified false y source demo",
+        verify_ok_status == 200
+        and verify_ok.get("verified") is False
+        and verify_ok.get("source") == "demo"
+        and verify_ok.get("reason") == "demo_payment",
         json.dumps(verify_ok, ensure_ascii=False)[:300],
     )
     verify_missing_status, _ = request(

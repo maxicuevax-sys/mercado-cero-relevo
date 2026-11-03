@@ -42,6 +42,7 @@ export interface CheckoutData {
     method: string;
     transactionId: string | null;
     amountCents: number;
+    demo: boolean;
     createdAt: string;
   } | null;
 }
@@ -63,14 +64,24 @@ export function getCheckoutData(orderId: string): CheckoutData | null {
       (payment) =>
         payment.status === "paid" &&
         payment.method === "cash" &&
-        payment.provider !== "demo",
+        payment.provider !== "demo" &&
+        !payment.demo,
     )
     .reduce((sum, payment) => sum + payment.amountCents, 0);
   const demoPaidCents = payments
-    .filter((payment) => payment.status === "paid" && payment.provider === "demo")
+    .filter(
+      (payment) =>
+        payment.status === "paid" &&
+        (payment.provider === "demo" || payment.demo),
+    )
     .reduce((sum, payment) => sum + payment.amountCents, 0);
   const verifiedPaidCents = payments
-    .filter((payment) => payment.status === "paid" && payment.provider === "pey")
+    .filter(
+      (payment) =>
+        payment.status === "paid" &&
+        payment.provider === "pey" &&
+        !payment.demo,
+    )
     .reduce((sum, payment) => sum + payment.amountCents, 0);
 
   return {
@@ -112,6 +123,7 @@ export function getCheckoutData(orderId: string): CheckoutData | null {
           method: paidPayment.method,
           transactionId: paidPayment.transactionId,
           amountCents: paidPayment.amountCents,
+          demo: paidPayment.demo,
           createdAt: paidPayment.createdAt,
         }
       : null,

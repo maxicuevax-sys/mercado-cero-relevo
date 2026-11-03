@@ -31,6 +31,8 @@ export interface Order {
   digitalPaidCents: number;
   paymentMethod: PaymentMethod | null;
   lastPaymentProvider: string | null;
+  /** true si el último pago digital fue simulado (payments.demo=1), aunque el provider sea pey. */
+  lastPaymentDemo: boolean;
   customerName: string | null;
   creditId: string | null;
   creditCents: number;
@@ -54,6 +56,8 @@ export interface Payment {
   status: PaymentStatus;
   transactionId: string | null;
   paymentLinkId: string | null;
+  /** Pago simulado: nunca cuenta como dinero real ni se entrega. */
+  demo: boolean;
   createdAt: string;
 }
 

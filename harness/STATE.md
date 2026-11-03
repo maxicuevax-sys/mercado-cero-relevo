@@ -12,7 +12,7 @@
   `paid` solo por webhook pey firmado; el efectivo se registra `paid` al crear
   la venta)
 - URL local: `http://127.0.0.1:3000` (se reconstruye desde el HEAD de cierre)
-- URL pública: `https://auction-margaret-mapping-deputy.trycloudflare.com` —
+- URL pública: `https://languages-native-greene-bit.trycloudflare.com` —
   apunta a `:3000`; **quick tunnel efímero**. La preview `:3230` **no se toca**.
   Si el túnel cambia, regenerar `APP_URL`, QR y PDF (ver `demo/STATUS.md`).
 - Base de datos: `C:\Users\Elitebook 840 G8\AppData\Local\Temp\opencode\final-closure.db`
@@ -23,9 +23,10 @@
 
 ## Corte actual (3 nov 2026)
 
-- **Código base:** `3bf0482` (incluye video final; sin cambios en `web/src`).
-- **Rama:** `p0/final-closure` = `3bf0482` + commit de docs; HEAD de docs se
-  confirma con `git rev-parse HEAD`.
+- **Código base:** `3bf0482` (incluye video final) + fix de etiquetado
+  demo/HIG en este HEAD.
+- **Rama:** `p0/final-closure` = `3bf0482` + fix de etiquetado/HIG + docs/QR;
+  HEAD de docs se confirma con `git rev-parse HEAD`.
 - **`master`:** `3bf0482` al redactar; es ancestro; fast-forward a
   `p0/final-closure` **pendiente** de full/evidencia.
 - **Build de cierre:** se sella al construir desde HEAD; `/api/health` debe
@@ -37,12 +38,16 @@
   no existen en este worktree. El full se ejecuta sobre este HEAD y la fuente
   es `harness/evidence/latest.json`.
 - **P0/P1 corregidos:** P0-1 (reset 409), P0-2 (caché privada), P1-1 (webhook
-  demo → `demo_paid`), P1-3 (verify con referencias) y P1-5 (totales honestos).
-  Abiertos: P1-2 (auth), P1-4 (404 HTTP 200) y P2 conocidos.
+  demo → `demo_paid`), P1-1b (checkout/success/Caja/analytics/verify no llaman
+  “verificado” a `demo=1`), P1-3 (verify con referencias) y P1-5 (totales
+  honestos). Abiertos: P1-2 (auth), P1-4 (404 HTTP 200) y P2 conocidos.
 - **Video:** `demo/mercado-cero-demo.mp4` es **final**: 183.72 s, 5,406,880 B,
   1280×800, corte **$550/Cuadra**, 8 frames, `FILM OK`. SHA-256
-  `ba4d068e…`. Detalle: `video-final-report.md`.
+  `ba4d068e…`. Grabado con build `791b590`; los fixes de etiquetado/HIG no
+  cambian el guion. Detalle: `video-final-report.md`.
 - **UX:** `FINAL-UX-REPORT.md` — **PASS 99/0**, sin P0/P1 nuevos; 4 knowns.
+- **P1 demo:** `security-contract` 58/58, con 6 checks nuevos.
+- **HIG:** `hig-after-audit.py` → `HIG OK: 5 viewports` tras `break-words`.
 - **Pruebas humanas:** **0/6–8**; TalkBack/VoiceOver y teléfono físico
   pendientes.
 - **Pago real:** ❌ no hubo; BBVA/CoDi bloqueado; demo `demo_paid`.
@@ -60,7 +65,9 @@
 | Verdad del comprobante | demo no verificado | 2 nov 2026 |
 | HIG/WCAG 2.2 AA | 5 viewports: 320/360/390/768/1280, axe 0, 48 px, 200 % | 2 nov 2026 |
 | Móvil 360 px | 25/25 | 2 nov 2026 |
-| Móvil 320/360 (3 motores) | 42 PASS · 0 FAIL | 2 nov 2026 |
+| Móvil 320/360 (3 motores) | 60 PASS · 0 FAIL | 3 nov 2026 |
+| P1 etiquetado demo | 58/58 `SEGURIDAD OK` (6 checks nuevos) | 3 nov 2026 |
+| HIG aislado | `HIG OK: 5 viewports` | 3 nov 2026 |
 | Checkout público | 19/19, `demo_paid` | 2 nov 2026 |
 | Túnel | 8/8 | 2 nov 2026 |
 | Ensayo | 3/3, 19/19 pasos, ~8.1 s (master `75179c7`) | 2 nov 2026 |
@@ -190,17 +197,17 @@
 ## Siguiente tarea
 
 **Corrida final.** El código base es `3bf0482`; el HEAD del worktree añade el
-commit de docs. Construir desde ese HEAD, arrancar `:3000` con la DB temporal y
-`APP_URL` en `.env.local`, resetear, generar los artefactos de preflight,
-`npm run verify:full`, `npm run verify:evidence`, y solo entonces el
-fast-forward de `master`. Las pruebas humanas (0/6–8 comerciantes, SUS/NASA-TLX,
-TalkBack/VoiceOver, teléfono físico, zoom real) siguen pendientes y no se
-sustituyen con gates automáticos.
+fix de etiquetado demo/HIG y los docs/QR. Construir desde ese HEAD, arrancar
+`:3000` con la DB temporal y `APP_URL` en `.env.local`, resetear, generar los
+artefactos de preflight, `npm run verify:full`, `npm run verify:evidence`, y
+solo entonces el fast-forward de `master`. Las pruebas humanas (0/6–8
+comerciantes, SUS/NASA-TLX, TalkBack/VoiceOver, teléfono físico, zoom real)
+siguen pendientes y no se sustituyen con gates automáticos.
 
 ## Corrida final (instrucciones)
 
-1. Commitear docs y verificar `git status --porcelain --untracked-files=all`
-   vacío.
+1. Commitear código + docs + QR y verificar
+   `git status --porcelain --untracked-files=all` vacío.
 2. `cd web && npm ci && npm run build` desde el HEAD.
 3. `npx next start -H 127.0.0.1 -p 3000` con `DATABASE_PATH` temporal;
    `/api/health` debe devolver el HEAD.
@@ -223,9 +230,21 @@ sustituyen con gates automáticos.
 - **Offline para ventas no bancarias:** no implementado.
 - **Hermes:** capa separada; no iniciada en este repo.
 - **Túnel:** quick tunnel efímero; vivo al 3 nov 2026:
-  `https://auction-margaret-mapping-deputy.trycloudflare.com`. Si cambia,
+  `https://languages-native-greene-bit.trycloudflare.com`. Si cambia,
   actualizar `APP_URL`, QR, PDF y preflight.
-- **P1-2/P1-4:** sin auth de sesión; el 404 de checkout sigue siendo HTTP 200.
+- **P1-2/P1-4:** sin auth de sesión; el 404 de checkout sigue siendo HTTP 200
+  (se intentó mover `notFound()` antes de `connection()`/Suspense; Cache
+  Components mantiene el shell y no se forzó con proxy).
+- **A11y:** `forced-colors` sin reglas; a 320/200 % el nombre del comercio se
+  trunca y el H1 del checkout queda topado; Fiar/Cobrar bajo el pliegue.
+  `mobile-320` es **60/60**, no 42/42.
+- **Cognitive:** “Antes de cerrar” etiqueta “Esperando confirmación” a
+  `confirmed` sin link y no avisa truncamiento de 50; “Recordatorios” y
+  “Explicaciones” solo persisten; un parseo nuevo puede pisar el borrador
+  recuperado; “¿Cuánto dinero hay en caja?” responde ventas/cobrado, no
+  efectivo/base/gastos/retiros.
+- **Exportación/offline:** no implementados; `GOAL-ACOMPANAMIENTO` no se
+  declara cumplido completo (sí PASS P0 demo con reservas).
 
 ## Cómo refrescar este estado
 

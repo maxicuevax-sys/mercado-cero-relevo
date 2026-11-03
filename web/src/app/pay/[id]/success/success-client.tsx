@@ -109,7 +109,9 @@ export default function CheckoutSuccessPage({
     Boolean(data?.payment) ||
     (Boolean(data) && (data?.order.amountDueCents ?? 1) <= 0 && !isCredit);
   const demo =
-    data?.payment?.provider === "demo" || (data?.order.demoPaidCents ?? 0) > 0;
+    data?.payment?.demo === true ||
+    data?.payment?.provider === "demo" ||
+    (data?.order.demoPaidCents ?? 0) > 0;
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -228,7 +230,7 @@ export default function CheckoutSuccessPage({
       cashPaid > 0 ? `${formatMxn(cashPaid)} en efectivo` : null,
       data.payment
         ? `${formatMxn(data.payment.amountCents)} ${
-            data.payment.provider === "demo"
+            data.payment.demo || data.payment.provider === "demo"
               ? "demo"
               : data.payment.provider === "pey"
                 ? "verificado por pey"

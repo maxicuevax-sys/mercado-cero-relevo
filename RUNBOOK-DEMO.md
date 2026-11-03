@@ -1,10 +1,10 @@
 # Runbook de demo — Mercado Cero
 
 > **Estado:** demo mode con datos sembrados. El riel real de CoDi sigue bloqueado por BBVA; la demo se presenta como **modo demo**. No hubo pago real.
-> **Cierre:** rama `p0/final-closure`, código base `3bf0482` + commit de docs. El `:3000` de otro worktree se detiene y se reconstruye desde este HEAD; la preview `:3230` **no se toca**. **Full 23/23 y `latest.json` del HEAD se ejecutan sobre este commit; la fuente es `harness/evidence/latest.json`.** Detalle: `HANDOFF-CIERRE.md`.
-> **Video:** `demo/mercado-cero-demo.mp4` es el **video final** de la UI actual: 183.72 s, 5,406,880 B, 1280×800, H.264, 8 frames, `FILM OK`. El corte se grabó con **$550.00** y **Cuadra**. SHA-256 `ba4d068e6da68c68263b9d9a96e4f451320260dfefaf4263e9213c812604bbd0`. Detalle: `video-final-report.md`.
-> **Túnel vivo (3 nov 2026):** `https://auction-margaret-mapping-deputy.trycloudflare.com` — apunta a `:3000`; quick tunnel efímero. El túnel `timing-brought-lamp-aberdeen...` de documentos viejos **no resuelve**. Si cambia, regenerar `APP_URL`, QR y PDF.
-> **P0/P1:** P0-1 (reset 409), P0-2 (caché privada), P1-1 (webhook demo → `demo_paid`), P1-3 (verify con referencias) y P1-5 (totales honestos) corregidos; siguen abiertos P1-2 (auth) y P1-4 (404 HTTP 200). **UX final PASS 99/0, sin P0/P1 nuevos** (`FINAL-UX-REPORT.md`).
+> **Cierre:** rama `p0/final-closure`, código base `3bf0482` + fix de etiquetado demo/HIG + docs/QR. El `:3000` de otro worktree se detiene y se reconstruye desde este HEAD; la preview `:3230` **no se toca**. **Full 23/23 y `latest.json` del HEAD se ejecutan sobre este commit; la fuente es `harness/evidence/latest.json`.** Detalle: `HANDOFF-CIERRE.md`.
+> **Video:** `demo/mercado-cero-demo.mp4` es el **video final** de la UI actual: 183.72 s, 5,406,880 B, 1280×800, H.264, 8 frames, `FILM OK`. El corte se grabó con **$550.00** y **Cuadra**. SHA-256 `ba4d068e6da68c68263b9d9a96e4f451320260dfefaf4263e9213c812604bbd0`. Se grabó con build `791b590`; los fixes posteriores no cambian el guion. Detalle: `video-final-report.md`.
+> **Túnel vivo (3 nov 2026):** `https://languages-native-greene-bit.trycloudflare.com` — apunta a `:3000`; quick tunnel efímero. Los túneles `auction...` y `timing...` están NXDOMAIN. Si cambia, regenerar `APP_URL`, QR y PDF.
+> **P0/P1:** P0-1 (reset 409), P0-2 (caché privada), P1-1 (webhook demo → `demo_paid`), P1-1b (checkout/success/Caja/analytics/verify ya no llaman “verificado” a un demo), P1-3 (verify con referencias) y P1-5 (totales honestos) corregidos; siguen abiertos P1-2 (auth) y P1-4 (404 HTTP 200). **UX final PASS 99/0, sin P0/P1 nuevos** (`FINAL-UX-REPORT.md`).
 > **Declaración honesta:** Estamos en modo demo: los pagos se simulan con `demo_paid`. No hubo pago real de $0.01; BBVA/CoDi sigue bloqueado. Solo el webhook firmado de pey marca `paid` en el camino digital. Las pruebas con comerciantes y lectores de pantalla están pendientes.
 > **Verdad:** los pagos demo usan `demo_paid`; `/api/verify` solo marca `pey`. Comprobación: `node scripts/verify-truth.mjs`.
 > **Auditoría móvil:** última corrida conocida (2 nov 2026) — 25/25 checks, 360 px emulado con Playwright, ≈9 s de flujo en producción (10–17 s en dev), 0 errores de consola. Artefacto ignorado, no en el árbol. Falta la prueba en un teléfono físico.
@@ -15,7 +15,7 @@
 
 ## 1 · Antes de salir (10 minutos)
 
-- [ ] `mercado-cero-final-closure/web/.env.local` tiene `DEMO_MODE=true`, `APP_URL=https://auction-margaret-mapping-deputy.trycloudflare.com` y `DATABASE_PATH` temporal (el preflight lee `APP_URL` de ese archivo, no de `$env:APP_URL`).
+- [ ] `mercado-cero-final-closure/web/.env.local` tiene `DEMO_MODE=true`, `APP_URL=https://languages-native-greene-bit.trycloudflare.com` y `DATABASE_PATH` temporal (el preflight lee `APP_URL` de ese archivo, no de `$env:APP_URL`).
 - [ ] El servidor corre desde el HEAD de cierre: `npm ci && npm run build && npx next start -H 127.0.0.1 -p 3000` (recomendado; es el modo validado) o `npm run dev`.
 - [ ] `/api/health` devuelve `buildSha` igual a `git rev-parse HEAD`.
 - [ ] Abre `http://localhost:3000` y confirma:
@@ -24,7 +24,7 @@
   - [ ] El botón **Verificar** está visible en Caja.
 - [ ] Pulsa el icono de **reiniciar demo** en el header. Debe quedar:
   - [ ] Ventas de hoy: **$190.00**
-  - [ ] Cobrado: **$70.00**
+  - [ ] Cobrado confirmado: **$0.00**; pago demo (simulado): **$70.00**
   - [ ] Por cobrar: **$120.00**
   - [ ] Fiado: **$50.00**
   - [ ] Corte: base **$500.00** y esperado **$500.00** (el efectivo demo no cuenta como real)
@@ -34,7 +34,7 @@
 - [ ] QR impreso de respaldo (`demo/qr-demo.png` o el HTML imprimible).
 - [ ] Micrófono probado; si falla, la demo funciona con texto.
 - [ ] Túnel HTTPS vivo si vas a mostrar un link/QR (demo). URL vigente al **3 nov 2026**:
-  `https://auction-margaret-mapping-deputy.trycloudflare.com` (apunta a `:3000`; sirve el build que se reconstruya desde HEAD)
+  `https://languages-native-greene-bit.trycloudflare.com` (apunta a `:3000`; sirve el build que se reconstruya desde HEAD)
   Es un **quick tunnel efímero**: si cambia, actualiza `APP_URL`, reinicia el servidor y regenera QR/PDF (`node scripts/make-demo-qr.mjs` + `python scripts/print-qr-pdf.py`).
 - [ ] Prueba el túnel antes de salir: `python scripts/tunnel-smoke.py` (8/8; repetir contra la URL del servidor final).
 - [ ] Corre el preflight completo **después del reset**: `node scripts/preflight.mjs` (18/18; si faltan artefactos, genéralos con `python scripts/mobile-audit.py`, `python scripts/checkout-audit.py` y `python scripts/tunnel-smoke.py`).
@@ -46,7 +46,7 @@ Conservar:
 - el servidor de demo en `:3000` cuando sea el del HEAD de cierre;
 - la preview `:3230` (**no se toca** en este cierre).
 
-No confundir: el `cloudflared` del túnel `auction...` apunta a `:3000`, no a la preview. Detener solo servidores de gates/carriles que no estés usando (`:3125`, `:3195`, `:3211`, `:3220`) y no matar `:3230`.
+No confundir: el `cloudflared` del túnel `languages...` apunta a `:3000`, no a la preview. Detener solo servidores de gates/carriles que no estés usando (`:3125`, `:3195`, `:3211`, `:3220`) y no matar `:3230`.
 
 Arranque limpio:
 1. Detener el `:3000` de otro worktree (identifica el PID con `Get-NetTCPConnection -State Listen -LocalPort 3000`).
@@ -89,7 +89,7 @@ Señala el total **$90.00** y pulsa **Confirmar venta**.
 
 > “La caja no dice pagado hasta que llega el webhook firmado de pey. Una captura de pantalla no cuenta.”
 
-Cuando aparezca la hoja **Pago demo (simulado)**, señálala y ciérrala con **Cerrar demo**. Nunca digas “Listo para entregar” para un pago demo.
+Cuando aparezca la hoja **Pago demo (simulado)**, señálala y ciérrala con **Cerrar demo**.
 
 ### 1:20–1:50 · Anti-fraude
 
@@ -153,6 +153,21 @@ Para una persona mayor, antes de empezar: activa **Texto grande** y **Alto contr
 - **No** digas que la app ve el saldo o los movimientos de la cuenta de Ana. Solo ve los cobros generados por el negocio.
 - **No** digas que los apartados son una cuenta de ahorro o dinero custodiado. Son **declarados**.
 - **No** inventes un pago real de $0.01 si no ocurrió. En esta demo no ocurrió. Puedes decir: “El contrato del webhook está en 40/40 (última corrida conocida); el riel bancario es lo que estamos esperando.”
+
+### Knowns técnicos que no se deben ocultar
+
+- `/pay/...` y `/success` inexistentes muestran “No encontramos este cobro”,
+  pero el status HTTP sigue siendo **200** (P1 conocido de Next 16 + Cache
+  Components).
+- No hay reglas `@media (forced-colors: active)`; no afirmar que está cubierto.
+- A 320 px/200 % el nombre del comercio se trunca y el H1 del checkout queda
+  topado; Fiar/Cobrar requiere scroll corto. `mobile-320` es **60/60**, no 42/42.
+- “Antes de cerrar” puede decir “Esperando confirmación” a un `confirmed` sin
+  link y no avisa truncamiento de 50; “Recordatorios” y “Explicaciones” solo
+  persisten; un parseo nuevo puede pisar el borrador recuperado; “¿Cuánto dinero
+  hay en caja?” responde ventas/cobrado, no efectivo/base/gastos/retiros.
+- Exportación y offline no están implementados; no declarar cumplido todo
+  `GOAL-ACOMPANAMIENTO`.
 
 ---
 
@@ -221,7 +236,7 @@ Comisión por transacción o suscripción. CoDi es el riel gratuito; la tarjeta 
 - `demo/checkout-audit.json` — última corrida conocida: 19/19 checks del checkout público a 360 px. Generado e ignorado.
 - `demo/tunnel-smoke.json` — última corrida conocida: 8/8 checks a través del túnel HTTPS. Generado e ignorado.
 - `demo/rehearsal.json` — última corrida en master `75179c7`: 3/3 corridas, 19/19 pasos, ~8.1 s, todo en verde. Generado e ignorado.
-- `harness/evidence/mobile-320-e2e.json` - última corrida conocida: 42/42 checks HIG a 320/360 px en 3 motores. Generado e ignorado.
+- `harness/evidence/mobile-320-e2e.json` - última corrida conocida: 60/60 checks HIG a 320/360 px en 3 motores. Generado e ignorado.
 - `scripts/checkout-audit.py` — valida checkout, pago demo y pantalla de éxito.
 - `scripts/tunnel-smoke.py` — valida el camino público por Cloudflare.
 - `scripts/verify-env.mjs` — revisa demo/real sin imprimir secretos.
@@ -230,7 +245,7 @@ Comisión por transacción o suscripción. CoDi es el riel gratuito; la tarjeta 
 - `scripts/verify-truth.mjs` — un `transactionId` demo no se verifica.
 - `scripts/make-demo-qr.mjs` + `scripts/print-qr-pdf.py` — regeneran el QR y el PDF del túnel vigente.
 - `demo/feedback.md` — registro de pruebas con personas (0/6–8 ejecutadas).
-- `demo/qr-demo.png` — QR del túnel vivo `auction-margaret-mapping-deputy...`; si el quick tunnel cambia, regenerarlo con `node scripts/make-demo-qr.mjs` + `python scripts/print-qr-pdf.py`.
+- `demo/qr-demo.png` — QR del túnel vivo `languages-native-greene-bit...`; si el quick tunnel cambia, regenerarlo con `node scripts/make-demo-qr.mjs` + `python scripts/print-qr-pdf.py`.
 - `scripts/mobile-audit.py`, `scripts/record-demo.py` — reproducibles.
 
 ---
