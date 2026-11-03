@@ -25,7 +25,7 @@ todavía.
 | Build conocido | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990` (2026-11-03T04:21:10Z); padre de `fabe7cc` |
 | Diferencia build→`fabe7cc` | solo `payment-truth-e2e.py` y `companion-preferences-e2e.json`; **código de app idéntico**. El HEAD de consolidación añade docs. |
 | `:3000` | **no responde** |
-| Preview `:3230` / pública | `397039d212452b2950935d745cd8a1781040923e` (`involve-picking-wellness-retreat.trycloudflare.com`) |
+| Preview `:3230` / pública | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990` (`involve-picking-wellness-retreat.trycloudflare.com`) | Build con fixes P0; **no es el HEAD** |
 | `:3302` | `2a1f166...` |
 | Túnel `timing-brought-lamp-aberdeen...` | **DNS no resuelve**; el QR lo usa |
 | `harness/evidence/latest*.json` | **no existen** en este worktree |
@@ -68,8 +68,8 @@ todavía.
    lee `APP_URL` de `web/.env.local` (no de `$env:APP_URL`) y exige
    `mobile-audit.json`, `checkout-audit.json` y `tunnel-smoke.json`; hoy no
    puede dar 18/18.
-3. **Túnel/QR/video final.** El túnel vivo (`involve...`) sirve `397039d`, no
-   la final; el túnel `timing...` del QR no resuelve. El MP4 es histórico
+3. **Túnel/QR/video final.** El túnel vivo (`involve...`) sirve `2a1f166`
+   (build con fixes P0, no el HEAD); el túnel `timing...` del QR no resuelve. El MP4 es histórico
    (39.8 s, $570); los scripts de `p0/fix-video` (`c395e3e`) no están
    integrados (`demo_ui.py` ausente; `record-demo.py` hardcodea `:3000`).
 4. **P1-4 / accesibilidad / auth / pago real.** El 404 de checkout sigue

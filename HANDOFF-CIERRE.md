@@ -37,9 +37,9 @@ los commits de docs cambian `master` y la rama de trabajo.
 | Fast-forward | **Posible a `p0/consolidacion`, no ejecutado** | `master` es ancestro de consolidación. **No** hagas ff a `p0/final-cognitive` sola: master tiene docs que la final no tiene. |
 | Build conocido | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990` | Construido 2026-11-03T04:21:10Z; es el padre de `fabe7cc`. |
 | `:3000` | — | No responde al 2 nov 22:35. |
-| Preview `:3230` | `397039d212452b2950935d745cd8a1781040923e` | Build viejo; no es la final. |
+| Preview `:3230` | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990` | Build con fixes P0; no es el HEAD. |
 | `:3302` | `2a1f166...` | Servidor del cierre cognitivo; build conocido, no HEAD. |
-| Preview pública | `https://involve-picking-wellness-retreat.trycloudflare.com` | Sirve `397039d`; quick tunnel efímero. |
+| Preview pública | `https://involve-picking-wellness-retreat.trycloudflare.com` | Sirve `2a1f166`; quick tunnel efímero. |
 | Túnel del QR y de docs históricos | `https://timing-brought-lamp-aberdeen.trycloudflare.com` | **DNS no resuelve**; los docs ya apuntan a `involve...` como preview, no como final. |
 
 **Diferencia entre `2a1f166` y `fabe7cc`:** solo
@@ -231,9 +231,9 @@ python scripts/closing-checklist-e2e.py
 - **No hay full 23/23.** No existe `harness/evidence/latest.json` en este
   worktree; el único JSON versionado de evidencia es
   `companion-preferences-e2e.json`, con `dirty:true`.
-- **La preview no es la final.** `:3230` y el túnel público sirven `397039d`;
-  `:3302` sirve `2a1f166`; la base de código es `fabe7cc` y el HEAD del
-  worktree añade el commit de docs.
+- **La preview no es el HEAD.** `:3230` y el túnel público sirven `2a1f166`
+  (build con fixes P0); `:3302` sirve `2a1f166`; la base de código es `fabe7cc`
+  y el HEAD del worktree añade docs.
 - **El túnel `timing...` está muerto.** El QR actual no se debe imprimir.
 - **"35/35" de payment-truth** no tiene JSON ni SHA; el script cambió después
   del build. No es evidencia de cierre.
