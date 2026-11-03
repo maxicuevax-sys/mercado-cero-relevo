@@ -276,6 +276,39 @@ def main() -> int:
             # ---------------------------------------------------------------
             reset(page)
             before = order_ids(page)
+
+            # P1-4 · consultas locales sin red ni IA, con el parser en 500.
+            page.get_by_label("Escribe la venta").fill("¿Cuánto vendí?")
+            page.get_by_role("button", name="Interpretar").click()
+            page.wait_for_timeout(150)
+            sales_answer = page.locator(".transcript-note")
+            expect(sales_answer).to_contain_text("Hoy llevas")
+            check(
+                "¿Cuánto vendí? se responde localmente sin llamar al parser",
+                "Hoy llevas" in sales_answer.inner_text()
+                and page.locator("p[role='alert']").count() == 0
+                and len(AI_REQUESTS) == 0,
+                sales_answer.inner_text().replace("\n", " · "),
+            )
+            screenshot(page, "00-consulta-local-ventas.png")
+
+            page.get_by_label("Escribe la venta").fill("¿quién me debe?")
+            page.get_by_role("button", name="Interpretar").click()
+            page.wait_for_timeout(150)
+            debt_answer = page.locator(".transcript-note")
+            expect(debt_answer).to_contain_text(
+                re.compile(r"Te deben|No hay deudas abiertas")
+            )
+            check(
+                "¿quién me debe? se responde localmente sin llamar al parser",
+                re.search(r"Te deben|No hay deudas abiertas", debt_answer.inner_text())
+                is not None
+                and page.locator("p[role='alert']").count() == 0
+                and len(AI_REQUESTS) == 0,
+                debt_answer.inner_text().replace("\n", " · "),
+            )
+            screenshot(page, "00b-consulta-local-fiado.png")
+
             page.get_by_label("Escribe la venta").fill(
                 "Dos quesadillas de 35 y un agua de 20"
             )

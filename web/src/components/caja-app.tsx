@@ -332,6 +332,17 @@ function mentionsName(text: string, name: string): boolean {
   return pattern.test(normalizeName(text));
 }
 
+// Consultas que `answerLocal` puede resolver sin red. Se limitan a preguntas
+// explícitas: una venta como "Juan me pagó 50 del fiado" debe seguir su flujo.
+const LOCAL_SALES_QUERY_RE =
+  /(cu[aá]nto|qu[eé])\s+.*(vend[ií]|vendido|llevo|caja|venta)|ventas?\s+(de\s+)?hoy|hoy\s+(vend[ií]|llevo)|c[oó]mo\s+va\s+(la\s+)?venta/i;
+const LOCAL_PENDING_QUERY_RE =
+  /(cu[aá]nto|qu[eé])\s+.*(pendiente|por\s+cobrar|esperando)|(pendiente|por\s+cobrar|esperando).*(tengo|hay|hoy)/i;
+
+function isLocalQuestion(text: string): boolean {
+  return LOCAL_SALES_QUERY_RE.test(text) || LOCAL_PENDING_QUERY_RE.test(text);
+}
+
 /**
  * Un abono por voz solo puede prellenar una hoja. Si el nombre del parser
  * coincide con más de un crédito abierto, no se elige uno al azar.
@@ -1505,6 +1516,24 @@ export default function CajaApp({
       if (!clean) return;
       setVoiceError(null);
       setTranscript(clean);
+
+      // P1-4: las consultas locales se responden antes de tocar la red. Si la
+      // frase no es una consulta, sigue el parser normal (venta, abono, etc.).
+      if (dashboard) {
+        const debt = answerDebtQuery(clean, dashboard.credits);
+        if (debt) {
+          setTranscript(`${clean}\n\n${debt.answer}`);
+          speak(debt.answer);
+          return;
+        }
+        if (isLocalQuestion(clean)) {
+          const answer = answerLocal(clean);
+          setTranscript(`${clean}\n\n${answer}`);
+          speak(answer);
+          return;
+        }
+      }
+
       setTranscribing(true);
       try {
         const response = await fetch("/api/voice/parse", {
