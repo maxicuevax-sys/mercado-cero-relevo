@@ -6,6 +6,8 @@
 > **Kit verificado:** `python design-references/mercado-cero/07_QA/scripts/verificar_kit.py` → 56 SVG, 86 PNG, 10 agentes, 0 errores.
 > **Regla de cierre:** una tarea de UI no se cierra sin `npm run verify:fast`; si toca runtime, `npm run verify:full` + `npm run verify:evidence` contra el HEAD y árbol limpio.
 
+> **Paridad con referencias:** PARIDAD-REFERENCIAS.md (auditoría de 5 subagentes, build 794aa06). Brechas PAR-01…PAR-16 y decisión Inicio-first vs Caja-first.
+
 ## 0. Cómo se usa el kit (acuerdo de trabajo)
 
 1. **Referencia, no calco:** los SVG del kit son reconstrucciones; las ilustraciones exactas del usuario viven en `web/src/assets/brand/transparent/`. No se sustituyen entre sí sin decisión de marca.

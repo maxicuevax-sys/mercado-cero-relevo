@@ -275,7 +275,7 @@ body {
   color: var(--color-ink-2);
 }
 
-.screen-heading__action button {
+.screen-heading__action button:not(.on-accent) {
   border-width: 1px;
   border-radius: 999px;
   background: var(--color-surface);
@@ -1659,6 +1659,7 @@ html[data-contrast="high"] body::before {
 .caja-panel {
   border: 1px solid var(--color-separator);
   background: var(--color-surface);
+  padding: 14px;
 }
 
 .caja-card-header {
@@ -2282,4 +2283,35 @@ html[data-text-zoom="large"] .help-qr {
 
 html[data-text-zoom="large"] .help-steps {
   grid-template-columns: 1fr;
+}
+
+@media (max-width: 340px) {
+  .screen-heading {
+    flex-wrap: wrap;
+  }
+
+  .screen-heading__action {
+    width: 100%;
+  }
+
+  .screen-heading__action button {
+    width: 100%;
+  }
+}
+
+html[data-text-zoom="large"] .sale-line {
+  flex-direction: column;
+}
+
+html[data-text-zoom="large"] .interpret-key {
+  width: 100%;
+}
+
+html[data-text-zoom="large"] .caja-voice {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+html[data-text-zoom="large"] .caja-entry {
+  width: 100%;
 }
