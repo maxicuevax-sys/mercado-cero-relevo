@@ -120,7 +120,7 @@ export function PendingPayments({
         <div className="min-w-0">
           <div className="pending-strip__title">
             <Clock3 className="h-4 w-4 shrink-0 text-attention" aria-hidden="true" />
-            <h2 id={titleId}>Cobros pendientes</h2>
+            <h2 id={titleId}>Cobros pendientes (todas las fechas)</h2>
             <span className="pending-strip__count" aria-hidden="true">
               {countLabel}
             </span>

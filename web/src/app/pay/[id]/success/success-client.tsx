@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { Store } from "lucide-react";
 import { cn, formatMxn } from "@/lib/format";
+import { SUCCESS_COPY } from "@/lib/payment-labels";
 import type { CheckoutData } from "@/lib/checkout";
 
 const METHOD_LABEL: Record<string, string> = {
@@ -321,36 +322,38 @@ export default function CheckoutSuccessPage({
               >
                 {paid
                   ? demo
-                    ? "Simulado"
+                    ? SUCCESS_COPY.demo.stamp
                     : cashOnly
-                      ? "Cobrado"
-                      : "Pagado"
-                  : "En verificación"}
+                      ? SUCCESS_COPY.cash.stamp
+                      : sourceMixed
+                        ? "Pago mixto"
+                        : SUCCESS_COPY.verified.stamp
+                  : SUCCESS_COPY.pending.stamp}
               </span>
             </div>
             <p className="receipt-result__method">
               {paid
                 ? sourceMixed
                   ? demo
-                    ? "Efectivo + demo"
-                    : "Efectivo + verificado"
+                    ? "Efectivo + pago demo"
+                    : "Efectivo + pago verificado por pey"
                   : demo
-                    ? "Modo demo"
+                    ? SUCCESS_COPY.demo.method
                     : cashOnly
-                      ? "Cobrado en caja"
-                      : "Pago confirmado"
-                : "Verificando pago"}
+                      ? SUCCESS_COPY.cash.method
+                      : SUCCESS_COPY.verified.method
+                : SUCCESS_COPY.pending.method}
             </p>
             <h1 ref={headingRef} tabIndex={-1}>
               {paid
                 ? sourceMixed
                   ? "Pago mixto"
                   : demo
-                    ? "Pago simulado"
+                    ? SUCCESS_COPY.demo.title
                     : cashOnly
-                      ? "Efectivo recibido"
-                      : "Listo para entregar"
-                : "Estamos confirmando con el banco"}
+                      ? SUCCESS_COPY.cash.title
+                      : SUCCESS_COPY.verified.title
+                : SUCCESS_COPY.pending.title}
             </h1>
             {data ? (
               <p className="receipt-result__amount">
@@ -391,12 +394,12 @@ export default function CheckoutSuccessPage({
                   <p className="text-sm leading-relaxed text-ink-2">
                     {sourceMixed
                       ? demo
-                        ? `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(data.payment.amountCents)} en un pago simulado. El efectivo sí es dinero real; el digital es demo.`
+                        ? `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(data.payment.amountCents)} en un pago demo. El efectivo sí es dinero real; el digital es demo y el pedido no se entrega.`
                         : `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(data.payment.amountCents)} verificados por pey.`
                       : demo
-                        ? "Pago simulado para la demo; no se movió dinero."
+                        ? `${SUCCESS_COPY.demo.body} ${SUCCESS_COPY.demo.note}`
                         : data.payment.provider === "pey"
-                          ? "pey confirmó este pago con una confirmación firmada. Ya puedes mostrar esta pantalla."
+                          ? SUCCESS_COPY.verified.body
                           : "Este pago no tiene una confirmación firmada de pey. No lo presentes como verificado."}
                   </p>
                 </div>
@@ -404,14 +407,12 @@ export default function CheckoutSuccessPage({
             ) : cashOnly ? (
               <>
                 <p className="text-center text-sm leading-relaxed text-ink-2">
-                  Recibiste {formatMxn(cashPaid)} en efectivo en la caja. No pasó por pey ni es un
-                  pago verificado por el banco.
+                  {SUCCESS_COPY.cash.body}
                 </p>
                 <div className="pay-note flex items-start gap-2.5">
                   <Store className="mt-0.5 h-4 w-4 shrink-0 text-ink-2" />
                   <p className="text-sm leading-relaxed text-ink-2">
-                    La comerciante ya puede entregar el pedido. El efectivo queda registrado en el
-                    corte de caja.
+                    {SUCCESS_COPY.cash.note}
                   </p>
                 </div>
               </>
@@ -419,26 +420,24 @@ export default function CheckoutSuccessPage({
               <div className="pay-note flex items-start gap-2.5">
                 <Store className="mt-0.5 h-4 w-4 shrink-0 text-ink-2" />
                 <p className="text-sm leading-relaxed text-ink-2">
-                  Pago simulado para la demo; no se movió dinero. La caja de la
-                  comerciante ya tiene el registro.
+                  {SUCCESS_COPY.demo.body} {SUCCESS_COPY.demo.note}
                 </p>
               </div>
             ) : (
               <>
                 <p className="text-center text-sm leading-relaxed text-ink-2">
-                  Tu pago ya salió del banco. Mercado Cero está esperando la confirmación
-                  firmada de pey; normalmente tarda unos segundos.
+                  {SUCCESS_COPY.pending.body}
                 </p>
                 <div className="pay-note flex items-start gap-2.5">
                   <Store className="mt-0.5 h-4 w-4 shrink-0 text-ink-2" />
                   <p className="text-sm leading-relaxed text-ink-2">
-                    No cierres esta pantalla. Si tarda más de un minuto, muestra tu comprobante
-                    a la comerciante; ella puede verificarlo por ID de transacción.
+                    {SUCCESS_COPY.pending.note}
                   </p>
                 </div>
                 {attempts > 15 ? (
                   <p className="mt-3 text-center text-xs text-ink-2">
-                    Sigue esperando la confirmación. La caja se actualizará sola.
+                    Seguimos esperando la confirmación. La caja se actualiza sola; puedes
+                    cerrar y volver a abrir este link.
                   </p>
                 ) : null}
               </>
@@ -454,13 +453,22 @@ export default function CheckoutSuccessPage({
                   Listo
                 </button>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => void load({ force: true })}
-                  className="result-secondary"
-                >
-                  Revisar link
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={finish}
+                    className="result-secondary"
+                  >
+                    Cerrar esta pestaña
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void load({ force: true })}
+                    className="result-secondary"
+                  >
+                    Revisar link
+                  </button>
+                </>
               )}
             </div>
           </div>
