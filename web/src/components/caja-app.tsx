@@ -5,6 +5,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, memo, type Re
 import { createPortal } from "react-dom";
 import ahorroArt from "@/assets/brand/ilustraciones/transparent/ahorro.png";
 import botArt from "@/assets/brand/ilustraciones/transparent/bot.png";
+import libretaArt from "@/assets/brand/iconos/transparent/libreta.png";
 import lupitaArt from "@/assets/brand/ilustraciones/transparent/lupita.png";
 import puestoArt from "@/assets/brand/ilustraciones/transparent/puesto.png";
 import qrArt from "@/assets/brand/ilustraciones/transparent/qr.png";
@@ -3844,6 +3845,13 @@ function CajaPanel(props: {
           </div>
         ) : (
           <div className="mt-3">
+            <Image
+              src={tacosArt}
+              alt=""
+              aria-hidden="true"
+              className="mx-auto mb-2 h-20 w-auto"
+              sizes="140px"
+            />
             <p className="draft-empty">
               La hoja está en blanco. Habla, escribe arriba o agrega un producto a mano.
             </p>
@@ -4064,12 +4072,12 @@ function PaymentPanel(props: {
             className={cn(
               "mx-auto flex h-14 w-14 items-center justify-center rounded-full result-in",
               creditOnly || (mixedDigital && truth.isDemo)
-                ? "bg-terracotta-soft text-attention"
+                ? "state-credit"
                 : mixedDigital
-                  ? "bg-green-soft text-green"
+                  ? "state-verified"
                   : sourceMixed
                     ? truth.isDemo
-                      ? "bg-terracotta-soft text-attention"
+                      ? "state-credit"
                       : "bg-green-soft text-green"
                     : truth.isCash
                       ? "border border-separator bg-surface text-ink"
@@ -4600,7 +4608,7 @@ function BusinessOverview({
                     className={cn(
                       "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-bold",
                       comparison >= 0
-                        ? "bg-green-soft text-green"
+                        ? "state-verified"
                         : "bg-terracotta-soft text-attention",
                     )}
                   >
@@ -6331,7 +6339,7 @@ function ReconcileCard({ demoMode }: { demoMode: boolean }) {
             className={cn(
               "flex items-center gap-2 rounded-xl px-4 py-3",
               report.reconciled
-                ? "bg-green-soft text-green"
+                ? "state-verified"
                 : "bg-terracotta-soft text-attention",
             )}
           >
@@ -6497,18 +6505,18 @@ function ActivityList({
                     "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
                     truth.hasCredit
                       ? creditSettled
-                        ? "bg-green-soft text-green"
+                        ? "state-verified"
                         : "bg-terracotta-soft text-attention"
                       : demo || pending
-                        ? "bg-terracotta-soft text-attention"
+                        ? "state-credit"
                         : sourceMixed
                           ? truth.isDemo
-                            ? "bg-terracotta-soft text-attention"
+                            ? "state-credit"
                             : "bg-green-soft text-green"
                           : cash
                             ? "border border-separator bg-surface text-ink"
                             : order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled"
-                              ? "bg-green-soft text-green"
+                              ? "state-verified"
                               : "border border-separator bg-surface text-ink-2",
                   )}
                 >
@@ -6648,7 +6656,7 @@ function CreditList({
       ) : credits.length === 0 ? (
         <div className="book-sheet border border-dashed border-separator p-6 text-center">
           <Image
-            src={tacosArt}
+            src={libretaArt}
             alt=""
             aria-hidden="true"
             className="mx-auto h-28 w-auto"
@@ -7239,14 +7247,14 @@ function StatusBadge({
             ? PAYMENT_STATES.cash_received.label
             : statusLabel(order.status);
   const styles: Record<Order["status"], string> = {
-    draft: "border border-separator bg-surface text-ink-2",
-    confirmed: "bg-terracotta-soft text-attention",
-    payment_pending: "bg-terracotta-soft text-attention",
-    partially_paid: "bg-terracotta-soft text-attention",
-    paid: "bg-green-soft text-green",
-    demo_paid: "bg-terracotta-soft text-attention",
-    fulfilled: "bg-green-soft text-green",
-    cancelled: "border border-separator bg-surface text-ink-2",
+    draft: "state-draft",
+    confirmed: "state-pending",
+    payment_pending: "state-pending",
+    partially_paid: "state-partial",
+    paid: "state-verified",
+    demo_paid: "state-demo",
+    fulfilled: "state-verified",
+    cancelled: "state-draft",
   };
   const icons: Record<Order["status"], typeof Clock3> = {
     draft: Clock3,
@@ -7264,9 +7272,9 @@ function StatusBadge({
       className={cn(
         "inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-[0.04em]",
         creditOpen
-          ? "bg-terracotta-soft text-attention"
+          ? "state-credit"
           : creditClosed
-            ? "bg-green-soft text-green"
+            ? "state-verified"
             : styles[status],
       )}
     >
@@ -7747,12 +7755,12 @@ function PaidSheet({
           className={cn(
             "mx-auto flex h-16 w-16 items-center justify-center rounded-full result-in",
             creditOnly || (mixedDigital && truth.isDemo) || (truth.isDemo && !sourceMixed && !mixedDigital)
-              ? "bg-terracotta-soft text-attention"
+              ? "state-credit"
               : mixedDigital
-                ? "bg-green-soft text-green"
+                ? "state-verified"
                 : sourceMixed
                   ? truth.isDemo
-                    ? "bg-terracotta-soft text-attention"
+                    ? "state-credit"
                     : "bg-green-soft text-green"
                   : truth.isCash
                     ? "border border-separator bg-surface text-ink"
@@ -8164,6 +8172,8 @@ const MemoActivityList = memo(ActivityList);
 const MemoCreditList = memo(CreditList);
 const MemoPendingPayments = memo(PendingPayments);
 const MemoPendingTasksPanel = memo(PendingTasksPanel);
+
+
 
 
 

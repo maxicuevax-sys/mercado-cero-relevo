@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Image from "next/image";
 import {
   useCallback,
   useEffect,
@@ -22,6 +23,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import listaArt from "@/assets/brand/iconos/transparent/lista.png";
 import { ScreenHeading } from "@/components/screen-heading";
 import { cn } from "@/lib/format";
 import {
@@ -806,6 +808,13 @@ export function PendingTasksPanel({
         </div>
       ) : loadState === "ready" && openTasks.length === 0 ? (
         <div className="book-sheet border border-dashed border-separator px-5 py-6 text-center">
+          <Image
+            src={listaArt}
+            alt=""
+            aria-hidden="true"
+            className="mx-auto mb-2 h-16 w-16 object-contain"
+            sizes="120px"
+          />
           <p className="text-[1.0625rem] font-semibold text-ink">
             {tasks.length === 0
               ? "Aún no hay pendientes."
@@ -1155,4 +1164,5 @@ export function PendingTasksPanel({
 }
 
 export default PendingTasksPanel;
+
 

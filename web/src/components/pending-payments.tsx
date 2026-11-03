@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useId, useState } from "react";
 import {
@@ -24,17 +24,17 @@ const STATUS: Record<
 > = {
   confirmed: {
     label: "Sin link",
-    className: "border border-separator bg-surface text-ink-2",
+    className: "state-draft",
     Icon: Link2Off,
   },
   payment_pending: {
-    label: "Esperando confirmación",
-    className: "bg-terracotta-soft text-attention",
+    label: "Esperando confirmaciÃ³n",
+    className: "state-pending",
     Icon: Clock3,
   },
   partially_paid: {
     label: "Parcial",
-    className: "bg-blue-soft text-info",
+    className: "state-partial",
     Icon: CircleDollarSign,
   },
 };
@@ -45,14 +45,14 @@ function statusMeta(status: Order["status"]) {
   }
   return {
     label: "Pendiente",
-    className: "border border-separator bg-surface text-ink-2",
+    className: "state-draft",
     Icon: Clock3,
   };
 }
 
 /**
- * Saldo digital por cobrar. El fiado ya vive en su propia libreta, así que no
- * se suma aquí: total − pagado − fiado.
+ * Saldo digital por cobrar. El fiado ya vive en su propia libreta, asÃ­ que no
+ * se suma aquÃ­: total âˆ’ pagado âˆ’ fiado.
  */
 function pendingBalanceCents(order: Order): number {
   const total = Number.isFinite(order.totalCents) ? order.totalCents : 0;
@@ -63,11 +63,11 @@ function pendingBalanceCents(order: Order): number {
 
 function orderSummary(order: Order): string {
   const parts = (order.items ?? [])
-    .map((item) => `${item.quantity} × ${item.description}`.trim())
+    .map((item) => `${item.quantity} Ã— ${item.description}`.trim())
     .filter(Boolean);
   if (parts.length === 0) return `Pedido ${shortOrder(order.id)}`;
-  if (parts.length <= 2) return parts.join(" · ");
-  return `${parts.slice(0, 2).join(" · ")} y ${parts.length - 2} más`;
+  if (parts.length <= 2) return parts.join(" Â· ");
+  return `${parts.slice(0, 2).join(" Â· ")} y ${parts.length - 2} mÃ¡s`;
 }
 
 export interface PendingPaymentsProps {
@@ -77,14 +77,14 @@ export interface PendingPaymentsProps {
   onOpen: (order: Order) => void;
   onRetry: () => void;
   onViewAll?: () => void;
-  /** Total del servidor: puede ser mayor que la página visible. */
+  /** Total del servidor: puede ser mayor que la pÃ¡gina visible. */
   totalCount?: number;
   totalCents?: number;
 }
 
 /**
- * Franja compacta de cobros pendientes. No abre ninguna hoja por sí sola:
- * la persona decide con el botón "Ver" de cada fila.
+ * Franja compacta de cobros pendientes. No abre ninguna hoja por sÃ­ sola:
+ * la persona decide con el botÃ³n "Ver" de cada fila.
  */
 export function PendingPayments({
   orders,
@@ -111,7 +111,7 @@ export function PendingPayments({
       ? `${orders.length} de ${serverTotalCount}`
       : String(serverTotalCount)
     : error
-      ? "—"
+      ? "â€”"
       : "0";
   const totalLabel = hasOrders
     ? formatMxn(totalPendingCents)
@@ -119,8 +119,8 @@ export function PendingPayments({
       ? "Sin datos"
       : formatMxn(0);
   const lastCheckedLabel = lastCheckedAt
-    ? `Última comprobación: ${formatActivityDate(lastCheckedAt)}`
-    : "Aún no se ha comprobado.";
+    ? `Ãšltima comprobaciÃ³n: ${formatActivityDate(lastCheckedAt)}`
+    : "AÃºn no se ha comprobado.";
 
   function toggleExpanded() {
     const next = !expanded;
@@ -204,7 +204,7 @@ export function PendingPayments({
                     <time dateTime={order.createdAt}>{formatActivityDate(order.createdAt)}</time>
                     {order.status === "partially_paid" ? (
                       <span>
-                        Pagó {formatMxn(paidCents)} de {formatMxn(order.totalCents)}
+                        PagÃ³ {formatMxn(paidCents)} de {formatMxn(order.totalCents)}
                       </span>
                     ) : null}
                   </div>
@@ -265,3 +265,4 @@ export function PendingPayments({
     </section>
   );
 }
+

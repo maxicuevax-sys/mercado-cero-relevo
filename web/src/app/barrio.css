@@ -1,7 +1,7 @@
 ﻿/* ==========================================================================
-   AMABLE Y DE BARRIO Ã‚Â· capa material y composiciÃƒÂ³n de mostrador
+   AMABLE Y DE BARRIO Ãƒâ€šÃ‚Â· capa material y composiciÃƒÆ’Ã‚Â³n de mostrador
    Cuaderno de ventas + calculadora de teclas + puesto de tianguis.
-   Esta hoja se carga DESPUÃƒâ€°S de globals.css: sus reglas mandan.
+   Esta hoja se carga DESPUÃƒÆ’Ã¢â‚¬Â°S de globals.css: sus reglas mandan.
    ========================================================================== */
 
 :root {
@@ -63,8 +63,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
-  backdrop-filter: blur(12px);
+  background: var(--color-surface);
   border-bottom: 1px solid var(--color-separator);
   padding-top: 0;
 }
@@ -105,7 +104,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   Barra lateral verde: Ã­ndice de la tienda
+   Barra lateral verde: ÃƒÂ­ndice de la tienda
    -------------------------------------------------------------------------- */
 
 .app-sidebar {
@@ -250,7 +249,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   Encabezado de destino: tÃƒtulo de libreta
+   Encabezado de destino: tÃƒÆ’tulo de libreta
    -------------------------------------------------------------------------- */
 
 .screen-heading-block {
@@ -283,7 +282,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   Caja: dos pÃƒÂ¡ginas de la misma hoja
+   Caja: dos pÃƒÆ’Ã‚Â¡ginas de la misma hoja
    -------------------------------------------------------------------------- */
 
 .caja-layout {
@@ -384,7 +383,7 @@ body {
   transition: transform 120ms var(--mc-ease);
 }
 
-/* Anillo punteado concÃ©ntrico: mismo centro que el botÃ³n, sin desplazarse. */
+/* Anillo punteado concÃƒÂ©ntrico: mismo centro que el botÃƒÂ³n, sin desplazarse. */
 .mic-button::after {
   content: "";
   position: absolute;
@@ -749,7 +748,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   Tecla de cobrar: el clÃƒmax de la calculadora
+   Tecla de cobrar: el clÃƒÆ’max de la calculadora
    -------------------------------------------------------------------------- */
 
 .checkout-key {
@@ -822,7 +821,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   Libro de cuentas: CuÃƒÂ¡nto llevo + Lo que me deben
+   Libro de cuentas: CuÃƒÆ’Ã‚Â¡nto llevo + Lo que me deben
    -------------------------------------------------------------------------- */
 
 .book-title {
@@ -1090,7 +1089,7 @@ body {
    -------------------------------------------------------------------------- */
 
 /* --------------------------------------------------------------------------
-   NavegaciÃƒÂ³n mÃƒÂ³vil: pestaÃƒÂ±as de papel
+   NavegaciÃƒÆ’Ã‚Â³n mÃƒÆ’Ã‚Â³vil: pestaÃƒÆ’Ã‚Â±as de papel
    -------------------------------------------------------------------------- */
 
 
@@ -1110,7 +1109,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   Ajustes de mÃƒÂ³vil: una sola pÃƒÂ¡gina de libreta
+   Ajustes de mÃƒÆ’Ã‚Â³vil: una sola pÃƒÆ’Ã‚Â¡gina de libreta
    -------------------------------------------------------------------------- */
 
 @media (max-width: 1023.98px) {
@@ -1304,7 +1303,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   200 %: la tarea manda; el papel se compacta, no la tipografÃƒa
+   200 %: la tarea manda; el papel se compacta, no la tipografÃƒÆ’a
    -------------------------------------------------------------------------- */
 
 html[data-text-zoom="large"] .caja-voice {
@@ -1411,7 +1410,7 @@ html[data-text-zoom="large"] .checkout-key__total {
 }
 
 /* --------------------------------------------------------------------------
-   Alto contraste: el papel desaparece, la jerarquÃƒa se queda
+   Alto contraste: el papel desaparece, la jerarquÃƒÆ’a se queda
    -------------------------------------------------------------------------- */
 
 html[data-contrast="high"] body,
@@ -1440,7 +1439,7 @@ html[data-contrast="high"] body::before {
 
 
 /* ==========================================================================
-   Mercado 2026 Â· capa de producto (papel, tarjetas y acentos)
+   Mercado 2026 Ã‚Â· capa de producto (papel, tarjetas y acentos)
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -2004,7 +2003,7 @@ html[data-contrast="high"] body::before {
 }
 
 /* --------------------------------------------------------------------------
-   Barra superior mÃ³vil y navegaciÃ³n inferior
+   Barra superior mÃƒÂ³vil y navegaciÃƒÂ³n inferior
    -------------------------------------------------------------------------- */
 
 @media (max-width: 1023.98px) {
@@ -2149,23 +2148,6 @@ html[data-contrast="high"] .sidebar-art {
 }
 
 @media (max-width: 480px) {
-  .help-hero__qr {
-    display: none;
-  }
-
-  .help-hero__bot {
-    width: 60px;
-  }
-}
-
-html[data-contrast="high"] .help-hero {
-  background: #ffffff;
-  border-color: #000000;
-}
-
-html[data-contrast="high"] .help-hero__bot,
-html[data-contrast="high"] .help-hero__qr {
-  display: none;
 }
 
 .brand-mark-img {
@@ -2258,3 +2240,36 @@ html[data-text-zoom="large"] .sale-listen {
 html[data-text-zoom="large"] .help-qr {
   display: none;
 }
+
+.state-pending {
+  background: #fff0d2;
+  color: #725012;
+}
+
+.state-partial {
+  background: #e9ecf3;
+  color: #293b68;
+}
+
+.state-demo {
+  background: #e9ecf3;
+  color: #293b68;
+  border: 1px solid #687369;
+}
+
+.state-verified {
+  background: #e2f3e7;
+  color: #0a5039;
+}
+
+.state-draft {
+  background: #f2ebdf;
+  color: #515b54;
+  border: 1px solid #d8cfc0;
+}
+
+.state-credit {
+  background: #fbe9e6;
+  color: #8f2d1c;
+}
+
