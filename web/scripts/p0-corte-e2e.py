@@ -957,7 +957,7 @@ def main() -> int:
             stale_dialog_text = dialog.inner_text()
             check(
                 "la confirmación usa la diferencia del servidor, no la copia local",
-                "Falta" in stale_dialog_text
+                "Hay menos de lo esperado" in stale_dialog_text
                 and "$50.00" in stale_dialog_text
                 and f"${(stale_expected + 5000) / 100:,.2f}" in stale_dialog_text,
                 stale_dialog_text.replace("\n", " · ")[:280],
@@ -1202,7 +1202,7 @@ def main() -> int:
             without_checkbox = dialog.inner_text()
             check(
                 "sin marcar el retiro previo el servidor marca el faltante",
-                "Falta" in without_checkbox
+                "Hay menos de lo esperado" in without_checkbox
                 and f"${previous_withdrawal / 100:,.2f}" in without_checkbox,
                 without_checkbox.replace("\n", " · ")[:280],
             )

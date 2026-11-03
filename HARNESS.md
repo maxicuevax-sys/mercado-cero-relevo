@@ -91,12 +91,12 @@ Markers exactos: el harness no acepta substrings. `0 FAIL` no coincide con `10 F
 | `hig` | HIG/WCAG 2.2 AA, 48 px, 200%, **5 viewports** | `HIG OK` + `5 viewports` | `demo/hig-after/audit.json` |
 | `motion` | Duraciones, scroll trigger, reduced-motion | `MOTION OK` + `19 PASS` + `0 FAIL` | `harness/evidence/motion*` |
 | `contrast` | Alto contraste: axe, foco visible y 360 px | `CONTRAST OK` + `7 PASS` + `0 FAIL` | `harness/evidence/a11y-contrast*` |
-| `mobile-320` | HIG móvil 320/360 en Chromium, Firefox y WebKit | `MOBILE 320/360 E2E` + `42 PASS` + `0 FAIL` | `mobile-320-e2e.json` + capturas 320/360 |
+| `mobile-320` | HIG móvil 320/360 en Chromium, Firefox y WebKit | `MOBILE 320/360 E2E` + `60 PASS` + `0 FAIL` | `mobile-320-e2e.json` + capturas 320/360 |
 | `rehearsal` | Guion completo, 3 corridas, 19 pasos por corrida; el marcador exigido es el booleano | `REHEARSAL OK` + `todo en verde: True` | `demo/rehearsal.json` |
 | `security` | CSRF, token de reset, límites, rate limit, headers, backups | `SEGURIDAD OK` | — |
 | `data` | Idempotencia, transacciones, migraciones y enlaces; **85 checks (58+20+7)** | `DATOS OK` + `P0 FIX DATOS` + `P0 DB GUARDS` + `P0 ORDERS ATOMIC` | - |
 | `perf` | Presupuesto de JS, CSS, fuentes, fotos e iconos | `PERF BUDGET OK` | — |
-| `p0-venta` | Venta durable, draft, validaciones, monto y cambio | `65 PASS` + `0 FAIL` + `0 KNOWN` | `harness/evidence/p0-venta-e2e.json` |
+| `p0-venta` | Venta durable, draft, validaciones, monto y cambio | `66 PASS` + `0 FAIL` + `0 KNOWN` | `harness/evidence/p0-venta-e2e.json` |
 | `p0-fiado` | Abono confirmado, saldo vivo, idempotencia | `51 PASS` + `0 FAIL` + `0 KNOWN` | `p0-fiado-e2e.json` + captura |
 | `p0-corte` | Corte no destructivo, versiones, migración, 409 | `69 PASS` + `0 FAIL` + `0 KNOWN` | `p0-corte-e2e.json` + capturas |
 | `p0-integracion` | Pendientes, tareas, venta mixta, carrera de refresco | `51 PASS` + `0 FAIL` + `0 KNOWN` | `p0-integracion-e2e.json` + capturas |
@@ -206,7 +206,7 @@ El criterio no es “cuánto puede hacer el agente”, sino **cuánto puede hace
 - `latest.json` (full) o `latest-static.json` (static) con `ok: true` y `mode` real; nunca `partial` ni `fast` sin `--allow-fast`. Un static posterior no pisa el full.
 - Sin secretos en el diff.
 - Si tocó dinero: webhook **40/40**, truth PASS y `p0-dinero` **45 + 3 KNOWN**.
-- Si tocó UI: HIG **5 viewports**, mobile **25/25**, checkout **19/19**, motion **19 PASS**, contraste **7 PASS · 0 FAIL** y mobile-320 **42/42** en 3 motores.
+- Si tocó UI: HIG **5 viewports**, mobile **25/25**, checkout **19/19**, motion **19 PASS**, contraste **7 PASS · 0 FAIL** y mobile-320 **60/60** en 3 motores.
 - Si tocó demo: preflight + túnel + video/QR actualizados.
 - Handoff actualizado con `npm run harness:report`; las pruebas humanas no se sustituyen por gates.
 

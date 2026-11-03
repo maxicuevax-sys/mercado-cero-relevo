@@ -371,10 +371,17 @@ def main() -> int:
             page.get_by_label(re.compile("¿Qué quieres recordar?")).fill("Pagar al proveedor")
             page.get_by_label(re.compile("Nota")).fill("Tomás pasa a las 11")
             page.get_by_role("button", name="Guardar", exact=True).click()
-            wait_for_text(page, "Pagar al proveedor", 8000)
+            created_heading = page.locator(
+                "ul[aria-label='Pendientes abiertos'] h2"
+            ).filter(has_text="Pagar al proveedor")
+            try:
+                created_heading.first.wait_for(timeout=8000)
+                created_visible = created_heading.count() == 1
+            except Exception:
+                created_visible = False
             check(
                 "crear pendiente lo muestra en la lista abierta",
-                page.get_by_text("Pagar al proveedor", exact=True).count() >= 1,
+                created_visible,
             )
 
             page.get_by_role("button", name="Completar: Pagar al proveedor").click()
@@ -476,8 +483,10 @@ def main() -> int:
                 page.get_by_text("Pedido para llevar", exact=False).count() >= 1,
             )
             check(
-                "el pendiente distingue Esperando banco",
-                page.get_by_text("Esperando banco", exact=False).count() >= 1,
+                "el pendiente distingue Esperando confirmación",
+                page.locator(".pending-strip")
+                .get_by_text("Esperando confirmación", exact=True)
+                .count() >= 1,
             )
             check("no hay hoja abierta al cargar Caja", page.get_by_role("dialog").count() == 0)
             check(
@@ -531,7 +540,7 @@ def main() -> int:
                   const heading = [...document.querySelectorAll('h2')].find(
                     el => (el.innerText || '').includes('Últimos movimientos')
                   );
-                  const card = heading ? heading.closest('div.rounded-2xl') : null;
+                  const card = heading ? heading.closest('.activity-list') : null;
                   const time = card ? card.querySelector('time') : null;
                   return time ? time.innerText : '';
                 }"""

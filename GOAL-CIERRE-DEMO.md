@@ -22,8 +22,8 @@
    `serverBuildSha === HEAD`. Sin `--skip` ni `--only`.
 5. **Evidencia:** `npm run verify:evidence` → PASS, `latest.json` local atado al
    HEAD final; `latest-static.json` no lo pisa.
-6. **Flujos:** `p0-venta` 65, `p0-fiado` 51, `p0-corte` 69, `p0-integracion` 51,
-   `p0-dinero` 45+3 KNOWN, checkout 19, mobile 25, mobile-320 42, HIG 5
+6. **Flujos:** `p0-venta` 66, `p0-fiado` 51, `p0-corte` 69, `p0-integracion` 51,
+   `p0-dinero` 45+3 KNOWN, checkout 19, mobile 25, mobile-320 60, HIG 5
    viewports, motion 19, contrast 7, security **52** (48 + 4 del fix adversario),
    data **85** (58+20+7; no 123), webhook 40, rehearsal 3/3/19, tunnel 8/8,
    preflight 18/18. **Estos conteos son la última corrida conocida o el

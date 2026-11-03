@@ -705,7 +705,7 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
     page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
     page.wait_for_selector("h1:has-text('Caja')", timeout=30000)
     try:
-        page.wait_for_selector("text=Hoy $", timeout=20000)
+        page.wait_for_selector("text=Ventas registradas hoy", timeout=20000)
     except Exception:
         pass
     page.wait_for_timeout(500)
@@ -782,7 +782,7 @@ def audit_viewport(page, context, w: int, h: int, full_flow: bool) -> dict:
         record["link"] = measure(page, "link")
         shot(page, f"link-{w}")
         page.get_by_role("button", name="Simular CoDi").click()
-        page.wait_for_selector("text=Pago simulado", timeout=15000)
+        page.wait_for_selector("text=Pago demo (simulado)", timeout=15000)
         page.wait_for_timeout(400)
         record["paid"] = measure(page, "paid-sheet")
         record["paidAxe"] = run_axe(page)

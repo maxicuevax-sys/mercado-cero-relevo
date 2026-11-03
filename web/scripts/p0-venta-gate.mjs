@@ -10,6 +10,7 @@
 
 import { spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
+import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,8 +18,8 @@ import { fileURLToPath } from "node:url";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const WEB = path.resolve(HERE, "..");
 const NEXT_BIN = path.join(WEB, "node_modules", "next", "dist", "bin", "next");
-const PORT = Number(process.env.P0_VENTA_PORT ?? 3211);
-const BASE = `http://127.0.0.1:${PORT}`;
+let PORT = Number(process.env.P0_VENTA_PORT ?? 3211);
+let BASE = `http://127.0.0.1:${PORT}`;
 const BUILD_SHA_FILE = path.join(WEB, ".next", "BUILD_SHA");
 
 if (PORT === 3000 || PORT === 3101) {
@@ -28,6 +29,28 @@ if (PORT === 3000 || PORT === 3101) {
 if (!fs.existsSync(path.join(WEB, ".next", "BUILD_ID")) || !fs.existsSync(BUILD_SHA_FILE)) {
   console.error("P0 VENTA GATE: falta build con identidad. Corre `npm run build`.");
   process.exit(1);
+}
+
+function portAvailable(port) {
+  return new Promise((resolve) => {
+    const probe = net.createServer();
+    probe.unref();
+    probe.once("error", () => resolve(false));
+    probe.once("listening", () => probe.close(() => resolve(true)));
+    probe.listen(port);
+  });
+}
+
+function ephemeralPort() {
+  return new Promise((resolve, reject) => {
+    const probe = net.createServer();
+    probe.once("error", reject);
+    probe.listen(0, () => {
+      const address = probe.address();
+      const port = typeof address === "object" && address ? address.port : 0;
+      probe.close(() => (port ? resolve(port) : reject(new Error("sin puerto libre"))));
+    });
+  });
 }
 
 const built = JSON.parse(fs.readFileSync(BUILD_SHA_FILE, "utf8"));
@@ -65,6 +88,15 @@ async function waitForHealth(timeoutMs = 60_000) {
 }
 
 try {
+  if (!(await portAvailable(PORT))) {
+    const fallback = await ephemeralPort();
+    console.log(
+      `P0 VENTA GATE: puerto ${PORT} ocupado por otro servidor; uso el puerto libre ${fallback}.`,
+    );
+    PORT = fallback;
+    BASE = `http://127.0.0.1:${PORT}`;
+  }
+
   server = spawn(
     process.execPath,
     [NEXT_BIN, "start", "-H", "127.0.0.1", "-p", String(PORT)],

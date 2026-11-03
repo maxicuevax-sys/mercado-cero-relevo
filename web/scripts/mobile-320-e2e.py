@@ -184,7 +184,7 @@ def run_engine(browser_type, engine: str) -> None:
             seed_credits(context.request, f"{engine}{width}")
             page.goto(BASE, wait_until="domcontentloaded")
             page.wait_for_selector("h1:has-text('Caja')", timeout=30_000)
-            page.wait_for_selector("text=Hoy $", timeout=30_000)
+            page.wait_for_selector("text=Ventas registradas hoy", timeout=30_000)
             page.wait_for_timeout(900)
 
             data = measure(page)

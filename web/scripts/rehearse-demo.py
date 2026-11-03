@@ -204,7 +204,8 @@ def run_once(page, iteration: int) -> dict:
         page.goto(BASE, wait_until="domcontentloaded")
         page.wait_for_selector("h1:has-text('Caja')", timeout=15000)
         page.wait_for_function(
-            "() => document.body.innerText.includes('Hoy $')", timeout=20000
+            "() => document.body.innerText.includes('Ventas registradas hoy')",
+            timeout=20000,
         )
         page.wait_for_timeout(400)
         started = time.time()
@@ -224,11 +225,24 @@ def run_once(page, iteration: int) -> dict:
         page.get_by_role("button", name=re.compile("Link de pago")).click()
         step("link generado", wait_text(page, "Simular CoDi"))
         page.get_by_role("button", name="Simular CoDi").click()
-        step("pago demo confirmado", wait_text(page, "Pago simulado"))
-
         result_dialog = page.get_by_role("dialog")
+        try:
+            result_dialog.get_by_role(
+                "heading", name="Pago demo (simulado)", exact=True
+            ).wait_for(timeout=15000)
+            demo_confirmed = True
+        except Exception:
+            demo_confirmed = False
+        step("pago demo confirmado", demo_confirmed)
+        if not demo_confirmed:
+            fail("La hoja de resultado no llegó a Pago demo (simulado).")
+
         result_dialog.wait_for(timeout=8000)
-        if "Resultado del cobro" not in result_dialog.inner_text():
+        result_text = result_dialog.inner_text()
+        if (
+            "Pago demo (simulado)" not in result_text
+            or "No se entrega." not in result_text
+        ):
             fail("La hoja visible no es la hoja de resultado del cobro.")
         result_dialog.get_by_role("button", name="Cerrar", exact=True).click()
         closed = sheets_closed(page)
@@ -280,7 +294,17 @@ def run_once(page, iteration: int) -> dict:
             page.get_by_role("button", name="Caja", exact=True).first.click()
             page.get_by_role("heading", name="Caja", exact=True).wait_for(timeout=8000)
         page.get_by_role("button", name="¿Cuánto vendí hoy?").click()
-        step("consulta de ventas", wait_text(page, "Hoy llevas"))
+        try:
+            transcript_note = page.locator(".transcript-note")
+            transcript_note.filter(has_text="Cobrado confirmado").wait_for(timeout=12000)
+            transcript_text = transcript_note.inner_text()
+            consulta_ok = (
+                "Ventas registradas hoy" in transcript_text
+                and "Por cobrar de hoy" in transcript_text
+            )
+        except Exception:
+            consulta_ok = False
+        step("consulta de ventas", consulta_ok)
 
         # 5. Anti-fraude.
         page.get_by_role("button", name="Verificar comprobante", exact=True).first.click()

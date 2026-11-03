@@ -534,9 +534,12 @@
 .receipt-result h1 {
   margin-top: 8px;
   font-family: var(--font-display);
-  font-size: 1.75rem;
+  font-size: min(1.75rem, 14.5vw);
   line-height: 1.05;
   letter-spacing: -0.02em;
+  /* El título del resultado es copy fijo ("Pago demo (simulado)"); a 200 %
+     de tamaño de texto debe partir por espacios, nunca a mitad de palabra. */
+  overflow-wrap: normal;
 }
 
 .receipt-result h1:focus,

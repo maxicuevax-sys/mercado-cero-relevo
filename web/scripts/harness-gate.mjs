@@ -195,7 +195,7 @@ export const GATES = [
     mode: "runtime",
     baseUrl: "http://127.0.0.1:3214",
     timeout: 720_000,
-    expected: ["MOBILE 320/360 E2E", "42 PASS", "0 FAIL"],
+    expected: ["MOBILE 320/360 E2E", "60 PASS", "0 FAIL"],
     expectedBasis: "output",
     artifacts: [
       "harness/evidence/mobile-320-e2e.json",
@@ -261,7 +261,7 @@ export const GATES = [
     mode: "runtime",
     baseUrl: "http://127.0.0.1:3211",
     timeout: 720_000,
-    expected: ["65 PASS", "0 FAIL", "0 KNOWN"],
+    expected: ["66 PASS", "0 FAIL", "0 KNOWN"],
     expectedBasis: "output",
     artifacts: ["harness/evidence/p0-venta-e2e.json"],
     env: { P0_VENTA_PORT: "3211" },

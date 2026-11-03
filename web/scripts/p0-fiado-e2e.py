@@ -557,7 +557,7 @@ def main() -> int:
             create_credit_order(page, "Juana", 20000, "Deuda de Juana")
             create_credit_order(page, "Ana", 3000, "Deuda de Ana")
             page.reload(wait_until="domcontentloaded")
-            page.wait_for_selector("text=Hoy $", timeout=20000)
+            page.wait_for_selector("text=Ventas registradas hoy", timeout=20000)
             phrase = "Me pagó a Juana 50 del fiado de Ana"
             parsed_response = page.request.post(
                 f"{BASE}/api/voice/parse",
@@ -619,7 +619,7 @@ def main() -> int:
             reset(page)
             create_credit_order(page, "Juan", 8000, "Segunda deuda de Juan")
             page.reload(wait_until="domcontentloaded")
-            page.wait_for_selector("text=Hoy $", timeout=20000)
+            page.wait_for_selector("text=Ventas registradas hoy", timeout=20000)
             juans = [c for c in credits(page) if (c.get("customerName") or "").lower() == "juan"]
             assert len(juans) >= 2, juans
             pay_posts.clear()
@@ -639,7 +639,7 @@ def main() -> int:
             order = create_credit_order(page, "Cliente Detalle", 10000, "Prueba fiado")
             credit_id = order["creditId"]
             page.reload(wait_until="domcontentloaded")
-            page.wait_for_selector("text=Hoy $", timeout=20000)
+            page.wait_for_selector("text=Ventas registradas hoy", timeout=20000)
             page.wait_for_timeout(500)
             activity = page.get_by_role("button", name=re.compile(r"Prueba fiado")).first
             check(
@@ -663,7 +663,7 @@ def main() -> int:
             page.get_by_role("button", name="Fiado", exact=True).first.click()
             page.wait_for_timeout(300)
             card = (
-                page.locator("div.rounded-2xl")
+                page.locator(".credit-row")
                 .filter(has=page.get_by_text("Cliente Detalle", exact=True))
                 .last
             )
@@ -699,7 +699,7 @@ def main() -> int:
                 json.dumps(pay_bodies),
             )
             page.reload(wait_until="domcontentloaded")
-            page.wait_for_selector("text=Hoy $", timeout=20000)
+            page.wait_for_selector("text=Ventas registradas hoy", timeout=20000)
             page.wait_for_timeout(500)
             activity = page.get_by_role("button", name=re.compile(r"Prueba fiado")).first
             check(
@@ -723,7 +723,7 @@ def main() -> int:
             page.get_by_role("button", name="Fiado", exact=True).first.click()
             page.wait_for_timeout(300)
             card = (
-                page.locator("div.rounded-2xl")
+                page.locator(".credit-row")
                 .filter(has=page.get_by_text("Cliente Detalle", exact=True))
                 .last
             )
@@ -761,7 +761,7 @@ def main() -> int:
                 f"credit_cents={order_credit[0][0] if order_credit else 'sin fila'}",
             )
             page.reload(wait_until="domcontentloaded")
-            page.wait_for_selector("text=Hoy $", timeout=20000)
+            page.wait_for_selector("text=Ventas registradas hoy", timeout=20000)
             page.wait_for_timeout(500)
             activity = page.get_by_role("button", name=re.compile(r"Prueba fiado")).first
             check(
