@@ -2248,3 +2248,13 @@ html[data-text-zoom="large"] .mic-label {
 html[data-text-zoom="large"] .sale-listen {
   display: none;
 }
+
+@media (max-width: 639px) {
+  .help-qr {
+    display: none;
+  }
+}
+
+html[data-text-zoom="large"] .help-qr {
+  display: none;
+}

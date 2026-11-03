@@ -7938,7 +7938,8 @@ function HelpContent({
           src={botArt}
           alt=""
           aria-hidden="true"
-          className="h-[64px] w-[64px] shrink-0 object-contain"
+          className="shrink-0 object-contain"
+          style={{ width: 64, height: 64 }}
           sizes="110px"
         />
         <div className="min-w-0 flex-1">
@@ -7952,7 +7953,8 @@ function HelpContent({
           src={qrArt}
           alt=""
           aria-hidden="true"
-          className="hidden h-[56px] w-[56px] shrink-0 object-contain sm:block"
+          className="help-qr shrink-0 object-contain"
+          style={{ width: 56, height: 56 }}
           sizes="84px"
         />
       </div>
@@ -8162,6 +8164,7 @@ const MemoActivityList = memo(ActivityList);
 const MemoCreditList = memo(CreditList);
 const MemoPendingPayments = memo(PendingPayments);
 const MemoPendingTasksPanel = memo(PendingTasksPanel);
+
 
 
 
