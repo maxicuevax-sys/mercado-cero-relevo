@@ -1,36 +1,43 @@
 # Estado de demo — 2 de noviembre de 2026
 
-> **Corte de estado:** SHA de partida de esta rama (base auditada) `3fe1cc9` (`p0/fix-demo-docs`). El servidor de producción observado en `:3000` es `665d72e`, **no** la base. No hay `latest.json` en el árbol ni una corrida `full` atada a `3fe1cc9`: la evidencia está **pendiente**. **No declarar el cierre.**
+> **Corte de estado (22:40):** rama final `p0/final-cognitive` = `fabe7cc`; `master` = `a85d903` (28 commits atrás, ancestro; fast-forward posible pero **no ejecutado**). Build conocido = `2a1f166` (padre de `fabe7cc`, mismo código de app). `:3000` **no responde**; `:3230` y el túnel público sirven `397039d`; `:3302` sirve `2a1f166`. No hay `latest.json` ni `full` atado al HEAD: **cierre pendiente, no declarar listo.**
 >
-> **Declaración honesta:** Estamos en modo demo: los pagos se simulan con `demo_paid`. No hubo pago real de $0.01; BBVA/CoDi sigue bloqueado. Solo el webhook firmado de pey marca paid. Las pruebas con comerciantes y lectores de pantalla están pendientes.
+> **P0/P1:** P0-1 (reset con pago pey firmado), P0-2 (`/` privado), P1-1 (webhook demo → `demo_paid`, fulfill 409), P1-3 (verify sin referencias) y P1-5 (totales honestos) están corregidos en `ac9e5a6`/`fabe7cc`. Siguen abiertos P1-2 (auth), P1-4 (404 HTTP 200) y varios P2. Detalle: `HANDOFF-CIERRE.md` §2.
 >
-> **Video:** `demo/mercado-cero-demo.mp4` es **histórico** (39.8 s, 1,704,744 B, UI vieja, muestra $570). No es respaldo actual; se regrabará tras el rediseño. No borrar.
+> **Declaración honesta:** Estamos en modo demo: los pagos se simulan con `demo_paid`. No hubo pago real de $0.01; BBVA/CoDi sigue bloqueado. Solo el webhook firmado de pey marca `paid`. Las pruebas con comerciantes y lectores de pantalla están pendientes.
 >
-> **Túnel vigente (2 nov 2026):** `https://timing-brought-lamp-aberdeen.trycloudflare.com` — quick tunnel efímero. Si cambia, regenerar `APP_URL`, QR y PDF; el anterior deja de servir.
+> **Video:** `demo/mercado-cero-demo.mp4` es **histórico** (39.8 s, 1,704,744 B, UI vieja, muestra $570). No es respaldo actual; se regrabará tras el rediseño. No borrar. Los scripts de `p0/fix-video` (`c395e3e`) **no están integrados** en HEAD.
+>
+> **Túnel vivo (2 nov 2026):** `https://involve-picking-wellness-retreat.trycloudflare.com` — sirve la preview `397039d`, **no** el build final; quick tunnel efímero. El túnel `timing-brought-lamp-aberdeen...` de este documento y del QR **no resuelve**. Si cambia la URL, regenerar `APP_URL`, QR y PDF.
 
 ## Cierre pendiente
 
 | Campo | Valor |
 |---|---|
-| SHA de partida | `3fe1cc9` (rama `p0/fix-demo-docs`; base auditada) |
-| Servidor `:3000` | `665d72e` — build anterior, no coincide con la base |
-| Evidencia atada a la base | ❌ pendiente (`latest.json` local no versionado; `full` no corrido contra `3fe1cc9`) |
-| Video | histórico: 39.8 s, 1,704,744 B, UI vieja, $570; regrabar tras el rediseño |
-| Ensayo del guion | ✅ 3/3 corridas, 19/19 pasos, ~8.1 s, todo en verde (master `75179c7`) |
+| HEAD de la rama final | `fabe7cc09bca0031233ac893a4d3d9c330c921c5` (`p0/final-cognitive`) |
+| `master` | `a85d903936af607e3c209fedceb2a40d8410a66e`; 28 commits atrás; ancestro |
+| Build conocido | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990` (2026-11-03T04:21:10Z); no es el HEAD |
+| Servidor `:3000` | ❌ no responde; no hay servidor del HEAD |
+| Preview `:3230` / pública | `397039d212452b2950935d745cd8a1781040923e`; no es la final |
+| Evidencia atada al HEAD | ❌ pendiente: no hay `latest.json`/`latest-static.json`; `full` no corrido contra el HEAD (base `fabe7cc` + docs) |
+| E2E adversario | ✅ 28/28 contra build `2a1f166`; artefacto local, sin `gitAtStart` |
+| E2E cognitivos | conteos declarados sobre `2a1f166`: payment 35/35 (sin JSON), closing 18/18, sin-ia 21/21, preferences 26/26 (`dirty:true`) |
+| Video | histórico: 39.8 s, 1,704,744 B, UI vieja, $570; regrabar con $550 |
+| Ensayo del guion | ✅ 3/3 corridas, 19/19 pasos, ~8.1 s (master `75179c7`, histórico) |
 | Pruebas humanas | 0/6–8; TalkBack/VoiceOver y teléfono físico pendientes |
 | Pago real | ❌ no hubo; BBVA/CoDi bloqueado; demo `demo_paid` |
-| Veredicto | **Cierre pendiente**; demo mode ejecutable, sin pago real |
+| Veredicto | **Cierre pendiente**; P0 corregidos, full y operación final pendientes |
 
 ## Última corrida conocida — no prueba el HEAD
 
-> Las cifras de esta tabla son la última corrida conocida del **2 nov 2026**. Los artefactos (mobile, checkout, motion, contraste, mobile-320, p0, rehearsal, tunnel, film) están ignorados y no están en este árbol. No son evidencia de `3fe1cc9` ni del servidor `665d72e`. Para el cierre: build desde HEAD, `verify:full` y `verify:evidence`. El ensayo se corrió en master `75179c7`, que **no está incluido en este worktree de docs**; el script de ensayo de la base `3fe1cc9` conserva el corte viejo, así que no se usa como evidencia aquí.
+> Las cifras de esta tabla son la última corrida conocida del **2 nov 2026** o conteos del script. Los artefactos (mobile, checkout, motion, contraste, mobile-320, p0, rehearsal, tunnel, film) están ignorados y no están en este árbol. **No son evidencia del HEAD (base `fabe7cc` + docs) ni del servidor `:3000`** (que no existe). Para el cierre: build desde HEAD, `verify:full` y `verify:evidence`. El ensayo se corrió en master `75179c7`, histórico; no se usa como evidencia del HEAD.
 
 | Check | Resultado | Evidencia |
 |---|---|---|
 | Build de producción | 🟡 última corrida conocida: limpio y con `BUILD_SHA` | `npm run build` |
-| Servidor de producción | ⚠️ `665d72e` en `:3000`; no coincide con HEAD `3fe1cc9` | `/api/health` devuelve `buildSha` |
+| Servidor de producción | ❌ `:3000` no responde; no hay servidor del HEAD (base `fabe7cc` + docs) | `/api/health` devuelve `buildSha` |
 | UI nueva “Mostrador claro” | ✅ F3 aprobado por verificación independiente | `VERIFICACION-F3-FINAL-5.md` |
-| Preflight de demo | 🟡 18/18, última corrida conocida (2 nov 2026); correr tras el reset | `node scripts/preflight.mjs` |
+| Preflight de demo | ❌ no ejecutable hoy: falta `APP_URL` en `.env.local` y `mobile-audit.json`, `checkout-audit.json`, `tunnel-smoke.json`; la última corrida conocida fue 18/18 | `node scripts/preflight.mjs` |
 | Webhook firmado | 🟡 40/40, última corrida conocida (2 nov 2026) | `scripts/webhook-contract.mjs` |
 | Verdad del comprobante | 🟡 demo nunca verificado, última corrida conocida | `scripts/verify-truth.mjs` |
 | Auditoría HIG | 🟡 5 viewports (320/360/390/768/1280), axe 0, WCAG 2.2 AA, targets 48 px, 200% — última corrida conocida | `scripts/hig-after-audit.py` |
@@ -45,6 +52,7 @@
 | P0 corte no destructivo | 🟡 69 PASS · 0 FAIL · 0 KNOWN — última corrida conocida | `scripts/p0-corte-e2e.py` |
 | P0 integración | 🟡 51 PASS · 0 FAIL · 0 KNOWN — última corrida conocida | `scripts/p0-integracion-e2e.py` |
 | P0 dinero | 🟡 45 PASS · 0 FAIL · 3 KNOWN — el JSON del árbol es de `2ee1e81`, árbol sucio; no prueba HEAD | `harness/evidence/p0-dinero-e2e.json` |
+| P0 adversario (reset/caché/demo/verify/totales) | ✅ 28/28 contra build `2a1f166`; sin `gitAtStart` ni `dirty` | `mercado-cero-rehearsal/harness/evidence/p0-adversarial-e2e.json` |
 | P0 shell (carril aparte) | 🟡 68 PASS · 0 FAIL; HIG/axe 0 — última corrida conocida | `scripts/p0-shell-e2e.py` |
 | Datos | 🟡 85 checks (58+20+7), `DATOS OK` — última corrida conocida | `npm run test:fix-datos` |
 | Cobros pendientes / tareas | 🟡 franja, fechas, refresh, polling y quinto tab — última corrida conocida | `scripts/p0-integracion-e2e.py` |
@@ -52,16 +60,16 @@
 | Voz del abono de $50 | 🟡 Kokoro `em_santa`, dice “50 pesos”, 0 `speechSynthesis` — última corrida conocida | `VOZ-50-KOKORO.md` |
 | Movimiento | 🟡 19/19 PASS · 0 FAIL; tabs/hojas/listas 140–300 ms, barrido ASLI, scroll trigger, reduced-motion — última corrida conocida | `MOTION.md` + `demo/stageshow/tab-wipe.mp4` |
 | Reel de transiciones | 🟡 5.5 s, tabs + hoja de verificación — última corrida conocida | `demo/stageshow/tab-wipe.mp4` + `tab-wipe-sheet.png` |
-| Harness static | 🟡 5/5 última corrida conocida; `latest.json` es local y no está en el árbol | `harness/evidence/latest.json` |
+| Harness static | 🟡 5/5 última corrida conocida; `latest.json`/`latest-static.json` **no existen** en este worktree | `harness/evidence/latest.json` |
 | Harness full | ❌ no ejecutado contra HEAD; el catálogo actual es 25 gates y `full` son 23 (24 con film) | `harness/STATE.md` |
 | Alto contraste | 🟡 7/7 PASS · 0 FAIL; axe 0, foco 3 px negro y 360 px sin overflow — última corrida conocida | `harness/evidence/a11y-contrast.json` (generado, ignorado) |
 | Dirección visual | ✅ papel editorial, Manrope/Fraunces, doble marco, dos columnas desde 1280 | `HIG-DESIGN.md` §16 + `MOTION.md` |
 | Video | ⚠️ **histórico**: 39.8 s, 1,704,744 B, UI vieja, muestra $570; regrabar tras el rediseño. No es respaldo actual | `demo/mercado-cero-demo.mp4` |
 | Film check Stageshow | 🟡 8 beats + contact sheet + motion sheet — última corrida conocida; los sheets se generan y no se versionan | `demo/stageshow/` |
-| QR imprimible | 🟡 PNG + SVG + HTML + PDF con la URL vigente al 2 nov 2026 en `qr-demo.html`; verificar antes de imprimir y regenerar si cambia el túnel | `demo/qr-demo.*` |
+| QR imprimible | ❌ el HTML apunta a `timing-brought-lamp-aberdeen...`, que **no resuelve**; no imprimir. Regenerar con el túnel final | `demo/qr-demo.*` |
 | Voz del demo | ✅ Kokoro `em_santa` para frases fijas + Piper es-MX dinámico | `web/public/tts/` |
 | Accesibilidad | 🟡 texto grande, alto contraste, voz lenta, leer pantalla implementados; falta validación con personas y lectores | `verify-a11y` |
-| Runbook | 🟡 corregido en `p0/fix-demo-docs`; no probado en vivo | `RUNBOOK-DEMO.md` |
+| Runbook | 🟡 actualizado 2 nov 2026; no probado en vivo | `RUNBOOK-DEMO.md` |
 | Prueba de usuario | ❌ 0/6–8 ejecutadas; protocolo disponible | `TEST-USUARIO.md` |
 | Guion narrado | 🟡 311 palabras + versión de 60 s; ensayo 3/3, 19/19, ~8.1 s | `GUION-3-MIN.md` |
 
@@ -70,11 +78,11 @@
 - Probar en un **teléfono físico** de 320/360 px; las auditorías actuales son Playwright.
 - Prueba con **6–8 comerciantes** siguiendo `TEST-USUARIO.md`: **0/6–8 ejecutadas**.
 - Faltan pruebas reales con **TalkBack/VoiceOver** en teléfono físico; la evidencia actual es Playwright + axe.
-- El túnel actual es un **quick tunnel efímero**; si cambia, hay que regenerar `APP_URL`, QR y PDF.
+- El túnel vivo es un **quick tunnel efímero** y sirve la preview `397039d`, no la final. El túnel `timing...` del QR está muerto; hay que regenerar `APP_URL`, QR y PDF con el servidor final.
 - La voz dinámica usa Piper es-MX; la primera frase puede tardar ~3 s si carga el modelo. Las frases fijas usan Kokoro `em_santa`.
 - P0-D quedó verde (69/0), pero la migración está pensada para un solo proceso `next start`; si el despliegue es multi-proceso, mover la lectura del esquema dentro del lock. El 200 % es inyección de `font-size`, no zoom real.
-- **Harness full pendiente:** el catálogo actual es 25 gates; `full` son 23 (24 con film) y no se corrió contra `3fe1cc9`. Requiere servidor **construido desde HEAD** (`buildSha === gitAtStart.sha`) y túnel vivo.
-- **Evidencia no atada al HEAD:** el servidor `:3000` es `665d72e`; `harness/evidence/latest.json` es local y no está en el árbol. La corrida de cierre sigue pendiente.
+- **Harness full pendiente:** el catálogo actual es 25 gates; `full` son 23 (24 con film) y no se corrió contra el HEAD (base `fabe7cc` + docs). Requiere servidor **construido desde HEAD** (`buildSha === gitAtStart.sha`) y túnel vivo.
+- **Evidencia no atada al HEAD:** `:3000` no responde; el build conocido es `2a1f166`; `latest.json`/`latest-static.json` no existen en este worktree. La corrida de cierre sigue pendiente.
 - Los artefactos de auditoría (mobile, checkout, motion, contraste, mobile-320, p0, rehearsal, tunnel, film) están ignorados por git y se regeneran con sus scripts; el QR y el video sí son entregables versionados. El MP4 es histórico y se regrabará.
 
 ## Rojo
@@ -85,14 +93,14 @@
 
 ## Cómo arrancar (orden operativo)
 
-1. **Limpieza:** conservar solo el servidor de demo en `:3000` y `cloudflared` **PID 13932**; detener `:3125`, `:3195`, `:3211`, `:3220`, `:3230` y el túnel del `:3230`. **No ejecutar esta limpieza desde el carril de docs.**
+1. **Limpieza:** conservar el servidor de demo en `:3000` cuando exista y la preview `:3230` (sirve `397039d`; **no la detengas** si vas a mostrar el link/QR actual). El `cloudflared` PID 13932 apunta a `:3000` (caído), no a la preview; no lo uses como túnel vigente. Detener solo servidores de gates/carriles que no estés usando. **No ejecutar esta limpieza desde el carril de docs.**
 2. `cd web`
 3. `npm run build`
 4. `next start -H 127.0.0.1` (o `npm start -- -H 127.0.0.1`) en `:3000`.
 5. Reiniciar demo: `POST /api/demo/reset` o el botón del header.
-6. `node scripts/preflight.mjs` **después** del reset.
+6. `node scripts/preflight.mjs` **después** del reset, con `APP_URL` en `.env.local` y los artefactos mobile/checkout/túnel generados.
 
-Abrir `http://localhost:3000`. En `.env.local`, `DEMO_MODE=true`. El build sella `BUILD_SHA`; `/api/health` lo devuelve. Para verificar que el servidor es de este commit:
+Abrir `http://localhost:3000`. En `.env.local`, `DEMO_MODE=true` y `APP_URL=https://<túnel-vivo>` (el preflight lee `APP_URL` de ese archivo, no de `$env:APP_URL`). El build sella `BUILD_SHA`; `/api/health` lo devuelve. Para verificar que el servidor es de este commit:
 
 ```powershell
 Invoke-RestMethod http://localhost:3000/api/health

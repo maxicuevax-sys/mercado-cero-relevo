@@ -1,0 +1,652 @@
+{
+  "schema": "mercado-cero-supervision/1",
+  "generatedAt": "2026-11-02T21:38:24-06:00",
+  "baseSha": "b7154caaa2185b2cafb44a02a6bf5f8b69bef045",
+  "branch": "p0/supervisor",
+  "worktree": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero-supervisor",
+  "verdict": "NO_LISTO",
+  "verdictLabel": "NO LISTO / NO APTO PARA CIERRE",
+  "headline": "El handoff es honesto sobre lo pendiente, pero no es ejecutable tal cual y el estado no cumple su propia DoD: no hay build del HEAD, no hay latest full, verify:evidence falla, el túnel/QR de los docs está muerto y el preflight del handoff falla por APP_URL y artefactos ausentes.",
+  "summary": {
+    "claims": 49,
+    "verificado": 25,
+    "falso": 13,
+    "obsoleto": 5,
+    "noVerificado": 6
+  },
+  "git": {
+    "head": "b7154caaa2185b2cafb44a02a6bf5f8b69bef045",
+    "master": "d35c79136650f09597182cd24fde5d1078bc93fb",
+    "finalBranch": "p0/final-cognitive",
+    "finalWorktree": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero-rehearsal",
+    "masterIsAncestor": true,
+    "finalContainsMaster": true,
+    "masterContainsFinal": false,
+    "commitsMasterToFinal": 23,
+    "commitsFinalToMaster": 0,
+    "finalTreeClean": true,
+    "masterTreeClean": true,
+    "localBranches": 47,
+    "worktrees": 48,
+    "branchTipsAtFinal": [
+      "p0/final-cognitive",
+      "p0/adversarial",
+      "p0/context-recovery",
+      "p0/supervisor"
+    ],
+    "notMergedIntoFinal": [
+      "p0/cognitive-integration",
+      "p0/design-final",
+      "p0/fix-video",
+      "p0/perf-data"
+    ],
+    "cognitiveIntegrationIsAncestor": false,
+    "cognitiveIntegrationDiffVsFinal": "22 archivos, 205 inserciones, 3898 borrados netos"
+  },
+  "http": {
+    "local3000": {
+      "url": "http://127.0.0.1:3000/api/health",
+      "status": "connection_refused",
+      "buildSha": null
+    },
+    "preview3230": {
+      "url": "http://127.0.0.1:3230/api/health",
+      "status": 200,
+      "buildSha": "397039d212452b2950935d745cd8a1781040923e",
+      "process": "next start -p 3230 desde mercado-cero-design-structure"
+    },
+    "closing3302": {
+      "url": "http://127.0.0.1:3302/api/health",
+      "status": 200,
+      "buildSha": "e6f310739622b8905bd025875abfce7b04322380",
+      "note": "build de código app pre-final; no es el HEAD b7154ca"
+    },
+    "publicPreview": {
+      "url": "https://involve-picking-wellness-retreat.trycloudflare.com/api/health",
+      "status": 200,
+      "buildSha": "397039d212452b2950935d745cd8a1781040923e"
+    },
+    "documentedTunnel": {
+      "url": "https://timing-brought-lamp-aberdeen.trycloudflare.com/api/health",
+      "status": "dns_failure",
+      "buildSha": null
+    },
+    "checkout404": {
+      "preview3230": 200,
+      "closing3302": 200,
+      "expected": 404
+    }
+  },
+  "evidence": {
+    "latestInFinalWorktree": false,
+    "latestStaticInFinalWorktree": false,
+    "latestInMasterWorktree": true,
+    "latestInMaster": {
+      "path": "mercado-cero/harness/evidence/latest.json",
+      "mode": "static",
+      "ok": true,
+      "gitAtStartSha": "0c052c4c4351e7224abce20acf15c3ad545fabc6",
+      "dirty": false,
+      "note": "static guardado con nombre latest.json; no es full y no es del HEAD final"
+    },
+    "verifyEvidence": {
+      "exitCode": 1,
+      "error": "falta harness\\evidence\\latest-static.json"
+    },
+    "fastRun": {
+      "path": "mercado-cero-rehearsal/harness/evidence/runs/2026-11-03T02-54-12-125Z-fast.json",
+      "ok": true,
+      "mode": "fast",
+      "sha": "fe97c00d9d3703ee42cc9fcf56f2f053b7e4a0a2",
+      "dirty": false,
+      "gates": "3/3"
+    },
+    "e2e": {
+      "paymentTruth": {
+        "count": "35/35 declarado",
+        "artifact": "solo screenshots en %TEMP%\\opencode\\verdad-pago; sin JSON",
+        "status": "NO VERIFICADO"
+      },
+      "sinIa": {
+        "count": "21 pass / 0 fail / 1 note",
+        "artifact": "%TEMP%\\opencode\\sin-ia\\sin-ia-e2e.json",
+        "hasSha": false,
+        "status": "VERIFICADO solo el conteo"
+      },
+      "closingChecklist": {
+        "count": "18/18",
+        "artifact": "%TEMP%\\opencode\\cierre-cognitivo\\closing-checklist-e2e.json",
+        "hasSha": false,
+        "status": "VERIFICADO solo el conteo"
+      },
+      "companionPreferences": {
+        "count": "26/26",
+        "artifact": "harness/evidence/companion-preferences-e2e.json",
+        "sha": "e6f310739622b8905bd025875abfce7b04322380",
+        "dirty": true,
+        "status": "conteo VERIFICADO; evidencia NO válida para cierre"
+      }
+    },
+    "fullCatalog": {
+      "totalGates": 25,
+      "fullGates": 23,
+      "fullWithFilm": 24,
+      "cognitiveE2eInCatalog": false
+    }
+  },
+  "claims": [
+    {
+      "id": "G1",
+      "area": "git",
+      "claim": "La rama final es p0/final-cognitive en el worktree mercado-cero-rehearsal y apunta a b7154ca.",
+      "status": "VERIFICADO",
+      "evidence": "git worktree list: mercado-cero-rehearsal [p0/final-cognitive]; git rev-parse p0/final-cognitive = b7154caaa2185b2cafb44a02a6bf5f8b69bef045. HANDOFF-CIERRE.md:14.",
+      "correction": "Sin cambio."
+    },
+    {
+      "id": "G2",
+      "area": "git",
+      "claim": "p0/final-cognitive contiene master b5c59e1.",
+      "status": "OBSOLETO",
+      "evidence": "master actual = d35c791; b5c59e1 es ancestro de d35c791 (merge-base --is-ancestor exit 0). HANDOFF-CIERRE.md:15.",
+      "correction": "Sustituir b5c59e1 por d35c791; aclarar que el merge ya incorporó 23 commits de master."
+    },
+    {
+      "id": "G3",
+      "area": "git",
+      "claim": "master es ancestro de p0/final-cognitive y el avance puede ser fast-forward.",
+      "status": "VERIFICADO",
+      "evidence": "git merge-base --is-ancestor master p0/final-cognitive exit 0; rev-list --count p0/final-cognitive..master = 0; master..p0/final-cognitive = 23; master worktree limpio.",
+      "correction": "Ejecutar el ff-only; aún no ejecutado."
+    },
+    {
+      "id": "G4",
+      "area": "git",
+      "claim": "El único conflicto del merge fue web/package.json y se resolvió conservando scripts.",
+      "status": "NO VERIFICADO",
+      "evidence": "No hay artefacto del merge; web/package.json sí contiene test:payment-labels, test:fix-datos, p0-demo-real-contract y test:demo-real. HANDOFF-CIERRE.md:16-18.",
+      "correction": "No afirmar 'único conflicto' sin el registro del merge; documentar la resolución o borrar la afirmación."
+    },
+    {
+      "id": "G5",
+      "area": "git",
+      "claim": "El árbol de p0/final-cognitive está limpio.",
+      "status": "VERIFICADO",
+      "evidence": "git -C ../mercado-cero-rehearsal status --porcelain=v1 vacío; rama p0/final-cognitive.",
+      "correction": "Sin cambio."
+    },
+    {
+      "id": "G6",
+      "area": "git",
+      "claim": "p0/sin-ia, p0/cierre-cognitivo, p0/preferencias y p0/verdad-pago están dentro de p0/final-cognitive.",
+      "status": "VERIFICADO",
+      "evidence": "git merge-base --is-ancestor <rama> p0/final-cognitive exit 0 para las cuatro. HANDOFF-CIERRE.md:124-125.",
+      "correction": "Sin cambio."
+    },
+    {
+      "id": "G7",
+      "area": "git",
+      "claim": "p0/cognitive-integration está obsoleta y no debe mergearse.",
+      "status": "VERIFICADO",
+      "evidence": "No es ancestro de final (merge-base --is-ancestor exit 1); git diff --stat final..cognitive-integration = 22 archivos, 205 inserciones y 3898 borrados netos. HANDOFF-CIERRE.md:122-123.",
+      "correction": "Archivar la rama; no mergear."
+    },
+    {
+      "id": "G8",
+      "area": "git",
+      "claim": "master ya contiene p0/final-cognitive (DoD 1).",
+      "status": "FALSO",
+      "evidence": "master = d35c791; final = b7154ca; git merge-base --is-ancestor p0/final-cognitive master exit 1. HANDOFF-CIERRE.md:158.",
+      "correction": "Hacer el ff-only y volver a verificar; hoy no se cumple."
+    },
+    {
+      "id": "B1",
+      "area": "build",
+      "claim": "Build PASS sobre el código de app e6f3107.",
+      "status": "VERIFICADO",
+      "evidence": "../mercado-cero-rehearsal/web/.next/BUILD_SHA = e6f3107..., builtAt 2026-11-03T02:49:21Z; GET :3302/api/health -> buildSha e6f3107. HANDOFF-CIERRE.md:19-20.",
+      "correction": "Etiquetarlo como build pre-final; no vale como build del HEAD final."
+    },
+    {
+      "id": "B2",
+      "area": "preview",
+      "claim": "La preview actual es :3230 con build 397039d y DB %TEMP%\\opencode\\cognitive-final-preview.db.",
+      "status": "VERIFICADO",
+      "evidence": "GET :3230/api/health -> 397039d; proceso next start :3230 desde mercado-cero-design-structure; archivo DB existe; GET https://involve-picking-wellness-retreat.trycloudflare.com/api/health -> 397039d. HANDOFF-CIERRE.md:27-29.",
+      "correction": "Sin cambio; no presentarla como final."
+    },
+    {
+      "id": "B3",
+      "area": "preview",
+      "claim": "La preview no es el build final.",
+      "status": "VERIFICADO",
+      "evidence": "Preview buildSha 397039d; HEAD final b7154ca; :3302 build e6f3107. HANDOFF-CIERRE.md:120-121.",
+      "correction": "Sin cambio."
+    },
+    {
+      "id": "B4",
+      "area": "preview",
+      "claim": "La preview tiene dos pendientes de ejemplo y un cobro pendiente de fixtures.",
+      "status": "VERIFICADO",
+      "evidence": "GET :3230/api/tasks -> total 2; GET :3230/api/dashboard -> pendingOrders.total 1 (demo_hist_pending_ord...), summary 190/70/120/50. HANDOFF-CIERRE.md:30.",
+      "correction": "Sin cambio."
+    },
+    {
+      "id": "B5",
+      "area": "build",
+      "claim": "Hay servidor final en :3000 desde HEAD y /api/health devuelve el SHA final.",
+      "status": "FALSO",
+      "evidence": "GET http://127.0.0.1:3000/api/health -> conexión rechazada; no hay .next/BUILD_SHA en el worktree supervisor; :3302 devuelve e6f3107, no b7154ca. HANDOFF-CIERRE.md:36,159.",
+      "correction": "Construir desde el HEAD exacto, arrancar :3000 y verificar buildSha === HEAD."
+    },
+    {
+      "id": "B6",
+      "area": "preview",
+      "claim": "La preview pública sigue viva en involve-picking-wellness-retreat.trycloudflare.com.",
+      "status": "VERIFICADO",
+      "evidence": "GET https://involve-picking-wellness-retreat.trycloudflare.com/api/health -> HTTP 200, buildSha 397039d (uptime ~4950 s).",
+      "correction": "Sin cambio; es quick tunnel efímero."
+    },
+    {
+      "id": "B7",
+      "area": "docs",
+      "claim": "El túnel timing-brought-lamp-aberdeen.trycloudflare.com de STATUS/RUNBOOK/STATE/QR sigue vigente.",
+      "status": "FALSO",
+      "evidence": "GET https://timing-brought-lamp-aberdeen.trycloudflare.com/api/health -> DNS no resuelve; demo/qr-demo.html contiene esa URL; GET involve... -> 200. demo/STATUS.md:9, RUNBOOK-DEMO.md:5, harness/STATE.md:12.",
+      "correction": "Cambiar a involve... y regenerar QR/PDF; no imprimir el QR actual."
+    },
+    {
+      "id": "C1",
+      "area": "evidence",
+      "claim": "harness/evidence/latest.json existe y es viejo (no del HEAD final).",
+      "status": "VERIFICADO",
+      "evidence": "En mercado-cero (master) existe latest.json: mode static, sha 0c052c4, dirty false, 15:36 local; en mercado-cero-rehearsal no existe latest.json ni latest-static.json. HANDOFF-CIERRE.md:118-119.",
+      "correction": "No copiarlo; generar full nuevo en el worktree final. Renombrar el static viejo a latest-static.json o borrarlo."
+    },
+    {
+      "id": "C2",
+      "area": "evidence",
+      "claim": "npm run verify:evidence PASS contra el HEAD final.",
+      "status": "FALSO",
+      "evidence": "node scripts/verify-evidence.mjs (desde web) exit 1: 'falta harness\\evidence\\latest-static.json'; no hay latest.json/latest-static.json en el worktree final. HANDOFF-CIERRE.md:161.",
+      "correction": "Correr full + verify:evidence después del build final; hoy no se cumple."
+    },
+    {
+      "id": "C3",
+      "area": "evidence",
+      "claim": "npm run verify:full -> 23/23, ok:true, dirty:false.",
+      "status": "NO VERIFICADO",
+      "evidence": "No hay latest.json full; en rehearsal solo runs fast 3/3 (02:52-02:54Z). HANDOFF-CIERRE.md:160.",
+      "correction": "Ejecutar full sobre :3000 construido desde HEAD y túnel vivo."
+    },
+    {
+      "id": "C4",
+      "area": "evidence",
+      "claim": "payment-truth-e2e.py -> 35/35 PASS.",
+      "status": "NO VERIFICADO",
+      "evidence": "El script solo imprime resultados y guarda screenshots en %TEMP%\\opencode\\verdad-pago; no hay JSON versionado ni log. HANDOFF-CIERRE.md:22.",
+      "correction": "Guardar stdout/JSON con SHA y buildSha; repetir en final."
+    },
+    {
+      "id": "C5",
+      "area": "evidence",
+      "claim": "sin-ia-e2e.py -> 21/21 PASS + 1 NOTE.",
+      "status": "VERIFICADO",
+      "evidence": "%TEMP%\\opencode\\sin-ia\\sin-ia-e2e.json: ok true, passed 21, failed 0, notes 1, base :3303, generatedAt 2026-11-03T02:50:18Z; no incluye SHA.",
+      "correction": "Conservar el JSON y añadir SHA/buildSha; no está atado al HEAD final."
+    },
+    {
+      "id": "C6",
+      "area": "evidence",
+      "claim": "closing-checklist-e2e.py -> 18/18 PASS.",
+      "status": "VERIFICADO",
+      "evidence": "%TEMP%\\opencode\\cierre-cognitivo\\closing-checklist-e2e.json: results 18, pass 18, baseUrl :3302, escrito 20:51:42; sin SHA.",
+      "correction": "Añadir SHA/buildSha al JSON; repetir sobre el build final."
+    },
+    {
+      "id": "C7",
+      "area": "evidence",
+      "claim": "companion-preferences-e2e.py -> 26/26 PASS.",
+      "status": "VERIFICADO",
+      "evidence": "harness/evidence/companion-preferences-e2e.json: pass 26, fail 0 (líneas 13-14); base :3305.",
+      "correction": "Sin cambio en el conteo."
+    },
+    {
+      "id": "C8",
+      "area": "evidence",
+      "claim": "La evidencia de companion-preferences es válida para el cierre.",
+      "status": "FALSO",
+      "evidence": "Mismo JSON: gitAtStart.sha e6f3107, dirty:true (líneas 8-10); HARNESS exige dirty:false y SHA del HEAD. HARNESS.md:205.",
+      "correction": "Reejecutar con árbol limpio sobre el HEAD final y dirty:false."
+    },
+    {
+      "id": "C9",
+      "area": "evidence",
+      "claim": "npm run verify:fast -> 3/3 PASS con árbol limpio en fe97c00.",
+      "status": "VERIFICADO",
+      "evidence": "mercado-cero-rehearsal/harness/evidence/runs/2026-11-03T02-54-12-125Z-fast.json: ok true, mode fast, sha fe97c00, dirty false, 3/3.",
+      "correction": "Sin cambio; repetir tras el commit final."
+    },
+    {
+      "id": "C10",
+      "area": "evidence",
+      "claim": "Los cuatro E2E cognitivos están atados al HEAD final.",
+      "status": "FALSO",
+      "evidence": "Solo companion tiene JSON (dirty e6f3107); sin-ia/closing están en %TEMP% sin SHA; payment-truth no tiene JSON. El catálogo full no los incluye. HARNESS.md:108.",
+      "correction": "Reejecutar los cuatro sobre el build final y persistir JSON con SHA/buildSha."
+    },
+    {
+      "id": "C11",
+      "area": "evidence",
+      "claim": "verify:full 23/23 cubre los E2E cognitivos.",
+      "status": "FALSO",
+      "evidence": "node scripts/harness-gate.mjs --list: 25 gates; full 23; no aparecen payment-truth, sin-ia, closing-checklist ni companion-preferences.",
+      "correction": "No inferir los E2E del full; correrlos aparte y anexar evidencia."
+    },
+    {
+      "id": "C12",
+      "area": "harness",
+      "claim": "El catálogo actual es 25 gates; full 23 (24 con film).",
+      "status": "VERIFICADO",
+      "evidence": "node scripts/harness-gate.mjs --list -> 'Catálogo total: 25 gates'; full 23; HARNESS.md:108,204.",
+      "correction": "Sin cambio."
+    },
+    {
+      "id": "D1",
+      "area": "commands",
+      "claim": "node scripts/preflight.mjs existe y la ruta del handoff es correcta (desde web).",
+      "status": "VERIFICADO",
+      "evidence": "web/scripts/preflight.mjs existe; web/package.json no tiene script preflight; d35c791 corrigió 'npm run preflight' a 'node scripts/preflight.mjs'.",
+      "correction": "Mantener; asegurar cwd web."
+    },
+    {
+      "id": "D2",
+      "area": "commands",
+      "claim": "El preflight del handoff da 18/18 con $env:APP_URL y el reset.",
+      "status": "FALSO",
+      "evidence": "preflight.mjs:40 usa solo env de .env.local (env.APP_URL), no process.env.APP_URL; ejecución con BASE_URL=:3302 y APP_URL=involve -> falla 'APP_URL es HTTPS' y 'QR apunta al túnel actual'; además faltan mobile-audit.json, checkout-audit.json y tunnel-smoke.json -> 6/18. HANDOFF-CIERRE.md:64-76.",
+      "correction": "Poner APP_URL en web/.env.local (y DEMO_MODE=true) o cambiar preflight a process.env.APP_URL; generar los 3 artefactos antes del preflight."
+    },
+    {
+      "id": "D3",
+      "area": "commands",
+      "claim": "closing-checklist-e2e.py exige :3302 y se niega a :3000/:3230.",
+      "status": "VERIFICADO",
+      "evidence": "web/scripts/closing-checklist-e2e.py:162 default :3302; :168-170 rechaza 3000/3230; listener :3302 PID 20460 build e6f3107.",
+      "correction": "Reusar el servidor existente o detenerlo antes de lanzar otro; no duplicar :3302."
+    },
+    {
+      "id": "D4",
+      "area": "video",
+      "claim": "Los scripts de video viven en p0/fix-video (c395e3e): record-demo.py, film-check.py, demo_ui.py.",
+      "status": "VERIFICADO",
+      "evidence": "git log -1 p0/fix-video = c395e3e; git cat-file -e p0/fix-video:web/scripts/demo_ui.py exit 0; versiones de record/film difieren del HEAD (879/465 líneas de diff). HANDOFF-CIERRE.md:106-107.",
+      "correction": "Integrar/cherry-pick esos scripts al carril final antes del build; no grabar desde una rama no incluida."
+    },
+    {
+      "id": "D5",
+      "area": "video",
+      "claim": "Se puede grabar desde el HEAD final usando DEMO_BASE_URL.",
+      "status": "FALSO",
+      "evidence": "web/scripts/record-demo.py:25 hardcodea BASE='http://localhost:3000' y no lee DEMO_BASE_URL; web/scripts/film-check.py:33 usa BASE_URL, no DEMO_BASE_URL; demo_ui.py no existe en HEAD. Solo la versión de p0/fix-video soporta DEMO_BASE_URL.",
+      "correction": "Cherry-pick c395e3e o copiar los tres scripts, commitear, rebuild y recién grabar."
+    },
+    {
+      "id": "D6",
+      "area": "video",
+      "claim": "El MP4 actual es histórico: 39.8 s, 1,704,744 B, 1280x800, UI vieja, $570.",
+      "status": "VERIFICADO",
+      "evidence": "ffprobe: duration 39.76 s, size 1,704,744 B, 1280x800, h264; frame a 26 s muestra 'Debería haber $570.00'. HANDOFF-CIERRE.md:112-113.",
+      "correction": "No presentarlo como final; regrabar con $550."
+    },
+    {
+      "id": "D7",
+      "area": "known-issue",
+      "claim": "El checkout inexistente responde HTTP 200 (no 404).",
+      "status": "VERIFICADO",
+      "evidence": "GET :3230/pay/no-existe-xyz -> HTTP 200; GET :3302/pay/no-existe-xyz -> HTTP 200; body 19553 B. HANDOFF-CIERRE.md:128.",
+      "correction": "Corregir el status o listarlo como P0 conocido; no declarar 'sin P0/P1'."
+    },
+    {
+      "id": "D8",
+      "area": "known-issue",
+      "claim": "No hay regla @media (forced-colors: active).",
+      "status": "VERIFICADO",
+      "evidence": "0 coincidencias en todo web/src (*.css, *.tsx, *.ts). HANDOFF-CIERRE.md:129.",
+      "correction": "Implementar o mantener como P1 conocido."
+    },
+    {
+      "id": "D9",
+      "area": "known-issue",
+      "claim": "A 320 px/200 % Fiar/Cobrar quedan bajo el pliegue.",
+      "status": "NO VERIFICADO",
+      "evidence": "Requiere navegador/zoom real; no se ejecutó computer use en este carril. HANDOFF-CIERRE.md:130.",
+      "correction": "Verificar con Playwright/computer use antes de afirmarlo."
+    },
+    {
+      "id": "D10",
+      "area": "security",
+      "claim": "No hay auth de sesión ni offline real.",
+      "status": "VERIFICADO",
+      "evidence": "0 auth/middleware/rutas de sesión en web/src; 0 service workers en web (sin node_modules/.next); docs lo declaran (GOAL-CIERRE-DEMO.md:104, README.md:80).",
+      "correction": "Sin cambio; no prometer auth/offline."
+    },
+    {
+      "id": "D11",
+      "area": "security",
+      "claim": "El pago real de $0.01 está bloqueado por BBVA/CoDi.",
+      "status": "NO VERIFICADO",
+      "evidence": "Es una condición externa; no hay acceso al portal/banco en este carril. Docs consistentes (demo/STATUS.md:82, RUNBOOK-DEMO.md:3).",
+      "correction": "No afirmar el estado bancario sin fuente del operador; mantener 'no ejecutado'."
+    },
+    {
+      "id": "D12",
+      "area": "dod",
+      "claim": "Computer use final sin P0/P1 (DoD).",
+      "status": "FALSO",
+      "evidence": "El propio handoff lista 404 HTTP 200, forced-colors ausente y 320/200% bajo el pliegue como no resueltos (HANDOFF-CIERRE.md:128-130), y el DoD pide 'sin P0/P1' (:165).",
+      "correction": "Corregir esos P0/P1 o cambiar el DoD a 'sin P0/P1 nuevos; conocidos listados'."
+    },
+    {
+      "id": "E1",
+      "area": "docs",
+      "claim": "GOAL-CIERRE-DEMO parte de master 71bc4ed y dice que falta integrar p0/design-structure.",
+      "status": "OBSOLETO",
+      "evidence": "master = d35c791; p0/design-structure es ancestro de final (exit 0); GOAL-CIERRE-DEMO.md:3-4.",
+      "correction": "Actualizar a d35c791/b7154ca y marcar design-structure integrado."
+    },
+    {
+      "id": "E2",
+      "area": "docs",
+      "claim": "El gate data son 123 checks.",
+      "status": "FALSO",
+      "evidence": "HARNESS.md:97 y demo/STATUS.md:49: 85 checks (58+20+7); GOAL-CIERRE-DEMO.md:21 dice 123.",
+      "correction": "Cambiar 123 por 85; verificar contra el gate antes de publicar."
+    },
+    {
+      "id": "E3",
+      "area": "docs",
+      "claim": "La preview a reapuntar es techno-committees...",
+      "status": "OBSOLETO",
+      "evidence": "La preview viva es involve-picking... (HTTP 200 397039d); timing... no resuelve. GOAL-CIERRE-DEMO.md:86.",
+      "correction": "Actualizar el link y no prometer 'mismo link' si el túnel es efímero."
+    },
+    {
+      "id": "E4",
+      "area": "docs",
+      "claim": "STATUS parte de 3fe1cc9 y el servidor :3000 es 665d72e.",
+      "status": "OBSOLETO",
+      "evidence": "HEAD b7154ca; :3000 no responde; :3230 397039d; :3302 e6f3107. demo/STATUS.md:3,15-16.",
+      "correction": "Actualizar SHA/servidor o marcar STATUS como histórico."
+    },
+    {
+      "id": "E5",
+      "area": "docs",
+      "claim": "El túnel vigente en STATUS/RUNBOOK/STATE es timing-brought-lamp-aberdeen.",
+      "status": "FALSO",
+      "evidence": "DNS no resuelve; QR lo usa; la preview viva es involve... demo/STATUS.md:9, RUNBOOK-DEMO.md:5, harness/STATE.md:12, demo/qr-demo.html.",
+      "correction": "Reemplazar por involve... y regenerar QR/PDF."
+    },
+    {
+      "id": "E6",
+      "area": "docs",
+      "claim": "Conservar PID 13932 y detener :3230 antes de la demo.",
+      "status": "FALSO",
+      "evidence": "PID 13932 es cloudflared -> localhost:3000 (servidor caído); la preview viva corre en :3230 (next PID 37272; túneles cloudflared PID 18952/32124) y es involve... demo/STATUS.md:88, RUNBOOK-DEMO.md:44-48.",
+      "correction": "No detener :3230 (next PID 37272) ni su túnel; reasignar/actualizar el PID 13932 y conservar la preview viva."
+    },
+    {
+      "id": "E7",
+      "area": "docs",
+      "claim": "AUDITORIA-CARGA-COGNITIVA es la auditoría actual con archivo:línea.",
+      "status": "OBSOLETO",
+      "evidence": "Audita 499a301 (:3, :30); HEAD b7154ca difiere en 36 archivos, +6262/-579 (git diff --stat 499a301 b7154ca -- web/src web/scripts). HANDOFF-CIERRE.md:145 la llama actual.",
+      "correction": "Etiquetarla como snapshot 499a301 o re-auditar HEAD; no citar líneas como actuales."
+    },
+    {
+      "id": "E8",
+      "area": "docs",
+      "claim": "README: F3 está desplegado en producción.",
+      "status": "NO VERIFICADO",
+      "evidence": "La única URL viva es un quick tunnel :3230 (397039d); no hay evidencia de deploy de producción. README.md:8.",
+      "correction": "Cambiar 'producción' por 'preview' o aportar evidencia del deploy."
+    },
+    {
+      "id": "E9",
+      "area": "security",
+      "claim": ".env.local no está trackeado y no hay secretos versionados.",
+      "status": "VERIFICADO",
+      "evidence": "git ls-tree -r HEAD solo muestra web/.env.example; git log --all -- web/.env.local = 0; web/.gitignore:34 ignora .env*.",
+      "correction": "Sin cambio; no leer .env.local."
+    },
+    {
+      "id": "E10",
+      "area": "docs",
+      "claim": "Los docs no prometen auth, offline ni pago real.",
+      "status": "VERIFICADO",
+      "evidence": "GOAL-CIERRE-DEMO.md:28,104; demo/STATUS.md:5,21-22,82; RUNBOOK-DEMO.md:3,6,85; README.md:80,88,178,212 declaran demo/no auth/no offline/no pago real.",
+      "correction": "Sin cambio; corregir solo el 'producción' de README.md:8."
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "P0",
+      "title": "No hay build, servidor ni evidencia del HEAD final",
+      "detail": ":3000 está caído; el único build es e6f3107 (anterior a b7154ca); no hay latest.json/latest-static.json en el worktree final; verify:evidence sale 1.",
+      "evidence": "GET :3000/api/health -> conexión rechazada; .next/BUILD_SHA en rehearsal = e6f3107; node scripts/verify-evidence.mjs exit 1."
+    },
+    {
+      "id": "F2",
+      "severity": "P0",
+      "title": "El preflight del handoff no puede dar 18/18",
+      "detail": "preflight.mjs lee APP_URL solo de .env.local, no de $env:APP_URL; además exige mobile-audit.json, checkout-audit.json y tunnel-smoke.json, ausentes en el árbol. La secuencia del handoff da 6/18 en la prueba hecha.",
+      "evidence": "web/scripts/preflight.mjs:40; ejecución con BASE_URL=:3302/APP_URL=involve -> 6 fallas; HANDOFF-CIERRE.md:64-76."
+    },
+    {
+      "id": "F3",
+      "severity": "P0",
+      "title": "Túnel/QR/documentos operativos muertos y limpieza peligrosa",
+      "detail": "El túnel timing... no resuelve y el QR apunta ahí; el PID 13932 que RUNBOOK manda conservar es el túnel de :3000 (caído); la preview viva es :3230 (next PID 37272) y RUNBOOK/STATUS mandan detenerla.",
+      "evidence": "GET timing... -> DNS failure; demo/qr-demo.html; cloudflared PID 13932 -> localhost:3000; :3230 next PID 37272, túneles 18952/32124; demo/STATUS.md:88; RUNBOOK-DEMO.md:44-48."
+    },
+    {
+      "id": "F4",
+      "severity": "P1",
+      "title": "El build SHA no coincide con el HEAD",
+      "detail": "e6f3107 vs b7154ca. El código de app es idéntico (git diff --name-only e6f3107 b7154ca -- web vacío), pero HARNESS exige serverBuildSha === gitAtStart.sha; la evidencia no es válida sin rebuild.",
+      "evidence": ".next/BUILD_SHA; GET :3302/api/health; HARNESS.md:136,205."
+    },
+    {
+      "id": "F5",
+      "severity": "P1",
+      "title": "Evidencia E2E no atada al HEAD",
+      "detail": "Solo companion tiene JSON y declara dirty:true/e6f3107; sin-ia y closing están en %TEMP% sin SHA; payment-truth no tiene JSON; el full 23/23 no incluye estos E2E.",
+      "evidence": "harness/evidence/companion-preferences-e2e.json:8-10; %TEMP%\\opencode\\sin-ia\\sin-ia-e2e.json; %TEMP%\\opencode\\cierre-cognitivo\\closing-checklist-e2e.json; harness-gate --list."
+    },
+    {
+      "id": "F6",
+      "severity": "P1",
+      "title": "El pipeline de video vive fuera del carril final",
+      "detail": "p0/fix-video no es ancestro de final; demo_ui.py no existe en HEAD; record-demo.py de HEAD hardcodea :3000 y film-check.py usa BASE_URL, no DEMO_BASE_URL. No hay MP4 final ni manifiesto.",
+      "evidence": "git merge-base --is-ancestor p0/fix-video final exit 1; web/scripts/record-demo.py:25; web/scripts/film-check.py:33; HANDOFF-CIERRE.md:106-113."
+    },
+    {
+      "id": "F7",
+      "severity": "P1",
+      "title": "Docs de estado obsoletos o contradictorios",
+      "detail": "STATUS sigue en 3fe1cc9/665d72e; GOAL en 71bc4ed, data 123 y preview techno; STATE en 3fe1cc9 y túnel muerto; AUDITORIA es de 499a301. El handoff las llama actuales o no las actualiza.",
+      "evidence": "demo/STATUS.md:3,15-16; GOAL-CIERRE-DEMO.md:3-4,21,86; harness/STATE.md:12,49-51; AUDITORIA-CARGA-COGNITIVA.md:3,30."
+    },
+    {
+      "id": "F8",
+      "severity": "P1",
+      "title": "El DoD 'sin P0/P1' contradice P0/P1 conocidos",
+      "detail": "El handoff admite 404 HTTP 200, forced-colors ausente y 320/200% bajo el pliegue; el DoD pide computer use sin P0/P1. No se puede firmar así.",
+      "evidence": "HANDOFF-CIERRE.md:128-130 y :165; GET /pay/no-existe-xyz -> 200; 0 reglas forced-colors."
+    },
+    {
+      "id": "F9",
+      "severity": "P2",
+      "title": "Higiene de git/worktrees",
+      "detail": "47 ramas y 48 worktrees; 4 punteros en b7154ca; 4 ramas no mergeadas (cognitive-integration, design-final, fix-video, perf-data); master 23 commits detrás.",
+      "evidence": "git branch/worktree list; git rev-list --count master..final = 23; git branch --no-merged final."
+    },
+    {
+      "id": "F10",
+      "severity": "P2",
+      "title": "Evidencia vieja mal nombrada y artefactos citados ausentes",
+      "detail": "latest.json del worktree master es mode static de 0c052c4, no un full; STATUS cita p0-dinero-e2e.json, mobile-audit.json, checkout-audit.json, tunnel-smoke.json y rehearsal.json que no están en el árbol. README afirma deploy de producción sin evidencia.",
+      "evidence": "mercado-cero/harness/evidence/latest.json; demo/STATUS.md:47,55-56; README.md:8."
+    }
+  ],
+  "urgentCorrections": [
+    {
+      "id": "U1",
+      "title": "Reconstruir desde el HEAD exacto y emitir evidencia",
+      "detail": "Commitear docs primero; hacer ff-only de master; build desde ese SHA; arrancar :3000; reset; verify:full; verify:evidence; no reutilizar e6f3107 ni 397039d."
+    },
+    {
+      "id": "U2",
+      "title": "Arreglar preflight y su orden",
+      "detail": "Poner APP_URL en web/.env.local o hacer que preflight lea process.env.APP_URL; generar mobile-audit.json, checkout-audit.json y tunnel-smoke.json antes del preflight; verificar 18/18 real."
+    },
+    {
+      "id": "U3",
+      "title": "Reemplazar túnel/QR y corregir la limpieza",
+      "detail": "Usar involve-picking-wellness-retreat.trycloudflare.com; regenerar QR/PDF; no matar :3230; PID 13932 es :3000, no la preview."
+    },
+    {
+      "id": "U4",
+      "title": "Integrar los scripts de video antes del build",
+      "detail": "Cherry-pick c395e3e (record-demo.py, film-check.py, demo_ui.py) al carril final, commitear, rebuild; grabar con DEMO_BASE_URL; verificar $550, Cuadra y manifiesto; commitear MP4/Stageshow definitivos."
+    },
+    {
+      "id": "U5",
+      "title": "Reejecutar E2E y persistir evidencia con SHA",
+      "detail": "Los cuatro E2E sobre el build final, con JSON que declare SHA/buildSha/dirty:false; companion debe dejar de estar dirty; actualizar docs (SHA/URL/data 85) y resolver o declarar los P0/P1 conocidos antes de 'sin P0/P1'."
+    }
+  ],
+  "limits": [
+    "No se ejecutó build ni npm ci ni verify:full en este carril; el worktree supervisor no tiene node_modules.",
+    "No se arrancaron ni detuvieron servidores; solo GETs de lectura a :3000, :3230, :3302 y a los túneles públicos.",
+    "No se tocó la app, :3000, :3230 ni la preview; el estado puede cambiar.",
+    "No se usó navegador/computer use; el punto 320 px/200% queda NO VERIFICADO.",
+    "No hay acceso a BBVA/CoDi ni a pruebas humanas/TalkBack/VoiceOver; esos puntos quedan NO VERIFICADOS.",
+    "No se leyó .env.local ni ningún secreto; solo se comprobó que no está trackeado.",
+    "La preview observada es 397039d, no el build final; toda conclusión sobre ella está limitada a ese build.",
+    "Se leyó el estado de otros worktrees solo con git status/Test-Path; no se modificaron.",
+    "El informe no puede auto-referenciar su commit; el hash del commit se reporta en la respuesta final."
+  ],
+  "hashes": {
+    "handoffSha256": "4402191FCCD7630BD591177ECD94FAFB5BC246D1A61C728AE358982CF149557C",
+    "statusSha256": "F4B0C968964E2B8DFC887A8DB2EFB9E644CC11FFDBB8E46069C627E63D01B420",
+    "runbookSha256": "D0F6C4692ADE87B79BBB71164A9D24A05FBB7B455C62D5725E53C5DD3BD4A378",
+    "stateSha256": "0D1E2D281C6E1C3B1F87EB22D3B016985041E2C8C5FAA4D29683639401B95F4E",
+    "companionEvidenceSha256": "A7A80C87ABBFF7737F17747F23267E221484EC08602BCE2684418497D494C44D",
+    "mp4Sha256": "C605F810D7B884C33A20C51110261B5B40F250B5E0268D52B24BD0A7A3403424",
+    "preflightSha256": "229531FC6B96466B184E7BDD67B479905D1C8EF787EA0A4943ECFE4B3BFB2BC2",
+    "recordDemoSha256": "68B9C2A75EA8C1BF559B57BA235C85D54BCFB8B3170967C88F99AEA50A828634",
+    "filmCheckSha256": "1A9EF1B1E3E142072FA0C0E27B7CB7A31170469834E0A08EE2F1F62596692F63"
+  }
+}
