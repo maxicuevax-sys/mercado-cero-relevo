@@ -491,7 +491,7 @@ export default function CheckoutPage({
                 {order.items.map((item) => (
                   <div key={item.id} className="receipt-item">
                     <span className="receipt-item__desc">
-                      <span className="tabular mr-1.5 text-ink-2">{item.quantity}×</span>
+                      <span className="tabular mr-1.5 text-ink-2">{item.quantity} × </span>
                       {item.description}
                     </span>
                     <span className="receipt-item__amount">

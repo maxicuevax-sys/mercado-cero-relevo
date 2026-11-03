@@ -239,18 +239,11 @@ function countText(count: number, singular: string, plural: string): string {
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
-/**
- * El saludo usa el nombre del negocio cuando se puede inferir con seguridad
- * ("Antojitos de Lupita" -> "Lupita"). Si no, saluda sin nombre: nunca inventa
- * una persona.
- */
 function greetingName(name?: string | null): string {
   if (!name) return "";
-  const cleaned = name.replace(/\s+/g, " ").trim();
-  if (!cleaned) return "";
-  const afterDe = cleaned.match(/\bde\s+([^,]+)$/i)?.[1];
-  const candidate = afterDe ?? cleaned.split(" ").at(-1) ?? "";
-  return candidate.replace(/[.,;:]+$/, "").split(" ")[0] ?? "";
+  const afterDe = name.match(/\bde\s+([^,]+)$/i)?.[1];
+  const candidate = afterDe ?? name.trim().split(/\s+/).at(-1) ?? "";
+  return candidate.replace(/[.,;:]+$/, "").split(/\s+/)[0] ?? "";
 }
 
 const dayKeyFormatter = new Intl.DateTimeFormat("es-MX", {
@@ -3085,7 +3078,7 @@ function CajaBook({
             </span>
             <p className="home-kpi__label">Ventas hoy</p>
             <p className="home-kpi__value">{summary ? formatMxn(sales) : "—"}</p>
-            <p className="mt-0.5 text-[0.6875rem] leading-tight text-ink-2">
+            <p className="mt-0.5 text-xs leading-tight text-ink-2">
               {demoMode ? "Registradas · demo" : "Registradas"}
             </p>
           </div>
@@ -3095,7 +3088,7 @@ function CajaBook({
             </span>
             <p className="home-kpi__label">Cobrado hoy</p>
             <p className="home-kpi__value">{summary ? formatMxn(confirmed) : "—"}</p>
-            <p className="mt-0.5 text-[0.6875rem] leading-tight text-ink-2">Efectivo + pey</p>
+            <p className="mt-0.5 text-xs leading-tight text-ink-2">Efectivo + pey</p>
           </div>
           <div className="home-kpi">
             <span className="home-kpi__icon bg-saffron-soft text-[#725012]" aria-hidden="true">
@@ -3103,7 +3096,7 @@ function CajaBook({
             </span>
             <p className="home-kpi__label">Por cobrar hoy</p>
             <p className="home-kpi__value">{summary ? formatMxn(pending) : "—"}</p>
-            <p className="mt-0.5 text-[0.6875rem] leading-tight text-ink-2">Aún no es dinero recibido</p>
+            <p className="mt-0.5 text-xs leading-tight text-ink-2">Aún no es dinero recibido</p>
           </div>
           <div className="home-kpi">
             <span className="home-kpi__icon bg-terracotta-soft text-attention" aria-hidden="true">
@@ -3111,7 +3104,7 @@ function CajaBook({
             </span>
             <p className="home-kpi__label">Fiado pendiente</p>
             <p className="home-kpi__value">{formatMxn(creditsBalanceCents)}</p>
-            <p className="mt-0.5 text-[0.6875rem] leading-tight text-ink-2">{countText(creditPeople, "persona", "personas")}</p>
+            <p className="mt-0.5 text-xs leading-tight text-ink-2">{countText(creditPeople, "persona", "personas")}</p>
           </div>
         </div>
 
@@ -3377,14 +3370,6 @@ function CajaPanel(props: {
               Habla, escribe o agrega a mano; tú confirmas.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onVoiceHelp}
-            className="flex min-h-[48px] shrink-0 items-center gap-1.5 px-2 text-sm font-semibold text-ink-2 transition hover:text-ink"
-          >
-            <Volume2 className="h-4 w-4" />
-            Escuchar
-          </button>
         </div>
 
         <div className="calc-display">
@@ -3481,9 +3466,20 @@ function CajaPanel(props: {
           </div>
 
           <div className="caja-entry caja-text-entry">
-            <label htmlFor="sale-text" className="text-sm font-bold text-ink-2">
-              Escribe la venta
-            </label>
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor="sale-text" className="text-sm font-bold text-ink-2">
+                Escribe la venta
+              </label>
+              <button
+                type="button"
+                onClick={onVoiceHelp}
+                aria-label="Escuchar ayuda de voz"
+                className="sale-listen flex min-h-12 min-w-12 shrink-0 items-center justify-center gap-1.5 px-2 text-sm font-semibold text-ink-2 transition hover:text-ink"
+              >
+                <Volume2 className="h-4 w-4" />
+                <span className="sale-listen-label hidden sm:inline">Escuchar</span>
+              </button>
+            </div>
             <div className="sale-line">
               <input
                 id="sale-text"
@@ -6072,6 +6068,14 @@ function GoalCard({
       setError("Escribe un monto mayor a cero.");
       return;
     }
+    if (goal.remainingCents <= 0) {
+      setError("Esta meta ya está completa.");
+      return;
+    }
+    if (amountCents > goal.remainingCents) {
+      setError(`Solo faltan ${formatMxn(goal.remainingCents)} para esta meta.`);
+      return;
+    }
     if (goalLockRef.current) return;
     goalLockRef.current = true;
     const note = "Aportación desde la caja";
@@ -6193,13 +6197,13 @@ function GoalCard({
           <button
             type="button"
             onClick={() => void contribute()}
-            disabled={saving || amount.trim() === ""}
+            disabled={saving || amount.trim() === "" || (goal?.remainingCents ?? 0) <= 0}
             aria-busy={saving}
             data-chrome-critical
             className="cta-primary on-accent flex min-h-12 w-full items-center justify-center gap-1.5 bg-accent px-3 text-sm font-semibold text-white transition hover:bg-accent-press disabled:opacity-60 sm:w-auto"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            Apartar
+            {goal && goal.remainingCents <= 0 ? "Meta alcanzada" : "Apartar"}
           </button>
         </div>
 
@@ -6229,8 +6233,8 @@ function GoalCard({
         ) : null}
 
         <p className="text-sm leading-relaxed text-ink-2">
-          Apartado declarado: no es una cuenta bancaria ni dinero custodiado. El efectivo sigue en tu
-          resguardo.
+          Apartado declarado: no es una cuenta bancaria ni dinero custodiado, y no genera
+          intereses ni rendimientos. El efectivo sigue en tu resguardo.
         </p>
       </div>
       </div>
@@ -6699,7 +6703,7 @@ function CreditList({
                 type="button"
                 onClick={() => onStart(credit)}
                 data-chrome-critical
-                className="mt-3 flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl border border-green/25 bg-surface text-sm font-semibold text-green transition hover:border-green/40 hover:bg-green-soft"
+                className="mt-3 flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl border border-control-border bg-surface text-sm font-semibold text-green transition hover:border-green/60 hover:bg-green-soft"
               >
                 <Banknote className="h-4 w-4" />
                 Registrar abono
@@ -6969,8 +6973,9 @@ function CreditPaySheet({
             </button>
           </div>
           <p className="text-sm leading-relaxed text-ink-2">
-            Se registra el monto aplicado, no el billete completo. Un abono reduce la deuda; no
-            crea una venta nueva ni cuenta como dinero cobrado hoy.
+            Se registra el monto aplicado, no el billete completo. Un abono reduce la deuda y no
+            crea una venta nueva. Si fue en efectivo, sí suma al efectivo de hoy; digital o
+            tarjeta quedan como abono declarado, sin verificación de pey.
           </p>
         </div>
         )
@@ -7933,7 +7938,7 @@ function HelpContent({
           src={botArt}
           alt=""
           aria-hidden="true"
-          className="h-16 w-auto shrink-0"
+          className="h-[64px] w-[64px] shrink-0 object-contain"
           sizes="110px"
         />
         <div className="min-w-0 flex-1">
@@ -7947,7 +7952,7 @@ function HelpContent({
           src={qrArt}
           alt=""
           aria-hidden="true"
-          className="hidden h-14 w-auto shrink-0 sm:block"
+          className="hidden h-[56px] w-[56px] shrink-0 object-contain sm:block"
           sizes="84px"
         />
       </div>
@@ -8157,6 +8162,12 @@ const MemoActivityList = memo(ActivityList);
 const MemoCreditList = memo(CreditList);
 const MemoPendingPayments = memo(PendingPayments);
 const MemoPendingTasksPanel = memo(PendingTasksPanel);
+
+
+
+
+
+
 
 
 

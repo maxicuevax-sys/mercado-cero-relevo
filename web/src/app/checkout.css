@@ -32,7 +32,7 @@
 .pay-shell dt,
 .pay-shell h1,
 .pay-shell h2 {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 @container (max-width: 20rem) {
@@ -112,6 +112,8 @@
 .receipt-stack {
   position: relative;
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   max-width: 480px;
   margin: 14px auto 0;
 }
@@ -144,6 +146,8 @@
 .receipt-paper {
   position: relative;
   z-index: 1;
+  min-width: 0;
+  box-sizing: border-box;
   border: 1.5px solid rgba(95, 87, 76, 0.4);
   border-radius: 1px;
   background-color: #fffaf0;
@@ -238,6 +242,7 @@
 }
 
 .receipt-body {
+  min-width: 0;
   padding: 12px 18px 16px;
 }
 
@@ -355,6 +360,7 @@
 .checkout-method__text {
   min-width: 0;
   flex: 1;
+  overflow-wrap: break-word;
 }
 
 .checkout-method__title {
@@ -373,6 +379,7 @@
   font-size: 0.75rem;
   line-height: 1.25;
   color: var(--color-ink-2);
+  overflow-wrap: break-word;
 }
 
 .pay-method-tag {
@@ -557,7 +564,7 @@
 .receipt-result__amount {
   margin-top: 8px;
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 2rem + 2vw, 3.3rem);
+  font-size: clamp(2.2rem, 1.8rem + 2vw, 3rem);
   line-height: 1.05;
   letter-spacing: -0.025em;
   font-variant-numeric: tabular-nums;
@@ -603,7 +610,7 @@
   font-weight: 700;
   color: var(--color-ink);
   text-align: right;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .result-actions {
@@ -733,4 +740,18 @@
   }
 }
 
+
+
+
+
+.pay-method-tag {
+  max-width: 100%;
+}
+
+@media (max-width: 480px) {
+  .pay-method-tag {
+    padding-inline: 4px;
+    letter-spacing: 0;
+  }
+}
 
