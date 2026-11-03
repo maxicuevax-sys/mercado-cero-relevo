@@ -242,6 +242,12 @@ async function main() {
   const reset = await request("/api/demo/reset", { method: "POST" });
   check("0. reset de demo", reset.status === 200, `status ${reset.status}`);
 
+  const initialDashboard = await request("/api/dashboard");
+  const demoMode = initialDashboard.body?.demoMode === true;
+  const paidStatus = demoMode ? "demo_paid" : "paid";
+  const verifiedBase = Number(initialDashboard.body?.summary?.verifiedDigitalCents ?? 0);
+  const demoDigitalBase = Number(initialDashboard.body?.summary?.demoDigitalCents ?? 0);
+
   // 1. Evento válido.
   const validOrder = await createOrderWithLink(1000);
   const validEvent = linkEvent(validOrder);
@@ -249,14 +255,13 @@ async function main() {
   validEvent.transactions[0].amount = 10.5;
   validEvent.transactions[0].amountBreakdown = { base: 10.0, tip: 0.5, fee: 0 };
   const validResponse = await sendEvent(validEvent);
-  check("1. link válido → 200", validResponse.status === 200, `status ${validResponse.status}`);
   check(
-    "1. respuesta processed",
-    validResponse.body?.result === "processed",
-    JSON.stringify(validResponse.body),
+    "1. link válido → 200 processed",
+    validResponse.status === 200 && validResponse.body?.result === "processed",
+    `status ${validResponse.status} ${JSON.stringify(validResponse.body)}`,
   );
   const validDetail = await getOrderDetail(validOrder.id);
-  check("1. orden pagada", validDetail.order.status === "paid", validDetail.order.status);
+  check("1. orden pagada", validDetail.order.status === paidStatus, validDetail.order.status);
   check(
     "1. base exacta (con propina en el evento)",
     validDetail.order.paidCents === 1000,
@@ -274,6 +279,38 @@ async function main() {
     JSON.stringify(validAudit),
   );
 
+  // 1b. El dashboard no debe presentar un evento firmado en demo como dinero
+  // verificado por pey.
+  const afterDashboard = await request("/api/dashboard");
+  const verifiedAfter = Number(afterDashboard.body?.summary?.verifiedDigitalCents ?? 0);
+  const demoDigitalAfter = Number(afterDashboard.body?.summary?.demoDigitalCents ?? 0);
+  check(
+    "1b. dashboard separa demo de verificado",
+    demoMode
+      ? verifiedAfter === verifiedBase && demoDigitalAfter >= demoDigitalBase + 1000
+      : verifiedAfter >= verifiedBase + 1000,
+    `demo=${demoDigitalAfter} verificado=${verifiedAfter} (base ${demoDigitalBase}/${verifiedBase})`,
+  );
+
+  // 1c. Un pago demo firmado no se puede entregar.
+  let fulfillStatus = 0;
+  let fulfillBody = null;
+  if (demoMode) {
+    const fulfill = await request(`/api/orders/${validOrder.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ action: "fulfill" }),
+    });
+    fulfillStatus = fulfill.status;
+    fulfillBody = fulfill.body;
+  }
+  check(
+    "1c. fulfill de pago demo → 409",
+    demoMode
+      ? fulfillStatus === 409 && fulfillBody?.code === "demo_not_deliverable"
+      : true,
+    demoMode ? `status ${fulfillStatus} ${JSON.stringify(fulfillBody)}` : "modo real: no aplica",
+  );
+
   // 2. Replay con el mismo webhook-id.
   const replayResponse = await sendEvent(validEvent, { id: validResponse.id });
   check(
@@ -289,7 +326,7 @@ async function main() {
   );
   check(
     "2. orden sigue pagada",
-    replayDetail.order.status === "paid" && replayDetail.order.paidCents === 1000,
+    replayDetail.order.status === paidStatus && replayDetail.order.paidCents === 1000,
     `${replayDetail.order.status} / ${replayDetail.order.paidCents}`,
   );
 
@@ -308,7 +345,7 @@ async function main() {
   const healedDetail = await getOrderDetail(validOrder.id);
   check(
     "2b. el replay cura paid_cents y estado",
-    healedDetail.order.status === "paid" && healedDetail.order.paidCents === 1000,
+    healedDetail.order.status === paidStatus && healedDetail.order.paidCents === 1000,
     `${healedDetail.order.status} / ${healedDetail.order.paidCents}`,
   );
 
@@ -324,7 +361,7 @@ async function main() {
   const badSignatureDetail = await getOrderDetail(badSignatureOrder.id);
   check(
     "3. firma falsa no marca pagado",
-    badSignatureDetail.order.status !== "paid" && badSignatureDetail.payments.length === 0,
+    badSignatureDetail.order.status !== paidStatus && badSignatureDetail.payments.length === 0,
     `${badSignatureDetail.order.status} / pagos=${badSignatureDetail.payments.length}`,
   );
   const badSignatureAudit = auditRow(`invalid:${badSignatureResponse.id}`);
@@ -347,7 +384,7 @@ async function main() {
   const wrongAmountDetail = await getOrderDetail(wrongAmountOrder.id);
   check(
     "4. monto distinto no marca pagado",
-    wrongAmountDetail.order.status !== "paid" &&
+    wrongAmountDetail.order.status !== paidStatus &&
       wrongAmountDetail.order.paidCents === 0 &&
       wrongAmountDetail.payments.length === 0,
     `${wrongAmountDetail.order.status} / ${wrongAmountDetail.order.paidCents}`,
@@ -382,7 +419,7 @@ async function main() {
   const correctedRetryDetail = await getOrderDetail(wrongAmountOrder.id);
   check(
     "4b. reintento corregido marca pagado una sola vez",
-    correctedRetryDetail.order.status === "paid" &&
+    correctedRetryDetail.order.status === paidStatus &&
       correctedRetryDetail.order.paidCents === wrongAmountOrder.totalCents &&
       correctedRetryDetail.payments.filter((payment) => payment.status === "paid").length === 1,
     `${correctedRetryDetail.order.status} / ${correctedRetryDetail.order.paidCents} / pagos=${correctedRetryDetail.payments.length}`,
@@ -490,7 +527,7 @@ async function main() {
   const corrected404Detail = await getOrderDetail(retry404Order.id);
   check(
     "5b. reintento corregido marca pagado una sola vez",
-    corrected404Detail.order.status === "paid" &&
+    corrected404Detail.order.status === paidStatus &&
       corrected404Detail.order.paidCents === retry404Order.totalCents &&
       corrected404Detail.payments.filter((payment) => payment.status === "paid").length === 1,
     `${corrected404Detail.order.status} / ${corrected404Detail.order.paidCents} / pagos=${corrected404Detail.payments.length}`,
@@ -516,7 +553,7 @@ async function main() {
   const staleDetail = await getOrderDetail(staleOrder.id);
   check(
     "6. timestamp viejo no marca pagado",
-    staleDetail.order.status !== "paid" && staleDetail.payments.length === 0,
+    staleDetail.order.status !== paidStatus && staleDetail.payments.length === 0,
     `${staleDetail.order.status} / pagos=${staleDetail.payments.length}`,
   );
 
@@ -538,7 +575,7 @@ async function main() {
   const pendingDetail = await getOrderDetail(validOrder.id);
   check(
     "7. pending no revierte el pago",
-    pendingDetail.order.status === "paid" &&
+    pendingDetail.order.status === paidStatus &&
       pendingDetail.payments.filter((payment) => payment.status === "paid").length === 1,
     `${pendingDetail.order.status} / pagos=${pendingDetail.payments.length}`,
   );
@@ -569,16 +606,15 @@ async function main() {
     metadata: { orderId: qrOrder.id },
   };
   const qrResponse = await sendEvent(qrEvent);
-  check("9. QR válido → 200", qrResponse.status === 200, `status ${qrResponse.status}`);
   check(
-    "9. QR procesado",
-    qrResponse.body?.result === "processed",
-    JSON.stringify(qrResponse.body),
+    "9. QR válido → 200 processed",
+    qrResponse.status === 200 && qrResponse.body?.result === "processed",
+    `status ${qrResponse.status} ${JSON.stringify(qrResponse.body)}`,
   );
   const qrDetail = await getOrderDetail(qrOrder.id);
   check(
     "9. orden QR pagada una vez",
-    qrDetail.order.status === "paid" &&
+    qrDetail.order.status === paidStatus &&
       qrDetail.order.paidCents === 700 &&
       qrDetail.payments.filter((payment) => payment.status === "paid").length === 1,
     `${qrDetail.order.status} / ${qrDetail.order.paidCents} / pagos=${qrDetail.payments.length}`,

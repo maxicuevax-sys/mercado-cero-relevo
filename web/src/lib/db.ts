@@ -37,7 +37,7 @@ export class DemoResetBlockedError extends Error {
 
   constructor(data: DemoResetRealData, realPaymentCount: number) {
     super(
-      "Hay datos reales en la caja. El reinicio de demo está bloqueado; usa FORCE solo si conservas lo real.",
+      "Hay datos reales o un pago firmado de pey. El reinicio de demo está bloqueado; usa FORCE solo si conservas lo real.",
     );
     this.name = "DemoResetBlockedError";
     this.breakdown = data;
@@ -1447,6 +1447,24 @@ export function countPendingOrders(): number {
   return Number(row.n);
 }
 
+/**
+ * Saldo de todos los cobros pendientes, no solo de la página visible. La
+ * franja de la caja lo usa para no mostrar un total menor al del servidor.
+ */
+export function sumPendingOrderBalances(): number {
+  const database = getDb();
+  const row = database
+    .prepare(
+      `SELECT COALESCE(SUM(MAX(total_cents - paid_cents - credit_cents, 0)), 0) AS total
+       FROM orders
+       WHERE status IN ('confirmed', 'payment_pending', 'partially_paid')
+         AND MAX(total_cents - paid_cents - credit_cents, 0) > 0
+         ${isDemoMode() ? "" : "AND demo = 0 AND id NOT LIKE 'demo_%' AND status != 'demo_paid'"}`,
+    )
+    .get() as { total: number };
+  return Number(row.total);
+}
+
 export function getOrder(id: string): Order | null {
   const database = getDb();
   const row = database.prepare("SELECT * FROM orders WHERE id = ?").get(id) as
@@ -1662,6 +1680,38 @@ export function countCredits(): number {
   return Number(row.n);
 }
 
+export interface OpenCreditTotals {
+  count: number;
+  customers: number;
+  balanceCents: number;
+}
+
+/**
+ * Totales reales de fiado abierto, sobre toda la base y no sobre la página
+ * visible. La libreta usa estos valores para que el saldo mostrado coincida
+ * con el servidor aunque la lista esté paginada.
+ */
+export function getOpenCreditTotals(): OpenCreditTotals {
+  const database = getDb();
+  const demoFilter = isDemoMode() ? "" : "WHERE c.demo = 0";
+  const row = database
+    .prepare(
+      `SELECT
+         COUNT(*) AS count,
+         COUNT(DISTINCT c.customer_id) AS customers,
+         COALESCE(SUM(c.balance_cents), 0) AS balance
+       FROM credits c JOIN customers cu ON cu.id = c.customer_id
+       ${demoFilter}
+       ${demoFilter ? "AND" : "WHERE"} c.status != 'settled' AND c.balance_cents > 0`,
+    )
+    .get() as { count: number; customers: number; balance: number };
+  return {
+    count: Number(row.count),
+    customers: Number(row.customers),
+    balanceCents: Number(row.balance),
+  };
+}
+
 export function getCredit(id: string): Credit | null {
   const database = getDb();
   const row = database
@@ -1746,7 +1796,7 @@ export function getDailySummary(): DailySummary {
     const method = payment.method;
     if (
       payment.provider === "demo" ||
-      (!includeDemo && Number(payment.demo) === 1)
+      Number(payment.demo) === 1
     ) {
       if (method === "cash") demoCashCents += amount;
       else demoDigitalCents += amount;
@@ -1936,9 +1986,13 @@ function countRealData(database: DatabaseSync): DemoResetRealData {
  * - Si hay cualquier dato real (`demo=0`) en pedidos, pagos, fiado, cortes,
  *   metas o pendientes, se niega salvo `force`; el código HTTP es
  *   `real_data_present`.
+ * - Un pago firmado de pey (`provider='pey' AND status='paid'`) bloquea el
+ *   reset aunque su fila esté marcada `demo=1`: el evento firmado es la
+ *   evidencia y no se borra en silencio.
  * - Siempre hace backup timestamped antes de borrar.
  * - Con `force` solo se borran filas demo. Nunca se borra un pedido, pago,
  *   crédito, corte, meta o pendiente real para “dejar limpio” el escenario.
+ *   Los pagos firmados de pey y sus pedidos se conservan incluso en force.
  */
 export function resetDemoData(options: { force?: boolean } = {}): DemoResetResult {
   const database = getDb();
@@ -1952,17 +2006,18 @@ export function resetDemoData(options: { force?: boolean } = {}): DemoResetResul
     realData.tasks;
   const realPayments = listRealPeyPayments(database);
 
-  if (realDataCount > 0 && !options.force) {
+  if ((realDataCount > 0 || realPayments.length > 0) && !options.force) {
     throw new DemoResetBlockedError(realData, realPayments.length);
   }
 
   const backupPath = backupDatabase(database);
-  const realOrderIds = [...new Set(realPayments.map((payment) => payment.order_id))];
 
   database.exec("BEGIN IMMEDIATE");
   try {
     // El orden respeta las llaves foráneas: primero hijos demo, luego padres
-    // demo que ya no tengan hijos reales. Las filas reales no se tocan.
+    // demo que ya no tengan hijos reales. Las filas reales no se tocan. Un
+    // pago pey confirmado tampoco se borra si quedó marcado demo: su pedido
+    // sobrevive por la llave foránea y se reporta como preservado.
     database.exec(`
       DELETE FROM goal_contributions WHERE demo = 1;
       DELETE FROM goals
@@ -1970,7 +2025,9 @@ export function resetDemoData(options: { force?: boolean } = {}): DemoResetResul
         AND id NOT IN (SELECT goal_id FROM goal_contributions);
       DELETE FROM tasks WHERE demo = 1;
       DELETE FROM cash_closes WHERE demo = 1;
-      DELETE FROM payments WHERE demo = 1;
+      DELETE FROM payments
+      WHERE demo = 1
+        AND NOT (provider = 'pey' AND status = 'paid');
       DELETE FROM credit_payments WHERE demo = 1;
       DELETE FROM credits
       WHERE demo = 1
@@ -1993,6 +2050,13 @@ export function resetDemoData(options: { force?: boolean } = {}): DemoResetResul
     throw error;
   }
 
+  // Se cuenta después del borrado: el resultado debe describir la base que
+  // queda, no la intención previa.
+  const preservedPayments = listRealPeyPayments(database);
+  const preservedRealPayments = new Set(
+    preservedPayments.map((payment) => payment.order_id),
+  ).size;
+
   seed(database);
   seedGoal(database);
   seedDemoHistory(database);
@@ -2001,15 +2065,15 @@ export function resetDemoData(options: { force?: boolean } = {}): DemoResetResul
     backup: path.basename(backupPath),
     force: Boolean(options.force),
     realDataCount,
-    realPaymentCount: realPayments.length,
-    preservedRealPayments: realOrderIds.length,
+    realPaymentCount: preservedPayments.length,
+    preservedRealPayments,
     breakdown: realData,
   });
 
   return {
     backup: path.basename(backupPath),
-    realPaymentCount: realPayments.length,
-    preservedRealPayments: realOrderIds.length,
+    realPaymentCount: preservedPayments.length,
+    preservedRealPayments,
     realDataCount,
   };
 }

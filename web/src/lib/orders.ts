@@ -668,19 +668,23 @@ function recalculateOrderTotals(
 
   const latestProvider = database
     .prepare(
-      `SELECT provider FROM payments
+      `SELECT provider, demo FROM payments
        WHERE order_id = ? AND status = 'paid'
        ORDER BY created_at DESC, rowid DESC LIMIT 1`,
     )
-    .get(orderId) as { provider: string } | undefined;
+    .get(orderId) as { provider: string; demo: number } | undefined;
 
   const coveredCents = paidCents + Number(row.credit_cents);
   let status: OrderStatus;
   if (row.status === "fulfilled") {
     status = "fulfilled";
   } else if (coveredCents >= Number(row.total_cents)) {
-    // Nunca `fulfilled`: entregar sigue siendo una acción explícita.
-    status = coveredStatus(latestProvider?.provider === "demo" ? "demo" : "pey");
+    // Nunca `fulfilled`: entregar sigue siendo una acción explícita. Una fila
+    // con `demo=1` no es dinero real aunque su provider sea pey: el evento
+    // firmado en demo se presenta como demo_paid, no como pagado.
+    const isDemoPayment =
+      latestProvider?.provider === "demo" || Number(latestProvider?.demo) === 1;
+    status = coveredStatus(isDemoPayment ? "demo" : "pey");
   } else if (paidCents > 0) {
     status = "partially_paid";
   } else {

@@ -77,6 +77,9 @@ export interface PendingPaymentsProps {
   onOpen: (order: Order) => void;
   onRetry: () => void;
   onViewAll?: () => void;
+  /** Total del servidor: puede ser mayor que la página visible. */
+  totalCount?: number;
+  totalCents?: number;
 }
 
 /**
@@ -90,17 +93,31 @@ export function PendingPayments({
   onOpen,
   onRetry,
   onViewAll,
+  totalCount,
+  totalCents,
 }: PendingPaymentsProps) {
   const [expanded, setExpanded] = useState(false);
   const titleId = useId();
   const listId = useId();
 
   const visibleOrders = orders.slice(0, expanded ? EXPANDED_LIMIT : COLLAPSED_LIMIT);
-  const totalPendingCents = orders.reduce((sum, order) => sum + pendingBalanceCents(order), 0);
+  const serverTotalCount = totalCount ?? orders.length;
+  const totalPendingCents =
+    totalCents ?? orders.reduce((sum, order) => sum + pendingBalanceCents(order), 0);
   const hasOrders = orders.length > 0;
   const canExpand = orders.length > COLLAPSED_LIMIT;
-  const countLabel = hasOrders ? orders.length : error ? "—" : "0";
-  const totalLabel = hasOrders ? formatMxn(totalPendingCents) : error ? "Sin datos" : formatMxn(0);
+  const countLabel = hasOrders
+    ? orders.length < serverTotalCount
+      ? `${orders.length} de ${serverTotalCount}`
+      : String(serverTotalCount)
+    : error
+      ? "—"
+      : "0";
+  const totalLabel = hasOrders
+    ? formatMxn(totalPendingCents)
+    : error
+      ? "Sin datos"
+      : formatMxn(0);
   const lastCheckedLabel = lastCheckedAt
     ? `Última comprobación: ${formatActivityDate(lastCheckedAt)}`
     : "Aún no se ha comprobado.";
@@ -120,8 +137,8 @@ export function PendingPayments({
         <div className="min-w-0">
           <div className="pending-strip__title">
             <Clock3 className="h-4 w-4 shrink-0 text-attention" aria-hidden="true" />
-            <h2 id={titleId}>Cobros pendientes (todas las fechas)</h2>
-            <span className="pending-strip__count" aria-hidden="true">
+            <h2 id={titleId}>Cobros pendientes</h2>
+            <span className="pending-strip__count">
               {countLabel}
             </span>
           </div>
@@ -209,6 +226,12 @@ export function PendingPayments({
             );
           })}
         </ul>
+      ) : null}
+
+      {hasOrders && serverTotalCount > orders.length ? (
+        <p className="px-3 pt-2 text-xs text-ink-2">
+          Cargados {orders.length} de {serverTotalCount} cobros. El total incluye todos los pendientes del servidor.
+        </p>
       ) : null}
 
       {canExpand ? (
