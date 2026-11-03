@@ -1,7 +1,7 @@
 # Handoff — cierre de Mercado Cero
 
 > **Fecha:** 2 de noviembre de 2026, 22:40 (America/Mexico_City).
-> **Worktree:** `mercado-cero-consolidacion` — rama `p0/consolidacion`, un commit de docs encima de la base `fabe7cc` (el SHA del commit de docs se reporta en la entrega).
+> **Worktree:** `mercado-cero-consolidacion` — rama `p0/consolidacion`, base de código `fabe7cc` + docs verificados; el SHA exacto se confirma con `git rev-parse HEAD`.
 > **Regla:** este documento manda sobre reportes viejos. No mergear ni declarar
 > listo sin `verify:full` 23/23 y `verify:evidence` sobre el HEAD entregado.
 
@@ -15,24 +15,26 @@
 
 ## 0. Estado en una frase
 
-La rama final `p0/final-cognitive` (`fabe7cc`) contiene el diseño estructural,
-los cuatro carriles cognitivos y el fix adversario; `master` (`a85d903`) sigue
-28 commits atrás y es ancestro, pero **falta build/full/evidencia del HEAD,
-servidor `:3000`, túnel/QR vigente y video final**. La demo no está cerrada.
+La rama de trabajo **`p0/consolidacion`** contiene la final
+`p0/final-cognitive` (`fabe7cc`: diseño, carriles cognitivos y fix adversario) más
+los documentos verificados; `master` es su ancestro, pero **falta
+build/full/evidencia del HEAD, servidor `:3000`, túnel/QR vigente y video
+final**. La demo no está cerrada.
 
 ## 1. SHAs y relación de ramas
 
 Verificado con `git rev-parse`, `git merge-base --is-ancestor` y
-`git rev-list --left-right --count` el 2 nov 2026.
+`git rev-list --left-right --count` el 2 nov 2026. **Confirma los SHA con git**:
+los commits de docs cambian `master` y la rama de trabajo.
 
 | Objeto | SHA | Nota |
 |---|---|---|
-| `master` | `a85d903936af607e3c209fedceb2a40d8410a66e` | Rama publicada; solo docs de bloqueo sobre `d35c791`. |
-| `p0/final-cognitive` | `fabe7cc09bca0031233ac893a4d3d9c330c921c5` | Rama final candidata. |
-| Worktree de consolidación | `p0/consolidacion` = `fabe7cc` + commit de docs | El commit de docs no es auto-referenciable; `git log -1` lo da. |
-| Merge-base | `a85d903` | `master` es ancestro de la final. |
-| Commits que la final tiene de más | **28** | `git rev-list --count master..p0/final-cognitive` = 28; `final..master` = 0. El worktree suma 1 docs = 29. |
-| Fast-forward | **Posible, no ejecutado** | `master` es ancestro de `fabe7cc` y del commit de docs; ff-only a cualquiera de los dos es posible. |
+| `master` | `git rev-parse master`; al generar `529bddb` | Solo docs de bloqueo/consolidación; no contiene la app final. |
+| `p0/final-cognitive` | `fabe7cc09bca0031233ac893a4d3d9c330c921c5` | Código de app final; no incluye los docs posteriores de master. |
+| Worktree de consolidación | `p0/consolidacion`; al generar `2eecf09` | `fabe7cc` + docs de master; es la rama que se avanza. |
+| Merge-base | `master` | `master` es ancestro de `p0/consolidacion`. |
+| Commits que consolidación tiene de más | **30** al generar | `git rev-list --count master..p0/consolidacion`; verifica. |
+| Fast-forward | **Posible a `p0/consolidacion`, no ejecutado** | `master` es ancestro de consolidación. **No** hagas ff a `p0/final-cognitive` sola: master tiene docs que la final no tiene. |
 | Build conocido | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990` | Construido 2026-11-03T04:21:10Z; es el padre de `fabe7cc`. |
 | `:3000` | — | No responde al 2 nov 22:35. |
 | Preview `:3230` | `397039d212452b2950935d745cd8a1781040923e` | Build viejo; no es la final. |
@@ -142,11 +144,11 @@ Verificación de git antes de tocar nada:
 ```powershell
 cd "C:\Users\Elitebook 840 G8\Documents\Default Project\mercado-cero-consolidacion"
 git status --short
-git rev-parse HEAD master p0/final-cognitive
-# HEAD = commit de docs sobre fabe7cc; final = fabe7cc
+git rev-parse HEAD master p0/final-cognitive p0/consolidacion
+# HEAD = p0/consolidacion = fabe7cc + docs; final = fabe7cc (sin docs de master)
 git merge-base --is-ancestor master HEAD; $LASTEXITCODE   # 0
-git rev-list --left-right --count master...p0/final-cognitive  # 0   28
-git rev-list --left-right --count master...HEAD                # 0   29 (28 + docs)
+git rev-list --left-right --count master...p0/consolidacion  # 0   N
+git rev-list --left-right --count master...HEAD              # 0   N
 ```
 
 Build y servidor final (desde el HEAD que se va a entregar):

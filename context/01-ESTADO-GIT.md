@@ -6,6 +6,10 @@
 > **Código de producto documentado:** `b7154caaa2185b2cafb44a02a6bf5f8b69bef045`
 > **HEAD de la rama de contexto (primer commit):** `65c9b4fd79cb41ce97c772dc2a9f1ea4e385d98e`
 > **Árbol:** limpio al snapshot (`git status --porcelain --untracked-files=all` vacío).
+>
+> **Aviso de vigencia:** este documento es un snapshot anterior a los fixes
+> P0/P1 y a los commits de consolidación. Para el estado actual usa
+> `RELEVO-VERIFICADO.md` y confirma los SHA con `git rev-parse`.
 
 ---
 
