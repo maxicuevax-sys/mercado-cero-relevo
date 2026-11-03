@@ -241,13 +241,13 @@ def run_audit() -> int:
         page.get_by_role("button", name="Pagar $120.00").click()
         check(
             "Checkout: pago demo confirmado",
-            wait_text(page, "Pago simulado para la demo", 15000),
+            wait_text(page, "Pago demo", 15000),
         )
         page.wait_for_timeout(500)
         page.screenshot(path=str(OUT / "checkout-360-pagado.png"))
         check(
             "Checkout: explica que el pago fue simulado",
-            wait_text(page, "Pago simulado para la demo", 5000),
+            wait_text(page, "Pago demo", 5000),
         )
 
         paid_metrics = measure(page)
@@ -272,7 +272,7 @@ def run_audit() -> int:
 
         # 3. Pantalla de éxito alternativa.
         page.goto(f"{BASE}/pay/{order_id}/success", wait_until="domcontentloaded")
-        page.wait_for_selector("h1:has-text('Pago simulado')", timeout=15000)
+        page.wait_for_selector("h1:has-text('Pago demo')", timeout=15000)
         page.wait_for_timeout(400)
         page.screenshot(path=str(OUT / "checkout-360-success.png"))
         success_metrics = measure(page)
