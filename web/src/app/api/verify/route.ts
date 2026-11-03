@@ -227,6 +227,10 @@ function hasReferenceMismatch(
   if (clientReferenceId && clientReferenceId !== order.id) return true;
 
   const payableId = identifier(transaction.payableId);
+  // Una transacción PAID sin ninguna referencia no está atada a esta orden:
+  // que el monto coincida no basta para entregar.
+  if (!metadataOrderId && !clientReferenceId && !payableId) return true;
+
   if (transaction.payableType === "PAYMENT_LINK") {
     if (!order.paymentLinkId) return true;
     if (payableId && payableId !== order.paymentLinkId) return true;

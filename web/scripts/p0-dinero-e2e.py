@@ -460,7 +460,7 @@ def main() -> int:
     )
     check(
         "webhook: el reintento cobra una sola vez",
-        corrected_detail["order"]["status"] == "paid"
+        corrected_detail["order"]["status"] == "demo_paid"
         and corrected_detail["order"]["paidCents"] == retry_order["totalCents"]
         and len(corrected_detail["payments"]) == 1,
         json.dumps(corrected_detail, ensure_ascii=False)[:300],
@@ -507,8 +507,8 @@ def main() -> int:
         f"status {corrected404_status} · {json.dumps(corrected404_body, ensure_ascii=False)[:200]}",
     )
     check(
-        "webhook: el 404 corregido marca paid una vez",
-        order_detail(retry404_order["id"])["order"]["status"] == "paid"
+        "webhook: el 404 corregido marca demo_paid una vez",
+        order_detail(retry404_order["id"])["order"]["status"] == "demo_paid"
         and len(order_detail(retry404_order["id"])["payments"]) == 1,
         order_detail(retry404_order["id"])["order"]["status"],
     )

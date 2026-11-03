@@ -2296,7 +2296,12 @@ export default function CajaApp({
   const resetDemo = useCallback(async () => {
     try {
       const response = await fetch("/api/demo/reset", { method: "POST" });
-      if (!response.ok) throw new Error("No pude reiniciar la demo.");
+      const payload = (await response.json().catch(() => null)) as
+        | { error?: string }
+        | null;
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "No pude reiniciar la demo.");
+      }
       clearStoredPendingOrder();
       setResumableOrder(null);
       setLastChange(null);
@@ -2640,6 +2645,15 @@ export default function CajaApp({
                 <CajaBook
                   summary={dashboard?.summary ?? null}
                   credits={pendingCredits}
+                  creditsTotalCount={dashboard?.creditsOpenTotal ?? pendingCredits.length}
+                  creditsCustomersTotal={
+                    dashboard?.creditsCustomersTotal ??
+                    new Set(pendingCredits.map((credit) => credit.customerId)).size
+                  }
+                  creditsBalanceCents={
+                    dashboard?.creditsBalanceCents ??
+                    pendingCredits.reduce((sum, credit) => sum + credit.balanceCents, 0)
+                  }
                   loading={loading}
                   error={dashboardError}
                   demoMode={demoMode}
@@ -2651,6 +2665,8 @@ export default function CajaApp({
                   <div id="cobros-pendientes" className="scroll-mt-[72px]">
                     <MemoPendingPayments
                       orders={dashboard?.pendingOrders ?? []}
+                      totalCount={dashboard?.pagination.pendingOrders.total}
+                      totalCents={dashboard?.pendingCentsTotal}
                       lastCheckedAt={pendingCheckedAt}
                       error={dashboardError}
                       onOpen={selectOrder}
@@ -2704,6 +2720,15 @@ export default function CajaApp({
               <div className="tab-readable">
                 <MemoCreditList
                   credits={pendingCredits}
+                  totalCount={dashboard?.creditsOpenTotal ?? pendingCredits.length}
+                  totalCustomers={
+                    dashboard?.creditsCustomersTotal ??
+                    new Set(pendingCredits.map((credit) => credit.customerId)).size
+                  }
+                  balanceCents={
+                    dashboard?.creditsBalanceCents ??
+                    pendingCredits.reduce((sum, credit) => sum + credit.balanceCents, 0)
+                  }
                   loading={loading}
                   error={dashboardError}
                   onStart={openCreditPay}
@@ -2946,6 +2971,9 @@ export default function CajaApp({
 function CajaBook({
   summary,
   credits,
+  creditsTotalCount,
+  creditsCustomersTotal,
+  creditsBalanceCents,
   loading,
   error,
   demoMode,
@@ -2953,6 +2981,9 @@ function CajaBook({
 }: {
   summary: DashboardData["summary"] | null;
   credits: Credit[];
+  creditsTotalCount: number;
+  creditsCustomersTotal: number;
+  creditsBalanceCents: number;
   loading: boolean;
   error: string | null;
   demoMode: boolean;
@@ -2966,6 +2997,15 @@ function CajaBook({
   const pending = summary?.pendingCents ?? 0;
   const confirmed = cash + verified;
   const shown = credits.slice(0, 4);
+  const loadedCustomers = new Set(credits.map((credit) => credit.customerId)).size;
+  const creditPeople = creditsCustomersTotal || loadedCustomers;
+  const creditsCountLabel =
+    credits.length < creditsTotalCount
+      ? `${credits.length} de ${creditsTotalCount}`
+      : "";
+  const creditsCountNote = creditsCountLabel
+    ? `Mostrando ${creditsCountLabel} fiados. El saldo incluye todos los pendientes.`
+    : "";
 
   return (
     <>
@@ -3032,13 +3072,16 @@ function CajaBook({
         <div className="debt-note__head">
           <h2 id="lo-que-me-deben">Lo que me deben</h2>
           <span>
-            {credits.length === 1 ? "1 persona" : `${credits.length} personas`}
+            {creditPeople} {creditPeople === 1 ? "persona" : "personas"}
           </span>
         </div>
         <div className="debt-note__total">
           <span>Saldo vivo de fiado</span>
-          <strong>{formatMxn(credits.reduce((sum, credit) => sum + credit.balanceCents, 0))}</strong>
+          <strong>{formatMxn(creditsBalanceCents)}</strong>
         </div>
+        {creditsCountNote ? (
+          <p className="px-1 pt-1 text-xs text-ink-2">{creditsCountNote}</p>
+        ) : null}
         {shown.length > 0 ? (
           <>
             {shown.map((credit) => (
@@ -6384,20 +6427,28 @@ function ActivityList({
 
 function CreditList({
   credits,
+  totalCount,
+  totalCustomers,
+  balanceCents,
   loading,
   error,
   onStart,
   onGoToCaja,
 }: {
   credits: Credit[];
+  totalCount: number;
+  totalCustomers: number;
+  balanceCents: number;
   loading: boolean;
   error: string | null;
   onStart: (credit: Credit) => void;
   onGoToCaja: () => void;
 }) {
-  const total = credits.reduce((sum, credit) => sum + credit.balanceCents, 0);
-  const customerCount = new Set(credits.map((credit) => credit.customerId)).size;
+  const total = balanceCents;
+  const loadedCustomers = new Set(credits.map((credit) => credit.customerId)).size;
+  const customerCount = totalCustomers || loadedCustomers;
   const failedWithoutData = Boolean(error) && credits.length === 0;
+  const truncated = credits.length < totalCount;
 
   if (failedWithoutData) {
     return (
@@ -6507,6 +6558,12 @@ function CreditList({
           ))}
         </div>
       )}
+
+      {truncated ? (
+        <p className="text-sm text-ink-2">
+          Mostrando {credits.length} de {totalCount} fiados. El saldo de arriba incluye todos los pendientes.
+        </p>
+      ) : null}
     </div>
   );
 }

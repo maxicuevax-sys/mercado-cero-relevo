@@ -185,15 +185,11 @@ const nextConfig: NextConfig = {
         headers: privateHeaders,
       },
       {
-        // Shell público de la caja: el navegador revalida, el CDN puede
-        // reutilizarlo un minuto. Los datos se piden por API con no-store.
+        // `/` renderiza el dashboard completo (ventas, fiado, nombres y links
+        // de cobro) en el HTML inicial. Nunca puede entrar en una caché
+        // compartida ni reutilizarse entre visitantes.
         source: "/",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=0, s-maxage=60, stale-while-revalidate=300",
-          },
-        ],
+        headers: privateHeaders,
       },
     ];
   },

@@ -18,6 +18,11 @@ const NEXT_BIN = path.join(WEB, "node_modules", "next", "dist", "bin", "next");
 const PORT = Number(process.env.WEBHOOK_PORT ?? 3193);
 const BASE = `http://127.0.0.1:${PORT}`;
 const BUILD_SHA_FILE = path.join(WEB, ".next", "BUILD_SHA");
+// El gate es autocontenido: no depende de .env.local. Si hay un secreto en el
+// entorno se respeta; si no, se genera uno solo para este proceso aislado.
+const WEBHOOK_SECRET =
+  process.env.PEY_WEBHOOK_SECRET ??
+  `whsec_${Buffer.from("mercado-cero-webhook-gate").toString("base64")}`;
 
 if (PORT === 3000 || PORT === 3101) {
   console.error("WEBHOOK GATE: puerto reservado; usa un puerto aislado.");
@@ -82,6 +87,11 @@ async function main() {
         DATABASE_PATH: dbPath,
         DATABASE_BACKUP_DIR: backupDir,
         DEMO_MODE: "true",
+        PEY_WEBHOOK_SECRET: WEBHOOK_SECRET,
+        // El contrato firma eventos pey reales en modo demo. Al terminar, el
+        // reset normal debe bloquearse por precaución; este gate usa una DB
+        // temporal y fuerza la limpieza conservando esos pagos firmados.
+        FORCE_DEMO_RESET: "1",
         APP_URL: BASE,
         OPENAI_API_KEY: "",
       },
@@ -117,6 +127,7 @@ async function main() {
       ...process.env,
       BASE_URL: BASE,
       APP_URL: BASE,
+      PEY_WEBHOOK_SECRET: WEBHOOK_SECRET,
       DATABASE_PATH: dbPath,
       DATABASE_BACKUP_DIR: backupDir,
     },

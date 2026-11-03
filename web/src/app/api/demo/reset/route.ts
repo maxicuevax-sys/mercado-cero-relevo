@@ -42,6 +42,7 @@ export async function POST(request: Request) {
       ok: true,
       backup: result.backup,
       preservedRealPayments: result.preservedRealPayments,
+      realPayments: result.realPaymentCount,
       realDataCount: result.realDataCount,
     });
   } catch (error) {
@@ -49,7 +50,9 @@ export async function POST(request: Request) {
       return Response.json(
         {
           error:
-            "Hay datos reales en la caja. El reinicio de demo está bloqueado.",
+            error.realPaymentCount > 0
+              ? "Hay un pago firmado de pey. El reinicio de demo está bloqueado para no borrarlo."
+              : "Hay datos reales en la caja. El reinicio de demo está bloqueado.",
           code: "real_data_present",
           realData: error.realDataCount,
           realPayments: error.realPaymentCount,

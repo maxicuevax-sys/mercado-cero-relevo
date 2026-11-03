@@ -257,6 +257,57 @@ try {
     `status ${result.response.status} ${JSON.stringify(result.body)}`,
   );
 
+  // P0-1: un pago firmado de pey marcado demo no se puede borrar ni reportar
+  // como preservado si el reset termina en 200. Debe bloquear con 409.
+  const signedAt = new Date().toISOString();
+  const signedOrderId = "ord_security_signed_demo";
+  const signedPaymentId = "pay_security_signed_demo";
+  {
+    const db = new DatabaseSync(dbPath);
+    try {
+      db.prepare(
+        `INSERT INTO orders
+         (id, merchant_id, status, total_cents, paid_cents, payment_method, demo, created_at, updated_at)
+         VALUES (?, 'lupita', 'paid', 1000, 1000, 'codi', 1, ?, ?)`,
+      ).run(signedOrderId, signedAt, signedAt);
+      db.prepare(
+        `INSERT INTO payments
+         (id, order_id, provider, method, amount_cents, status, transaction_id, demo, created_at)
+         VALUES (?, ?, 'pey', 'codi', 1000, 'paid', 'txn_security_signed_demo', 1, ?)`,
+      ).run(signedPaymentId, signedOrderId, signedAt);
+    } finally {
+      db.close();
+    }
+  }
+
+  result = await request("/api/demo/reset", { method: "POST" });
+  check(
+    "reset con pago pey firmado en demo → 409",
+    result.response.status === 409 && result.body?.code === "real_data_present",
+    `status ${result.response.status} ${JSON.stringify(result.body)}`,
+  );
+  check(
+    "reset bloqueado conserva pedido y pago firmado demo",
+    result.response.status === 409 &&
+      readSecurityDb("SELECT id FROM orders WHERE id = ?", [signedOrderId]).length === 1 &&
+      readSecurityDb("SELECT id FROM payments WHERE id = ?", [signedPaymentId]).length === 1,
+    JSON.stringify(result.body),
+  );
+  check(
+    "409 reporta el pago firmado real",
+    result.response.status === 409 && Number(result.body?.realPayments) === 1,
+    JSON.stringify(result.body),
+  );
+  {
+    const db = new DatabaseSync(dbPath);
+    try {
+      db.prepare("DELETE FROM payments WHERE id = ?").run(signedPaymentId);
+      db.prepare("DELETE FROM orders WHERE id = ?").run(signedOrderId);
+    } finally {
+      db.close();
+    }
+  }
+
   await stopServer(server);
   server = null;
 
@@ -288,6 +339,15 @@ try {
     "headers: Permissions-Policy micrófono self",
     permissions.includes("microphone=(self)"),
     permissions,
+  );
+  const homeCache = home.headers.get("cache-control") ?? "";
+  check(
+    "headers: / privado y no-store (sin caché pública)",
+    /(?:^|,)\s*private\b/i.test(homeCache) &&
+      /\bno-store\b/i.test(homeCache) &&
+      !/\bs-maxage\b/i.test(homeCache) &&
+      !/(?:^|,)\s*public\b/i.test(homeCache),
+    homeCache || "ausente",
   );
 
   // 2. Reset: cross-origin 403, same-origin sin token 401, con token 200.

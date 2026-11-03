@@ -4,9 +4,11 @@ import {
   countOrders,
   countPendingOrders,
   getDailySummary,
+  getOpenCreditTotals,
   listCredits,
   listOrders,
   listPendingOrders,
+  sumPendingOrderBalances,
 } from "@/lib/db";
 import {
   DEFAULT_DASHBOARD_CREDITS_LIMIT,
@@ -54,6 +56,12 @@ export interface DashboardData {
   pagination: DashboardPagination;
   creditsTotal: number;
   creditsHasMore: boolean;
+  /** Saldo de todos los cobros pendientes, no solo de la página. */
+  pendingCentsTotal: number;
+  /** Fiado abierto en toda la base, no solo en la página visible. */
+  creditsOpenTotal: number;
+  creditsCustomersTotal: number;
+  creditsBalanceCents: number;
 }
 
 function clampLimit(value: number | undefined, fallback: number, max: number) {
@@ -102,7 +110,9 @@ export function getDashboardData(
   const credits = listCredits(creditsLimit, creditsOffset);
   const ordersTotal = countOrders();
   const pendingTotal = countPendingOrders();
+  const pendingCentsTotal = sumPendingOrderBalances();
   const creditsTotal = countCredits();
+  const openCredits = getOpenCreditTotals();
 
   return {
     merchant: MERCHANT,
@@ -128,5 +138,9 @@ export function getDashboardData(
     },
     creditsTotal,
     creditsHasMore: creditsOffset + credits.length < creditsTotal,
+    pendingCentsTotal,
+    creditsOpenTotal: openCredits.count,
+    creditsCustomersTotal: openCredits.customers,
+    creditsBalanceCents: openCredits.balanceCents,
   };
 }

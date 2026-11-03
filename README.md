@@ -228,7 +228,7 @@ npm run dev
 
 Sin `PEY_API_KEY`, la app arranca en **modo demo** y permite simular pagos desde el checkout. Para forzar la demo aunque exista una API key, pon `DEMO_MODE=true` en `.env.local` y reinicia. El webhook real sigue exigiendo firma; el dinero simulado usa `/api/demo/pay`.
 
-En modo demo, **Reiniciar demo** siembra un historial de 30 días, un cobro pendiente, un corte de ayer y una meta. Todo se marca como demo: no son pagos reales ni dinero verificado por el banco. El reset hace un backup SQLite antes de borrar y se niega si detecta un pago `pey` confirmado (ver [`SECURITY.md`](./SECURITY.md)).
+En modo demo, **Reiniciar demo** siembra un historial de 30 días, un cobro pendiente, un corte de ayer y una meta. Todo se marca como demo: no son pagos reales ni dinero verificado por el banco. El reset hace un backup SQLite antes de borrar y se niega si detecta un pago `pey` confirmado, incluso si quedó marcado `demo=1` (ver [`SECURITY.md`](./SECURITY.md)). Un evento firmado en demo queda `demo_paid`, no suma a `verifiedDigitalCents` y no se puede entregar.
 
 Para probar el contrato del webhook:
 
@@ -236,7 +236,7 @@ Para probar el contrato del webhook:
 node scripts/webhook-contract.mjs
 ```
 
-Requiere `PEY_WEBHOOK_SECRET` en `.env.local` y el servidor en `localhost:3000` (o `BASE_URL`). El script firma eventos como Standard Webhooks y verifica **40/40 aserciones en la última corrida conocida (2 nov 2026)**: pago válido, replay, firma falsa, monto distinto, orden inexistente, timestamp viejo, evento fuera de orden, JSON inválido, QR CoDi y los reintentos corregidos tras 409/404.
+Requiere `PEY_WEBHOOK_SECRET` en `.env.local` y el servidor en `localhost:3000` (o `BASE_URL`). El script firma eventos como Standard Webhooks y verifica **40/40 aserciones en la última corrida conocida (2 nov 2026)**: pago válido, replay, firma falsa, monto distinto, orden inexistente, timestamp viejo, evento fuera de orden, JSON inválido, QR CoDi, separación demo/verificado y los reintentos corregidos tras 409/404.
 
 Para revisar que los pagos digitales del día cuadren con pey:
 
