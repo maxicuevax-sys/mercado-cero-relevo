@@ -478,6 +478,7 @@ def main() -> int:
             )
             page.locator('aside button:visible', has_text="Caja").first.click()
             page.wait_for_timeout(400)
+            page.locator(".pending-strip").wait_for(timeout=5000)
             check(
                 "la franja muestra el pendiente sembrado",
                 page.get_by_text("Pedido para llevar", exact=False).count() >= 1,

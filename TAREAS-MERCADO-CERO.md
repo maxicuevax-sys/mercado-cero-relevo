@@ -167,3 +167,4 @@ BASE_URL=http://localhost:3100 python scripts/a11y-contrast.py
 **Pendiente de cierre:** `npm run verify:full` + `npm run verify:evidence` sobre el commit final, con Ã¡rbol limpio, servidor de este repo (no el de `mercado-cero-final-closure`) y actualizaciÃ³n de `harness/STATE.md`.
 
 
+
