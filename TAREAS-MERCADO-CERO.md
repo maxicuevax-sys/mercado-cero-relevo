@@ -58,7 +58,7 @@
 
 Objetivo: que todos los módulos se sientan parte del mismo producto **sin ampliar alcance**. No hay pantallas nuevas ni backend nuevo.
 
-> **Estado:** C1 (estados), C3 (ilustraciones por dominio) y C6 (teléfono económico) cerrados; C2 (primitivas) y C5 (primer uso) parciales; C4 (tipografía de dinero) queda como excepción documentada: Fraunces sólo en totales hero, Inter tabular en tablas; C7 parcial: `verify:full --skip=tunnel` corrió 22/23 gates, p0-integracion quedó en 51/0 tras corregir la codificación de `pending-payments.tsx`. Sólo quedan `tunnel` y `preflight`, bloqueados por el `APP_URL` muerto; no se pueden declarar sin un túnel vivo.
+> **Estado:** C1 (estados), C3 (ilustraciones por dominio) y C6 (teléfono económico) cerrados; C2 (primitivas) y C5 (primer uso) parciales; C4 (tipografía de dinero) queda como excepción documentada: Fraunces sólo en totales hero, Inter tabular en tablas; C7 parcial: `verify:full --skip=tunnel,preflight` ejecutó **21/21 gates en verde** sobre `3c596ba`, incluido p0-integracion 51/0 tras corregir la codificación de `pending-payments.tsx`. Sólo quedan `tunnel` y `preflight`, bloqueados por el `APP_URL` muerto; no se pueden declarar sin un túnel vivo.
 
 | ID | Tarea | Dueño | Archivos | Criterio |
 |---|---|---|---|---|
@@ -165,6 +165,7 @@ BASE_URL=http://localhost:3100 python scripts/a11y-contrast.py
 | `python scripts/p0-corte-e2e.py` | **69 PASS · 0 FAIL** |
 | `python scripts/p0-venta-e2e.py` | **66 PASS · 0 FAIL** |
 | `python scripts/p0-shell-e2e.py` | **73 PASS · 0 FAIL** |
+| `npm run verify:full -- --skip=tunnel,preflight` | **21/21 gates ejecutados en verde** (sólo faltan tunnel y preflight por `APP_URL` muerto) |
 
 **Pendiente de cierre:** `npm run verify:full` + `npm run verify:evidence` sobre el commit final, con árbol limpio, servidor de este repo (no el de `mercado-cero-final-closure`) y actualización de `harness/STATE.md`.
 
