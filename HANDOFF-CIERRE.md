@@ -3,6 +3,13 @@
 > **Lee esto primero.** No abras carriles nuevos ni agregues producto. El objetivo
 > es mergear, verificar y grabar. Fecha: 2 nov 2026.
 
+> **⛔ NO MERGEAR TODAVÍA.** La supervisión independiente (`p0/supervisor`,
+> `ca3f95c`) y la auditoría adversaria (`p0/adversarial`, `3939133`) encontraron
+> 13 afirmaciones falsas/obsoletas en este handoff y **2 P0**: el reset de demo
+> puede borrar un pago firmado de pey, y `/` se sirve con caché pública aunque
+> contiene datos privados. No avanzar `master` hasta integrar
+> `p0/fix-adversarial` y leer `RELEVO-VERIFICADO.md`.
+
 ## 0. Estado en una frase
 
 La app integrada ya tiene la venta manual sin IA, el cierre acompañado
