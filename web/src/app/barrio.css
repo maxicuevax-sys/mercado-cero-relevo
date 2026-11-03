@@ -274,7 +274,6 @@ body {
   background: #fffaf0;
   border-color: var(--color-control-border);
   box-shadow: inset 4px 0 0 var(--color-terracotta);
-  transform: translateX(3px);
 }
 
 .index-tab::before {
@@ -474,12 +473,16 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 8px;
   flex: 0 0 auto;
 }
 
 .mic-button {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   width: 86px;
   height: 86px;
   border-radius: 50%;
@@ -493,8 +496,14 @@ body {
   transition: transform 120ms var(--mc-ease);
 }
 
-.mic-halo {
-  display: none;
+/* Anillo punteado concéntrico: mismo centro que el botón, sin desplazarse. */
+.mic-button::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border: 1.5px dashed rgba(7, 56, 45, 0.42);
+  border-radius: 9999px;
+  pointer-events: none;
 }
 
 .mic-button:hover {

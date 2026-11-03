@@ -3090,10 +3090,6 @@ function CajaPanel(props: {
         <div className="caja-voice">
           <div className="mic-wrap">
             <div className="relative flex h-[94px] w-[94px] items-center justify-center">
-              <span
-                aria-hidden="true"
-                className="mic-halo absolute -inset-1.5 rounded-full border border-dashed"
-              />
               {listening ? (
                 <>
                   <span className="mic-ring absolute inset-0 rounded-full bg-accent/15" />
