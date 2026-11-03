@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   useCallback,
@@ -613,7 +613,7 @@ export function PendingTasksPanel({
             onClick={openForm}
             aria-expanded={formOpen}
             aria-controls={formOpen ? "pendientes-form" : undefined}
-            className="cta-primary on-accent inline-flex min-h-12 items-center justify-center gap-2 bg-accent px-4 text-sm font-semibold text-white transition hover:bg-accent-press"
+            className="on-accent inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-accent px-4 text-sm font-semibold text-white shadow-[inset_0_-3px_0_rgba(0,0,0,.18)] transition hover:bg-accent-press"
           >
             <Plus className="h-5 w-5 shrink-0" aria-hidden="true" />
             Anotar pendiente
@@ -630,7 +630,7 @@ export function PendingTasksPanel({
           id="pendientes-form"
           onSubmit={handleCreate}
           noValidate
-          className="mb-5 rounded-2xl border border-separator bg-surface p-4 shadow-card"
+          className="mb-5 book-sheet p-4"
         >
           <div className="min-w-0">
             <label
@@ -837,7 +837,7 @@ export function PendingTasksPanel({
           </button>
         </div>
       ) : loadState === "ready" && openTasks.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-separator bg-surface px-5 py-6 text-center">
+        <div className="book-sheet border border-dashed border-separator px-5 py-6 text-center">
           <p className="text-[1.0625rem] font-semibold text-ink">
             {tasks.length === 0
               ? "Aún no hay pendientes."
@@ -863,7 +863,7 @@ export function PendingTasksPanel({
                 key={task.id}
                 aria-busy={isBusy}
                 className={cn(
-                  "rounded-2xl border border-separator bg-surface p-3 shadow-card transition sm:p-4",
+                  "border-b border-separator py-3 transition",
                   isBusy && "opacity-70",
                 )}
               >
@@ -1187,3 +1187,4 @@ export function PendingTasksPanel({
 }
 
 export default PendingTasksPanel;
+

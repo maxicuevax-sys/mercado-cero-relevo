@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { getCheckoutData } from "@/lib/checkout";
+import "@/app/checkout.css";
 import CheckoutSuccessClient from "./success-client";
 
 export const metadata: Metadata = {

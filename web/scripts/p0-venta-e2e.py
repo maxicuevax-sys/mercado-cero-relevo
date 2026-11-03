@@ -389,7 +389,7 @@ def main() -> int:
         page.evaluate(
             """() => {
                 const button = [...document.querySelectorAll('button')]
-                    .find((item) => (item.textContent || '').trim() === 'Confirmar venta');
+                    .find((item) => (item.getAttribute('aria-label') || '').startsWith('Confirmar venta'));
                 button.click();
                 button.click();
             }"""

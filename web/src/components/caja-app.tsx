@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, memo, type ReactNode } from "react";
@@ -2270,7 +2270,7 @@ export default function CajaApp({
   const merchantUnavailable = Boolean(dashboardError && !dashboard);
 
   return (
-    <div className="app-shell min-h-dvh">
+    <div className="app-shell paper-canvas min-h-dvh">
       {tabWipe > 0 ? (
         <div
           key={tabWipe}
@@ -2287,40 +2287,41 @@ export default function CajaApp({
           event.preventDefault();
           document.getElementById("main")?.focus();
         }}
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-accent focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:min-h-12 focus:rounded-xl focus:bg-accent focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-white"
       >
         Saltar al contenido
       </a>
-      <AppSidebar
-        tab={tab}
-        onTab={selectTab}
-        demoMode={demoMode}
-        onHelp={() => setHelpOpen(true)}
-        onDemo={() => setDemoOpen(true)}
-      />
-
-      <div className="app-main">
-        <TopBar
-          merchant={merchant}
-          today={today}
+      <div className="desk-shell">
+        <AppSidebar
+          tab={tab}
+          onTab={selectTab}
           demoMode={demoMode}
-          unavailable={merchantUnavailable}
-          muted={muted}
-          onToggleMuted={toggleMuted}
           onHelp={() => setHelpOpen(true)}
           onDemo={() => setDemoOpen(true)}
         />
 
-        {/* La tab bar va antes de main en el DOM: el orden de Tab entra en la
-            navegación y luego en el contenido. En móvil es una fila del shell;
-            en escritorio sigue fija abajo. */}
-        <MobileTabBar tab={tab} onTab={selectTab} />
+        <div className="app-main">
+          <TopBar
+            merchant={merchant}
+            today={today}
+            demoMode={demoMode}
+            unavailable={merchantUnavailable}
+            muted={muted}
+            onToggleMuted={toggleMuted}
+            onHelp={() => setHelpOpen(true)}
+            onDemo={() => setDemoOpen(true)}
+          />
 
-        <main
-          id="main"
-          tabIndex={-1}
-          className="main-container mx-auto w-full max-w-[1200px] px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:pb-10"
-        >
+          {/* La tab bar va antes de main en el DOM: el orden de Tab entra en la
+              navegación y luego en el contenido. En móvil es una fila del shell;
+              en escritorio sigue fija abajo. */}
+          <MobileTabBar tab={tab} onTab={selectTab} />
+
+          <main
+            id="main"
+            tabIndex={-1}
+            className="main-container mx-auto w-full max-w-[1200px] px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:pb-10"
+          >
           <div className="scroll-progress" aria-hidden="true" />
           {dashboardError ? (
             <div
@@ -2355,7 +2356,7 @@ export default function CajaApp({
           ) : null}
           <div hidden={tab !== "caja"} className="tab-panel tab-shell">
             <div className="caja-layout">
-              <section className="min-w-0">
+              <section className="caja-page caja-page--venta min-w-0">
                 <ScreenHeading
                   title="Caja"
                   headingId="caja-heading"
@@ -2368,9 +2369,7 @@ export default function CajaApp({
                             dashboard.summary.demoDigitalCents +
                             dashboard.summary.demoCashCents +
                             dashboard.summary.pendingCents,
-                        )} · Por cobrar ${formatMxn(dashboard.summary.pendingCents)} · Fiado ${formatMxn(
-                          dashboard.summary.creditCents,
-                        )}`
+                        )} · Por cobrar ${formatMxn(dashboard.summary.pendingCents)}`
                       : dashboardError
                         ? "No pudimos cargar los totales. No hay cifras nuevas."
                         : "Cargando la caja…"
@@ -2380,7 +2379,7 @@ export default function CajaApp({
                       type="button"
                       onClick={() => setVerifyOpen(true)}
                       aria-label="Verificar comprobante"
-                      className="flex min-h-[48px] items-center gap-2 rounded-full border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
+                      className="flex min-h-[48px] min-w-12 items-center gap-2 px-3 text-sm font-semibold text-ink-2 transition hover:text-accent"
                     >
                       <ShieldCheck className="h-4 w-4" />
                       <span className="verify-label">Verificar</span>
@@ -2395,7 +2394,7 @@ export default function CajaApp({
                         .getElementById("cobros-pendientes")
                         ?.scrollIntoView({ behavior: "smooth", block: "start" });
                     }}
-                    className="caja-pending-strip mb-3 flex min-h-12 w-full flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border border-separator bg-surface px-3 text-left text-sm text-ink-2 transition hover:border-accent/40"
+                    className="caja-pending-strip mb-3 flex min-h-12 w-full flex-wrap items-center justify-between gap-x-3 gap-y-1 border-y border-dashed border-control-border/60 px-1 text-left text-sm text-ink-2 transition hover:text-ink"
                   >
                     <span className="flex min-w-0 items-center gap-2">
                       <Clock3 className="h-4 w-4 shrink-0 text-attention" />
@@ -2406,13 +2405,13 @@ export default function CajaApp({
                         </strong>
                       </span>
                     </span>
-                    <span className="font-semibold text-green">Ver</span>
+                    <span className="font-semibold text-accent">Ver la tira</span>
                   </button>
                 ) : null}
                 {resumableOrder && !activeOrder ? (
                   <div
                     role="status"
-                    className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-separator bg-surface px-3 py-2 text-sm text-ink-2"
+                    className="mb-4 flex flex-wrap items-center justify-between gap-2 border-l-2 border-attention bg-saffron-soft/45 px-3 py-2 text-sm text-ink-2"
                   >
                     <p className="flex min-w-0 items-center gap-2 font-medium text-ink">
                       <Clock3 className="h-4 w-4 shrink-0 text-accent" />
@@ -2434,7 +2433,7 @@ export default function CajaApp({
                         type="button"
                         onClick={resumePendingOrder}
                         aria-label="Continuar cobro pendiente"
-                        className="flex min-h-12 items-center rounded-xl px-3 text-sm font-semibold text-green transition hover:text-accent"
+                        className="flex min-h-12 items-center px-3 text-sm font-semibold text-accent transition hover:text-accent-press"
                       >
                         Continuar cobro
                       </button>
@@ -2442,7 +2441,7 @@ export default function CajaApp({
                         type="button"
                         onClick={discardPendingOrder}
                         aria-label="Descartar aviso de cobro pendiente"
-                        className="flex min-h-12 items-center rounded-xl px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
+                        className="flex min-h-12 items-center px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
                       >
                         Descartar aviso
                       </button>
@@ -2452,7 +2451,7 @@ export default function CajaApp({
                 {restoredDraftAt ? (
                   <div
                     role="status"
-                    className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-separator bg-surface px-3 py-2 text-sm text-ink-2"
+                    className="mb-4 flex flex-wrap items-center justify-between gap-2 border-l-2 border-accent bg-green-soft/40 px-3 py-2 text-sm text-ink-2"
                   >
                     <p className="flex min-w-0 items-center gap-2 font-medium text-ink">
                       <Clock3 className="h-4 w-4 shrink-0 text-accent" />
@@ -2463,7 +2462,7 @@ export default function CajaApp({
                         type="button"
                         onClick={keepRestoredDraft}
                         aria-label="Continuar venta recuperada"
-                        className="flex min-h-12 items-center rounded-xl px-3 text-sm font-semibold text-green transition hover:text-accent"
+                        className="flex min-h-12 items-center px-3 text-sm font-semibold text-accent transition hover:text-accent-press"
                       >
                         Continuar venta
                       </button>
@@ -2471,7 +2470,7 @@ export default function CajaApp({
                         type="button"
                         onClick={discardRestoredDraft}
                         aria-label="Descartar borrador de venta"
-                        className="flex min-h-12 shrink-0 items-center rounded-xl px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
+                        className="flex min-h-12 shrink-0 items-center px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
                       >
                         Descartar borrador
                       </button>
@@ -2527,11 +2526,19 @@ export default function CajaApp({
                 />
               </section>
 
-              <div className="caja-aside min-w-0">
+              <aside className="caja-page caja-page--libro min-w-0">
+                <CajaBook
+                  summary={dashboard?.summary ?? null}
+                  credits={pendingCredits}
+                  loading={loading}
+                  error={dashboardError}
+                  demoMode={demoMode}
+                  onGoToFiado={() => selectTab("fiado")}
+                />
                 {/* Cobros pendientes después de la venta: la acción principal
                     (registrar) no se empuja fuera del primer viewport a 200 %. */}
                 {(dashboard?.pendingOrders?.length ?? 0) > 0 ? (
-                  <div id="cobros-pendientes" className="mb-4 scroll-mt-[72px]">
+                  <div id="cobros-pendientes" className="scroll-mt-[72px]">
                     <MemoPendingPayments
                       orders={dashboard?.pendingOrders ?? []}
                       lastCheckedAt={pendingCheckedAt}
@@ -2548,14 +2555,14 @@ export default function CajaApp({
                   error={dashboardError}
                   onSelect={selectOrder}
                 />
-                <div className="caja-trust-note mt-4 flex items-start gap-2.5 rounded-xl border border-separator bg-surface p-3.5 text-sm leading-relaxed text-ink-2">
+                <div className="caja-trust-note flex items-start gap-2.5 text-sm leading-relaxed text-ink-2">
                   <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-green" />
                   <p className="min-w-0 flex-1">
                     Ningún pedido se marca pagado sin la confirmación firmada de pey. Una
                     captura no cuenta.
                   </p>
                 </div>
-              </div>
+              </aside>
             </div>
           </div>
 
@@ -2656,6 +2663,7 @@ export default function CajaApp({
             </p>
           </footer>
         </main>
+        </div>
       </div>
 
       <CreditPaySheet
@@ -2819,6 +2827,112 @@ export default function CajaApp({
 /*                                   Caja                                     */
 /* -------------------------------------------------------------------------- */
 
+function CajaBook({
+  summary,
+  credits,
+  loading,
+  error,
+  demoMode,
+  onGoToFiado,
+}: {
+  summary: DashboardData["summary"] | null;
+  credits: Credit[];
+  loading: boolean;
+  error: string | null;
+  demoMode: boolean;
+  onGoToFiado: () => void;
+}) {
+  const cash = summary?.cashCents ?? 0;
+  const verified = summary?.verifiedDigitalCents ?? 0;
+  const pending = summary?.pendingCents ?? 0;
+  const collected = cash + verified;
+  const shown = credits.slice(0, 4);
+
+  return (
+    <>
+      <section className="book-sheet" aria-labelledby="cuanto-llevo">
+        <div className="book-title">
+          <h2 id="cuanto-llevo">Cuánto llevo</h2>
+          <span>{demoMode ? "Hoy · demo" : "Hoy"}</span>
+        </div>
+        {summary ? (
+          <>
+            <table className="ledger">
+              <tbody>
+                <tr>
+                  <th scope="row">Efectivo</th>
+                  <td>{formatMxn(cash)}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Digital verificado</th>
+                  <td>{formatMxn(verified)}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Por cobrar</th>
+                  <td>{formatMxn(pending)}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th scope="row">Cobrado hoy</th>
+                  <td>
+                    <AnimatedAmount cents={collected} />
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+            <p className="book-note">
+              Cobrado hoy es efectivo más digital verificado por pey. Por cobrar
+              todavía no entró a la caja.
+            </p>
+          </>
+        ) : (
+          <p className="book-note">
+            {error
+              ? "No hay una lectura nueva de la caja. No mostramos cifras inventadas."
+              : loading
+                ? "Cargando la libreta…"
+                : "Todavía no hay movimientos hoy."}
+          </p>
+        )}
+      </section>
+
+      <section className="debt-note" aria-labelledby="lo-que-me-deben">
+        <div className="debt-note__head">
+          <h2 id="lo-que-me-deben">Lo que me deben</h2>
+          <span>
+            {credits.length === 1 ? "1 persona" : `${credits.length} personas`}
+          </span>
+        </div>
+        <div className="debt-note__total">
+          <span>Saldo vivo de fiado</span>
+          <strong>{formatMxn(credits.reduce((sum, credit) => sum + credit.balanceCents, 0))}</strong>
+        </div>
+        {shown.length > 0 ? (
+          <>
+            {shown.map((credit) => (
+              <div key={credit.id} className="debt-row">
+                <span className="debt-row__name">{credit.customerName ?? "Cliente"}</span>
+                <span className="debt-row__amount">{formatMxn(credit.balanceCents)}</span>
+              </div>
+            ))}
+            <button type="button" onClick={onGoToFiado} className="debt-link">
+              <span>Ver la libreta de fiado</span>
+              <ChevronRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+            </button>
+          </>
+        ) : (
+          <p className="debt-empty">
+            Sin fiados pendientes. Cuando anotes uno en la venta, aquí aparece el nombre y
+            lo que debe.
+          </p>
+        )}
+        <p className="book-note">Fiado no es dinero recibido ni una venta nueva.</p>
+      </section>
+    </>
+  );
+}
+
 function CajaPanel(props: {
   listening: boolean;
   transcribing: boolean;
@@ -2923,33 +3037,62 @@ function CajaPanel(props: {
     });
   };
 
+  const startCreditSale = () => {
+    if (draftItems.length === 0) {
+      commitItems([
+        { id: newDraftItemId(), description: "", quantity: 1, unitPriceCents: 0 },
+      ]);
+    }
+    window.setTimeout(() => {
+      document.getElementById("fiado-amount")?.focus();
+    }, 90);
+  };
+
   return (
-    <div className="space-y-4">
-      <section className="caja-panel paper-card rounded-2xl border border-separator bg-surface p-4 shadow-card sm:p-6">
+    <div className="caja-notebook">
+      <section className="caja-panel">
         <div className="caja-card-header flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0">
-            <h2 className="caja-card-title text-[1.375rem] font-semibold tracking-tight text-ink">¿Qué vendiste?</h2>
-            <p className="caja-card-subtitle mt-1 text-sm leading-relaxed text-ink-2">
+            <h2 className="caja-card-title">¿Qué vendiste?</h2>
+            <p className="caja-card-subtitle">
               Habla o escribe; tú confirmas.
             </p>
           </div>
           <button
             type="button"
             onClick={onVoiceHelp}
-            className="flex min-h-[48px] shrink-0 items-center gap-1.5 rounded-full border border-separator bg-surface px-3 text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-ink"
+            className="flex min-h-[48px] shrink-0 items-center gap-1.5 px-2 text-sm font-semibold text-ink-2 transition hover:text-ink"
           >
             <Volume2 className="h-4 w-4" />
             Escuchar
           </button>
         </div>
 
-        <div className="caja-entry">
-        <div className="caja-voice mt-4 flex flex-wrap items-start gap-4">
-          <div className="flex w-[144px] shrink-0 flex-col items-center gap-1.5">
-            <div className="relative flex h-[80px] w-[80px] items-center justify-center">
+        <div className="calc-display">
+          <div className="calc-display__top">
+            <span className="calc-display__label">Tu venta</span>
+            <span className="calc-display__meta">
+              {draftItems.length > 0
+                ? `${draftItems.length} ${draftItems.length === 1 ? "renglón" : "renglones"}`
+                : "en blanco"}
+            </span>
+          </div>
+          <p className="calc-display__total">
+            <AnimatedAmount cents={draftTotal} />
+          </p>
+          <p className="calc-display__hint">
+            {digitalDue > 0
+              ? `${formatMxn(digitalDue)} se cobran con link`
+              : "La IA interpreta; tú confirmas."}
+          </p>
+        </div>
+
+        <div className="caja-voice">
+          <div className="mic-wrap">
+            <div className="relative flex h-[94px] w-[94px] items-center justify-center">
               <span
                 aria-hidden="true"
-                className="mic-halo absolute -inset-2 rounded-full border border-dashed border-accent/25"
+                className="mic-halo absolute -inset-1.5 rounded-full border border-dashed"
               />
               {listening ? (
                 <>
@@ -2959,6 +3102,7 @@ function CajaPanel(props: {
               ) : null}
               <button
                 type="button"
+                data-listening={listening ? "true" : "false"}
                 aria-label={listening ? "Soltar para terminar" : "Mantén presionado para hablar"}
                 onPointerDown={(event) => {
                   event.preventDefault();
@@ -2987,12 +3131,7 @@ function CajaPanel(props: {
                   }
                 }}
                 disabled={transcribing}
-                className={cn(
-                  "mic-button on-accent relative flex h-[80px] w-[80px] touch-none select-none items-center justify-center rounded-full transition-colors disabled:opacity-60",
-                  listening
-                    ? "bg-danger text-white ring-4 ring-danger/20"
-                    : "bg-accent text-white hover:bg-accent-press",
-                )}
+                className="mic-button on-accent touch-none select-none disabled:opacity-60"
               >
                 {transcribing ? (
                   <Loader2 className="h-7 w-7 animate-spin" />
@@ -3010,16 +3149,13 @@ function CajaPanel(props: {
                     ))}
                   </span>
                 ) : (
-                  <Mic className="h-8 w-8" strokeWidth={1.8} />
+                  <Mic strokeWidth={1.8} />
                 )}
               </button>
             </div>
-            <span
-              aria-hidden="true"
-              className="w-full text-center text-sm font-semibold text-ink-2"
-            >
+            <span className="mic-label" aria-hidden="true">
               {listening
-                ? `${recordingSeconds}s`
+                ? `Grabando · ${recordingSeconds}s`
                 : transcribing
                   ? "Interpretando…"
                   : "Mantén y habla"}
@@ -3029,69 +3165,124 @@ function CajaPanel(props: {
             </span>
           </div>
 
-          <div className="min-w-[7rem] flex-1 pt-1">
+          <div className="caja-entry caja-text-entry">
+            <label htmlFor="sale-text" className="text-sm font-bold text-ink-2">
+              Escribe la venta
+            </label>
+            <div className="sale-line">
+              <input
+                id="sale-text"
+                value={textInput}
+                onChange={(event) => onTextInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") onInterpret();
+                }}
+                placeholder="Ej. 2 quesadillas $35"
+                className="sale-line__input"
+              />
+              <button
+                type="button"
+                onClick={onInterpret}
+                disabled={!textInput.trim() || transcribing}
+                aria-busy={transcribing}
+                data-chrome-critical
+                className="interpret-key"
+              >
+                {transcribing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles className="h-4 w-4" aria-hidden="true" />
+                    Interpretar
+                  </span>
+                )}
+              </button>
+            </div>
+
             {transcript ? (
-              <div className="rounded-xl border border-separator bg-surface px-3 py-2 text-sm leading-relaxed text-ink">
-                {transcript}
-              </div>
+              <div className="transcript-note">{transcript}</div>
             ) : (
-              <p className="text-sm leading-relaxed text-ink-2">
+              <p className="mt-1.5 text-sm leading-snug text-ink-2">
                 {listening
                   ? "Di productos, cantidades y precios. Suelta para terminar."
-                  : "Mantén y habla. Si hay ruido, escribe la venta."}
+                  : "Si hay ruido en el mercado, escribe la venta."}
               </p>
             )}
-            <p className="mt-1 text-xs text-ink-2">La IA interpreta; tú confirmas.</p>
+
+            {voiceError ? (
+              <div className="mt-3 border-l-2 border-danger bg-terracotta-soft/70 px-3 py-2">
+                <p role="alert" className="text-sm font-medium text-danger">
+                  {voiceError}
+                </p>
+                <button
+                  type="button"
+                  onClick={addDraftItem}
+                  className="mt-1 flex min-h-12 items-center gap-1.5 text-sm font-semibold text-danger underline underline-offset-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Escribir productos
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
 
-        <div className="caja-text-entry">
-        <label htmlFor="sale-text" className="mt-4 block text-xs font-semibold text-ink-2">
-          Escribe la venta
-        </label>
-        <div className="sale-entry-row mt-1 flex flex-col gap-2 sm:flex-row">
-          <input
-            id="sale-text"
-            value={textInput}
-            onChange={(event) => onTextInput(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") onInterpret();
-            }}
-            placeholder="Ej. 2 quesadillas $35"
-            className="min-h-12 min-w-0 flex-1 rounded-xl border border-control-border bg-surface-2 px-3 text-[1rem] text-ink outline-none placeholder:text-placeholder focus:border-accent/40"
-          />
-          <button
-            type="button"
-            onClick={onInterpret}
-            disabled={!textInput.trim() || transcribing}
-            aria-busy={transcribing}
-            data-chrome-critical
-            className="interpret-button flex min-h-12 w-full shrink-0 items-center justify-center gap-1.5 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-green transition hover:border-accent/40 disabled:opacity-50 sm:w-auto"
-          >
-            {transcribing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-            Interpretar
-          </button>
-        </div>
-
-
-        {voiceError ? (
-          <div className="mt-3 rounded-xl bg-terracotta-soft px-3 py-2">
-            <p role="alert" className="text-sm font-medium text-danger">
-              {voiceError}
+        <div id="confirmar" className="checkout-key scroll-mt-20">
+          <div className="checkout-key__display">
+            <span className="checkout-key__label">Total de la venta</span>
+            <p className="checkout-key__total">
+              <AnimatedAmount cents={draftTotal} />
             </p>
+            <p className="checkout-key__note">
+              {digitalDue > 0
+                ? `${formatMxn(digitalDue)} por cobrar con link`
+                : appliedCreditCents > 0
+                  ? `${formatMxn(appliedCreditCents)} a fiado`
+                  : "Sin saldo digital pendiente"}
+              {overpay ? " · el fiado supera el total" : ""}
+            </p>
+          </div>
+          <div className="sale-key-grid grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={addDraftItem}
-              className="mt-1 flex min-h-12 items-center gap-1.5 text-sm font-semibold text-danger underline underline-offset-2"
+              onClick={startCreditSale}
+              className="interpret-key w-full"
+              aria-label="Fiar: abrir la nota de fiado"
             >
-              <Plus className="h-4 w-4" />
-              Escribir productos
+              <span className="flex items-center justify-center gap-1.5">
+                <NotebookPen className="h-4 w-4" aria-hidden="true" />
+                Fiar
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={onCreate}
+              disabled={draftItems.length === 0 || savingOrder}
+              aria-busy={savingOrder}
+              aria-label={`Confirmar venta · Cobrar ${formatMxn(draftTotal)}`}
+              aria-describedby={saleError ? "sale-error" : undefined}
+              className="cobrar-key"
+            >
+              {savingOrder ? (
+                <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+              ) : (
+                <ArrowUpRight className="h-5 w-5" aria-hidden="true" />
+              )}
+              <span aria-hidden="true">Cobrar</span>
             </button>
           </div>
-        ) : null}
         </div>
 
-        <div className="sample-phrases mt-3 flex flex-wrap gap-2">
+        <div className="sample-phrases">
+          <button
+            type="button"
+            onClick={startCreditSale}
+            aria-label="Fiar: abrir la nota de fiado"
+            className="note-chip"
+          >
+            <NotebookPen className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
+            Fiar
+          </button>
           {SAMPLE_PHRASES.map((phrase) => {
             const label = SAMPLE_LABELS[phrase] ?? phrase;
             return (
@@ -3100,21 +3291,20 @@ function CajaPanel(props: {
                 type="button"
                 onClick={() => onSample(phrase)}
                 aria-label={`${label}: ${phrase}`}
-                className="inline-flex max-w-full min-h-12 shrink-0 items-center rounded-full border border-separator bg-surface px-3 text-left text-sm font-medium text-ink-2 transition hover:border-accent/40 hover:text-accent"
+                className="note-chip"
               >
                 {label}
               </button>
             );
           })}
         </div>
-        </div>
       </section>
 
-      <section id="pedido" className="paper-card scroll-mt-20 rounded-2xl border border-separator bg-surface p-5 shadow-card sm:p-6">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-[1.375rem] font-semibold tracking-tight text-ink">Pedido en curso</h2>
-            <p className="mt-0.5 text-sm text-ink-2">
+      <section id="pedido" className="draft-sheet scroll-mt-20">
+        <div className="draft-sheet__head">
+          <div className="min-w-0">
+            <h2 className="draft-sheet__title">Pedido en curso</h2>
+            <p className="draft-sheet__meta">
               {draftItems.length > 0
                 ? `${draftItems.length} ${draftItems.length === 1 ? "producto" : "productos"}`
                 : "Todavía no hay productos"}
@@ -3126,7 +3316,7 @@ function CajaPanel(props: {
               onClick={() => setConfirmingClear(true)}
               aria-expanded={confirmingClear}
               aria-controls={confirmingClear ? "clear-confirmation" : undefined}
-              className="flex min-h-12 items-center gap-1.5 rounded-xl px-2.5 text-sm font-semibold text-ink-2 transition hover:text-danger"
+              className="flex min-h-12 items-center gap-1.5 px-1 text-sm font-semibold text-ink-2 transition hover:text-danger"
             >
               <Trash2 className="h-4 w-4" />
               Limpiar
@@ -3137,14 +3327,14 @@ function CajaPanel(props: {
         {confirmingClear && draftItems.length > 0 ? (
           <div
             id="clear-confirmation"
-            className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-danger/25 bg-terracotta-soft px-3 py-2"
+            className="mt-3 flex flex-wrap items-center justify-between gap-2 border-l-2 border-danger bg-terracotta-soft/80 px-3 py-2"
           >
             <p className="text-sm font-semibold text-ink">¿Descartar la venta sin confirmar?</p>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={() => setConfirmingClear(false)}
-                className="flex min-h-12 items-center rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-ink"
+                className="flex min-h-12 items-center border border-control-border bg-surface px-3 text-sm font-semibold text-ink"
               >
                 Cancelar
               </button>
@@ -3157,7 +3347,7 @@ function CajaPanel(props: {
                     document.getElementById("draft-add-empty")?.focus();
                   });
                 }}
-                className="flex min-h-12 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-danger"
+                className="flex min-h-12 items-center gap-1.5 px-3 text-sm font-semibold text-danger"
               >
                 <Trash2 className="h-4 w-4" />
                 Sí, limpiar
@@ -3169,14 +3359,14 @@ function CajaPanel(props: {
         {draftItems.length > 0 && transcript ? (
           <p
             role="status"
-            className="mt-4 rounded-xl border border-green/20 bg-green-soft/50 px-3 py-2 text-sm font-semibold text-ink"
+            className="mt-3 border-l-2 border-green bg-green-soft/50 px-3 py-2 text-sm font-semibold text-ink"
           >
             Escuché {formatMxn(draftTotal)}. ¿Confirmas?
           </p>
         ) : null}
 
         {draftItems.length > 0 ? (
-          <div className="mt-4 space-y-2.5">
+          <div className="draft-list mt-2">
             {draftItems.map((item, index) => {
               const priceText =
                 priceInputs[item.id] ??
@@ -3185,130 +3375,128 @@ function CajaPanel(props: {
               return (
                 <div
                   key={item.id}
-                  className={cn(
-                    "control-frame draft-item rounded-xl border bg-surface-2 p-3",
-                    itemError ? "border-danger/50" : "border-separator",
-                  )}
+                  className={cn("draft-item", itemError && "border-danger/60")}
                 >
-                  <div className="flex items-start gap-2">
-                    <input
-                      id={`draft-description-${item.id}`}
-                      value={item.description}
-                      onChange={(event) => {
+                  <span className="draft-item__num" aria-hidden="true">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <input
+                    id={`draft-description-${item.id}`}
+                    value={item.description}
+                    onChange={(event) => {
+                      const next = [...draftItems];
+                      next[index] = { ...item, description: event.target.value };
+                      commitItems(next);
+                    }}
+                    placeholder="Producto"
+                    aria-invalid={itemError?.field === "description"}
+                    aria-describedby={itemError ? `item-error-${item.id}` : undefined}
+                    className="draft-item__desc"
+                    aria-label="Producto"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      commitItems(draftItems.filter((candidate) => candidate.id !== item.id))
+                    }
+                    className="draft-item__remove flex items-center justify-center"
+                    aria-label="Quitar producto"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                  <div className="draft-item__qty">
+                    <button
+                      type="button"
+                      onClick={() => {
                         const next = [...draftItems];
-                        next[index] = { ...item, description: event.target.value };
+                        next[index] = { ...item, quantity: Math.max(0.25, item.quantity - 1) };
                         commitItems(next);
                       }}
-                      placeholder="Producto"
-                      aria-invalid={itemError?.field === "description"}
+                      className="qty-key"
+                      aria-label="Menos cantidad"
+                    >
+                      <span className="text-lg leading-none">−</span>
+                    </button>
+                    <input
+                      id={`draft-quantity-${item.id}`}
+                      type="number"
+                      min={0.25}
+                      step={0.25}
+                      inputMode="decimal"
+                      autoComplete="off"
+                      value={item.quantity}
+                      onChange={(event) => {
+                        const next = [...draftItems];
+                        const value = Number(event.target.value);
+                        next[index] = {
+                          ...item,
+                          quantity: Number.isFinite(value) ? Math.max(0.25, value) : 0.25,
+                        };
+                        commitItems(next);
+                      }}
+                      aria-invalid={itemError?.field === "quantity"}
                       aria-describedby={itemError ? `item-error-${item.id}` : undefined}
-                      className="min-h-12 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 text-[1rem] font-semibold text-ink outline-none placeholder:text-placeholder focus:border-control-border focus:bg-surface"
-                      aria-label="Producto"
+                      className="qty-input tabular"
+                      aria-label="Cantidad"
                     />
                     <button
                       type="button"
-                      onClick={() =>
-                        commitItems(draftItems.filter((candidate) => candidate.id !== item.id))
-                      }
-                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg text-ink-2 transition hover:bg-surface hover:text-danger"
-                      aria-label="Quitar producto"
+                      onClick={() => {
+                        const next = [...draftItems];
+                        next[index] = { ...item, quantity: item.quantity + 1 };
+                        commitItems(next);
+                      }}
+                      className="qty-key"
+                      aria-label="Más cantidad"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <span className="text-lg leading-none">+</span>
                     </button>
                   </div>
-                  <div className="mt-1 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const next = [...draftItems];
-                          next[index] = { ...item, quantity: Math.max(0.25, item.quantity - 1) };
-                          commitItems(next);
-                        }}
-                        className="flex h-12 w-12 items-center justify-center rounded-lg border border-separator bg-surface text-ink-2"
-                        aria-label="Menos cantidad"
-                      >
-                        <span className="text-lg leading-none">−</span>
-                      </button>
-                      <input
-                        id={`draft-quantity-${item.id}`}
-                        type="number"
-                        min={0.25}
-                        step={0.25}
-                        inputMode="decimal"
-                        autoComplete="off"
-                        value={item.quantity}
-                        onChange={(event) => {
-                          const next = [...draftItems];
-                          const value = Number(event.target.value);
-                          next[index] = {
-                            ...item,
-                            quantity: Number.isFinite(value) ? Math.max(0.25, value) : 0.25,
-                          };
-                          commitItems(next);
-                        }}
-                        aria-invalid={itemError?.field === "quantity"}
-                        aria-describedby={itemError ? `item-error-${item.id}` : undefined}
-                        className="tabular h-12 w-14 rounded-lg border border-transparent bg-transparent text-center text-[1rem] font-semibold text-ink outline-none focus:border-separator focus:bg-surface"
-                        aria-label="Cantidad"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const next = [...draftItems];
-                          next[index] = { ...item, quantity: item.quantity + 1 };
-                          commitItems(next);
-                        }}
-                        className="flex h-12 w-12 items-center justify-center rounded-lg border border-separator bg-surface text-ink-2"
-                        aria-label="Más cantidad"
-                      >
-                        <span className="text-lg leading-none">+</span>
-                      </button>
-                    </div>
-                    <label className="flex items-center gap-1 text-sm font-medium text-ink-2">
-                      $
-                      <input
-                        id={`draft-price-${item.id}`}
-                        type="text"
-                        inputMode="decimal"
-                        autoComplete="off"
-                        value={priceText}
-                        placeholder="0.00"
-                        onFocus={(event) => event.currentTarget.select()}
-                        onChange={(event) => {
-                          const raw = event.target.value;
-                          setPriceInputs((current) => ({ ...current, [item.id]: raw }));
-                          const next = [...draftItems];
-                          next[index] = {
-                            ...item,
-                            unitPriceCents: parseMoneyInput(raw),
-                          };
-                          commitItems(next);
-                        }}
-                        onBlur={(event) => {
-                          const raw = event.target.value;
-                          const cents = parseMoneyInput(raw);
-                          setPriceInputs((current) => ({
-                            ...current,
-                            [item.id]: formatMoneyInput(raw),
-                          }));
-                          const next = [...draftItems];
-                          next[index] = { ...item, unitPriceCents: cents };
-                          if (cents !== item.unitPriceCents) commitItems(next);
-                        }}
-                        aria-invalid={itemError?.field === "price"}
-                        aria-describedby={itemError ? `item-error-${item.id}` : undefined}
-                        style={{ width: `${Math.max(7, priceText.length + 1)}ch` }}
-                        className="tabular h-12 rounded-lg border border-transparent bg-transparent px-1 text-right text-[1rem] font-semibold text-ink outline-none placeholder:text-ink-2/40 focus:border-separator focus:bg-surface"
-                        aria-label="Precio unitario"
-                      />
-                    </label>
-                  </div>
+                  <label className="draft-item__price">
+                    $
+                    <input
+                      id={`draft-price-${item.id}`}
+                      type="text"
+                      inputMode="decimal"
+                      autoComplete="off"
+                      value={priceText}
+                      placeholder="0.00"
+                      onFocus={(event) => event.currentTarget.select()}
+                      onChange={(event) => {
+                        const raw = event.target.value;
+                        setPriceInputs((current) => ({ ...current, [item.id]: raw }));
+                        const next = [...draftItems];
+                        next[index] = {
+                          ...item,
+                          unitPriceCents: parseMoneyInput(raw),
+                        };
+                        commitItems(next);
+                      }}
+                      onBlur={(event) => {
+                        const raw = event.target.value;
+                        const cents = parseMoneyInput(raw);
+                        setPriceInputs((current) => ({
+                          ...current,
+                          [item.id]: formatMoneyInput(raw),
+                        }));
+                        const next = [...draftItems];
+                        next[index] = { ...item, unitPriceCents: cents };
+                        if (cents !== item.unitPriceCents) commitItems(next);
+                      }}
+                      aria-invalid={itemError?.field === "price"}
+                      aria-describedby={itemError ? `item-error-${item.id}` : undefined}
+                      className="price-input tabular"
+                      aria-label="Precio unitario"
+                    />
+                  </label>
+                  <p className="draft-item__sub tabular">
+                    {formatMxn(Math.round(item.quantity * item.unitPriceCents))}
+                  </p>
                   {itemError ? (
                     <p
                       id={`item-error-${item.id}`}
                       role="alert"
-                      className="mt-2 text-sm font-medium text-danger"
+                      className="col-span-full text-sm font-medium text-danger"
                     >
                       {itemError.message}
                     </p>
@@ -3320,30 +3508,22 @@ function CajaPanel(props: {
               type="button"
               id="draft-add"
               onClick={addDraftItem}
-              className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-separator text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
+              className="draft-add flex items-center justify-center gap-1.5"
             >
               <Plus className="h-4 w-4" />
               Agregar producto
             </button>
           </div>
         ) : (
-          <div className="mt-4 space-y-2.5">
-            <div className="flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-separator px-4 py-3 text-left">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-soft text-green">
-                <ReceiptText className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 flex-1 basis-[8rem]">
-                <p className="text-sm font-semibold text-ink">La caja está lista</p>
-                <p className="mt-0.5 text-sm leading-relaxed text-ink-2">
-                  Habla o escribe arriba, o agrega un producto a mano.
-                </p>
-              </div>
-            </div>
+          <div className="mt-3">
+            <p className="draft-empty">
+              La hoja está en blanco. Habla, escribe arriba o agrega un producto a mano.
+            </p>
             <button
               type="button"
               id="draft-add-empty"
               onClick={addDraftItem}
-              className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-separator text-sm font-semibold text-ink-2 transition hover:border-accent/40 hover:text-accent"
+              className="draft-add flex items-center justify-center gap-1.5"
             >
               <Plus className="h-4 w-4" />
               Agregar producto
@@ -3353,13 +3533,13 @@ function CajaPanel(props: {
 
         {draftItems.length > 0 ? (
           <>
-            <div className="split-fields mt-4 grid gap-2.5">
-              <label className="control-frame rounded-xl border border-separator bg-surface-2 p-3">
-                <span className="flex items-center gap-1.5 text-sm font-semibold text-ink-2">
+            <div className="split-fields">
+              <label className="control-frame pay-line">
+                <span className="pay-line__label">
                   <Banknote className="h-4 w-4" />
                   Efectivo recibido
                 </span>
-                <div className="mt-1 flex items-center gap-1">
+                <div className="pay-line__row">
                   <span className="text-sm text-ink-2">$</span>
                   <input
                     id="cash-received"
@@ -3373,13 +3553,13 @@ function CajaPanel(props: {
                     placeholder="0.00"
                     aria-label="Efectivo recibido en pesos"
                     aria-describedby={changeCents > 0 ? "cash-change" : undefined}
-                    className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-placeholder"
+                    className="tabular"
                   />
                 </div>
                 {changeCents > 0 ? (
-                  <p id="cash-change" role="status" className="mt-1 text-sm font-semibold text-green">
+                  <p id="cash-change" role="status" className="text-sm font-semibold text-green">
                     Cambio {formatMxn(changeCents)}
-                    <span className="mt-0.5 block text-xs font-normal leading-relaxed text-ink-2">
+                    <span className="mt-0.5 block text-xs font-normal leading-snug text-ink-2">
                       {appliedCashCents > 0
                         ? `Se aplican ${formatMxn(appliedCashCents)} al cobro.`
                         : "No se aplica efectivo al cobro."}
@@ -3388,12 +3568,12 @@ function CajaPanel(props: {
                 ) : null}
               </label>
 
-              <label className="control-frame rounded-xl border border-separator bg-surface-2 p-3">
-                <span className="flex items-center gap-1.5 text-sm font-semibold text-ink-2">
+              <label className="control-frame pay-line">
+                <span className="pay-line__label">
                   <NotebookPen className="h-4 w-4" />
                   A fiado
                 </span>
-                <div className="mt-1 flex items-center gap-1">
+                <div className="pay-line__row">
                   <span className="text-sm text-ink-2">$</span>
                   <input
                     id="fiado-amount"
@@ -3408,7 +3588,7 @@ function CajaPanel(props: {
                     aria-label="Monto a fiado en pesos"
                     aria-invalid={overpay}
                     aria-describedby={overpay ? "fiado-overpay" : undefined}
-                    className="tabular min-h-12 w-full bg-transparent text-[1.125rem] font-semibold text-ink outline-none placeholder:text-placeholder"
+                    className="tabular"
                   />
                 </div>
               </label>
@@ -3421,7 +3601,7 @@ function CajaPanel(props: {
             ) : null}
 
             {creditCents > 0 ? (
-              <label className="control-frame mt-2.5 flex min-h-12 items-center gap-2 rounded-xl border border-attention/25 bg-terracotta-soft/60 px-3">
+              <label className="control-frame fiado-customer">
                 <UserRound className="h-4 w-4 shrink-0 text-attention" />
                 <input
                   id="fiado-customer"
@@ -3431,7 +3611,6 @@ function CajaPanel(props: {
                   aria-label="¿Quién queda a deber? Ej. Juan"
                   aria-invalid={Boolean(saleError) && creditCents > 0 && !customerName.trim()}
                   aria-describedby={saleError ? "sale-error" : undefined}
-                  className="min-w-0 flex-1 bg-transparent text-[1rem] font-semibold text-ink outline-none placeholder:text-placeholder"
                 />
               </label>
             ) : null}
@@ -3440,38 +3619,11 @@ function CajaPanel(props: {
               <p
                 id="sale-error"
                 role="alert"
-                className="mt-3 rounded-xl bg-terracotta-soft px-3 py-2 text-sm font-medium text-danger"
+                className="mt-3 border-l-2 border-danger bg-terracotta-soft/80 px-3 py-2 text-sm font-medium text-danger"
               >
                 {saleError}
               </p>
             ) : null}
-
-            <div id="confirmar" className="mt-4 scroll-mt-20 flex flex-col gap-3 border-t border-separator pt-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
-              <div>
-                <p className="tabular text-[1.75rem] font-semibold leading-none tracking-tight text-ink">
-                  <AnimatedAmount cents={draftTotal} />
-                </p>
-                <p className="mt-1 text-sm text-ink-2">
-                  {digitalDue > 0
-                    ? `${formatMxn(digitalDue)} por cobrar con link`
-                    : appliedCreditCents > 0
-                      ? `${formatMxn(appliedCreditCents)} a fiado`
-                      : "Sin saldo digital pendiente"}
-                  {overpay ? " · el fiado supera el total" : ""}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={onCreate}
-                disabled={draftItems.length === 0 || savingOrder}
-                aria-busy={savingOrder}
-                aria-describedby={saleError ? "sale-error" : undefined}
-                className="cta-primary on-accent flex min-h-12 w-full items-center justify-center gap-2 bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto"
-              >
-                {savingOrder ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}
-                Confirmar venta
-              </button>
-            </div>
           </>
         ) : null}
       </section>
@@ -3940,7 +4092,7 @@ function PaymentPanel(props: {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-attention opacity-50" />
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-attention" />
             </span>
-            Esperando al banco
+            Esperando confirmación
           </div>
           <p className="mt-1 text-sm leading-relaxed text-ink-2">
             Esta pantalla se actualiza sola cuando pey confirma el pago. No entregues antes.
@@ -4032,7 +4184,7 @@ function BusinessOverview({
   }
 
   return (
-    <div className="paper-card relative overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
+    <div className="book-sheet relative overflow-hidden">
       <div className="border-b border-separator bg-canvas/60 px-[18px] py-4 sm:px-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -4221,7 +4373,7 @@ function BusinessOverview({
           <div className="mt-5">
             <div className="flex items-baseline justify-between gap-3">
               <p className="text-sm font-semibold text-ink-2">
-                {period === "month" ? "Últimos 30 días" : "Últimos 7 días"}
+                {period === "month" ? "íšltimos 30 días" : "íšltimos 7 días"}
               </p>
               {report.bestDay ? (
                 <p className="text-sm text-ink-2">
@@ -4870,7 +5022,7 @@ function CashCloseCard({
   }
 
   return (
-    <div className="paper-card rounded-2xl border border-separator bg-surface p-[20px] shadow-card sm:p-6">
+    <div className="book-sheet p-[20px] sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <h2 className="min-w-0 text-[1.375rem] font-semibold tracking-tight text-ink">
           Cuenta el efectivo de hoy
@@ -5560,6 +5712,7 @@ function GoalCard({
 
   async function contribute() {
     if (!goal) return;
+    if (!amount.trim()) return;
     const amountCents = parseMoney(amount);
     if (amountCents <= 0) {
       setError("Escribe un monto mayor a cero.");
@@ -5627,7 +5780,7 @@ function GoalCard({
 
   if (!goal) {
     return (
-      <div className="rounded-2xl border border-dashed border-separator bg-surface p-6 text-center">
+      <div className="book-sheet border border-dashed border-separator p-6 text-center">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-soft text-green">
           <Sparkles className="h-5 w-5" />
         </div>
@@ -5639,7 +5792,7 @@ function GoalCard({
 
   return (
     <>
-      <div className="goal-card paper-card rounded-2xl border border-separator bg-surface p-[20px] shadow-card sm:p-5">
+      <div className="goal-card book-sheet p-[20px] sm:p-5">
         <div className="goal-card-header flex items-start justify-between gap-3">
           <p className="text-sm font-semibold text-ink-2">Mi camino</p>
           <div className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full bg-green-soft text-green">
@@ -5671,6 +5824,31 @@ function GoalCard({
           </div>
         </div>
 
+        <div className="goal-action-row flex flex-col gap-2 sm:flex-row">
+          <div className="control-frame flex min-h-12 flex-1 items-center gap-1 rounded-xl border border-separator bg-surface-2 px-3">
+            <span className="text-sm text-ink-2">$</span>
+            <input
+              value={amount}
+              onChange={(event) => setAmount(event.target.value)}
+              inputMode="decimal"
+              placeholder="¿Cuánto apartaste?"
+              aria-label="¿Cuánto apartaste?"
+              className="tabular min-h-12 w-full bg-transparent text-[1rem] text-ink outline-none placeholder:text-placeholder"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => void contribute()}
+            disabled={saving || amount.trim() === ""}
+            aria-busy={saving}
+            data-chrome-critical
+            className="cta-primary on-accent flex min-h-12 w-full items-center justify-center gap-1.5 bg-accent px-3 text-sm font-semibold text-white transition hover:bg-accent-press disabled:opacity-60 sm:w-auto"
+          >
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            Apartar
+          </button>
+        </div>
+
         <div className="goal-stats grid grid-cols-1 gap-2.5 border-t border-separator pt-3 sm:grid-cols-2">
           <div className="min-w-0">
             <p className="text-xs text-ink-2">Falta</p>
@@ -5690,31 +5868,6 @@ function GoalCard({
             : "Sin fecha límite"}
         </p>
 
-        <div className="goal-action-row flex flex-col gap-2 sm:flex-row">
-          <div className="control-frame flex min-h-12 flex-1 items-center gap-1 rounded-xl border border-separator bg-surface-2 px-3">
-            <span className="text-sm text-ink-2">$</span>
-            <input
-              value={amount}
-              onChange={(event) => setAmount(event.target.value)}
-              inputMode="decimal"
-              placeholder="¿Cuánto apartaste?"
-              aria-label="¿Cuánto apartaste?"
-              className="tabular min-h-12 w-full bg-transparent text-[1rem] text-ink outline-none placeholder:text-placeholder"
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => void contribute()}
-            disabled={saving}
-            aria-busy={saving}
-            data-chrome-critical
-            className="cta-primary on-accent flex min-h-12 w-full items-center justify-center gap-1.5 bg-accent px-3 text-sm font-semibold text-white transition hover:bg-accent-press disabled:opacity-60 sm:w-auto"
-          >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            Apartar
-          </button>
-        </div>
-
         {error ? (
           <p role="alert" className="rounded-xl bg-terracotta-soft px-3 py-2 text-sm text-danger">
             {error}
@@ -5728,7 +5881,7 @@ function GoalCard({
       </div>
       </div>
 
-      <figure className="mt-4 overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
+      <figure className="mt-4 overflow-hidden border border-separator">
         <div className="relative h-[160px] bg-surface-2 sm:h-44">
           <Image
             src="/puesto-flores.jpg"
@@ -5906,7 +6059,7 @@ function ActivityList({
   const failedWithoutData = Boolean(error) && orders.length === 0;
 
   return (
-    <div className="activity-list view-reveal paper-card rounded-2xl border border-separator bg-surface p-4 shadow-card sm:p-5">
+    <div className="activity-list">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-ink-2">Actividad</p>
@@ -5914,7 +6067,7 @@ function ActivityList({
             Últimos movimientos
           </h2>
         </div>
-        <span className="shrink-0 rounded-full border border-separator bg-surface px-2.5 py-1 text-xs font-semibold text-ink-2">
+        <span className="shrink-0 border border-separator bg-surface px-2.5 py-1 text-xs font-semibold text-ink-2">
           {failedWithoutData ? "Sin datos" : countText(orders.length, "pedido", "pedidos")}
         </span>
       </div>
@@ -6095,7 +6248,7 @@ function CreditList({
 
   return (
     <div className="space-y-4">
-      <div className="credit-list-card paper-card rounded-2xl border border-separator bg-surface p-4 shadow-card">
+      <div className="credit-list-card">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-ink-2">Saldo pendiente</p>
@@ -6125,7 +6278,7 @@ function CreditList({
           ))}
         </div>
       ) : credits.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-separator bg-surface p-6 text-center">
+        <div className="book-sheet border border-dashed border-separator p-6 text-center">
           <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-terracotta-soft text-attention">
             <NotebookPen className="h-5 w-5" />
           </div>
@@ -6147,7 +6300,7 @@ function CreditList({
       ) : (
         <div className="motion-list space-y-2.5">
           {credits.map((credit) => (
-            <div key={credit.id} className="credit-row rounded-2xl border border-separator bg-surface p-4">
+            <div key={credit.id} className="credit-row border-b border-separator py-3">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-terracotta-soft text-sm font-bold text-attention">
                   {initials(credit.customerName ?? "Cliente")}
@@ -6727,7 +6880,7 @@ function statusLabel(status: Order["status"]): string {
   const labels: Record<Order["status"], string> = {
     draft: "Borrador",
     confirmed: "Por cobrar",
-    payment_pending: "Esperando al banco",
+    payment_pending: "Esperando confirmación",
     partially_paid: "Pago parcial",
     paid: "Pagado",
     demo_paid: "Pago demo",
@@ -6832,19 +6985,19 @@ function AppSidebar({
   onDemo: () => void;
 }) {
   return (
-    <aside className="app-sidebar fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-separator bg-surface px-4 py-6 lg:flex">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="brand-mark flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-xl bg-accent font-display text-xl font-bold text-white">
+    <aside className="app-sidebar" aria-label="Índice de la libreta">
+      <div className="brand-lockup">
+        <div className="brand-mark flex h-[40px] w-[40px] shrink-0 items-center justify-center font-display text-xl font-bold text-white">
           0
         </div>
         <div className="min-w-0">
-          <p className="font-display text-xl leading-none tracking-tight text-ink">Mercado Cero</p>
-          <p className="brand-tagline mt-1 text-xs font-medium text-ink-2">La caja que habla</p>
+          <p className="brand-name">Mercado Cero</p>
+          <p className="brand-tagline">La caja que habla</p>
         </div>
       </div>
 
-      <nav aria-label="Navegación principal" className="mt-6 space-y-1">
-        {TABS.map((item) => {
+      <nav aria-label="Navegación principal">
+        {TABS.map((item, index) => {
           const active = tab === item.id;
           const Icon = item.icon;
           return (
@@ -6853,36 +7006,23 @@ function AppSidebar({
               type="button"
               onClick={(event) => onTab(item.id, event.detail === 0)}
               aria-current={active ? "page" : undefined}
-              className={cn(
-                "flex min-h-[48px] w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold transition",
-                active
-                  ? "bg-green-soft text-green"
-                  : "text-ink-2 hover:bg-surface-2 hover:text-ink",
-              )}
+              aria-label={item.label}
+              data-index={String(index + 1).padStart(2, "0")}
+              className="index-tab"
             >
-              <Icon className="h-5 w-5 shrink-0" strokeWidth={active ? 2.2 : 1.8} />
+              <Icon className="shrink-0" strokeWidth={active ? 2.2 : 1.8} />
               <span className="min-w-0">{item.label}</span>
             </button>
           );
         })}
       </nav>
 
-      <div className="sidebar-keepsake mt-auto" aria-hidden="true">
-        <span className="sidebar-keepsake__rule" />
-        <p className="font-display text-[1.05rem] italic leading-snug text-ink-2">
-          “El mercado no necesita más apps. Necesita certeza.”
-        </p>
-        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-ink-2/70">
-          Cuaderno de mercado
-        </p>
-      </div>
-
-      <div className="mt-2 space-y-1 border-t border-separator pt-4">
+      <div className="sidebar-foot">
         {demoMode ? (
           <button
             type="button"
             onClick={onDemo}
-            className="flex min-h-[48px] w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+            className="flex min-h-[48px] w-full items-center gap-2 px-2 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
             <RefreshCw className="h-5 w-5 shrink-0" />
             <span className="min-w-0">Modo demo</span>
@@ -6891,10 +7031,11 @@ function AppSidebar({
         <button
           type="button"
           onClick={onHelp}
-          className="flex min-h-[48px] w-full items-center gap-2 rounded-xl px-2.5 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+          aria-label="Ayuda y accesibilidad"
+          className="flex min-h-[48px] w-full items-center gap-2 px-2 text-left text-sm font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink"
         >
           <CircleHelp className="h-5 w-5 shrink-0" />
-          <span className="sidebar-label min-w-0">Ayuda y accesibilidad</span>
+          <span className="sidebar-label min-w-0">Ayuda</span>
         </button>
       </div>
     </aside>
@@ -6921,24 +7062,24 @@ function TopBar({
   onDemo: () => void;
 }) {
   return (
-    <header className="topbar sticky top-0 z-30 border-b border-separator bg-canvas/95 backdrop-blur-sm">
+    <header className="topbar">
       <div className="mx-auto flex min-h-14 max-w-[1200px] flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6 lg:px-8">
         <div className="min-w-0 flex-1 basis-[8rem]">
-          <p className="topbar-merchant truncate text-sm font-semibold text-ink" title={merchant?.name}>
+          <p className="topbar-merchant truncate" title={merchant?.name}>
             {merchant?.name ?? (unavailable ? "Negocio sin datos" : "Cargando el negocio…")}
           </p>
-          <p className="topbar-address text-xs text-ink-2">
+          <p className="topbar-address">
             {merchant?.address ?? (unavailable ? "No pudimos consultarlo" : "Un momento…")}
             <span className="hidden sm:inline"> · {today || "Hoy"}</span>
           </p>
         </div>
 
-        <div className="flex max-w-full shrink-0 flex-wrap items-center justify-end gap-1.5">
+        <div className="topbar-tools flex max-w-full shrink-0 flex-wrap items-center justify-end gap-1.5">
           {demoMode ? (
             <button
               type="button"
               onClick={onDemo}
-              className="demo-stamp inline-flex min-h-[48px] items-center rounded-full border border-attention/30 bg-terracotta-soft/70 px-2.5 text-[0.75rem] font-bold uppercase tracking-[0.06em] text-attention transition hover:border-attention/50"
+              className="stamp stamp--demo min-h-[48px]"
             >
               Demo
             </button>
@@ -6949,7 +7090,7 @@ function TopBar({
             aria-pressed={muted}
             aria-label={muted ? "Activar voz" : "Silenciar voz"}
             title={muted ? "Activar voz" : "Silenciar voz"}
-            className="flex h-[48px] w-[48px] items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+            className="flex h-[48px] w-[48px] items-center justify-center text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
             {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
           </button>
@@ -6958,7 +7099,7 @@ function TopBar({
             onClick={onHelp}
             aria-label="Abrir guía"
             title="Ayuda y accesibilidad"
-            className="flex h-[48px] w-[48px] items-center justify-center rounded-xl text-ink-2 transition hover:bg-surface-2 hover:text-ink"
+            className="flex h-[48px] w-[48px] items-center justify-center text-ink-2 transition hover:bg-surface-2 hover:text-ink"
           >
             <CircleHelp className="h-5 w-5" />
           </button>
@@ -6995,10 +7136,7 @@ function MobileTabBar({
                   ? item.label
                   : `${item.mobileLabel} (${item.label})`
               }
-              className={cn(
-                "relative flex min-h-14 flex-col items-center justify-center gap-1 px-0.5 text-xs font-semibold transition",
-                active ? "text-green" : "text-ink-2",
-              )}
+              className="relative flex min-h-14 flex-col items-center justify-center gap-1 px-0.5 text-xs font-semibold transition"
             >
               {active ? (
                 <span className="tab-marker absolute inset-x-4 top-0 h-0.5 rounded-full bg-accent" />
@@ -7580,3 +7718,6 @@ const MemoActivityList = memo(ActivityList);
 const MemoCreditList = memo(CreditList);
 const MemoPendingPayments = memo(PendingPayments);
 const MemoPendingTasksPanel = memo(PendingTasksPanel);
+
+
+

@@ -1,25 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Manrope } from "next/font/google";
+import { Atkinson_Hyperlegible, Fraunces } from "next/font/google";
 import "./globals.css";
+import "./barrio.css";
 
 /**
- * Fraunces se usa solo en su caja normal. No se piden ejes opcionales
- * (`opsz`/SOFT/WONK): el archivo variable latin queda en ~36 KiB y el dibujo
- * es el mismo porque esos ejes conservan su valor por defecto.
+ * Fraunces en un solo peso de título: el archivo latin queda pequeño y el
+ * contraste de escala lo da el tamaño, no una colección de pesos.
  */
 const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
+  weight: ["600"],
   display: "swap",
 });
 
 /**
- * Manrope es una fuente variable: un solo woff2 cubre 400–700, los pesos que
- * usa la interfaz. No se descargan pesos adicionales.
+ * Atkinson Hyperlegible para toda la interfaz: letras abiertas y distinguibles
+ * para leer precios, nombres y renglones de un vistazo.
  */
-const manrope = Manrope({
-  variable: "--font-manrope",
+const atkinson = Atkinson_Hyperlegible({
+  variable: "--font-atkinson",
   subsets: ["latin"],
+  weight: ["400", "700"],
   display: "swap",
 });
 
@@ -53,7 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="es-MX"
       suppressHydrationWarning
-      className={`${fraunces.variable} ${manrope.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${atkinson.variable} h-full antialiased`}
     >
       <head>
         {/* Aplica tamaño de texto y contraste antes del primer paint para que

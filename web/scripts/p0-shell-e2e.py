@@ -165,7 +165,10 @@ def main() -> int:
         browser = pw.chromium.launch()
 
         # ------------------------------------------------------------------
-        # 1 · Error de /api/dashboard: estado honesto, sin bucle, con reintento.
+        # 1 · SSR inicial + refresco fallido: estado honesto, sin bucle.
+        # El primer render no llama /api/dashboard: initialDashboard viene del
+        # servidor. El fallo se prueba con un refresco real (evento focus), no
+        # interceptando una carga cliente que ya no existe.
         # ------------------------------------------------------------------
         context = browser.new_context(
             viewport={"width": 360, "height": 800},
@@ -177,26 +180,39 @@ def main() -> int:
         reset_dashboard(page)
         dashboard_calls: list[int] = []
 
+        page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
+        page.wait_for_selector("text=Antojitos de Lupita", timeout=20000)
+        page.wait_for_timeout(700)
+        ssr_body = page.locator("body").inner_text()
+        check("SSR: el negocio llega en el primer render", "Antojitos de Lupita" in ssr_body)
+        check("SSR: no hay fetch cliente de /api/dashboard", len(dashboard_calls) == 0)
+        check("SSR: la caja se lee sin pantalla de error", "No pudimos cargar los datos del negocio." not in ssr_body)
+        check("SSR: conserva DEMO", page.get_by_role("button", name="Demo", exact=True).count() == 1)
+
         def fail_dashboard(route):
             dashboard_calls.append(1)
             route.fulfill(status=500, content_type="text/plain", body="fallo simulado")
 
         page.route("**/api/dashboard", fail_dashboard)
-        page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
+        page.evaluate("window.dispatchEvent(new Event('focus'))")
         page.wait_for_selector("text=No pudimos cargar los datos del negocio.", timeout=20000)
         page.wait_for_timeout(800)
 
         body = page.locator("body").inner_text()
-        check("dashboard 500 muestra error persistente", "No pudimos cargar los datos del negocio." in body)
-        check("dashboard 500 conserva DEMO", page.get_by_role("button", name="Demo", exact=True).count() == 1)
-        check("dashboard 500 no inventa el comercio", "Antojitos de Lupita" not in body, body.split("\n")[1] if body else "")
-        check("dashboard 500 no dice 'no hay ventas'", "Aún no hay ventas" not in body)
-        check("dashboard 500 no dice 'sin fiados'", "Sin fiados pendientes" not in body)
-        check("dashboard 500 ofrece Reintentar", page.get_by_role("button", name="Reintentar").count() == 1)
-        check("Actividad distingue error de vacío", "No pudimos cargar la actividad." in body)
+        check("refresco 500 muestra error persistente", "No pudimos cargar los datos del negocio." in body)
+        check("refresco 500 conserva DEMO", page.get_by_role("button", name="Demo", exact=True).count() == 1)
+        check("refresco 500 conserva comercio de la última carga", "Antojitos de Lupita" in body)
+        check("refresco 500 explica que los datos son viejos", "Lo que ves es de la última" in body)
+        check("refresco 500 no dice 'no hay ventas'", "Aún no hay ventas" not in body)
+        check("refresco 500 no dice 'sin fiados'", "Sin fiados pendientes" not in body)
+        check("refresco 500 ofrece Reintentar", page.get_by_role("button", name="Reintentar").count() >= 1)
+        check(
+            "Actividad distingue fallo de vacío",
+            "No pudimos actualizar la actividad." in body,
+        )
 
         first_count = len(dashboard_calls)
-        check("una sola carga inicial de /api/dashboard", first_count == 1, f"{first_count} llamada(s)")
+        check("un solo refresco por evento focus", first_count == 1, f"{first_count} llamada(s)")
         page.wait_for_timeout(2600)
         check(
             "sin bucle de /api/dashboard",
@@ -209,8 +225,9 @@ def main() -> int:
         page.wait_for_timeout(300)
         fiado_body = page.locator("body").inner_text()
         check(
-            "Fiado distingue error de vacío",
-            "No pudimos cargar los fiados." in fiado_body and "Sin fiados pendientes" not in fiado_body,
+            "Fiado distingue fallo de vacío",
+            "No pudimos actualizar el fiado." in fiado_body
+            and "Sin fiados pendientes" not in fiado_body,
         )
         page.screenshot(path=str(OUT / "e2e-error-fiado-360.png"))
 
@@ -231,13 +248,15 @@ def main() -> int:
         recovered = page.locator("body").inner_text()
         check("Reintentar recupera el comercio real", "Antojitos de Lupita" in recovered)
         check("el aviso de error desaparece al recuperar", "No pudimos cargar los datos del negocio." not in recovered)
-        check("la actividad vuelve a mostrar pedidos", "No pudimos cargar la actividad." not in recovered)
+        check("la actividad vuelve a mostrar pedidos", "No pudimos actualizar la actividad." not in recovered)
+        page.locator("button:visible", has_text="Caja").first.click()
+        page.wait_for_timeout(500)
         activity_items = page.evaluate(
             """() => {
               const heading = [...document.querySelectorAll('h2')].find(
                 el => (el.innerText || '').includes('Últimos movimientos')
               );
-              const card = heading ? heading.closest('div.rounded-2xl') : null;
+              const card = heading ? heading.closest('.activity-list') : null;
               return card ? card.querySelectorAll('button').length : 0;
             }"""
         )
@@ -257,13 +276,14 @@ def main() -> int:
         page = context.new_page()
         page.goto(BASE, wait_until="domcontentloaded", timeout=45000)
         page.wait_for_selector("text=Antojitos de Lupita", timeout=20000)
+        page.wait_for_selector("text=Últimos movimientos", timeout=20000)
         page.wait_for_timeout(900)
         before_items = page.evaluate(
             """() => {
               const heading = [...document.querySelectorAll('h2')].find(
                 el => (el.innerText || '').includes('Últimos movimientos')
               );
-              const card = heading ? heading.closest('div.rounded-2xl') : null;
+              const card = heading ? heading.closest('.activity-list') : null;
               return card ? card.querySelectorAll('button').length : 0;
             }"""
         )
@@ -288,7 +308,7 @@ def main() -> int:
               const heading = [...document.querySelectorAll('h2')].find(
                 el => (el.innerText || '').includes('Últimos movimientos')
               );
-              const card = heading ? heading.closest('div.rounded-2xl') : null;
+              const card = heading ? heading.closest('.activity-list') : null;
               return card ? card.querySelectorAll('button').length : 0;
             }"""
         )
@@ -866,3 +886,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

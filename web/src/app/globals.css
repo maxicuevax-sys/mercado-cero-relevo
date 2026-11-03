@@ -1,38 +1,39 @@
 @import "tailwindcss";
 
 @theme {
-  /* Mostrador claro — tokens semánticos */
-  --color-canvas: #f3ece0;
-  --color-surface: #fffdf8;
-  --color-surface-2: #ece3d4;
-  --color-ink: #1a211b;
-  --color-ink-2: #59615a;
-  /* Texto de placeholder: 5.0:1 sobre surface-2 y 6.0:1 sobre surface. */
-  --color-placeholder: #5c635c;
-  /* Borde de controles: 3.8:1 sobre surface-2 y 4.7:1 sobre surface.
-     `separator` se queda solo para hairlines y bordes de tarjetas. */
-  --color-control-border: #7a7165;
-  --color-separator: #d7ccb9;
-  --color-accent: #0a5b42;
-  --color-accent-press: #074433;
-  --color-success: #0a5b42;
-  --color-attention: #9c4e2b;
-  --color-danger: #a9241c;
+  /* Amable y de barrio — cuaderno de ventas, calculadora de mostrador */
+  --color-canvas: #f3ebdd;
+  --color-surface: #fff8ea;
+  --color-surface-2: #efe4d2;
+  --color-ink: #241f19;
+  --color-ink-2: #5f574c;
+  /* Texto de placeholder: 5.2:1 sobre surface-2 y 5.9:1 sobre surface. */
+  --color-placeholder: #6b6154;
+  /* Borde de controles: 3.7:1 sobre surface y 4.0:1 sobre surface-2. */
+  --color-control-border: #7d6b56;
+  --color-separator: #d8c9b2;
+  --color-accent: #0e5a45;
+  --color-accent-press: #0a4434;
+  --color-success: #0e5a45;
+  --color-attention: #8f3f25;
+  --color-danger: #a33a2b;
   --color-info: #2f5d8a;
-  --color-focus: #0a5b42;
+  --color-focus: #0e5a45;
 
   /* Compatibilidad mientras migramos componentes */
-  --color-line: #d7ccb9;
-  --color-green: #0a5b42;
-  --color-green-deep: #074433;
-  --color-green-soft: #e4efe7;
-  --color-terracotta: #a94e2d;
-  --color-terracotta-deep: #873c22;
-  --color-terracotta-soft: #f3e2d6;
-  --color-blue-soft: #e7eef6;
+  --color-line: #d8c9b2;
+  --color-green: #0e5a45;
+  --color-green-deep: #0a4434;
+  --color-green-soft: #dce9df;
+  --color-terracotta: #b95535;
+  --color-terracotta-deep: #8f3f25;
+  --color-terracotta-soft: #f3ddcf;
+  --color-saffron: #d99a3d;
+  --color-saffron-soft: #f7e8c9;
+  --color-blue-soft: #e4ecf5;
 
-  --font-sans: var(--font-manrope), -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-atkinson), "Atkinson Hyperlegible", "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
   --font-display: var(--font-fraunces);
 
   /* HIG: body 17/24, footnote 13/18. */
@@ -41,32 +42,20 @@
   --text-sm: 1.0625rem;
   --text-sm--line-height: 1.5rem;
 
-  --shadow-card: 0 1px 2px rgba(47, 38, 24, 0.05),
-    0 18px 36px -30px rgba(47, 38, 24, 0.35);
-  --shadow-lift: 0 28px 70px rgba(40, 31, 18, 0.2),
-    0 2px 8px rgba(40, 31, 18, 0.08);
+  --shadow-card: 0 1px 0 rgba(61, 47, 31, 0.06),
+    0 10px 24px -20px rgba(61, 47, 31, 0.5);
+  --shadow-lift: 0 20px 46px -28px rgba(45, 33, 20, 0.5),
+    0 2px 6px rgba(45, 33, 20, 0.08);
 }
 
 :root {
   --background: var(--color-canvas);
   --foreground: var(--color-ink);
-  --mc-tap: 48px;
   /* Alto real del chrome fijo; lo mide CajaApp con ResizeObserver. */
   --mc-chrome-top: 0px;
   --mc-chrome-bottom: 0px;
-  --mc-motion-fast: 160ms;
-  --mc-motion-base: 220ms;
-  --mc-motion-slow: 300ms;
   --mc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --mc-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  /* El sidebar crece con la raíz tipográfica: a 200 % no comprime sus labels. */
-  --sidebar-width: 13.75rem;
-}
-
-@media (min-width: 1024px) {
-  :root {
-    --sidebar-width: max(13.75rem, min(18.75vw, 15rem));
-  }
 }
 
 * {
@@ -163,20 +152,6 @@ h2 {
   font-weight: 600;
 }
 
-.activity-list .motion-list > button {
-  border-radius: 0;
-  box-shadow: inset 0 -1px 0 rgba(64, 51, 33, 0.08);
-}
-
-.activity-list .motion-list > button:last-child {
-  box-shadow: none;
-}
-
-.demo-stamp {
-  border-style: dashed;
-  letter-spacing: 0.12em;
-}
-
 html[data-contrast="high"] body {
   background-image: none;
   background-color: #ffffff;
@@ -221,6 +196,8 @@ html[data-contrast="high"] {
   --color-terracotta: #7a2e12;
   --color-terracotta-deep: #5c220d;
   --color-terracotta-soft: #f7e8e2;
+  --color-saffron: #7a4f00;
+  --color-saffron-soft: #f7eed6;
   --color-blue-soft: #e6eef7;
 }
 
@@ -449,272 +426,13 @@ button {
   animation: draft-in 180ms var(--mc-ease-out) both;
 }
 
-@keyframes result-in {
-  0% {
-    opacity: 0;
-    transform: scale(1.08) rotate(-1.5deg);
-  }
-  55% {
-    opacity: 1;
-    transform: scale(0.98) rotate(0.3deg);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0);
-  }
-}
-
-.result-in {
-  animation: result-in 240ms var(--mc-ease-out) both;
-}
-
-.split-fields {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.625rem;
-}
-
-@media (min-width: 64rem) {
-  .split-fields {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 .main-container {
   container-type: inline-size;
-}
-
-.app-sidebar {
-  width: var(--sidebar-width);
-  background: linear-gradient(
-    180deg,
-    rgba(255, 252, 245, 0.97) 0%,
-    rgba(247, 239, 226, 0.97) 100%
-  );
-  border-right-color: color-mix(in srgb, var(--color-separator) 72%, #fff);
-  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.55);
-}
-
-.app-sidebar nav button[aria-current="page"] {
-  background: linear-gradient(180deg, #fffdf8 0%, #e6efe7 100%);
-  box-shadow:
-    0 0 0 1px rgba(10, 91, 66, 0.16),
-    0 10px 22px -22px rgba(10, 91, 66, 0.55);
-}
-
-.brand-mark {
-  background: linear-gradient(145deg, #0d6b4f 0%, #074433 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    0 10px 22px -16px rgba(7, 68, 51, 0.8);
-}
-
-.brand-tagline {
-  color: var(--color-ink-2);
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-}
-
-.sidebar-keepsake {
-  padding: 0 0.5rem 1.25rem;
-}
-
-@keyframes keepsake-drift {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(-14px);
-  }
-}
-
-@supports (animation-timeline: scroll()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .sidebar-keepsake {
-      animation: keepsake-drift linear both;
-      animation-timeline: scroll(root block);
-      animation-range: 0 700px;
-    }
-  }
-}
-
-.sidebar-keepsake__rule {
-  display: block;
-  width: 28px;
-  height: 2px;
-  margin-bottom: 0.75rem;
-  background: var(--color-terracotta);
-}
-
-.mic-halo {
-  pointer-events: none;
-}
-
-.mic-button {
-  box-shadow:
-    0 0 0 7px rgba(10, 91, 66, 0.07),
-    0 16px 30px -18px rgba(10, 91, 66, 0.75),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
-}
-
-.topbar-merchant::before {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin-right: 8px;
-  border-radius: 999px;
-  background: var(--color-accent);
-  vertical-align: 0.1em;
-}
-
-.topbar {
-  background: rgba(250, 245, 236, 0.84);
-  backdrop-filter: blur(14px);
-  border-bottom-color: color-mix(in srgb, var(--color-separator) 70%, #fff);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.5),
-    0 12px 30px -32px rgba(47, 38, 24, 0.55);
-}
-
-.topbar-merchant {
-  font-family: var(--font-display);
-  font-size: min(1.0625rem, 18px);
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
-}
-
-.topbar-address {
-  font-size: min(0.75rem, 12px);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.topbar svg {
-  width: min(1.25rem, 20px);
-  height: min(1.25rem, 20px);
-}
-
-/* El chrome no crece sin límite al ampliar el texto: la tarea (venta) cabe
-   antes y la navegación conserva targets de 48 px. */
-.topbar > div {
-  min-height: 56px;
-  padding-top: clamp(4px, 0.5rem, 8px);
-  padding-bottom: clamp(4px, 0.5rem, 8px);
-}
-
-.mobile-tab-label {
-  /* Nunca por debajo de 12 px: a 320 el label no debe encogerse al nivel de
-     una nota al pie. El tope evita el salto a 17 px cuando cambia el ancho. */
-  font-size: clamp(12px, 0.8125rem, 13px);
-  line-height: 1.15;
-  overflow-wrap: normal;
-}
-
-.mobile-tabs svg {
-  width: min(1.25rem, 20px);
-  height: min(1.25rem, 20px);
-}
-
-.mobile-tabs {
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
-}
-
-.mobile-tabs button {
-  height: 56px;
-  min-height: 56px;
-  gap: 2px;
-}
-
-/* Un shell para los cinco destinos: mismo borde izquierdo del H1 y misma
-   retícula. Fiado y Meta conservan su columna de lectura dentro. */
-.tab-shell {
-  width: 100%;
-  max-width: 64rem;
-  min-width: 0;
-}
-
-.tab-readable {
-  width: 100%;
-  max-width: 47.5rem;
-  min-width: 0;
-}
-
-.screen-heading__title {
-  font-size: min(1.75rem, 40px);
 }
 
 .sidebar-label {
   font-size: min(0.9375rem, 15px);
   white-space: nowrap;
-}
-
-/* En móvil el acceso a cobros vive junto al heading; en la retícula de dos
-   columnas el detalle ya está a la vista en el aside. */
-@container (min-width: 56rem) {
-  .caja-pending-strip {
-    display: none;
-  }
-}
-
-.caja-pending-strip {
-  min-height: 48px;
-  font-size: min(0.875rem, 16px);
-  flex-wrap: nowrap;
-}
-
-.caja-pending-strip > span:last-child {
-  flex-shrink: 0;
-}
-
-.mobile-tabs {
-  background: rgba(255, 252, 246, 0.94);
-  backdrop-filter: blur(16px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 -12px 30px -30px rgba(47, 38, 24, 0.55);
-}
-
-.mobile-tabs::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 1px;
-  pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-accent),
-    var(--color-terracotta),
-    transparent
-  );
-  opacity: 0.45;
-}
-
-/* La píldora es una decisión semántica del CTA primario, no un efecto de
-   `bg-accent`. Las filas de cobro (.pay-option) conservan su radio de lista. */
-.cta-primary {
-  border-radius: 999px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    0 12px 26px -20px rgba(10, 91, 66, 0.85);
-}
-
-@media (hover: hover) {
-  .cta-primary:hover {
-    transform: translateY(-1px);
-  }
-}
-
-.cta-primary:active {
-  transform: translateY(0) scale(0.99);
-}
-
-@media (min-width: 1024px) {
-  .app-main {
-    padding-left: var(--sidebar-width);
-  }
 }
 
 .screen-heading {
@@ -740,23 +458,6 @@ button {
 .screen-heading__subtitle {
   margin-top: 0.25rem;
   font-variant-numeric: tabular-nums;
-}
-
-.screen-heading__subtitle::before {
-  content: "";
-  display: inline-block;
-  width: 18px;
-  height: 1px;
-  margin-right: 8px;
-  vertical-align: 0.15em;
-  background: var(--color-terracotta);
-}
-
-@media (min-width: 1024px) {
-  .screen-heading__title {
-    font-size: min(2.1rem, 44px);
-    line-height: 1.1;
-  }
 }
 
 ::selection {
@@ -821,10 +522,6 @@ select {
     white-space: nowrap;
   }
 
-  .topbar .demo-stamp {
-    font-size: min(0.75rem, 12px);
-  }
-
 }
 
 /* A 200 % el resumen baja un escalón para que la venta siga en el primer
@@ -854,11 +551,6 @@ select {
   gap: 0.5rem;
 }
 
-.caja-entry {
-  display: flex;
-  flex-direction: column;
-}
-
 /* En tablet (768–1023) la tab bar inferior comparte el primer viewport. El
    campo de texto sube para no quedar debajo de ella cuando el texto crece. */
 @media (min-width: 640px) and (max-width: 1023.98px) {
@@ -870,103 +562,17 @@ select {
 /* A 200 % el contenedor mide ~10 em: el campo de texto sube antes de la voz
    para que siga apareciendo en el primer viewport sin reducir el texto. */
 @container (max-width: 15em) {
-  .caja-text-entry {
-    order: -1;
-  }
-
-  /* Los atajos de ejemplo no empujan la voz ni el resto del pedido fuera
-     del primer viewport: siguen disponibles en una sola fila desplazable. */
-  .caja-voice {
-    margin-top: 8px;
-  }
-
-  .caja-text-entry > label {
-    margin-top: 4px;
-  }
-
-  /* Los atajos de ejemplo viven después de la voz para no empujar el campo
-     de venta; siguen disponibles y envuelven dentro del ancho. */
-  .sample-phrases {
-    margin-top: 8px;
-  }
-
-  .interpret-button {
-    min-height: 48px;
-  }
-
-  /* A 200 % en 360 px, el encabezado y la tarjeta de venta se compactan sin
-     reducir la tipografía: el campo de texto debe seguir en el primer viewport. */
   .screen-heading {
     gap: 0.25rem;
     margin-bottom: 4px;
-  }
-
-  .screen-heading__title {
-    flex: 1 1 auto;
   }
 
   .screen-heading__action .verify-label {
     display: none;
   }
 
-  .screen-heading__action {
-    max-width: 100%;
-  }
-
-  .screen-heading__action button {
-    max-width: 100%;
-    min-height: 48px;
-    font-size: min(0.875rem, 16px);
-  }
-
-  .screen-heading__subtitle {
-    font-size: min(0.875rem, 18px);
-    line-height: 1.25;
-    margin-top: 4px;
-  }
-
   .main-container h2 {
     font-size: min(1.25rem, 28px);
-  }
-
-  .caja-trust-note {
-    gap: 8px;
-    padding: 8px;
-  }
-
-  .caja-trust-note svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .screen-heading__subtitle--optional {
-    display: none;
-  }
-
-  .caja-panel {
-    padding: 12px;
-  }
-
-  .caja-card-title {
-    font-size: 1.125rem;
-  }
-
-  .caja-card-subtitle {
-    display: none;
-  }
-
-  .interpret-button {
-    padding-left: 4px;
-    padding-right: 4px;
-  }
-
-  .caja-text-entry input {
-    min-height: 48px;
-  }
-
-  .sale-entry-row,
-  .goal-action-row {
-    flex-direction: column;
   }
 
   .goal-card-header {
@@ -981,17 +587,13 @@ select {
     font-size: min(1.25rem, 24px);
   }
 
-  .goal-card .text-sm {
-    font-size: min(0.9375rem, 16px);
-    line-height: 1.35;
-  }
-
   .goal-body {
     margin-top: 8px;
   }
 
-  .goal-body > :not([hidden]) ~ :not([hidden]) {
-    margin-top: 6px;
+  .goal-action-row {
+    flex-direction: row;
+    align-items: stretch;
   }
 
   .goal-action-row > div,
@@ -1000,8 +602,6 @@ select {
     min-height: 48px;
   }
 
-  /* A 200 % la meta conserva la lectura (cifra + barra + falta) y deja el
-     aporte en una fila compacta, no en dos pantallas. */
   .goal-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1014,28 +614,12 @@ select {
     font-size: min(1rem, 16px);
   }
 
-  .goal-action-row {
-    flex-direction: row;
-    align-items: stretch;
-  }
-
   .goal-action-row > button {
     width: auto;
     flex: 0 0 auto;
     padding-left: 12px;
     padding-right: 12px;
     gap: 6px;
-    font-size: min(0.875rem, 16px);
-  }
-
-  .goal-action-row > button svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .goal-action-row > div > span,
-  .goal-action-row input {
-    font-size: min(0.875rem, 16px);
   }
 
   .corte-note {
@@ -1067,28 +651,6 @@ select {
   }
 }
 
-@container (max-width: 18em) {
-  .pay-option {
-    gap: 8px;
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-
-  .pay-option-main {
-    gap: 8px;
-  }
-
-  .pay-option-icon {
-    height: 32px;
-    width: 32px;
-  }
-}
-
-.caja-layout {
-  display: grid;
-  gap: 1.5rem;
-}
-
 /* -------------------------------------------------------------------------- */
 /* Texto grande: compactación de espacio cuando la raíz tipográfica crece.    */
 /* La detecta CajaApp (data-text-zoom) para no tocar el diseño a 360 normal   */
@@ -1106,20 +668,6 @@ html[data-text-zoom="large"] .screen-heading-block {
 html[data-text-zoom="large"] .screen-heading__subtitle {
   margin-top: 4px;
   line-height: 1.25;
-}
-
-html[data-text-zoom="large"] .caja-panel {
-  padding: 8px;
-}
-
-html[data-text-zoom="large"] .caja-text-entry label {
-  margin-top: 16px;
-}
-
-html[data-text-zoom="large"] .caja-text-entry button,
-html[data-text-zoom="large"] .caja-text-entry input,
-html[data-text-zoom="large"] .credit-row button {
-  min-height: 48px;
 }
 
 html[data-text-zoom="large"] .goal-card {
@@ -1140,17 +688,6 @@ html[data-text-zoom="large"] .credit-list-card {
    mínimo sigue siendo 48 px y el texto manda el alto por línea. */
 html[data-text-zoom="large"] button {
   min-height: 48px;
-}
-
-@container (min-width: 56rem) {
-  .caja-layout {
-    grid-template-columns: minmax(0, 1fr) 22.5rem;
-    align-items: start;
-  }
-
-  .caja-aside {
-    padding-top: 4.75rem;
-  }
 }
 
 @keyframes shimmer {
@@ -1193,131 +730,6 @@ html[data-text-zoom="large"] button {
 .bar-grow {
   transform-origin: bottom;
   animation: bar-grow 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Checkout público: chrome acotado y total siempre a la vista.               */
-/* -------------------------------------------------------------------------- */
-
-.pay-header {
-  container-type: inline-size;
-}
-
-@container (max-width: 20rem) {
-  .pay-header {
-    flex-wrap: nowrap;
-  }
-
-  .pay-secure-label {
-    display: none;
-  }
-}
-
-.pay-brand-name {
-  font-size: min(1.15rem, 18px);
-}
-
-.pay-eyebrow {
-  font-size: min(0.75rem, 12px);
-}
-
-.pay-title {
-  font-size: min(1.625rem, 30px);
-  line-height: 1.15;
-}
-
-.pay-total {
-  font-size: min(2.25rem, 40px);
-}
-
-.pay-sticky-total {
-  font-size: min(1.125rem, 20px);
-}
-
-.pay-submit {
-  position: fixed;
-  inset-inline: 0;
-  bottom: 0;
-  z-index: 30;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-top: 1px solid var(--color-separator);
-  background: var(--color-surface);
-  padding: 8px max(16px, calc((100vw - 480px) / 2))
-    max(10px, env(safe-area-inset-bottom));
-  box-shadow: 0 -12px 30px -30px rgba(47, 38, 24, 0.55);
-}
-
-/* Un solo botón de pago, siempre visible: total + CTA en una barra fija que
-   se alinea con la tarjeta de 480 px en escritorio. */
-.pay-submit-total {
-  display: block;
-  flex: 1;
-  min-width: 0;
-}
-
-.pay-submit-total p:first-child {
-  font-size: min(0.75rem, 12px);
-}
-
-.pay-submit button {
-  min-height: 48px;
-  padding-left: 20px;
-  padding-right: 20px;
-  gap: 8px;
-  font-size: min(1rem, 16px);
-}
-
-.pay-submit-button {
-  width: auto;
-  flex: 0 0 auto;
-}
-
-.pay-shell h1 {
-  font-size: min(1.75rem, 34px);
-  line-height: 1.2;
-}
-
-.pay-shell h1.pay-title {
-  font-size: min(1.625rem, 30px);
-}
-
-.pay-amount {
-  font-size: min(2.125rem, 38px);
-}
-
-.pay-shell {
-  /* La barra fija total + CTA no tapa el último contenido. */
-  padding-bottom: calc(6rem + env(safe-area-inset-bottom));
-}
-
-/* A 200 % las palabras largas del checkout (“Transferencia”, “confirmación”)
-   pueden no caber. Se parten solo cuando hace falta; no se recortan. */
-.pay-shell p,
-.pay-shell span,
-.pay-shell dd,
-.pay-shell dt,
-.pay-shell h1,
-.pay-shell h2 {
-  overflow-wrap: anywhere;
-}
-
-/* En las tarjetas anidadas de 320 el padding fijo de 14 px deja menos ancho
-   que una palabra larga a 200 %. Se ajusta sin tocar la tipografía. */
-.pay-note {
-  padding-left: clamp(8px, 1.25vw, 14px);
-  padding-right: clamp(8px, 1.25vw, 14px);
-}
-
-/* La píldora “Recomendado” no crece con la raíz: a 320/200 % debe seguir
-   siendo una etiqueta corta, no una palabra partida en varias líneas. */
-.pay-method-tag {
-  font-size: min(0.8125rem, 14px);
-  line-height: 1.2;
-  padding-left: 8px;
-  padding-right: 8px;
-  white-space: nowrap;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1503,27 +915,6 @@ html[data-text-zoom="large"] button {
   }
 }
 
-/* Aparición al entrar en viewport, solo donde el scroll ya es narrativo:
-   la actividad y el pie. El contenido queda visible si no hay soporte. */
-@keyframes view-reveal {
-  from {
-    transform: translateY(8px);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .view-reveal {
-      animation: view-reveal linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 60%;
-    }
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -1542,9 +933,12 @@ html[data-text-zoom="large"] button {
     display: none;
   }
 
-  .topbar,
-  .mobile-tabs,
-  .pay-submit {
+  .topbar {
+    backdrop-filter: none;
+    background: var(--color-surface);
+  }
+
+  .mobile-tabs {
     backdrop-filter: none;
     background: var(--color-surface);
   }

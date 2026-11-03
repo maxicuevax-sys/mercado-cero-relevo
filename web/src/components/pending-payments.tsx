@@ -10,7 +10,7 @@ import {
   Link2Off,
   RefreshCw,
 } from "lucide-react";
-import { cn, formatActivityDate, formatMxn, shortOrder } from "@/lib/format";
+import { formatActivityDate, formatMxn, shortOrder } from "@/lib/format";
 import type { Order } from "@/lib/types";
 
 const COLLAPSED_LIMIT = 3;
@@ -28,7 +28,7 @@ const STATUS: Record<
     Icon: Link2Off,
   },
   payment_pending: {
-    label: "Esperando banco",
+    label: "Esperando confirmación",
     className: "bg-terracotta-soft text-attention",
     Icon: Clock3,
   },
@@ -114,39 +114,30 @@ export function PendingPayments({
   return (
     <section
       aria-labelledby={titleId}
-      className="paper-card rounded-2xl border border-separator bg-surface shadow-card"
+      className="pending-strip"
     >
-      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 px-4 pb-3 pt-4 sm:px-5">
+      <div className="pending-strip__head">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-terracotta-soft text-attention">
-              <Clock3 className="h-4 w-4" aria-hidden="true" />
-            </span>
-            <h2
-              id={titleId}
-              className="break-words text-[1.0625rem] font-semibold tracking-tight text-ink"
-            >
-              Cobros pendientes
-            </h2>
-            <span className="rounded-full border border-separator bg-surface px-2.5 py-0.5 text-xs font-semibold text-ink-2">
+          <div className="pending-strip__title">
+            <Clock3 className="h-4 w-4 shrink-0 text-attention" aria-hidden="true" />
+            <h2 id={titleId}>Cobros pendientes</h2>
+            <span className="pending-strip__count" aria-hidden="true">
               {countLabel}
             </span>
           </div>
           <p className="mt-1 text-xs text-ink-2">{lastCheckedLabel}</p>
         </div>
 
-        <div className="ml-auto max-w-full shrink-0 text-right">
-          <p className="text-xs font-semibold text-ink-2">Total pendiente</p>
-          <p className="tabular mt-0.5 text-[1.25rem] font-semibold leading-tight text-ink">
-            {totalLabel}
-          </p>
+        <div className="pending-strip__total">
+          <span>Total pendiente</span>
+          <strong>{totalLabel}</strong>
         </div>
       </div>
 
       {error ? (
         <div
           role="alert"
-          className="mx-4 mb-3 flex flex-wrap items-start gap-x-2 gap-y-2 rounded-xl border border-attention/25 bg-terracotta-soft/60 px-3 py-2 text-sm text-ink sm:mx-5"
+          className="mx-3 mb-3 flex flex-wrap items-start gap-x-2 gap-y-2 border-l-2 border-attention bg-terracotta-soft/60 px-3 py-2 text-sm text-ink"
         >
           <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-attention" aria-hidden="true" />
           <p className="min-w-0 flex-1 break-words">
@@ -156,7 +147,7 @@ export function PendingPayments({
           <button
             type="button"
             onClick={onRetry}
-            className="flex min-h-12 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-green transition hover:border-accent/40 hover:text-accent"
+            className="flex min-h-12 shrink-0 items-center justify-center gap-1.5 border border-control-border bg-surface px-3 text-sm font-semibold text-accent transition hover:text-accent-press"
           >
             <RefreshCw className="h-4 w-4" aria-hidden="true" />
             Reintentar
@@ -165,13 +156,13 @@ export function PendingPayments({
       ) : null}
 
       {!hasOrders && !error ? (
-        <p className="border-t border-separator px-4 py-3 text-sm text-ink-2 sm:px-5">
+        <p className="pending-strip__empty">
           No hay cobros pendientes.
         </p>
       ) : null}
 
       {hasOrders ? (
-        <ul id={listId} className="motion-list border-t border-separator">
+        <ul id={listId} className="pending-strip__list motion-list">
           {visibleOrders.map((order) => {
             const meta = statusMeta(order.status);
             const Icon = meta.Icon;
@@ -182,19 +173,14 @@ export function PendingPayments({
             return (
               <li
                 key={order.id}
-                className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-separator px-4 py-3 last:border-b-0 sm:px-5"
+                className="pending-strip__row"
               >
-                <div className="min-w-0 flex-1 basis-[10rem]">
-                  <p className="break-words text-sm font-semibold leading-snug text-ink">
+                <div className="pending-strip__summary">
+                  <p className="break-words">
                     {summary}
                   </p>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-2">
-                    <span
-                      className={cn(
-                        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold",
-                        meta.className,
-                      )}
-                    >
+                  <div className="pending-strip__meta">
+                    <span className="inline-flex items-center gap-1 font-semibold text-attention">
                       <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                       {meta.label}
                     </span>
@@ -207,24 +193,18 @@ export function PendingPayments({
                   </div>
                 </div>
 
-                <div className="ml-auto flex min-w-0 max-w-full flex-wrap items-center justify-end gap-3">
-                  <div className="text-right">
-                    <p className="text-xs font-semibold uppercase tracking-[0.06em] text-ink-2">
-                      Saldo
-                    </p>
-                    <p className="tabular whitespace-nowrap text-sm font-semibold text-ink">
-                      {formatMxn(balanceCents)}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => onOpen(order)}
-                    aria-label={`Ver cobro: ${summary}, ${formatMxn(balanceCents)}`}
-                    className="flex min-h-12 min-w-12 items-center justify-center rounded-xl border border-separator bg-surface px-3 text-sm font-semibold text-green transition hover:border-accent/40 hover:bg-green-soft hover:text-accent"
-                  >
-                    Ver
-                  </button>
+                <div className="pending-strip__balance">
+                  <span>Saldo</span>
+                  <strong>{formatMxn(balanceCents)}</strong>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => onOpen(order)}
+                  aria-label={`Ver cobro: ${summary}, ${formatMxn(balanceCents)}`}
+                  className="flex min-h-12 min-w-12 items-center justify-center border border-control-border bg-surface px-3 text-sm font-semibold text-accent transition hover:bg-green-soft hover:text-accent-press"
+                >
+                  Ver
+                </button>
               </li>
             );
           })}
@@ -232,9 +212,9 @@ export function PendingPayments({
       ) : null}
 
       {canExpand ? (
-        <div className="border-t border-separator px-2 py-1 sm:px-3">
+        <div>
           {expanded && orders.length > EXPANDED_LIMIT ? (
-            <p className="px-2 pt-2 text-xs text-ink-2">
+            <p className="px-3 pt-2 text-xs text-ink-2">
               Mostrando los primeros {EXPANDED_LIMIT} de {orders.length}.
             </p>
           ) : null}
@@ -243,7 +223,7 @@ export function PendingPayments({
             onClick={toggleExpanded}
             aria-expanded={expanded}
             aria-controls={listId}
-            className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl text-sm font-semibold text-green transition hover:bg-surface-2"
+            className="pending-strip__more flex items-center justify-center gap-1.5"
           >
             {expanded ? (
               <>

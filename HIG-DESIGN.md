@@ -614,3 +614,50 @@ diseño: el esqueleto del checkout reserva el alto final para no mover el CTA ni
 el total. Los paneles ocultos se montan al visitar su pestaña y los datos vivos
 se refrescan por API. La regla visual sigue intacta; esta nota solo documenta
 que el LCP ya no espera al cliente. Detalle medido en `P0-PERF-UI-REPORT.md`.
+---
+
+## 18 · Material y composición de mostrador (2 de noviembre de 2026)
+
+Esta sección reemplaza la composición de tarjetas de §16; la dirección es un
+**cuaderno de ventas** con calculadora de teclas y puesto de tianguis. El
+contrato completo vive en `DESIGN-BARRIO.md`.
+
+### ColorFlow `mesh-paper`
+
+Traducción CSS del mesh (no una imagen, no hay export de ColorFlow en este
+worktree): cuatro manchas radiales suaves —azafrán, terracota, verde y crema—
+sobre un degradado cálido, estáticas, sin `background-attachment: fixed` y sin
+blur. Se aplican al canvas, a la hoja del mostrador y al recibo; nunca a botones
+ni a texto. La hoja suma una luz blanca cálida arriba a la izquierda y una
+sombra cálida abajo a la derecha, como papel bajo una lámpara de mercado.
+
+### Fibra y renglones
+
+- Grano SVG inline `feTurbulence` en data URI, 180 × 180 px, opacidad 0.50 sobre
+  una textura de 0.055; se percibe al hacer zoom y no pesa como imagen.
+- Renglones `repeating-linear-gradient` cada 30 px al 11 % en la hoja; el libro
+  de cuentas usa filas de 30 px para que la cifra se siente en la línea.
+- Margen terracota al 35 %: 52–56 px en escritorio, 9 px en móvil.
+- Borde inferior deckled con `mask` de festones; el recibo usa perforación
+  radial y una segunda hoja rotada −0.6° solo en éxito/estado vacío.
+
+### Piezas
+
+- **Índice** de pestañas de papel con espiral y lomo, no sidebar de app.
+- **LCD** verde con total Fraunces y micrófono de tecla; el borrador son
+  renglones, no cards.
+- **Cuánto llevo / Lo que me deben**: tabla de libreta y nota de fiado.
+- **Cobros pendientes**: tira perforada al margen.
+- **Sellos** DEMO / PAGADO / SIMULADO con doble borde irregular y tinta
+  desgastada; solo el aviso demo aparece en la ruta de pago.
+- **Teclas**: relieve interno y borde inferior de 2 px; “Cobrar/Pagar” es la
+  tecla grande.
+- **Checkout/success**: recibo con folio, renglones, sello, total y salida
+  pública; el CTA se vuelve estático en escritorio para quedar en el fold.
+
+### Límites
+
+El CSS del mostrador se mantiene bajo el presupuesto de 16 KiB gzip separando
+`checkout.css` (solo `/pay/**`). El JS inicial queda en 188.5 KiB y el total en
+244.3 KiB, dentro de 200/285 KiB. El mesh y el grano no bajan contraste: los
+textos usan los tokens de §10 y el alto contraste apaga la textura.

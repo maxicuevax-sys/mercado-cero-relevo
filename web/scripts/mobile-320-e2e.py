@@ -208,6 +208,66 @@ def run_engine(browser_type, engine: str) -> None:
                 f"{data['scrollWidth']}/{data['innerWidth']}",
             )
 
+            # P0 200 %: el editor de producto no puede desbordar; precio y
+            # tecla de cobrar deben quedar dentro de la página.
+            style_tag = page.add_style_tag(
+                content="html { font-size: 200% !important; }"
+            )
+            page.wait_for_timeout(500)
+            for _ in range(40):
+                if page.evaluate("document.documentElement.dataset.textZoom") == "large":
+                    break
+                page.wait_for_timeout(250)
+            page.get_by_role("button", name="Agregar producto", exact=True).click()
+            page.wait_for_selector('[id^="draft-description-"]', timeout=15000)
+            page.wait_for_timeout(450)
+            editor = page.evaluate(
+                """() => {
+                    const main = document.getElementById('main');
+                    const desc = document.querySelector('[id^="draft-description-"]');
+                    const id = desc ? desc.id.replace('draft-description-', '') : '';
+                    const price = document.getElementById(`draft-price-${id}`);
+                    const cobrar = [...document.querySelectorAll('button')]
+                        .find((button) => (button.getAttribute('aria-label') || '').startsWith('Confirmar venta'));
+                    const rect = (el) => {
+                        if (!el) return null;
+                        const r = el.getBoundingClientRect();
+                        return { left: Math.round(r.left), right: Math.round(r.right), top: Math.round(r.top), bottom: Math.round(r.bottom), width: Math.round(r.width) };
+                    };
+                    return {
+                        mainScrollWidth: main ? main.scrollWidth : 0,
+                        mainClientWidth: main ? main.clientWidth : 0,
+                        innerWidth: window.innerWidth,
+                        price: rect(price),
+                        cobrar: rect(cobrar),
+                        cobrarText: cobrar ? (cobrar.innerText || '').trim() : '',
+                        cobrarOverflow: cobrar ? cobrar.scrollWidth > cobrar.clientWidth + 1 : true,
+                    };
+                }"""
+            )
+            check(
+                f"{engine} {width} 200%: editor sin scroll horizontal",
+                editor["mainScrollWidth"] <= editor["mainClientWidth"] + 1,
+                f"{editor['mainScrollWidth']}/{editor['mainClientWidth']}",
+            )
+            check(
+                f"{engine} {width} 200%: precio visible dentro de la página",
+                bool(editor["price"])
+                and editor["price"]["left"] >= 0
+                and editor["price"]["right"] <= editor["innerWidth"] + 1,
+                json.dumps(editor["price"], ensure_ascii=False),
+            )
+            check(
+                f"{engine} {width} 200%: Cobrar completo y sin recorte",
+                bool(editor["cobrar"])
+                and not editor["cobrarOverflow"]
+                and editor["cobrar"]["width"] >= 220
+                and "Cobrar" in editor["cobrarText"],
+                json.dumps(editor, ensure_ascii=False),
+            )
+            style_tag.evaluate("el => el.remove()")
+            page.wait_for_timeout(300)
+
             fiado_tab = page.get_by_role("button", name="Fiado", exact=True).first
             for _ in range(4):
                 fiado_tab.click(force=True)

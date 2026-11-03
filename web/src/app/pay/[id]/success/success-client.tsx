@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { Banknote, Check, Loader2, NotebookPen, SearchX, Sparkles, Store } from "lucide-react";
+import { Store } from "lucide-react";
 import { cn, formatMxn } from "@/lib/format";
 import type { CheckoutData } from "@/lib/checkout";
 
@@ -128,43 +128,47 @@ export default function CheckoutSuccessPage({
 
   if (missing) {
     return (
-      <main className="pay-shell grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
+      <main className="pay-shell grid min-h-dvh place-items-center px-[16px] py-8">
         <section
           role="status"
           aria-live="polite"
-          className="w-full max-w-md overflow-hidden rounded-2xl border border-separator bg-surface shadow-card"
+          className="receipt-stack receipt-stack--layered w-full"
         >
-          <div className="px-[18px] pb-7 pt-8 text-center sm:px-5">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-separator bg-surface text-ink-2">
-              <SearchX className="h-7 w-7" />
-            </div>
-            <p className="mt-4 text-sm font-semibold text-ink-2">Cobro no disponible</p>
-            <h1
-              ref={headingRef}
-              tabIndex={-1}
-              className="mt-1 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none"
-            >
-              No encontramos este cobro
-            </h1>
-            <p className="mt-3 text-sm leading-relaxed text-ink-2">
-              Este link no corresponde a un cobro de Mercado Cero. Pide a la comerciante
-              que genere uno nuevo.
-            </p>
-          </div>
-          <div className="border-t border-separator px-[18px] py-4 sm:px-5">
-            {exited ? (
-              <p role="status" className="text-center text-sm font-semibold text-ink-2">
-                Listo. Ya puedes cerrar esta pestaña.
+          <div className="receipt-paper">
+            <div className="receipt-paper__perf" aria-hidden="true" />
+            <div className="receipt-result">
+              <div className="receipt-result__stamp">
+                <span className="stamp stamp--cash">Extraviado</span>
+              </div>
+              <p className="receipt-result__method">Cobro no disponible</p>
+              <h1 ref={headingRef} tabIndex={-1}>
+                No encontramos este cobro
+              </h1>
+              <p className="mt-3 text-sm leading-relaxed text-ink-2">
+                Este link no corresponde a un cobro de Mercado Cero. Pide a la comerciante
+                que genere uno nuevo.
               </p>
-            ) : (
-              <button
-                type="button"
-                onClick={finish}
-                className="cta-primary on-accent flex min-h-12 w-full items-center justify-center gap-2 bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press"
-              >
-                Cerrar esta pestaña
-              </button>
-            )}
+            </div>
+            <div className="receipt-body">
+              {exited ? (
+                <p role="status" className="text-center text-sm font-semibold text-ink-2">
+                  Listo. Ya puedes cerrar esta pestaña.
+                </p>
+              ) : (
+                <>
+                  <button type="button" onClick={finish} className="result-exit">
+                    Cerrar esta pestaña
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void load({ force: true })}
+                    className="result-secondary"
+                  >
+                    Reintentar
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </section>
       </main>
@@ -173,31 +177,43 @@ export default function CheckoutSuccessPage({
 
   if (!data) {
     return (
-      <main className="pay-shell grid min-h-dvh place-items-center bg-canvas px-4 py-8">
-        <section className="w-full max-w-md rounded-2xl border border-separator bg-surface p-7 text-center shadow-card">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-terracotta-soft text-attention">
-            <Store className="h-6 w-6" />
-          </div>
-          <h1 className="mt-4 text-[1.5rem] font-semibold text-ink">
-            Este cobro no existe
-          </h1>
-          <p className="mt-2 text-sm leading-relaxed text-ink-2">
-            Pide a la comerciante que genere un link nuevo. No hay ningún pago
-            en curso.
-          </p>
-          {exited ? (
-            <p role="status" className="mt-5 text-sm font-semibold text-ink-2">
-              Listo. Ya puedes cerrar esta pestaña.
+      <main className="pay-shell grid min-h-dvh place-items-center px-4 py-8">
+        <section className="receipt-stack receipt-stack--layered w-full">
+          <div className="receipt-paper p-7 text-center">
+            <span className="stamp stamp--cash">Sin datos</span>
+            <div className="empty-sheet__icon mt-4">
+              <Store className="h-6 w-6" />
+            </div>
+            <h1 className="mt-3 font-display text-[1.7rem] font-semibold text-ink">
+              Este cobro no existe
+            </h1>
+            <p className="mt-2 text-sm leading-relaxed text-ink-2">
+              Pide a la comerciante que genere un link nuevo. No hay ningún pago
+              en curso.
             </p>
-          ) : (
-            <button
-              type="button"
-              onClick={finish}
-              className="cta-primary on-accent mt-5 inline-flex min-h-12 items-center gap-2 bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent-press"
-            >
-              Cerrar
-            </button>
-          )}
+            {exited ? (
+              <p role="status" className="mt-5 text-sm font-semibold text-ink-2">
+                Listo. Ya puedes cerrar esta pestaña.
+              </p>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={finish}
+                  className="result-exit mt-5"
+                >
+                  Cerrar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void load({ force: true })}
+                  className="result-secondary"
+                >
+                  Reintentar
+                </button>
+              </>
+            )}
+          </div>
         </section>
       </main>
     );
@@ -223,46 +239,45 @@ export default function CheckoutSuccessPage({
       .join(" + ");
 
     return (
-      <main className="pay-shell grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
-        <section role="status" aria-live="polite" className="w-full max-w-md overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
-          <div className="px-[18px] pb-7 pt-8 text-center sm:px-5">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-terracotta-soft text-attention">
-              <NotebookPen className="h-7 w-7" />
-            </div>
-            <p className="mt-4 text-sm font-semibold text-ink-2">
-              {data.order.paidCents > 0 ? "Cobro mixto" : "Venta a fiado"}
-            </p>
-            <h1 ref={headingRef} tabIndex={-1} className="mt-1 text-[1.75rem] font-semibold tracking-tight text-ink outline-none">
-              Quedó anotado
-            </h1>
-            <p className="pay-amount tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
-              {formatMxn(data.order.totalCents)}
-            </p>
-            <p className="mt-2 text-sm text-ink-2">
-              Pedido {data.order.shortRef} · {data.merchant.name}
-            </p>
-          </div>
-          <div className="border-t border-separator px-[18px] py-4 sm:px-5">
-            <div className="pay-note rounded-xl border border-separator bg-surface px-3.5 py-3">
-              <p className="text-sm leading-relaxed text-ink-2">
-                {source ? <>Recibiste {source}. </> : null}
-                Quedó a fiado: <strong>{formatMxn(data.order.creditCents)}</strong>. Está en la
-                libreta de fiado; no es dinero recibido ni un pago confirmado.
+      <main className="pay-shell grid min-h-dvh place-items-center px-[16px] py-8">
+        <section role="status" aria-live="polite" className="receipt-stack receipt-stack--layered w-full">
+          <div className="receipt-paper">
+            <div className="receipt-paper__perf" aria-hidden="true" />
+            <div className="receipt-result">
+              <div className="receipt-result__stamp">
+                <span className="stamp stamp--sim">Fiado anotado</span>
+              </div>
+              <p className="receipt-result__method">
+                {data.order.paidCents > 0 ? "Cobro mixto" : "Venta a fiado"}
+              </p>
+              <h1 ref={headingRef} tabIndex={-1}>
+                Quedó anotado
+              </h1>
+              <p className="receipt-result__amount">
+                {formatMxn(data.order.totalCents)}
+              </p>
+              <p className="receipt-result__ref">
+                Folio {data.order.shortRef} · {data.merchant.name}
               </p>
             </div>
-            {exited ? (
-              <p role="status" className="mt-4 text-center text-sm font-semibold text-ink-2">
-                Listo. El fiado quedó anotado; ya puedes cerrar esta pestaña.
-              </p>
-            ) : (
-              <button
-                type="button"
-                onClick={finish}
-                className="cta-primary on-accent mt-4 flex min-h-12 w-full items-center justify-center gap-2 bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press"
-              >
-                Listo
-              </button>
-            )}
+            <div className="receipt-body">
+              <div className="pay-note">
+                <p className="text-sm leading-relaxed text-ink-2">
+                  {source ? <>Recibiste {source}. </> : null}
+                  Quedó a fiado: <strong>{formatMxn(data.order.creditCents)}</strong>. Está en la
+                  libreta de fiado; no es dinero recibido ni un pago confirmado.
+                </p>
+              </div>
+              {exited ? (
+                <p role="status" className="mt-4 text-center text-sm font-semibold text-ink-2">
+                  Listo. El fiado quedó anotado; ya puedes cerrar esta pestaña.
+                </p>
+              ) : (
+                <button type="button" onClick={finish} className="result-exit mt-4">
+                  Listo
+                </button>
+              )}
+            </div>
           </div>
         </section>
       </main>
@@ -282,166 +297,173 @@ export default function CheckoutSuccessPage({
     : null;
 
   return (
-    <main className="pay-shell grid min-h-dvh place-items-center bg-canvas px-[16px] py-8">
-      <section role="status" aria-live="polite" className="w-full max-w-md overflow-hidden rounded-2xl border border-separator bg-surface shadow-card">
-        <div className="px-[18px] pb-7 pt-8 text-center sm:px-5">
-          <div
-            className={cn(
-              "mx-auto flex h-16 w-16 items-center justify-center rounded-full",
-              paid && sourceMixed
-                ? demo
-                  ? "bg-terracotta-soft text-attention"
-                  : "bg-green-soft text-green"
-                : paid && !demo && !cashOnly
-                  ? "bg-green-soft text-green"
-                  : paid && cashOnly
-                    ? "border border-separator bg-surface text-ink"
-                    : paid && demo
-                      ? "bg-terracotta-soft text-attention"
-                      : "border border-separator bg-surface text-ink-2",
-            )}
-          >
-            {paid ? (
-              demo ? (
-                <Sparkles className="h-7 w-7" />
-              ) : cashOnly ? (
-                <Banknote className="h-7 w-7" />
-              ) : (
-                <Check className="h-8 w-8" strokeWidth={2.4} />
-              )
-            ) : (
-              <Loader2 className="h-7 w-7 animate-spin" />
-            )}
+    <main className="pay-shell grid min-h-dvh place-items-center px-[16px] py-8">
+      <section role="status" aria-live="polite" className="receipt-stack receipt-stack--layered w-full">
+        <div className="receipt-paper">
+          <div className="receipt-paper__perf" aria-hidden="true" />
+          <div className="receipt-result">
+            <div className="receipt-result__stamp">
+              <span
+                className={cn(
+                  "stamp",
+                  paid
+                    ? sourceMixed
+                      ? demo
+                        ? "stamp--sim"
+                        : "stamp--paid"
+                      : demo
+                        ? "stamp--sim"
+                        : cashOnly
+                          ? "stamp--cash"
+                          : "stamp--paid"
+                    : "stamp--draft",
+                )}
+              >
+                {paid
+                  ? demo
+                    ? "Simulado"
+                    : cashOnly
+                      ? "Cobrado"
+                      : "Pagado"
+                  : "En verificación"}
+              </span>
+            </div>
+            <p className="receipt-result__method">
+              {paid
+                ? sourceMixed
+                  ? demo
+                    ? "Efectivo + demo"
+                    : "Efectivo + verificado"
+                  : demo
+                    ? "Modo demo"
+                    : cashOnly
+                      ? "Cobrado en caja"
+                      : "Pago confirmado"
+                : "Verificando pago"}
+            </p>
+            <h1 ref={headingRef} tabIndex={-1}>
+              {paid
+                ? sourceMixed
+                  ? "Pago mixto"
+                  : demo
+                    ? "Pago simulado"
+                    : cashOnly
+                      ? "Efectivo recibido"
+                      : "Listo para entregar"
+                : "Estamos confirmando con el banco"}
+            </h1>
+            {data ? (
+              <p className="receipt-result__amount">
+                {formatMxn(
+                  sourceMixed
+                    ? data.order.totalCents
+                    : data.payment?.amountCents ?? (cashPaid || data.order.totalCents),
+                )}
+              </p>
+            ) : null}
+            {data ? (
+              <p className="receipt-result__ref">
+                Folio {data.order.shortRef} · {data.merchant.name}
+              </p>
+            ) : null}
           </div>
-          <p className="mt-4 text-sm font-semibold text-ink-2">
-            {paid
-              ? sourceMixed
-                ? demo
-                  ? "Efectivo + demo"
-                  : "Efectivo + verificado"
-                : demo
-                  ? "Modo demo"
-                  : cashOnly
-                    ? "Cobrado en caja"
-                    : "Pago confirmado"
-              : "Verificando pago"}
-          </p>
-          <h1 ref={headingRef} tabIndex={-1} className="mt-1 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink outline-none">
-            {paid
-              ? sourceMixed
-                ? "Pago mixto"
-                : demo
-                  ? "Pago simulado"
-                  : cashOnly
-                    ? "Efectivo recibido"
-                    : "Listo para entregar"
-              : "Estamos confirmando con el banco"}
-          </h1>
-          {data ? (
-            <p className="pay-amount tabular mt-3 text-[2.125rem] font-semibold leading-none tracking-tight text-ink">
-              {formatMxn(
-                sourceMixed
-                  ? data.order.totalCents
-                  : data.payment?.amountCents ?? (cashPaid || data.order.totalCents),
-              )}
-            </p>
-          ) : null}
-          {data ? (
-            <p className="mt-2 text-sm text-ink-2">
-              Pedido {data.order.shortRef} · {data.merchant.name}
-            </p>
-          ) : null}
-        </div>
 
-        <div className="border-t border-separator px-[18px] py-4 sm:px-5">
-          {paid && data?.payment ? (
-            <>
-              <dl className="space-y-3 text-sm">
-                <div className="flex items-center justify-between gap-4">
-                  <dt className="text-ink-2">Método</dt>
-                  <dd className="font-semibold text-ink">
-                    {sourceMixed ? `Efectivo + ${methodLabel}` : methodLabel}
-                  </dd>
+          <div className="receipt-body">
+            {paid && data?.payment ? (
+              <>
+                <div className="result-details">
+                  <dl>
+                    <div>
+                      <dt>Método</dt>
+                      <dd>{sourceMixed ? `Efectivo + ${methodLabel}` : methodLabel}</dd>
+                    </div>
+                    {data.payment.transactionId ? (
+                      <div>
+                        <dt>Transacción</dt>
+                        <dd className="break-all font-mono text-xs">
+                          {data.payment.transactionId}
+                        </dd>
+                      </div>
+                    ) : null}
+                  </dl>
                 </div>
-                {data.payment.transactionId ? (
-                  <div className="flex items-start justify-between gap-4">
-                    <dt className="text-ink-2">Transacción</dt>
-                    <dd className="max-w-[15rem] break-all text-right font-mono text-xs text-ink-2">
-                      {data.payment.transactionId}
-                    </dd>
-                  </div>
+                <div className="pay-note mt-3">
+                  <p className="text-sm leading-relaxed text-ink-2">
+                    {sourceMixed
+                      ? demo
+                        ? `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(data.payment.amountCents)} en un pago simulado. El efectivo sí es dinero real; el digital es demo.`
+                        : `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(data.payment.amountCents)} verificados por pey.`
+                      : demo
+                        ? "Pago simulado para la demo; no se movió dinero."
+                        : data.payment.provider === "pey"
+                          ? "pey confirmó este pago con una confirmación firmada. Ya puedes mostrar esta pantalla."
+                          : "Este pago no tiene una confirmación firmada de pey. No lo presentes como verificado."}
+                  </p>
+                </div>
+              </>
+            ) : cashOnly ? (
+              <>
+                <p className="text-center text-sm leading-relaxed text-ink-2">
+                  Recibiste {formatMxn(cashPaid)} en efectivo en la caja. No pasó por pey ni es un
+                  pago verificado por el banco.
+                </p>
+                <div className="pay-note flex items-start gap-2.5">
+                  <Store className="mt-0.5 h-4 w-4 shrink-0 text-ink-2" />
+                  <p className="text-sm leading-relaxed text-ink-2">
+                    La comerciante ya puede entregar el pedido. El efectivo queda registrado en el
+                    corte de caja.
+                  </p>
+                </div>
+              </>
+            ) : paid && demo ? (
+              <div className="pay-note flex items-start gap-2.5">
+                <Store className="mt-0.5 h-4 w-4 shrink-0 text-ink-2" />
+                <p className="text-sm leading-relaxed text-ink-2">
+                  Pago simulado para la demo; no se movió dinero. La caja de la
+                  comerciante ya tiene el registro.
+                </p>
+              </div>
+            ) : (
+              <>
+                <p className="text-center text-sm leading-relaxed text-ink-2">
+                  Tu pago ya salió del banco. Mercado Cero está esperando la confirmación
+                  firmada de pey; normalmente tarda unos segundos.
+                </p>
+                <div className="pay-note flex items-start gap-2.5">
+                  <Store className="mt-0.5 h-4 w-4 shrink-0 text-ink-2" />
+                  <p className="text-sm leading-relaxed text-ink-2">
+                    No cierres esta pantalla. Si tarda más de un minuto, muestra tu comprobante
+                    a la comerciante; ella puede verificarlo por ID de transacción.
+                  </p>
+                </div>
+                {attempts > 15 ? (
+                  <p className="mt-3 text-center text-xs text-ink-2">
+                    Sigue esperando la confirmación. La caja se actualizará sola.
+                  </p>
                 ) : null}
-              </dl>
-              <div className="pay-note mt-4 rounded-xl border border-separator bg-surface px-3.5 py-3">
-                <p className="text-sm leading-relaxed text-ink-2">
-                  {sourceMixed
-                    ? demo
-                      ? `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(data.payment.amountCents)} en un pago simulado. El efectivo sí es dinero real; el digital es demo.`
-                      : `Recibiste ${formatMxn(cashPaid)} en efectivo y ${formatMxn(data.payment.amountCents)} verificados por pey.`
-                    : demo
-                      ? "Pago simulado para la demo. En producción, este estado solo aparece con la confirmación firmada de pey."
-                      : data.payment.provider === "pey"
-                      ? "pey confirmó este pago con una confirmación firmada. Ya puedes mostrar esta pantalla."
-                      : "Este pago no tiene una confirmación firmada de pey. No lo presentes como verificado."}
-                </p>
-              </div>
-            </>
-          ) : cashOnly ? (
-            <>
-              <p className="text-center text-sm leading-relaxed text-ink-2">
-                Recibiste {formatMxn(cashPaid)} en efectivo en la caja. No pasó por pey ni es un
-                pago verificado por el banco.
-              </p>
-              <div className="pay-note mt-4 flex items-start gap-2.5 rounded-xl border border-separator bg-surface px-3.5 py-3">
-                <Store className="mt-0.5 h-4 w-4 shrink-0 text-ink-2" />
-                <p className="text-sm leading-relaxed text-ink-2">
-                  La comerciante ya puede entregar el pedido. El efectivo queda registrado en el
-                  corte de caja.
-                </p>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="text-center text-sm leading-relaxed text-ink-2">
-                Tu pago ya salió del banco. Mercado Cero está esperando la confirmación
-                firmada de pey; normalmente tarda unos segundos.
-              </p>
-              <div className="pay-note mt-4 flex items-start gap-2.5 rounded-xl border border-separator bg-surface px-3.5 py-3">
-                <Store className="mt-0.5 h-4 w-4 shrink-0 text-ink-2" />
-                <p className="text-sm leading-relaxed text-ink-2">
-                  No cierres esta pantalla. Si tarda más de un minuto, muestra tu comprobante
-                  a la comerciante; ella puede verificarlo por ID de transacción.
-                </p>
-              </div>
-              {attempts > 15 ? (
-                <p className="mt-3 text-center text-xs text-ink-2">
-                  Sigue esperando la confirmación. La caja se actualizará sola.
-                </p>
-              ) : null}
-            </>
-          )}
+              </>
+            )}
 
-          {exited ? (
-            <p role="status" className="mt-5 text-center text-sm font-semibold text-ink-2">
-              Listo. Ya puedes cerrar esta pestaña; tu comprobante queda en este link.
-            </p>
-          ) : paid ? (
-            <button
-              type="button"
-              onClick={finish}
-              className="cta-primary on-accent mt-5 flex min-h-12 w-full items-center justify-center gap-2 bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-press"
-            >
-              Listo
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => void load({ force: true })}
-              className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-separator bg-surface px-5 text-sm font-semibold text-ink-2 transition hover:border-accent/30 hover:text-accent"
-            >
-              Revisar link
-            </button>
-          )}
+            <div className="result-actions">
+              {exited ? (
+                <p role="status" className="mt-2 text-center text-sm font-semibold text-ink-2">
+                  Listo. Ya puedes cerrar esta pestaña; tu comprobante queda en este link.
+                </p>
+              ) : paid ? (
+                <button type="button" onClick={finish} className="result-exit">
+                  Listo
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => void load({ force: true })}
+                  className="result-secondary"
+                >
+                  Revisar link
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </section>
     </main>
