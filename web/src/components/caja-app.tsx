@@ -242,6 +242,20 @@ function friendlyError(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
 }
 
+const MANUAL_SALE_HINT = "Escribe el producto o agrégalo a mano.";
+
+/**
+ * La venta nunca se bloquea porque el parser falle. El mensaje conserva el
+ * detalle útil del servidor, pero siempre termina en la salida manual.
+ */
+function interpretErrorMessage(error: unknown): string {
+  const detail = friendlyError(error, "No pude interpretar la venta.");
+  const base = detail.startsWith("No pude interpretar la venta")
+    ? detail
+    : `No pude interpretar la venta. ${detail}`;
+  return `${base} ${MANUAL_SALE_HINT}`;
+}
+
 async function readJsonBody<T>(response: Response): Promise<T | null> {
   // Un 500 puede devolver texto plano; nunca exponemos el cuerpo crudo.
   try {
@@ -648,6 +662,7 @@ export default function CajaApp({
   const [customerName, setCustomerName] = useState("");
   const [itemErrors, setItemErrors] = useState<Record<string, DraftItemError>>({});
   const [restoredDraftAt, setRestoredDraftAt] = useState<string | null>(null);
+  const [confirmingRestoredClear, setConfirmingRestoredClear] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
   const [savingOrder, setSavingOrder] = useState(false);
 
@@ -1571,9 +1586,9 @@ export default function CajaApp({
           return;
         }
 
-        setVoiceError(parsed.reply || "No entendí la venta. Intenta de nuevo.");
+        setVoiceError(`${parsed.reply || "No pude interpretar la venta."} ${MANUAL_SALE_HINT}`);
       } catch (error) {
-        setVoiceError(error instanceof Error ? error.message : "No pude interpretar la venta.");
+        setVoiceError(interpretErrorMessage(error));
       } finally {
         setTranscribing(false);
       }
@@ -1584,7 +1599,7 @@ export default function CajaApp({
   const startRecording = useCallback(async () => {
     if (listening || transcribing) return;
     if (typeof window === "undefined" || !navigator.mediaDevices?.getUserMedia) {
-      setVoiceError("Este navegador no tiene acceso al micrófono. Escribe la venta.");
+      setVoiceError("Este navegador no tiene acceso al micrófono. Escribe la venta o agrégala a mano.");
       setShowTextInput(true);
       return;
     }
@@ -1621,8 +1636,8 @@ export default function CajaApp({
         } catch (error) {
           setVoiceError(
             error instanceof Error
-              ? `${error.message} Puedes escribir la venta abajo.`
-              : "No pude transcribir el audio.",
+              ? `${error.message} Puedes escribirla abajo o agregarla a mano.`
+              : "No pude transcribir el audio. Escribe la venta o agrégala a mano.",
           );
           setShowTextInput(true);
         } finally {
@@ -1638,7 +1653,7 @@ export default function CajaApp({
         setRecordingSeconds((seconds) => seconds + 1);
       }, 1000);
     } catch {
-      setVoiceError("No pude acceder al micrófono. Revisa los permisos o escribe la venta.");
+      setVoiceError("No pude acceder al micrófono. Revisa los permisos o escribe la venta o agrégala a mano.");
       setShowTextInput(true);
     }
   }, [interpretText, listening, transcribing, vibrate]);
@@ -1692,6 +1707,7 @@ export default function CajaApp({
     setSaleError(null);
     setVoiceError(null);
     setRestoredDraftAt(null);
+    setConfirmingRestoredClear(false);
     saleRequestRef.current = null;
     clearStoredSaleRequest();
     lastSavedDraftRef.current = draftSignature({
@@ -1719,10 +1735,12 @@ export default function CajaApp({
       setCreditInput("");
       setCustomerName("");
       setRestoredDraftAt(null);
+      setConfirmingRestoredClear(false);
     }
   }, []);
 
   const discardRestoredDraft = useCallback(() => {
+    setConfirmingRestoredClear(false);
     const currentSignature = draftSignature({
       items: draftItems,
       cashCents,
@@ -1747,7 +1765,22 @@ export default function CajaApp({
     });
   }, [cashCents, clearDraft, creditCents, customerName, draftItems, showToast, textInput, transcript]);
 
+  const requestDiscardRestoredDraft = useCallback(() => {
+    setConfirmingRestoredClear(true);
+    window.requestAnimationFrame(() => {
+      document.getElementById("restored-draft-confirm")?.focus();
+    });
+  }, []);
+
+  const cancelDiscardRestoredDraft = useCallback(() => {
+    setConfirmingRestoredClear(false);
+    window.requestAnimationFrame(() => {
+      document.getElementById("restored-draft-restart")?.focus();
+    });
+  }, []);
+
   const keepRestoredDraft = useCallback(() => {
+    setConfirmingRestoredClear(false);
     restoredDraftSignatureRef.current = null;
     setRestoredDraftAt(null);
     const firstItem = draftItems[0];
@@ -2451,30 +2484,66 @@ export default function CajaApp({
                 {restoredDraftAt ? (
                   <div
                     role="status"
+                    aria-live="polite"
                     className="mb-4 flex flex-wrap items-center justify-between gap-2 border-l-2 border-accent bg-green-soft/40 px-3 py-2 text-sm text-ink-2"
                   >
-                    <p className="flex min-w-0 items-center gap-2 font-medium text-ink">
-                      <Clock3 className="h-4 w-4 shrink-0 text-accent" />
-                      {restoredDraftLabel(restoredDraftAt)}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      <button
-                        type="button"
-                        onClick={keepRestoredDraft}
-                        aria-label="Continuar venta recuperada"
-                        className="flex min-h-12 items-center px-3 text-sm font-semibold text-accent transition hover:text-accent-press"
-                      >
-                        Continuar venta
-                      </button>
-                      <button
-                        type="button"
-                        onClick={discardRestoredDraft}
-                        aria-label="Descartar borrador de venta"
-                        className="flex min-h-12 shrink-0 items-center px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
-                      >
-                        Descartar borrador
-                      </button>
+                    <div className="min-w-0">
+                      <p className="flex min-w-0 items-center gap-2 font-medium text-ink">
+                        <Clock3 className="h-4 w-4 shrink-0 text-accent" />
+                        <span className="min-w-0">
+                          {restoredDraftLabel(restoredDraftAt)}
+                        </span>
+                      </p>
+                      <p className="mt-0.5 text-sm leading-snug text-ink-2">
+                        {draftItems.length}{" "}
+                        {draftItems.length === 1 ? "producto" : "productos"} ·{" "}
+                        {formatMxn(draftTotal)}. Nada se envía hasta que confirmes.
+                      </p>
                     </div>
+                    {confirmingRestoredClear ? (
+                      <div className="flex w-full flex-wrap items-center justify-between gap-2 border-t border-dashed border-control-border/60 pt-2">
+                        <p className="text-sm font-semibold text-ink">
+                          Se borrará esta venta. No se puede deshacer.
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          <button
+                            type="button"
+                            id="restored-draft-cancel"
+                            onClick={cancelDiscardRestoredDraft}
+                            className="flex min-h-12 items-center border border-control-border bg-surface px-3 text-sm font-semibold text-ink"
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            type="button"
+                            id="restored-draft-confirm"
+                            onClick={discardRestoredDraft}
+                            className="flex min-h-12 items-center px-3 text-sm font-semibold text-danger"
+                          >
+                            Sí, empezar de nuevo
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-1">
+                        <button
+                          type="button"
+                          id="restored-draft-keep"
+                          onClick={keepRestoredDraft}
+                          className="flex min-h-12 items-center px-3 text-sm font-semibold text-accent transition hover:text-accent-press"
+                        >
+                          Seguir
+                        </button>
+                        <button
+                          type="button"
+                          id="restored-draft-restart"
+                          onClick={requestDiscardRestoredDraft}
+                          className="flex min-h-12 items-center px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
+                        >
+                          Empezar de nuevo
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : null}
                 <CajaPanel
@@ -3055,7 +3124,7 @@ function CajaPanel(props: {
           <div className="min-w-0">
             <h2 className="caja-card-title">¿Qué vendiste?</h2>
             <p className="caja-card-subtitle">
-              Habla o escribe; tú confirmas.
+              Habla, escribe o agrega a mano; tú confirmas.
             </p>
           </div>
           <button
@@ -3083,7 +3152,7 @@ function CajaPanel(props: {
           <p className="calc-display__hint">
             {digitalDue > 0
               ? `${formatMxn(digitalDue)} se cobran con link`
-              : "La IA interpreta; tú confirmas."}
+              : "La IA interpreta o lo agregas a mano; tú confirmas."}
           </p>
         </div>
 
@@ -3195,13 +3264,29 @@ function CajaPanel(props: {
               </button>
             </div>
 
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <button
+                type="button"
+                id="sale-manual"
+                onClick={addDraftItem}
+                data-chrome-critical
+                className="flex min-h-12 items-center gap-1.5 rounded-lg border border-dashed border-control-border bg-surface/60 px-3 text-sm font-semibold text-ink-2 transition hover:text-ink"
+              >
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                Agregar a mano
+              </button>
+              <p className="text-sm leading-snug text-ink-2">
+                Sin IA: escribe producto, cantidad y precio.
+              </p>
+            </div>
+
             {transcript ? (
               <div className="transcript-note">{transcript}</div>
             ) : (
               <p className="mt-1.5 text-sm leading-snug text-ink-2">
                 {listening
                   ? "Di productos, cantidades y precios. Suelta para terminar."
-                  : "Si hay ruido en el mercado, escribe la venta."}
+                  : "Si hay ruido en el mercado, escribe la venta o agrégala a mano."}
               </p>
             )}
 
@@ -3212,7 +3297,9 @@ function CajaPanel(props: {
                 </p>
                 <button
                   type="button"
+                  id="voice-error-manual"
                   onClick={addDraftItem}
+                  data-chrome-critical
                   className="mt-1 flex min-h-12 items-center gap-1.5 text-sm font-semibold text-danger underline underline-offset-2"
                 >
                   <Plus className="h-4 w-4" />
