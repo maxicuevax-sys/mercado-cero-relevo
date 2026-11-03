@@ -6,20 +6,18 @@
 > listo sin `verify:full` 23/23 y `verify:evidence` sobre el HEAD entregado.
 
 > **⛔ NO MERGEAR TODAVÍA / NO DECLARAR LISTO.** Los P0 adversarios están
-> corregidos y el código de app no ha cambiado desde el build `2a1f166`, pero
-> **no existe full ni `latest.json` atado al HEAD entregado** (base `fabe7cc`
-> + docs), `:3000` está
-> caído, el túnel/QR documentado está muerto y el video es histórico. El
-> fast-forward a `master` sigue sin ejecutarse y no debe hacerse antes de la
-> evidencia final.
+> corregidos y el build de código es `0d7251d`, pero **no existe full ni
+> `latest.json` atado al HEAD de docs**, el fast-forward a `master` sigue sin
+> ejecutarse y el video es histórico. `:3000` y el túnel `auction...` ya
+> responden con `0d7251d`; el QR ya apunta a ese túnel.
 
 ## 0. Estado en una frase
 
 La rama de trabajo **`p0/consolidacion`** contiene la final
 `p0/final-cognitive` (`fabe7cc`: diseño, carriles cognitivos y fix adversario) más
 los documentos verificados; `master` es su ancestro, pero **falta
-build/full/evidencia del HEAD, servidor `:3000`, túnel/QR vigente y video
-final**. La demo no está cerrada.
+full/evidencia del HEAD de docs y video final**. `:3000` y el túnel
+`auction...` ya sirven el build de código `0d7251d`. La demo no está cerrada.
 
 ## 1. SHAs y relación de ramas
 
@@ -36,11 +34,11 @@ los commits de docs cambian `master` y la rama de trabajo.
 | Commits que consolidación tiene de más | **30** al generar | `git rev-list --count master..p0/consolidacion`; verifica. |
 | Fast-forward | **Posible a `p0/consolidacion`, no ejecutado** | `master` es ancestro de consolidación. **No** hagas ff a `p0/final-cognitive` sola: master tiene docs que la final no tiene. |
 | Build conocido | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990` | Construido 2026-11-03T04:21:10Z; es el padre de `fabe7cc`. |
-| `:3000` | — | No responde al 2 nov 22:35. |
-| Preview `:3230` | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990` | Build con fixes P0; no es el HEAD. |
-| `:3302` | `2a1f166...` | Servidor del cierre cognitivo; build conocido, no HEAD. |
-| Preview pública | `https://involve-picking-wellness-retreat.trycloudflare.com` | Sirve `2a1f166`; quick tunnel efímero. |
-| Túnel del QR y de docs históricos | `https://timing-brought-lamp-aberdeen.trycloudflare.com` | **DNS no resuelve**; los docs ya apuntan a `involve...` como preview, no como final. |
+| `:3000` | ✅ | Responde con `0d7251d`; el build de cierre se sella en el commit de docs. |
+| Preview `:3230` | detenida | Se apagó para el full; el túnel apunta a `:3000`. |
+| `:3302` | detenido | Servidor de pruebas apagado. |
+| Preview pública | `https://auction-margaret-mapping-deputy.trycloudflare.com` | Sirve `:3000` con `0d7251d`; quick tunnel efímero. |
+| Túnel del QR y de docs históricos | `https://timing-brought-lamp-aberdeen.trycloudflare.com` | **DNS no resuelve**; el QR ya apunta al túnel `auction...`. |
 
 **Diferencia entre `2a1f166` y `fabe7cc`:** solo
 `web/scripts/payment-truth-e2e.py` (3 líneas de asserts) y
@@ -111,16 +109,17 @@ que el script no lo escribe).
 4. **Reset demo** y artefactos que exige el preflight:
    `python scripts/mobile-audit.py`, `python scripts/checkout-audit.py`,
    `python scripts/tunnel-smoke.py`, luego `node scripts/preflight.mjs`.
-   Hoy el preflight no puede dar 18/18: faltan esos tres JSON y `APP_URL`.
+   Ya se generaron en este cierre; si cambia el túnel o el build, regenerar.
+   El preflight da **18/18** con `APP_URL` en `.env.local`.
 5. **Full 23/23** y `npm run verify:evidence` sobre el mismo HEAD. Sin
    `--skip`/`--only`; un `partial` no cuenta.
 6. **Repetir E2E** sobre el mismo build y persistir JSON con SHA:
    adversarial, payment-truth, sin-ia, closing (necesita `:3302`, se niega a
    `:3000`/`:3230`) y preferences. `closing` requiere un servidor aparte;
    no reutilizar el `:3302` actual sin detenerlo/rebuild.
-7. **Túnel/QR**: crear un túnel para el `:3000` final, actualizar `APP_URL`,
-   regenerar `demo/qr-demo.*` y verificar el link. El QR actual apunta a
-   `timing...`, que no resuelve.
+7. **Túnel/QR**: el túnel `auction...` ya apunta al `:3000` final; el QR
+   `demo/qr-demo.*` ya se regeneró con esa URL. Si el quick tunnel muere,
+   crear otro, actualizar `APP_URL` y regenerar QR/PDF.
 8. **Video/Stageshow final**: los scripts de `p0/fix-video` (`c395e3e`)
    **no están integrados**; `demo_ui.py` no existe en HEAD y `record-demo.py`
    hardcodea `:3000`. Integrar los scripts, rebuild y grabar con corte $550.

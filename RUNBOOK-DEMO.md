@@ -2,7 +2,7 @@
 
 > **Estado:** demo mode con datos sembrados. El riel real de CoDi sigue bloqueado por BBVA; la demo se presenta como **modo demo**. No hubo pago real.
 > **Video:** `demo/mercado-cero-demo.mp4` es **histórico**: 39.8 s, 1,704,744 B, UI vieja y muestra $570. No es respaldo de la UI actual; se regrabará tras el rediseño. No borrar.
-> **Túnel vivo (2 nov 2026):** `https://involve-picking-wellness-retreat.trycloudflare.com` — sirve la preview `2a1f166`, **no** el build final; quick tunnel efímero. El túnel `timing-brought-lamp-aberdeen...` de este documento y del QR **no resuelve**. Si cambia, regenerar `APP_URL`, QR y PDF.
+> **Túnel vivo (2 nov 2026):** `https://auction-margaret-mapping-deputy.trycloudflare.com` — sirve la preview `2a1f166`, **no** el build final; quick tunnel efímero. El túnel `timing-brought-lamp-aberdeen...` de este documento y del QR **no resuelve**. Si cambia, regenerar `APP_URL`, QR y PDF.
 > **P0/P1:** P0-1, P0-2, P1-1, P1-3 y P1-5 corregidos en `ac9e5a6`/`fabe7cc`; siguen abiertos P1-2 (auth) y P1-4 (404 HTTP 200). **Full 23/23 y `latest.json` del HEAD siguen pendientes.** Detalle: `HANDOFF-CIERRE.md`.
 > **Declaración honesta:** Estamos en modo demo: los pagos se simulan con `demo_paid`. No hubo pago real de $0.01; BBVA/CoDi sigue bloqueado. Solo el webhook firmado de pey marca `paid`. Las pruebas con comerciantes y lectores de pantalla están pendientes.
 > **Verdad:** los pagos demo usan `demo_paid`; `/api/verify` solo marca `pey`. Comprobación: `node scripts/verify-truth.mjs`.
@@ -32,7 +32,7 @@
 - [ ] QR impreso de respaldo (`demo/qr-demo.png` o el HTML imprimible).
 - [ ] Micrófono probado; si falla, la demo funciona con texto.
 - [ ] Túnel HTTPS vivo si vas a mostrar un link/QR (demo). URL vigente al **2 nov 2026**:
-  `https://involve-picking-wellness-retreat.trycloudflare.com` (preview `2a1f166`, no final)
+  `https://auction-margaret-mapping-deputy.trycloudflare.com` (preview `2a1f166`, no final)
   Es un **quick tunnel efímero**: si cambia, actualiza `APP_URL`, reinicia el servidor y regenera QR/PDF (`node scripts/make-demo-qr.mjs` + `python scripts/print-qr-pdf.py`).
 - [ ] Prueba el túnel antes de salir: `python scripts/tunnel-smoke.py` (última corrida conocida 8/8, 2 nov 2026; repetir contra la URL del servidor final, no contra `2a1f166`).
 - [ ] Corre el preflight completo **después del reset**: `node scripts/preflight.mjs` (la última corrida conocida fue 18/18, pero hoy no es ejecutable: faltan `APP_URL` y `mobile-audit.json`, `checkout-audit.json`, `tunnel-smoke.json`).

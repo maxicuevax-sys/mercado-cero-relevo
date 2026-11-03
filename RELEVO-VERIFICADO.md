@@ -22,12 +22,12 @@ todavía.
 | Rama de código | `p0/final-cognitive` = `fabe7cc09bca0031233ac893a4d3d9c330c921c5` |
 | Worktree de consolidación | `p0/consolidacion` = `fabe7cc` + docs; al generar: `2eecf09` |
 | Relación | `master` es ancestro de `p0/consolidacion`; **ff-only a consolidación**, no a la final sola. `master..consolidacion` = 30 al generar; verifica con git |
-| Build conocido | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990` (2026-11-03T04:21:10Z); padre de `fabe7cc` |
-| Diferencia build→`fabe7cc` | solo `payment-truth-e2e.py` y `companion-preferences-e2e.json`; **código de app idéntico**. El HEAD de consolidación añade docs. |
-| `:3000` | **no responde** |
-| Preview `:3230` / pública | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990` (`involve-picking-wellness-retreat.trycloudflare.com`) | Build con fixes P0; **no es el HEAD** |
-| `:3302` | `2a1f166...` |
-| Túnel `timing-brought-lamp-aberdeen...` | **DNS no resuelve**; el QR lo usa |
+| Build conocido | `0d7251ded3916984a5548c47dc1f5ef9b0024f4c`; build de código final previo al commit de docs |
+| Diferencia build→HEAD docs | el commit de docs cambia el SHA; el código de app es el mismo. El build de cierre se sella en el HEAD de docs. |
+| `:3000` | ✅ responde con `0d7251d` |
+| Preview `:3230` / pública | `0d7251ded3916984a5548c47dc1f5ef9b0024f4c` (`auction-margaret-mapping-deputy.trycloudflare.com`) | Sirve `:3000`; no es el HEAD de docs |
+| `:3302` | detenido |
+| Túnel `timing-brought-lamp-aberdeen...` | **DNS no resuelve**; el QR apunta a `auction...` |
 | `harness/evidence/latest*.json` | **no existen** en este worktree |
 | `master` contiene la final/consolidación | **No**; la rama de trabajo está 30 commits adelante |
 
@@ -68,8 +68,8 @@ todavía.
    lee `APP_URL` de `web/.env.local` (no de `$env:APP_URL`) y exige
    `mobile-audit.json`, `checkout-audit.json` y `tunnel-smoke.json`; hoy no
    puede dar 18/18.
-3. **Túnel/QR/video final.** El túnel vivo (`involve...`) sirve `2a1f166`
-   (build con fixes P0, no el HEAD); el túnel `timing...` del QR no resuelve. El MP4 es histórico
+3. **Túnel/QR/video final.** El túnel vivo (`auction...`) sirve `0d7251d`
+   (build de código final, no el HEAD de docs); el túnel `timing...` del QR no resuelve. El MP4 es histórico
    (39.8 s, $570); los scripts de `p0/fix-video` (`c395e3e`) no están
    integrados (`demo_ui.py` ausente; `record-demo.py` hardcodea `:3000`).
 4. **P1-4 / accesibilidad / auth / pago real.** El 404 de checkout sigue

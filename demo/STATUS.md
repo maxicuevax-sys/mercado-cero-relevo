@@ -1,6 +1,6 @@
 # Estado de demo — 2 de noviembre de 2026
 
-> **Corte de estado (22:40, revisado):** rama de trabajo `p0/consolidacion` = `fabe7cc` + docs; `master` = `git rev-parse master` (al corte `a85d903`, solo docs; ff-only a consolidación, **no ejecutado**). Build conocido = `2a1f166` (padre de `fabe7cc`, mismo código de app). `:3000` **no responde**; `:3230` y el túnel público sirven `2a1f166` (build con fixes P0, no el HEAD); `:3302` sirve `2a1f166`. No hay `latest.json` ni `full` atado al HEAD: **cierre pendiente, no declarar listo.**
+> **Corte de estado (23:10, revisado):** rama de trabajo `p0/consolidacion`; `master` = `git rev-parse master` (al corte `3d8e6c8`, solo docs; ff-only a consolidación, **no ejecutado**). Build de código = `0d7251d`; `:3000` responde con ese build y el túnel público `auction...` lo sirve. El build de cierre se hace sobre el commit de docs; **no hay `latest.json` ni `full` atado al HEAD todavía**: cierre pendiente, no declarar listo.
 >
 > **P0/P1:** P0-1 (reset con pago pey firmado), P0-2 (`/` privado), P1-1 (webhook demo → `demo_paid`, fulfill 409), P1-3 (verify sin referencias) y P1-5 (totales honestos) están corregidos en `ac9e5a6`/`fabe7cc`. Siguen abiertos P1-2 (auth), P1-4 (404 HTTP 200) y varios P2. Detalle: `HANDOFF-CIERRE.md` §2.
 >
@@ -8,20 +8,20 @@
 >
 > **Video:** `demo/mercado-cero-demo.mp4` es **histórico** (39.8 s, 1,704,744 B, UI vieja, muestra $570). No es respaldo actual; se regrabará tras el rediseño. No borrar. Los scripts de `p0/fix-video` (`c395e3e`) **no están integrados** en HEAD.
 >
-> **Túnel vivo (2 nov 2026):** `https://involve-picking-wellness-retreat.trycloudflare.com` — sirve la preview `397039d`, **no** el build final; quick tunnel efímero. El túnel `timing-brought-lamp-aberdeen...` de este documento y del QR **no resuelve**. Si cambia la URL, regenerar `APP_URL`, QR y PDF.
+> **Túnel vivo (2 nov 2026):** `https://auction-margaret-mapping-deputy.trycloudflare.com` — sirve `:3000` con build de código `0d7251d`; quick tunnel efímero. El túnel `timing-brought-lamp-aberdeen...` de este documento y del QR **no resuelve**. Si cambia la URL, regenerar `APP_URL`, QR y PDF.
 
 ## Cierre pendiente
 
 | Campo | Valor |
 |---|---|
-| HEAD de la rama final | `fabe7cc09bca0031233ac893a4d3d9c330c921c5` (`p0/final-cognitive`) |
-| `master` | `a85d903936af607e3c209fedceb2a40d8410a66e`; 28 commits atrás; ancestro |
-| Build conocido | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990` (2026-11-03T04:21:10Z); no es el HEAD |
-| Servidor `:3000` | ❌ no responde; no hay servidor del HEAD |
-| Preview `:3230` / pública | `2a1f166ba5b11990b6ddd0319caba01fcf2d1990`; no es la final |
-| Evidencia atada al HEAD | ❌ pendiente: no hay `latest.json`/`latest-static.json`; `full` no corrido contra el HEAD (base `fabe7cc` + docs) |
-| E2E adversario | ✅ 28/28 contra build `2a1f166`; artefacto local, sin `gitAtStart` |
-| E2E cognitivos | conteos declarados sobre `2a1f166`: payment 35/35 (sin JSON), closing 18/18, sin-ia 21/21, preferences 26/26 (`dirty:true`) |
+| HEAD de la rama de trabajo | `git rev-parse HEAD`; al generar `0d7251d` (código) + docs pendientes |
+| `master` | `3d8e6c8`; ancestro; ff-only a consolidación, no ejecutado |
+| Build de código | `0d7251d`; el build de cierre se sella sobre el commit de docs |
+| Servidor `:3000` | ✅ responde con `0d7251d` |
+| Preview pública | `auction-margaret-mapping-deputy...`; sirve `:3000` con `0d7251d` |
+| Evidencia atada al HEAD | ❌ pendiente: no hay `latest.json`; full no corrido contra el HEAD de docs |
+| E2E adversario | ✅ 28/28 contra build `2a1f166` (código de app equivalente; no es evidencia de cierre) |
+| E2E cognitivos | 35/35, 18/18, 21/21, 26/26 sobre `2a1f166`; no atados al HEAD de cierre |
 | Video | histórico: 39.8 s, 1,704,744 B, UI vieja, $570; regrabar con $550 |
 | Ensayo del guion | ✅ 3/3 corridas, 19/19 pasos, ~8.1 s (master `75179c7`, histórico) |
 | Pruebas humanas | 0/6–8; TalkBack/VoiceOver y teléfono físico pendientes |
