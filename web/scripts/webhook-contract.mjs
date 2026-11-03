@@ -169,10 +169,12 @@ function linkEvent(order, overrides = {}) {
     paymentLinkId: order.paymentLinkId,
     status: "paid",
     clientReferenceId: order.id,
+    currency: "MXN",
     transactions: [
       {
         transactionId: `txn_${crypto.randomUUID()}`,
         paymentMethod: "CODI",
+        currency: "MXN",
         amount: order.totalCents / 100,
       },
     ],
@@ -192,6 +194,15 @@ function dbRows(sql, ...params) {
   const database = new DatabaseSync(DB_PATH);
   try {
     return database.prepare(sql).all(...params);
+  } finally {
+    database.close();
+  }
+}
+
+function dbExec(sql, ...params) {
+  const database = new DatabaseSync(DB_PATH);
+  try {
+    database.prepare(sql).run(...params);
   } finally {
     database.close();
   }
@@ -282,6 +293,25 @@ async function main() {
     `${replayDetail.order.status} / ${replayDetail.order.paidCents}`,
   );
 
+  // 2b. Replay con OTRA llave de webhook y `paid_cents` viejo: debe curar la
+  // orden desde payments en vez de responder ignored.
+  dbExec(
+    "UPDATE orders SET paid_cents = 0, status = 'payment_pending' WHERE id = ?",
+    validOrder.id,
+  );
+  const healResponse = await sendEvent(validEvent);
+  check(
+    "2b. replay con paid_cents viejo → 200 processed",
+    healResponse.status === 200 && healResponse.body?.result === "processed",
+    JSON.stringify(healResponse.body),
+  );
+  const healedDetail = await getOrderDetail(validOrder.id);
+  check(
+    "2b. el replay cura paid_cents y estado",
+    healedDetail.order.status === "paid" && healedDetail.order.paidCents === 1000,
+    `${healedDetail.order.status} / ${healedDetail.order.paidCents}`,
+  );
+
   // 3. Firma falsa.
   const badSignatureOrder = await createOrderWithLink(1000);
   const badSignatureEvent = linkEvent(badSignatureOrder);
@@ -364,14 +394,48 @@ async function main() {
     JSON.stringify(correctedRetryAudit),
   );
 
+  // 4c. La moneda y clientReferenceId son obligatorios.
+  const noCurrencyOrder = await createOrderWithLink(900);
+  const noCurrencyEvent = linkEvent(noCurrencyOrder);
+  delete noCurrencyEvent.currency;
+  const noCurrencyResponse = await sendEvent(noCurrencyEvent);
+  check(
+    "4c. evento sin moneda → 422",
+    noCurrencyResponse.status === 422,
+    `${noCurrencyResponse.status} · ${JSON.stringify(noCurrencyResponse.body)}`,
+  );
+  const noCurrencyDetail = await getOrderDetail(noCurrencyOrder.id);
+  check(
+    "4c. evento sin moneda no cobra",
+    noCurrencyDetail.order.paidCents === 0 && noCurrencyDetail.payments.length === 0,
+    `${noCurrencyDetail.order.paidCents} / pagos=${noCurrencyDetail.payments.length}`,
+  );
+
+  const noReferenceOrder = await createOrderWithLink(900);
+  const noReferenceEvent = linkEvent(noReferenceOrder);
+  delete noReferenceEvent.clientReferenceId;
+  const noReferenceResponse = await sendEvent(noReferenceEvent);
+  check(
+    "4d. evento sin clientReferenceId → 422",
+    noReferenceResponse.status === 422,
+    `${noReferenceResponse.status} · ${JSON.stringify(noReferenceResponse.body)}`,
+  );
+  const noReferenceDetail = await getOrderDetail(noReferenceOrder.id);
+  check(
+    "4d. evento sin clientReferenceId no cobra",
+    noReferenceDetail.order.paidCents === 0 && noReferenceDetail.payments.length === 0,
+    `${noReferenceDetail.order.paidCents} / pagos=${noReferenceDetail.payments.length}`,
+  );
+
   // 5. Orden inexistente.
   const unknownEvent = {
     type: "payment_link.status_updated",
     paymentLinkId: "link_inexistente",
     status: "paid",
     clientReferenceId: "ord_inexistente",
+    currency: "MXN",
     transactions: [
-      { transactionId: `txn_${crypto.randomUUID()}`, paymentMethod: "CODI", amount: 10.0 },
+      { transactionId: `txn_${crypto.randomUUID()}`, paymentMethod: "CODI", currency: "MXN", amount: 10.0 },
     ],
   };
   const unknownResponse = await sendEvent(unknownEvent);
@@ -394,10 +458,12 @@ async function main() {
     paymentLinkId: retry404Order.paymentLinkId,
     status: "paid",
     clientReferenceId: "ord_inexistente_retry",
+    currency: "MXN",
     transactions: [
       {
         transactionId: `txn_${crypto.randomUUID()}`,
         paymentMethod: "CODI",
+        currency: "MXN",
         amount: retry404Order.totalCents / 100,
       },
     ],
@@ -460,6 +526,7 @@ async function main() {
     paymentLinkId: validOrder.paymentLinkId,
     status: "pending",
     clientReferenceId: validOrder.id,
+    currency: "MXN",
     transactions: [],
   };
   const pendingResponse = await sendEvent(pendingEvent);
@@ -496,6 +563,7 @@ async function main() {
   const qrEvent = {
     type: "codi.qr.payment_received",
     amount: qrOrder.totalCents / 100,
+    currency: "MXN",
     numRef: qrOrder.numRef,
     transactionId: `txn_${crypto.randomUUID()}`,
     metadata: { orderId: qrOrder.id },

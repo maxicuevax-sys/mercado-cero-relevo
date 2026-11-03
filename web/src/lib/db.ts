@@ -21,14 +21,33 @@ const MAX_BACKUPS = 5;
 
 let db: DatabaseSync | null = null;
 
-export class DemoResetBlockedError extends Error {
-  readonly realPaymentCount: number;
+export interface DemoResetRealData {
+  orders: number;
+  payments: number;
+  credits: number;
+  cashCloses: number;
+  goals: number;
+  tasks: number;
+}
 
-  constructor(realPaymentCount: number) {
+export class DemoResetBlockedError extends Error {
+  readonly realDataCount: number;
+  readonly realPaymentCount: number;
+  readonly breakdown: DemoResetRealData;
+
+  constructor(data: DemoResetRealData, realPaymentCount: number) {
     super(
-      "Hay pagos reales de pey confirmados. El reinicio de demo está bloqueado.",
+      "Hay datos reales en la caja. El reinicio de demo está bloqueado; usa FORCE solo si conservas lo real.",
     );
     this.name = "DemoResetBlockedError";
+    this.breakdown = data;
+    this.realDataCount =
+      data.orders +
+      data.payments +
+      data.credits +
+      data.cashCloses +
+      data.goals +
+      data.tasks;
     this.realPaymentCount = realPaymentCount;
   }
 }
@@ -37,6 +56,7 @@ export interface DemoResetResult {
   backup: string;
   realPaymentCount: number;
   preservedRealPayments: number;
+  realDataCount: number;
 }
 
 export function newId(prefix = "mc"): string {
@@ -144,10 +164,13 @@ function migrate(database: DatabaseSync) {
       processed_at TEXT NOT NULL
     );
 
+    -- El nombre es único por modo: la demo y la caja real pueden tener cada
+    -- una su "Juan" sin compartir cliente ni crédito.
     CREATE TABLE IF NOT EXISTS customers (
       id TEXT PRIMARY KEY,
-      name TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
       phone TEXT,
+      demo INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL
     );
 
@@ -219,6 +242,7 @@ function migrate(database: DatabaseSync) {
       saved_cents INTEGER NOT NULL DEFAULT 0,
       deadline TEXT,
       status TEXT NOT NULL DEFAULT 'active',
+      demo INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL
     );
 
@@ -229,6 +253,7 @@ function migrate(database: DatabaseSync) {
       note TEXT,
       request_id TEXT,
       request_hash TEXT,
+      demo INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL,
       FOREIGN KEY (goal_id) REFERENCES goals(id) ON DELETE CASCADE
     );
@@ -240,6 +265,7 @@ function migrate(database: DatabaseSync) {
       status TEXT NOT NULL DEFAULT 'open',
       due_at TEXT,
       postponed_until TEXT,
+      demo INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,
       completed_at TEXT,
@@ -280,6 +306,11 @@ function migrate(database: DatabaseSync) {
     CREATE INDEX IF NOT EXISTS idx_orders_created_id
       ON orders(created_at, id);
   `);
+
+  // `customers` nació con `name UNIQUE` global. Eso impedía que un cliente
+  // real "Juan" conviviera con el fixture "Juan" de la demo. La migración
+  // reconstruye la tabla con `demo` y unicidad por (name, demo).
+  migrateCustomers(database);
 
   const columns = database.prepare("PRAGMA table_info(orders)").all() as Array<{ name: string }>;
   if (!columns.some((column) => column.name === "credit_cents")) {
@@ -409,7 +440,105 @@ function migrate(database: DatabaseSync) {
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_goal_contributions_request_id ON goal_contributions(request_id) WHERE request_id IS NOT NULL;",
   );
 
+  const goalColumns = database.prepare("PRAGMA table_info(goals)").all() as Array<{
+    name: string;
+  }>;
+  if (!goalColumns.some((column) => column.name === "demo")) {
+    database.exec("ALTER TABLE goals ADD COLUMN demo INTEGER NOT NULL DEFAULT 0;");
+  }
+  if (!goalContributionColumns.some((column) => column.name === "demo")) {
+    database.exec(
+      "ALTER TABLE goal_contributions ADD COLUMN demo INTEGER NOT NULL DEFAULT 0;",
+    );
+  }
+  const taskColumns = database.prepare("PRAGMA table_info(tasks)").all() as Array<{
+    name: string;
+  }>;
+  if (!taskColumns.some((column) => column.name === "demo")) {
+    database.exec("ALTER TABLE tasks ADD COLUMN demo INTEGER NOT NULL DEFAULT 0;");
+  }
+
   migrateCashCloses(database);
+
+  // Las filas viejas de la demo se reconocen por sus prefijos reservados.
+  // No se marca por cliente: un crédito real puede apuntar a un cliente demo
+  // (el P0 que esta migración repara) y debe seguir siendo real.
+  database.exec(`
+    UPDATE orders SET demo = 1
+    WHERE demo = 0 AND (id LIKE 'demo\\_%' ESCAPE '\\' OR status = 'demo_paid');
+    UPDATE payments SET demo = 1
+    WHERE demo = 0 AND (provider = 'demo' OR transaction_id LIKE 'demo\\_%' ESCAPE '\\');
+    UPDATE credit_payments SET demo = 1
+    WHERE demo = 0 AND credit_id LIKE 'demo\\_%' ESCAPE '\\';
+    UPDATE credits SET demo = 1
+    WHERE demo = 0 AND (id LIKE 'demo\\_%' ESCAPE '\\'
+      OR order_id LIKE 'demo\\_%' ESCAPE '\\');
+    UPDATE cash_closes SET demo = 1
+    WHERE demo = 0 AND (id LIKE 'demo\\_%' ESCAPE '\\'
+      OR id LIKE 'cash\\_demo\\_%' ESCAPE '\\');
+    UPDATE goals SET demo = 1
+    WHERE demo = 0 AND id LIKE 'demo\\_%' ESCAPE '\\';
+  `);
+}
+
+/**
+ * Reconstruye `customers` si viene del esquema viejo con `name UNIQUE`.
+ *
+ * La unicidad global impedía crear un cliente real con el mismo nombre que
+ * un fixture de demo. La copia se hace con `foreign_keys=OFF` para que
+ * `credits.customer_id` siga apuntando a la tabla `customers` nueva, y se
+ * verifica la integridad antes de confirmar.
+ */
+function migrateCustomers(database: DatabaseSync) {
+  const columns = tableColumns(database, "customers");
+  const hasDemo = columns.some((column) => column.name === "demo");
+  if (hasDemo) {
+    database.exec(
+      "CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_name_demo ON customers(name, demo);",
+    );
+    database.exec(
+      "UPDATE customers SET demo = 1 WHERE demo = 0 AND id LIKE 'demo\\_%' ESCAPE '\\';",
+    );
+    return;
+  }
+
+  database.exec("PRAGMA foreign_keys = OFF;");
+  try {
+    database.exec("BEGIN IMMEDIATE;");
+    database.exec(`
+      CREATE TABLE customers_new (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        phone TEXT,
+        demo INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL
+      );
+      INSERT INTO customers_new (id, name, phone, demo, created_at)
+      SELECT id, name, phone,
+             CASE WHEN id LIKE 'demo\\_%' ESCAPE '\\' THEN 1 ELSE 0 END,
+             created_at
+      FROM customers;
+      DROP TABLE customers;
+      ALTER TABLE customers_new RENAME TO customers;
+      CREATE UNIQUE INDEX idx_customers_name_demo ON customers(name, demo);
+    `);
+    const violations = database.prepare("PRAGMA foreign_key_check").all();
+    if (violations.length > 0) {
+      throw new Error(
+        `La migración de customers dejó ${violations.length} referencias huérfanas.`,
+      );
+    }
+    database.exec("COMMIT");
+  } catch (error) {
+    try {
+      database.exec("ROLLBACK");
+    } catch {
+      // SQLite pudo cerrar la transacción sola.
+    }
+    throw error;
+  } finally {
+    database.exec("PRAGMA foreign_keys = ON;");
+  }
 }
 
 /**
@@ -909,13 +1038,19 @@ function copyLegacyIntoVersioned(database: DatabaseSync) {
  */
 function seed(database: DatabaseSync) {
   if (!isDemoMode()) return;
-  const count = database.prepare("SELECT COUNT(*) AS n FROM customers").get() as { n: number };
+  const count = database
+    .prepare(
+      "SELECT COUNT(*) AS n FROM customers WHERE demo = 1 AND lower(name) = 'juan'",
+    )
+    .get() as { n: number };
   if (count.n > 0) return;
 
   const createdAt = nowIso();
   const juanId = newId("demo_seed_cus");
   database
-    .prepare("INSERT INTO customers (id, name, phone, created_at) VALUES (?, ?, ?, ?)")
+    .prepare(
+      "INSERT INTO customers (id, name, phone, demo, created_at) VALUES (?, ?, ?, 1, ?)",
+    )
     .run(juanId, "Juan", null, createdAt);
 
   const creditId = newId("demo_seed_cred");
@@ -954,7 +1089,9 @@ function seed(database: DatabaseSync) {
 
 function seedGoal(database: DatabaseSync) {
   if (!isDemoMode()) return;
-  const count = database.prepare("SELECT COUNT(*) AS n FROM goals").get() as { n: number };
+  const count = database
+    .prepare("SELECT COUNT(*) AS n FROM goals WHERE demo = 1")
+    .get() as { n: number };
   if (count.n > 0) return;
 
   const targetCents = 180000;
@@ -962,7 +1099,7 @@ function seedGoal(database: DatabaseSync) {
   const deadline = new Date(Date.now() + 56 * 24 * 60 * 60 * 1000).toISOString();
   database
     .prepare(
-      "INSERT INTO goals (id, title, target_cents, saved_cents, deadline, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO goals (id, title, target_cents, saved_cents, deadline, status, demo, created_at) VALUES (?, ?, ?, ?, ?, ?, 1, ?)",
     )
     .run(
       newId("demo_seed_goal"),
@@ -1322,13 +1459,27 @@ export function getOrder(id: string): Order | null {
   return mapOrder(row);
 }
 
+/**
+ * Clausura SQL de pedidos visibles para el modo actual. En real excluye los
+ * pedidos demo por marca, id y estado; en demo no filtra (la base demo puede
+ * contener filas reales de una sesión anterior y la caja las muestra).
+ */
+function visibleOrderClause(alias = ""): string {
+  if (isDemoMode()) return "";
+  const prefix = alias ? `${alias}.` : "";
+  return ` AND ${prefix}demo = 0 AND ${prefix}id NOT LIKE 'demo_%' AND ${prefix}status != 'demo_paid'`;
+}
+
 export function getOrderByRequestId(
   requestId: string,
   merchantId: string = MERCHANT.id,
 ): Order | null {
   const database = getDb();
   const row = database
-    .prepare("SELECT * FROM orders WHERE request_id = ? AND merchant_id = ?")
+    .prepare(
+      `SELECT * FROM orders WHERE request_id = ? AND merchant_id = ?${visibleOrderClause()}
+       ORDER BY created_at DESC LIMIT 1`,
+    )
     .get(requestId, merchantId) as Record<string, unknown> | undefined;
   return row ? mapOrder(row) : null;
 }
@@ -1344,7 +1495,10 @@ export function getOrderRequestMatch(
 ): { order: Order; requestHash: string | null } | null {
   const database = getDb();
   const row = database
-    .prepare("SELECT * FROM orders WHERE request_id = ? AND merchant_id = ?")
+    .prepare(
+      `SELECT * FROM orders WHERE request_id = ? AND merchant_id = ?${visibleOrderClause()}
+       ORDER BY created_at DESC LIMIT 1`,
+    )
     .get(requestId, merchantId) as Record<string, unknown> | undefined;
   if (!row) return null;
   return {
@@ -1356,7 +1510,10 @@ export function getOrderRequestMatch(
 export function getOrderByPaymentLink(paymentLinkId: string): Order | null {
   const database = getDb();
   const row = database
-    .prepare("SELECT * FROM orders WHERE payment_link_id = ?")
+    .prepare(
+      `SELECT * FROM orders WHERE payment_link_id = ?${visibleOrderClause()}
+       ORDER BY created_at DESC LIMIT 1`,
+    )
     .get(paymentLinkId) as Record<string, unknown> | undefined;
   return row ? mapOrder(row) : null;
 }
@@ -1364,7 +1521,10 @@ export function getOrderByPaymentLink(paymentLinkId: string): Order | null {
 export function getOrderByNumRef(numRef: string): Order | null {
   const database = getDb();
   const row = database
-    .prepare("SELECT * FROM orders WHERE num_ref = ? ORDER BY created_at DESC LIMIT 1")
+    .prepare(
+      `SELECT * FROM orders WHERE num_ref = ?${visibleOrderClause()}
+       ORDER BY created_at DESC LIMIT 1`,
+    )
     .get(numRef) as Record<string, unknown> | undefined;
   return row ? mapOrder(row) : null;
 }
@@ -1389,35 +1549,66 @@ export function listPayments(orderId: string): Payment[] {
 
 export function listCustomers(): Customer[] {
   const database = getDb();
+  const demoFilter = isDemoMode() ? "" : "WHERE demo = 0";
   const rows = database
-    .prepare("SELECT * FROM customers ORDER BY name ASC")
+    .prepare(`SELECT * FROM customers ${demoFilter} ORDER BY name ASC`)
     .all() as Record<string, unknown>[];
   return rows.map((row) => ({
     id: row.id as string,
     name: row.name as string,
     phone: (row.phone as string) ?? null,
+    demo: Number(row.demo ?? 0) === 1,
     createdAt: row.created_at as string,
   }));
+}
+
+function mapCustomer(row: Record<string, unknown>): Customer {
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    phone: (row.phone as string) ?? null,
+    demo: Number(row.demo ?? 0) === 1,
+    createdAt: row.created_at as string,
+  };
 }
 
 export function findOrCreateCustomer(name: string): Customer {
   const database = getDb();
   const normalized = name.trim();
+  const demo = isDemoMode() ? 1 : 0;
+  // En real nunca se reutiliza un cliente de demo: comparten nombre pero no
+  // identidad ni historial de fiado. La unicidad es (name, demo).
   const existing = database
-    .prepare("SELECT * FROM customers WHERE lower(name) = lower(?)")
-    .get(normalized) as Customer | undefined;
-  if (existing) return existing;
+    .prepare(
+      "SELECT * FROM customers WHERE lower(name) = lower(?) AND demo = ?",
+    )
+    .get(normalized, demo) as Record<string, unknown> | undefined;
+  if (existing) return mapCustomer(existing);
 
   const customer: Customer = {
     id: newId("cus"),
     name: normalized,
     phone: null,
+    demo: demo === 1,
     createdAt: nowIso(),
   };
+  // `OR IGNORE` cubre la carrera de dos ventas simultáneas con el mismo
+  // nombre; después se relee la fila que ganó.
   database
-    .prepare("INSERT INTO customers (id, name, phone, created_at) VALUES (?, ?, ?, ?)")
-    .run(customer.id, customer.name, customer.phone, customer.createdAt);
-  return customer;
+    .prepare(
+      "INSERT OR IGNORE INTO customers (id, name, phone, demo, created_at) VALUES (?, ?, ?, ?, ?)",
+    )
+    .run(customer.id, customer.name, customer.phone, demo, customer.createdAt);
+
+  const stored = database
+    .prepare(
+      "SELECT * FROM customers WHERE lower(name) = lower(?) AND demo = ?",
+    )
+    .get(normalized, demo) as Record<string, unknown> | undefined;
+  if (!stored) {
+    throw new Error("No pude leer el cliente recién creado.");
+  }
+  return mapCustomer(stored);
 }
 
 /**
@@ -1429,14 +1620,10 @@ export function listCredits(limit?: number, offset = 0): Credit[] {
   const safeOffset = Math.max(0, Math.floor(offset));
   const safeLimit =
     limit === undefined ? null : Math.max(1, Math.floor(limit));
-  // Una base demo reutilizada en modo real no debe mostrar sus fixtures.
-  // Se excluyen por id de crédito, id de cliente y pedido demo.
-  const demoFilter = isDemoMode()
-    ? ""
-    : `WHERE c.demo = 0
-        AND c.id NOT LIKE 'demo_seed_%'
-        AND cu.id NOT LIKE 'demo_seed_%'
-        AND (c.order_id IS NULL OR c.order_id NOT LIKE 'demo_%')`;
+  // La separación demo/real se decide por la marca del crédito, no por el
+  // cliente ni por el pedido: un crédito real puede apuntar a un cliente demo
+  // (base demo reutilizada en real) y debe seguir siendo visible y pagable.
+  const demoFilter = isDemoMode() ? "" : "WHERE c.demo = 0";
   const rows = database
     .prepare(
       `SELECT c.*, cu.name AS customer_name
@@ -1464,12 +1651,7 @@ export function listCredits(limit?: number, offset = 0): Credit[] {
 
 export function countCredits(): number {
   const database = getDb();
-  const demoFilter = isDemoMode()
-    ? ""
-    : `WHERE c.demo = 0
-        AND c.id NOT LIKE 'demo_seed_%'
-        AND cu.id NOT LIKE 'demo_seed_%'
-        AND (c.order_id IS NULL OR c.order_id NOT LIKE 'demo_%')`;
+  const demoFilter = isDemoMode() ? "" : "WHERE c.demo = 0";
   const row = database
     .prepare(
       `SELECT COUNT(*) AS n
@@ -1481,7 +1663,6 @@ export function countCredits(): number {
 }
 
 export function getCredit(id: string): Credit | null {
-  if (!isDemoMode() && id.startsWith("demo_seed_")) return null;
   const database = getDb();
   const row = database
     .prepare(
@@ -1491,12 +1672,9 @@ export function getCredit(id: string): Credit | null {
     )
     .get(id) as Record<string, unknown> | undefined;
   if (!row) return null;
-  if (
-    !isDemoMode() &&
-    (Number(row.demo) === 1 ||
-      (row.order_id as string | null)?.startsWith("demo_") ||
-      (row.customer_id as string | null)?.startsWith("demo_seed_"))
-  ) {
+  // Solo la marca del crédito decide si es demo. El cliente puede ser demo
+  // sin volver demo al crédito (P0 de base demo reutilizada en real).
+  if (!isDemoMode() && Number(row.demo) === 1) {
     return null;
   }
   return {
@@ -1730,89 +1908,89 @@ function backupDatabase(database: DatabaseSync): string {
   return target;
 }
 
+function countRealData(database: DatabaseSync): DemoResetRealData {
+  const row = database
+    .prepare(
+      `SELECT
+         (SELECT COUNT(*) FROM orders WHERE demo = 0) AS orders,
+         (SELECT COUNT(*) FROM payments WHERE demo = 0) AS payments,
+         (SELECT COUNT(*) FROM credits WHERE demo = 0) AS credits,
+         (SELECT COUNT(*) FROM cash_closes WHERE demo = 0) AS cashCloses,
+         (SELECT COUNT(*) FROM goals WHERE demo = 0) AS goals,
+         (SELECT COUNT(*) FROM tasks WHERE demo = 0) AS tasks`,
+    )
+    .get() as Record<string, number>;
+  return {
+    orders: Number(row.orders),
+    payments: Number(row.payments),
+    credits: Number(row.credits),
+    cashCloses: Number(row.cashCloses),
+    goals: Number(row.goals),
+    tasks: Number(row.tasks),
+  };
+}
+
 /**
  * Reinicia los datos de demostración.
  *
- * - Si hay un pago real (`pey` + `paid`), se niega salvo `force`.
+ * - Si hay cualquier dato real (`demo=0`) en pedidos, pagos, fiado, cortes,
+ *   metas o pendientes, se niega salvo `force`; el código HTTP es
+ *   `real_data_present`.
  * - Siempre hace backup timestamped antes de borrar.
- * - Con `force`, conserva los pedidos/pagos reales y toda la auditoría; solo
- *   limpia lo que pertenece a la demo. Nunca borra la evidencia de un pago
- *   real para “dejar limpio” el escenario.
+ * - Con `force` solo se borran filas demo. Nunca se borra un pedido, pago,
+ *   crédito, corte, meta o pendiente real para “dejar limpio” el escenario.
  */
 export function resetDemoData(options: { force?: boolean } = {}): DemoResetResult {
   const database = getDb();
+  const realData = countRealData(database);
+  const realDataCount =
+    realData.orders +
+    realData.payments +
+    realData.credits +
+    realData.cashCloses +
+    realData.goals +
+    realData.tasks;
   const realPayments = listRealPeyPayments(database);
 
-  if (realPayments.length > 0 && !options.force) {
-    throw new DemoResetBlockedError(realPayments.length);
+  if (realDataCount > 0 && !options.force) {
+    throw new DemoResetBlockedError(realData, realPayments.length);
   }
 
   const backupPath = backupDatabase(database);
   const realOrderIds = [...new Set(realPayments.map((payment) => payment.order_id))];
 
-  if (realOrderIds.length === 0) {
+  database.exec("BEGIN IMMEDIATE");
+  try {
+    // El orden respeta las llaves foráneas: primero hijos demo, luego padres
+    // demo que ya no tengan hijos reales. Las filas reales no se tocan.
     database.exec(`
-      DELETE FROM payment_events;
-      DELETE FROM tasks;
-      DELETE FROM goal_contributions;
-      DELETE FROM goals;
-      DELETE FROM cash_closes;
-      DELETE FROM payments;
-      DELETE FROM order_items;
-      DELETE FROM orders;
-      DELETE FROM credit_payments;
-      DELETE FROM credits;
-      DELETE FROM customers;
-      DELETE FROM audit_log;
+      DELETE FROM goal_contributions WHERE demo = 1;
+      DELETE FROM goals
+      WHERE demo = 1
+        AND id NOT IN (SELECT goal_id FROM goal_contributions);
+      DELETE FROM tasks WHERE demo = 1;
+      DELETE FROM cash_closes WHERE demo = 1;
+      DELETE FROM payments WHERE demo = 1;
+      DELETE FROM credit_payments WHERE demo = 1;
+      DELETE FROM credits
+      WHERE demo = 1
+        AND id NOT IN (SELECT credit_id FROM credit_payments);
+      DELETE FROM orders
+      WHERE demo = 1
+        AND id NOT IN (SELECT order_id FROM payments)
+        AND id NOT IN (SELECT order_id FROM credits WHERE order_id IS NOT NULL);
+      DELETE FROM customers
+      WHERE demo = 1
+        AND id NOT IN (SELECT customer_id FROM credits);
     `);
-  } else {
-    const placeholders = realOrderIds.map(() => "?").join(", ");
-    database.exec("BEGIN IMMEDIATE");
+    database.exec("COMMIT");
+  } catch (error) {
     try {
-      database
-        .prepare(`DELETE FROM payments WHERE order_id NOT IN (${placeholders})`)
-        .run(...realOrderIds);
-      database
-        .prepare(`DELETE FROM order_items WHERE order_id NOT IN (${placeholders})`)
-        .run(...realOrderIds);
-      database
-        .prepare(
-          `DELETE FROM credit_payments
-           WHERE credit_id NOT IN (
-             SELECT id FROM credits WHERE order_id IN (${placeholders})
-           )`,
-        )
-        .run(...realOrderIds);
-      database
-        .prepare(
-          `DELETE FROM credits
-           WHERE order_id IS NULL OR order_id NOT IN (${placeholders})`,
-        )
-        .run(...realOrderIds);
-      database.exec(
-        "DELETE FROM customers WHERE id NOT IN (SELECT customer_id FROM credits)",
-      );
-      database
-        .prepare(`DELETE FROM orders WHERE id NOT IN (${placeholders})`)
-        .run(...realOrderIds);
-
-      // Los eventos del webhook y la auditoría de pagos reales se conservan.
-      database.exec("DELETE FROM payment_events WHERE provider != 'pey'");
-      database.exec(`
-        DELETE FROM tasks;
-        DELETE FROM goal_contributions;
-        DELETE FROM goals;
-        DELETE FROM cash_closes;
-      `);
-      database.exec("COMMIT");
-    } catch (error) {
-      try {
-        database.exec("ROLLBACK");
-      } catch {
-        // SQLite pudo cerrar la transacción sola.
-      }
-      throw error;
+      database.exec("ROLLBACK");
+    } catch {
+      // SQLite pudo cerrar la transacción sola.
     }
+    throw error;
   }
 
   seed(database);
@@ -1822,13 +2000,16 @@ export function resetDemoData(options: { force?: boolean } = {}): DemoResetResul
   audit("demo.reset", "demo", "reset", {
     backup: path.basename(backupPath),
     force: Boolean(options.force),
+    realDataCount,
     realPaymentCount: realPayments.length,
     preservedRealPayments: realOrderIds.length,
+    breakdown: realData,
   });
 
   return {
     backup: path.basename(backupPath),
     realPaymentCount: realPayments.length,
     preservedRealPayments: realOrderIds.length,
+    realDataCount,
   };
 }

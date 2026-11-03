@@ -85,7 +85,7 @@ Esto también responde a los datos de FINABIEN–CONCANACO 2026:
 
 El prototipo debe pasar estas cuatro pruebas, no solo verse bonito:
 
-1. **Pago real:** un pago de $0.01–$90 completado con pey y confirmado por webhook.
+1. **Pago real (pendiente, no ejecutado):** un pago de $0.01–$90 completado con pey y confirmado por webhook. Hoy el riel BBVA/CoDi sigue bloqueado; no hubo pago real.
 2. **Autonomía:** una persona sin capacitación genera y consulta un cobro por voz.
 3. **Anti-fraude:** un comprobante falso y un webhook duplicado **nunca** aparecen como dinero recibido.
 4. **Cuadre:** el corte del día separa CoDi verificado, tarjeta, efectivo declarado y fiado pendiente.
@@ -122,7 +122,7 @@ Next.js API
 - **SQLite (`node:sqlite`)** para el prototipo; Postgres para producción.
 - **OpenAI**: transcripción + LLM para estructurar la venta; voz con **Kokoro `em_santa`** para frases fijas y **Piper es-MX** para dinámicas, sin depender de la voz del navegador. Empezar con push-to-talk; el agente de voz en tiempo real es una mejora, no un requisito.
 - **pey**: API key, webhook, link de pago y QR CoDi.
-- **Vercel** para el deploy y la URL HTTPS del webhook. Tener un plan B local con ngrok y un video grabado.
+- **Vercel** para el deploy y la URL HTTPS del webhook. Tener un plan B local con ngrok y un video de la UI actual (el MP4 existente es histórico).
 
 ### Modelo de datos mínimo
 
@@ -169,13 +169,15 @@ Regla de oro: **ningún estado `paid` se alcanza por lógica del cliente, ni por
 |--------|----------|------------|
 | 0:00–0:20 | Lupita cuenta su problema: efectivo, cuenta de la hija, comprobantes falsos. | Empatía y problema real |
 | 0:20–0:50 | Dice: «Cóbrale dos quesadillas de 35 y un agua de 20». La app muestra el desglose y pide confirmar. | Voz → estructura → control |
-| 0:50–1:20 | Se genera **un link/QR**. El juez paga $90 (o $0.01) con tarjeta o CoDi. La app muestra «esperando pago». Llega el webhook y dice: «Pago recibido. Noventa pesos. Pedido 18». | Pago real + certeza |
+| 0:50–1:20 | Se genera **un link/QR**. En modo demo, el juez pulsa **Simular CoDi**; la app muestra «esperando pago» y el sello **DEMO**. No hay pago real: el riel BBVA/CoDi sigue bloqueado. | Certeza demo (`demo_paid`) + contrato del webhook |
 | 1:20–1:50 | Alguien muestra una captura de transferencia. La app la verifica y responde: «No verificado». | Anti-fraude |
 | 1:50–2:20 | «Juan me pagó cincuenta del fiado». La app abre la hoja con saldo vivo, monto y método; al elegir **Efectivo** y confirmar, actualiza el saldo. «¿Cuánto vendí hoy?» → desglose. | Fiado confirmado y corte por voz |
-| 2:20–2:40 | Abre **Corte**: efectivo, fiado y pendiente digital. Cuenta $620 y muestra el sello **CUADRA**. | Corte de caja |
+| 2:20–2:40 | Abre **Corte**: efectivo, fiado y pendiente digital. Cuenta **$550** (5×$100 + 1×$50 + 0×$20) y muestra el sello **CUADRA**. | Corte de caja |
 | 2:40–3:00 | **Meta**: aparta $25 para la sombrilla y la meta avanza a $325. Visión: cuenta familiar autorizada y piloto con 10 comerciantes. | Progreso y siguiente paso |
 
-**Plan B:** video grabado de la demo completa, QR impreso de respaldo y un pago de $0.01 ya confirmado en la base de datos.
+**Plan B:** demo local en modo `demo_paid` + QR impreso de respaldo. El MP4 existente es **histórico** (39.8 s, UI vieja, muestra $570): no es respaldo actual y se regrabará tras el rediseño. **No hay un pago real de $0.01 confirmado.**
+
+> **Declaración honesta:** Estamos en modo demo: los pagos se simulan con `demo_paid`. No hubo pago real de $0.01; BBVA/CoDi sigue bloqueado. Solo el webhook firmado de pey marca paid. Las pruebas con comerciantes y lectores de pantalla están pendientes.
 
 ---
 
@@ -184,7 +186,7 @@ Regla de oro: **ningún estado `paid` se alcanza por lógica del cliente, ni por
 1. **Problema:** 29% de los comercios perdió una venta por no aceptar el medio pedido; 85% de las compras pequeñas son en efectivo; muchas comerciantes dependen de un familiar para confirmar transferencias.
 2. **Insight:** el producto no es el QR ni la voz. Es la **certeza** de que el dinero llegó, sin compartir contraseñas ni revisar otro teléfono.
 3. **Solución:** una caja hablada que acepta efectivo, CoDi, tarjeta y wallets, y que solo dice «pagado» cuando pey lo confirma.
-4. **Demo:** pago real + comprobante falso rechazado + corte por voz.
+4. **Demo:** pago **simulado (`demo_paid`)** + comprobante falso rechazado + corte por voz. No hubo pago real.
 5. **Impacto público:** inclusión financiera, reducción de fraude, formalización y autonomía para mujeres comerciantes.
 6. **Pedido:** piloto con 10 comerciantes de Coyoacán y una carta de intención con pey.
 
@@ -197,7 +199,7 @@ Regla de oro: **ningún estado `paid` se alcanza por lógica del cliente, ni por
 | «CoDi casi no se usa.» | Por eso el link acepta tarjeta, Apple Pay y Google Pay. CoDi es el riel gratuito; la tarjeta es el puente de adopción. |
 | «¿Por qué voz y no una app normal?» | 26.4% no tiene cuenta bancaria y hay baja alfabetización digital; la voz reduce menús. Incluimos modo silencioso y confirmación en pantalla para no obligar a hablar frente al cliente. |
 | «La cuenta es de un familiar; ¿es legal?» | El MVP no accede a la cuenta ni a sus movimientos: solo muestra los pagos generados por nuestro sistema. El titular autoriza la cuenta receptora. La integración bancaria completa queda para una fase con pey. |
-| «¿Y si el internet falla?» | Los borradores se guardan localmente; nunca se marca pagado sin verificación. Hay video de respaldo. |
+| «¿Y si el internet falla?» | Los borradores se guardan localmente; nunca se marca pagado sin verificación. Hay demo local en `demo_paid`; el MP4 existente es **histórico** (UI vieja) y no sustituye la demo. |
 | «¿No es otro POS?» | Un POS cobra; nosotros además verificamos, registramos efectivo/fiado y cerramos el día por voz. El competidor real es la transferencia que ya usan, no otro POS. |
 | «¿Cómo ganan dinero?» | Comisión por transacción o suscripción; CoDi gratuito, tarjeta con costo transparente. No es necesario resolverlo para el hackathon, pero hay que decirlo. |
 
@@ -205,14 +207,14 @@ Regla de oro: **ningún estado `paid` se alcanza por lógica del cliente, ni por
 
 ## 8. Criterio de éxito
 
-Ganar no es el único resultado, pero el listón es:
+Ganar no es el único resultado. Este es el listón declarado y el estado actual:
 
-- **Pago real** completado y verificado durante la demo.
+- **Pago real:** **no ocurrió**. BBVA/CoDi sigue bloqueado; la demo se presenta como `demo_paid` y nunca como pago real.
 - **Cero falsos positivos** en las pruebas de comprobante falso y webhook duplicado.
-- **Una comerciante** completa el flujo sin ayuda.
+- **Una comerciante** completa el flujo sin ayuda: **pendiente** (0/6–8 pruebas humanas).
 - **Un jurado técnico** no encuentra una afirmación engañosa sobre acceso al dinero, cuentas familiares o confirmación.
 
-Si no se puede demostrar con dinero real, se recorta el alcance hasta que se pueda. Una demo pequeña y sólida vale más que una plataforma simulada.
+Si no se puede demostrar con dinero real, se recorta el alcance hasta que se pueda. Hoy no se pudo: la demo se presenta en modo `demo_paid`. Una demo pequeña y sólida vale más que una plataforma simulada.
 
 ---
 
@@ -234,7 +236,7 @@ Para probar el contrato del webhook:
 node scripts/webhook-contract.mjs
 ```
 
-Requiere `PEY_WEBHOOK_SECRET` en `.env.local` y el servidor en `localhost:3000` (o `BASE_URL`). El script firma eventos como Standard Webhooks y verifica **34/34 aserciones**: pago válido, replay, firma falsa, monto distinto, orden inexistente, timestamp viejo, evento fuera de orden, JSON inválido, QR CoDi y los reintentos corregidos tras 409/404.
+Requiere `PEY_WEBHOOK_SECRET` en `.env.local` y el servidor en `localhost:3000` (o `BASE_URL`). El script firma eventos como Standard Webhooks y verifica **40/40 aserciones en la última corrida conocida (2 nov 2026)**: pago válido, replay, firma falsa, monto distinto, orden inexistente, timestamp viejo, evento fuera de orden, JSON inválido, QR CoDi y los reintentos corregidos tras 409/404.
 
 Para revisar que los pagos digitales del día cuadren con pey:
 
@@ -281,13 +283,13 @@ Inspiración: `mono-color-skill` (un ink dominante, halftone, papel), `taste-ski
 - **`GUION-3-MIN.md`** — narración palabra por palabra, versión de 60 s y checklist de ensayo.
 - **`PITCH.md`** — 5 slides, evidencia y notas para el speaker.
 - **`TEST-USUARIO.md`** — protocolo para probar con una persona ajena.
-- **`demo/mercado-cero-demo.mp4`** — video silencioso con subtítulos (34 s, 1280×800).
-- **`demo/mobile-audit.json`** — 25/25 checks a 360 px emulado, flujo de 10.2 s en producción, 0 errores. Generado por el gate `mobile`; no se versiona.
-- **`demo/checkout-audit.json`** — 19/19 checks del checkout público y la pantalla de éxito a 360 px. Generado; no se versiona.
-- **`demo/tunnel-smoke.json`** — 8/8 checks del camino público por Cloudflare. Generado; no se versiona.
-- **`demo/rehearsal.json`** — 3 ensayos, 15/15 pasos, promedio 4.8 s de flujo mecánico. Generado; no se versiona.
-- **`demo/qr-demo.pdf`** — QR imprimible para abrir la demo; regenerar si cambia el túnel. Es un entregable versionado.
+- **`demo/mercado-cero-demo.mp4`** — **video histórico**: 39.8 s, 1,704,744 B, 1280×800, UI vieja y muestra $570. No es respaldo actual; se regrabará tras el rediseño. No borrar.
+- **`demo/mobile-audit.json`** — última corrida conocida (2 nov 2026): 25/25 checks a 360 px emulado, flujo de ≈9 s en producción, 0 errores. Generado por el gate `mobile`; no se versiona.
+- **`demo/checkout-audit.json`** — última corrida conocida (2 nov 2026): 19/19 checks del checkout público y la pantalla de éxito a 360 px. Generado; no se versiona.
+- **`demo/tunnel-smoke.json`** — última corrida conocida (2 nov 2026): 8/8 checks del camino público por Cloudflare. Generado; no se versiona. Repetir contra el túnel vigente.
+- **`demo/rehearsal.json`** — última corrida en master `75179c7` (2 nov 2026): **3/3 corridas, 19/19 pasos, ~8.1 s, todo en verde**. Generado; no se versiona.
+- **`demo/qr-demo.pdf`** — QR imprimible para abrir la demo; la URL vigente al 2 nov 2026 está en `demo/qr-demo.html` (`https://timing-brought-lamp-aberdeen.trycloudflare.com`). Es un quick tunnel efímero: verificar antes de imprimir y regenerar si cambia.
 - **`web/scripts/mobile-audit.py`**, **`checkout-audit.py`**, **`tunnel-smoke.py`**, **`record-demo.py`**, **`rehearse-demo.py`**, **`mobile-320-e2e.py`** — reproducibles.
 - **`web/scripts/verify-env.mjs`** — revisa demo/real sin imprimir secretos.
-- **`web/scripts/preflight.mjs`** — 18/18: servidor, túnel, datos, QR y respaldos.
+- **`web/scripts/preflight.mjs`** — última corrida conocida 18/18 (2 nov 2026); correr tras el reset.
 - **`HARNESS.md`** — catálogo real: `fast` 3, `static` 5, `full` 23, `full --with-film` 24; evidencia v2 con `buildSha`, artefactos y `npm run harness:report`.

@@ -15,14 +15,14 @@
 | `deps` | `node scripts/check-deps.mjs` | `npm audit --omit=dev --audit-level=high`; 0 high/critical | Explotabilidad real, devDependencies | `DEPS OK` | No |
 | `build` | `node scripts/build-gate.mjs` | Build Next.js con `BUILD_SHA` y `.next/BUILD_SHA`; **solo `static`** | Servidor sirviendo el build | `BUILD OK` + `compiled successfully` | `.next/` (ignorado) |
 | `truth` | `node scripts/verify-truth.mjs` | Un `transactionId` demo devuelve `verified:false` | Un pago pey real | `VERDAD OK` | Reset demo |
-| `webhook` | `node scripts/webhook-contract.mjs` | Firma, replay, monto, orden, timestamp, QR y reintento corregido tras 409/404 | Que el banco emita el evento | `WEBHOOK OK` + `34/34` | Reset demo |
+| `webhook` | `node scripts/webhook-contract.mjs` | Firma, replay, monto, orden, timestamp, QR y reintento corregido tras 409/404 | Que el banco emita el evento | `WEBHOOK OK` + `40/40` | Reset demo |
 | `mobile` | `python scripts/mobile-audit.py` | Flujo completo a 360 px | Teléfono físico, TalkBack/VoiceOver | `MOBILE OK` + `25/25` | Reset demo |
-| `checkout` | `python scripts/checkout-audit.py` | Checkout público a 360 px | Pago real por pey | `CHECKOUT OK` + `19/19` | Crea/paga demo |
+| `checkout` | `node scripts/checkout-gate.mjs` | Checkout público a 360 px en servidor aislado | Pago real por pey | `CHECKOUT OK` + `19/19` | Servidor aislado + DB temporal |
 | `hig` | `python scripts/hig-after-audit.py` | HIG/WCAG 2.2 AA, 48 px, 200%, **5 viewports** | Personas reales | `HIG OK` + `5 viewports` | Reset/recorre |
 | `motion` | `python scripts/motion-check.py` | Duraciones, scroll trigger, reduced-motion | Que el diseño guste | `MOTION OK` + `19 PASS` + `0 FAIL` | Recorre hojas/tabs |
-| `contrast` | `python scripts/a11y-contrast.py` | Alto contraste: axe, foco visible y 360 px | Personas reales | `CONTRAST OK` + `0 FAIL` | Recorre |
+| `contrast` | `python scripts/a11y-contrast.py` | Alto contraste: axe, foco visible y 360 px | Personas reales | `CONTRAST OK` + `7 PASS` + `0 FAIL` | Recorre |
 | `mobile-320` | `node scripts/mobile-320-gate.mjs` | 320/360 px en Chromium, Firefox y WebKit: labels, CTA y foco | Teléfono físico, lector real | `MOBILE 320/360 E2E` + `42 PASS` + `0 FAIL` | Servidor aislado + DB temporal |
-| `rehearsal` | `python scripts/rehearse-demo.py` | Guion completo, 3 corridas, 15 pasos por corrida | Que el público entienda | `REHEARSAL OK` + `todo en verde: True` | Reset/recorre |
+| `rehearsal` | `python scripts/rehearse-demo.py` | Guion completo, 3 corridas, 19 pasos por corrida (el gate solo exige el booleano) | Que el público entienda | `REHEARSAL OK` + `todo en verde: True` | Reset/recorre |
 | `security` | `node scripts/security-contract.mjs` | CSRF, token de reset, límites de cuerpo, rate limit, headers, backup y protección de pagos reales | Despliegue real detrás de Cloudflare Access | `SEGURIDAD OK` | Servidor aislado + DB temporal |
 | `data` | `npm run test:fix-datos` | Idempotencia, transacciones, migraciones y mapeo de errores; **85 checks (58+20+7)** | Carga de producción | `DATOS OK` + `P0 FIX DATOS` + `P0 DB GUARDS` + `P0 ORDERS ATOMIC` | Servidor aislado + DB temporal |
 | `perf` | `node scripts/perf-budget.mjs` | Presupuesto de JS, CSS, fuentes, fotos e iconos del build | Latencia de red real | `PERF BUDGET OK` | No |
@@ -37,7 +37,9 @@
 
 **Conteos canónicos:** catálogo **25** gates; `fast` **3**, `static` **5**, `full` **23** (sin `build` ni `film`) y `full --with-film` **24**. Los markers se comparan con límites de palabra: `0 FAIL` no acepta `10 FAIL` y `25/25` no acepta `125/125`.
 
-**Cobertura p0:** `p0-venta` (65), `p0-fiado` (51), `p0-corte` (69), `p0-integracion` (51) y `p0-dinero` (45 + 3 KNOWN). Cada uno levanta su servidor aislado en 3211–3213 con SQLite temporal; `security`/`data` usan 3191/3192 y `mobile-320` 3214. `p0-shell` (68 PASS) sigue siendo evidencia de carril aparte, no un gate del full.
+**Estado real del ensayo (2 nov 2026):** en master `75179c7`, `rehearsal` pasó **3/3 corridas, 19/19 pasos, ~8.1 s, `todo en verde: True`**. El 503 de TTS (Piper no instalado) se ignora solo para `/api/tts`, no oculta otros errores. Esta cifra reemplaza los conteos anteriores de esa fase.
+
+**Cobertura p0:** `p0-venta` (65), `p0-fiado` (51), `p0-corte` (69), `p0-integracion` (51) y `p0-dinero` (45 + 3 KNOWN). Cada uno levanta su servidor aislado en 3211–3213 con SQLite temporal; `checkout` usa `checkout-gate.mjs` en 3215, `security`/`data` usan 3191/3192 y `mobile-320` 3214. `p0-dinero` escribe `git.sha`/`git.dirty` (no `code.*`) y su JSON está ignorado y no trackeado: correrlo no ensucia `git status`. `p0-shell` (68 PASS) sigue siendo evidencia de carril aparte, no un gate del full.
 
 **CI:** corre `test:harness`, `verify:static`, `test:security`, `test:fix-datos` (gate `data`), `test:perf-budget` y `test:perf-data` (este último sin servidor). Si cualquiera falla, el job estático falla.
 
@@ -57,12 +59,12 @@
 
 | Evaluación | Criterio | Evidencia |
 |---|---|---|
-| Pago real de $0.01 | Webhook firmado, monto/moneda/ref exactos, una sola transición | Captura del portal + log de evento + SQLite |
-| Teléfono físico 360/320 px | Sin scroll horizontal, targets, una mano | Video/captura del dispositivo |
-| TalkBack / VoiceOver | Flujo crítico comprensible y operable | Notas + grabación |
-| 6–8 comerciantes | Tareas, errores, ayuda, SUS/NASA-TLX | `TEST-USUARIO.md` + registro |
+| Pago real de $0.01 | Webhook firmado, monto/moneda/ref exactos, una sola transición | **No ejecutado**: no hubo pago real; BBVA/CoDi sigue bloqueado. La demo usa `demo_paid`. |
+| Teléfono físico 360/320 px | Sin scroll horizontal, targets, una mano | Pendiente (evidencia actual: Playwright). |
+| TalkBack / VoiceOver | Flujo crítico comprensible y operable | Pendiente; sin grabación ni notas de lector real. |
+| 6–8 comerciantes | Tareas, errores, ayuda, SUS/NASA-TLX | **0/6–8 ejecutadas**; `TEST-USUARIO.md` + registro. |
 | Revisión de copy y verdad | Ningún demo se lee como pagado real | Revisión independiente |
-| Accesibilidad completa | No declararla sin las pruebas anteriores | `ACCESIBILIDAD.md` actualizado |
+| Accesibilidad completa | No declararla sin las pruebas anteriores | `ACCESIBILIDAD.md` actualizado; faltan personas y lectores. |
 
 ---
 
@@ -73,16 +75,16 @@
 3. `ok:true` exige **todos** los gates del modo, todos con `ok:true`, `exitCode:0`, `reason:"ok"`, `expectedMatched:true` y artefactos existentes con hash.
 4. Las capturas apoyan, no sustituyen: el estado de negocio se prueba contra API/SQLite.
 5. Los secretos no se imprimen; el runner redacta valores de `.env.local` y patrones de claves.
-6. Los runs locales viven en `harness/evidence/runs/` (ignorado); `latest.json` es el handoff y solo se escribe en `full`/`static` con `ok:true`.
+6. Los runs locales viven en `harness/evidence/runs/` (ignorado). `full` escribe `latest.json`; `static` escribe `latest-static.json` y no pisa el full. Solo se escriben con `ok:true`.
 7. Si un gate falla, no se cambia el umbral para que pase; se corrige la causa o se documenta el bloqueo.
-8. `latest.json` no se versiona: es un artefacto local que se genera después del commit sobre el HEAD actual. Si se commiteara, HEAD cambiaría y la evidencia pasaría a atestiguar el commit anterior. `runs/` también es local/ignorado.
-9. `serverBuildSha` debe ser igual a `gitAtStart.sha`. Un servidor de otro build no es evidencia de este árbol.
-10. Los artifacts declarados se validan con `sha256` y tamaño; un JSON que declare `code.commit` distinto o `code.dirty:true` invalida la evidencia.
-11. `npm run harness:report` genera la tabla desde `latest.json`; no se escribe a mano.
+8. `latest.json` y `latest-static.json` no se versionan: son artefactos locales que se generan después del commit sobre el HEAD actual. Si se commitearan, HEAD cambiaría y la evidencia pasaría a atestiguar el commit anterior. `runs/` también es local/ignorado.
+9. `serverBuildSha` debe ser igual a `gitAtStart.sha`. Un servidor de otro build no es evidencia de este árbol. En full/static cada gate runtime debe declarar el mismo `buildSha`.
+10. Los artifacts declarados se validan con `sha256` y tamaño y contra el set canónico del gate: `artifacts: []` falla si el gate declara artefactos. Un JSON que declare `code.commit`/`code.dirty` o `git.sha`/`git.dirty` distinto del HEAD limpio invalida la evidencia; `p0-dinero` debe traer el bloque `git`.
+11. `npm run harness:report` genera la tabla desde `latest.json` (o `latest-static.json` si no hay full); no se escribe a mano.
 
 ---
 
-## 4 · Schema de `latest.json` (v2)
+## 4 · Schema de `latest.json` / `latest-static.json` (v2)
 
 ```json
 {
@@ -100,8 +102,8 @@
   "os": "win32-x64",
   "python": "Python 3.14.3",
   "error": null,
-  "gitAtStart": { "sha": "c0248ba...", "branch": "p0/fix-harness-evidence", "dirty": false },
-  "gitAtEnd":   { "sha": "c0248ba...", "branch": "p0/fix-harness-evidence", "dirty": false },
+  "gitAtStart": { "sha": "c0248ba...", "branch": "p0/fix-harness-p0", "dirty": false },
+  "gitAtEnd":   { "sha": "c0248ba...", "branch": "p0/fix-harness-p0", "dirty": false },
   "expectedGates": ["guard", "lint", "types", "deps", "build"],
   "criticalGates": ["guard", "lint", "types", "deps", "build"],
   "skipped": [],
@@ -142,12 +144,13 @@
   "shaStable": true,
   "missing": [],
   "criticalMissing": [],
+  "badBuild": [],
   "reasons": [],
   "ok": true
 }
 ```
 
-`mode` puede ser `fast`, `static`, `full` o `partial`. Solo `full` y `static` con `ok:true` escriben `latest.json`; `fast` se rechaza para handoff salvo `--allow-fast`; `partial` siempre es `false`.
+`mode` puede ser `fast`, `static`, `full` o `partial`. Solo `full` con `ok:true` escribe `latest.json`; `static` con `ok:true` escribe `latest-static.json` y nunca pisa el full; `fast` se rechaza para handoff salvo `--allow-fast`; `partial` siempre es `false`. En full/static `gates[].buildSha` de cada gate runtime debe coincidir con `gitAtStart.sha`; `badBuild` lista los que no.
 
 ---
 
@@ -155,9 +158,10 @@
 
 ```bash
 cd web
-npm run test:harness      # 48 tests: gate, deps, schema v2 y evidencia
-npm run verify:evidence   # lee latest.json y lo compara con HEAD
-npm run harness:report    # tabla Markdown desde latest.json
+npm run test:harness      # 58 tests: gate, deps, schema v2, evidencia y checkout
+npm run verify:evidence   # lee latest.json (full) y lo compara con HEAD
+npm run verify:evidence -- --static  # valida latest-static.json
+npm run harness:report    # tabla Markdown desde latest.json o latest-static.json
 ```
 
 `verify:evidence` comprueba, entre otras cosas:
@@ -170,9 +174,11 @@ npm run harness:report    # tabla Markdown desde latest.json
 - `serverBuildSha === gitAtStart.sha` y `buildBound:true`.
 - `expectedGates` y `gates[]` coinciden exactamente con el modo.
 - todos los gates `ok:true`, `exitCode:0`, `reason:"ok"` y `expectedMatched:true`; los de runtime declaran `buildSha === gitAtStart.sha`.
-- cada `expected` canónico validado con límites de palabra.
-- cada artefacto existe, su `sha256`/`size` coincide y, si declara `code.commit`/`code.dirty`, coincide con el HEAD limpio.
-- `skipped`/`notRun` no contienen gates críticos.
+- cada `expected` canónico se **recalcula** contra `outputTail`; el booleano `expectedMatched` no se cree por sí solo.
+- cada artefacto existe, su `sha256`/`size` coincide y pertenece al set canónico del gate; `artifacts: []` falla si el gate declara artefactos.
+- si el artefacto JSON declara `code.commit`/`code.dirty` o `git.sha`/`git.dirty`, coincide con el HEAD limpio; `p0-dinero` debe declarar `git`.
+- `skipped`/`notRun` no contienen gates críticos y `criticalGates` coincide con el set canónico.
+- `gatesOk`, `buildMatches` y `criticalGates` se recalculan; un valor manipulado falla.
 - `truth`/`preflight` registran reset de demo cuando aplican.
 - `startedAt`/`endedAt` coherentes, `baseUrl`/`node`/`os` presentes.
 

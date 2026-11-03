@@ -1,3 +1,4 @@
+import { isDemoMode } from "./config";
 import { audit, getDb, newId, nowIso } from "./db";
 import type { Task, TaskStatus } from "./types";
 
@@ -28,6 +29,7 @@ interface TaskRow {
   status: string;
   due_at: string | null;
   postponed_until: string | null;
+  demo: number;
   created_at: string;
   updated_at: string;
   completed_at: string | null;
@@ -42,6 +44,7 @@ function mapTask(row: TaskRow): Task {
     status: row.status as TaskStatus,
     dueAt: row.due_at ?? null,
     postponedUntil: row.postponed_until ?? null,
+    demo: Number(row.demo) === 1,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     completedAt: row.completed_at ?? null,
@@ -188,10 +191,11 @@ export function listTasks(
   // El mismo orden de `compareTasks`, pero resuelto por SQLite para poder
   // paginar sin cargar la bandeja completa. Abiertas primero; vencidas por
   // fecha, luego sin fecha, luego creación. Las hechas, por completion.
+  const demoFilter = isDemoMode() ? "" : "AND demo = 0";
   const rows = getDb()
     .prepare(
       `SELECT * FROM tasks
-       WHERE status IN ('open', 'done')
+       WHERE status IN ('open', 'done') ${demoFilter}
        ORDER BY
          CASE WHEN status = 'open' THEN 0 ELSE 1 END ASC,
          CASE
@@ -211,8 +215,11 @@ export function listTasks(
 }
 
 export function countTasks(): number {
+  const demoFilter = isDemoMode() ? "" : "AND demo = 0";
   const row = getDb()
-    .prepare("SELECT COUNT(*) AS n FROM tasks WHERE status IN ('open', 'done')")
+    .prepare(
+      `SELECT COUNT(*) AS n FROM tasks WHERE status IN ('open', 'done') ${demoFilter}`,
+    )
     .get() as unknown as { n: number };
   return Number(row.n);
 }
@@ -221,7 +228,9 @@ export function getTask(id: string): Task | null {
   const row = getDb()
     .prepare("SELECT * FROM tasks WHERE id = ?")
     .get(id) as unknown as TaskRow | undefined;
-  return row ? mapTask(row) : null;
+  if (!row) return null;
+  if (!isDemoMode() && Number(row.demo) === 1) return null;
+  return mapTask(row);
 }
 
 export function createTask(input: {
@@ -238,10 +247,10 @@ export function createTask(input: {
   getDb()
     .prepare(
       `INSERT INTO tasks
-       (id, title, note, status, due_at, postponed_until, created_at, updated_at, completed_at, deleted_at)
-       VALUES (?, ?, ?, 'open', ?, NULL, ?, ?, NULL, NULL)`,
+       (id, title, note, status, due_at, postponed_until, demo, created_at, updated_at, completed_at, deleted_at)
+       VALUES (?, ?, ?, 'open', ?, NULL, ?, ?, ?, NULL, NULL)`,
     )
-    .run(id, title, note, dueAt, createdAt, createdAt);
+    .run(id, title, note, dueAt, isDemoMode() ? 1 : 0, createdAt, createdAt);
 
   audit("task.create", "task", id, { title, dueAt });
   return getTask(id)!;

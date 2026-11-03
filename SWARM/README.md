@@ -12,9 +12,11 @@ La mayor parte **ya está hecha y verificada** (ver `README.md` §10–11):
 
 - F3 "Mostrador claro" implementado, verificado de forma independiente y desplegado en producción.
 - Lighthouse 100 accesibilidad · 100 best practices · 100 SEO.
-- Webhook pey: 34/34 aserciones (pago válido, replay, firma falsa, monto alterado, etc.).
-- Auditorías: móvil 25/25 · checkout 15/15 · túnel 8/8 · ensayo 15/15.
-- Video de respaldo, QR imprimible, guion, pitch y runbook listos.
+- Webhook pey: 34/34 aserciones (pago válido, replay, firma falsa, monto alterado, etc.) — última corrida conocida, 2 nov 2026.
+- Auditorías: móvil 25/25 · checkout 19/19 · túnel 8/8 (última corrida conocida, 2 nov 2026).
+- Ensayo del guion: 3/3 corridas, 19/19 pasos, ~8.1 s, `todo en verde: True` en master `75179c7`.
+- QR imprimible, guion, pitch y runbook actualizados. El MP4 existente es **histórico** (UI vieja, muestra $570) y se regrabará; no es respaldo actual.
+- **Pago real:** no hubo; BBVA/CoDi sigue bloqueado. La demo usa `demo_paid`.
 
 Por eso el swarm aquí **no reescribe el producto**: hace estas 4 cosas.
 

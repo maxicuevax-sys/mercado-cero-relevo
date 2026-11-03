@@ -56,8 +56,8 @@ El baseline no se inventa: se midió. La meta es mantener ≥ 90 y arreglar el c
 - **Una persona ajena** completa: crear venta → generar link/QR → ver pendiente → confirmar pago → cerrar caja → apartar para una meta, **sin ayuda y en menos de 3 minutos**.
 - **Un teléfono real de 360 px**: sin scroll horizontal, botones de al menos 44 px, texto legible con una mano.
 - **Lighthouse** en la pantalla principal: accesibilidad ≥ 90, sin errores de consola, sin layout shift grave.
-- **La demo grabada** y el runbook: si el internet o el banco fallan, hay respaldo.
-- **El contrato del dinero** sigue en 34/34 y el build sigue limpio.
+- **La demo local en `demo_paid`** y el runbook: si el internet o el banco fallan, la demo sigue en local. El MP4 existente es histórico (UI vieja) y se regrabará.
+- **El contrato del dinero** sigue en 40/40 (última corrida conocida) y el build sigue limpio.
 
 **Pasa** si el desconocido termina el flujo y las métricas se cumplen. **Falla** si la UI se ve mejor pero el flujo se entiende menos, o si la demo solo funciona en el desktop del desarrollador.
 
@@ -110,8 +110,8 @@ El baseline no se inventa: se midió. La meta es mantener ≥ 90 y arreglar el c
 | **1 nov** | Mi negocio, corte de caja, Mi camino, guía/onboarding | Impeccable (`distill`, `onboard`, `polish`) | Un desconocido completa el flujo |
 | **2 nov** | Accesibilidad y rendimiento en teléfono modesto | Addy Osmani | Lighthouse ≥ 90 en accesibilidad; sin errores de consola |
 | **3 nov** | Validación de campo: 3–6 comerciantes; observar, no pitchear | Superpowers (plan) + investigación | Lista de 3 fricciones y cambios aplicados |
-| **4 nov** | Revisión lean: código muerto, duplicación, estados | Ponytail | Hallazgos resueltos; build y 34/34 |
-| **5 nov** | Runbook, video de respaldo, QR impreso, pitch | Superpowers + Impeccable | Video de 3 min y runbook |
+| **4 nov** | Revisión lean: código muerto, duplicación, estados | Ponytail | Hallazgos resueltos; build y 40/40 |
+| **5 nov** | Runbook, regrabar video de la UI actual, QR impreso, pitch | Superpowers + Impeccable | Video de 3 min y runbook |
 | **6 nov** | 5 ensayos cronometrados; preguntas adversariales; congelar código | verification-before-completion | Demo < 3 min, sin tocar código después de las 9 pm |
 | **7 nov** | Evento | — | Demo en vivo + respaldo |
 
@@ -140,9 +140,9 @@ El baseline no se inventa: se midió. La meta es mantener ≥ 90 y arreglar el c
 ### Dinero / demo
 
 - [ ] Build limpio.
-- [ ] Webhook **34/34**.
-- [ ] Pago real de $0.01 **o** demo claramente etiquetada; nunca un simulado presentado como banco.
-- [ ] Video de respaldo y runbook listos.
+- [ ] Webhook **40/40** (última corrida conocida; re-correr contra HEAD antes del cierre).
+- [ ] Demo claramente etiquetada (`demo_paid`); **no hubo pago real de $0.01** porque BBVA/CoDi sigue bloqueado. Nunca un simulado presentado como banco.
+- [ ] Video histórico identificado como tal y runbook actualizado; el video se regrabará tras el rediseño.
 - [ ] Cero afirmaciones de custodia, acceso a cuentas familiares o pronósticos inventados.
 
 ---
@@ -169,8 +169,8 @@ claridad por estética.
 Se considera logrado solo si: (a) una persona ajena completa venta → cobro → confirmación →
 corte → apartado en menos de 3 minutos sin ayuda; (b) a 360 px no hay scroll horizontal y
 los controles principales son táctiles; (c) Lighthouse de accesibilidad ≥ 90 y no hay
-errores de consola en el flujo core; (d) el build sigue limpio y el webhook sigue en 34/34;
-(e) hay video de respaldo y runbook. Si algo no pasa, se recorta el alcance antes que
+errores de consola en el flujo core; (d) el build sigue limpio y el webhook sigue en 40/40;
+(e) hay demo local en `demo_paid` y runbook; el MP4 histórico se identifica como tal. Si algo no pasa, se recorta el alcance antes que
 maquillar la demo.
 ```
 
@@ -201,15 +201,17 @@ La app dejó de ser un dashboard fintech genérico y se convirtió en un **objet
 
 ### Evidencia
 
+> **Cifras de gates:** última corrida conocida (2 nov 2026); los artefactos están ignorados y no están en el árbol. El ensayo se corrió en master `75179c7` (3/3, 19/19, ~8.1 s).
+
 - **Lighthouse: 100 accesibilidad · 100 best practices · 100 SEO**, sin fallos.
 - **Tasteskill inspector**: 6 FAIL / 8 WARN restantes. Son reglas de landing page o decisiones intencionales: el scrim de la foto, las reglas de libreta/recibo, el cuerpo a 14 px, las 3 fotos y el punto focal. Los fallos objetivos ya se corrigieron: contraste, texto < 12 px, headline de 2 líneas, glass, sombras, contenido oculto.
-- **Build limpio** y **webhook 34/34**.
+- **Build limpio** y **webhook 40/40**.
 - Tarjeta, link, QR, efectivo, fiado, corte y meta probados en navegador real.
-- **Auditoría 360 px emulada:** 25/25 checks, sin scroll horizontal en cada estado, sin texto < 12 px, controles principales ≥ 40 px, flujo completo en 10.2 s en producción (10–17 s en dev), 0 errores de consola.
+- **Auditoría 360 px emulada:** 25/25 checks, sin scroll horizontal en cada estado, sin texto < 12 px, controles principales ≥ 40 px, flujo completo en ≈9–10.2 s en producción (10–17 s en dev), 0 errores de consola.
 - **Checkout público 360 px:** 19/19 checks, tres métodos, pago demo y pantalla de éxito; Lighthouse 100/100/100.
 - **Túnel HTTPS:** 8/8 checks por Cloudflare: reset, checkout, pago demo y estado pagado.
-- **Ensayo automatizado:** 3/3 corridas, 15/15 pasos, promedio 4.8 s de flujo mecánico, 0 errores de consola.
-- **Video de respaldo:** `demo/mercado-cero-demo.mp4` (34 s, 1280×800, 1.4 MB) con subtítulos.
+- **Ensayo automatizado:** 3/3 corridas, 19/19 pasos, ~8.1 s, `todo en verde: True` en master `75179c7`, 0 errores de consola no relacionados con TTS.
+- **Video:** `demo/mercado-cero-demo.mp4` es **histórico** (39.8 s, 1,704,744 B, 1280×800, UI vieja, muestra $570). No es respaldo actual; se regrabará tras el rediseño.
 - **QR imprimible:** `demo/qr-demo.pdf` y `demo/qr-demo.png` (túnel actual; regenerar si cambia).
 - **Runbook:** `RUNBOOK-DEMO.md`. **Prueba de usuario:** `TEST-USUARIO.md`.
 - Créditos de fotos en `web/CREDITS.md` y `web/public/credits.txt`, con licencias y enlaces.

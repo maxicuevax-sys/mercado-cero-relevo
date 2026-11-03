@@ -14,6 +14,8 @@ import json
 import os
 import sys
 import time
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -86,10 +88,76 @@ def measure(page) -> dict:
     )
 
 
-def main() -> int:
+def post_json(path: str, payload: dict) -> tuple[int, dict]:
+    """POST sin Playwright: la creación de la orden no depende del navegador."""
+    request = urllib.request.Request(
+        f"{BASE}{path}",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            return response.status, json.loads(response.read() or b"{}")
+    except urllib.error.HTTPError as error:
+        try:
+            return error.code, json.loads(error.read() or b"{}")
+        except Exception:
+            return error.code, {}
+
+
+def reset_demo() -> None:
+    """Limpia el pedido de auditoría aunque falle la creación o el navegador."""
+    try:
+        request = urllib.request.Request(
+            f"{BASE}/api/demo/reset",
+            data=b"{}",
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=15) as response:
+            response.read()
+    except Exception:
+        # El servidor pudo caerse; no enmascarar el error original.
+        pass
+
+
+def run_audit() -> int:
     console_errors: list[str] = []
     page_errors: list[str] = []
     started = time.time()
+
+    # El gate no depende del pedido semilla ni del reset: crea su propio
+    # pedido de $120 y le adjunta un link, incluso si el reset está
+    # bloqueado por pagos reales de otro gate. Se hace antes de abrir el
+    # navegador para que un fallo de creación no deje nada a medias.
+    request_id = f"checkout-audit-{time.time_ns()}"
+    created_status, created = post_json(
+        "/api/orders",
+        {
+            "items": [
+                {
+                    "description": "Pedido auditoría checkout",
+                    "quantity": 1,
+                    "unitPriceCents": 12000,
+                }
+            ],
+            "paymentMethod": "codi",
+            "requestId": request_id,
+        },
+    )
+    if created_status >= 400 or "order" not in created:
+        print(f"FAIL  no se pudo crear el pedido de auditoría — {created_status}")
+        return 1
+    order_id = created["order"]["id"]
+    linked_status, _ = post_json(
+        f"/api/orders/{order_id}/pay", {"mode": "link"}
+    )
+    if linked_status >= 400:
+        print(f"FAIL  no se pudo crear el link de auditoría — {linked_status}")
+        return 1
+    checkout_url = f"{BASE}/pay/{order_id}"
+    print(f"INFO  pedido 120.00 MXN · {order_id[:12]}…")
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -108,42 +176,6 @@ def main() -> int:
             else None,
         )
         page.on("pageerror", lambda error: page_errors.append(str(error)))
-
-        # El gate no depende del pedido semilla ni del reset: crea su propio
-        # pedido de $120 y le adjunta un link, incluso si el reset está
-        # bloqueado por pagos reales de otro gate.
-        request_id = f"checkout-audit-{time.time_ns()}"
-        created = context.request.post(
-            f"{BASE}/api/orders",
-            data=json.dumps(
-                {
-                    "items": [
-                        {
-                            "description": "Pedido auditoría checkout",
-                            "quantity": 1,
-                            "unitPriceCents": 12000,
-                        }
-                    ],
-                    "paymentMethod": "codi",
-                    "requestId": request_id,
-                }
-            ),
-            headers={"Content-Type": "application/json"},
-        )
-        if not created.ok:
-            print(f"FAIL  no se pudo crear el pedido de auditoría — {created.status}")
-            return 1
-        order_id = created.json()["order"]["id"]
-        linked = context.request.post(
-            f"{BASE}/api/orders/{order_id}/pay",
-            data=json.dumps({"mode": "link"}),
-            headers={"Content-Type": "application/json"},
-        )
-        if not linked.ok:
-            print(f"FAIL  no se pudo crear el link de auditoría — {linked.status}")
-            return 1
-        checkout_url = f"{BASE}/pay/{order_id}"
-        print(f"INFO  pedido 120.00 MXN · {order_id[:12]}…")
 
         # 1. Checkout.
         page.goto(checkout_url, wait_until="domcontentloaded")
@@ -304,7 +336,6 @@ def main() -> int:
         check("Checkout: sin errores de consola", len(console_before_missing) == 0, "; ".join(console_before_missing[:3]))
         check("Checkout: sin pageerrors", len(page_errors) == 0, "; ".join(page_errors[:3]))
 
-        context.request.post(f"{BASE}/api/demo/reset")
         browser.close()
 
     report = {
@@ -328,6 +359,14 @@ def main() -> int:
         print(f"CHECKOUT OK: {report['passed']}/{len(results)} checks")
         return 0
     return 1
+
+
+def main() -> int:
+    """Limpia la demo en finally, incluso si falla la creación de la orden."""
+    try:
+        return run_audit()
+    finally:
+        reset_demo()
 
 
 if __name__ == "__main__":

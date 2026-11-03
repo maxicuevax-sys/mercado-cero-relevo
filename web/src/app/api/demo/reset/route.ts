@@ -42,15 +42,18 @@ export async function POST(request: Request) {
       ok: true,
       backup: result.backup,
       preservedRealPayments: result.preservedRealPayments,
+      realDataCount: result.realDataCount,
     });
   } catch (error) {
     if (error instanceof DemoResetBlockedError) {
       return Response.json(
         {
           error:
-            "Hay pagos reales confirmados por pey. El reinicio de demo está bloqueado.",
-          code: "real_payments_present",
+            "Hay datos reales en la caja. El reinicio de demo está bloqueado.",
+          code: "real_data_present",
+          realData: error.realDataCount,
           realPayments: error.realPaymentCount,
+          breakdown: error.breakdown,
         },
         { status: 409 },
       );

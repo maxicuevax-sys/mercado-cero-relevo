@@ -72,9 +72,9 @@ La comerciante ve cuánto vendió, cuánto cobró de verdad, cuánto le deben y 
 
 [En **Corte**, arriba, pulsa **Actualizar corte**.]
 
-El abono de Juan sumó cincuenta pesos en efectivo: debería haber seiscientos veinte.
+El abono de Juan sumó cincuenta pesos en efectivo: debería haber quinientos cincuenta.
 
-[Pulsa **Contar por billetes y monedas**; escribe **5** de $100, **2** de $50 y **1** de $20.]
+[Pulsa **Contar por billetes y monedas**; escribe **5** de $100, **1** de $50 y **0** de $20.]
 
 Cuadra. Todo sale del mismo registro.
 

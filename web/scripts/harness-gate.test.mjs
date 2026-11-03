@@ -1,5 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 
 import {
   GATES,
@@ -9,8 +12,10 @@ import {
   criticalGateIds,
   evaluateRun,
   expectedMatches,
+  handoffFileName,
   parseArgs,
   selectedGates,
+  writeEvidence,
 } from "./harness-gate.mjs";
 
 const SHA = "a".repeat(40);
@@ -314,3 +319,84 @@ test("evaluateRun: buildSha distinto o ausente impide ok en full/static", () => 
   assert.equal(missing.ok, false);
   assert.equal(missing.buildBound, false);
 });
+
+test("evaluateRun: badBuild por gate exige buildSha igual a gitAtStart", () => {
+  const results = resultsFor(MODE_GATES.full);
+  results.find((result) => result.id === "webhook").buildSha = "b".repeat(40);
+  const evaluation = evaluationFor({ mode: "full", results });
+  assert.equal(evaluation.ok, false);
+  assert.equal(evaluation.gatesOk, false);
+  assert.ok(evaluation.badBuild.includes("webhook"));
+  assert.ok(
+    evaluation.reasons.some((reason) => reason.includes("buildSha por gate")),
+  );
+
+  const nullBuild = resultsFor(MODE_GATES.full);
+  nullBuild.find((result) => result.id === "p0-dinero").buildSha = null;
+  const nullEvaluation = evaluationFor({ mode: "full", results: nullBuild });
+  assert.equal(nullEvaluation.ok, false);
+  assert.ok(nullEvaluation.badBuild.includes("p0-dinero"));
+
+  const staticMismatch = resultsFor(MODE_GATES.static);
+  staticMismatch.find((result) => result.id === "deps").buildSha =
+    "c".repeat(40);
+  const staticEvaluation = evaluationFor({ results: staticMismatch });
+  assert.equal(staticEvaluation.ok, false);
+  assert.ok(staticEvaluation.badBuild.includes("deps"));
+});
+
+test("checkout: gate usa wrapper aislado en 3215, no el servidor principal", () => {
+  const gate = GATES_BY_ID.get("checkout");
+  assert.equal(gate.command, "node");
+  assert.deepEqual(gate.args, ["scripts/checkout-gate.mjs"]);
+  assert.equal(gate.usesMainServer, undefined);
+  assert.equal(gate.baseUrl, "http://127.0.0.1:3215");
+  assert.equal(gate.env.CHECKOUT_PORT, "3215");
+});
+
+test("latest: full escribe latest.json y static latest-static.json sin pisarlo", () => {
+  const tmp = fs.mkdtempSync(
+    path.join(os.tmpdir(), "mercado-cero-latest-test-"),
+  );
+  try {
+    const full = writeEvidence(
+      { startedAt: "2026-11-02T00:00:00.000Z", mode: "full", ok: true },
+      { evidenceDir: tmp, runsDir: path.join(tmp, "runs") },
+    );
+    assert.equal(path.basename(full.handoffFile), "latest.json");
+
+    const staticRun = writeEvidence(
+      { startedAt: "2026-11-02T00:00:01.000Z", mode: "static", ok: true },
+      { evidenceDir: tmp, runsDir: path.join(tmp, "runs") },
+    );
+    assert.equal(path.basename(staticRun.handoffFile), "latest-static.json");
+
+    const latest = JSON.parse(
+      fs.readFileSync(path.join(tmp, "latest.json"), "utf8"),
+    );
+    assert.equal(latest.mode, "full");
+    const latestStatic = JSON.parse(
+      fs.readFileSync(path.join(tmp, "latest-static.json"), "utf8"),
+    );
+    assert.equal(latestStatic.mode, "static");
+
+    const failed = writeEvidence(
+      { startedAt: "2026-11-02T00:00:02.000Z", mode: "full", ok: false },
+      { evidenceDir: tmp, runsDir: path.join(tmp, "runs") },
+    );
+    assert.equal(failed.handoff, false);
+    const stillFull = JSON.parse(
+      fs.readFileSync(path.join(tmp, "latest.json"), "utf8"),
+    );
+    assert.equal(stillFull.mode, "full");
+    assert.equal(stillFull.startedAt, "2026-11-02T00:00:00.000Z");
+
+    assert.equal(handoffFileName("full"), "latest.json");
+    assert.equal(handoffFileName("static"), "latest-static.json");
+    assert.equal(handoffFileName("fast"), null);
+    assert.equal(handoffFileName("partial"), null);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+

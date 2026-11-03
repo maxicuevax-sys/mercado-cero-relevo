@@ -61,6 +61,8 @@ export interface Customer {
   id: string;
   name: string;
   phone: string | null;
+  /** Cliente de demo; nunca se mezcla con el fiado real. */
+  demo?: boolean;
   createdAt: string;
 }
 
@@ -275,6 +277,8 @@ export interface Task {
   status: TaskStatus;
   dueAt: string | null;
   postponedUntil: string | null;
+  /** Pendiente de demo; se oculta al reutilizar la base en real. */
+  demo?: boolean;
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;

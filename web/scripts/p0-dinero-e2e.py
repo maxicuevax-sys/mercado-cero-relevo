@@ -12,8 +12,8 @@ Cubre:
   - allowlist de recordPayment (test puro aparte);
   - corte: expected_negative y totals_changed.
 
-Corre en un servidor aislado en :3122 con DB temporal. Nunca toca :3000
-ni :3101. Escribe harness/evidence/p0-dinero-e2e.json.
+Corre en un servidor aislado en :3213 con DB temporal. Nunca toca :3000
+ni :3101. Escribe harness/evidence/p0-dinero-e2e.json (ignorado).
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ ROOT = Path(__file__).resolve().parents[2]
 WEB = ROOT / "web"
 OUT = ROOT / "harness" / "evidence" / "p0-dinero-e2e.json"
 BASE = os.environ.get(
-    "P0_BASE_URL", f"http://localhost:{int(os.environ.get('P0_DINERO_PORT', '3133'))}"
+    "P0_BASE_URL", f"http://localhost:{int(os.environ.get('P0_DINERO_PORT', '3213'))}"
 ).rstrip("/")
 PORT = int(urllib.parse.urlparse(BASE).port or 3133)
 SECRET = "whsec_" + base64.b64encode(b"mercado-cero-dinero-e2e").decode()
@@ -433,8 +433,14 @@ def main() -> int:
         "paymentLinkId": retry_order["paymentLinkId"],
         "status": "paid",
         "clientReferenceId": retry_order["id"],
+        "currency": "MXN",
         "transactions": [
-            {"transactionId": transaction_id, "paymentMethod": "CODI", "amount": 1.0}
+            {
+                "transactionId": transaction_id,
+                "paymentMethod": "CODI",
+                "currency": "MXN",
+                "amount": 1.0,
+            }
         ],
     }
     wrong_status, wrong_body, wrong_event_id = send_webhook(wrong_event)
@@ -474,10 +480,12 @@ def main() -> int:
         "paymentLinkId": retry404_order["paymentLinkId"],
         "status": "paid",
         "clientReferenceId": "ord_inexistente_retry",
+        "currency": "MXN",
         "transactions": [
             {
                 "transactionId": f"txn_404_{int(time.time() * 1000)}",
                 "paymentMethod": "CODI",
+                "currency": "MXN",
                 "amount": retry404_order["totalCents"] / 100,
             }
         ],
@@ -914,7 +922,7 @@ def main() -> int:
                 "git": {
                     "sha": git_value("rev-parse", "HEAD"),
                     "branch": git_value("rev-parse", "--abbrev-ref", "HEAD"),
-                    "dirty": bool(git_value("status", "--porcelain", "--untracked-files=no")),
+                    "dirty": bool(git_value("status", "--porcelain", "--untracked-files=all")),
                 },
                 "baseUrl": BASE,
                 "summary": summary_out,

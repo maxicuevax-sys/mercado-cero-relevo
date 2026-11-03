@@ -6,16 +6,20 @@
  *   node scripts/verify-evidence.mjs
  *   node scripts/verify-evidence.mjs --json
  *   node scripts/verify-evidence.mjs --allow-fast
+ *   node scripts/verify-evidence.mjs --static
  *
- * Compara `harness/evidence/latest.json` con el HEAD y el árbol actual.
- * Falla si:
+ * Compara `harness/evidence/latest.json` (full) o
+ * `harness/evidence/latest-static.json` (static, con --static) con el HEAD y
+ * el árbol actual. Falla si:
  *   - el modo es `fast` sin --allow-fast, o es partial;
  *   - falta complete/ok/exitCode 0/reason "ok"/expectedMatched;
+ *   - el expected canónico no aparece en outputTail (se recalcula);
  *   - gitAtStart no es HEAD, el árbol está sucio o el SHA cambió;
- *   - serverBuildSha no coincide con gitAtStart.sha;
- *   - falta un gate, un skip crítico o un expected no validado;
- *   - un artefacto declarado no existe o su hash/tamaño no coincide;
- *   - un JSON de evidencia declara otro commit o dirty:true.
+ *   - serverBuildSha o el buildSha de cada gate runtime no coincide;
+ *   - falta un gate, un skip crítico o criticalGates está manipulado;
+ *   - un artefacto declarado no existe, su hash/tamaño no coincide o no
+ *     pertenece al set canónico del gate;
+ *   - un JSON de evidencia declara otro commit o dirty:true (code o git).
  *
  * No genera evidencia ni toca la app. Es el chequeo de handoff.
  */
@@ -24,14 +28,20 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { GATES_BY_ID, MODE_GATES, getGit } from "./harness-gate.mjs";
+import { GATES_BY_ID, MODE_GATES, expectedMatches, getGit } from "./harness-gate.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const WEB = path.resolve(HERE, "..");
 const ROOT = path.resolve(WEB, "..");
 const LATEST = path.join(ROOT, "harness", "evidence", "latest.json");
+const LATEST_STATIC = path.join(
+  ROOT,
+  "harness",
+  "evidence",
+  "latest-static.json",
+);
 const KNOWN_MODES = ["fast", "static", "full"];
-const KNOWN_FLAGS = new Set(["--json", "--allow-fast"]);
+const KNOWN_FLAGS = new Set(["--json", "--allow-fast", "--static"]);
 
 export function expectedIdsForEvidence(evidence) {
   const mode = evidence?.mode;
@@ -74,14 +84,20 @@ function sha256File(file) {
 
 /**
  * Comprueba los artefactos embebidos: ruta relativa segura, existencia,
- * SHA-256 y tamaño. También cruza `code.commit`/`code.dirty` cuando el JSON
- * lo declara, para que un artefacto viejo no pase como evidencia de este HEAD.
+ * SHA-256 y tamaño. También cruza `code.commit`/`code.dirty` y
+ * `git.sha`/`git.dirty` cuando el JSON los declara, para que un artefacto
+ * viejo o sucio no pase como evidencia de este HEAD. p0-dinero debe declarar
+ * el bloque `git` (no `code`).
  */
-export function artifactProblems(artifacts, { root = ROOT, startSha } = {}) {
+export function artifactProblems(
+  artifacts,
+  { root = ROOT, startSha, requireGitBlock = false } = {},
+) {
   const problems = [];
   if (!Array.isArray(artifacts)) {
     return ["artifacts no es un array"];
   }
+  const seen = new Set();
   for (const artifact of artifacts) {
     if (!artifact || typeof artifact !== "object") {
       problems.push("artefacto sin objeto");
@@ -92,6 +108,10 @@ export function artifactProblems(artifacts, { root = ROOT, startSha } = {}) {
       problems.push("artefacto sin path");
       continue;
     }
+    if (seen.has(relative)) {
+      problems.push(`${relative}: artefacto duplicado`);
+    }
+    seen.add(relative);
     if (path.isAbsolute(relative) || relative.split("/").includes("..")) {
       problems.push(`${relative}: ruta fuera del repo`);
       continue;
@@ -132,6 +152,19 @@ export function artifactProblems(artifacts, { root = ROOT, startSha } = {}) {
         if (body?.code && body.code.dirty !== false) {
           problems.push(`${relative}: code.dirty=${body.code.dirty}`);
         }
+        if (body?.git && typeof body.git === "object") {
+          if (startSha && body.git.sha !== startSha) {
+            problems.push(
+              `${relative}: git.sha ${body.git.sha ?? "?"} != ${startSha}`,
+            );
+          }
+          if (body.git.dirty !== false) {
+            problems.push(`${relative}: git.dirty=${body.git.dirty}`);
+          }
+        }
+        if (requireGitBlock && (!body?.git || typeof body.git !== "object")) {
+          problems.push(`${relative}: falta el bloque git (sha/dirty)`);
+        }
       } catch {
         problems.push(`${relative}: JSON inválido`);
       }
@@ -140,9 +173,76 @@ export function artifactProblems(artifacts, { root = ROOT, startSha } = {}) {
   return problems;
 }
 
+function globMatches(pattern, relative) {
+  const escaped = String(pattern)
+    .replace(/\\/g, "/")
+    .split("*")
+    .map((part) => part.replace(/[.+^${}()|[\]\\]/g, "\\$&"))
+    .join("[^/]*");
+  return new RegExp(`^${escaped}$`).test(relative);
+}
+
+/**
+ * El set de artefactos de un gate no puede ser inventado. Si el catálogo
+ * declara patrones, cada patrón debe estar cubierto y ningún path puede quedar
+ * fuera. Un `artifacts: []` en un gate que declara artefactos es FAIL.
+ */
+export function canonicalArtifactProblems(
+  gate,
+  canonical,
+  { root = ROOT, startSha } = {},
+) {
+  const problems = [];
+  const patterns = (canonical.artifacts ?? []).map((pattern) =>
+    String(pattern).replace(/\\/g, "/"),
+  );
+  const artifacts = Array.isArray(gate.artifacts) ? gate.artifacts : [];
+  if (!patterns.length) {
+    if (artifacts.length) {
+      problems.push(
+        `${gate.id}: declara artefactos que el catálogo no permite (${artifacts
+          .map((artifact) => artifact.path)
+          .join(", ")})`,
+      );
+    }
+    return problems;
+  }
+  if (!artifacts.length) {
+    problems.push(
+      `${gate.id}: artifacts=[] pero el gate declara ${patterns.join(", ")}`,
+    );
+    return problems;
+  }
+  const covered = new Set();
+  for (const artifact of artifacts) {
+    const relative = String(artifact?.path ?? "").replace(/\\/g, "/");
+    const matched = patterns.filter((pattern) =>
+      globMatches(pattern, relative),
+    );
+    if (!matched.length) {
+      problems.push(`${gate.id}: ${relative} no está en el set canónico`);
+    }
+    for (const pattern of matched) covered.add(pattern);
+  }
+  for (const pattern of patterns) {
+    if (!covered.has(pattern)) {
+      problems.push(`${gate.id}: falta el artefacto canónico ${pattern}`);
+    }
+  }
+  problems.push(
+    ...artifactProblems(artifacts, {
+      root,
+      startSha,
+      requireGitBlock: canonical.id === "p0-dinero",
+    }).map((problem) => `${gate.id}: ${problem}`),
+  );
+  return problems;
+}
+
+
 export function validateEvidence(
   evidence,
-  { headSha, treeDirty = null, allowFast = false } = {},
+  { headSha, treeDirty = null, allowFast = false, root = ROOT } = {},
 ) {
   const checks = [];
   const warnings = [];
@@ -278,8 +378,11 @@ export function validateEvidence(
       gateProblems.push(`${gate.id}: sin artifacts[]`);
     }
     if (
-      canonical.mode === "runtime" &&
-      gate.buildSha !== evidence.gitAtStart?.sha
+      handoffMode &&
+      (canonical.mode === "runtime"
+        ? gate.buildSha == null || gate.buildSha !== evidence.gitAtStart?.sha
+        : gate.buildSha != null &&
+          gate.buildSha !== evidence.gitAtStart?.sha)
     ) {
       gateProblems.push(
         `${gate.id}: buildSha ${gate.buildSha ?? "?"} != ${evidence.gitAtStart?.sha ?? "?"}`,
@@ -296,23 +399,54 @@ export function validateEvidence(
         `${gate.id}: expected declarado ${JSON.stringify(gate.expected)} != canonico ${JSON.stringify(canonical.expected)}`,
       );
     }
+    if (expectedMatches(canonical.expected, gate.outputTail) !== true) {
+      gateProblems.push(
+        `${gate.id}: expected no aparece en outputTail (no se confía en expectedMatched)`,
+      );
+    }
     if (gate.expectedBasis !== canonical.expectedBasis) {
       gateProblems.push(
         `${gate.id}: expectedBasis ${gate.expectedBasis} != ${canonical.expectedBasis}`,
       );
     }
-    const problems = artifactProblems(gate.artifacts ?? [], {
-      root: ROOT,
+    const problems = canonicalArtifactProblems(gate, canonical, {
+      root,
       startSha: evidence.gitAtStart?.sha,
     });
     for (const problem of problems) {
-      gateProblems.push(`${gate.id}: ${problem}`);
+      gateProblems.push(problem);
     }
   }
   check(
     "cada gate ok/exitCode/reason/expected/artefactos válidos",
     gateProblems.length === 0,
     gateProblems.slice(0, 8).join(" | "),
+  );
+
+  const recomputedGatesOk =
+    gates.length > 0 &&
+    gateProblems.length === 0 &&
+    new Set(gateIds).size === gateIds.length;
+  check(
+    "gatesOk coincide con los gates y no está manipulado",
+    evidence.gatesOk === recomputedGatesOk && recomputedGatesOk === true,
+    `declarado=${evidence.gatesOk} recalculado=${recomputedGatesOk}`,
+  );
+
+  const recomputedBuildMatches =
+    Boolean(evidence.serverBuildSha) &&
+    evidence.serverBuildSha === evidence.gitAtStart?.sha &&
+    evidence.gitAtStart?.sha !== "unknown";
+  check(
+    "buildMatches coincide con serverBuildSha y no está manipulado",
+    evidence.buildMatches === recomputedBuildMatches,
+    `declarado=${evidence.buildMatches} recalculado=${recomputedBuildMatches}`,
+  );
+
+  check(
+    "criticalGates coincide con el set canónico y no está manipulado",
+    sameSet(evidence.criticalGates, criticalIds),
+    `declarado=${(evidence.criticalGates ?? []).join(",")} esperado=${criticalIds.join(",")}`,
   );
 
   const skipped = Array.isArray(evidence.skipped) ? evidence.skipped : [];
@@ -400,6 +534,7 @@ function readJson(file) {
 function main() {
   const json = process.argv.includes("--json");
   const allowFast = process.argv.includes("--allow-fast");
+  const staticMode = process.argv.includes("--static");
   for (const arg of process.argv.slice(2)) {
     if (!KNOWN_FLAGS.has(arg)) {
       console.error(`Flag desconocido: ${arg}`);
@@ -407,14 +542,26 @@ function main() {
     }
   }
 
-  if (!fs.existsSync(LATEST)) {
-    console.error(`EVIDENCIA INVÁLIDA: falta ${path.relative(ROOT, LATEST)}`);
+  const file = staticMode
+    ? LATEST_STATIC
+    : fs.existsSync(LATEST)
+      ? LATEST
+      : LATEST_STATIC;
+  if (!fs.existsSync(file)) {
+    console.error(
+      `EVIDENCIA INVÁLIDA: falta ${path.relative(ROOT, file)}. Full escribe latest.json; static escribe latest-static.json (usa --static).`,
+    );
     return 1;
   }
+  if (!staticMode && file === LATEST_STATIC) {
+    console.log("NOTA  no hay latest.json; valido latest-static.json (static).");
+  }
 
-  const latest = readJson(LATEST);
+  const latest = readJson(file);
   if (latest.invalid) {
-    console.error(`EVIDENCIA INVÁLIDA: latest.json no parsea (${latest.error})`);
+    console.error(
+      `EVIDENCIA INVÁLIDA: ${path.relative(ROOT, file)} no parsea (${latest.error})`,
+    );
     return 1;
   }
 

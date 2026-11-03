@@ -16,9 +16,12 @@
  *     pasaron con exitCode 0, reason "ok" y expectedMatched true.
  *   - `--only` produce mode `partial`; cualquier `--skip` también deja
  *     `partial: true`. Ninguno puede quedar `ok: true`.
- *   - El build servido debe declarar el mismo SHA que gitAtStart.
+ *   - El build servido debe declarar el mismo SHA que gitAtStart y cada gate
+ *     runtime debe registrar ese buildSha.
  *   - La evidencia exige árbol limpio al inicio y al final (incluye
  *     untracked; los artefactos generados están ignorados en .gitignore).
+ *   - `full` escribe latest.json; `static` escribe latest-static.json sin
+ *     pisar el full.
  *
  * No arranca ni reinicia el servidor principal. El runtime es compartido: el
  * agente lo levanta explícitamente. Los gates p0 levantan su propio servidor
@@ -116,7 +119,7 @@ export const GATES = [
     args: ["scripts/webhook-gate.mjs"],
     mode: "runtime",
     timeout: 240_000,
-    expected: ["WEBHOOK OK", "34/34"],
+    expected: ["WEBHOOK OK", "40/40"],
     expectedBasis: "output",
     artifacts: [],
   },
@@ -135,14 +138,15 @@ export const GATES = [
   {
     id: "checkout",
     name: "Checkout público",
-    command: "python",
-    args: ["scripts/checkout-audit.py"],
+    command: "node",
+    args: ["scripts/checkout-gate.mjs"],
     mode: "runtime",
-    usesMainServer: true,
-    timeout: 180_000,
+    baseUrl: "http://127.0.0.1:3215",
+    timeout: 300_000,
     expected: ["CHECKOUT OK", "19/19"],
     expectedBasis: "output",
     artifacts: ["demo/checkout-audit.json", "demo/checkout-360-*.png"],
+    env: { CHECKOUT_PORT: "3215" },
   },
   {
     id: "hig",
@@ -176,7 +180,7 @@ export const GATES = [
     mode: "runtime",
     usesMainServer: true,
     timeout: 180_000,
-    expected: ["CONTRAST OK", "0 FAIL"],
+    expected: ["CONTRAST OK", "7 PASS", "0 FAIL"],
     expectedBasis: "output",
     artifacts: [
       "harness/evidence/a11y-contrast.json",
@@ -753,7 +757,9 @@ export function runGate(gate, { serverBuildSha = null } = {}) {
         : artifactProblems.length > 0
           ? "artifacts-missing"
           : "ok";
-  const tail = output.split(/\r?\n/).slice(-40).join("\n");
+  const lines = output.split(/\r?\n/);
+  const tail = lines.slice(-200).join("\n");
+  const consoleTail = lines.slice(-40).join("\n");
   const baseUrl = gate.usesMainServer ? BASE : (gate.baseUrl ?? null);
   const buildSha =
     gate.mode === "runtime"
@@ -772,7 +778,7 @@ export function runGate(gate, { serverBuildSha = null } = {}) {
   if (!ok) {
     console.log("      ---- salida ----");
     console.log(
-      tail
+      consoleTail
         .split(/\r?\n/)
         .map((line) => `      ${line}`)
         .join("\n"),
@@ -829,12 +835,24 @@ export function evaluateRun({
   const badArtifacts = results.filter((result) =>
     (result.artifacts ?? []).some((artifact) => !artifact.exists),
   );
+  const handoffMode = mode === "full" || mode === "static";
+  const badBuild = handoffMode
+    ? results.filter((result) => {
+        const gate = GATES_BY_ID.get(result.id);
+        if (!gate) return true;
+        if (gate.mode === "runtime") {
+          return result.buildSha !== gitAtStart?.sha;
+        }
+        return result.buildSha != null && result.buildSha !== gitAtStart?.sha;
+      })
+    : [];
   const gatesOk =
     results.length > 0 &&
     failed.length === 0 &&
     expectedMismatches.length === 0 &&
     badExit.length === 0 &&
     badArtifacts.length === 0 &&
+    badBuild.length === 0 &&
     duplicateResults.length === 0;
   const complete =
     !partial &&
@@ -893,6 +911,11 @@ export function evaluateRun({
       `artefactos faltantes: ${badArtifacts.map((result) => result.id).join(", ")}`,
     );
   }
+  if (badBuild.length) {
+    reasons.push(
+      `buildSha por gate no coincide con gitAtStart: ${badBuild.map((result) => result.id).join(", ")}`,
+    );
+  }
   if (unexpected.length) {
     reasons.push(`gates fuera del modo: ${unexpected.join(", ")}`);
   }
@@ -938,6 +961,7 @@ export function evaluateRun({
     expectedMismatches: expectedMismatches.map((result) => result.id),
     badExit: badExit.map((result) => result.id),
     badArtifacts: badArtifacts.map((result) => result.id),
+    badBuild: badBuild.map((result) => result.id),
     reasons,
   };
 }
@@ -1041,28 +1065,36 @@ function buildRun({
     shaStable: evaluation.shaStable,
     missing: evaluation.missing,
     criticalMissing: evaluation.criticalMissing,
+    badBuild: evaluation.badBuild,
     reasons: evaluation.reasons,
     ok: evaluation.ok,
   };
 }
 
-function writeEvidence(run) {
-  fs.mkdirSync(RUNS, { recursive: true });
+export function handoffFileName(mode) {
+  if (mode === "full") return "latest.json";
+  if (mode === "static") return "latest-static.json";
+  return null;
+}
+
+export function writeEvidence(run, { evidenceDir = EVIDENCE, runsDir = RUNS } = {}) {
+  fs.mkdirSync(runsDir, { recursive: true });
   const file = path.join(
-    RUNS,
+    runsDir,
     `${run.startedAt.replace(/[:.]/g, "-")}-${run.mode}.json`,
   );
   fs.writeFileSync(file, `${JSON.stringify(run, null, 2)}\n`, "utf8");
-  const handoff =
-    run.ok === true && (run.mode === "full" || run.mode === "static");
-  if (handoff) {
+  const name = run.ok === true ? handoffFileName(run.mode) : null;
+  const handoffFile = name ? path.join(evidenceDir, name) : null;
+  if (handoffFile) {
+    fs.mkdirSync(evidenceDir, { recursive: true });
     fs.writeFileSync(
-      path.join(EVIDENCE, "latest.json"),
+      handoffFile,
       `${JSON.stringify(run, null, 2)}\n`,
       "utf8",
     );
   }
-  return { file, handoff };
+  return { file, handoff: Boolean(handoffFile), handoffFile };
 }
 
 function printList() {
@@ -1205,7 +1237,7 @@ async function main() {
       console.error("Arranca el servidor con un build de este commit:");
       console.error("  cd web && npm run build && npm start");
       printEvaluation(evaluation);
-      console.log(`EVIDENCIA ${relativeToRoot(evidence.file)}${evidence.handoff ? "" : " (latest.json NO actualizado)"}`);
+      console.log(`EVIDENCIA ${relativeToRoot(evidence.file)}${evidence.handoff ? "" : " (handoff NO actualizado)"}`);
       return 1;
     }
     serverBuildSha = health.buildSha;
@@ -1224,7 +1256,7 @@ async function main() {
       );
       console.error("Recompila y reinicia: cd web && npm run build && npm start");
       printEvaluation(evaluation);
-      console.log(`EVIDENCIA ${relativeToRoot(evidence.file)}${evidence.handoff ? "" : " (latest.json NO actualizado)"}`);
+      console.log(`EVIDENCIA ${relativeToRoot(evidence.file)}${evidence.handoff ? "" : " (handoff NO actualizado)"}`);
       return 1;
     }
     console.log(`BUILD SHA ${serverBuildSha} (servidor y HEAD coinciden)\n`);
@@ -1314,8 +1346,8 @@ async function main() {
   console.log(`EVIDENCIA ${relativeToRoot(evidence.file)}`);
   console.log(
     evidence.handoff
-      ? "HANDOFF harness/evidence/latest.json + harness/STATE.md"
-      : "HANDOFF latest.json NO actualizado (solo full/static con ok:true escriben handoff)",
+      ? `HANDOFF ${relativeToRoot(evidence.handoffFile)} + harness/STATE.md`
+      : "HANDOFF no actualizado (solo full escribe latest.json y static latest-static.json con ok:true)",
   );
   console.log("VERIFICA  npm run verify:evidence (compara gitAtStart.sha con HEAD)");
   return evaluation.ok ? 0 : 1;

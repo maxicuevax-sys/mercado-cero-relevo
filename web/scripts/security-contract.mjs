@@ -764,7 +764,7 @@ try {
   });
   check(
     "reset con pago pey real → 409",
-    result.response.status === 409 && result.body?.code === "real_payments_present",
+    result.response.status === 409 && result.body?.code === "real_data_present",
     `status ${result.response.status} ${JSON.stringify(result.body)}`,
   );
   check(

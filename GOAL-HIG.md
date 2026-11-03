@@ -48,7 +48,7 @@ El rediseño no sirve para “parecer Apple”. Sirve para que la comerciante:
 2. **Diseñar la máquina de estados, no la pantalla.** Cada acción tiene idle, cargando, éxito, error, vacío, deshabilitado y “sin conexión”. La belleza está en que el estado nunca miente. Un pago simulado no puede verse igual que uno confirmado por pey.
 3. **Tratar la accesibilidad como arquitectura, no como checklist final.** 200% de texto, 44×44 px, contraste medido, foco visible, teclado completo, nombres accesibles, movimiento reducido y alternativa textual a la voz. Si una acción esencial desaparece al crecer el texto, el diseño no está terminado.
 4. **Proteger la confianza antes que la estética.** El sello **DEMO** no es decoración: es una promesa. El estado “pagado” real y el simulado deben tener tratamientos distintos; ninguna animación, color o copy puede insinuar un pago que no ocurrió.
-5. **Probar con una persona ajena y con el riel real cuando exista.** La opinión del modelo no sustituye el comportamiento de una comerciante. La evidencia es tiempo de tarea, errores, frases textuales y un webhook 34/34 que sigue intacto.
+5. **Probar con una persona ajena y con el riel real cuando exista.** La opinión del modelo no sustituye el comportamiento de una comerciante. La evidencia es tiempo de tarea, errores, frases textuales y un webhook 40/40 que sigue intacto.
 
 ---
 
@@ -75,7 +75,7 @@ El rediseño no sirve para “parecer Apple”. Sirve para que la comerciante:
 ### 4.3 Fuente de verdad del dinero
 
 - `GOAL.md` (invariantes), `web/src/lib/pey-events.ts`, `web/src/app/api/webhooks/pey/route.ts`, `web/scripts/webhook-contract.mjs`.
-- **No se modifican** en este goal. Si el rediseño toca un estado de pago, se valida contra el contrato 34/34.
+- **No se modifican** en este goal. Si el rediseño toca un estado de pago, se valida contra el contrato 40/40.
 
 ---
 
@@ -130,7 +130,7 @@ Matriz obligatoria en `HIG-AUDIT.md`:
 - **Contraste:** calcular pares reales; no confiar en “se ve bien”.
 - **Lector de pantalla:** NVDA en Windows si está disponible; árbol de accesibilidad y nombres en todos los casos. **No afirmar VoiceOver** sin una Mac.
 - **Prueba humana:** 3 comerciantes o, mínimo, 1 persona ajena + 2 perfiles simulados declarados como tales. Tareas de `TEST-USUARIO.md`, tiempos, ayuda, frases.
-- **Regresión de dinero:** `node scripts/webhook-contract.mjs` 34/34, build y lint limpios, demo reset.
+- **Regresión de dinero:** `node scripts/webhook-contract.mjs` 40/40, build y lint limpios, demo reset.
 - **Git:** repositorio inexistente hoy. Antes de tocar UI: `git init`, `.gitignore` raíz que excluya `web/node_modules`, `web/.next`, `web/data`, `.env.local` y binarios temporales; commit baseline y tag `pre-hig`. Si no se usa git, zip de respaldo. Sin red de seguridad no se empieza.
 
 ---
@@ -140,7 +140,7 @@ Matriz obligatoria en `HIG-AUDIT.md`:
 | Superficie | Hoy | Objetivo HIG |
 |---|---|---|
 | **Shell / header** | Marca + ficha de comerciante + reset + ayuda compitiendo; hero editorial largo. | Barra de título clara: destino actual, comerciante, “Demo” y ayuda. El reset sale del header. El hero desaparece del camino de trabajo. |
-| **Navegación** | Bottom nav con anclas a una página larga; en desktop no hay navegación lateral. | 4 destinos reales: **Caja, Fiado, Corte, Meta** (hoy “Camino”). Compacto: tab bar inferior con estado conservado. Regular: sidebar. Help/Verify/Demo como sheets. |
+| **Navegación** | Bottom nav con anclas a una página larga; en desktop no hay navegación lateral. | 5 destinos reales: **Caja, Fiado, Corte, Meta** (hoy “Camino”) y **Pendientes**. Compacto: tab bar inferior con estado conservado. Regular: sidebar. Help/Verify/Demo como sheets. |
 | **Caja / voz** | Micrófono grande, frases de ejemplo, draft, panel de cobro a la derecha; en móvil el cobro queda abajo. | Una tarea: “¿Qué vendiste?” + botón de voz con estados + texto alternativo. El pedido se confirma; el cobro se abre en **sheet en todos los tamaños** (en wide, centrado a 560). |
 | **Payment sheet** | Panel largo con QR, link, aviso de espera, botones demo y “cerrar”. | Sheet scoped: monto, estado, QR/link, un primario, un secundario, salida clara. Demo y real visualmente distintos. |
 | **Checkout público** | Funciona, pero con microtipografía de 9–12 px y estética de papel. | Tarjeta clara: comercio, total, productos, métodos, botón primario, aviso de seguridad y demo. Apple Pay solo con botón/JS oficial si está habilitado; si no, “Wallet”. |
@@ -196,7 +196,7 @@ Matriz obligatoria en `HIG-AUDIT.md`:
 | `--separator` | `#D9D5CC` | Hairlines |
 | `--accent` | `#0B6B4F` | Acción primaria, marca |
 | `--accent-press` | `#07513C` | Pressed |
-| `--success` | `#0B6B4F` | **Solo pago real confirmado** |
+| `--success` | `#0B6B4F` | **Solo pago pey confirmado por webhook** |
 | `--attention` | `#A6532F` | Fiado, pendiente, demo |
 | `--danger` | `#B3261E` | Error/destructivo; nunca marca |
 | `--info` | `#2F5D8A` | Información neutral |
@@ -215,7 +215,7 @@ Matriz obligatoria en `HIG-AUDIT.md`:
 
 ### 8.5 Navegación y contenido
 
-- 4 destinos estables; estado y scroll se conservan al volver.
+- 5 destinos estables; estado y scroll se conservan al volver.
 - Tabs: label corto + icono + `aria-current`; no acciones disfrazadas de tab.
 - Copy es-MX, verbos cortos: “Cobrar”, “Confirmar venta”, “Abrir checkout”, “Guardar corte”, “Apartar”.
 - “Webhook”, “API”, “pey” solo en ayuda/detalle técnico; la UI dice “Confirmación del banco”.
@@ -231,7 +231,7 @@ Matriz obligatoria en `HIG-AUDIT.md`:
 | **F0 · Red de seguridad** ✅ | 31 oct | `git init`, baseline `4d33a46`, tag `pre-hig`, skill fijada, capturas y métricas base | Sin baseline no se toca UI |
 | **F1 · Auditoría HIG** ✅ | 31 oct–1 nov | `HIG-AUDIT.md` con matriz, severidades, citas y evidencia 360/390/768/1280 | Revisión: ningún bloqueante sin corrección propuesta |
 | **F2 · Contrato de diseño** 🟡 | 1 nov | `HIG-DESIGN.md`: tokens, tipos, componentes, estados, copy, adaptación web | Aprobado antes de escribir componentes |
-| **F3 · Shell + Caja + cobro + checkout** | 2–3 nov | Nuevo shell, tabs/sidebar, Caja, sheet de cobro, éxito, checkout | Flujo completo en 360 y 1280; 34/34 intacto |
+| **F3 · Shell + Caja + cobro + checkout** | 2–3 nov | Nuevo shell, tabs/sidebar, Caja, sheet de cobro, éxito, checkout | Flujo completo en 360 y 1280; 40/40 intacto |
 | **F4 · Superficies secundarias** | 4 nov | Fiado, Corte, Meta, Verificar, Ayuda, demo reset, estados vacíos/error | Sin pantallas a medio migrar |
 | **F5 · Accesibilidad y performance** | 5 nov | 200% texto, teclado, foco, contraste, reduced motion, Lighthouse/axe, performance | Must-pass de la sección 10 |
 | **F6 · Persona ajena + congelamiento** | 6 nov | 3 pruebas, correcciones blocker, video/QR/runbook/guion actualizados | **21:00: freeze** |
@@ -254,7 +254,7 @@ Matriz obligatoria en `HIG-AUDIT.md`:
 - [ ] Nombres accesibles en todos los icon buttons; headings/landmarks; estado de pago en live region; formularios con label persistente y error asociado.
 - [ ] `prefers-reduced-motion`: sin viaje/rebote; estados y completion visibles.
 - [ ] **Demo ≠ real:** pago simulado con pill “Demo” y color de atención; pagado real con check verde y “Confirmado por el banco”; nunca el mismo tratamiento.
-- [ ] Sin “pagado” sin webhook firmado; contrato **34/34**; build y lint limpios; demo reset limpio.
+- [ ] Sin “pagado” sin webhook firmado; contrato **40/40**; build y lint limpios; demo reset limpio.
 - [ ] Flujo mecánico 360 ≤ **12.2 s** (baseline 10.2 s +20%) y 0 errores de consola.
 - [ ] Prueba humana: **3 participantes**; al menos **2/3** completan la venta sin ayuda en <60 s; **3/3** explican “pendiente no es pagado”; **2/3** completan las 5 tareas en <3 min. Si solo hay 1 persona, se declara “evidencia limitada”, no se maquilla.
 - [ ] Performance: sin regresión >10% vs. la línea base de F0; LCP <2.5 s y CLS <0.1 en producción; sin dependencia nueva pesada.
@@ -317,7 +317,7 @@ node scripts/preflight.mjs
 | Copiar iOS y volverse genérico | Mantener verde, mark 0, una foto y el español de mercado; una sola firma editorial, no todo el producto |
 | SF Pro/SF Symbols/licencias | Pila del sistema y Lucide; no bundle de fuentes Apple; Apple Pay solo con JS oficial |
 | Scope creep de 6 días | Must-pass cerrado; HIG-lite/rollback; no nuevas features |
-| Regresión del dinero | No tocar backend; 34/34 en cada gate; demo reset |
+| Regresión del dinero | No tocar backend; 40/40 en cada gate; demo reset |
 | Prueba humana insuficiente | 3 personas; si no, declarar evidencia limitada y no afirmar validación |
 | Teléfono físico ausente | Playwright + 360/390; marcar touch/safe-area como pendiente; usar el teléfono del usuario en F6 |
 | Túnel temporal | Regenerar QR/video con la URL final; preflight 18/18 |
@@ -332,7 +332,7 @@ node scripts/preflight.mjs
 3. Cada decisión importante tiene tema HIG, cita y check.
 4. La accesibilidad no es una nota al final: 200%, teclado, foco, contraste y lector están probados o declarados como no ejecutados.
 5. Demo y real nunca se confunden.
-6. El dinero sigue cuadrando: 34/34, build/lint limpios.
+6. El dinero sigue cuadrando: 40/40, build/lint limpios.
 7. La evidencia before/after existe y es reproducible.
 8. El video, el QR, el runbook y el guion reflejan la interfaz nueva.
 9. El equipo puede volver al tag `pre-hig` si algo falla.
