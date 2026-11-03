@@ -1,0 +1,46 @@
+/* Mercado Cero — design tokens. Use semantic values, not screenshots as truth. */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap');
+:root {
+  --mc-bg: #F9F6EE; --mc-surface: #FFFDF7; --mc-surface-soft: #F2EBDF;
+  --mc-green: #0F3D36; --mc-green-action: #115846; --mc-green-strong: #0A332C;
+  --mc-clay: #C1492E; --mc-clay-text: #8F2D1C; --mc-maize: #F2C768;
+  --mc-agave: #93B6A1; --mc-mint: #DDEADF;
+  --mc-text: #1F2622; --mc-text-secondary: #515B54; --mc-text-inverse: #FFFDF7;
+  --mc-border: #D8CFC0; --mc-border-subtle: #E8DFD2; --mc-focus: #0E6F5A;
+  --mc-verified-bg: #E2F3E7; --mc-verified-fg: #0A5039;
+  --mc-pending-bg: #FFF0D2; --mc-pending-fg: #725012;
+  --mc-error-bg: #FBE9E6; --mc-error-fg: #8A281B;
+  --mc-offline-bg: #E9ECF3; --mc-offline-fg: #293B68;
+  --mc-draft-bg: #EAEAE7; --mc-draft-fg: #434B45;
+  --mc-font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mc-font-display: 'Fraunces', Georgia, serif;
+  --mc-space-1: 4px; --mc-space-2: 8px; --mc-space-3: 12px; --mc-space-4: 16px;
+  --mc-space-5: 20px; --mc-space-6: 24px; --mc-space-8: 32px; --mc-space-10: 40px;
+  --mc-radius-sm: 6px; --mc-radius-md: 10px; --mc-radius-lg: 16px; --mc-radius-xl: 22px;
+  --mc-shadow-card: 0 2px 8px rgb(31 38 34 / 5%);
+  --mc-shadow-raised: 0 12px 30px rgb(31 38 34 / 12%);
+  --mc-motion: 180ms cubic-bezier(.2,.7,.2,1);
+  color-scheme: light;
+}
+html { font-size: 100%; }
+body { color: var(--mc-text); background: var(--mc-bg); font: 400 1rem/1.5 var(--mc-font-ui); }
+.mc-display { font-family: var(--mc-font-display); font-weight: 700; line-height: 1.2; letter-spacing: -.03em; }
+.mc-number { font-family: var(--mc-font-ui); font-variant-numeric: tabular-nums lining-nums; }
+.mc-card { border: 1px solid var(--mc-border); border-radius: var(--mc-radius-lg); background: var(--mc-surface); box-shadow: var(--mc-shadow-card); }
+.mc-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; min-width: 44px; border: 2px solid transparent; border-radius: 10px; padding: 10px 16px; font: 700 1rem/1.3 var(--mc-font-ui); cursor: pointer; }
+.mc-button--primary { background: var(--mc-green); color: var(--mc-text-inverse); }
+.mc-button--secondary { background: var(--mc-surface); color: var(--mc-green); border-color: var(--mc-green); }
+.mc-button--danger { background: var(--mc-surface); color: var(--mc-error-fg); border-color: var(--mc-error-fg); }
+.mc-button:focus-visible, .mc-input:focus-visible, a:focus-visible { outline: 3px solid var(--mc-focus); outline-offset: 3px; }
+.mc-button:disabled { cursor: not-allowed; opacity: .55; }
+.mc-input { min-height: 48px; border: 1.5px solid #687369; border-radius: 9px; background: var(--mc-surface); color: var(--mc-text); padding: 10px 14px; font: inherit; }
+.mc-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-size: .875rem; font-weight: 700; }
+.mc-badge[data-status='verified'] { background: var(--mc-verified-bg); color: var(--mc-verified-fg); }
+.mc-badge[data-status='pending'] { background: var(--mc-pending-bg); color: var(--mc-pending-fg); }
+.mc-badge[data-status='failed'] { background: var(--mc-error-bg); color: var(--mc-error-fg); }
+.mc-badge[data-status='offline'] { background: var(--mc-offline-bg); color: var(--mc-offline-fg); }
+.mc-badge[data-status='draft'] { background: var(--mc-draft-bg); color: var(--mc-draft-fg); }
+@media (prefers-reduced-motion: no-preference) { .mc-button { transition: background-color var(--mc-motion), transform var(--mc-motion); } .mc-button:active { transform: translateY(1px); } }
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+@media (forced-colors: active) { .mc-card,.mc-button,.mc-input { forced-color-adjust: auto; } }
+@media (max-width: 720px) { .mc-display { letter-spacing: -.015em; } }

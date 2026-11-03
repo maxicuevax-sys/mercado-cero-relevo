@@ -1,0 +1,367 @@
+{
+  "project": "Mercado Cero",
+  "kind": "brand-raster-assets",
+  "generated": "2026-11-03",
+  "output_dir": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero\\web\\public\\brand",
+  "crop_box_format": "[left, top, right, bottom] in source pixels; right/bottom are exclusive",
+  "background": {
+    "description": "Cream sheet background retained in every crop; no transparency.",
+    "hex": "#FBF3E7",
+    "note": "The sheets have a very subtle cream gradient; corners sample around #FBF3E7."
+  },
+  "source_sheets": {
+    "illustrations": {
+      "path": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_11 a.m-10.png",
+      "width": 1448,
+      "height": 1086,
+      "sha256": "8fbf47f9b1a9e19974e99976214c130baf9dd5ead93ff2b0f3ce9a5ba222ea63"
+    },
+    "icons": {
+      "path": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_10 a.m-9.png",
+      "width": 1448,
+      "height": 1086,
+      "sha256": "31ed975562a99172333c5b83f062becb46887b70ed7ec0d6bffd15203b9954d9"
+    }
+  },
+  "detection": {
+    "method": "Per-sheet cream key: max per-channel delta from the top-left corner color > 12, tiny components below 40 px removed. Content segmented into rows and artworks by projections/gaps; 16 px padding around each detected artwork.",
+    "illustration_layout": "3 columns x 2 rows",
+    "icon_layout": "5 columns x 3 rows (third row has 3 centered icons)",
+    "illustration_order": [
+      "lupita",
+      "puesto",
+      "qr",
+      "ahorro",
+      "bot",
+      "tacos"
+    ],
+    "icon_order": [
+      "tienda",
+      "recibo",
+      "libreta",
+      "caja",
+      "camion",
+      "registradora",
+      "meta",
+      "lista",
+      "reporte",
+      "ayuda",
+      "ajustes",
+      "qr-telefono",
+      "microfono"
+    ],
+    "max_dimensions": {
+      "illustrations": 640,
+      "icons": 256
+    },
+    "resampling": "Pillow LANCZOS, only when the padded crop exceeds the max dimension"
+  },
+  "note": "All artwork is an exact crop of the user-provided PNG sheets. Nothing was generated, redrawn, vectorized, or recolored.",
+  "assets": [
+    {
+      "name": "lupita",
+      "group": "ilustraciones",
+      "output": "ilustraciones/lupita.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_11 a.m-10.png",
+      "crop_box": [
+        25,
+        90,
+        440,
+        536
+      ],
+      "width": 415,
+      "height": 446,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha)."
+    },
+    {
+      "name": "puesto",
+      "group": "ilustraciones",
+      "output": "ilustraciones/puesto.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_11 a.m-10.png",
+      "crop_box": [
+        438,
+        80,
+        978,
+        524
+      ],
+      "width": 540,
+      "height": 444,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha)."
+    },
+    {
+      "name": "qr",
+      "group": "ilustraciones",
+      "output": "ilustraciones/qr.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_11 a.m-10.png",
+      "crop_box": [
+        982,
+        76,
+        1419,
+        534
+      ],
+      "width": 437,
+      "height": 458,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha)."
+    },
+    {
+      "name": "ahorro",
+      "group": "ilustraciones",
+      "output": "ilustraciones/ahorro.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_11 a.m-10.png",
+      "crop_box": [
+        18,
+        581,
+        451,
+        1020
+      ],
+      "width": 433,
+      "height": 439,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha)."
+    },
+    {
+      "name": "bot",
+      "group": "ilustraciones",
+      "output": "ilustraciones/bot.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_11 a.m-10.png",
+      "crop_box": [
+        478,
+        594,
+        913,
+        1008
+      ],
+      "width": 435,
+      "height": 414,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha)."
+    },
+    {
+      "name": "tacos",
+      "group": "ilustraciones",
+      "output": "ilustraciones/tacos.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_11 a.m-10.png",
+      "crop_box": [
+        925,
+        568,
+        1423,
+        1038
+      ],
+      "width": 498,
+      "height": 470,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha)."
+    },
+    {
+      "name": "tienda",
+      "group": "iconos",
+      "output": "iconos/tienda.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_10 a.m-9.png",
+      "crop_box": [
+        59,
+        112,
+        326,
+        352
+      ],
+      "width": 256,
+      "height": 230,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha).",
+      "resized_from": [
+        267,
+        240
+      ]
+    },
+    {
+      "name": "recibo",
+      "group": "iconos",
+      "output": "iconos/recibo.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_10 a.m-9.png",
+      "crop_box": [
+        362,
+        134,
+        558,
+        359
+      ],
+      "width": 196,
+      "height": 225,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha)."
+    },
+    {
+      "name": "libreta",
+      "group": "iconos",
+      "output": "iconos/libreta.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_10 a.m-9.png",
+      "crop_box": [
+        607,
+        138,
+        819,
+        357
+      ],
+      "width": 212,
+      "height": 219,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha)."
+    },
+    {
+      "name": "caja",
+      "group": "iconos",
+      "output": "iconos/caja.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_10 a.m-9.png",
+      "crop_box": [
+        871,
+        143,
+        1093,
+        364
+      ],
+      "width": 222,
+      "height": 221,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha)."
+    },
+    {
+      "name": "camion",
+      "group": "iconos",
+      "output": "iconos/camion.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_10 a.m-9.png",
+      "crop_box": [
+        1142,
+        159,
+        1406,
+        342
+      ],
+      "width": 256,
+      "height": 177,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha).",
+      "resized_from": [
+        264,
+        183
+      ]
+    },
+    {
+      "name": "registradora",
+      "group": "iconos",
+      "output": "iconos/registradora.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_10 a.m-9.png",
+      "crop_box": [
+        54,
+        433,
+        304,
+        678
+      ],
+      "width": 250,
+      "height": 245,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha)."
+    },
+    {
+      "name": "meta",
+      "group": "iconos",
+      "output": "iconos/meta.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_10 a.m-9.png",
+      "crop_box": [
+        340,
+        440,
+        567,
+        674
+      ],
+      "width": 227,
+      "height": 234,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha)."
+    },
+    {
+      "name": "lista",
+      "group": "iconos",
+      "output": "iconos/lista.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_10 a.m-9.png",
+      "crop_box": [
+        612,
+        415,
+        828,
+        680
+      ],
+      "width": 209,
+      "height": 256,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha).",
+      "resized_from": [
+        216,
+        265
+      ]
+    },
+    {
+      "name": "reporte",
+      "group": "iconos",
+      "output": "iconos/reporte.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_10 a.m-9.png",
+      "crop_box": [
+        862,
+        465,
+        1109,
+        652
+      ],
+      "width": 247,
+      "height": 187,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha)."
+    },
+    {
+      "name": "ayuda",
+      "group": "iconos",
+      "output": "iconos/ayuda.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_10 a.m-9.png",
+      "crop_box": [
+        1153,
+        431,
+        1392,
+        669
+      ],
+      "width": 239,
+      "height": 238,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha)."
+    },
+    {
+      "name": "ajustes",
+      "group": "iconos",
+      "output": "iconos/ajustes.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_10 a.m-9.png",
+      "crop_box": [
+        300,
+        758,
+        538,
+        986
+      ],
+      "width": 238,
+      "height": 228,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha)."
+    },
+    {
+      "name": "qr-telefono",
+      "group": "iconos",
+      "output": "iconos/qr-telefono.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_10 a.m-9.png",
+      "crop_box": [
+        610,
+        728,
+        844,
+        1000
+      ],
+      "width": 220,
+      "height": 256,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha).",
+      "resized_from": [
+        234,
+        272
+      ]
+    },
+    {
+      "name": "microfono",
+      "group": "iconos",
+      "output": "iconos/microfono.png",
+      "source_sheet": "C:\\Users\\Elitebook 840 G8\\Downloads\\Imagen de ChatGPT 3 nov 2026, 06_52_10 a.m-9.png",
+      "crop_box": [
+        889,
+        761,
+        1152,
+        999
+      ],
+      "width": 256,
+      "height": 232,
+      "note": "Exact crop of the user-provided sheet; not generated, redrawn, or recolored. Cream background retained (no alpha).",
+      "resized_from": [
+        263,
+        238
+      ]
+    }
+  ]
+}

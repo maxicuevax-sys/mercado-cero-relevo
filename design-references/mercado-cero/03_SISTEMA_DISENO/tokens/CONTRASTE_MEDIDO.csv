@@ -1,0 +1,9 @@
+Combinación,foreground,background,ratio,WCAG_AA_texto_normal_4.5:1
+Texto principal sobre papel,#1F2622,#F9F6EE,14.31,PASS
+Texto secundario sobre papel,#515B54,#F9F6EE,6.54,PASS
+Botón crema sobre verde,#FFFDF7,#0F3D36,11.86,PASS
+Botón verde sobre crema,#0F3D36,#F9F6EE,11.17,PASS
+Texto error sobre fondo error,#8A281B,#FBE9E6,7.46,PASS
+Texto pendiente sobre fondo amarillo,#725012,#FFF0D2,6.49,PASS
+Texto verificado sobre fondo verde,#0A5039,#E2F3E7,8.2,PASS
+Texto terracota fuerte sobre papel,#8F2D1C,#F9F6EE,7.6,PASS

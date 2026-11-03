@@ -1,0 +1,188 @@
+[
+  {
+    "name": "00_INICIO_ORQUESTADOR",
+    "path": "05_PROMPTS/00_INICIO_ORQUESTADOR.md",
+    "category": "05_PROMPTS",
+    "chars": 3008
+  },
+  {
+    "name": "98_PROMPT_REVISION_VISUAL",
+    "path": "05_PROMPTS/98_PROMPT_REVISION_VISUAL.md",
+    "category": "05_PROMPTS",
+    "chars": 821
+  },
+  {
+    "name": "99_PROMPT_VERIFICACION_FINAL",
+    "path": "05_PROMPTS/99_PROMPT_VERIFICACION_FINAL.md",
+    "category": "05_PROMPTS",
+    "chars": 1328
+  },
+  {
+    "name": "01_logo_y_sistema",
+    "path": "05_PROMPTS/para_generar_nuevos_assets/01_logo_y_sistema.md",
+    "category": "para_generar_nuevos_assets",
+    "chars": 849
+  },
+  {
+    "name": "02_ilustracion_puesto",
+    "path": "05_PROMPTS/para_generar_nuevos_assets/02_ilustracion_puesto.md",
+    "category": "para_generar_nuevos_assets",
+    "chars": 794
+  },
+  {
+    "name": "03_onboarding_bienvenida",
+    "path": "05_PROMPTS/para_generar_nuevos_assets/03_onboarding_bienvenida.md",
+    "category": "para_generar_nuevos_assets",
+    "chars": 790
+  },
+  {
+    "name": "04_onboarding_venta",
+    "path": "05_PROMPTS/para_generar_nuevos_assets/04_onboarding_venta.md",
+    "category": "para_generar_nuevos_assets",
+    "chars": 686
+  },
+  {
+    "name": "05_onboarding_qr",
+    "path": "05_PROMPTS/para_generar_nuevos_assets/05_onboarding_qr.md",
+    "category": "para_generar_nuevos_assets",
+    "chars": 672
+  },
+  {
+    "name": "06_ahorro",
+    "path": "05_PROMPTS/para_generar_nuevos_assets/06_ahorro.md",
+    "category": "para_generar_nuevos_assets",
+    "chars": 649
+  },
+  {
+    "name": "07_fiado",
+    "path": "05_PROMPTS/para_generar_nuevos_assets/07_fiado.md",
+    "category": "para_generar_nuevos_assets",
+    "chars": 631
+  },
+  {
+    "name": "08_corte",
+    "path": "05_PROMPTS/para_generar_nuevos_assets/08_corte.md",
+    "category": "para_generar_nuevos_assets",
+    "chars": 631
+  },
+  {
+    "name": "09_iconos",
+    "path": "05_PROMPTS/para_generar_nuevos_assets/09_iconos.md",
+    "category": "para_generar_nuevos_assets",
+    "chars": 810
+  },
+  {
+    "name": "10_patrones",
+    "path": "05_PROMPTS/para_generar_nuevos_assets/10_patrones.md",
+    "category": "para_generar_nuevos_assets",
+    "chars": 678
+  },
+  {
+    "name": "11_estados_sin_datos",
+    "path": "05_PROMPTS/para_generar_nuevos_assets/11_estados_sin_datos.md",
+    "category": "para_generar_nuevos_assets",
+    "chars": 647
+  },
+  {
+    "name": "12_sistema_diseno",
+    "path": "05_PROMPTS/para_generar_nuevos_assets/12_sistema_diseno.md",
+    "category": "para_generar_nuevos_assets",
+    "chars": 756
+  },
+  {
+    "name": "01_inicio_escritorio_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/01_inicio_escritorio_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 2066
+  },
+  {
+    "name": "02_inicio_movil_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/02_inicio_movil_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1607
+  },
+  {
+    "name": "03_nueva_venta_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/03_nueva_venta_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1894
+  },
+  {
+    "name": "04_seleccion_pago_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/04_seleccion_pago_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1753
+  },
+  {
+    "name": "05_cobro_qr_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/05_cobro_qr_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1808
+  },
+  {
+    "name": "06_fiado_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/06_fiado_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1749
+  },
+  {
+    "name": "07_corte_caja_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/07_corte_caja_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1810
+  },
+  {
+    "name": "08_metas_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/08_metas_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1681
+  },
+  {
+    "name": "09_inventario_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/09_inventario_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1629
+  },
+  {
+    "name": "10_proveedores_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/10_proveedores_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1492
+  },
+  {
+    "name": "11_pendientes_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/11_pendientes_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1581
+  },
+  {
+    "name": "12_reportes_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/12_reportes_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1549
+  },
+  {
+    "name": "13_onboarding_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/13_onboarding_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1634
+  },
+  {
+    "name": "14_asistente_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/14_asistente_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1642
+  },
+  {
+    "name": "15_accesibilidad_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/15_accesibilidad_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1605
+  },
+  {
+    "name": "16_navegacion_y_shell_PROMPT",
+    "path": "05_PROMPTS/por_pantalla/16_navegacion_y_shell_PROMPT.md",
+    "category": "por_pantalla",
+    "chars": 1594
+  }
+]

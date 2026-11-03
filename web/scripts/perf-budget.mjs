@@ -18,7 +18,7 @@
  *
  * Presupuestos (gzip salvo fuentes, que ya son woff2):
  *   JS inicial        ≤ 200 KiB  (7–8 chunks; 1,4 s de CPU a 4× en Slow 3G)
- *   CSS inicial       ≤  16 KiB
+ *   CSS inicial       ≤  17 KiB
  *   Fuentes latin     ≤  65 KiB  (2 archivos: Manrope variable + Fraunces)
  *   Total inicial     ≤ 285 KiB  (HTML + JS + CSS + fuentes)
  *   Peticiones        ≤  12      (sin contar APIs de datos)
@@ -46,7 +46,9 @@ const JSON_MODE = process.argv.includes("--json");
 
 const BUDGET = {
   jsGzip: 200 * 1024,
-  cssGzip: 16 * 1024,
+  // La capa de producto 2026 (inicio, tarjetas y estados) añade ~0.5 KiB
+  // gzip de CSS; el total inicial sigue por debajo del presupuesto global.
+  cssGzip: 17 * 1024,
   fonts: 65 * 1024,
   totalInitial: 285 * 1024,
   requests: 12,

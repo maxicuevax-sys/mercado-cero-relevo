@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible, Fraunces } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import "./barrio.css";
 
@@ -15,13 +15,12 @@ const fraunces = Fraunces({
 });
 
 /**
- * Atkinson Hyperlegible para toda la interfaz: letras abiertas y distinguibles
- * para leer precios, nombres y renglones de un vistazo.
+ * Inter variable para toda la interfaz: la dirección del kit pide una UI
+ * funcional y compacta, con cifras tabulares y buena lectura en móvil.
  */
-const atkinson = Atkinson_Hyperlegible({
-  variable: "--font-atkinson",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "700"],
   display: "swap",
 });
 
@@ -47,7 +46,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   colorScheme: "light",
-  themeColor: "#f3ece0",
+  themeColor: "#0F3D36",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -55,7 +54,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="es-MX"
       suppressHydrationWarning
-      className={`${fraunces.variable} ${atkinson.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
     >
       <head>
         {/* Aplica tamaño de texto y contraste antes del primer paint para que

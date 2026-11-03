@@ -1,0 +1,8 @@
+/* Experimental accessible dark mode; test contrast before production. */
+[data-mc-theme="dark"] {
+  color-scheme: dark;
+  --mc-bg: #10251F; --mc-surface: #17352E; --mc-surface-soft: #24483E;
+  --mc-text: #F9F6EE; --mc-text-secondary: #D4E2D7;
+  --mc-border: #799287; --mc-border-subtle: #456A5D;
+  --mc-green: #D7F0D9; --mc-text-inverse: #10251F; --mc-focus: #F2C768;
+}

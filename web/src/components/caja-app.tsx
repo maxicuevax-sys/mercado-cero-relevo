@@ -3,6 +3,18 @@
 import Image from "next/image";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, memo, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import ahorroArt from "@/assets/brand/ilustraciones/transparent/ahorro.png";
+import botArt from "@/assets/brand/ilustraciones/transparent/bot.png";
+import lupitaArt from "@/assets/brand/ilustraciones/transparent/lupita.png";
+import puestoArt from "@/assets/brand/ilustraciones/transparent/puesto.png";
+import qrArt from "@/assets/brand/ilustraciones/transparent/qr.png";
+import tacosArt from "@/assets/brand/ilustraciones/transparent/tacos.png";
+import iconCaja from "@/assets/brand/iconos/transparent/caja.png";
+import iconQr from "@/assets/brand/iconos/transparent/qr-telefono.png";
+import iconRecibo from "@/assets/brand/iconos/transparent/recibo.png";
+import iconRegistradora from "@/assets/brand/iconos/transparent/registradora.png";
+import iconReporte from "@/assets/brand/iconos/transparent/reporte.png";
+import iconTienda from "@/assets/brand/iconos/transparent/tienda.png";
 import { AnimatedAmount } from "@/components/animated-amount";
 import { ClosingChecklist } from "@/components/closing-checklist";
 import { CompanionPreferences } from "@/components/companion-preferences";
@@ -36,7 +48,6 @@ import {
   Smartphone,
   Sparkles,
   Trash2,
-  Umbrella,
   UserRound,
   Volume2,
   VolumeX,
@@ -226,6 +237,20 @@ function formatMoneyInput(value: string): string {
 
 function countText(count: number, singular: string, plural: string): string {
   return `${count} ${count === 1 ? singular : plural}`;
+}
+
+/**
+ * El saludo usa el nombre del negocio cuando se puede inferir con seguridad
+ * ("Antojitos de Lupita" -> "Lupita"). Si no, saluda sin nombre: nunca inventa
+ * una persona.
+ */
+function greetingName(name?: string | null): string {
+  if (!name) return "";
+  const cleaned = name.replace(/\s+/g, " ").trim();
+  if (!cleaned) return "";
+  const afterDe = cleaned.match(/\bde\s+([^,]+)$/i)?.[1];
+  const candidate = afterDe ?? cleaned.split(" ").at(-1) ?? "";
+  return candidate.replace(/[.,;:]+$/, "").split(" ")[0] ?? "";
 }
 
 const dayKeyFormatter = new Intl.DateTimeFormat("es-MX", {
@@ -2340,6 +2365,14 @@ export default function CajaApp({
   }, []);
   const goToCaja = useCallback(() => selectTab("caja"), [selectTab]);
   const goToTasks = useCallback(() => selectTab("pendientes"), [selectTab]);
+  const startNewSale = useCallback(() => {
+    selectTab("caja");
+    window.requestAnimationFrame(() => {
+      const field = document.getElementById("sale-text") as HTMLInputElement | null;
+      field?.scrollIntoView({ behavior: "smooth", block: "center" });
+      field?.focus({ preventScroll: true });
+    });
+  }, [selectTab]);
   const speakOverview = useCallback(
     (text: string) => {
       showToast("info", text);
@@ -2648,6 +2681,8 @@ export default function CajaApp({
               <aside className="caja-page caja-page--libro min-w-0">
                 <CajaBook
                   summary={dashboard?.summary ?? null}
+                  merchantName={merchant?.name}
+                  today={today}
                   credits={pendingCredits}
                   creditsTotalCount={dashboard?.creditsOpenTotal ?? pendingCredits.length}
                   creditsCustomersTotal={
@@ -2661,6 +2696,8 @@ export default function CajaApp({
                   loading={loading}
                   error={dashboardError}
                   demoMode={demoMode}
+                  onNewSale={startNewSale}
+                  onGoToCorte={() => selectTab("corte")}
                   onGoToFiado={() => selectTab("fiado")}
                 />
                 {/* Cobros pendientes después de la venta: la acción principal
@@ -2974,6 +3011,8 @@ export default function CajaApp({
 
 function CajaBook({
   summary,
+  merchantName,
+  today,
   credits,
   creditsTotalCount,
   creditsCustomersTotal,
@@ -2981,9 +3020,13 @@ function CajaBook({
   loading,
   error,
   demoMode,
+  onNewSale,
+  onGoToCorte,
   onGoToFiado,
 }: {
   summary: DashboardData["summary"] | null;
+  merchantName?: string;
+  today: string;
   credits: Credit[];
   creditsTotalCount: number;
   creditsCustomersTotal: number;
@@ -2991,6 +3034,8 @@ function CajaBook({
   loading: boolean;
   error: string | null;
   demoMode: boolean;
+  onNewSale: () => void;
+  onGoToCorte: () => void;
   onGoToFiado: () => void;
 }) {
   const cash = summary?.cashCents ?? 0;
@@ -3000,6 +3045,8 @@ function CajaBook({
     (summary?.demoCashCents ?? 0) + (summary?.demoDigitalCents ?? 0);
   const pending = summary?.pendingCents ?? 0;
   const confirmed = cash + verified;
+  const sales = summary?.salesCents ?? 0;
+  const name = greetingName(merchantName);
   const shown = credits.slice(0, 4);
   const loadedCustomers = new Set(credits.map((credit) => credit.customerId)).size;
   const creditPeople = creditsCustomersTotal || loadedCustomers;
@@ -3013,6 +3060,96 @@ function CajaBook({
 
   return (
     <>
+      <section className="home-panel" aria-labelledby="home-greeting">
+        <div className="home-hero">
+          <div className="home-hero__copy">
+            <p className="home-eyebrow">{today || "Hoy"}</p>
+            <h2 id="home-greeting" className="home-greeting">
+              ¡Buen día{name ? `, ${name}` : ""}!
+            </h2>
+            <p className="home-sub">Así va tu negocio hoy.</p>
+          </div>
+          <Image
+            src={lupitaArt}
+            alt=""
+            aria-hidden="true"
+            className="home-hero__art"
+            sizes="110px"
+          />
+        </div>
+
+        <div className="home-kpis">
+          <div className="home-kpi">
+            <span className="home-kpi__icon" aria-hidden="true">
+              <ReceiptText className="h-4 w-4" />
+            </span>
+            <p className="home-kpi__label">Ventas hoy</p>
+            <p className="home-kpi__value">{summary ? formatMxn(sales) : "—"}</p>
+            <p className="mt-0.5 text-[0.6875rem] leading-tight text-ink-2">
+              {demoMode ? "Registradas · demo" : "Registradas"}
+            </p>
+          </div>
+          <div className="home-kpi">
+            <span className="home-kpi__icon" aria-hidden="true">
+              <ShieldCheck className="h-4 w-4" />
+            </span>
+            <p className="home-kpi__label">Cobrado hoy</p>
+            <p className="home-kpi__value">{summary ? formatMxn(confirmed) : "—"}</p>
+            <p className="mt-0.5 text-[0.6875rem] leading-tight text-ink-2">Efectivo + pey</p>
+          </div>
+          <div className="home-kpi">
+            <span className="home-kpi__icon bg-saffron-soft text-[#725012]" aria-hidden="true">
+              <Clock3 className="h-4 w-4" />
+            </span>
+            <p className="home-kpi__label">Por cobrar hoy</p>
+            <p className="home-kpi__value">{summary ? formatMxn(pending) : "—"}</p>
+            <p className="mt-0.5 text-[0.6875rem] leading-tight text-ink-2">Aún no es dinero recibido</p>
+          </div>
+          <div className="home-kpi">
+            <span className="home-kpi__icon bg-terracotta-soft text-attention" aria-hidden="true">
+              <NotebookPen className="h-4 w-4" />
+            </span>
+            <p className="home-kpi__label">Fiado pendiente</p>
+            <p className="home-kpi__value">{formatMxn(creditsBalanceCents)}</p>
+            <p className="mt-0.5 text-[0.6875rem] leading-tight text-ink-2">{countText(creditPeople, "persona", "personas")}</p>
+          </div>
+        </div>
+
+        <button type="button" onClick={onNewSale} className="home-sale">
+          <span className="home-sale__copy">
+            <span className="home-sale__kicker">Nueva venta</span>
+            <span className="home-sale__title">Registrar</span>
+          </span>
+          <span className="home-sale__thumb" aria-hidden="true">
+            <Image
+              src={iconRegistradora}
+              alt=""
+              className="home-sale__art"
+              sizes="70px"
+            />
+          </span>
+        </button>
+
+        <div className="home-quick" role="group" aria-label="Accesos rápidos">
+          <button type="button" onClick={onNewSale} className="home-quick__item">
+            <Image src={iconQr} alt="" aria-hidden="true" className="home-quick__icon" sizes="30px" />
+            <span>Cobrar</span>
+          </button>
+          <button type="button" onClick={onNewSale} className="home-quick__item">
+            <Image src={iconCaja} alt="" aria-hidden="true" className="home-quick__icon" sizes="30px" />
+            <span>Producto</span>
+          </button>
+          <button type="button" onClick={onGoToCorte} className="home-quick__item">
+            <Image src={iconRecibo} alt="" aria-hidden="true" className="home-quick__icon" sizes="30px" />
+            <span>Gasto</span>
+          </button>
+          <button type="button" onClick={onGoToCorte} className="home-quick__item">
+            <Image src={iconReporte} alt="" aria-hidden="true" className="home-quick__icon" sizes="30px" />
+            <span>Reporte</span>
+          </button>
+        </div>
+      </section>
+
       <section className="book-sheet" aria-labelledby="cuanto-llevo">
         <div className="book-title">
           <h2 id="cuanto-llevo">Cuánto llevo</h2>
@@ -3094,7 +3231,11 @@ function CajaBook({
                 <span className="debt-row__amount">{formatMxn(credit.balanceCents)}</span>
               </div>
             ))}
-            <button type="button" onClick={onGoToFiado} className="debt-link">
+            <button
+              type="button"
+              onClick={onGoToFiado}
+              className="mt-1 flex min-h-12 w-full items-center justify-between gap-2 text-sm font-bold text-accent transition hover:text-accent-press hover:underline"
+            >
               <span>Ver la libreta de fiado</span>
               <ChevronRight className="h-4 w-4 shrink-0" aria-hidden="true" />
             </button>
@@ -3645,7 +3786,6 @@ function CajaPanel(props: {
                     </button>
                   </div>
                   <label className="draft-item__price">
-                    $
                     <input
                       id={`draft-price-${item.id}`}
                       type="text"
@@ -6010,7 +6150,7 @@ function GoalCard({
         <div className="goal-card-header flex items-start justify-between gap-3">
           <p className="text-sm font-semibold text-ink-2">Mi camino</p>
           <div className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full bg-green-soft text-green">
-            <Umbrella className="h-6 w-6" strokeWidth={1.6} />
+            <Sparkles className="h-6 w-6" strokeWidth={1.6} />
           </div>
         </div>
 
@@ -6095,18 +6235,18 @@ function GoalCard({
       </div>
       </div>
 
-      <figure className="mt-4 overflow-hidden border border-separator">
-        <div className="relative h-[160px] bg-surface-2 sm:h-44">
+      <figure className="mt-4 overflow-hidden rounded-2xl border border-separator bg-green-soft/40">
+        <div className="relative h-[180px] bg-green-soft/30 sm:h-48">
           <Image
-            src="/puesto-flores.jpg"
-            alt="Puesto de flores en un tianguis de la Ciudad de México"
+            src={ahorroArt}
+            alt=""
             fill
             sizes="(max-width: 1024px) 100vw, 420px"
-            className="object-cover"
+            className="object-contain p-3"
           />
         </div>
         <figcaption className="px-4 py-2.5 text-xs leading-relaxed text-ink-2">
-          Lo que estás construyendo · Foto: Ehécatl Cabrera / CC BY-SA 4.0.
+          Lo que estás construyendo · Apartado en tu registro, no dinero custodiado.
         </figcaption>
       </figure>
     </>
@@ -6503,9 +6643,13 @@ function CreditList({
         </div>
       ) : credits.length === 0 ? (
         <div className="book-sheet border border-dashed border-separator p-6 text-center">
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-terracotta-soft text-attention">
-            <NotebookPen className="h-5 w-5" />
-          </div>
+          <Image
+            src={tacosArt}
+            alt=""
+            aria-hidden="true"
+            className="mx-auto h-28 w-auto"
+            sizes="180px"
+          />
           <p className="mt-2 text-sm font-semibold text-ink">Sin fiados pendientes</p>
           <p className="mx-auto mt-1 max-w-[32rem] text-sm leading-relaxed text-ink-2">
             El fiado se anota al cerrar una venta en Caja: elige “A fiado” y el
@@ -7226,7 +7370,13 @@ function AppSidebar({
     <aside className="app-sidebar" aria-label="Índice de la libreta">
       <div className="brand-lockup">
         <div className="brand-mark flex h-[40px] w-[40px] shrink-0 items-center justify-center font-display text-xl font-bold text-white">
-          0
+          <Image
+            src={iconTienda}
+            alt=""
+            aria-hidden="true"
+            className="brand-mark-img h-7 w-7 object-contain"
+            sizes="28px"
+          />
         </div>
         <div className="min-w-0">
           <p className="brand-name">Mercado Cero</p>
@@ -7254,6 +7404,10 @@ function AppSidebar({
           );
         })}
       </nav>
+
+      <div className="sidebar-art" aria-hidden="true">
+        <Image src={puestoArt} alt="" sizes="200px" />
+      </div>
 
       <div className="sidebar-foot">
         {demoMode ? (
@@ -7303,13 +7457,24 @@ function TopBar({
     <header className="topbar">
       <div className="mx-auto flex min-h-14 max-w-[1200px] flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6 lg:px-8">
         <div className="min-w-0 flex-1 basis-[8rem]">
-          <p className="topbar-merchant truncate" title={merchant?.name}>
-            {merchant?.name ?? (unavailable ? "Negocio sin datos" : "Cargando el negocio…")}
-          </p>
-          <p className="topbar-address">
-            {merchant?.address ?? (unavailable ? "No pudimos consultarlo" : "Un momento…")}
-            <span className="hidden sm:inline"> · {today || "Hoy"}</span>
-          </p>
+          <div className="flex items-center gap-2">
+            <Image
+              src={iconTienda}
+              alt=""
+              aria-hidden="true"
+              className="topbar-brand-mark h-7 w-7 shrink-0 lg:hidden"
+              sizes="28px"
+            />
+            <div className="min-w-0">
+              <p className="topbar-merchant truncate" title={merchant?.name}>
+                {merchant?.name ?? (unavailable ? "Negocio sin datos" : "Cargando el negocio…")}
+              </p>
+              <p className="topbar-address">
+                {merchant?.address ?? (unavailable ? "No pudimos consultarlo" : "Un momento…")}
+                <span className="hidden sm:inline"> · {today || "Hoy"}</span>
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="topbar-tools flex max-w-full shrink-0 flex-wrap items-center justify-end gap-1.5">
@@ -7317,7 +7482,7 @@ function TopBar({
             <button
               type="button"
               onClick={onDemo}
-              className="stamp stamp--demo min-h-[48px]"
+              className="stamp--demo inline-flex min-h-[48px] items-center justify-center border-2 border-current bg-saffron-soft px-2 text-xs font-bold uppercase tracking-[0.12em] text-attention"
             >
               Demo
             </button>
@@ -7763,6 +7928,30 @@ function HelpContent({
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center gap-3 rounded-2xl border border-[#d5e5d7] bg-[#f4f8ef] p-3">
+        <Image
+          src={botArt}
+          alt=""
+          aria-hidden="true"
+          className="h-16 w-auto shrink-0"
+          sizes="110px"
+        />
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-[1.05rem] font-semibold leading-tight text-ink">La caja que habla</p>
+          <p className="mt-1 text-[0.8125rem] leading-snug text-ink-2">
+            Ayuda sin letras chiquitas. Si algo no se siente claro, pregunta o
+            cambia el texto, el contraste y la voz.
+          </p>
+        </div>
+        <Image
+          src={qrArt}
+          alt=""
+          aria-hidden="true"
+          className="hidden h-14 w-auto shrink-0 sm:block"
+          sizes="84px"
+        />
+      </div>
+
       <div className="rounded-xl border border-separator bg-surface p-4">
         <p className="text-base font-bold text-ink">Accesibilidad</p>
         <p className="mt-1 text-sm leading-relaxed text-ink-2">
@@ -7968,6 +8157,7 @@ const MemoActivityList = memo(ActivityList);
 const MemoCreditList = memo(CreditList);
 const MemoPendingPayments = memo(PendingPayments);
 const MemoPendingTasksPanel = memo(PendingTasksPanel);
+
 
 
 

@@ -1,0 +1,424 @@
+{
+  "canvas": {
+    "width": 1536,
+    "height": 1024
+  },
+  "crops": [
+    {
+      "filename": "01_REFERENCIAS/recortes/01_Brand_Story.png",
+      "bbox": [
+        0,
+        0,
+        315,
+        505
+      ],
+      "dimensions": [
+        315,
+        505
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/02_Dashboard_Desktop.png",
+      "bbox": [
+        313,
+        12,
+        1134,
+        505
+      ],
+      "dimensions": [
+        821,
+        493
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/03_Sistema_Diseno.png",
+      "bbox": [
+        1147,
+        10,
+        1533,
+        506
+      ],
+      "dimensions": [
+        386,
+        496
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/04_Logo_y_Mensaje.png",
+      "bbox": [
+        0,
+        0,
+        309,
+        161
+      ],
+      "dimensions": [
+        309,
+        161
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/05_Nota_Fundacional.png",
+      "bbox": [
+        5,
+        158,
+        292,
+        381
+      ],
+      "dimensions": [
+        287,
+        223
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/06_Desktop_Navegacion.png",
+      "bbox": [
+        317,
+        17,
+        480,
+        492
+      ],
+      "dimensions": [
+        163,
+        475
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/07_Desktop_Indicadores.png",
+      "bbox": [
+        488,
+        123,
+        1125,
+        215
+      ],
+      "dimensions": [
+        637,
+        92
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/08_Desktop_Acciones.png",
+      "bbox": [
+        488,
+        215,
+        1128,
+        335
+      ],
+      "dimensions": [
+        640,
+        120
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/09_Desktop_Pendientes.png",
+      "bbox": [
+        492,
+        332,
+        803,
+        486
+      ],
+      "dimensions": [
+        311,
+        154
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/10_Desktop_Sugerencia.png",
+      "bbox": [
+        811,
+        330,
+        1128,
+        481
+      ],
+      "dimensions": [
+        317,
+        151
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/11_Paleta_y_Tipografia.png",
+      "bbox": [
+        1149,
+        10,
+        1529,
+        282
+      ],
+      "dimensions": [
+        380,
+        272
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/12_Iconos_y_Estados.png",
+      "bbox": [
+        1149,
+        270,
+        1528,
+        503
+      ],
+      "dimensions": [
+        379,
+        233
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/13_Onboarding_Bienvenida.png",
+      "bbox": [
+        29,
+        514,
+        205,
+        876
+      ],
+      "dimensions": [
+        176,
+        362
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/14_Onboarding_Pagos.png",
+      "bbox": [
+        211,
+        515,
+        388,
+        877
+      ],
+      "dimensions": [
+        177,
+        362
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/15_Onboarding_Metas.png",
+      "bbox": [
+        391,
+        515,
+        569,
+        876
+      ],
+      "dimensions": [
+        178,
+        361
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/16_Onboarding_Configuracion.png",
+      "bbox": [
+        574,
+        514,
+        747,
+        877
+      ],
+      "dimensions": [
+        173,
+        363
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/17_Inicio_Movil.png",
+      "bbox": [
+        766,
+        513,
+        942,
+        876
+      ],
+      "dimensions": [
+        176,
+        363
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/18_Nueva_Venta_Movil.png",
+      "bbox": [
+        949,
+        513,
+        1131,
+        876
+      ],
+      "dimensions": [
+        182,
+        363
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/19_Libreta_Fiados_Movil.png",
+      "bbox": [
+        1141,
+        513,
+        1324,
+        878
+      ],
+      "dimensions": [
+        183,
+        365
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/20_Corte_Caja_Movil.png",
+      "bbox": [
+        1332,
+        513,
+        1532,
+        876
+      ],
+      "dimensions": [
+        200,
+        363
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/21_Asistente_Opcional.png",
+      "bbox": [
+        0,
+        882,
+        290,
+        1024
+      ],
+      "dimensions": [
+        290,
+        142
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/22_Metas_y_Apartados.png",
+      "bbox": [
+        275,
+        882,
+        574,
+        1024
+      ],
+      "dimensions": [
+        299,
+        142
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/23_Reportes_Simples.png",
+      "bbox": [
+        580,
+        882,
+        988,
+        1024
+      ],
+      "dimensions": [
+        408,
+        142
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/24_Multidispositivo_Independencia.png",
+      "bbox": [
+        999,
+        882,
+        1536,
+        1024
+      ],
+      "dimensions": [
+        537,
+        142
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/25_Isotipo_Marca.png",
+      "bbox": [
+        31,
+        14,
+        110,
+        72
+      ],
+      "dimensions": [
+        79,
+        58
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    },
+    {
+      "filename": "01_REFERENCIAS/recortes/26_Ilustracion_Mercado.png",
+      "bbox": [
+        0,
+        378,
+        300,
+        500
+      ],
+      "dimensions": [
+        300,
+        122
+      ],
+      "source": "00_MASTER_1536x1024.png",
+      "type": "reference_raster_crop",
+      "warning": "Recorte raster de imagen aplanada; NO es componente editable y puede contener texto AI imperfecto."
+    }
+  ]
+}

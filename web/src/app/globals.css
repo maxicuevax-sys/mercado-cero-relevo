@@ -1,40 +1,40 @@
 @import "tailwindcss";
 
 @theme {
-  /* Amable y de barrio — cuaderno de ventas, calculadora de mostrador */
-  --color-canvas: #f3ebdd;
-  --color-surface: #fff8ea;
-  --color-surface-2: #efe4d2;
-  --color-ink: #241f19;
-  --color-ink-2: #5f574c;
-  /* Texto de placeholder: 5.2:1 sobre surface-2 y 5.9:1 sobre surface. */
-  --color-placeholder: #6b6154;
-  /* Borde de controles: 3.7:1 sobre surface y 4.0:1 sobre surface-2. */
-  --color-control-border: #7d6b56;
-  --color-separator: #d8c9b2;
-  --color-accent: #0e5a45;
-  --color-accent-press: #0a4434;
-  --color-success: #0e5a45;
-  --color-attention: #8f3f25;
-  --color-danger: #a33a2b;
-  --color-info: #2f5d8a;
-  --color-focus: #0e5a45;
+  /* Mercado Cero · dirección "Mercado de papel" (kit DesignOps). */
+  --color-canvas: #f9f6ee;
+  --color-surface: #fffdf7;
+  --color-surface-2: #f2ebdf;
+  --color-ink: #1f2622;
+  --color-ink-2: #515b54;
+  /* Texto de placeholder: 4.6:1 sobre surface-2 y 5.4:1 sobre surface. */
+  --color-placeholder: #6b6256;
+  /* Borde de controles: 4.0:1 sobre surface y 3.6:1 sobre surface-2. */
+  --color-control-border: #687369;
+  --color-separator: #e0d6c7;
+  --color-accent: #0f3d36;
+  --color-accent-press: #0a332c;
+  --color-success: #0a5039;
+  --color-attention: #8f2d1c;
+  --color-danger: #8a281b;
+  --color-info: #293b68;
+  --color-focus: #0e6f5a;
 
   /* Compatibilidad mientras migramos componentes */
-  --color-line: #d8c9b2;
-  --color-green: #0e5a45;
-  --color-green-deep: #0a4434;
-  --color-green-soft: #dce9df;
-  --color-terracotta: #b95535;
-  --color-terracotta-deep: #8f3f25;
-  --color-terracotta-soft: #f3ddcf;
-  --color-saffron: #d99a3d;
-  --color-saffron-soft: #f7e8c9;
-  --color-blue-soft: #e4ecf5;
+  --color-line: #e0d6c7;
+  --color-green: #0f3d36;
+  --color-green-deep: #0a332c;
+  --color-green-soft: #e2f3e7;
+  --color-terracotta: #c1492e;
+  --color-terracotta-deep: #8f2d1c;
+  --color-terracotta-soft: #fbe9e6;
+  --color-saffron: #f2c768;
+  --color-saffron-soft: #fff0d2;
+  --color-blue-soft: #e9ecf3;
 
-  --font-sans: var(--font-atkinson), "Atkinson Hyperlegible", "Segoe UI", Roboto,
+  --font-sans: var(--font-inter), "Inter", "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
-  --font-display: var(--font-fraunces);
+  --font-display: var(--font-fraunces), Georgia, serif;
 
   /* HIG: body 17/24, footnote 13/18. */
   --text-xs: 0.8125rem;
@@ -42,10 +42,10 @@
   --text-sm: 1.0625rem;
   --text-sm--line-height: 1.5rem;
 
-  --shadow-card: 0 1px 0 rgba(61, 47, 31, 0.06),
-    0 10px 24px -20px rgba(61, 47, 31, 0.5);
-  --shadow-lift: 0 20px 46px -28px rgba(45, 33, 20, 0.5),
-    0 2px 6px rgba(45, 33, 20, 0.08);
+  --shadow-card: 0 1px 2px rgba(31, 38, 34, 0.04),
+    0 8px 24px -20px rgba(31, 38, 34, 0.35);
+  --shadow-lift: 0 20px 46px -28px rgba(31, 38, 34, 0.45),
+    0 2px 6px rgba(31, 38, 34, 0.06);
 }
 
 :root {
