@@ -217,8 +217,9 @@ def main() -> int:
             and "90.00" in page.locator("#confirmar").inner_text(),
         )
         check(
-            "Descartar ya no está disponible sobre la venta nueva",
-            page.get_by_role("button", name=re.compile("^Descartar")).count() == 0,
+            "el banner de recuperación no ofrece acciones sobre la venta nueva",
+            page.locator("#restored-draft-keep").count() == 0
+            and page.locator("#restored-draft-restart").count() == 0,
         )
 
         # 2b · El banner también desaparece si el borrador recuperado queda sin ítems.
@@ -235,42 +236,50 @@ def main() -> int:
             and page.evaluate(f"localStorage.getItem('{DRAFT_KEY}')") is None,
         )
 
-        # 2c · "Continuar venta" mantiene el draft y oculta el banner.
+        # 2c · "Seguir" mantiene el draft y oculta el banner.
         reset(page)
         add_item(page, "Continuar borrador", 1, 25)
         page.wait_for_function(f"() => localStorage.getItem('{DRAFT_KEY}') !== null")
         page.reload(wait_until="networkidle")
         expect(page.get_by_text(re.compile(r"Recuperé tu venta de las \d{2}:\d{2}"))).to_be_visible()
         check(
-            "el banner del draft usa Descartar borrador",
-            page.get_by_role("button", name="Descartar borrador de venta").count() == 1,
+            "el banner del draft ofrece Seguir y Empezar de nuevo",
+            page.get_by_role("button", name="Seguir").count() == 1
+            and page.get_by_role("button", name="Empezar de nuevo").count() == 1,
         )
-        page.get_by_role("button", name="Continuar venta recuperada").click()
+        page.get_by_role("button", name="Seguir").click()
         page.wait_for_timeout(120)
         check(
-            "Continuar venta conserva el draft y oculta el banner",
+            "Seguir conserva el draft y oculta el banner",
             page.get_by_text(re.compile(r"Recuperé tu venta")).count() == 0
             and page.get_by_role("textbox", name="Producto").input_value() == "Continuar borrador"
             and page.evaluate(f"localStorage.getItem('{DRAFT_KEY}')") is not None,
         )
         page.reload(wait_until="networkidle")
         check(
-            "Continuar venta oculta el banner solo en la sesión; el draft sigue",
+            "Seguir oculta el banner solo en la sesión; el draft sigue",
             page.get_by_text(re.compile(r"Recuperé tu venta de las \d{2}:\d{2}")).count() == 1
             and page.get_by_role("textbox", name="Producto").input_value() == "Continuar borrador"
             and page.evaluate(f"localStorage.getItem('{DRAFT_KEY}')") is not None,
         )
 
-        # 2d · "Descartar borrador" intacto borra; editado no borra.
+        # 2d · "Empezar de nuevo" pide confirmación; solo borra al confirmar.
         reset(page)
         add_item(page, "Borrador intacto", 1, 15)
         page.wait_for_function(f"() => localStorage.getItem('{DRAFT_KEY}') !== null")
         page.reload(wait_until="networkidle")
         expect(page.get_by_text(re.compile(r"Recuperé tu venta de las \d{2}:\d{2}"))).to_be_visible()
-        page.get_by_role("button", name="Descartar borrador de venta").click()
+        page.get_by_role("button", name="Empezar de nuevo").click()
+        expect(page.get_by_text("Se borrará esta venta. No se puede deshacer.")).to_be_visible()
+        check(
+            "Empezar de nuevo no borra antes de confirmar",
+            page.get_by_role("textbox", name="Producto").count() == 1
+            and page.evaluate(f"localStorage.getItem('{DRAFT_KEY}')") is not None,
+        )
+        page.get_by_role("button", name="Sí, empezar de nuevo").click()
         page.wait_for_timeout(120)
         check(
-            "Descartar borrador intacto borra el draft y el storage",
+            "Empezar de nuevo confirmado borra el draft y el storage",
             page.get_by_role("textbox", name="Producto").count() == 0
             and page.get_by_text(re.compile(r"Recuperé tu venta")).count() == 0
             and page.evaluate(f"localStorage.getItem('{DRAFT_KEY}')") is None,
@@ -289,11 +298,12 @@ def main() -> int:
             "editar el draft no oculta el banner antes de decidir",
             page.get_by_text(re.compile(r"Recuperé tu venta")).count() == 1,
         )
-        page.get_by_role("button", name="Descartar borrador de venta").click()
+        page.get_by_role("button", name="Empezar de nuevo").click()
+        page.get_by_role("button", name="Sí, empezar de nuevo").click()
         page.wait_for_timeout(120)
         edited = page.evaluate(f"JSON.parse(localStorage.getItem('{DRAFT_KEY}') || 'null')")
         check(
-            "Descartar borrador editado no borra la edición",
+            "Empezar de nuevo sobre un draft editado no borra la edición",
             page.get_by_text(re.compile(r"Recuperé tu venta")).count() == 0
             and page.get_by_role("textbox", name="Producto").input_value() == "Borrador editado"
             and bool(edited)
@@ -916,7 +926,8 @@ def main() -> int:
             page.get_by_text(re.compile(r"Recuperé tu venta de ayer a las \d{2}:\d{2}")).count()
             == 1,
         )
-        page.get_by_role("button", name="Descartar borrador de venta").click()
+        page.get_by_role("button", name="Empezar de nuevo").click()
+        page.get_by_role("button", name="Sí, empezar de nuevo").click()
         page.wait_for_timeout(120)
 
         old_payload = dict(yesterday_payload)
@@ -941,7 +952,8 @@ def main() -> int:
             page.get_by_text(re.compile(r"Recuperé tu venta del \d{2}/\d{2} a las \d{2}:\d{2}")).count()
             == 1,
         )
-        page.get_by_role("button", name="Descartar borrador de venta").click()
+        page.get_by_role("button", name="Empezar de nuevo").click()
+        page.get_by_role("button", name="Sí, empezar de nuevo").click()
         page.wait_for_timeout(120)
 
         # 9 · JSON corrupto se elimina y no bloquea la caja.
