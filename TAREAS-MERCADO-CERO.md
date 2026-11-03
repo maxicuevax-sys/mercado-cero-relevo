@@ -1,8 +1,19 @@
 # Mercado Cero · tablero de tareas y asignación
 
 > **Corte:** 3 nov 2026 · rama `design/mercado-cero-v2` · base `a989878`
+> **Regla de gobernanza:** el kit es la **referencia maestra**, no una orden de rediseño masivo. Se integra por módulos, con coherencia de producto y sin tocar la lógica financiera, los datos ni la navegación validada.
+> **Alcance congelado:** no se crean pantallas nuevas, no se inventa backend (inventario/proveedores/asistente), no se cambia el modelo de 5 tabs y no se usan cifras de mockups como verdad.
 > **Kit verificado:** `python design-references/mercado-cero/07_QA/scripts/verificar_kit.py` → 56 SVG, 86 PNG, 10 agentes, 0 errores.
-> **Regla:** una tarea de UI no se cierra sin `npm run verify:fast`; si toca runtime, `npm run verify:full` + `npm run verify:evidence` contra el HEAD y árbol limpio.
+> **Regla de cierre:** una tarea de UI no se cierra sin `npm run verify:fast`; si toca runtime, `npm run verify:full` + `npm run verify:evidence` contra el HEAD y árbol limpio.
+
+## 0. Cómo se usa el kit (acuerdo de trabajo)
+
+1. **Referencia, no calco:** los SVG del kit son reconstrucciones; las ilustraciones exactas del usuario viven en `web/src/assets/brand/transparent/`. No se sustituyen entre sí sin decisión de marca.
+2. **Coherencia antes que alcance:** primero que Caja, Fiado, Corte, Meta, Pendientes y Ayuda se sientan del mismo producto; después, cualquier pantalla nueva.
+3. **Una tarea dominante por pantalla:** no se convierte el cobro en dashboard ni se llena la operación de ilustraciones.
+4. **Cero riesgo financiero:** ninguna ilustración, badge o copy puede insinuar pago verificado, custodia de ahorro o venta nueva donde no la hay.
+5. **Oleadas, no nueve escrituras simultáneas:** `caja-app.tsx` y `barrio.css` son monolitos compartidos; se editan en serie.
+6. **Móvil económico primero:** 320/360 px, 200%, alto contraste, teclado, sin IA y con conexión intermitente.
 
 ## 1. Decisiones que bloquean la siguiente oleada
 
@@ -43,7 +54,23 @@
 | P0-12 | Corregir `README.md`/`manifest.json` de assets (rutas reales, `transparent/`, alpha) | `mc-sistema-diseno` | `web/src/assets/brand/**` | Manifiesto coincide con archivos usados | **Pendiente** |
 | P0-13 | Reconstruir evidencia desde HEAD limpio | `mc-verificador-final` | `harness/` | `verify:full` + `verify:evidence` PASS; `STATE.md` actualizado | **Pendiente** |
 
-## 4. P1 · siguiente oleada
+## 3.5 Oleada de coherencia (prioridad real, sin rediseño masivo)
+
+Objetivo: que todos los módulos se sientan parte del mismo producto **sin ampliar alcance**. No hay pantallas nuevas ni backend nuevo.
+
+| ID | Tarea | Dueño | Archivos | Criterio |
+|---|---|---|---|---|
+| C1 | Unificar estados (pendiente, verificado, parcial, demo, error) con los tokens del kit | `mc-sistema-diseno` | `globals.css`, `barrio.css`, `caja-app.tsx`, `pending-payments.tsx` | Un mismo estado se ve igual en Caja, Fiado, Corte y Pendientes; nunca sólo color; textos de estado se conservan |
+| C2 | Unificar primitivas de tarjeta, botón, campo y chip | `mc-sistema-diseno` | `barrio.css`, `globals.css` | Radios/espaciado/bordes consistentes; controles a 3:1; sin duplicar 72 selectores; E2E intactos |
+| C3 | Coherencia visual de Fiado, Corte, Meta y Pendientes | `mc-shell-responsive` + `mc-modulos-negocio` | `caja-app.tsx`, `pending-tasks.tsx`, `barrio.css` | Mismo encabezado, tarjeta, vacío y CTA; ninguna ilustración compite con cobrar/cerrar |
+| C4 | Tipografía de dinero y jerarquía | `mc-sistema-diseno` | `barrio.css`, `globals.css` | Cifras en Inter tabular (o excepción documentada); una sola cifra dominante por pantalla; sin partir montos |
+| C5 | Primer uso sin tutorial nuevo | `mc-onboarding-ayuda` | `caja-app.tsx` (`HelpContent`), microcopy | Una persona nueva entiende “venta registrada ≠ cobrado ≠ fiado” sin abrir ayuda; la ayuda existente sigue disponible |
+| C6 | Pasada teléfono económico | `mc-accesibilidad` + `mc-shell-responsive` | `barrio.css`, `caja-app.tsx` | 320/360, 200%, alto contraste, reduced motion, teclado, sin blur; HIG/mobile/contrast PASS |
+| C7 | Evidencia y decisión GO/NO-GO | `mc-verificador-final` | `harness/` | `verify:full` + `verify:evidence` sobre HEAD limpio; `STATE.md` actualizado |
+
+**No hacer en esta oleada:** renombrar tabs, agregar “Más”, crear onboarding de práctica, inventario, proveedores, asistente, roles o tema oscuro. Eso queda en P2 y requiere backend/decisión.
+
+
 
 | ID | Tarea | Dueño | Archivos | Criterio |
 |---|---|---|---|---|
@@ -57,6 +84,19 @@
 | P1-08 | Iconos exactos 13/13 o excepción documentada | `mc-sistema-diseno` | `assets/brand`, `caja-app.tsx` | Matriz de uso; no mezclar Lucide sin criterio |
 | P1-09 | `mobile-audit.py` y `a11y-contrast.py` alineados a la nueva home | `mc-verificador-final` | `web/scripts` | No esperar textos retirados; medir foco en 1280 HC |
 | P1-10 | Actualizar docs de diseño obsoletos (Manrope/Atkinson) | `mc-sistema-diseno` | `HIG-DESIGN.md`, `DESIGN-BARRIO.md` | Una sola fuente de verdad |
+
+## 4. P1 · después de la coherencia
+
+Estas tareas mejoran el producto sin cambiar la navegación ni inventar backend. Se ejecutan sólo cuando C1–C7 estén cerradas.
+
+| ID | Tarea | Dueño | Archivos | Criterio |
+|---|---|---|---|---|
+| P1-01 | Fiado: buscador y último movimiento visible | `mc-fiado-corte` | `caja-app.tsx` | Sin API nueva; no afirmar “no existe” si hay truncamiento; `p0-fiado` PASS |
+| P1-02 | Corte: digital verificado/declarado separado del efectivo | `mc-fiado-corte` | `caja-app.tsx` | `expectedCents` sigue sólo efectivo; `p0-corte` PASS |
+| P1-03 | Meta: crear meta cuando no hay ninguna | `mc-modulos-negocio` | `caja-app.tsx` | Usa `POST /api/goals` existente; no toca caja/fiado |
+| P1-04 | Pendientes: filtros Hoy/Semana/Todos | `mc-modulos-negocio` | `pending-tasks.tsx` | `aria-pressed`; no oculta tareas sin fecha por defecto |
+| P1-05 | Preferencia “Reducir movimiento” | `mc-accesibilidad` | `caja-app.tsx`, `globals.css` | Respeta SO + preferencia; `motion-check` PASS |
+| P1-06 | Documentar assets reales (`transparent/`, rutas, alpha) | `mc-sistema-diseno` | `web/src/assets/brand/**` | Manifiesto coincide con lo que importa la app |
 
 ## 5. P2 · backlog con backend
 
