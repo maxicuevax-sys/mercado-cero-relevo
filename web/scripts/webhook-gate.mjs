@@ -8,6 +8,7 @@
 
 import { spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
+import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,8 +16,9 @@ import { fileURLToPath } from "node:url";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const WEB = path.resolve(HERE, "..");
 const NEXT_BIN = path.join(WEB, "node_modules", "next", "dist", "bin", "next");
-const PORT = Number(process.env.WEBHOOK_PORT ?? 3193);
-const BASE = `http://127.0.0.1:${PORT}`;
+const REQUESTED_PORT = Number(process.env.WEBHOOK_PORT ?? 0);
+let PORT = REQUESTED_PORT || 3193;
+let BASE = `http://127.0.0.1:${PORT}`;
 const BUILD_SHA_FILE = path.join(WEB, ".next", "BUILD_SHA");
 // El gate es autocontenido: no depende de .env.local. Si hay un secreto en el
 // entorno se respeta; si no, se genera uno solo para este proceso aislado.
@@ -59,6 +61,19 @@ function cleanup() {
   }
 }
 
+async function findFreePort(start) {
+  for (let port = start; port < start + 50; port += 1) {
+    const free = await new Promise((resolve) => {
+      const probe = net.createServer();
+      probe.once("error", () => resolve(false));
+      probe.once("listening", () => probe.close(() => resolve(true)));
+      probe.listen(port, "127.0.0.1");
+    });
+    if (free) return port;
+  }
+  throw new Error(`no hay puerto libre desde ${start}`);
+}
+
 async function waitForHealth(timeoutMs = 60_000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
@@ -77,6 +92,8 @@ async function waitForHealth(timeoutMs = 60_000) {
 }
 
 async function main() {
+  PORT = await findFreePort(PORT);
+  BASE = `http://127.0.0.1:${PORT}`;
   server = spawn(
     process.execPath,
     [NEXT_BIN, "start", "-H", "127.0.0.1", "-p", String(PORT)],
