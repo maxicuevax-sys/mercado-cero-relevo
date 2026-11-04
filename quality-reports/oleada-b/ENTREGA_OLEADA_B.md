@@ -1,8 +1,8 @@
 # Entrega Oleada B — Caja y Ventas
 
-> **Estado:** implementación funcional en local, **sin commit**. Verificador independiente la aprueba como base para Oleada C, con commit de checkpoint pendiente y handoff público NO-GO.
+> **Estado:** implementación funcional commiteada en `d13d3df`; `verify:static` y `verify:evidence -- --static` PASS. Verificador independiente la aprueba como base para Oleada C. Handoff público **NO-GO**.
 > **Rama:** `design/oleada-b-caja-ventas` · **Base/tag:** `oleada-a-cierre` = `26c7741`.
-> **Servidor de referencia:** `http://localhost:3100` con `APP_URL=http://localhost:3100` para desarrollo local.
+> **Servidor de referencia:** `http://localhost:3100` con `APP_URL=http://localhost:3100`; buildSha `d13d3df...`.
 > **Handoff público:** **NO-GO**. `latest.json` es de `9206ea1`; full 21/23 por `tunnel`/`preflight`; no hay `verify:evidence` de B.
 
 ## 1. Resultado
@@ -95,9 +95,10 @@ La Caja nueva usa las mismas APIs que el motor: `POST/GET /api/orders`, `GET /ap
 | webhook | **40/40** | `harness/evidence/` |
 | checkout | **19/19** | `harness/evidence/` |
 | TypeScript / ESLint / build | PASS | buildSha `26c7741...` |
-| `verify:static` / `verify:evidence` | **pendientes después del commit** | — |
+| `verify:static` | **5/5 PASS** | `harness/evidence/latest-static.json` |
+| `verify:evidence -- --static` | **PASS** | SHA/build/árbol limpio en `d13d3df` |
 
-Los 3 KNOWN de p0-dinero siguen siendo: payload real de pey no verificable sin portal; reconciliación de red no ejecutada; contrato de conteo posterior al cierre.
+Los 3 KNOWN de p0-dinero siguen siendo: payload real de pey no verificable sin portal; reconciliación de red no ejecutada; contrato de conteo posterior al cierre. Las suites p0 se repitieron sobre el build `d13d3df`.
 
 ## 7. Capturas
 
@@ -146,7 +147,7 @@ Informes en `quality-reports/oleada-b/`.
 - **P0 de producto:** ninguno.
 - **P1 abierto:** `POST /api/demo/pay` heredado, sin idempotencia por pedido ni comprobación `order.demo`. No es regresión de B; el cliente bloquea doble clic, pero dos pestañas podrían duplicar un demo. No se modificó el endpoint sin autorización.
 - **Oleada B como base para C:** **sí**, con commit de checkpoint y evidencia formal.
-- **Cierre formal:** pendiente de commit, `verify:static`, `verify:evidence`, full documentado como parcial si se omite túnel, y HIG específico de las rutas nuevas.
+- **Cierre formal:** commit `d13d3df`, `verify:static` 5/5 y `verify:evidence -- --static` PASS. Queda full documentado como parcial si se omite túnel y HIG específico de las rutas nuevas.
 - **Handoff público:** **NO-GO**.
 
 ## 11. Pendientes y límites
@@ -163,7 +164,7 @@ Informes en `quality-reports/oleada-b/`.
 
 ## 12. Siguiente — Oleada C
 
-1. Commit B + `verify:static`/`verify:evidence` sobre HEAD limpio.
+1. Commit B `d13d3df` + `verify:static`/`verify:evidence` PASS (hecho).
 2. Migrar Fiados y Corte al AppShell y a rutas propias.
 3. Compartir un único draft/lock de venta entre `/` y `/caja`, o retirar la Caja legacy.
 4. Extraer `Sheet`, `StatusBadge`, `paymentTruth` y el shell CSS de `inicio.css`.

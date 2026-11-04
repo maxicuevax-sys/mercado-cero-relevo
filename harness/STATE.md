@@ -8,16 +8,17 @@
 
 - **Rama:** `design/oleada-b-caja-ventas`.
 - **Base/tag:** `oleada-a-cierre` = `26c7741`.
-- **Estado del árbol:** **sucio**; la implementación de Oleada B está completa en local pero **sin commit**. El commit de checkpoint está autorizado por el verificador; falta ejecutarlo y regenerar evidencia.
-- **Build local:** `http://localhost:3100` con `APP_URL=http://localhost:3100`.
+- **Commit de la ola:** `d13d3df` (`feat(caja): pantallas reales de Caja y Ventas de Oleada B`).
+- **Estado del árbol:** limpio tras el commit de código; la evidencia estática se regenera al final sobre el HEAD vigente.
+- **Build local:** `http://localhost:3100` con `APP_URL=http://localhost:3100`; buildSha `d13d3df...`.
 - **Nuevas pantallas:** `/caja` (venta manual, efectivo/cambio, digital, fiado, mixto, resultado) y `/ventas` (historial paginado).
 - **Compatibilidad:** `/` sigue siendo Caja legacy con `?tab=`; `/fiados`, `/corte`, `/metas` y `/pendientes` siguen 307 a `/?tab=`; `/pay/**` intacto.
 - **Contratos:** `lib/orders.ts`, `cash.ts`, `goals.ts`, `tasks.ts`, `db.ts`, `payment-rules.ts`, `payment-labels.ts`, `pey-events.ts`, `checkout.ts`, `api/**`, `pay/**`, `caja-app.tsx` y `app/page.tsx` **sin cambios**.
 - **Evidencia local:** smoke B 44/44; smoke A 33/33; a11y B 8/8 (axe 0 normal/HC, targets ≥44, 200% sin overflow); HIG legacy 5/5; mobile-320 legacy 60/60; p0-venta 66/0; p0-fiado 51/0; p0-corte 69/0; p0-integración 51/0; p0-dinero 45/0 + 3 KNOWN; webhook 40/40; checkout 19/19.
-- **Gates formales:** `verify:static`/`verify:evidence` **pendientes después del commit**. El full sigue bloqueado por `tunnel`/`preflight`; no se declara GO.
+- **Gates formales:** `verify:static` **5/5 PASS** y `verify:evidence -- --static` **PASS** en `d13d3df`; el full sigue bloqueado por `tunnel`/`preflight`, no se declara GO.
 - **Handoff público:** **NO-GO**. `latest.json` es de `9206ea1`.
 - **P1 heredado:** `POST /api/demo/pay` no tiene idempotencia por pedido ni comprueba `order.demo`; el cliente bloquea doble clic, pero dos pestañas podrían duplicar un demo. No se tocó el endpoint sin autorización.
-- **Siguiente:** commit de checkpoint → `verify:static`/`verify:evidence` → Oleada C (Fiados, Corte y retiro progresivo de la Caja legacy).
+- **Siguiente:** `verify:full --skip=tunnel,preflight` documentado como parcial → Oleada C (Fiados, Corte y retiro progresivo de la Caja legacy).
 
 ## Evidencia de Oleada B
 

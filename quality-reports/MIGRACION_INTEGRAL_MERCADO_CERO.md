@@ -1,9 +1,9 @@
 # Migración integral de Mercado Cero
 
-> **Estado:** Oleada A cerrada en `26c7741`; Oleada B (Caja y Ventas) implementada en local, **sin commit**. Verificador la aprueba como base para Oleada C; cierre formal y handoff público siguen pendientes.
+> **Estado:** Oleada A cerrada en `26c7741`; Oleada B (Caja y Ventas) commiteada en `d13d3df` con estático 5/5. Verificador la aprueba como base para Oleada C; handoff público sigue NO-GO.
 > **Rama:** `design/oleada-b-caja-ventas` · **Base/tag:** `oleada-a-cierre` = `26c7741`
-> **Árbol:** sucio (implementación B + auditorías/evidencia local). El commit de checkpoint está autorizado por el verificador; falta ejecutarlo y regenerar `latest-static`.
-> **Servidor de referencia:** `http://localhost:3100` con `APP_URL=http://localhost:3100`.
+> **Árbol:** limpio tras el commit de código; la evidencia estática se regenera sobre el HEAD vigente.
+> **Servidor de referencia:** `http://localhost:3100` con `APP_URL=http://localhost:3100`; buildSha `d13d3df...`.
 > **Veredicto de Fase 1 (independiente):** **APROBADO CON LIMITACIONES** para visual/funcional/demo; **Handoff/merge RECHAZADO — NO GO**. Certificación WCAG: **NO EMITIDA**. Lector de pantalla real: **NOT RUN**.
 > **Regla:** ninguna pantalla se declara migrada por tener diseño nuevo; debe conservar funciones, datos, navegación, estados y pasar verificación independiente.
 
@@ -23,7 +23,7 @@
 - **B3 Navegación:** nav única Inicio/Caja/Ventas/Fiados/Corte/Metas/Pendientes; `/fiados`, `/corte`, `/metas` y `/pendientes` siguen como alias 307.
 - **B4 Contratos:** sin cambios en `lib/`, APIs financieras, webhook, checkout ni `/pay/**`; Caja nueva usa las mismas APIs.
 - **Evidencia local:** smoke B 44/44; A 33/33; a11y B 8/8 con axe 0 normal/HC; HIG legacy 5/5; mobile-320 60/60; p0 completos sin regresión.
-- **Pendiente:** commit, `verify:static`/`verify:evidence`, full documentado como parcial, HIG específico de `/caja`/`/ventas`, decisión sobre idempotencia de `/api/demo/pay` y retiro de la Caja legacy en Oleada C.
+- **Pendiente:** full documentado como parcial, HIG específico de `/caja`/`/ventas`, decisión sobre idempotencia de `/api/demo/pay` y retiro de la Caja legacy en Oleada C.
 - **Entrega:** `quality-reports/oleada-b/ENTREGA_OLEADA_B.md`.
 
 ## 1. Principios de la migración
