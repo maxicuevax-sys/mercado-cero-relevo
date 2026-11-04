@@ -123,15 +123,19 @@ Evidencia cruda: `runtime-after.txt`, `smoke-b-after.txt`,
 
 ## 5. Evidencia formal
 
-- `npm run verify:static` en `178b619`: **5/5 PASS** (`guard`, `lint`,
-  `types`, `deps`, `build`), `ok:true`.
+- Runtime y contrato sobre `178b619` (producto `de7e339` + `f863df2`):
+  contrato **59/59** y runtime 7/7.
+- `npm run verify:static` en el HEAD de evidencia final: **5/5 PASS**
+  (`guard`, `lint`, `types`, `deps`, `build`), `ok:true`.
 - `npm run verify:evidence -- --static`: **PASS**, árbol limpio,
-  `gitAtStart.sha = 178b61957d786f3a982941dc06a946a8ed351ed6`,
-  `buildSha` idéntico.
+  `gitAtStart.sha` igual al HEAD, `buildSha` idéntico.
 - `latest-static.json` queda como artefacto local en
   `harness/evidence/latest-static.json` (ignorado por git).
 - El `full` sigue siendo **NO-GO local** por `tunnel` y `preflight`; no se
   declara handoff público.
+- El addendum del verificador se escribió cuando la evidencia de 59/59 aún
+  estaba sin commitear. Este commit de evidencia resuelve esa salvedad de
+  empaquetado; no hubo cambios de producto posteriores a `f863df2`.
 
 ## 6. Decisión sobre el harness
 

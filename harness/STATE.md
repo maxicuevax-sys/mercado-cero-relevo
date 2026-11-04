@@ -9,9 +9,9 @@
 - **Rama:** `design/oleada-b-caja-ventas`.
 - **Base/tag:** `oleada-a-cierre` = `26c7741`.
 - **Commits de la ola:** `7c48902` (Caja/Ventas) y `4130e71` (cierre local B).
-- **Remediación del P1 demo-pay:** `de7e339` + `f863df2` (producto) y
-  `178b619` (auditoría/evidencia). Ver
-  `quality-reports/oleada-b-remediation/EVIDENCIA_FINAL.md`.
+- **Remediación del P1 demo-pay:** `de7e339` + `f863df2` (producto).
+  Evidencia y veredicto en el HEAD de este documento (ver `git log -1`);
+  informe en `quality-reports/oleada-b-remediation/EVIDENCIA_FINAL.md`.
 - **Estado del árbol:** limpio; la evidencia estática se regenera sobre el
   HEAD vigente después del último commit de docs.
 - **Build local:** `http://localhost:3100`; el build debe declarar el SHA de
@@ -28,7 +28,8 @@
   p0-corte 69/0; p0-integración 51/0; p0-dinero 45/0 + 3 KNOWN; webhook
   40/40; checkout 19/19; contrato demo-pay 59/59; dos pestañas 1 pago.
 - **Gates formales:** `verify:static` **5/5 PASS** y
-  `verify:evidence -- --static` **PASS** en `178b619`, árbol limpio. Full
+  `verify:evidence -- --static` **PASS** en el HEAD de evidencia final
+  (producto `de7e339` + `f863df2`), árbol limpio. Full
   `--skip=tunnel,preflight` es **partial** y no se declara GO.
 - **P1 demo-pay:** **cerrado en producto/demo local**. `POST /api/demo/pay`
   valida `orders.demo=1`, usa `BEGIN IMMEDIATE`, llaves durables en
