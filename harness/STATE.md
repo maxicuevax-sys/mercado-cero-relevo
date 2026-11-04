@@ -1,47 +1,55 @@
 # STATE — Mercado Cero
 
-> Handoff vivo para agentes. Última actualización: **4 de noviembre de 2026**.
+> Handoff vivo para agentes. Última actualización: **4 de noviembre de 2026**,
+> al cerrar la Operación B.1.
 > No reconstruyas el estado de memoria: si un dato no está aquí ni en
 > `latest.json`/`latest-static.json`, no lo asumas.
 
-## Corte actual — Oleada B + remediación demo-pay en local
+## Corte actual — Operación B.1 (estabilización de Oleada B)
 
-- **Rama:** `design/oleada-b-caja-ventas`.
-- **Base/tag:** `oleada-a-cierre` = `26c7741`.
-- **Commits de la ola:** `7c48902` (Caja/Ventas) y `4130e71` (cierre local B).
-- **Remediación del P1 demo-pay:** `de7e339` + `f863df2` (producto).
-  Evidencia y veredicto en el HEAD de este documento (ver `git log -1`);
-  informe en `quality-reports/oleada-b-remediation/EVIDENCIA_FINAL.md`.
-- **Estado del árbol:** limpio; la evidencia estática se regenera sobre el
-  HEAD vigente después del último commit de docs.
-- **Build local:** `http://localhost:3100`; el build debe declarar el SHA de
-  HEAD. El contrato demo-pay usa puertos `3331–3333` y SQLite temporal.
-- **Nuevas pantallas:** `/caja` (venta manual, efectivo/cambio, digital,
-  fiado, mixto, resultado) y `/ventas` (historial paginado).
+- **Rama:** `fix/oleada-b1-estabilizacion` (no mergeada).
+- **Base:** `844f759`; handoff versionado en `e025895`.
+- **Producto final:** `bdfbe8b` (fix) + `8101849` (pruebas).
+- **Build:** mismo SHA; `/api/health` del servidor aislado lo confirma.
+- **Evidencia y veredicto:** `quality-reports/oleada-b-estabilizacion/`.
+- **Estado del árbol:** debe quedar limpio después del commit documental;
+  la evidencia estática y `test:demo-pay` se repiten sobre ese estado.
+- **P0 de B:** **0 abiertos** (P0-01 y P0-02 cerrados).
+- **P1 de B:** **0 abiertos en el alcance B.1**; P1-10 se preservó cerrado.
+  El residual de la venta legacy (R-01) queda como P2 documentado en
+  `12_PENDIENTES_OLEADA_C.md`.
+- **Nuevas pantallas:** `/caja` y `/ventas` con verdad financiera, cola de
+  pendientes, draft v1/v2, estado desconocido reconciliable y CTA persistente.
 - **Compatibilidad:** `/` sigue siendo Caja legacy con `?tab=`; `/fiados`,
-  `/corte`, `/metas` y `/pendientes` siguen 307 a `/?tab=`; `/pay/**` intacto.
-- **Contratos:** `lib/orders.ts`, `cash.ts`, `goals.ts`, `tasks.ts`, `db.ts`,
-  `payment-rules.ts`, `payment-labels.ts`, `pey-events.ts`, `checkout.ts`,
-  `api/**` real, `pay/**`, `caja-app.tsx` y `app/page.tsx` **sin cambios** en
-  la remediación demo-pay.
-- **Evidencia local:** smoke B 44/44; p0-venta 66/0; p0-fiado 51/0;
-  p0-corte 69/0; p0-integración 51/0; p0-dinero 45/0 + 3 KNOWN; webhook
-  40/40; checkout 19/19; contrato demo-pay 59/59; dos pestañas 1 pago.
-- **Gates formales:** `verify:static` **5/5 PASS** y
-  `verify:evidence -- --static` **PASS** en el HEAD de evidencia final
-  (producto `de7e339` + `f863df2`), árbol limpio. Full
-  `--skip=tunnel,preflight` es **partial** y no se declara GO.
-- **P1 demo-pay:** **cerrado en producto/demo local**. `POST /api/demo/pay`
-  valida `orders.demo=1`, usa `BEGIN IMMEDIATE`, llaves durables en
-  `payment_events`/`payments` y no duplica pagos entre procesos ni tras
-  reinicio.
-- **Handoff público:** **NO-GO**. `latest.json` es de `9206ea1`; faltan
-  `tunnel`/`preflight`, QR/lector/iOS y la cadena pública de pey.
-- **P0/P1 abiertos de Oleada B:** 2 P0 + 13 P1 en
-  `quality-reports/oleada-b-review/09_HALLAZGOS_PRIORIZADOS.md`. No se
-  autorizó su remediación en este encargo.
-- **Siguiente:** decidir la remediación de los P0/P1 de B. **No iniciar
-  Oleada C** hasta registrar formalmente esa decisión.
+  `/corte`, `/metas` y `/pendientes` siguen 307; `/pay/**` intacto. La nav
+  marca esos destinos como “Clásica”.
+- **Contratos:** `orders.ts`, `cash.ts`, `goals.ts`, `tasks.ts`, webhook,
+  checkout y `/pay/**` no se reescribieron. `db.ts` y `analytics.ts` solo
+  cambiaron el filtro de lectura de abonos demo. `POST /api/orders` se
+  extendió con `GET ?requestId=` para reconciliación read-only.
+- **Regresión:** B.1 65/65; p0-venta 66/0; p0-fiado 51/0; p0-corte 69/0;
+  p0-integración 51/0; p0-dinero 45/0+3 KNOWN; webhook 40/40; checkout 19/19;
+  smoke A 33/33; smoke B 45/45; HIG 5/5; a11y axe 0; mobile 60/60.
+- **demo-pay:** funcional 58/58 en árbol sucio; se repite tras el commit
+  documental para obtener 59/59 con el check 0b.
+- **Gates formales:** `verify:static` 5/5 gates verdes; el PASS formal se
+  repite en árbol limpio. `verify:full --only=...` fue 7/7 gates verdes pero
+  **partial** y no cuenta como full.
+- **Handoff público:** **NO-GO**. Faltan `tunnel`/`preflight`, `latest.json`
+  full, pey real, QR/lector real e iOS/Safari.
+- **Oleada C:** **NO INICIADA**. Pendientes en
+  `quality-reports/oleada-b-estabilizacion/12_PENDIENTES_OLEADA_C.md`.
+
+## Evidencia de Operación B.1
+
+- Resumen: `quality-reports/oleada-b-estabilizacion/00_RESUMEN_EJECUTIVO.md`.
+- Matriz: `01_MATRIZ_HALLAZGOS.md`; causas: `02_CAUSAS_RAIZ.md`.
+- Lotes: `03_LOTE_1_VERDAD_FINANCIERA.md`, `04_LOTE_2_INTEGRIDAD.md`,
+  `05_LOTE_3_OPERACION_A11Y.md`.
+- Pruebas: `06_PRUEBAS_REGRESION.md`; evidencia: `07_EVIDENCIA_VISUAL_FUNCIONAL.md`.
+- Verificación independiente: `09_VERIFICACION_INDEPENDIENTE.md`.
+- GO/NO-GO: `10_GO_NO_GO.md`; Git: `11_ESTADO_GIT.md`.
+- Crudo: `quality-reports/oleada-b-estabilizacion/evidencia/`.
 
 ## Evidencia de la remediación demo-pay
 

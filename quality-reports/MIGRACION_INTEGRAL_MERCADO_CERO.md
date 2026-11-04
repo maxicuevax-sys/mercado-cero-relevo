@@ -1,6 +1,15 @@
 # Migración integral de Mercado Cero
 
-> **Estado:** Oleada A cerrada en `26c7741`; Oleada B (Caja y Ventas) commiteada en `7c48902` con estático 5/5 y full parcial 21/23. Verificador la aprueba como base para Oleada C; handoff público sigue NO-GO.
+> **Actualización B.1 (4 nov 2026):** la auditoría adversarial de B encontró
+> 2 P0 + 13 P1; la Operación B.1 corrigió los P0 y los P1 del alcance, preservó
+> P1-10 y dejó un residual P2 en la venta legacy. **GO local condicionado a la
+> firma independiente; handoff público NO-GO; Oleada C no iniciada.**
+> Estado real: rama `fix/oleada-b1-estabilizacion`, producto
+> `16cb40fd201b9a16d0747cce72b247669611e6ff`, evidencia en
+> `quality-reports/oleada-b-estabilizacion/`. La sección histórica siguiente
+> describe el estado anterior a B.1 y no debe usarse como estado actual.
+>
+> **Estado histórico (pre-B.1):** Oleada A cerrada en `26c7741`; Oleada B (Caja y Ventas) commiteada en `7c48902` con estático 5/5 y full parcial 21/23. Verificador la aprueba como base para Oleada C; handoff público sigue NO-GO.
 > **Rama:** `design/oleada-b-caja-ventas` · **Base/tag:** `oleada-a-cierre` = `26c7741`
 > **Árbol:** limpio tras el commit de código; la evidencia estática se regenera sobre el HEAD vigente.
 > **Servidor de referencia:** `http://localhost:3100` con `APP_URL=http://localhost:3100`; buildSha `7c48902...`.

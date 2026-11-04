@@ -1,5 +1,11 @@
 # HANDOFF — Operación B.1 (Oleada B: Caja y Ventas)
 
+> **Sustituido el 4 de noviembre de 2026.** Este documento fue el handoff de
+> recuperación. El estado operativo posterior a la ejecución de B.1 vive en
+> `harness/HANDOFF_OLEADA_B1_CIERRE.md` y en
+> `quality-reports/oleada-b-estabilizacion/`. Se conserva como registro
+> histórico del punto de partida (`844f759` / `e025895`).
+
 > **Creado:** 4 de noviembre de 2026, tras verificar el repositorio directamente.
 > **Propósito:** que una sesión nueva pueda iniciar **Operación B.1** sin releer
 > el historial de conversaciones y sin repetir Fase 1, Oleada A ni Oleada B.
