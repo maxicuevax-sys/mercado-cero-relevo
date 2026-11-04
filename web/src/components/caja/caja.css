@@ -1102,7 +1102,7 @@
   .mc-caja-paybar {
     position: fixed;
     right: 0;
-    bottom: calc(64px + env(safe-area-inset-bottom));
+    bottom: calc(65px + env(safe-area-inset-bottom));
     left: 0;
     z-index: 45;
     display: flex;
@@ -1272,5 +1272,17 @@
 
   .mc-caja-add__grid .mc-caja-button {
     grid-column: 1 / -1;
+  }
+}
+
+/* Con texto al 200 % la nav móvil ocupa dos filas (~128 px). La barra de
+   cobro y el relleno inferior deben subir para no tapar la navegación. */
+@container (max-width: 18em) {
+  .mc-caja-paybar {
+    bottom: calc(128px + env(safe-area-inset-bottom));
+  }
+
+  .mc-caja {
+    padding-bottom: calc(280px + env(safe-area-inset-bottom));
   }
 }

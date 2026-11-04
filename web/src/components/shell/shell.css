@@ -215,7 +215,7 @@
 
 /* Con texto al 200 % las cinco celdas fijas no alcanzan para “Ventas” y
    “Fiados”. La barra pasa a 3+2 sin tocar el orden de los destinos. */
-@container (max-width: 20em) {
+@container (max-width: 18em) {
   .mc-mobile-nav {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
