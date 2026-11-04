@@ -42,6 +42,7 @@ const LEGACY_REQUEST_KEY = "mercado-cero:sale-request:v1";
 type View = "compose" | "payment" | "result";
 
 type StoredDraft = {
+  instanceId: string;
   lines: DraftLine[];
   cashInput: string;
   creditInput: string;
@@ -61,6 +62,7 @@ type UnknownResult = {
 };
 
 type ConfirmedSale = {
+  instanceId: string;
   requestId: string;
   signature: string;
   orderId: string;
@@ -89,6 +91,7 @@ export function CajaScreen({
   demo: boolean;
 }) {
   const [lines, setLines] = useState<DraftLine[]>([]);
+  const [draftInstanceId, setDraftInstanceId] = useState(() => newInstanceId());
   const [cashInput, setCashInput] = useState("");
   const [creditInput, setCreditInput] = useState("");
   const [customerName, setCustomerName] = useState("");
@@ -148,6 +151,7 @@ export function CajaScreen({
         // El borrador vive en localStorage; el effect es la frontera con ese sistema externo.
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setLines(storedDraft.lines);
+        setDraftInstanceId(storedDraft.instanceId);
         setCashInput(storedDraft.cashInput);
         setCreditInput(storedDraft.creditInput);
         setCustomerName(storedDraft.customerName);
@@ -167,6 +171,7 @@ export function CajaScreen({
           // Una sola fuente visible: el borrador de la Caja clásica se importa
           // a /caja, conservando la llave de idempotencia si coincide.
           setLines(legacy.draft.lines);
+          setDraftInstanceId(legacy.draft.instanceId);
           setCashInput(legacy.draft.cashInput);
           setCreditInput(legacy.draft.creditInput);
           setCustomerName(legacy.draft.customerName);
@@ -230,15 +235,23 @@ export function CajaScreen({
         window.localStorage.removeItem(DRAFT_KEY);
         return;
       }
-      const stored: StoredDraft = { lines, cashInput, creditInput, customerName, method };
+      const stored: StoredDraft = {
+        instanceId: draftInstanceId,
+        lines,
+        cashInput,
+        creditInput,
+        customerName,
+        method,
+      };
       window.localStorage.setItem(DRAFT_KEY, JSON.stringify(stored));
     } catch {
       // Sin localStorage la venta sigue funcionando en memoria.
     }
-  }, [cashInput, creditInput, customerName, hydrated, lines, method]);
+  }, [cashInput, creditInput, customerName, draftInstanceId, hydrated, lines, method]);
 
   const clearDraft = useCallback(() => {
     setLines([]);
+    setDraftInstanceId(newInstanceId());
     setCashInput("");
     setCreditInput("");
     setCustomerName("");
@@ -402,7 +415,10 @@ export function CajaScreen({
 
     let requestId = newRequestId("sale");
     const confirmed = readConfirmedSale();
-    if (confirmed?.signature === signature) {
+    if (
+      confirmed?.signature === signature &&
+      confirmed.instanceId === draftInstanceId
+    ) {
       // La misma venta ya se confirmó en esta o en otra pestaña.
       requestId = confirmed.requestId;
       requestRef.current = { requestId, signature };
@@ -487,6 +503,7 @@ export function CajaScreen({
       requestRef.current = null;
       try {
         writeConfirmedSale({
+          instanceId: draftInstanceId,
           requestId,
           signature,
           orderId: created.id,
@@ -522,6 +539,7 @@ export function CajaScreen({
         // Sin storage el resultado vive en memoria.
       }
       setLines([]);
+      setDraftInstanceId(newInstanceId());
       setCashInput("");
       setCreditInput("");
       setCustomerName("");
@@ -1111,6 +1129,10 @@ function parseStoredDraft(raw: string): StoredDraft | null {
     });
     if (lines.length === 0) return null;
     return {
+      instanceId:
+        typeof parsed.instanceId === "string" && parsed.instanceId
+          ? parsed.instanceId
+          : newInstanceId(),
       lines,
       cashInput: typeof parsed.cashInput === "string" ? parsed.cashInput : "",
       creditInput: typeof parsed.creditInput === "string" ? parsed.creditInput : "",
@@ -1136,6 +1158,7 @@ type LegacyStoredDraft = {
   cashCents?: number;
   creditCents?: number;
   customerName?: string;
+  updatedAt?: string;
 };
 
 function readLegacyImport(): LegacyImport | null {
@@ -1173,6 +1196,11 @@ function readLegacyImport(): LegacyImport | null {
     const cashCents = safeLegacyCents(parsed.cashCents);
     const creditCents = safeLegacyCents(parsed.creditCents);
     const draft: StoredDraft = {
+      instanceId: `legacy_${
+        typeof parsed.updatedAt === "string" && parsed.updatedAt
+          ? parsed.updatedAt
+          : "sin_fecha"
+      }`,
       lines,
       cashInput: cashCents > 0 ? (cashCents / 100).toFixed(2) : "",
       creditInput: creditCents > 0 ? (creditCents / 100).toFixed(2) : "",
@@ -1276,6 +1304,7 @@ function readConfirmedSale(): ConfirmedSale | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<ConfirmedSale>;
     if (
+      typeof parsed.instanceId !== "string" ||
       typeof parsed.requestId !== "string" ||
       typeof parsed.signature !== "string" ||
       typeof parsed.orderId !== "string" ||
@@ -1289,6 +1318,7 @@ function readConfirmedSale(): ConfirmedSale | null {
       return null;
     }
     return {
+      instanceId: parsed.instanceId,
       requestId: parsed.requestId,
       signature: parsed.signature,
       orderId: parsed.orderId,
@@ -1403,6 +1433,13 @@ function friendlySaleError(caught: unknown): string {
     return message;
   }
   return "No sabemos si la venta quedó registrada. Revisa tu conexión y toca Reintentar.";
+}
+
+function newInstanceId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return `draft_${crypto.randomUUID()}`;
+  }
+  return `draft_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function newRequestId(prefix: string): string {

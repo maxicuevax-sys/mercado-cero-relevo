@@ -2625,7 +2625,16 @@ export default function CajaApp({
                       <button
                         type="button"
                         className="flex min-h-12 items-center px-3 text-sm font-semibold text-ink-2"
-                        onClick={() => setLegacyDraftAcknowledged(true)}
+                        onClick={() => {
+                          try {
+                            window.localStorage.removeItem(
+                              "mercado-cero:caja-draft:v2",
+                            );
+                          } catch {
+                            // Sin storage no hay draft que descartar.
+                          }
+                          setLegacyDraftAcknowledged(true);
+                        }}
                       >
                         Usar esta Caja clásica
                       </button>
