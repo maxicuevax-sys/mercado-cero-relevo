@@ -7,19 +7,21 @@
 ## Corte actual — Oleada A en desarrollo local
 
 - **Rama:** `design/oleada-a-fundacion`.
-- **HEAD:** `62c3fed6874bc500db16b4a9260fb62cf9626453` (línea base `fase-1-handoff`).
-- **Estado del árbol:** **sucio**. La implementación de Oleada A está completa en local pero **no commiteada**; el commit requiere autorización explícita.
-- **Build servido:** `http://localhost:3100`, `/api/health` buildSha `62c3fed...`.
+- **Línea base:** `62c3fed6874bc500db16b4a9260fb62cf9626453` (tag `fase-1-handoff`).
+- **Commit de la ola:** `d30a31c` (`feat(ui): fundacion compartida de Oleada A`).
+- **HEAD actual:** se confirma con `git rev-parse HEAD`; este documento puede ir un commit por delante del código por la actualización de cierre.
+- **Estado del árbol:** limpio tras el commit de código; la evidencia estática se regenera al final sobre el HEAD vigente.
+- **Build servido:** `http://localhost:3100`, `/api/health` buildSha `d30a31c...`.
 - **Alcance de la ola:** Hearth + Alder, AppShell/Sidebar/TopBar/MobileNav/PageHeader, componentes compartidos y alias de rutas. **Caja sigue en su shell legacy**; su migración es Oleada B.
 - **Rutas:** `/inicio` 200; `/ventas`, `/fiados`, `/corte`, `/metas`, `/pendientes` responden **307** a `/?tab=...` y conservan `ayuda=1`; `/caja` sigue **404** (reservada); `/` y `/?tab=` intactos; `/pay/**` sin shell nuevo.
 - **Navegación:** sidebar de 6 destinos reales (Inicio, Ventas, Fiados, Corte, Metas, Pendientes), sin Productos/Proveedores/Reportes hasta que existan; móvil con 4 destinos + “Más”.
 - **Tipografía:** Hearth (`Hearth-Variable.woff2`) para marca/editorial y Alder (`Alder-Variable.woff2`) para UI, importes y estados; OFL 1.1 y hashes en `web/src/assets/fonts/README.md`; `next/font/local`, sin descargas duplicadas.
 - **Componentes:** `AppShell`, `Sidebar`, `TopBar`, `MobileNav`, `SkipLink`, `BrandLockup`, `PageHeader`, `MaskIcon`, `CurrencyAmount`, `ProgressIndicator`, `SectionHeader`, `EmptyState`.
 - **Evidencia local:** smoke 34/34; HIG 5/5; variantes 10/10; axe 0 en Inicio normal/HC; p0-venta 66/0, p0-fiado 51/0, p0-corte 69/0, p0-integración 51/0, p0-dinero 45/0 + 3 KNOWN, webhook 40/40, checkout 19/19.
-- **Gates estáticos:** `next typegen`, `tsc --noEmit`, ESLint y `npm run build` PASAN. `verify:static` formal **no ejecutado** porque el árbol está sucio; se corre después del commit autorizado.
+- **Gates estáticos:** `verify:static` **5/5 PASS** sobre el commit de la ola; `latest-static.json` con `ok:true`, `dirty:false` y buildSha coincidente. Se regenera después del commit documental final.
 - **Handoff público:** **NO-GO**. `latest.json` sigue siendo de `9206ea1`; el full de HEAD es 21/23 por `tunnel`/`preflight` ambientales; no hay `verify:evidence` PASS.
 - **Accesibilidad:** sin lector de pantalla real, iOS/Safari, HCM real, PWA instalada/offline ni teclado virtual. WCAG **no certificada**.
-- **Siguiente:** autorización de commit de Oleada A → `verify:static` y evidencia formal → Oleada B (Caja y Nueva venta).
+- **Siguiente:** `verify:full --skip=tunnel,preflight` sobre HEAD limpio → Oleada B (Caja y Nueva venta).
 
 ## Evidencia de Oleada A
 
@@ -29,7 +31,7 @@
 - Capturas: `quality-reports/oleada-a/capturas/`.
 - Smoke: `web/scripts/oleada-a-smoke.py`.
 - Suites p0: `harness/evidence/p0-*-e2e.json`.
-- Run parcial de integración: `harness/evidence/runs/2026-11-04T06-39-02-354Z-partial.json` (6/6 gates verdes; `ok:false` por partial y árbol sucio).
+- Run parcial de integración: `harness/evidence/runs/2026-11-04T12-25-52-380Z-partial.json` (6/6 gates verdes; `ok:false` por partial y árbol sucio).
 
 ## Fase 1 — histórico
 

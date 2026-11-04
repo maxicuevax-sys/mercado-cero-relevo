@@ -1,9 +1,9 @@
 # Migración integral de Mercado Cero
 
-> **Estado:** Oleada A (fundación compartida) implementada en local, **sin commit**; Oleada B (Caja y Nueva venta) es el siguiente paso.
-> **Rama:** `design/oleada-a-fundacion` · **HEAD:** `62c3fed6874bc500db16b4a9260fb62cf9626453`
-> **Árbol:** sucio (implementación de Oleada A + evidencia local). El commit requiere autorización explícita.
-> **Servidor de referencia:** `http://localhost:3100`, buildSha `62c3fed...`.
+> **Estado:** Oleada A (fundación compartida) implementada y commiteada en `d30a31c`; Oleada B (Caja y Nueva venta) es el siguiente paso.
+> **Rama:** `design/oleada-a-fundacion` · **Línea base:** `62c3fed` · **Commit de la ola:** `d30a31c`
+> **Árbol:** limpio tras el commit documental final; la evidencia estática se regenera sobre el HEAD vigente.
+> **Servidor de referencia:** `http://localhost:3100`, buildSha `d30a31c...`.
 > **Veredicto de Fase 1 (independiente):** **APROBADO CON LIMITACIONES** para visual/funcional/demo; **Handoff/merge RECHAZADO — NO GO**. Certificación WCAG: **NO EMITIDA**. Lector de pantalla real: **NOT RUN**.
 > **Regla:** ninguna pantalla se declara migrada por tener diseño nuevo; debe conservar funciones, datos, navegación, estados y pasar verificación independiente.
 
@@ -15,7 +15,7 @@
 - **A4 Rutas:** `/ventas`, `/fiados`, `/corte`, `/metas`, `/pendientes` son alias HTTP 307 a `/?tab=...`; conservan `ayuda=1`. `/caja` sigue 404 (reservada). `/` y `?tab=` intactos. `/pay/**` intacto.
 - **Navegación:** solo destinos reales; Productos/Proveedores/Reportes no se enlazan hasta tener pantalla.
 - **Evidencia local:** smoke 34/34; HIG 5/5; variantes 10/10; axe 0 en Inicio normal/HC; p0-venta 66/0; p0-fiado 51/0; p0-corte 69/0; p0-integración 51/0; p0-dinero 45/0 + 3 KNOWN; webhook 40/40; checkout 19/19.
-- **Pendiente:** commit autorizado, `verify:static` formal, migración del shell de Caja (B), sincronización URL↔tab, consolidación de tokens/foco, PWA instalada/offline y handoff público.
+- **Pendiente:** `verify:full --skip=tunnel,preflight`, migración del shell de Caja (B), sincronización URL↔tab, consolidación de tokens/foco, PWA instalada/offline y handoff público.
 
 
 ## 1. Principios de la migración

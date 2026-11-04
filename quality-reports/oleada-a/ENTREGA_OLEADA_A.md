@@ -1,10 +1,10 @@
 # Entrega Oleada A — Fundación compartida
 
 > **Estado:** implementación local completa, **sin commit**.
-> **Rama:** `design/oleada-a-fundacion` · **HEAD:** `62c3fed6874bc500db16b4a9260fb62cf9626453`.
-> **Build servido:** `http://localhost:3100`, `/api/health` buildSha `62c3fed...`.
+> **Rama:** `design/oleada-a-fundacion` · **Línea base:** `62c3fed` · **Commit de la ola:** `d30a31c`.
+> **Build servido:** `http://localhost:3100`, `/api/health` buildSha `d30a31c...`.
 > **Veredicto independiente:** aprobada para continuar a Oleada B; **handoff público NO-GO**.
-> **Commit:** autorizado por el verificador como commit acotado de ola, pendiente de autorización de producto.
+> **Commit:** `d30a31c`, autorizado por producto y por el verificador como commit acotado de ola. Handoff público NO-GO.
 
 ## 1. Alcance entregado
 
@@ -84,11 +84,11 @@
 | p0-dinero | **45 PASS · 0 FAIL · 3 KNOWN** | `harness/evidence/p0-dinero-e2e.json` |
 | webhook | **40/40** | `harness/evidence/` |
 | checkout | **19/19** | `harness/evidence/` |
-| `tsc --noEmit` / ESLint / build | PASS | buildSha `62c3fed` |
+| `verify:static` | **5/5 PASS** | `harness/evidence/latest-static.json` |
 
 **3 KNOWN de p0-dinero:** payload real de pey no verificable sin portal; reconciliación de red no ejecutada; contrato de conteo posterior al cierre (la UI debe reemplazar el conteo guardado por el vigente).
 
-**Run parcial 6/6:** `harness/evidence/runs/2026-11-04T06-39-02-354Z-partial.json` — todos los gates verdes, `ok:false` porque `--only` es partial y el árbol estaba sucio. No se presenta como full.
+**Run parcial 6/6:** `harness/evidence/runs/2026-11-04T12-25-52-380Z-partial.json` — todos los gates verdes, `ok:false` porque `--only` es partial y el árbol estaba sucio. No se presenta como full.
 
 ## 6. Capturas
 
@@ -101,7 +101,7 @@
 - `.../inicio-desktop-1448x1086-hc-viewport.png`
 - `.../inicio-mobile-390x844-hc-viewport.png`
 
-Corresponden al build `62c3fed` servido en `:3100` al momento de la auditoría.
+Corresponden al código commiteado en `d30a31c`, servido en `:3100` durante la auditoría.
 
 ## 7. Accesibilidad
 
@@ -121,8 +121,8 @@ Corresponden al build `62c3fed` servido en `:3100` al momento de la auditoría.
 
 ## 9. Pendientes abiertos
 
-1. Autorización de commit de Oleada A (no ejecutado).
-2. Después del commit: `verify:static`, `verify:full --skip=tunnel,preflight` y `verify:evidence` sobre HEAD limpio.
+1. Commit de Oleada A: `d30a31c` (hecho).
+2. `verify:static` 5/5 PASS; queda `verify:full --skip=tunnel,preflight` y `verify:evidence` sobre el HEAD documental final.
 3. Oleada B: migrar Caja y Nueva venta al AppShell; sincronizar URL↔tab; extraer `caja-app.tsx` por fases.
 4. Consolidar tokens de color/foco y retirar overrides legacy.
 5. PWA instalada/offline y service worker: **NOT RUN**.
@@ -131,5 +131,5 @@ Corresponden al build `62c3fed` servido en `:3100` al momento de la auditoría.
 ## 10. Veredicto
 
 - **Oleada A:** aprobada para continuar a Oleada B, con las limitaciones documentadas.
-- **Commit:** autorizado por el verificador como commit acotado; falta autorización de producto.
+- **Commit:** `d30a31c`, autorizado y ejecutado.
 - **Handoff público:** **NO-GO**.
