@@ -18,6 +18,7 @@
     "test:payment-labels": "node --no-warnings --test scripts/payment-labels-test.mjs",
     "test:fix-datos": "node scripts/p0-fix-datos-contract.mjs && node scripts/p0-db-guards-contract.mjs && node scripts/p0-orders-atomic-contract.mjs && node scripts/p0-demo-real-contract.mjs",
     "test:demo-real": "node scripts/p0-demo-real-contract.mjs",
+    "test:demo-pay": "node scripts/p0-demo-pay-contract.mjs",
     "test:security": "node --no-warnings scripts/security-contract.mjs",
     "test:p0-adversarial": "python scripts/p0-adversarial-e2e.py",
     "test:harness": "node --test scripts/harness-gate.test.mjs scripts/check-deps.test.mjs scripts/evidence-integrity.test.mjs scripts/checkout-gate.test.mjs",

@@ -58,10 +58,15 @@ check(
 const orders = read("web/src/lib/orders.ts");
 check("los pagos demo usan demo_paid", orders.includes("demo_paid"));
 
-const demoPay = read("web/src/app/api/demo/pay/route.ts");
+const demoPayRoute = read("web/src/app/api/demo/pay/route.ts");
+const demoPayCore = read("web/src/lib/demo-payments.ts");
 check(
   "demo/pay declara provider demo",
-  demoPay.includes('provider: "demo"') || demoPay.includes("provider: 'demo'"),
+  demoPayRoute.includes("recordDemoPayment") &&
+    (demoPayCore.includes('provider: "demo"') ||
+      demoPayCore.includes("provider: 'demo'") ||
+      demoPayCore.includes('EVENT_PROVIDER = "demo"') ||
+      demoPayCore.includes("EVENT_PROVIDER = 'demo'")),
 );
 
 const webhookRoute = read("web/src/app/api/webhooks/pey/route.ts");

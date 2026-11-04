@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { isDemoMode } from "@/lib/config";
-import { getDb, getOrder, newId, nowIso } from "@/lib/db";
-import { appErrorResponse } from "@/lib/errors";
+import { recordDemoPayment } from "@/lib/demo-payments";
+import { appErrorResponse, ValidationError } from "@/lib/errors";
 import {
   bodyErrorResponse,
   enforceRateLimit,
@@ -10,13 +10,16 @@ import {
   MAX_SMALL_JSON_BYTES,
   readJsonLimited,
 } from "@/lib/http-security";
-import { recordPayment } from "@/lib/orders";
+import { MAX_REQUEST_ID_CHARS } from "@/lib/orders";
 
 const bodySchema = z.object({
   orderId: z.string().trim().min(1),
   // El efectivo no se simula: el efectivo demo no es dinero real. Solo los
   // métodos digitales pueden pasar por pey/demo.
   method: z.enum(["codi", "card", "wallet"]).default("card"),
+  // Opcional para no romper a los clientes actuales. Sin él se usa la llave
+  // automática por pedido + importe.
+  requestId: z.string().trim().max(MAX_REQUEST_ID_CHARS).nullish(),
 });
 
 export async function POST(request: Request) {
@@ -46,52 +49,40 @@ export async function POST(request: Request) {
 
   try {
     const body = bodySchema.parse(rawBody);
-    const order = getOrder(body.orderId);
-    if (!order) {
-      return Response.json({ error: "Pedido no encontrado." }, { status: 404 });
-    }
-
-    const amountCents = Math.max(0, order.totalCents - order.paidCents - order.creditCents);
-    if (amountCents <= 0) {
-      return Response.json({ order });
-    }
-
-    const method = body.method;
-    const transactionId = `demo_txn_${newId("tx")}`;
-    const database = getDb();
-    database
-      .prepare(
-        `INSERT INTO payment_events
-         (id, provider, event_type, idempotency_key, payload, signature_valid, processed_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      )
-      .run(
-        newId("evt"),
-        "demo",
-        "demo.payment",
-        transactionId,
-        JSON.stringify({ orderId: order.id, method, amountCents }),
-        0,
-        nowIso(),
-      );
-
-    const updated = recordPayment(order.id, {
-      provider: "demo",
-      method,
-      amountCents,
-      transactionId,
-      paymentLinkId: order.paymentLinkId,
-      rawEvent: JSON.stringify({ demo: true, method }),
+    const result = recordDemoPayment({
+      orderId: body.orderId,
+      method: body.method,
+      requestId: body.requestId ?? null,
     });
 
-    return Response.json({ order: updated, transactionId });
+    return Response.json({
+      order: result.order,
+      transactionId: result.transactionId,
+      duplicate: result.duplicate,
+      alreadySettled: result.alreadySettled,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return Response.json(
-        { error: "Método demo inválido. Usa codi, card o wallet; el efectivo no se simula." },
-        { status: 400 },
-      );
+      const field = error.issues[0]?.path?.[0];
+      const validation =
+        field === "requestId"
+          ? new ValidationError(
+              `El requestId no puede pasar de ${MAX_REQUEST_ID_CHARS} caracteres.`,
+              "request_id_invalid",
+            )
+          : field === "orderId"
+            ? new ValidationError(
+                "Falta el pedido a cobrar.",
+                "invalid_order_id",
+              )
+            : new ValidationError(
+                "Método demo inválido. Usa codi, card o wallet; el efectivo no se simula.",
+                "invalid_method",
+              );
+      const response = appErrorResponse(validation);
+      if (response) return response;
     }
+
     const known = appErrorResponse(error);
     if (known) return known;
     return internalErrorResponse("demo pay", error);
