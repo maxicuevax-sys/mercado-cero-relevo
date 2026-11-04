@@ -38,11 +38,11 @@ Los commits de producto (`70b2313`, `f0bef29`, `4d4695e`, `16cb40f`, `eab2a6f`, 
 
 ## Estado del árbol
 
-Antes del commit documental el árbol contiene esta carpeta `quality-reports/oleada-b-estabilizacion/` sin seguimiento y los PNG ignorados. Después del commit documental debe quedar limpio; la verificación estática y el contrato demo-pay se ejecutan de nuevo sobre ese estado.
+El árbol queda limpio después del commit documental. La verificación estática final es **5/5 PASS** con `verify:evidence -- --static` PASS, y `test:demo-pay` es **59/59**, ambos sobre el HEAD de entrega. Los PNG de captura siguen ignorados.
 
 ## Evidencia de identidad
 
 - `web/.next/BUILD_SHA` = `8101849` al verificar el producto; la corrida final documental se sella con el HEAD de entrega.
 - `/api/health` del servidor aislado devolvió el mismo `buildSha`.
 - `harness/evidence/runs/2026-11-04T21-18-22-422Z-partial.json` corresponde al SHA final; es `partial` por `--only` y árbol sucio, no un full.
-- `latest-static.json` y `latest.json` no se presentan como evidencia nueva hasta la corrida limpia final.
+- `latest-static.json` final: `ok:true`, `mode:static`, `gitAtStart.dirty:false`, `buildSha` igual al HEAD de entrega. `latest.json` full no existe para este HEAD y no se presenta como evidencia.

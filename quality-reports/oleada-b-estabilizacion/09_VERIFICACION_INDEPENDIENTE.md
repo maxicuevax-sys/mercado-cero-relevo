@@ -50,7 +50,7 @@ También detectó:
 | P1-07 | **PASS** — sin cambio fantasma ni aviso falso |
 | P1-08 | **PASS*** — fila real validada por el verificador |
 | P1-09 | **PASS** — cash real 0→0, demoCash +5000, Cobrado $0 |
-| P1-10 | **PASS intacto** — 58/58 funcional; 0b pendiente de árbol limpio |
+| P1-10 | **PASS intacto** — 59/59 en árbol limpio, incluido 0b |
 | P1-11 | **PASS** — chips y alias; Ajustes clicable |
 | P1-12 | **PASS en `/caja`** — 502, recarga, llave durable; residual legacy P2 |
 | P1-13 | **PASS** — Inicio 768 sin arte sobre H1 ni CTA recortado |

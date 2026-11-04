@@ -16,7 +16,7 @@
 | p0-dinero | idem | **45 PASS · 0 FAIL · 3 KNOWN** | KNOWN: pey real, reconciliación de red, conteo post-cierre |
 | webhook | idem | **40/40** | Servidor aislado con secreto de `.env.local` |
 | checkout | idem | **19/19** | Servidor propio 3215 |
-| demo-pay | `npm run test:demo-pay` | **58 PASS** en árbol sucio; ver nota | 0b exige árbol limpio; se repite tras el commit documental |
+| demo-pay | `npm run test:demo-pay` | **59 PASS · 0 FAIL** | 0b incluido; árbol limpio y SHA de entrega |
 | Smoke A | `python scripts/oleada-a-smoke.py` | **33/33** | `BASE_URL=http://localhost:3340` |
 | Smoke B | `python scripts/oleada-b-smoke.py` | **45/45** | Incluye fiado, mixto, 502, pendientes y 200 % |
 | HIG | `python scripts/hig-after-audit.py` | **HIG OK · 5 viewports** | 320/360/390/768/1280 |
@@ -25,7 +25,7 @@
 | Seguridad | `npm run test:security` | **58/58** | Guardas de reset, backups y errores |
 | Harness | `npm run test:harness` | **58/58** | Gate y evidencia |
 | Build | `npm run build` | **BUILD OK** | Sella BUILD_SHA |
-| Static | `npm run verify:static` | **5/5 gates** | `guard`, `lint`, `types`, `deps`, `build`; el 5/5 formal se repite en árbol limpio |
+| Static | `npm run verify:static` | **5/5 PASS** | `guard`, `lint`, `types`, `deps`, `build`; `verify:evidence -- --static` PASS en árbol limpio |
 
 ## `verify:full`
 

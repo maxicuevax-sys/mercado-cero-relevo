@@ -45,14 +45,14 @@ No se inició Oleada C, no se hizo merge, no se desplegó y no se tocó la base 
 | p0-dinero | **45 PASS · 0 FAIL · 3 KNOWN** |
 | webhook | **40/40** |
 | checkout | **19/19** |
-| demo-pay funcional | **58 PASS** (el check 0b exige árbol limpio; se repite tras el commit documental) |
+| demo-pay | **59 PASS · 0 FAIL** en árbol limpio (incluye 0b) |
 | Smoke A | **33/33** |
 | Smoke B | **45/45** |
 | HIG | **5/5 viewports** |
 | Accesibilidad B | axe **0** normal y alto contraste; 0 targets <44; sin overflow a 200 % |
 | Mobile 320/360 | **60/60** |
 | Build | **BUILD OK** |
-| Static | **5/5 gates verdes**; el artefacto formal se genera en árbol limpio |
+| Static | **5/5 PASS** y `verify:evidence -- --static` **PASS** en árbol limpio |
 
 ## Bloqueos que permanecen
 

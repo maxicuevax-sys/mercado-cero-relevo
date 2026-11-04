@@ -32,7 +32,7 @@
 
 ## P1-10 — No regresión
 
-El endpoint `/api/demo/pay` no se tocó. `npm run test:demo-pay` se ejecuta en aislamiento con puertos 3331–3333 y SQLite temporal. La corrida funcional es 58/58; el check 0b de árbol limpio se repite después del commit documental.
+El endpoint `/api/demo/pay` no se tocó. `npm run test:demo-pay` se ejecuta en aislamiento con puertos 3331–3333 y SQLite temporal. La corrida final es **59/59**, incluido el check 0b de árbol limpio.
 
 ## Residual declarado
 

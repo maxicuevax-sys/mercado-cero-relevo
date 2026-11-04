@@ -30,11 +30,11 @@
 - **Regresión:** B.1 65/65; p0-venta 66/0; p0-fiado 51/0; p0-corte 69/0;
   p0-integración 51/0; p0-dinero 45/0+3 KNOWN; webhook 40/40; checkout 19/19;
   smoke A 33/33; smoke B 45/45; HIG 5/5; a11y axe 0; mobile 60/60.
-- **demo-pay:** funcional 58/58 en árbol sucio; se repite tras el commit
-  documental para obtener 59/59 con el check 0b.
-- **Gates formales:** `verify:static` 5/5 gates verdes; el PASS formal se
-  repite en árbol limpio. `verify:full --only=...` fue 7/7 gates verdes pero
-  **partial** y no cuenta como full.
+- **demo-pay:** **59/59** en árbol limpio, incluido el check 0b.
+- **Gates formales:** `verify:static` **5/5 PASS** y
+  `verify:evidence -- --static` **PASS** en árbol limpio.
+  `verify:full --only=...` fue 7/7 gates verdes pero **partial** y no cuenta
+  como full.
 - **Handoff público:** **NO-GO**. Faltan `tunnel`/`preflight`, `latest.json`
   full, pey real, QR/lector real e iOS/Safari.
 - **Oleada C:** **NO INICIADA**. Pendientes en
