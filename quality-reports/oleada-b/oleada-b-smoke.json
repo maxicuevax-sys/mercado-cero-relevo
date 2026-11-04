@@ -1,0 +1,222 @@
+[
+  {
+    "name": "A: /caja carga sin IA ni micrófono",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "B: dos conceptos y total 70",
+    "ok": true,
+    "detail": "$70.00"
+  },
+  {
+    "name": "B: segundo concepto suma 90",
+    "ok": true,
+    "detail": "$90.00"
+  },
+  {
+    "name": "C: cambiar cantidad recalcula total",
+    "ok": true,
+    "detail": "$125.00"
+  },
+  {
+    "name": "D: eliminar concepto recalcula total",
+    "ok": true,
+    "detail": "$105.00"
+  },
+  {
+    "name": "E: cambio visible",
+    "ok": true,
+    "detail": "Cambio a devolver $15.00. Recibiste $120.00; se aplicaron $105.00."
+  },
+  {
+    "name": "E: efectivo registra una venta pagada con cambio",
+    "ok": true,
+    "detail": "{\"status\": \"paid\", \"totalCents\": 10500, \"paidCents\": 10500}"
+  },
+  {
+    "name": "E2: 1,000 se lee como mil pesos",
+    "ok": true,
+    "detail": "$1,000.00"
+  },
+  {
+    "name": "E2: 1,234.50 se lee con centavos",
+    "ok": true,
+    "detail": "$2,234.50"
+  },
+  {
+    "name": "E3: 1/2 no se convierte en 12 unidades",
+    "ok": true,
+    "detail": "La cantidad debe ser mayor que cero."
+  },
+  {
+    "name": "F: efectivo insuficiente muestra faltante",
+    "ok": true,
+    "detail": "Faltan $40.00 para completar el cobro. Escribe más efectivo o elige Digital, Fiado o Mixto."
+  },
+  {
+    "name": "F: confirmar deshabilitado",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "F2: cambiar a fiado limpia efectivo y cambio",
+    "ok": true,
+    "detail": "50.00"
+  },
+  {
+    "name": "G: doble pulsación crea una sola venta",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "H: error posterior al commit queda visible",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "H: reintento no duplica y reutiliza requestId",
+    "ok": true,
+    "detail": "[\"sale_26dd6353-2a15-4da9-9890-2d04d7bba339\", \"sale_26dd6353-2a15-4da9-9890-2d04d7bba339\"]"
+  },
+  {
+    "name": "I: digital queda pendiente, no pagado",
+    "ok": true,
+    "detail": "REGISTRADO"
+  },
+  {
+    "name": "I: link de cobro generado",
+    "ok": true,
+    "detail": "http://localhost:3100/pay/ord_be92e85b2edd4868a226?demo=1"
+  },
+  {
+    "name": "I: el cobro pendiente se reanuda al recargar",
+    "ok": true,
+    "detail": "Pedido A226"
+  },
+  {
+    "name": "L: demo se identifica como simulación",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "L: demo usa demo_paid",
+    "ok": true,
+    "detail": "demo_paid"
+  },
+  {
+    "name": "M: fiado crea deuda sin efectivo",
+    "ok": true,
+    "detail": "{\"status\": \"confirmed\", \"creditCents\": 10000, \"paidCents\": 0}"
+  },
+  {
+    "name": "M: el resultado no dice cobrado",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "M3: abono de fiado registrado",
+    "ok": true,
+    "detail": "200"
+  },
+  {
+    "name": "M3: historial muestra fiado saldado, no deuda viva",
+    "ok": true,
+    "detail": "DEMO\nPedido 87A3\n\nHoy 10:09 a.m. · Fiado · Cliente B\n\n1 × Fiado\n\n$100.00\nDemo, no es dinero real\nFiado saldado $100.00\nVer conceptos"
+  },
+  {
+    "name": "M2: cambio de venta mixta",
+    "ok": true,
+    "detail": "Cambio a devolver $40.00. Se aplicaron $60.00 al cobro."
+  },
+  {
+    "name": "M2: efectivo aplicado 60 y fiado 30",
+    "ok": true,
+    "detail": "{\"paidCents\": 6000, \"creditCents\": 3000}"
+  },
+  {
+    "name": "N: recupera borrador tras recargar",
+    "ok": true,
+    "detail": "$50.00"
+  },
+  {
+    "name": "O: Caja queda lista para otra venta",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "R: atrás regresa a Ventas",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "P: historial lista ventas",
+    "ok": true,
+    "detail": "15"
+  },
+  {
+    "name": "P: historial muestra pedido y estado",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "P: historial abre conceptos",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Q: /fiados conserva tab y ayuda",
+    "ok": true,
+    "detail": "http://localhost:3100/?tab=fiado&ayuda=1"
+  },
+  {
+    "name": "S/T: la venta manual no llamó a voz",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "sin errores de página",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "390 sin overflow",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "320 sin overflow",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "ventas 320 sin overflow",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "importe máximo sin overflow a 1448",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "importe máximo sin overflow a 1366",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "importe máximo sin overflow a 390",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "importe máximo sin overflow a 320",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "importe máximo con texto 200% sin overflow a 320",
+    "ok": true,
+    "detail": ""
+  }
+]

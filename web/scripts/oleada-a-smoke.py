@@ -84,7 +84,7 @@ def main() -> int:
         hrefs = page.evaluate("Array.from(document.querySelectorAll('.inicio-sidebar .inicio-nav__item')).map((a) => a.getAttribute('href'))")
         check(
             "Sidebar solo destinos reales y sin duplicados",
-            hrefs == ["/inicio", "/ventas", "/fiados", "/corte", "/metas", "/pendientes", "/?ayuda=1", "/?ayuda=1#ajustes"]
+            hrefs == ["/inicio", "/caja", "/ventas", "/fiados", "/corte", "/metas", "/pendientes", "/?ayuda=1", "/?ayuda=1#ajustes"]
             and len(set(hrefs)) == len(hrefs),
             json.dumps(hrefs),
         )
@@ -106,7 +106,7 @@ def main() -> int:
         page.locator(".mc-mobile-nav__more summary").click()
         page.wait_for_timeout(150)
         links = page.evaluate("Array.from(document.querySelectorAll('.mc-mobile-nav__panel a')).map(e => Math.round(e.getBoundingClientRect().height))")
-        check("Más abre y sus targets >=48", len(links) >= 4 and all(h >= 48 for h in links), json.dumps(links))
+        check("Más abre y sus targets >=48", len(links) >= 5 and all(h >= 48 for h in links), json.dumps(links))
         page.screenshot(path=str(OUT / "inicio-390-mas.png"), full_page=False)
         page.keyboard.press("Escape")
         page.wait_for_timeout(100)
@@ -124,7 +124,6 @@ def main() -> int:
         page.screenshot(path=str(OUT / "inicio-320.png"), full_page=False)
 
         aliases = {
-            "/ventas": "tab=caja",
             "/fiados": "tab=fiado",
             "/corte": "tab=corte",
             "/metas": "tab=meta",
@@ -134,23 +133,31 @@ def main() -> int:
             page.goto(BASE + path, wait_until="networkidle")
             check(f"{path} conserva compatibilidad", target in page.url, page.url)
 
-        page.goto(BASE + "/ventas?ayuda=1", wait_until="networkidle")
-        check(
-            "/ventas conserva ayuda=1",
-            "tab=caja" in page.url and "ayuda=1" in page.url,
-            page.url,
-        )
-
-        raw = page.request.get(BASE + "/ventas?ayuda=1", max_redirects=0)
+        raw = page.request.get(BASE + "/fiados?ayuda=1", max_redirects=0)
         location = raw.headers.get("location", "")
         check(
-            "/ventas responde 307 sin JavaScript",
-            raw.status == 307 and "tab=caja" in location and "ayuda=1" in location,
+            "/fiados responde 307 sin JavaScript",
+            raw.status == 307 and "tab=fiado" in location and "ayuda=1" in location,
             f"{raw.status} {location}",
         )
 
-        caja = page.goto(BASE + "/caja", wait_until="domcontentloaded")
-        check("/caja sigue reservada (404 honesto)", bool(caja and caja.status == 404), str(caja.status if caja else "?"))
+        caja = page.goto(BASE + "/caja", wait_until="networkidle")
+        page.wait_for_timeout(400)
+        check(
+            "/caja es una pantalla real",
+            bool(caja and caja.status == 200)
+            and page.locator("#caja-title").inner_text() == "Nueva venta",
+            f"{caja.status if caja else '?'} {page.url}",
+        )
+
+        ventas = page.goto(BASE + "/ventas", wait_until="networkidle")
+        page.wait_for_timeout(300)
+        check(
+            "/ventas es historial real",
+            bool(ventas and ventas.status == 200)
+            and page.locator("#ventas-title").inner_text() == "Ventas",
+            f"{ventas.status if ventas else '?'} {page.url}",
+        )
 
         page.goto(BASE + "/?ayuda=1#ajustes", wait_until="networkidle")
         page.wait_for_timeout(600)

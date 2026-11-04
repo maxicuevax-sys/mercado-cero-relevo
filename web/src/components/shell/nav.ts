@@ -3,6 +3,7 @@ import iconInicio from "@/assets/inicio/icons/inicio.svg";
 import iconVentas from "@/assets/inicio/icons/ventas.svg";
 import iconFiado from "@/assets/inicio/icons/fiado.svg";
 import iconCaja from "@/assets/inicio/icons/caja.svg";
+import iconReportes from "@/assets/inicio/icons/reportes.svg";
 import iconPendientes from "@/assets/inicio/icons/pendientes.svg";
 import iconMetas from "@/assets/inicio/icons/metas.svg";
 import iconAyuda from "@/assets/inicio/icons/ayuda.svg";
@@ -17,19 +18,20 @@ export type ShellNavItem = {
 };
 
 /**
- * Navegación real de la fundación. Solo destinos con pantalla y recorrido.
- * `/productos`, `/proveedores` y `/reportes` no se muestran hasta que existan;
- * `/caja` queda reservada para cuando Caja se separe de Ventas.
+ * Navegación operativa única para Inicio y Caja.
+ * Solo destinos con pantalla y recorrido. `/productos`, `/proveedores` y
+ * `/reportes` no se muestran hasta que existan.
  */
-export const inicioNav: ShellNavItem[] = [
+export const appNav: ShellNavItem[] = [
   { id: "inicio", label: "Inicio", href: "/inicio", icon: iconInicio },
+  { id: "caja", label: "Caja", href: "/caja", icon: iconCaja },
   { id: "ventas", label: "Ventas", href: "/ventas", icon: iconVentas },
   { id: "fiados", label: "Fiados", href: "/fiados", icon: iconFiado },
   {
     id: "corte",
     label: "Corte",
     href: "/corte",
-    icon: iconCaja,
+    icon: iconReportes,
     ariaLabel: "Corte de caja",
   },
   { id: "metas", label: "Metas", href: "/metas", icon: iconMetas },
@@ -41,7 +43,10 @@ export const inicioNav: ShellNavItem[] = [
   },
 ];
 
-export const inicioFoot: ShellNavItem[] = [
+export const inicioNav = appNav;
+export const cajaNav = appNav;
+
+export const appFoot: ShellNavItem[] = [
   {
     id: "ayuda",
     label: "Ayuda",
@@ -56,15 +61,23 @@ export const inicioFoot: ShellNavItem[] = [
   },
 ];
 
+export const inicioFoot = appFoot;
+export const cajaFoot = appFoot;
+
 export const mobilePrimary: ShellNavItem[] = [
-  inicioNav[0],
-  inicioNav[1],
-  inicioNav[2],
-  inicioNav[3],
+  appNav[0],
+  appNav[1],
+  appNav[2],
+  appNav[3],
 ];
 
+export const cajaMobilePrimary = mobilePrimary;
+
 export const mobileMore: ShellNavItem[] = [
-  inicioNav[4],
-  inicioNav[5],
-  ...inicioFoot,
+  appNav[4],
+  appNav[5],
+  appNav[6],
+  ...appFoot,
 ];
+
+export const cajaMobileMore = mobileMore;

@@ -163,7 +163,7 @@ export default async function InicioPage() {
         <div className="inicio-hero__content">
           <h2 id="inicio-hero-title">Nueva venta</h2>
           <p>Registra lo que vendiste y decide cómo cobrar.</p>
-          <Link href="/ventas" className="inicio-hero__cta">
+          <Link href="/caja" className="inicio-hero__cta">
             <Plus aria-hidden="true" /> Registrar
           </Link>
         </div>

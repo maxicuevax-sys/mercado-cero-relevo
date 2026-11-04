@@ -1,0 +1,290 @@
+[
+  {
+    "path": "/caja",
+    "viewport": "1448x1086",
+    "normal": {
+      "scrollWidth": 1448,
+      "clientWidth": 1448,
+      "h1": "Nueva venta",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 18,
+      "axe": []
+    },
+    "highContrast": {
+      "scrollWidth": 1448,
+      "clientWidth": 1448,
+      "h1": "Nueva venta",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 18,
+      "axe": []
+    },
+    "zoom200": {
+      "scrollWidth": 1448,
+      "clientWidth": 1448,
+      "h1": "Nueva venta",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 18
+    }
+  },
+  {
+    "path": "/caja",
+    "viewport": "1366x768",
+    "normal": {
+      "scrollWidth": 1366,
+      "clientWidth": 1366,
+      "h1": "Nueva venta",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 18,
+      "axe": []
+    },
+    "highContrast": {
+      "scrollWidth": 1366,
+      "clientWidth": 1366,
+      "h1": "Nueva venta",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 18,
+      "axe": []
+    },
+    "zoom200": {
+      "scrollWidth": 1366,
+      "clientWidth": 1366,
+      "h1": "Nueva venta",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 18
+    }
+  },
+  {
+    "path": "/caja",
+    "viewport": "390x844",
+    "normal": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "h1": "Nueva venta",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 21,
+      "axe": []
+    },
+    "highContrast": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "h1": "Nueva venta",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 21,
+      "axe": []
+    },
+    "zoom200": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "h1": "Nueva venta",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 21
+    }
+  },
+  {
+    "path": "/caja",
+    "viewport": "320x640",
+    "normal": {
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "h1": "Nueva venta",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 21,
+      "axe": []
+    },
+    "highContrast": {
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "h1": "Nueva venta",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 21,
+      "axe": []
+    },
+    "zoom200": {
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "h1": "Nueva venta",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 21
+    }
+  },
+  {
+    "path": "/ventas",
+    "viewport": "1448x1086",
+    "normal": {
+      "scrollWidth": 1448,
+      "clientWidth": 1448,
+      "h1": "Ventas",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 22,
+      "axe": []
+    },
+    "highContrast": {
+      "scrollWidth": 1448,
+      "clientWidth": 1448,
+      "h1": "Ventas",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 22,
+      "axe": []
+    },
+    "zoom200": {
+      "scrollWidth": 1448,
+      "clientWidth": 1448,
+      "h1": "Ventas",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 22
+    }
+  },
+  {
+    "path": "/ventas",
+    "viewport": "1366x768",
+    "normal": {
+      "scrollWidth": 1366,
+      "clientWidth": 1366,
+      "h1": "Ventas",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 22,
+      "axe": []
+    },
+    "highContrast": {
+      "scrollWidth": 1366,
+      "clientWidth": 1366,
+      "h1": "Ventas",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 22,
+      "axe": []
+    },
+    "zoom200": {
+      "scrollWidth": 1366,
+      "clientWidth": 1366,
+      "h1": "Ventas",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 22
+    }
+  },
+  {
+    "path": "/ventas",
+    "viewport": "390x844",
+    "normal": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "h1": "Ventas",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 25,
+      "axe": []
+    },
+    "highContrast": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "h1": "Ventas",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 25,
+      "axe": []
+    },
+    "zoom200": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "h1": "Ventas",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 25
+    }
+  },
+  {
+    "path": "/ventas",
+    "viewport": "320x640",
+    "normal": {
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "h1": "Ventas",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 25,
+      "axe": []
+    },
+    "highContrast": {
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "h1": "Ventas",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 25,
+      "axe": []
+    },
+    "zoom200": {
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "h1": "Ventas",
+      "main": 1,
+      "skip": 1,
+      "currentVisible": 1,
+      "under44": [],
+      "controls": 25
+    }
+  }
+]

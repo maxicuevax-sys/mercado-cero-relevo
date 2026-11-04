@@ -1,22 +1,30 @@
 # Migración integral de Mercado Cero
 
-> **Estado:** Oleada A (fundación compartida) implementada y commiteada en `d30a31c`; Oleada B (Caja y Nueva venta) es el siguiente paso.
-> **Rama:** `design/oleada-a-fundacion` · **Línea base:** `62c3fed` · **Commit de la ola:** `d30a31c`
-> **Árbol:** limpio tras el commit documental final; la evidencia estática se regenera sobre el HEAD vigente.
-> **Servidor de referencia:** `http://localhost:3100`, buildSha `d30a31c...`.
+> **Estado:** Oleada A cerrada en `26c7741`; Oleada B (Caja y Ventas) implementada en local, **sin commit**. Verificador la aprueba como base para Oleada C; cierre formal y handoff público siguen pendientes.
+> **Rama:** `design/oleada-b-caja-ventas` · **Base/tag:** `oleada-a-cierre` = `26c7741`
+> **Árbol:** sucio (implementación B + auditorías/evidencia local). El commit de checkpoint está autorizado por el verificador; falta ejecutarlo y regenerar `latest-static`.
+> **Servidor de referencia:** `http://localhost:3100` con `APP_URL=http://localhost:3100`.
 > **Veredicto de Fase 1 (independiente):** **APROBADO CON LIMITACIONES** para visual/funcional/demo; **Handoff/merge RECHAZADO — NO GO**. Certificación WCAG: **NO EMITIDA**. Lector de pantalla real: **NOT RUN**.
 > **Regla:** ninguna pantalla se declara migrada por tener diseño nuevo; debe conservar funciones, datos, navegación, estados y pasar verificación independiente.
 
-## 0. Oleada A — estado local
+## 0. Oleadas A y B
 
-- **A1 Tipografía:** Hearth y Alder integradas con `next/font/local`, OFL 1.1, hashes verificados y tokens `--font-hearth`/`--font-alder`.
-- **A2 Shell:** `AppShell`, `Sidebar`, `TopBar`, `MobileNav`, `SkipLink`, `BrandLockup`, `PageHeader`; aplicado a `/inicio`. Caja conserva su shell legacy hasta Oleada B.
-- **A3 Componentes:** `MaskIcon`, `CurrencyAmount`, `ProgressIndicator`, `SectionHeader`, `EmptyState`; usados por Inicio sin tocar estado ni servicios.
-- **A4 Rutas:** `/ventas`, `/fiados`, `/corte`, `/metas`, `/pendientes` son alias HTTP 307 a `/?tab=...`; conservan `ayuda=1`. `/caja` sigue 404 (reservada). `/` y `?tab=` intactos. `/pay/**` intacto.
-- **Navegación:** solo destinos reales; Productos/Proveedores/Reportes no se enlazan hasta tener pantalla.
-- **Evidencia local:** smoke 34/34; HIG 5/5; variantes 10/10; axe 0 en Inicio normal/HC; p0-venta 66/0; p0-fiado 51/0; p0-corte 69/0; p0-integración 51/0; p0-dinero 45/0 + 3 KNOWN; webhook 40/40; checkout 19/19.
-- **Pendiente:** `verify:full --skip=tunnel,preflight`, migración del shell de Caja (B), sincronización URL↔tab, consolidación de tokens/foco, PWA instalada/offline y handoff público.
+### A — cerrada
 
+- Hearth/Alder, AppShell y componentes compartidos; `/inicio` migrado.
+- Commit `d30a31c` + cierre documental `26c7741`; tag `oleada-a-cierre`.
+- `latest-static` 5/5 y `verify:evidence -- --static` PASS en `26c7741`.
+- Entrega: `quality-reports/oleada-a/ENTREGA_OLEADA_A.md`.
+
+### B — local, sin commit
+
+- **B1 Caja:** `/caja` real con venta manual, conceptos editables, efectivo/cambio, digital con link/QR, fiado, mixto y resultado. Sin IA/micrófono obligatorio.
+- **B2 Ventas:** `/ventas` real, paginada, con estado, importe, método, conceptos, saldo vivo de fiado y pendiente digital.
+- **B3 Navegación:** nav única Inicio/Caja/Ventas/Fiados/Corte/Metas/Pendientes; `/fiados`, `/corte`, `/metas` y `/pendientes` siguen como alias 307.
+- **B4 Contratos:** sin cambios en `lib/`, APIs financieras, webhook, checkout ni `/pay/**`; Caja nueva usa las mismas APIs.
+- **Evidencia local:** smoke B 44/44; A 33/33; a11y B 8/8 con axe 0 normal/HC; HIG legacy 5/5; mobile-320 60/60; p0 completos sin regresión.
+- **Pendiente:** commit, `verify:static`/`verify:evidence`, full documentado como parcial, HIG específico de `/caja`/`/ventas`, decisión sobre idempotencia de `/api/demo/pay` y retiro de la Caja legacy en Oleada C.
+- **Entrega:** `quality-reports/oleada-b/ENTREGA_OLEADA_B.md`.
 
 ## 1. Principios de la migración
 
