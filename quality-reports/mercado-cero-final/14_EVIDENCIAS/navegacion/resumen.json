@@ -1,0 +1,114 @@
+{
+  "base": "http://localhost:3100",
+  "checks": [
+    {
+      "name": "primer Tab = saltar al contenido",
+      "ok": true,
+      "detail": {
+        "text": "Saltar al contenido",
+        "href": "#inicio-main",
+        "y": 10
+      }
+    },
+    {
+      "name": "Enter mueve foco a main",
+      "ok": true,
+      "detail": {
+        "tag": "MAIN",
+        "id": "inicio-main",
+        "scrollY": 0
+      }
+    },
+    {
+      "name": "CTA Registrar abre Caja",
+      "ok": true,
+      "detail": {
+        "url": "http://localhost:3100/",
+        "h1": "Caja"
+      }
+    },
+    {
+      "name": "marca de Caja vuelve a Inicio",
+      "ok": true,
+      "detail": {
+        "url": "http://localhost:3100/inicio"
+      }
+    },
+    {
+      "name": "deep link fiado",
+      "ok": true,
+      "detail": {
+        "url": "http://localhost:3100/?tab=fiado",
+        "active": [
+          "Fiado",
+          "Fiado"
+        ],
+        "panel": "Fiado\n\nLo que te deben, no dinero recibido.\n\nSaldo pendiente\n\n$50.00\n\n1 cliente\n\nFiado es una libreta de deudas: no es d"
+      }
+    },
+    {
+      "name": "deep link corte",
+      "ok": true,
+      "detail": {
+        "url": "http://localhost:3100/?tab=corte",
+        "active": [
+          "Corte",
+          "Corte"
+        ],
+        "panel": "Corte de caja\n\nCompara lo contado con lo esperado.\n\nAntes de cerrar\n\nLo que vence hoy, lo vencido y lo de mañana. Tambié"
+      }
+    },
+    {
+      "name": "deep link meta",
+      "ok": true,
+      "detail": {
+        "url": "http://localhost:3100/?tab=meta",
+        "active": [
+          "Meta",
+          "Meta"
+        ],
+        "panel": "Meta\n\nUna meta a la vez.\n\nMi camino\n\nMi primera sombrilla\n\n$300.00 de $1,800.00\n\n17%\n\n$\nApartar\n\nFalta\n\n$1,500.00\n\nPor s"
+      }
+    },
+    {
+      "name": "deep link pendientes",
+      "ok": true,
+      "detail": {
+        "url": "http://localhost:3100/?tab=pendientes",
+        "active": [
+          "Pendientes",
+          "Tareas"
+        ],
+        "panel": "Pendientes\nAnotar pendiente\n\nLo que queda para después.\n\nAún no hay pendientes.\n\nAquí van los recordatorios del puesto: "
+      }
+    },
+    {
+      "name": "Ver todos >=48 px",
+      "ok": true,
+      "detail": {
+        "x": 287.96875,
+        "y": 808.703125,
+        "width": 81.03125,
+        "height": 48
+      }
+    },
+    {
+      "name": "CTA visible a 390x844",
+      "ok": true,
+      "detail": {
+        "x": 162.390625,
+        "y": 711.703125,
+        "width": 133.21875,
+        "height": 48
+      }
+    },
+    {
+      "name": "Ajustes abre Ayuda y ajustes",
+      "ok": true,
+      "detail": {
+        "dialogs": 1
+      }
+    }
+  ],
+  "pageErrors": []
+}

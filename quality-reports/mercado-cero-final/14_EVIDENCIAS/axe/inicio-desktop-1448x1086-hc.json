@@ -1,0 +1,15 @@
+{
+  "violations": [],
+  "passes": 36,
+  "incomplete": 0,
+  "inapplicable": 55,
+  "label": "inicio-desktop-1448x1086-hc",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa",
+    "best-practice"
+  ]
+}

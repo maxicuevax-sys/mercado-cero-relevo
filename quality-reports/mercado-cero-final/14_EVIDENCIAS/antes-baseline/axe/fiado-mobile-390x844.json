@@ -1,0 +1,15 @@
+{
+  "violations": [],
+  "passes": 38,
+  "incomplete": 1,
+  "inapplicable": 53,
+  "label": "fiado-mobile-390x844",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa",
+    "best-practice"
+  ]
+}

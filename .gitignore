@@ -50,3 +50,7 @@ __pycache__/
 harness/evidence/runs/
 harness/evidence/latest.json
 harness/evidence/latest-static.json
+
+# Capturas de auditoría: artefactos locales grandes. Los informes y JSON
+# de evidencia sí se versionan; las PNG se conservan en el workspace.
+quality-reports/**/*.png

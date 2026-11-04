@@ -1,0 +1,15 @@
+{
+  "violations": [],
+  "passes": 47,
+  "incomplete": 0,
+  "inapplicable": 44,
+  "label": "corte-mobile-390x844",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa",
+    "best-practice"
+  ]
+}

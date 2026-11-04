@@ -1,0 +1,15 @@
+{
+  "violations": [],
+  "passes": 46,
+  "incomplete": 0,
+  "inapplicable": 45,
+  "label": "meta-mobile-390x844",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa",
+    "best-practice"
+  ]
+}

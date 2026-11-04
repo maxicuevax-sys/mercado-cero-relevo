@@ -1,0 +1,15 @@
+{
+  "violations": [],
+  "passes": 38,
+  "incomplete": 0,
+  "inapplicable": 53,
+  "label": "pendientes-mobile-390x844",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa",
+    "best-practice"
+  ]
+}

@@ -1,0 +1,431 @@
+{
+  "route": "caja",
+  "path": "/",
+  "viewport": "desktop-1448x1086",
+  "status": 200,
+  "metrics": {
+    "url": "http://localhost:3100/",
+    "title": "Mercado Cero · La caja que habla",
+    "h1": "Caja",
+    "active": [
+      "Caja",
+      "Caja"
+    ],
+    "skipLinks": [
+      "Saltar al contenido"
+    ],
+    "scrollWidth": 1448,
+    "clientWidth": 1448,
+    "bodyHeight": 2073,
+    "viewport": {
+      "w": 1448,
+      "h": 1086
+    },
+    "buttons": 36,
+    "links": 3,
+    "inputs": 1,
+    "buttonLabels": [
+      "Caja",
+      "Fiado",
+      "Corte",
+      "Meta",
+      "Pendientes",
+      "Modo demo",
+      "Ayuda",
+      "DEMO",
+      "Verificar",
+      "Por cobrar de hoy $120.00 Ver la tira",
+      "Escuchar",
+      "Interpretar",
+      "Agregar a mano",
+      "Fiar",
+      "Cobrar",
+      "Fiar",
+      "Quesadillas $90",
+      "Juan pagó $50",
+      "¿Cuánto vendí?",
+      "Agregar producto",
+      "Nueva venta Registrar",
+      "Cobrar",
+      "Producto",
+      "Gasto",
+      "Reporte",
+      "Ver la libreta de fiado",
+      "Ver",
+      "2 × Quesadilla Hoy 1:32 p.m. Pago demo (simulado) $70.00",
+      "1 × Pedido para llevar Hoy 1:22 p.m. Esperando confirmación $120.00",
+      "3 × Quesadillas · 2 × Agua de horchata Ayer 2:20 p.m. Pago demo (simulado) $155.00"
+    ],
+    "linkLabels": [
+      "Saltar al contenido",
+      "Mercado Cero La caja que habla",
+      "Fotos: créditos"
+    ],
+    "kpis": [],
+    "hero": null,
+    "pending": null,
+    "suggestion": null,
+    "cta": null,
+    "main": {
+      "x": 248,
+      "y": 65,
+      "w": 1200,
+      "h": 2008
+    },
+    "sidebar": {
+      "x": 0,
+      "y": 0,
+      "w": 248,
+      "h": 1086
+    },
+    "fontStatus": "loaded",
+    "navItems": [
+      "Caja",
+      "Fiado",
+      "Corte",
+      "Meta",
+      "Pendientes"
+    ],
+    "hasForm": 0,
+    "hasQR": 0,
+    "demoText": 10,
+    "bodyText": "Saltar al contenido Mercado Cero La caja que habla Caja Fiado Corte Meta Pendientes Modo demo Ayuda Antojitos de Lupita Coyoacán, CDMX · martes, 3 de noviembre DEMO Caja Verificar Ventas registradas hoy $190.00 · Cobrado confirmado $0.00 · Por cobrar de hoy $120.00 Por cobrar de hoy $120.00 Ver la tira ¿Qué vendiste? Habla, escribe o agrega a mano; tú confirmas. TU VENTA en blanco $0.00 La IA interpreta o lo agregas a mano; tú confirmas. Mantén y habla Escribe la venta Escuchar Interpretar Agreg"
+  },
+  "focusOrder": [
+    {
+      "tag": "A",
+      "text": "Saltar al contenido",
+      "role": null,
+      "href": "#main",
+      "name": null,
+      "rect": {
+        "x": 16,
+        "y": 16,
+        "w": 187,
+        "h": 48
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Mercado Cero La caja que habla",
+      "role": null,
+      "href": "/inicio",
+      "name": null,
+      "rect": {
+        "x": 16,
+        "y": 24,
+        "w": 216,
+        "h": 65
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Caja",
+      "role": null,
+      "href": null,
+      "name": null,
+      "rect": {
+        "x": 16,
+        "y": 107,
+        "w": 216,
+        "h": 48
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Fiado",
+      "role": null,
+      "href": null,
+      "name": null,
+      "rect": {
+        "x": 16,
+        "y": 159,
+        "w": 216,
+        "h": 48
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Corte",
+      "role": null,
+      "href": null,
+      "name": null,
+      "rect": {
+        "x": 16,
+        "y": 211,
+        "w": 216,
+        "h": 48
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Meta",
+      "role": null,
+      "href": null,
+      "name": null,
+      "rect": {
+        "x": 16,
+        "y": 263,
+        "w": 216,
+        "h": 48
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Pendientes",
+      "role": null,
+      "href": null,
+      "name": null,
+      "rect": {
+        "x": 16,
+        "y": 315,
+        "w": 216,
+        "h": 48
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Modo demo",
+      "role": null,
+      "href": null,
+      "name": null,
+      "rect": {
+        "x": 16,
+        "y": 970,
+        "w": 216,
+        "h": 48
+      }
+    }
+  ],
+  "axe": {
+    "violations": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+        "nodes": [
+          {
+            "target": [
+              ".brand-lockup"
+            ],
+            "html": "<a class=\"brand-lockup\" href=\"/inicio\" aria-label=\"Ir a Inicio\">",
+            "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          }
+        ]
+      }
+    ],
+    "passes": 49,
+    "incomplete": 1,
+    "inapplicable": 42,
+    "label": "caja-desktop-1448x1086",
+    "tags": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa",
+      "wcag22aa",
+      "best-practice"
+    ]
+  },
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failedRequests": [],
+  "axeHighContrast": {
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "target": [
+              ".brand-name"
+            ],
+            "html": "<p class=\"brand-name\">Mercado Cero</p>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 14.4pt (19.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".brand-tagline"
+            ],
+            "html": "<p class=\"brand-tagline\">La caja que habla</p>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.34 (foreground color: #cfe3d4, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "button[data-index=\"02\"] > .min-w-0"
+            ],
+            "html": "<span class=\"min-w-0\">Fiado</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "button[data-index=\"03\"] > .min-w-0"
+            ],
+            "html": "<span class=\"min-w-0\">Corte</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "button[data-index=\"04\"] > .min-w-0"
+            ],
+            "html": "<span class=\"min-w-0\">Meta</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "button[aria-label=\"Pendientes\"] > .min-w-0"
+            ],
+            "html": "<span class=\"min-w-0\">Pendientes</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".min-h-\\[48px\\].text-left.hover\\:text-ink:nth-child(1) > .min-w-0"
+            ],
+            "html": "<span class=\"min-w-0\">Modo demo</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".sidebar-label"
+            ],
+            "html": "<span class=\"sidebar-label min-w-0\">Ayuda</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".home-sale__kicker"
+            ],
+            "html": "<span class=\"home-sale__kicker\">Nueva venta</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.59 (foreground color: #f2c768, background color: #ffffff, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".home-sale__title"
+            ],
+            "html": "<span class=\"home-sale__title\">Registrar</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 16.2pt (21.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+        "nodes": [
+          {
+            "target": [
+              ".brand-lockup"
+            ],
+            "html": "<a class=\"brand-lockup\" href=\"/inicio\" aria-label=\"Ir a Inicio\">",
+            "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          }
+        ]
+      }
+    ],
+    "passes": 49,
+    "incomplete": 0,
+    "inapplicable": 42,
+    "label": "caja-desktop-1448x1086-hc",
+    "tags": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa",
+      "wcag22aa",
+      "best-practice"
+    ]
+  },
+  "metricsHighContrast": {
+    "url": "http://localhost:3100/",
+    "title": "Mercado Cero · La caja que habla",
+    "h1": "Caja",
+    "active": [
+      "Caja",
+      "Caja"
+    ],
+    "skipLinks": [
+      "Saltar al contenido"
+    ],
+    "scrollWidth": 1448,
+    "clientWidth": 1448,
+    "bodyHeight": 2073,
+    "viewport": {
+      "w": 1448,
+      "h": 1086
+    },
+    "buttons": 36,
+    "links": 3,
+    "inputs": 1,
+    "buttonLabels": [
+      "Caja",
+      "Fiado",
+      "Corte",
+      "Meta",
+      "Pendientes",
+      "Modo demo",
+      "Ayuda",
+      "DEMO",
+      "Verificar",
+      "Por cobrar de hoy $120.00 Ver la tira",
+      "Escuchar",
+      "Interpretar",
+      "Agregar a mano",
+      "Fiar",
+      "Cobrar",
+      "Fiar",
+      "Quesadillas $90",
+      "Juan pagó $50",
+      "¿Cuánto vendí?",
+      "Agregar producto",
+      "Nueva venta Registrar",
+      "Cobrar",
+      "Producto",
+      "Gasto",
+      "Reporte",
+      "Ver la libreta de fiado",
+      "Ver",
+      "2 × Quesadilla Hoy 1:32 p.m. Pago demo (simulado) $70.00",
+      "1 × Pedido para llevar Hoy 1:22 p.m. Esperando confirmación $120.00",
+      "3 × Quesadillas · 2 × Agua de horchata Ayer 2:20 p.m. Pago demo (simulado) $155.00"
+    ],
+    "linkLabels": [
+      "Saltar al contenido",
+      "Mercado Cero La caja que habla",
+      "Fotos: créditos"
+    ],
+    "kpis": [],
+    "hero": null,
+    "pending": null,
+    "suggestion": null,
+    "cta": null,
+    "main": {
+      "x": 248,
+      "y": 65,
+      "w": 1200,
+      "h": 2008
+    },
+    "sidebar": {
+      "x": 0,
+      "y": 0,
+      "w": 248,
+      "h": 1086
+    },
+    "fontStatus": "loaded",
+    "navItems": [
+      "Caja",
+      "Fiado",
+      "Corte",
+      "Meta",
+      "Pendientes"
+    ],
+    "hasForm": 0,
+    "hasQR": 0,
+    "demoText": 10,
+    "bodyText": "Saltar al contenido Mercado Cero La caja que habla Caja Fiado Corte Meta Pendientes Modo demo Ayuda Antojitos de Lupita Coyoacán, CDMX · martes, 3 de noviembre DEMO Caja Verificar Ventas registradas hoy $190.00 · Cobrado confirmado $0.00 · Por cobrar de hoy $120.00 Por cobrar de hoy $120.00 Ver la tira ¿Qué vendiste? Habla, escribe o agrega a mano; tú confirmas. TU VENTA en blanco $0.00 La IA interpreta o lo agregas a mano; tú confirmas. Mantén y habla Escribe la venta Escuchar Interpretar Agreg"
+  }
+}
