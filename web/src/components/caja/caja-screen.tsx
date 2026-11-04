@@ -183,9 +183,15 @@ export function CajaScreen({
 
     try {
       const unknown = readStoredUnknown();
-      const storedRequest = readStoredRequest();
-      if (unknown && storedRequest?.requestId === unknown.requestId) {
+      if (unknown) {
+        // La llave del intento desconocido es durable: si el storage de la
+        // solicitud se perdió, se reconstruye desde el aviso para reconciliar.
         setUnknownResult(unknown);
+        requestRef.current = {
+          requestId: unknown.requestId,
+          signature: unknown.signature,
+        };
+        writeStoredRequest(requestRef.current);
       }
     } catch {
       window.localStorage.removeItem(UNKNOWN_KEY);
