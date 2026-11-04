@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { lineTotalCents, newLineId, parseMoneyCents, parseQuantity, type DraftLine } from "./types";
 
@@ -157,7 +156,7 @@ export function SaleLineItems({
                   disabled={disabled}
                   aria-label={`Quitar ${line.description || "concepto"}`}
                 >
-                  <Trash2 aria-hidden="true" />
+                  <span className="mc-caja-trash" aria-hidden="true">×</span>
                 </button>
                 {showBaseError ? (
                   <p id={`line-error-${line.id}`} className="mc-caja-field-error" role="alert">
@@ -212,7 +211,7 @@ export function SaleLineItems({
             />
           </label>
           <button type="button" className="mc-caja-button mc-caja-button--secondary" onClick={addLine} disabled={disabled}>
-            <Plus aria-hidden="true" />
+            <span aria-hidden="true">+</span>
             Agregar
           </button>
         </div>

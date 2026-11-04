@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, NotebookPen, ReceiptText, ShieldCheck } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatMxn } from "@/lib/format";
 import type { Order } from "@/lib/types";
@@ -64,9 +63,6 @@ export function SaleResult({
 
   return (
     <section className="mc-caja-card mc-caja-result" aria-labelledby="mc-caja-result-title">
-      <span className="mc-caja-result__icon" aria-hidden="true">
-        {isCreditOnly ? <NotebookPen /> : isDigitalDemo || isCashDemo ? <ReceiptText /> : <CheckCircle2 />}
-      </span>
       <p className="mc-caja-eyebrow">Resultado</p>
       <h2 id="mc-caja-result-title" tabIndex={-1}>
         {title}
@@ -136,13 +132,11 @@ export function SaleResult({
 
       {openCredit ? (
         <p className="mc-caja-result__banner">
-          <NotebookPen aria-hidden="true" />
           Quedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.
         </p>
       ) : null}
       {order.status === "paid" && !hasCash ? (
         <p className="mc-caja-result__banner">
-          <ShieldCheck aria-hidden="true" />
           Confirmación del proveedor, no de una captura.
         </p>
       ) : null}

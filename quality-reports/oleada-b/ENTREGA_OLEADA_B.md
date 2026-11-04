@@ -57,6 +57,7 @@ Se construyeron pantallas reales para el recorrido:
 | `web/next.config.ts` | `Cache-Control: private` para `/caja` y `/ventas`. |
 | `web/scripts/oleada-a-smoke.py` | Actualizado a rutas reales de B. |
 | `web/src/app/ventas/route.ts` | Eliminado; sustituido por `page.tsx`. |
+| `web/src/components/caja-app.tsx` | `ClosingChecklist` se carga con `next/dynamic` porque solo vive en Corte; evita empujar el JS inicial sobre el presupuesto. |
 
 ## 4. Contratos preservados
 
@@ -94,7 +95,8 @@ La Caja nueva usa las mismas APIs que el motor: `POST/GET /api/orders`, `GET /ap
 | p0-dinero | **45/0 + 3 KNOWN** | `harness/evidence/p0-dinero-e2e.json` |
 | webhook | **40/40** | `harness/evidence/` |
 | checkout | **19/19** | `harness/evidence/` |
-| TypeScript / ESLint / build | PASS | buildSha `26c7741...` |
+| TypeScript / ESLint / build | PASS | buildSha `af381ad...` (docs) / `d13d3df` (código) |
+| `perf` | **PASS** — 200.1 KiB / 201.0 KiB JS inicial | `node scripts/perf-budget.mjs` |
 | `verify:static` | **5/5 PASS** | `harness/evidence/latest-static.json` |
 | `verify:evidence -- --static` | **PASS** | SHA/build/árbol limpio en `d13d3df` |
 
@@ -158,9 +160,10 @@ Informes en `quality-reports/oleada-b/`.
 4. La cola de pendientes reanuda solo el último; los demás quedan visibles en la libreta legacy de Pendientes.
 5. `/ventas` no tiene filtros/búsqueda ni desglose de pagos; 25 por página.
 6. El total limita su tamaño para evitar overflow al 200 %; no escala indefinidamente con zoom.
-7. `APP_URL` local se fuerza para el link/QR; el handoff público sigue bloqueado por el túnel.
-8. No se probó pago pey real, QR real, lector de pantalla, iOS/Safari, HCM real ni full gate.
-9. `latest.json` full sigue siendo de `9206ea1`; no se declara GO.
+7. `ClosingChecklist` de la Caja legacy ahora es lazy; el resto de `caja-app.tsx` no se tocó.
+8. `APP_URL` local se fuerza para el link/QR; el handoff público sigue bloqueado por el túnel.
+9. No se probó pago pey real, QR real, lector de pantalla, iOS/Safari, HCM real ni full gate.
+10. `latest.json` full sigue siendo de `9206ea1`; no se declara GO.
 
 ## 12. Siguiente — Oleada C
 

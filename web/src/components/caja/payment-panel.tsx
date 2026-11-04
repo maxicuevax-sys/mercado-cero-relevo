@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Check, Copy, ExternalLink, LoaderCircle, QrCode, RefreshCw } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatMxn } from "@/lib/format";
 import type { Order } from "@/lib/types";
@@ -169,11 +168,11 @@ export function PaymentPanel({
           <p>Link de cobro</p>
           <div className="mc-caja-link__row">
             <a href={order.paymentUrl} target="_blank" rel="noreferrer">
-              Abrir link <ExternalLink aria-hidden="true" />
+              Abrir link
               <span className="sr-only"> (abre en una pestaña nueva)</span>
             </a>
             <button type="button" className="mc-caja-icon-button" onClick={copyLink}>
-              {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+              <span aria-hidden="true">{copied ? "✓" : "⧉"}</span>
               <span className="sr-only">Copiar link</span>
               <span className="sr-only" role="status" aria-live="polite">
                 {copied ? "Link copiado" : ""}
@@ -192,7 +191,7 @@ export function PaymentPanel({
             onClick={() => void generate("link")}
             disabled={busy !== null}
           >
-            {busy === "link" ? <LoaderCircle className="mc-caja-spin" aria-hidden="true" /> : <ExternalLink aria-hidden="true" />}
+            {busy === "link" ? <span className="mc-caja-spinner" aria-hidden="true" /> : null}
             Generar link
           </button>
         ) : null}
@@ -203,7 +202,7 @@ export function PaymentPanel({
             onClick={() => void generate("qr")}
             disabled={busy !== null}
           >
-            {busy === "qr" ? <LoaderCircle className="mc-caja-spin" aria-hidden="true" /> : <QrCode aria-hidden="true" />}
+            {busy === "qr" ? <span className="mc-caja-spinner" aria-hidden="true" /> : null}
             Generar QR
           </button>
         ) : null}
@@ -213,7 +212,7 @@ export function PaymentPanel({
           onClick={() => void refresh()}
           disabled={busy !== null}
         >
-          {busy === "refresh" ? <LoaderCircle className="mc-caja-spin" aria-hidden="true" /> : <RefreshCw aria-hidden="true" />}
+          {busy === "refresh" ? <span className="mc-caja-spinner" aria-hidden="true" /> : null}
           Actualizar estado
         </button>
       </div>

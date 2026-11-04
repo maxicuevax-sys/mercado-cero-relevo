@@ -240,6 +240,20 @@
   height: 20px;
 }
 
+.mc-caja-trash {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.mc-caja-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: mc-caja-spin 0.8s linear infinite;
+}
+
 .mc-caja-add {
   margin-top: 20px;
   padding-top: 18px;

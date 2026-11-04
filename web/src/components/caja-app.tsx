@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, memo, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import ahorroArt from "@/assets/brand/ilustraciones/transparent/ahorro.png";
@@ -17,11 +18,15 @@ import iconRegistradora from "@/assets/brand/iconos/transparent/registradora.png
 import iconReporte from "@/assets/brand/iconos/transparent/reporte.png";
 import iconTienda from "@/assets/brand/iconos/transparent/tienda.png";
 import { AnimatedAmount } from "@/components/animated-amount";
-import { ClosingChecklist } from "@/components/closing-checklist";
 import { CompanionPreferences } from "@/components/companion-preferences";
 import { PendingPayments } from "@/components/pending-payments";
 import { PendingTasksPanel } from "@/components/pending-tasks";
 import { ScreenHeading } from "@/components/screen-heading";
+
+const ClosingChecklist = dynamic(
+  () => import("@/components/closing-checklist").then((module) => module.ClosingChecklist),
+  { ssr: false },
+);
 import {
   ArrowUpRight,
   Banknote,

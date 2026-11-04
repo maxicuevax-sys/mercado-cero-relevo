@@ -1,15 +1,14 @@
 "use client";
 
-import { ArrowLeftRight, Banknote, NotebookPen, QrCode } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatMxn } from "@/lib/format";
 import { parseMoneyCents, type PaymentChoice } from "./types";
 
-const METHODS: Array<{ id: PaymentChoice; label: string; icon: typeof Banknote }> = [
-  { id: "cash", label: "Efectivo", icon: Banknote },
-  { id: "digital", label: "Digital", icon: QrCode },
-  { id: "credit", label: "Fiado", icon: NotebookPen },
-  { id: "mixed", label: "Mixto", icon: ArrowLeftRight },
+const METHODS: Array<{ id: PaymentChoice; label: string }> = [
+  { id: "cash", label: "Efectivo" },
+  { id: "digital", label: "Digital" },
+  { id: "credit", label: "Fiado" },
+  { id: "mixed", label: "Mixto" },
 ];
 
 export function SaleSummary({
@@ -94,7 +93,7 @@ export function SaleSummary({
       <fieldset className="mc-caja-methods">
         <legend>Cómo se paga</legend>
         <div className="mc-caja-methods__grid">
-          {METHODS.map(({ id, label, icon: Icon }) => (
+          {METHODS.map(({ id, label }) => (
             <button
               key={id}
               type="button"
@@ -103,7 +102,6 @@ export function SaleSummary({
               onClick={() => onMethod(id)}
               disabled={saving}
             >
-              <Icon aria-hidden="true" />
               <span>{label}</span>
             </button>
           ))}
