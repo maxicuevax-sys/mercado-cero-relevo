@@ -379,3 +379,13 @@ El worktree temporal y las junctions se eliminaron después. **No se modificó p
 **Cierre formal local: CERRADO en `178b619`.** Para que el working tree actual sea un handoff reproducible, hay que commitear la evidencia 59 y `EVIDENCIA_FINAL.md`/`runtime-after.txt` y repetir `verify:evidence`; el addendum que estás leyendo también queda sin commit por instrucción.
 
 **Handoff público: NO-GO** por tunnel/preflight, full pendiente y los 2 P0 + 13 P1 de Oleada B. **Oleada C: no iniciada.**
+
+---
+
+## Nota final — empaquetado resuelto (`711aab2`)
+
+**Verificado:** HEAD `711aab2f86bc98f9a744c58845f454dc2e4f4c32`, rama `design/oleada-b-caja-ventas`, árbol limpio al iniciar la verificación (este archivo es el único cambio posterior, por esta nota); build `711aab2...`; `verify:static` 5/5 y `verify:evidence -- --static` **PASS** (`gitAtStart.sha=711aab2...`, `buildSha` idéntico). Reejecuté `npm run test:demo-pay`: **59 PASS / 0 FAIL**, con 0/0b build+clean. Producto sin cambios desde `f863df2` (`de7e339` + `f863df2`).
+
+**Producto/demo local: GO y P1 CERRADO.** La salvedad de árbol sucio de A.1/A.3 queda resuelta por el commit de evidencia `711aab2`; el artefacto crudo `demo-pay-contract.txt` conserva la corrida de `178b619`, pero la reejecución en `711aab2` también es 59/59.
+
+**Handoff público: NO-GO** por tunnel/preflight y full pendiente; siguen 2 P0 + 13 P1 de Oleada B. **Oleada C: no iniciada.**
