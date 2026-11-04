@@ -1286,3 +1286,22 @@
     padding-bottom: calc(280px + env(safe-area-inset-bottom));
   }
 }
+
+/* La barra no debe cubrir el sidebar de escritorio: empieza donde termina. */
+@media (min-width: 1341px) {
+  .mc-caja-paybar {
+    left: 236px;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1340px) {
+  .mc-caja-paybar {
+    left: 210px;
+  }
+}
+
+@media (max-width: 760px) {
+  .mc-caja-paybar {
+    left: 0;
+  }
+}

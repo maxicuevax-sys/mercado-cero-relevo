@@ -35,6 +35,7 @@ const DRAFT_KEY = "mercado-cero:caja-draft:v2";
 const REQUEST_KEY = "mercado-cero:caja-request:v2";
 const PENDING_KEY = "mercado-cero:caja-pending:v2";
 const UNKNOWN_KEY = "mercado-cero:caja-unknown:v2";
+const CONFIRMED_KEY = "mercado-cero:caja-confirmed:v2";
 const LEGACY_DRAFT_KEY = "mercado-cero:draft:v1";
 const LEGACY_REQUEST_KEY = "mercado-cero:sale-request:v1";
 
@@ -58,6 +59,15 @@ type UnknownResult = {
   signature: string;
   message: string;
 };
+
+type ConfirmedSale = {
+  requestId: string;
+  signature: string;
+  orderId: string;
+  confirmedAt: string;
+};
+
+const CONFIRMED_TTL_MS = 10 * 60 * 1000;
 
 type LegacyImport = {
   draft: StoredDraft;
@@ -336,12 +346,33 @@ export function CajaScreen({
 
   async function confirmSale() {
     if (saleLockRef.current) return;
+    saleLockRef.current = true;
+    try {
+      const locks = (
+        navigator as Navigator & {
+          locks?: {
+            request: <T>(name: string, callback: () => Promise<T>) => Promise<T>;
+          };
+        }
+      ).locks;
+      if (locks) {
+        await locks.request("mercado-cero:caja-sale", runSale);
+      } else {
+        await runSale();
+      }
+    } catch (caught) {
+      setError(friendlySaleError(caught));
+    } finally {
+      saleLockRef.current = false;
+    }
+  }
+
+  async function runSale() {
     const issue = validate();
     if (issue) {
       setError(issue);
       return;
     }
-    saleLockRef.current = true;
     setSaving(true);
     setError(null);
 
@@ -351,15 +382,45 @@ export function CajaScreen({
       creditInput,
       customerName,
     );
+    // Otra pestaña pudo dejar un intento ambiguo con la misma venta. No se
+    // vuelve a enviar hasta reconciliar; esta pestaña sí puede reintentar.
+    if (!unknownResult) {
+      const priorUnknown = readStoredUnknown();
+      if (priorUnknown?.signature === signature) {
+        setUnknownResult(priorUnknown);
+        requestRef.current = {
+          requestId: priorUnknown.requestId,
+          signature: priorUnknown.signature,
+        };
+        writeStoredRequest(requestRef.current);
+        setReconcileMessage(
+          "Otra pestaña ya intentó esta venta y el resultado es desconocido. Consulta si se registró antes de reintentar.",
+        );
+        return;
+      }
+    }
+
     let requestId = newRequestId("sale");
-    const request = { requestId, signature };
-    try {
-      const stored = requestRef.current ?? readStoredRequest();
-      if (stored?.signature === signature) requestId = stored.requestId;
-      else writeStoredRequest({ requestId, signature });
+    const confirmed = readConfirmedSale();
+    if (confirmed?.signature === signature) {
+      // La misma venta ya se confirmó en esta o en otra pestaña.
+      requestId = confirmed.requestId;
       requestRef.current = { requestId, signature };
-    } catch {
-      requestRef.current = request;
+      try {
+        writeStoredRequest(requestRef.current);
+      } catch {
+        // Sin storage la llave sigue en memoria.
+      }
+    } else {
+      const request = { requestId, signature };
+      try {
+        const stored = requestRef.current ?? readStoredRequest();
+        if (stored?.signature === signature) requestId = stored.requestId;
+        else writeStoredRequest({ requestId, signature });
+        requestRef.current = { requestId, signature };
+      } catch {
+        requestRef.current = request;
+      }
     }
 
     try {
@@ -424,6 +485,16 @@ export function CajaScreen({
         // La orden ya existe; si falla la lectura, se muestra la respuesta del POST.
       }
       requestRef.current = null;
+      try {
+        writeConfirmedSale({
+          requestId,
+          signature,
+          orderId: created.id,
+          confirmedAt: new Date().toISOString(),
+        });
+      } catch {
+        // Sin storage la protección vive solo en esta pestaña.
+      }
       const due = Math.max(
         0,
         created.totalCents - created.paidCents - created.creditCents,
@@ -466,7 +537,6 @@ export function CajaScreen({
     } catch (caught) {
       setError(friendlySaleError(caught));
     } finally {
-      saleLockRef.current = false;
       setSaving(false);
     }
   }
@@ -759,8 +829,15 @@ export function CajaScreen({
                   type="button"
                   className="mc-caja-button mc-caja-button--secondary"
                   onClick={() => {
+                    try {
+                      window.localStorage.removeItem(LEGACY_DRAFT_KEY);
+                    } catch {
+                      // Sin storage no hay borrador legacy que descartar.
+                    }
                     setLegacyConflict(false);
-                    setLegacyNotice("Usarás esta venta. El borrador de la Caja clásica sigue allí.");
+                    setLegacyNotice(
+                      "Usarás esta venta. El borrador de la Caja clásica quedó descartado.",
+                    );
                   }}
                 >
                   Usar esta venta
@@ -1191,6 +1268,39 @@ function writeStoredUnknown(value: UnknownResult | null) {
   } catch {
     // Sin storage el aviso vive en memoria.
   }
+}
+
+function readConfirmedSale(): ConfirmedSale | null {
+  try {
+    const raw = window.localStorage.getItem(CONFIRMED_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<ConfirmedSale>;
+    if (
+      typeof parsed.requestId !== "string" ||
+      typeof parsed.signature !== "string" ||
+      typeof parsed.orderId !== "string" ||
+      typeof parsed.confirmedAt !== "string"
+    ) {
+      return null;
+    }
+    const age = Date.now() - Date.parse(parsed.confirmedAt);
+    if (!Number.isFinite(age) || age < 0 || age > CONFIRMED_TTL_MS) {
+      window.localStorage.removeItem(CONFIRMED_KEY);
+      return null;
+    }
+    return {
+      requestId: parsed.requestId,
+      signature: parsed.signature,
+      orderId: parsed.orderId,
+      confirmedAt: parsed.confirmedAt,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function writeConfirmedSale(value: ConfirmedSale) {
+  window.localStorage.setItem(CONFIRMED_KEY, JSON.stringify(value));
 }
 
 async function loadPendingEntries(ids: string[]): Promise<PendingEntry[]> {

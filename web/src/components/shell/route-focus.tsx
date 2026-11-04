@@ -48,8 +48,10 @@ export function RouteFocus({
     const detail = document
       .querySelector<HTMLElement>("[data-route-announcement]")
       ?.textContent?.trim();
+    const pageTitle =
+      document.title || target.textContent?.trim().replace(/\s+/g, " ") || "";
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setAnnouncement(detail ? `${document.title}. ${detail}` : document.title);
+    setAnnouncement(detail ? `${pageTitle}. ${detail}` : pageTitle);
   }, [key, mainId, targetId]);
 
   return (
