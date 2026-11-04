@@ -1,7 +1,8 @@
-PRODUCT SHA: 16cb40fd201b9a16d0747cce72b247669611e6ff
-BUILD_SHA: {
-  "sha": "16cb40fd201b9a16d0747cce72b247669611e6ff",
-  "builtAt": "2026-11-04T21:22:45.179Z"
-}
+OPERACION B.1 — IDENTIDAD DE ENTREGA
 
-HEALTH: {"ok":true,"buildSha":"16cb40fd201b9a16d0747cce72b247669611e6ff","node":"v25.7.0","uptimeSeconds":994}
+Producto (fix): bdfbe8b
+Pruebas: 8101849
+Entrega documental: HEAD que contiene esta carpeta
+Build de entrega: ver web/.next/BUILD_SHA (sellado al HEAD de entrega)
+Health esperado: /api/health devuelve el mismo buildSha
+Verificacion independiente: 65/65 en 8101849; GO local con residuales P2/P3

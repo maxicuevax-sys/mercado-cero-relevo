@@ -6,7 +6,7 @@
 - **Base:** `844f759f30e53cc2ff4f77d67a3adb53123efb5b` (`design/oleada-b-caja-ventas`)
 - **Handoff versionado:** `e025895bd66c579fa0260666f3fcfa10294c2b1a`
 - **Producto final:** `bdfbe8b` (fix) + `8101849` (pruebas)
-- **Build verificado:** `8101849`
+- **Build verificado:** `8101849` (producto/pruebas); el build de entrega se sella al HEAD documental
 - **Entrega documental:** HEAD que contiene esta carpeta
 
 ## Commits
