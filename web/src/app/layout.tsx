@@ -1,27 +1,34 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import "./barrio.css";
 
 /**
- * Fraunces en un solo peso de título: el archivo latin queda pequeño y el
- * contraste de escala lo da el tamaño, no una colección de pesos.
+ * Hearth: marca, saludos y encabezados editoriales.
+ * Archivo variable del proyecto fontzz, OFL 1.1.
  */
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  weight: ["600"],
+const hearth = localFont({
+  src: "../assets/fonts/Hearth-Variable.woff2",
+  variable: "--font-hearth",
+  weight: "100 900",
   display: "swap",
+  preload: true,
+  fallback: ["Georgia", "Times New Roman", "serif"],
+  adjustFontFallback: "Times New Roman",
 });
 
 /**
- * Inter variable para toda la interfaz: la dirección del kit pide una UI
- * funcional y compacta, con cifras tabulares y buena lectura en móvil.
+ * Alder: toda la interfaz operativa, importes y estados.
+ * Archivo variable del proyecto fontzz, OFL 1.1.
  */
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+const alder = localFont({
+  src: "../assets/fonts/Alder-Variable.woff2",
+  variable: "--font-alder",
+  weight: "100 900",
   display: "swap",
+  preload: true,
+  fallback: ["Segoe UI", "Arial", "sans-serif"],
+  adjustFontFallback: "Arial",
 });
 
 export const metadata: Metadata = {
@@ -55,7 +62,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="es-MX"
       suppressHydrationWarning
-      className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
+      className={`${hearth.variable} ${alder.variable} h-full antialiased`}
     >
       <head>
         {/* Aplica tamaño de texto y contraste antes del primer paint para que

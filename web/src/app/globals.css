@@ -32,9 +32,9 @@
   --color-saffron-soft: #fff0d2;
   --color-blue-soft: #e9ecf3;
 
-  --font-sans: var(--font-inter), "Inter", "Segoe UI", Roboto,
+  --font-sans: var(--font-alder), "Alder", "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
-  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-display: var(--font-hearth), "Hearth", Georgia, serif;
 
   /* HIG: body 17/24, footnote 13/18. */
   --text-xs: 0.8125rem;
@@ -51,6 +51,9 @@
 :root {
   --background: var(--color-canvas);
   --foreground: var(--color-ink);
+  /* Compatibilidad temporal con las rutas que aún nombran las familias anteriores. */
+  --font-fraunces: var(--font-hearth);
+  --font-inter: var(--font-alder);
   /* Alto real del chrome fijo; lo mide CajaApp con ResizeObserver. */
   --mc-chrome-top: 0px;
   --mc-chrome-bottom: 0px;

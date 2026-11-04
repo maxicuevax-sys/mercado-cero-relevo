@@ -1,0 +1,197 @@
+/* Fundación compartida: navegación móvil, page header y estados simples.
+   Los estilos editoriales de Inicio siguen en inicio.css. */
+
+.mc-mobile-nav {
+  display: none;
+}
+
+.inicio-icon {
+  display: inline-block;
+  width: 1.4375rem;
+  height: 1.4375rem;
+  flex: 0 0 auto;
+  background-color: currentColor;
+  -webkit-mask-image: var(--inicio-icon);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  mask-image: var(--inicio-icon);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+
+.mc-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.mc-page-header__eyebrow {
+  color: var(--color-attention);
+  font-family: var(--font-alder), "Alder", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mc-page-header__title {
+  margin-top: 4px;
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: clamp(2rem, 3vw, 3.25rem);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.mc-page-header__subtitle {
+  margin-top: 6px;
+  max-width: 60ch;
+  color: var(--color-ink-2);
+  font-family: var(--font-alder), "Alder", sans-serif;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.mc-page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.mc-empty__title {
+  color: var(--color-ink);
+  font-family: var(--font-alder), "Alder", sans-serif;
+  font-weight: 600;
+}
+
+.mc-empty__body {
+  margin-top: 4px;
+  color: var(--color-ink-2);
+}
+
+.mc-empty__action {
+  margin-top: 12px;
+}
+
+@media (max-width: 760px) {
+  .inicio-shell > .inicio-sidebar {
+    display: none;
+  }
+
+  .inicio-shell .inicio-content {
+    padding-bottom: calc(92px + env(safe-area-inset-bottom));
+  }
+
+  .mc-mobile-nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid var(--color-separator);
+    background: var(--color-surface);
+    box-shadow: 0 -8px 24px rgb(31 38 34 / 0.08);
+  }
+
+  .mc-mobile-nav__item {
+    display: flex;
+    min-width: 0;
+    min-height: 64px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    border: 0;
+    background: transparent;
+    color: var(--color-ink-2);
+    font-family: var(--font-alder), "Alder", sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.1;
+    text-decoration: none;
+  }
+
+  .mc-mobile-nav__item[aria-current="page"],
+  .mc-mobile-nav__item[aria-current="page"]:visited {
+    background: var(--color-green-soft);
+    color: var(--color-green);
+  }
+
+  .mc-mobile-nav__icon {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+  }
+
+  .mc-mobile-nav__more {
+    position: relative;
+    min-width: 0;
+  }
+
+  .mc-mobile-nav__more > summary {
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .mc-mobile-nav__more > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mc-mobile-nav__more[open] > summary {
+    background: var(--color-surface-2);
+    color: var(--color-green);
+  }
+
+  .mc-mobile-nav__panel {
+    position: absolute;
+    right: 8px;
+    bottom: calc(100% + 8px);
+    z-index: 60;
+    display: grid;
+    width: min(320px, calc(100vw - 16px));
+    max-height: 60vh;
+    gap: 2px;
+    overflow-y: auto;
+    padding: 8px;
+    border: 1px solid var(--color-separator);
+    border-radius: 16px;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .mc-mobile-nav__link {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+    border-radius: 10px;
+    color: var(--color-ink);
+    font-family: var(--font-alder), "Alder", sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .mc-mobile-nav__link:active,
+  .mc-mobile-nav__link[aria-current="page"] {
+    background: var(--color-green-soft);
+    color: var(--color-green);
+  }
+
+  .mc-mobile-nav__link-icon {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+  }
+}

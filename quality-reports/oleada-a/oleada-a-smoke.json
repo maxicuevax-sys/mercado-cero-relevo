@@ -1,0 +1,172 @@
+[
+  {
+    "name": "Inicio responde y muestra el saludo",
+    "ok": true,
+    "detail": "¡Buen día, Lupita!"
+  },
+  {
+    "name": "Cuatro KPI",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "KPI en una fila a 1448",
+    "ok": true,
+    "detail": "[{\"x\": 260, \"y\": 260, \"w\": 269}, {\"x\": 547, \"y\": 260, \"w\": 269}, {\"x\": 834, \"y\": 260, \"w\": 269}, {\"x\": 1120, \"y\": 260, \"w\": 269}]"
+  },
+  {
+    "name": "Hero, Pendientes y Sugerencia presentes",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Hearth y Alder cargadas",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "H1 usa Hearth y body usa Alder",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Main enfocable y único",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Skip link primero",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Skip link enfoca main",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Inicio activo en sidebar",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Sidebar solo destinos reales y sin duplicados",
+    "ok": true,
+    "detail": "[\"/inicio\", \"/ventas\", \"/fiados\", \"/corte\", \"/metas\", \"/pendientes\", \"/?ayuda=1\", \"/?ayuda=1#ajustes\"]"
+  },
+  {
+    "name": "Sidebar visible y mobile nav oculto a 1448",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "axe 0 a 1448",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Sidebar oculto a 390",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Mobile nav visible a 390",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Mobile nav tiene 5 accesos",
+    "ok": true,
+    "detail": "5"
+  },
+  {
+    "name": "Targets mobile >=48",
+    "ok": true,
+    "detail": "[64, 64, 64, 64, 64]"
+  },
+  {
+    "name": "CTA visible a 390",
+    "ok": true,
+    "detail": "{\"x\": 162.390625, \"y\": 505.703125, \"width\": 129.03125, \"height\": 48}"
+  },
+  {
+    "name": "Sin overflow a 390",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Más abre y sus targets >=48",
+    "ok": true,
+    "detail": "[48, 48, 48, 48]"
+  },
+  {
+    "name": "Escape cierra Más y devuelve el foco",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "axe 0 a 390",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Sin overflow a 320",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "CTA visible a 320",
+    "ok": true,
+    "detail": "{\"x\": 128.46875, \"y\": 291.484375, \"width\": 129.03125, \"height\": 48}"
+  },
+  {
+    "name": "/ventas conserva compatibilidad",
+    "ok": true,
+    "detail": "http://localhost:3100/?tab=caja"
+  },
+  {
+    "name": "/fiados conserva compatibilidad",
+    "ok": true,
+    "detail": "http://localhost:3100/?tab=fiado"
+  },
+  {
+    "name": "/corte conserva compatibilidad",
+    "ok": true,
+    "detail": "http://localhost:3100/?tab=corte"
+  },
+  {
+    "name": "/metas conserva compatibilidad",
+    "ok": true,
+    "detail": "http://localhost:3100/?tab=meta"
+  },
+  {
+    "name": "/pendientes conserva compatibilidad",
+    "ok": true,
+    "detail": "http://localhost:3100/?tab=pendientes"
+  },
+  {
+    "name": "/ventas conserva ayuda=1",
+    "ok": true,
+    "detail": "http://localhost:3100/?tab=caja&ayuda=1"
+  },
+  {
+    "name": "/ventas responde 307 sin JavaScript",
+    "ok": true,
+    "detail": "307 http://localhost:3100/?tab=caja&ayuda=1"
+  },
+  {
+    "name": "/caja sigue reservada (404 honesto)",
+    "ok": true,
+    "detail": "404"
+  },
+  {
+    "name": "Ayuda y ajustes abre",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "sin errores de página",
+    "ok": true,
+    "detail": "[]"
+  }
+]

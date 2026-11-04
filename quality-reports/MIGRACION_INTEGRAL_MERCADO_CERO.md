@@ -1,11 +1,22 @@
 # Migración integral de Mercado Cero
 
-> **Estado:** inventario y plan preliminar. **No se ha iniciado la migración.**
-> **Rama:** `design/mercado-cero-v2` · **HEAD:** `b8f127d85985fd519a0010128a1f42bf5346e24e`
-> **Árbol:** sucio (10 modificados, 17 assets nuevos, `quality-reports/` untracked).
-> **Servidor de referencia:** `http://localhost:3100`, buildSha `b8f127d...`, build de producción desde el árbol de trabajo.
+> **Estado:** Oleada A (fundación compartida) implementada en local, **sin commit**; Oleada B (Caja y Nueva venta) es el siguiente paso.
+> **Rama:** `design/oleada-a-fundacion` · **HEAD:** `62c3fed6874bc500db16b4a9260fb62cf9626453`
+> **Árbol:** sucio (implementación de Oleada A + evidencia local). El commit requiere autorización explícita.
+> **Servidor de referencia:** `http://localhost:3100`, buildSha `62c3fed...`.
 > **Veredicto de Fase 1 (independiente):** **APROBADO CON LIMITACIONES** para visual/funcional/demo; **Handoff/merge RECHAZADO — NO GO**. Certificación WCAG: **NO EMITIDA**. Lector de pantalla real: **NOT RUN**.
 > **Regla:** ninguna pantalla se declara migrada por tener diseño nuevo; debe conservar funciones, datos, navegación, estados y pasar verificación independiente.
+
+## 0. Oleada A — estado local
+
+- **A1 Tipografía:** Hearth y Alder integradas con `next/font/local`, OFL 1.1, hashes verificados y tokens `--font-hearth`/`--font-alder`.
+- **A2 Shell:** `AppShell`, `Sidebar`, `TopBar`, `MobileNav`, `SkipLink`, `BrandLockup`, `PageHeader`; aplicado a `/inicio`. Caja conserva su shell legacy hasta Oleada B.
+- **A3 Componentes:** `MaskIcon`, `CurrencyAmount`, `ProgressIndicator`, `SectionHeader`, `EmptyState`; usados por Inicio sin tocar estado ni servicios.
+- **A4 Rutas:** `/ventas`, `/fiados`, `/corte`, `/metas`, `/pendientes` son alias HTTP 307 a `/?tab=...`; conservan `ayuda=1`. `/caja` sigue 404 (reservada). `/` y `?tab=` intactos. `/pay/**` intacto.
+- **Navegación:** solo destinos reales; Productos/Proveedores/Reportes no se enlazan hasta tener pantalla.
+- **Evidencia local:** smoke 34/34; HIG 5/5; variantes 10/10; axe 0 en Inicio normal/HC; p0-venta 66/0; p0-fiado 51/0; p0-corte 69/0; p0-integración 51/0; p0-dinero 45/0 + 3 KNOWN; webhook 40/40; checkout 19/19.
+- **Pendiente:** commit autorizado, `verify:static` formal, migración del shell de Caja (B), sincronización URL↔tab, consolidación de tokens/foco, PWA instalada/offline y handoff público.
+
 
 ## 1. Principios de la migración
 
@@ -57,7 +68,7 @@
 
 ### Rutas objetivo propuestas
 
-> **Propuesta, no aprobada.** La decisión de mantener tabs con `?tab=` o pasar a rutas independientes debe confirmarse antes de la Oleada A.
+> **Decisión de Oleada A:** durante la migración se mantienen los tabs con `?tab=` como fuente de verdad. Las rutas con pantalla o tab existente se exponen como alias HTTP 307; las que no tienen pantalla (`/caja`, `/reportes`, `/productos`, `/proveedores`, `/ayuda`, `/ajustes`) no se activan. `/ventas` es el alias de la pantalla de venta mientras no exista un historial separado.
 
 | Ruta objetivo | Origen actual | Contenido |
 |---|---|---|
@@ -81,12 +92,12 @@ Durante la migración, `/` puede seguir sirviendo Caja y `?tab=` puede redirigir
 
 | Ruta/módulo | Componente actual | Componente objetivo | Contratos reutilizados | Estado | Evidencia |
 |---|---|---|---|---|---|
-| Inicio | `inicio/page.tsx`, `inicio.css` | `InicioPage` + `AppShell`, `MetricCard`, `TaskRow`, `SuggestionCard` | `dashboard`, `goals`, `tasks`, `config` | **B**: visual nueva; nav/shell compartido pendiente; veredicto pendiente | Capturas `CIERRE_FASE_1/`, `14_EVIDENCIAS/` |
-| Nueva venta | `CajaPanel`, `PaymentPanel` | `SalePage` + `Ticket`, `PaymentMethod`, `PaymentStatus`, `CurrencyAmount` | `orders`, `payment-rules`, `payment-labels`, `/api/orders`, `/api/orders/[id]/pay` | **B/C**: legacy visual; falta selector explícito de método | `p0-venta-e2e.json` 66/0 |
-| Caja/consulta | `CajaBook`, `ActivityList` | `SalesPage` + `SaleRow`, `CurrencyAmount` | `orders`, `dashboard` | **B**: legacy visual | p0-venta, HIG |
+| Inicio | `inicio/page.tsx`, `inicio.css` | `InicioPage` + `AppShell`, `MetricCard`, `TaskRow`, `SuggestionCard` | `dashboard`, `goals`, `tasks`, `config` | **A (local)**: Hearth/Alder + AppShell + navegación honesta + alias 307; pendiente commit y verificación formal | Capturas `oleada-a/capturas/`, `14_EVIDENCIAS/` |
+| Nueva venta | `CajaPanel`, `PaymentPanel` | `SalePage` + `Ticket`, `PaymentMethod`, `PaymentStatus`, `CurrencyAmount` | `orders`, `payment-rules`, `payment-labels`, `/api/orders`, `/api/orders/[id]/pay` | **B**: legacy visual; selector de método y shell nuevo en Oleada B | `p0-venta-e2e.json` 66/0 |
+| Caja/consulta | `CajaBook`, `ActivityList` | `SalesPage` + `SaleRow`, `CurrencyAmount` | `orders`, `dashboard` | **B**: legacy visual; shell nuevo pendiente en Oleada B | p0-venta 66/0, HIG 5/5 |
 | Cobros/QR | `PaymentPanel`, `QrImage`, `VerifyCard` | `PaymentPage`/`PaymentStatus` | `pey`, `checkout`, webhook, `/api/verify` | **B**: legacy visual; contrato funcional | webhook 40/40, checkout 19/19 |
-| Fiado | `CreditList`, `CreditPaySheet` | `FiadoPage` + `CustomerSearch`, `CreditRow`, `PaymentSheet` | `credits`, `orders`, `/api/credits` | **B/C**: legacy visual; faltan búsqueda, historial, recordatorios, correcciones | p0-fiado 51/0 |
-| Corte | `CashCloseCard`, `ClosingChecklist`, `BusinessOverview`, `ReconcileCard` | `CashClosePage` + `CashSummary`, `DenominationGrid`, `DifferenceBanner` | `cash`, `/api/cash`, `/api/cash/preview`, `/api/cash/close` | **B**: legacy visual; efectivo completo | p0-corte 69/0 |
+| Fiado | `CreditList`, `CreditPaySheet` | `FiadoPage` + `CustomerSearch`, `CreditRow`, `PaymentSheet` | `credits`, `orders`, `/api/credits` | **B**: legacy visual; shell nuevo pendiente | p0-fiado 51/0 |
+| Corte | `CashCloseCard`, `ClosingChecklist`, `BusinessOverview`, `ReconcileCard` | `CashClosePage` + `CashSummary`, `DenominationGrid`, `DifferenceBanner` | `cash`, `/api/cash`, `/api/cash/preview`, `/api/cash/close` | **B**: legacy visual; shell nuevo pendiente | p0-corte 69/0 |
 | Metas | `GoalCard` | `GoalsPage` + `GoalCard`, `ContributionForm`, `ProgressIndicator` | `goals`, `/api/goals`, `/api/goals/[id]/contribute` | **B/C**: legacy visual; solo `goals[0]`, sin crear/editar/historial UI | p0-fix-datos, HIG |
 | Pendientes | `PendingTasksPanel` (`pending-tasks.tsx`) | `PendingPage` + `TaskRow`, `TaskForm`, `EmptyState` | `tasks`, `/api/tasks` | **B/C**: legacy visual; CRUD real, sin agrupación/historial de posposiciones | tasks-contract, p0-integracion |
 | Ayuda | `HelpContent` | `HelpPage`/`HelpSheet` + `Accordion`, `ContextHelp` | contenido estático | **B**: legacy visual; título “Ayuda y ajustes” | 08/CIERRE reports |
