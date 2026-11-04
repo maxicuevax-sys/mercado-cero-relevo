@@ -67,7 +67,9 @@ export async function POST(request: Request) {
       const validation =
         field === "requestId"
           ? new ValidationError(
-              `El requestId no puede pasar de ${MAX_REQUEST_ID_CHARS} caracteres.`,
+              error.issues[0]?.code === "too_big"
+                ? `El requestId no puede pasar de ${MAX_REQUEST_ID_CHARS} caracteres.`
+                : "El requestId no es válido.",
               "request_id_invalid",
             )
           : field === "orderId"
