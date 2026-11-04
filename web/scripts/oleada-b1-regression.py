@@ -420,6 +420,34 @@ def main() -> int:
         )
         second.close()
 
+        # P1-01 · una venta idéntica repetida después de “Nueva venta” sí debe
+        # registrarse: el tombstone pertenece a la instancia del draft, no a
+        # cualquier payload con la misma firma.
+        page.get_by_role("button", name="Nueva venta").click()
+        page.wait_for_timeout(250)
+        add_item(page, "Pan repetido", "1", "100")
+        page.get_by_label("Efectivo recibido").fill("100")
+        before_repeat = order_count(page)
+        page.locator(".mc-caja-confirm").click()
+        expect(page.locator(".mc-caja-result")).to_be_visible()
+        first_repeat = page.locator(".mc-caja-result").inner_text()
+        page.get_by_role("button", name="Nueva venta").click()
+        page.wait_for_timeout(250)
+        add_item(page, "Pan repetido", "1", "100")
+        page.get_by_label("Efectivo recibido").fill("100")
+        page.locator(".mc-caja-confirm").click()
+        expect(page.locator(".mc-caja-result")).to_be_visible()
+        second_repeat = page.locator(".mc-caja-result").inner_text()
+        after_repeat = order_count(page)
+        first_repeat_short = first_repeat.split("PEDIDO")[-1].strip().split()[0]
+        second_repeat_short = second_repeat.split("PEDIDO")[-1].strip().split()[0]
+        check(
+            "P1-01 venta idéntica repetida sí se registra",
+            after_repeat == before_repeat + 2
+            and first_repeat_short != second_repeat_short,
+            f"{before_repeat} -> {after_repeat}; {first_repeat_short} / {second_repeat_short}",
+        )
+
         # ------------------------------------------------------------------
         # P1-06 · cola completa y salida a nueva venta
         # ------------------------------------------------------------------
