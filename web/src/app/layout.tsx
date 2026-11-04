@@ -63,7 +63,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{var r=document.documentElement;var s=localStorage.getItem('mercado-cero:text-size');if(s==='large'||s==='xlarge')r.dataset.textSize=s;if(localStorage.getItem('mercado-cero:contrast')==='high')r.dataset.contrast='high';}catch(e){}})();",
+              "(function(){try{var r=document.documentElement;var s=localStorage.getItem('mercado-cero:text-size');if(s==='large'||s==='xlarge')r.dataset.textSize=s;var mq=window.matchMedia&&window.matchMedia('(forced-colors: active)');function fc(){if(!mq)return;if(mq.matches&&location.pathname==='/inicio'){r.dataset.contrast='high';r.dataset.forcedContrast='1';}else if(r.dataset.forcedContrast==='1'){delete r.dataset.forcedContrast;if(localStorage.getItem('mercado-cero:contrast')!=='high')delete r.dataset.contrast;}}if(localStorage.getItem('mercado-cero:contrast')==='high')r.dataset.contrast='high';if(mq){if(mq.addEventListener)mq.addEventListener('change',fc);else if(mq.addListener)mq.addListener(fc);fc();}}catch(e){}})();",
           }}
         />
       </head>

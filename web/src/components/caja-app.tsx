@@ -680,7 +680,7 @@ export default function CajaApp({
   );
   const [tabWipe, setTabWipe] = useState(0);
   const [today, setToday] = useState("");
-  const [helpOpen, setHelpOpen] = useState(initialHelpOpen);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -933,6 +933,17 @@ export default function CajaApp({
     } catch {
       // Sin almacenamiento local, la voz queda activa.
     }
+    if (initialHelpOpen) {
+      // El portal del Sheet no existe en SSR; abrirlo después del montaje
+      // evita el mismatch de hidratación sin cambiar el estado inicial.
+      setHelpOpen(true);
+      window.setTimeout(() => {
+        document.getElementById("ajustes")?.scrollIntoView({
+          block: "start",
+          behavior: "auto",
+        });
+      }, 180);
+    }
     if (initialDashboard) {
       // Los datos vienen del servidor: la lectura ya está hecha y no hay
       // waterfall de APIs en el primer paint.
@@ -942,7 +953,7 @@ export default function CajaApp({
       // están ocultos; los paneles se actualizan al abrir su pestaña.
       void loadDashboard({ broadcast: false });
     }
-  }, [initialDashboard, loadDashboard]);
+  }, [initialDashboard, initialHelpOpen, loadDashboard]);
 
   useEffect(() => {
     // Refresco al volver a la pestaña y polling ligero solo mientras es visible.
@@ -2947,7 +2958,7 @@ export default function CajaApp({
       <Sheet
         open={helpOpen}
         onClose={() => setHelpOpen(false)}
-        title="Guía"
+        title="Ayuda y ajustes"
         size="md"
       >
         <HelpContent
@@ -7991,7 +8002,7 @@ function HelpContent({
         </div>
       </div>
 
-      <div className="rounded-xl border border-separator bg-surface p-4">
+      <div id="ajustes" className="scroll-mt-4 rounded-xl border border-separator bg-surface p-4">
         <p className="text-base font-bold text-ink">Accesibilidad</p>
         <p className="mt-1 text-sm leading-relaxed text-ink-2">
           Ajusta el texto, el contraste y la voz. Se guarda en este dispositivo.

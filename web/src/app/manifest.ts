@@ -2,7 +2,7 @@
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Mercado Cero Â· La caja que habla",
+    name: "Mercado Cero · La caja que habla",
     short_name: "Mercado Cero",
     description:
       "Cobra por voz, acepta CoDi, tarjeta y efectivo, y confirma un pago solo cuando el banco lo confirma.",

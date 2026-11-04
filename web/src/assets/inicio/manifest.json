@@ -1,53 +1,63 @@
 {
-  "note": "Recortes exactos de la referencia canonica de Inicio. No son capas editables ni assets generados.",
+  "note": "Recortes exactos de la referencia canonica de Inicio. Hero y sugerencia llevan alfa; sidebar conserva el verde original y se funde con una mascara CSS. No son capas vectoriales editables.",
+  "source": "design-references/mercado-cero-rescate/00_REFERENCIA_CANONICA_INICIO_1448x1086.png",
   "items": [
     {
       "file": "hero-registradora.png",
-      "source": "00_REFERENCIA_CANONICA_INICIO_1448x1086.png",
-      "crop": [
-        268,
-        520,
-        510,
-        792
-      ],
-      "width": 277,
-      "height": 272
+      "crop": [280, 512, 532, 790],
+      "width": 252,
+      "height": 247,
+      "mode": "RGBA",
+      "note": "Cutout de la registradora y mesa; fondo verde eliminado."
     },
     {
       "file": "sugerencia-lupita.png",
-      "source": "00_REFERENCIA_CANONICA_INICIO_1448x1086.png",
-      "crop": [
-        272,
-        842,
-        555,
-        1015
-      ],
-      "width": 362,
-      "height": 200
+      "crop": [270, 825, 605, 1025],
+      "width": 335,
+      "height": 194,
+      "mode": "RGBA",
+      "note": "Cutout de Lupita con tableta; primeras 10 filas transparentes para quitar el borde de la tarjeta."
     },
     {
       "file": "papel-picado.png",
-      "source": "00_REFERENCIA_CANONICA_INICIO_1448x1086.png",
-      "crop": [
-        960,
-        100,
-        1448,
-        202
-      ],
+      "crop": [960, 100, 1448, 202],
       "width": 488,
-      "height": 106
+      "height": 102,
+      "mode": "RGBA",
+      "note": "Motivo decorativo transparente; no es informacion interactiva."
     },
     {
       "file": "sidebar-plantas.png",
-      "source": "00_REFERENCIA_CANONICA_INICIO_1448x1086.png",
-      "crop": [
-        0,
-        798,
-        236,
-        1086
-      ],
+      "crop": [0, 790, 236, 1086],
       "width": 236,
-      "height": 288
+      "height": 296,
+      "mode": "RGB",
+      "note": "Plantas y bolsa completas sobre el verde original; la mascara superior evita una banda dura."
+    },
+    {
+      "file": "brand-shop-cream.svg",
+      "width": 128,
+      "height": 128,
+      "mode": "SVG",
+      "note": "Tienda crema con franjas transparentes para el sidebar; no usa placa blanca."
+    },
+    {
+      "file": "logo-simbolo.svg",
+      "width": 128,
+      "height": 128,
+      "mode": "SVG",
+      "note": "Simbolo de tienda para el topbar; copiado del kit de marca."
+    },
+    {
+      "file": "icons/",
+      "width": null,
+      "height": null,
+      "mode": "SVG",
+      "note": "Iconos de navegacion, KPI y estados copiados del kit; se usan como mascara CSS con currentColor."
     }
+  ],
+  "notUsed": [
+    "El QR ilustrado de la referencia no se usa como QR real.",
+    "No se usa la captura completa como fondo de la aplicacion."
   ]
 }
