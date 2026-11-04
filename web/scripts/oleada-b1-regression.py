@@ -38,7 +38,7 @@ if parsed.hostname not in {"127.0.0.1", "localhost"} or parsed.port in {3000, 31
 
 RESULTS: list[dict] = []
 _ip = 40
-_run = int(time.time())
+_run = time.time_ns()
 _reset = 0
 
 
@@ -130,6 +130,18 @@ def main() -> int:
         page.on("pageerror", lambda error: page_errors.append(str(error)))
 
         reset(page)
+        baseline = page.request.get(BASE + "/api/dashboard").json()["summary"]
+        check(
+            "B1 entorno aislado: seed demo 7000 y cash real 0",
+            baseline["demoCashCents"] == 7000 and baseline["cashCents"] == 0,
+            json.dumps(
+                {
+                    "base": BASE,
+                    "demoCashCents": baseline["demoCashCents"],
+                    "cashCents": baseline["cashCents"],
+                }
+            ),
+        )
         add_item(page, "Fiado puro", "1", "100")
         page.get_by_role("button", name="Fiado", exact=True).click()
         page.get_by_label("Monto a fiado").fill("100")
@@ -329,6 +341,84 @@ def main() -> int:
         fiados.click()
         page.wait_for_timeout(500)
         check("P1-11 el alias conserva tab=fiado", "tab=fiado" in page.url, page.url)
+
+        page.set_viewport_size({"width": 1366, "height": 768})
+        page.goto(BASE + "/caja", wait_until="domcontentloaded")
+        page.wait_for_timeout(500)
+        settings_hit = page.evaluate(
+            """() => {
+              const link = document.querySelector('a[href="/?ayuda=1#ajustes"]');
+              if (!link) return null;
+              const r = link.getBoundingClientRect();
+              const hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+              return {
+                hitTag: hit?.tagName ?? null,
+                hitHref: hit?.closest?.("a")?.getAttribute("href") ?? null,
+                rect: { y: r.y, bottom: r.bottom },
+              };
+            }"""
+        )
+        check(
+            "P1-11 Ajustes sigue clicable sobre la barra de cobro",
+            bool(settings_hit and settings_hit["hitHref"] == "/?ayuda=1#ajustes"),
+            str(settings_hit),
+        )
+
+        # P1-01 · dos pestañas con el mismo draft no duplican la venta.
+        reset(page)
+        twin_draft = {
+            "lines": [
+                {
+                    "id": "twin_1",
+                    "description": "Dos pestañas",
+                    "quantity": "1",
+                    "price": "100",
+                }
+            ],
+            "cashInput": "100",
+            "creditInput": "",
+            "customerName": "",
+            "method": "cash",
+        }
+        page.evaluate(
+            "v => localStorage.setItem('mercado-cero:caja-draft:v2', JSON.stringify(v))",
+            twin_draft,
+        )
+        page.goto(BASE + "/caja", wait_until="domcontentloaded")
+        page.wait_for_timeout(500)
+        second = page.context.new_page()
+        second.set_default_timeout(15_000)
+        second.goto(BASE + "/caja", wait_until="domcontentloaded")
+        second.wait_for_timeout(500)
+        before_twin = order_count(second)
+        page.locator(".mc-caja-confirm").click()
+        expect(page.locator(".mc-caja-result")).to_be_visible()
+        first_result = page.locator(".mc-caja-result").inner_text()
+        second.locator(".mc-caja-confirm").click()
+        second.wait_for_timeout(900)
+        after_twin = order_count(second)
+        second_result = (
+            second.locator(".mc-caja-result").inner_text()
+            if second.locator(".mc-caja-result").count()
+            else ""
+        )
+        check(
+            "P1-01 dos pestañas no duplican la venta",
+            after_twin == before_twin + 1,
+            f"{before_twin} -> {after_twin}",
+        )
+        first_short = first_result.split("PEDIDO")[-1].strip().split()[0]
+        second_short = (
+            second_result.split("PEDIDO")[-1].strip().split()[0]
+            if second_result
+            else ""
+        )
+        check(
+            "P1-01 ambas pestañas muestran la misma venta",
+            bool(second_short) and first_short == second_short,
+            f"first={first_short} second={second_short}",
+        )
+        second.close()
 
         # ------------------------------------------------------------------
         # P1-06 · cola completa y salida a nueva venta
