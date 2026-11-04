@@ -1,0 +1,76 @@
+{
+  "orders": [
+    {
+      "id": "ord_b2cd3771b672451faadc",
+      "status": "confirmed",
+      "total_cents": 10000,
+      "paid_cents": 0,
+      "credit_cents": 10000,
+      "credit_id": "cred_63595adf05dd48daab72",
+      "customer_name": "Real Fiado AUD-RM-111754"
+    },
+    {
+      "id": "ord_f98e418ed26b43d7a5e8",
+      "status": "confirmed",
+      "total_cents": 9000,
+      "paid_cents": 6000,
+      "credit_cents": 3000,
+      "credit_id": "cred_2fdcd5066e2b4b9cb884",
+      "customer_name": "Real Mixto AUD-RM-111754"
+    }
+  ],
+  "credits": [
+    {
+      "id": "cred_63595adf05dd48daab72",
+      "order_id": "ord_b2cd3771b672451faadc",
+      "original_cents": 10000,
+      "balance_cents": 0,
+      "status": "settled"
+    },
+    {
+      "id": "cred_2fdcd5066e2b4b9cb884",
+      "order_id": "ord_f98e418ed26b43d7a5e8",
+      "original_cents": 3000,
+      "balance_cents": 0,
+      "status": "settled"
+    }
+  ],
+  "creditPayments": [
+    {
+      "credit_id": "cred_63595adf05dd48daab72",
+      "amount_cents": 4000,
+      "method": "cash",
+      "provider": "cash",
+      "request_id": "AUD-RM-111754-partial"
+    },
+    {
+      "credit_id": "cred_63595adf05dd48daab72",
+      "amount_cents": 6000,
+      "method": "cash",
+      "provider": "cash",
+      "request_id": "AUD-RM-111754-full"
+    },
+    {
+      "credit_id": "cred_2fdcd5066e2b4b9cb884",
+      "amount_cents": 1000,
+      "method": "cash",
+      "provider": "cash",
+      "request_id": "rm-mixed-partial-1"
+    },
+    {
+      "credit_id": "cred_2fdcd5066e2b4b9cb884",
+      "amount_cents": 2000,
+      "method": "cash",
+      "provider": "cash",
+      "request_id": "rm-mixed-full-1"
+    }
+  ],
+  "payments": [
+    {
+      "order_id": "ord_f98e418ed26b43d7a5e8",
+      "amount_cents": 6000,
+      "method": "cash",
+      "provider": "cash"
+    }
+  ]
+}

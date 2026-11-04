@@ -1,0 +1,18 @@
+{
+  "generatedAt": "2026-11-04T11:24:45-0600",
+  "orderId": "ord_c2442409efc748caa42a",
+  "apiStatus": "payment_pending",
+  "apiPaymentUrl": "http://localhost:3100/pay/ord_c2442409efc748caa42a?demo=1",
+  "before": {
+    "title": "Pedido A42A",
+    "badge": "PENDIENTE",
+    "linkCount": 1
+  },
+  "after": {
+    "title": "Pedido A42A",
+    "badge": "REGISTRADO",
+    "linkCount": 0,
+    "bodyText": "CAJA\n\nCobrar venta\n\nEl pedido ya está registrado. El pago sigue pendiente hasta que el banco lo confirme.\n\nTOTAL\n$60.00\n\nCOBRO DIGITAL\n\nPedido A42A\nREGISTRADO\n\nFalta cobrar\n\n$60.00\n\nEl pedido ya está registrado. El dinero aún no se considera recibido.\n\nGenerar link\nGenerar QR\nActualizar estado\n\nModo"
+  },
+  "ok": true
+}

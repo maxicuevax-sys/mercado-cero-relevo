@@ -1,0 +1,46 @@
+{
+  "emulation": "Playwright context forced_colors='active' (no es HCM real de Windows)",
+  "methods": [
+    {
+      "name": "Efectivo",
+      "pressed": "true",
+      "bg": "rgb(255, 255, 255)",
+      "fg": "rgb(0, 0, 0)",
+      "border": "rgb(0, 0, 0)"
+    },
+    {
+      "name": "Digital",
+      "pressed": "false",
+      "bg": "rgb(255, 255, 255)",
+      "fg": "rgb(0, 0, 0)",
+      "border": "rgb(0, 0, 0)"
+    },
+    {
+      "name": "Fiado",
+      "pressed": "false",
+      "bg": "rgb(255, 255, 255)",
+      "fg": "rgb(0, 0, 0)",
+      "border": "rgb(0, 0, 0)"
+    },
+    {
+      "name": "Mixto",
+      "pressed": "false",
+      "bg": "rgb(255, 255, 255)",
+      "fg": "rgb(0, 0, 0)",
+      "border": "rgb(0, 0, 0)"
+    }
+  ],
+  "finding": "El metodo activo (aria-pressed=true) se ve identico a los inactivos: fondo, texto y borde iguales. La seleccion solo queda en ARIA.",
+  "focus": {
+    "tag": "A",
+    "text": "Inicio",
+    "outline": "rgb(55, 0, 110) solid 3px",
+    "note": "El anillo de foco sigue visible en forced-colors."
+  },
+  "axe": {
+    "violations": 10,
+    "note": "axe color-contrast en forced-colors no es concluyente; se reporta el estado visual medido, no el conteo de axe."
+  },
+  "screenshot": "a11y-caja-forced-colors.png",
+  "focus_screenshot": "a11y-caja-forced-colors-focus.png"
+}

@@ -1,0 +1,92 @@
+HALLAZGOS DE COPY — ONBOARDING OLEADA B (HEAD 4130e71)
+Solo lectura de producto. Textos copiados de la app en modo demo y del código.
+
+1. FIADO PURO — RESULTADO
+Archivo: web/src/components/caja/sale-result.tsx:133-137
+Texto observado: "Quedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja."
+Problema: en un fiado puro no hubo efectivo. El banner afirma un hecho falso.
+Evidencia: onboarding-caja-resultado-fiado.png / onboarding-caja-resultado-fiado.txt
+
+2. MIXTO EFECTIVO + DIGITAL — PANEL DE COBRO
+Archivo: web/src/components/caja/payment-panel.tsx:152-156
+Texto observado: "Falta cobrar $40.00. El pedido ya está registrado. El dinero aún no se considera recibido."
+Problema: el cliente ya entregó $60.00 en efectivo; la pantalla no los menciona.
+Evidencia: onboarding-caja-mixto-efectivo-digital-panel.png / onboarding-probe2.json
+
+3. MIXTO EFECTIVO + DIGITAL — FILA DE VENTAS
+Archivo: web/src/app/ventas/page.tsx:161-183, 251-298
+Texto observado: "DEMO / Pedido AEA7 / Hoy 11:08 a.m. · Efectivo / $100.00 / Demo, no es dinero real / Falta cobrar $40.00"
+Problema: método "Efectivo" y estado "confirmed" (no pendiente), sin "Recibido $60.00".
+Evidencia: onboarding-ventas-fila-AEA7.png / onboarding-ventas-filas.txt
+
+4. MIXTO EFECTIVO + FIADO — RESULTADO EN DEMO
+Archivo: web/src/components/caja/sale-result.tsx:26-34
+Texto observado: "Venta cobrada en efectivo (demo)" para total $100, efectivo $60 y fiado $40.
+Problema: "cobrada en efectivo" se lee como si los $100 fueran efectivo; $40 son deuda.
+Evidencia: onboarding-caja-mixto-efectivo-fiado-resultado.png / onboarding-probe2.json
+
+5. MIXTO — AVISO FALSO
+Archivo: web/src/components/caja/sale-summary.tsx:59-63, 172-176
+Texto observado: "El total cambió. Ajusta el monto a fiado para que coincida con $100.00."
+Contexto: total $100, efectivo $60, fiado $40; el total no cambió.
+Problema: el aviso empuja a subir el fiado a $100, lo que anularía el efectivo o produciría cambio.
+Evidencia: onboarding-probe2.json (mixtoFiado.pre.main)
+
+6. DIGITAL PENDIENTE — ESTADO
+Archivo: web/src/components/caja/payment-panel.tsx:143-149, 264-279
+Texto observado antes del link: "Pedido B02A / REGISTRADO"
+Texto observado después del link: "PENDIENTE"
+Problema: "Registrado" no distingue venta registrada de pago recibido; el estado cambia a "Pendiente" solo después de generar el link.
+Evidencia: onboarding-caja-digital-pendiente-sin-link.png / onboarding-caja-digital-pendiente-con-link.png
+
+7. DIGITAL PENDIENTE — LINK
+Archivo: web/src/components/caja/payment-panel.tsx:166-184
+Texto observado: "Link de cobro / Abrir link / [icono copiar] / http://localhost:3100/pay/..."
+Problema: la acción de compartir es un icono sin texto visible; "Abrir link" parece la principal; el link local no es compartible y no dice "link de prueba".
+Evidencia: onboarding-caja-digital-pendiente-con-link.png
+
+8. DIGITAL PENDIENTE — CALLEJÓN
+Archivo: web/src/components/caja/payment-panel.tsx:186-249
+Texto observado: acciones "Generar link", "Generar QR", "Actualizar estado", "Ver historial de ventas".
+Problema: no hay "Nueva venta" ni "Descartar cobro"; al volver a /caja se reanuda el pendiente sin aviso.
+Evidencia: onboarding-caja-regreso-con-pendiente.png / caja-screen.tsx:114-144
+
+9. AYUDA
+Archivo: web/src/components/shell/nav.ts:49-62
+Destino: /?ayuda=1
+Texto observado al abrir: "Mercado Cero / La caja que habla / Habla, escribe o agrega a mano; tú confirmas. / La IA interpreta... / Mantén y habla / Escuchar / Interpretar"
+Problema: la ayuda de /caja abandona la pantalla nueva y abre la Caja legacy con voz/IA; no explica link, QR, fiado, cambio ni demo.
+Evidencia: onboarding-ayuda-desde-caja.png
+
+10. MÓDULOS NO MIGRADOS
+Archivo: web/src/components/shell/nav.ts:25-44; web/src/app/*/route.ts
+Observado: Fiados -> /?tab=fiado (H1 "Caja"); Corte -> /?tab=corte (H1 "Caja"); Metas -> /?tab=meta (H1 "Caja"); Pendientes -> /?tab=pendientes (H1 "Caja").
+Problema: la nav nueva los presenta como pantallas nuevas; no avisa que sale a la Caja clásica.
+Evidencia: onboarding-probe2.json (redirects)
+
+11. TÉRMINOS
+- "Concepto" / "Producto o servicio" / "Qué estás vendiendo" / "conceptos": sale-line-items.tsx:58,61,67,173; caja-screen.tsx:211,215,233,591.
+- "Pedido" en Caja y Ventas: payment-panel.tsx:144; sale-result.tsx:76; ventas/page.tsx:149.
+- "Saldo vivo fiado" / "Saldo vivo": sale-result.tsx:103; ventas/page.tsx:189.
+- "Proveedor": payment-panel.tsx:245; sale-result.tsx:57,140; ventas/page.tsx:245.
+- "La misma base que Caja" / "borradores de cada pantalla son independientes": ventas/page.tsx:243; caja-screen.tsx:597.
+- "No necesitas inventario ni micrófono": sale-line-items.tsx:68.
+- "1 conceptos en curso": caja-screen.tsx:591 (plural fijo).
+- "Faltan $X" como etiqueta del botón deshabilitado: sale-summary.tsx:69-72.
+
+12. INICIO vs VENTAS
+- Inicio: "Por cobrar" + "Saldo pendiente, sin sumarlo a la caja" (inicio/page.tsx:129-136).
+- Ventas: "Por cobrar digital" + "Links y QR de todos los días. No incluye fiado." (ventas/page.tsx:106-109).
+Problema: no está claro que sean la misma cifra ni que excluya fiado.
+Evidencia: onboarding-inicio-1448.png / onboarding-ventas-1448.png
+
+13. MÓVIL
+- 320: primer campo top 627 px, viewport 640; alta top 549; no se ve completa.
+- 390: botón Agregar top 745, bottom 793; barra inferior lo tapa.
+- Ventas 320: primera fila top 688; no se ve ninguna venta en el primer viewport.
+Evidencia: onboarding-caja-320-primer-viewport.png; onboarding-caja-390-primer-viewport.png; onboarding-ventas-320.png; onboarding-probe3.json
+
+14. PARSER (verificado)
+- "1,000" -> $1,000.00; "1,234.50" -> $1,234.50; "2,5" -> $2.50; "1/2" en cantidad -> error "La cantidad debe ser mayor que cero."
+- "1000" en cantidad -> 999 sin aviso (types.ts:50-56).
+Evidencia: onboarding-probe2.json parser.

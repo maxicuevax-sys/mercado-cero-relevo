@@ -1,0 +1,178 @@
+
+== 1. Dos Cajas, dos drafts, dos parsers ==
+caja-app.tsx lineas (TAMANO: 7827 lineas)
+interface DraftItem {
+  id: string;
+  description: string;
+  quantity: number;
+  unitPriceCents: number;
+}
+
+const DRAFT_STORAGE_KEY = "mercado-cero:draft:v1";
+const DRAFT_VERSION = 1;
+const PENDING_ORDER_KEY = "mercado-cero:pending-order:v1";
+const PENDING_ORDER_VERSION = 1;
+// La llave sobrevive al 502: si el servidor ya commiteó, el reintento
+// devuelve la misma venta en lugar de crear otra.
+const SALE_REQUEST_STORAGE_KEY = "mercado-cero:sale-request:v1";
+const SALE_REQUEST_VERSION = 1;
+
+interface StoredDraft {
+  version: number;
+
+function parseMoney(value: string): number {
+  const clean = value.replace(/[^0-9.,-]/g, "").replace(",", ".");
+  const amount = Number(clean);
+  return Number.isFinite(amount) ? Math.round(amount * 100) : 0;
+}
+
+/**
+ * Dinero mientras se teclea: el texto crudo manda. El campo se formatea a dos
+ * decimales al salir, nunca en cada tecla (teclear 35 no debe dejar 0.01).
+ */
+function parseMoneyInput(value: string): number {
+  const clean = value.trim().replace(",", ".");
+  if (!clean) return 0;
+  const amount = Number(clean);
+  return Number.isFinite(amount) ? Math.max(0, Math.round(amount * 100)) : 0;
+      }, 0),
+    [draftItems],
+  );
+  const appliedCreditCents = Math.min(Math.max(0, creditCents), draftTotal);
+  const appliedCashCents = Math.min(
+    Math.max(0, cashCents),
+    Math.max(0, draftTotal - appliedCreditCents),
+  );
+  const changeCents = Math.max(0, cashCents - appliedCashCents);
+  const digitalDue = Math.max(0, draftTotal - appliedCashCents - appliedCreditCents);
+  // El exceso de efectivo no bloquea: se devuelve como cambio. El fiado sí debe
+  // caber dentro del total para no crear un crédito mayor que la venta.
+  const overpay = creditCents > draftTotal;
+
+  const clearDraft = useCallback(() => {
+    setDraftItems([]);
+    setCashCents(0);
+    setCreditCents(0);
+
+caja-screen.tsx lineas 32-34 y 77-90
+const DRAFT_KEY = "mercado-cero:caja-draft:v2";
+const REQUEST_KEY = "mercado-cero:caja-request:v2";
+const PENDING_KEY = "mercado-cero:caja-pending:v2";
+
+  const totalCents = useMemo(() => draftTotalCents(lines), [lines]);
+  const creditCents = parseMoneyCents(creditInput);
+  const cashCents = parseMoneyCents(cashInput);
+  const appliedCreditCents = Math.min(Math.max(0, creditCents), totalCents);
+  const appliedCashCents = Math.min(
+    Math.max(0, cashCents),
+    Math.max(0, totalCents - appliedCreditCents),
+  );
+  const changeForSale = Math.max(0, cashCents - appliedCashCents);
+  const digitalDueCents = Math.max(
+    0,
+    totalCents - appliedCashCents - appliedCreditCents,
+  );
+  const overpay = creditCents > totalCents;
+
+  useEffect(() => {
+
+== 2. /ventas: N+1 de credito y lectura directa de db ==
+import {
+  countOrders,
+  getCredit,
+  getDailySummary,
+  listOrders,
+  sumPendingOrderBalances,
+} from "@/lib/db";
+import { MERCHANT, isDemoMode } from "@/lib/config";
+import { formatActivityDate, shortOrder } from "@/lib/format";
+import type { Order } from "@/lib/types";
+            {orders.map((order) => {
+              const credit = order.creditId ? getCredit(order.creditId) : null;
+              const isDemoOrder =
+                demo || order.status === "demo_paid" || order.lastPaymentDemo;
+              const creditKnown = credit !== null;
+              const creditBalanceCents =
+                credit?.balanceCents ?? (order.creditCents > 0 ? order.creditCents : 0);
+              const digitalDueCents = Math.max(
+                0,
+                order.totalCents - order.paidCents - order.creditCents,
+
+== 3. Etiquetas duplicadas ==
+web\src\app\ventas\page.tsx:251: function statusLabel(
+web\src\app\ventas\page.tsx:276: function methodLabel(order: Order): string {
+web\src\components\caja\sale-result.tsx:163: function statusLabel(status: Order["status"]): string {
+web\src\components\caja\payment-panel.tsx:264: function statusLabel(status: Order["status"]): string {
+web\src\components\caja-app.tsx:76: orderStatusCopy,
+web\src\components\caja-app.tsx:7307: function statusLabel(status: Order["status"]): string {
+web\src\components\caja-app.tsx:7308: return orderStatusCopy(status).label;
+web\src\lib\payment-labels.ts:118: export function orderStatusCopy(status: OrderStatusLike): PaymentCopy {
+
+== 4. formatMxn duplicado ==
+web\src\lib\config.ts:20: export function formatMxn(cents: number): string {
+web\src\lib\format.ts:1: export function formatMxn(cents: number): string {
+
+== 5. paymentMethod aceptado y no usado por createOrder ==
+web\src\app\api\orders\route.ts:46: paymentMethod: z.enum(["codi", "card", "wallet", "cash", "mixed"]).optional(),
+orders.ts: sin lectura de input.paymentMethod en createOrder (solo aparece en tipos y recordPayment)
+
+== 6. Caja nueva aun tipa contra DashboardData ==
+web\src\components\caja\caja-screen.tsx:5: import type { DashboardData } from "@/lib/dashboard";
+web\src\components\caja\caja-screen.tsx:55: merchant: DashboardData["merchant"];
+
+== 7. Claves de storage separadas y sin BroadcastChannel/storage event ==
+web\src\components\caja-app.tsx:110: const DRAFT_STORAGE_KEY = "mercado-cero:draft:v1";
+web\src\components\caja-app.tsx:112: const PENDING_ORDER_KEY = "mercado-cero:pending-order:v1";
+web\src\components\caja-app.tsx:116: const SALE_REQUEST_STORAGE_KEY = "mercado-cero:sale-request:v1";
+web\src\components\caja-app.tsx:413: const raw = window.localStorage.getItem(DRAFT_STORAGE_KEY);
+web\src\components\caja-app.tsx:417: window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+web\src\components\caja-app.tsx:442: window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+web\src\components\caja-app.tsx:452: window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+web\src\components\caja-app.tsx:463: const raw = window.localStorage.getItem(PENDING_ORDER_KEY);
+web\src\components\caja-app.tsx:471: window.localStorage.removeItem(PENDING_ORDER_KEY);
+web\src\components\caja-app.tsx:481: window.localStorage.removeItem(PENDING_ORDER_KEY);
+web\src\components\caja-app.tsx:493: PENDING_ORDER_KEY,
+web\src\components\caja-app.tsx:512: window.localStorage.removeItem(PENDING_ORDER_KEY);
+web\src\components\caja-app.tsx:521: const raw = window.localStorage.getItem(SALE_REQUEST_STORAGE_KEY);
+web\src\components\caja-app.tsx:531: window.localStorage.removeItem(SALE_REQUEST_STORAGE_KEY);
+web\src\components\caja-app.tsx:546: window.localStorage.removeItem(SALE_REQUEST_STORAGE_KEY);
+web\src\components\caja-app.tsx:558: SALE_REQUEST_STORAGE_KEY,
+web\src\components\caja-app.tsx:574: window.localStorage.removeItem(SALE_REQUEST_STORAGE_KEY);
+web\src\components\caja-app.tsx:1059: window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+web\src\components\caja-app.tsx:1062: DRAFT_STORAGE_KEY,
+web\src\components\caja-app.tsx:1798: window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+web\src\components\caja\caja-screen.tsx:32: const DRAFT_KEY = "mercado-cero:caja-draft:v2";
+web\src\components\caja\caja-screen.tsx:33: const REQUEST_KEY = "mercado-cero:caja-request:v2";
+web\src\components\caja\caja-screen.tsx:34: const PENDING_KEY = "mercado-cero:caja-pending:v2";
+web\src\components\caja\caja-screen.tsx:94: const raw = window.localStorage.getItem(DRAFT_KEY);
+web\src\components\caja\caja-screen.tsx:110: window.localStorage.removeItem(DRAFT_KEY);
+web\src\components\caja\caja-screen.tsx:154: window.localStorage.removeItem(DRAFT_KEY);
+web\src\components\caja\caja-screen.tsx:158: window.localStorage.setItem(DRAFT_KEY, JSON.stringify(stored));
+web\src\components\caja\caja-screen.tsx:180: window.localStorage.removeItem(DRAFT_KEY);
+web\src\components\caja\caja-screen.tsx:181: window.localStorage.removeItem(REQUEST_KEY);
+web\src\components\caja\caja-screen.tsx:338: window.localStorage.removeItem(DRAFT_KEY);
+web\src\components\caja\caja-screen.tsx:339: window.localStorage.removeItem(REQUEST_KEY);
+web\src\components\caja\caja-screen.tsx:605: const raw = window.localStorage.getItem(PENDING_KEY);
+web\src\components\caja\caja-screen.tsx:616: window.localStorage.removeItem(PENDING_KEY);
+web\src\components\caja\caja-screen.tsx:619: window.localStorage.setItem(PENDING_KEY, JSON.stringify({ orderIds }));
+web\src\components\caja\caja-screen.tsx:652: const raw = window.localStorage.getItem(REQUEST_KEY);
+web\src\components\caja\caja-screen.tsx:660: window.localStorage.setItem(REQUEST_KEY, JSON.stringify(request));
+
+== 8. El payload de venta no lleva identidad de producto ==
+    const payload = {
+      items: lines.map((line) => ({
+        description: line.description.trim(),
+        quantity: parseQuantity(line.quantity),
+        unitPriceCents: parseMoneyCents(line.price),
+      })),
+      cashCents: appliedCashCents,
+      creditCents: appliedCreditCents,
+      customerName: appliedCreditCents > 0 ? customerName.trim() : null,
+    };
+    const signature = JSON.stringify(payload);
+    let requestId = newRequestId("sale");
+    const request = { requestId, signature };
+    try {
+      const stored = requestRef.current ?? readStoredRequest();
+      if (stored?.signature === signature) requestId = stored.requestId;
+      else writeStoredRequest({ requestId, signature });

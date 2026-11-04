@@ -1,0 +1,110 @@
+[
+  {
+    "tag": "a",
+    "id": null,
+    "text": "Saltar al contenido",
+    "label": ""
+  },
+  {
+    "tag": "a",
+    "id": null,
+    "text": "Mercado Cero Inicio",
+    "label": ""
+  },
+  {
+    "tag": "a",
+    "id": null,
+    "text": "Inicio",
+    "label": ""
+  },
+  {
+    "tag": "a",
+    "id": null,
+    "text": "Caja",
+    "label": ""
+  },
+  {
+    "tag": "a",
+    "id": null,
+    "text": "Ventas",
+    "label": ""
+  },
+  {
+    "tag": "a",
+    "id": null,
+    "text": "Fiados",
+    "label": ""
+  },
+  {
+    "tag": "a",
+    "id": null,
+    "text": "Corte",
+    "label": ""
+  },
+  {
+    "tag": "a",
+    "id": null,
+    "text": "Metas",
+    "label": ""
+  },
+  {
+    "tag": "a",
+    "id": null,
+    "text": "Pendientes",
+    "label": ""
+  },
+  {
+    "tag": "a",
+    "id": null,
+    "text": "Ayuda",
+    "label": ""
+  },
+  {
+    "tag": "a",
+    "id": null,
+    "text": "Ajustes",
+    "label": ""
+  },
+  {
+    "tag": "a",
+    "id": null,
+    "text": "Ir a Inicio",
+    "label": ""
+  },
+  {
+    "tag": "a",
+    "id": null,
+    "text": "TOTAL $0.00 VER COBRO",
+    "label": ""
+  },
+  {
+    "tag": "input",
+    "id": "mc-caja-new-description",
+    "text": "Producto o servicio",
+    "label": "Producto o servicio"
+  },
+  {
+    "tag": "input",
+    "id": null,
+    "text": "1",
+    "label": "Cantidad"
+  },
+  {
+    "tag": "input",
+    "id": null,
+    "text": "Precio unitario",
+    "label": "Precio unitario"
+  },
+  {
+    "tag": "button",
+    "id": null,
+    "text": "+ Agregar",
+    "label": ""
+  },
+  {
+    "tag": "button",
+    "id": null,
+    "text": "Efectivo",
+    "label": ""
+  }
+]

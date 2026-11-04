@@ -1,0 +1,49 @@
+{
+  "inicio1448": {
+    "text": "¡Buen día, Lupita!\n\nmiércoles, 4 de noviembre. Datos demo\n\nVentas hoy\n\n$3,209.36\n\nRegistradas, no necesariamente cobradas\n\nCobrado hoy\n\n$100.00\n\nEfectivo + pagos verificados\n\nPor cobrar\n\n$723.00\n\nSaldo pendiente, sin sumarlo a la caja\n\nMeta del mes\n\n17%\n\nMi primera sombrilla\n\nNueva venta\n\nRegistra lo que vendiste y decide cómo cobrar.\n\nRegistrar\nPendientes\nVer todos\nRecibir pedido\nEjemplo\n11:00 a.m.\nHecho:\nCobrar a Juan\nEjemplo\n$50.00\nRevisar inventario\nEjemplo\n\nEjemplos demo; no son tareas reales. Se administran en Tareas.\n\nSugerencia\n\nTu negocio, en orden.\n\nRegistra una venta o revisa tus pendientes antes de cerrar el día.\n\nIr a ventas",
+    "headings": [
+      "¡Buen día, Lupita!",
+      "Nueva venta",
+      "Pendientes",
+      "Tu negocio, en orden."
+    ],
+    "links": [
+      "Saltar al contenido",
+      "Mercado\nCero\nInicio",
+      "Inicio",
+      "Caja",
+      "Ventas",
+      "Fiados",
+      "Corte",
+      "Metas",
+      "Pendientes",
+      "Ayuda",
+      "Ajustes",
+      "",
+      "Registrar",
+      "Ver todos",
+      "Ir a ventas"
+    ]
+  },
+  "caja320": {
+    "viewport": {
+      "w": 320,
+      "h": 640
+    },
+    "firstFieldTop": 627,
+    "firstFieldVisible": false,
+    "addFormTop": 549,
+    "addFormVisible": false,
+    "bodyScrollHeight": 1663,
+    "scrollY": 0
+  },
+  "ventas320": {
+    "viewport": {
+      "w": 320,
+      "h": 640
+    },
+    "firstRowTop": 688,
+    "firstRowVisible": false,
+    "bodyScrollHeight": 6795
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "order": "ord_58d5096d60ea48f09ceb",
+  "results": [
+    {
+      "name": "fiado result opens",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "banner falsely claims cash was registered",
+      "ok": true,
+      "detail": "RESULTADO\n\nVenta registrada con fiado\n\nTOTAL DE LA VENTA\n\n$100.00\n\nLa venta quedó registrada. La parte fiada es deuda; no la cuentes como dinero recibido.\n\nPEDIDO\n9CEB\nESTADO\nRegistrado\nSALDO VIVO FIADO\n$100.00 · Cliente B\n\nQuedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró e"
+    },
+    {
+      "name": "facts show no cash received",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "failed": 0
+}

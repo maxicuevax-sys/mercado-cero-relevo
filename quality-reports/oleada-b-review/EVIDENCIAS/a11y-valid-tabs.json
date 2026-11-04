@@ -1,0 +1,890 @@
+{
+  "740": [
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "Confirmar venta",
+      "rect": {
+        "y": 353,
+        "bottom": 409,
+        "h": 56
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1106,
+      "disabled": false,
+      "n": 1
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "Descartar venta",
+      "rect": {
+        "y": 413,
+        "bottom": 457,
+        "h": 44
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1106,
+      "disabled": false,
+      "n": 2
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "Revisar cobro",
+      "rect": {
+        "y": 620,
+        "bottom": 668,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": true,
+      "nav": false,
+      "scrollY": 1106,
+      "disabled": false,
+      "n": 3
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "Caja clásica",
+      "rect": {
+        "y": 536,
+        "bottom": 570,
+        "h": 34
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1106,
+      "disabled": false,
+      "n": 4
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "Inicio",
+      "rect": {
+        "y": 676,
+        "bottom": 740,
+        "h": 64
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": true,
+      "scrollY": 1106,
+      "disabled": false,
+      "n": 5
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "Caja",
+      "rect": {
+        "y": 676,
+        "bottom": 740,
+        "h": 64
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": true,
+      "scrollY": 1106,
+      "disabled": false,
+      "n": 6
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "Ventas",
+      "rect": {
+        "y": 676,
+        "bottom": 740,
+        "h": 64
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": true,
+      "scrollY": 1106,
+      "disabled": false,
+      "n": 7
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "Fiados",
+      "rect": {
+        "y": 676,
+        "bottom": 740,
+        "h": 64
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": true,
+      "scrollY": 1106,
+      "disabled": false,
+      "n": 8
+    },
+    {
+      "tag": "SUMMARY",
+      "id": "",
+      "name": "Más",
+      "rect": {
+        "y": 676,
+        "bottom": 740,
+        "h": 64
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": true,
+      "scrollY": 1106,
+      "disabled": false,
+      "n": 9
+    },
+    {
+      "tag": "BODY",
+      "id": "",
+      "name": "Saltar al contenido Antojitos de Lupita ",
+      "rect": {
+        "y": -1106,
+        "bottom": -366,
+        "h": 740
+      },
+      "offscreen": true,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1106,
+      "disabled": false,
+      "n": 10
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "Saltar al contenido",
+      "rect": {
+        "y": 10,
+        "bottom": 58,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1106,
+      "disabled": false,
+      "n": 11
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "Ir a Inicio",
+      "rect": {
+        "y": 8,
+        "bottom": 56,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 0,
+      "disabled": false,
+      "n": 12
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "TOTAL $70.00 VER COBRO",
+      "rect": {
+        "y": 202,
+        "bottom": 256,
+        "h": 53
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 0,
+      "disabled": false,
+      "n": 13
+    },
+    {
+      "tag": "INPUT",
+      "id": "line-description-line_0f3d3e2e-1fce-43cd-b2ed-b2baa88a49da",
+      "name": "",
+      "rect": {
+        "y": 312,
+        "bottom": 360,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 114,
+      "disabled": false,
+      "n": 14
+    },
+    {
+      "tag": "INPUT",
+      "id": "line-quantity-line_0f3d3e2e-1fce-43cd-b2ed-b2baa88a49da",
+      "name": "",
+      "rect": {
+        "y": 312,
+        "bottom": 360,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 194,
+      "disabled": false,
+      "n": 15
+    },
+    {
+      "tag": "INPUT",
+      "id": "line-price-line_0f3d3e2e-1fce-43cd-b2ed-b2baa88a49da",
+      "name": "",
+      "rect": {
+        "y": 312,
+        "bottom": 360,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 194,
+      "disabled": false,
+      "n": 16
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "×",
+      "rect": {
+        "y": 316,
+        "bottom": 360,
+        "h": 44
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 302,
+      "disabled": false,
+      "n": 17
+    },
+    {
+      "tag": "INPUT",
+      "id": "mc-caja-new-description",
+      "name": "Ej. Quesadilla",
+      "rect": {
+        "y": 312,
+        "bottom": 360,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 459,
+      "disabled": false,
+      "n": 18
+    },
+    {
+      "tag": "INPUT",
+      "id": "",
+      "name": "",
+      "rect": {
+        "y": 312,
+        "bottom": 360,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 541,
+      "disabled": false,
+      "n": 19
+    },
+    {
+      "tag": "INPUT",
+      "id": "",
+      "name": "0.00",
+      "rect": {
+        "y": 312,
+        "bottom": 360,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 541,
+      "disabled": false,
+      "n": 20
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "+ Agregar",
+      "rect": {
+        "y": 312,
+        "bottom": 360,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 599,
+      "disabled": false,
+      "n": 21
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "Efectivo",
+      "rect": {
+        "y": 162,
+        "bottom": 210,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1018,
+      "disabled": false,
+      "n": 22
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "Digital",
+      "rect": {
+        "y": 162,
+        "bottom": 210,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1018,
+      "disabled": false,
+      "n": 23
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "Fiado",
+      "rect": {
+        "y": 216,
+        "bottom": 264,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1018,
+      "disabled": false,
+      "n": 24
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "Mixto",
+      "rect": {
+        "y": 216,
+        "bottom": 264,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1018,
+      "disabled": false,
+      "n": 25
+    },
+    {
+      "tag": "INPUT",
+      "id": "",
+      "name": "0.00",
+      "rect": {
+        "y": 303,
+        "bottom": 351,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1018,
+      "disabled": false,
+      "n": 26
+    }
+  ],
+  "400": [
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "Confirmar venta",
+      "rect": {
+        "y": 13,
+        "bottom": 69,
+        "h": 56
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1446,
+      "disabled": false,
+      "n": 1
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "Descartar venta",
+      "rect": {
+        "y": 73,
+        "bottom": 117,
+        "h": 44
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1446,
+      "disabled": false,
+      "n": 2
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "Revisar cobro",
+      "rect": {
+        "y": 280,
+        "bottom": 328,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": true,
+      "nav": false,
+      "scrollY": 1446,
+      "disabled": false,
+      "n": 3
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "Caja clásica",
+      "rect": {
+        "y": 196,
+        "bottom": 230,
+        "h": 34
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1446,
+      "disabled": false,
+      "n": 4
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "Inicio",
+      "rect": {
+        "y": 336,
+        "bottom": 400,
+        "h": 64
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": true,
+      "scrollY": 1446,
+      "disabled": false,
+      "n": 5
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "Caja",
+      "rect": {
+        "y": 336,
+        "bottom": 400,
+        "h": 64
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": true,
+      "scrollY": 1446,
+      "disabled": false,
+      "n": 6
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "Ventas",
+      "rect": {
+        "y": 336,
+        "bottom": 400,
+        "h": 64
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": true,
+      "scrollY": 1446,
+      "disabled": false,
+      "n": 7
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "Fiados",
+      "rect": {
+        "y": 336,
+        "bottom": 400,
+        "h": 64
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": true,
+      "scrollY": 1446,
+      "disabled": false,
+      "n": 8
+    },
+    {
+      "tag": "SUMMARY",
+      "id": "",
+      "name": "Más",
+      "rect": {
+        "y": 336,
+        "bottom": 400,
+        "h": 64
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": true,
+      "scrollY": 1446,
+      "disabled": false,
+      "n": 9
+    },
+    {
+      "tag": "BODY",
+      "id": "",
+      "name": "Saltar al contenido Antojitos de Lupita ",
+      "rect": {
+        "y": -1446,
+        "bottom": -1046,
+        "h": 400
+      },
+      "offscreen": true,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1446,
+      "disabled": false,
+      "n": 10
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "Saltar al contenido",
+      "rect": {
+        "y": 10,
+        "bottom": 58,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1446,
+      "disabled": false,
+      "n": 11
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "Ir a Inicio",
+      "rect": {
+        "y": 8,
+        "bottom": 56,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 0,
+      "disabled": false,
+      "n": 12
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "name": "TOTAL $70.00 VER COBRO",
+      "rect": {
+        "y": 28,
+        "bottom": 82,
+        "h": 53
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 174,
+      "disabled": false,
+      "n": 13
+    },
+    {
+      "tag": "INPUT",
+      "id": "line-description-line_e49d9a80-c120-4ee7-8887-6966499f5dcc",
+      "name": "",
+      "rect": {
+        "y": -0.0,
+        "bottom": 48,
+        "h": 48
+      },
+      "offscreen": true,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 426,
+      "disabled": false,
+      "n": 14
+    },
+    {
+      "tag": "INPUT",
+      "id": "line-quantity-line_e49d9a80-c120-4ee7-8887-6966499f5dcc",
+      "name": "",
+      "rect": {
+        "y": 12,
+        "bottom": 60,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 494,
+      "disabled": false,
+      "n": 15
+    },
+    {
+      "tag": "INPUT",
+      "id": "line-price-line_e49d9a80-c120-4ee7-8887-6966499f5dcc",
+      "name": "",
+      "rect": {
+        "y": 12,
+        "bottom": 60,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 494,
+      "disabled": false,
+      "n": 16
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "×",
+      "rect": {
+        "y": 12,
+        "bottom": 56,
+        "h": 44
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 606,
+      "disabled": false,
+      "n": 17
+    },
+    {
+      "tag": "INPUT",
+      "id": "mc-caja-new-description",
+      "name": "Ej. Quesadilla",
+      "rect": {
+        "y": 12,
+        "bottom": 60,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 759,
+      "disabled": false,
+      "n": 18
+    },
+    {
+      "tag": "INPUT",
+      "id": "",
+      "name": "",
+      "rect": {
+        "y": 12,
+        "bottom": 60,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 841,
+      "disabled": false,
+      "n": 19
+    },
+    {
+      "tag": "INPUT",
+      "id": "",
+      "name": "0.00",
+      "rect": {
+        "y": 12,
+        "bottom": 60,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 841,
+      "disabled": false,
+      "n": 20
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "+ Agregar",
+      "rect": {
+        "y": 12,
+        "bottom": 60,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 899,
+      "disabled": false,
+      "n": 21
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "Efectivo",
+      "rect": {
+        "y": -8,
+        "bottom": 40,
+        "h": 48
+      },
+      "offscreen": true,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1188,
+      "disabled": false,
+      "n": 22
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "Digital",
+      "rect": {
+        "y": -8,
+        "bottom": 40,
+        "h": 48
+      },
+      "offscreen": true,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1188,
+      "disabled": false,
+      "n": 23
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "Fiado",
+      "rect": {
+        "y": 12,
+        "bottom": 60,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1222,
+      "disabled": false,
+      "n": 24
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "Mixto",
+      "rect": {
+        "y": 12,
+        "bottom": 60,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1222,
+      "disabled": false,
+      "n": 25
+    },
+    {
+      "tag": "INPUT",
+      "id": "",
+      "name": "0.00",
+      "rect": {
+        "y": 12,
+        "bottom": 60,
+        "h": 48
+      },
+      "offscreen": false,
+      "covered": null,
+      "pay": false,
+      "nav": false,
+      "scrollY": 1309,
+      "disabled": false,
+      "n": 26
+    }
+  ]
+}

@@ -1,0 +1,364 @@
+{
+  "console": [
+    "warning: The resource http://localhost:3100/_next/static/chunks/22p6etjwk27op.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally."
+  ],
+  "focusedAfterAdd": {
+    "tag": "INPUT",
+    "id": "line-description-line_c27bad7e-088b-4e1e-8861-72dc280f625a",
+    "value": "Quesadilla",
+    "label": "Concepto"
+  },
+  "confirmStateCashShort": {
+    "text": "Faltan $20.00",
+    "disabled": true
+  },
+  "emptyHeadings": [
+    {
+      "tag": "H1",
+      "text": "Nueva venta"
+    },
+    {
+      "tag": "H2",
+      "text": "Qué estás vendiendo"
+    },
+    {
+      "tag": "H2",
+      "text": "Total de la venta"
+    }
+  ],
+  "emptyFields": [
+    {
+      "id": "mc-caja-new-description",
+      "label": "Producto o servicio",
+      "value": "",
+      "placeholder": "Ej. Quesadilla",
+      "inputMode": null,
+      "type": "text",
+      "disabled": false
+    },
+    {
+      "id": null,
+      "label": "Cantidad",
+      "value": "1",
+      "placeholder": null,
+      "inputMode": "decimal",
+      "type": "text",
+      "disabled": false
+    },
+    {
+      "id": null,
+      "label": "Precio unitario",
+      "value": "",
+      "placeholder": "0.00",
+      "inputMode": "decimal",
+      "type": "text",
+      "disabled": false
+    },
+    {
+      "id": null,
+      "label": "Efectivo recibido",
+      "value": "",
+      "placeholder": "0.00",
+      "inputMode": "decimal",
+      "type": "text",
+      "disabled": false
+    }
+  ],
+  "afterAddFields": [
+    {
+      "id": "line-description-line_c27bad7e-088b-4e1e-8861-72dc280f625a",
+      "label": "Concepto",
+      "value": "Quesadilla",
+      "placeholder": null,
+      "inputMode": null,
+      "type": "text",
+      "disabled": false
+    },
+    {
+      "id": "line-quantity-line_c27bad7e-088b-4e1e-8861-72dc280f625a",
+      "label": "Cantidad",
+      "value": "2",
+      "placeholder": null,
+      "inputMode": "decimal",
+      "type": "text",
+      "disabled": false
+    },
+    {
+      "id": "line-price-line_c27bad7e-088b-4e1e-8861-72dc280f625a",
+      "label": "Precio",
+      "value": "35",
+      "placeholder": null,
+      "inputMode": "decimal",
+      "type": "text",
+      "disabled": false
+    },
+    {
+      "id": "mc-caja-new-description",
+      "label": "Producto o servicio",
+      "value": "",
+      "placeholder": "Ej. Quesadilla",
+      "inputMode": null,
+      "type": "text",
+      "disabled": false
+    },
+    {
+      "id": null,
+      "label": "Cantidad",
+      "value": "1",
+      "placeholder": null,
+      "inputMode": "decimal",
+      "type": "text",
+      "disabled": false
+    },
+    {
+      "id": null,
+      "label": "Precio unitario",
+      "value": "",
+      "placeholder": "0.00",
+      "inputMode": "decimal",
+      "type": "text",
+      "disabled": false
+    },
+    {
+      "id": null,
+      "label": "Efectivo recibido",
+      "value": "",
+      "placeholder": "0.00",
+      "inputMode": "decimal",
+      "type": "text",
+      "disabled": false
+    }
+  ],
+  "cashShortAlerts": [
+    {
+      "role": null,
+      "live": "polite",
+      "text": "1 concepto"
+    },
+    {
+      "role": null,
+      "live": "polite",
+      "text": "Faltan $20.00 para completar el cobro. Escribe más efectivo o elige Digital, Fiado o Mixto."
+    },
+    {
+      "role": "status",
+      "live": "polite",
+      "text": "Concepto agregado."
+    }
+  ],
+  "cashChangeAlerts": [
+    {
+      "role": null,
+      "live": "polite",
+      "text": "1 concepto"
+    },
+    {
+      "role": null,
+      "live": "polite",
+      "text": "Cambio a devolver $30.00. Recibiste $100.00; se aplicaron $70.00."
+    },
+    {
+      "role": "status",
+      "live": "polite",
+      "text": "Concepto agregado."
+    }
+  ],
+  "cashResultHeadings": [
+    {
+      "tag": "H1",
+      "text": "Venta registrada"
+    },
+    {
+      "tag": "H2",
+      "text": "Venta cobrada en efectivo (demo)"
+    }
+  ],
+  "cashResultAlerts": [
+    {
+      "role": "status",
+      "live": "polite",
+      "text": "Concepto agregado."
+    }
+  ],
+  "creditFormAlerts": [
+    {
+      "role": null,
+      "live": "polite",
+      "text": "1 concepto"
+    },
+    {
+      "role": "status",
+      "live": "polite",
+      "text": "Concepto agregado."
+    }
+  ],
+  "creditResultHeadings": [
+    {
+      "tag": "H1",
+      "text": "Venta registrada"
+    },
+    {
+      "tag": "H2",
+      "text": "Venta registrada con fiado"
+    }
+  ],
+  "creditResultAlerts": [
+    {
+      "role": "status",
+      "live": "polite",
+      "text": "Concepto agregado."
+    }
+  ],
+  "digitalPendingHeadings": [
+    {
+      "tag": "H1",
+      "text": "Cobrar venta"
+    },
+    {
+      "tag": "H2",
+      "text": "Pedido B02A"
+    }
+  ],
+  "digitalPendingAlerts": [
+    {
+      "role": "status",
+      "live": "polite",
+      "text": "Concepto agregado."
+    }
+  ],
+  "digitalLinkAlerts": [
+    {
+      "role": "status",
+      "live": "polite",
+      "text": ""
+    },
+    {
+      "role": "status",
+      "live": "polite",
+      "text": "Concepto agregado."
+    }
+  ],
+  "returnedHeadings": [
+    {
+      "tag": "H1",
+      "text": "Cobrar venta"
+    },
+    {
+      "tag": "H2",
+      "text": "Pedido B02A"
+    }
+  ],
+  "ventasHeadings": [
+    {
+      "tag": "H1",
+      "text": "Ventas"
+    },
+    {
+      "tag": "H2",
+      "text": "Ventas registradas"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido B02A"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido B0F9"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido B3DA"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido A3FA"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido BDC9"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido BC6F"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido A050"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido 8AEE"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido A63C"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido 8B9F"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido AD97"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido B478"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido AE9B"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido 9517"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido B01D"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido B561"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido 978C"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido B8F0"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido 9EE3"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido A8D5"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido 98E7"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido 982C"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido A10B"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido A6AC"
+    },
+    {
+      "tag": "H3",
+      "text": "Pedido 990D"
+    }
+  ],
+  "helpHref": "/?ayuda=1",
+  "helpUrlAfterClick": "http://localhost:3100/?ayuda=1",
+  "helpTextStart": "Saltar al contenido\n\nMercado Cero\n\nLa caja que habla\n\nInicio\nCaja\nFiado\nCorte\nMeta\nPendientes\nModo demo\nAyuda\n\nAntojitos de Lupita\n\nCoyoacán, CDMX · miércoles, 4 de noviembre\n\nDEMO\nCaja\nVerificar\n\nVentas registradas hoy $707.00 · Cobrado confirmado $0.00 · Por cobrar de hoy $258.00\n\nPor cobrar de hoy $258.00\nVer la tira\n¿Qué vendiste?\n\nHabla, escribe o agrega a mano; tú confirmas.\n\nTU VENTA\nen blanco\n\n$0.00\n\nLa IA interpreta o lo agregas a mano; tú confirmas.\n\nMantén y habla\nEscribe la venta\nEscuchar\nInterpretar\nAgregar a mano\n\nSin IA: escribe producto, cantidad y precio.\n\nSi hay ruido en el mercado, escribe la venta o agrégala a mano.\n\nTOTAL DE LA VENTA\n\n$0.00\n\nSin saldo digital pendiente\n\nFiar\nCobrar\nFiar\nQuesadillas $90\nJuan pagó $50\n¿Cuánto vendí?\nPedido en curso\n\nTodavía no hay produc"
+}

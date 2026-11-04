@@ -1,0 +1,373 @@
+{
+  "hiddenShellAfterSoftNav": {
+    "before": {
+      "shells": 1,
+      "mains": 1,
+      "h1s": 1
+    },
+    "after": {
+      "url": "http://localhost:3100/?tab=fiado",
+      "shells": 1,
+      "mains": [
+        {
+          "id": "main",
+          "visible": true,
+          "rect": {
+            "w": 1200,
+            "h": 2126.625
+          }
+        },
+        {
+          "id": "ventas-main",
+          "visible": false,
+          "rect": {
+            "w": 0,
+            "h": 0
+          }
+        }
+      ],
+      "h1s": [
+        {
+          "text": "Caja",
+          "visible": false
+        },
+        {
+          "text": "Fiado",
+          "visible": true
+        },
+        {
+          "text": "Ventas",
+          "visible": false
+        }
+      ],
+      "current": [
+        {
+          "text": "Fiado",
+          "visible": true,
+          "tag": "BUTTON"
+        },
+        {
+          "text": "Fiado",
+          "visible": false,
+          "tag": "BUTTON"
+        },
+        {
+          "text": "Ventas",
+          "visible": false,
+          "tag": "A"
+        },
+        {
+          "text": "Ventas",
+          "visible": false,
+          "tag": "A"
+        }
+      ],
+      "marker": "alive",
+      "chain": [
+        {
+          "tag": "DIV",
+          "cls": "inicio-shell",
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "hidden": false,
+          "inert": false,
+          "ariaHidden": null
+        },
+        {
+          "tag": "BODY",
+          "cls": "min-h-full",
+          "display": "block",
+          "visibility": "visible",
+          "opacity": "1",
+          "hidden": false,
+          "inert": false,
+          "ariaHidden": null
+        }
+      ]
+    }
+  },
+  "hiddenShellAfter8s": {
+    "shells": 1,
+    "mains": 2,
+    "h1s": 3
+  },
+  "hiddenShellNewToNew": {
+    "shells": 2,
+    "mains": [
+      {
+        "id": "caja-main",
+        "display": "block",
+        "connected": true
+      },
+      {
+        "id": "inicio-main",
+        "display": "grid",
+        "connected": true
+      }
+    ],
+    "h1s": [
+      {
+        "text": "Nueva venta",
+        "display": "block",
+        "rect": [
+          513.59375,
+          44.296875
+        ]
+      },
+      {
+        "text": "¡Buen día, Lupita!",
+        "display": "block",
+        "rect": [
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "focusAfterNav": {
+    "afterKeyboardEnterCaja": {
+      "tag": "BODY",
+      "id": "",
+      "text": "Saltar al contenido\nMercado\nCero\nInicio\nInicio\nCaj"
+    },
+    "afterClickVentas": {
+      "tag": "BODY",
+      "id": "",
+      "text": "Saltar al contenido\nMercado\nCero\nInicio\nInicio\nCaj"
+    },
+    "pagerNextCount": 1,
+    "afterPagerNext": {
+      "tag": "A",
+      "id": "",
+      "text": "Siguiente",
+      "scrollY": 0,
+      "url": "http://localhost:3100/ventas?page=2"
+    },
+    "afterPagerBack": {
+      "tag": "A",
+      "id": "",
+      "scrollY": 3771,
+      "url": "http://localhost:3100/ventas"
+    }
+  },
+  "ctaVisibility": {
+    "1448x1086-empty": {
+      "cta": {
+        "y": 676.1,
+        "bottom": 732.1,
+        "h": 56,
+        "disabled": true,
+        "text": "Confirmar venta"
+      },
+      "total": {
+        "x": 1075.7,
+        "y": 360.9,
+        "w": 311.3,
+        "h": 40,
+        "bottom": 400.9,
+        "right": 1387,
+        "display": "block",
+        "visibility": "visible",
+        "position": "static",
+        "z": "auto"
+      },
+      "paybar": null,
+      "viewport": {
+        "width": 1448,
+        "height": 1086
+      }
+    },
+    "1448x1086-three": {
+      "cta": {
+        "y": 797.6,
+        "bottom": 853.6,
+        "h": 56,
+        "disabled": true,
+        "text": "Faltan $60.00"
+      },
+      "total": {
+        "x": 1075.7,
+        "y": 360.9,
+        "w": 311.3,
+        "h": 40,
+        "bottom": 400.9,
+        "right": 1387,
+        "display": "block",
+        "visibility": "visible",
+        "position": "static",
+        "z": "auto"
+      },
+      "paybar": null,
+      "viewport": {
+        "width": 1448,
+        "height": 1086
+      }
+    },
+    "1366x768-empty": {
+      "cta": {
+        "y": 865.9,
+        "bottom": 921.9,
+        "h": 56,
+        "disabled": true,
+        "text": "Faltan $60.00"
+      },
+      "total": {
+        "x": 1020.8,
+        "y": 429.2,
+        "w": 285.4,
+        "h": 40,
+        "bottom": 469.2,
+        "right": 1306.2,
+        "display": "block",
+        "visibility": "visible",
+        "position": "static",
+        "z": "auto"
+      },
+      "paybar": null,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      }
+    },
+    "1366x768-three": {
+      "cta": {
+        "y": 623.9,
+        "bottom": 679.9,
+        "h": 56,
+        "disabled": true,
+        "text": "Faltan $120.00"
+      },
+      "total": {
+        "x": 1020.8,
+        "y": 187.2,
+        "w": 285.4,
+        "h": 40,
+        "bottom": 227.2,
+        "right": 1306.2,
+        "display": "block",
+        "visibility": "visible",
+        "position": "static",
+        "z": "auto"
+      },
+      "paybar": null,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      }
+    },
+    "1024x768-empty": {
+      "cta": {
+        "y": 928,
+        "bottom": 984,
+        "h": 56,
+        "disabled": true,
+        "text": "Faltan $120.00"
+      },
+      "total": {
+        "x": 703,
+        "y": 471.7,
+        "w": 273,
+        "h": 40,
+        "bottom": 511.7,
+        "right": 975.9,
+        "display": "block",
+        "visibility": "visible",
+        "position": "static",
+        "z": "auto"
+      },
+      "paybar": null,
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      }
+    },
+    "1024x768-three": {
+      "cta": {
+        "y": 553.1,
+        "bottom": 609.1,
+        "h": 56,
+        "disabled": true,
+        "text": "Faltan $180.00"
+      },
+      "total": {
+        "x": 703,
+        "y": 96.8,
+        "w": 273,
+        "h": 40,
+        "bottom": 136.8,
+        "right": 975.9,
+        "display": "block",
+        "visibility": "visible",
+        "position": "static",
+        "z": "auto"
+      },
+      "paybar": null,
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      }
+    },
+    "768x1024-empty": {
+      "cta": {
+        "y": 1941.6,
+        "bottom": 1997.6,
+        "h": 56,
+        "disabled": true,
+        "text": "Faltan $180.00"
+      },
+      "total": {
+        "x": 247.4,
+        "y": 1526.6,
+        "w": 483.2,
+        "h": 40,
+        "bottom": 1566.6,
+        "right": 730.6,
+        "display": "block",
+        "visibility": "visible",
+        "position": "static",
+        "z": "auto"
+      },
+      "paybar": null,
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      }
+    },
+    "768x1024-three": {
+      "cta": {
+        "y": 1296.6,
+        "bottom": 1352.6,
+        "h": 56,
+        "disabled": true,
+        "text": "Faltan $240.00"
+      },
+      "total": {
+        "x": 247.4,
+        "y": 881.6,
+        "w": 483.2,
+        "h": 40,
+        "bottom": 921.6,
+        "right": 730.6,
+        "display": "block",
+        "visibility": "visible",
+        "position": "static",
+        "z": "auto"
+      },
+      "paybar": null,
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      }
+    }
+  },
+  "hashConfirmar": {
+    "id": false,
+    "hash": "#confirmar",
+    "target": null
+  },
+  "hashPaymentSummary": {
+    "target": "mc-caja-payment-summary",
+    "hash": "#mc-caja-payment-summary"
+  }
+}

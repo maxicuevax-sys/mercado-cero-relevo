@@ -1,0 +1,462 @@
+{
+  "label": "t2-mixto",
+  "marker": "AUD-FC-111553",
+  "capturedAt": "2026-11-04T17:16:11.139Z",
+  "health": {
+    "status": 200,
+    "body": {
+      "ok": true,
+      "buildSha": "4130e71d668e5e4693a8f5b634d2d2f953d21b02",
+      "node": "v25.7.0",
+      "uptimeSeconds": 70
+    }
+  },
+  "cash": {
+    "status": 200,
+    "body": {
+      "date": "2026-11-04",
+      "openingCents": 50000,
+      "cashSalesCents": 6000,
+      "cashCreditCents": 0,
+      "expensesCents": 0,
+      "withdrawalsCents": 0,
+      "expectedCents": 56000,
+      "saved": null,
+      "history": []
+    }
+  },
+  "dashboard": {
+    "status": 200,
+    "summary": {
+      "date": "2026-11-04",
+      "salesCents": 38000,
+      "verifiedDigitalCents": 0,
+      "declaredDigitalCents": 0,
+      "demoDigitalCents": 0,
+      "demoCashCents": 13000,
+      "cashCents": 0,
+      "pendingCents": 12000,
+      "creditCents": 18000,
+      "demoCreditCents": 18000,
+      "orderCount": 4,
+      "paidOrderCount": 1,
+      "methods": {}
+    },
+    "demoMode": true
+  },
+  "preview": {
+    "status": 200,
+    "body": {
+      "status": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 6000,
+        "cashCreditCents": 0,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 56000,
+        "saved": null,
+        "history": []
+      },
+      "preview": {
+        "openingCents": 50000,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "countedCents": 50000,
+        "baseNextCents": 50000,
+        "cashSalesCents": 6000,
+        "cashCreditCents": 0,
+        "expectedCents": 56000,
+        "differenceCents": -6000,
+        "withdrawalNextCents": 0,
+        "fingerprint": "66f21154fa6ae52a"
+      },
+      "issues": []
+    }
+  },
+  "db": {
+    "counts": {
+      "orders": {
+        "n": 17
+      },
+      "payments": {
+        "n": 15
+      },
+      "credits": {
+        "n": 3
+      },
+      "creditPayments": {
+        "n": 0
+      },
+      "cashCloses": {
+        "n": 1
+      },
+      "sums": {
+        "cash_sales_all": 6000,
+        "cash_credit_all": 0
+      }
+    },
+    "orders": [
+      {
+        "id": "ord_91e5bd49c3d24d6d83b0",
+        "status": "confirmed",
+        "total_cents": 9000,
+        "paid_cents": 6000,
+        "credit_cents": 3000,
+        "payment_method": "cash",
+        "customer_name": "Cliente Mixto AUD-FC-111553",
+        "credit_id": "cred_5af8176ecf8b450e8aa8",
+        "request_id": "sale_c4fcc7a6-94c0-4a36-bd9f-6da26418160a",
+        "request_hash": "7e9c884c8cecb4ec5127745ee9451657046a48745e64193dd807ae7e66e70b6a",
+        "demo": 1,
+        "created_at": "2026-11-04T17:16:09.310Z",
+        "updated_at": "2026-11-04T17:16:09.320Z"
+      },
+      {
+        "id": "ord_81cc6e31a1eb480189c9",
+        "status": "confirmed",
+        "total_cents": 10000,
+        "paid_cents": 0,
+        "credit_cents": 10000,
+        "payment_method": null,
+        "customer_name": "Cliente Fiado AUD-FC-111553",
+        "credit_id": "cred_e20b00d76d6d44adac2f",
+        "request_id": "sale_03cd0aa6-66dc-4c49-a336-872dffc85890",
+        "request_hash": "ad8c16f4b9fb1750ab23993901c8684be25e855d12563918435be0de70dd6480",
+        "demo": 1,
+        "created_at": "2026-11-04T17:16:05.151Z",
+        "updated_at": "2026-11-04T17:16:05.157Z"
+      },
+      {
+        "id": "demo_seed_ord_52870e38c1274a9d9363",
+        "status": "demo_paid",
+        "total_cents": 7000,
+        "paid_cents": 7000,
+        "credit_cents": 0,
+        "payment_method": "cash",
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-11-04T17:15:18.674Z",
+        "updated_at": "2026-11-04T17:15:18.674Z"
+      },
+      {
+        "id": "demo_hist_pending_ord_03219fe05c6e4f88af50",
+        "status": "payment_pending",
+        "total_cents": 12000,
+        "paid_cents": 0,
+        "credit_cents": 0,
+        "payment_method": null,
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-11-04T17:05:18.748Z",
+        "updated_at": "2026-11-04T17:05:18.748Z"
+      },
+      {
+        "id": "demo_hist_1_ord_e754faa522b8474eab49",
+        "status": "demo_paid",
+        "total_cents": 15500,
+        "paid_cents": 15500,
+        "credit_cents": 0,
+        "payment_method": "cash",
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-11-03T20:20:00.000Z",
+        "updated_at": "2026-11-03T20:20:00.000Z"
+      },
+      {
+        "id": "demo_hist_2_ord_b027436311d745bb8a67",
+        "status": "demo_paid",
+        "total_cents": 16000,
+        "paid_cents": 16000,
+        "credit_cents": 0,
+        "payment_method": "card",
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-11-02T21:20:00.000Z",
+        "updated_at": "2026-11-02T21:20:00.000Z"
+      },
+      {
+        "id": "demo_hist_3_ord_b52fcee75c8e4d938422",
+        "status": "demo_paid",
+        "total_cents": 16000,
+        "paid_cents": 16000,
+        "credit_cents": 0,
+        "payment_method": "cash",
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-11-01T22:20:00.000Z",
+        "updated_at": "2026-11-01T22:20:00.000Z"
+      },
+      {
+        "id": "demo_hist_4_ord_2aa2d7fa138642eca459",
+        "status": "demo_paid",
+        "total_cents": 9500,
+        "paid_cents": 9500,
+        "credit_cents": 0,
+        "payment_method": "codi",
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-10-31T23:20:00.000Z",
+        "updated_at": "2026-10-31T23:20:00.000Z"
+      },
+      {
+        "id": "demo_hist_5_ord_81de4032ae93423083d0",
+        "status": "demo_paid",
+        "total_cents": 21000,
+        "paid_cents": 21000,
+        "credit_cents": 0,
+        "payment_method": "cash",
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-10-30T19:20:00.000Z",
+        "updated_at": "2026-10-30T19:20:00.000Z"
+      },
+      {
+        "id": "demo_hist_6_ord_fedd06e9fb224e7a8efd",
+        "status": "demo_paid",
+        "total_cents": 16000,
+        "paid_cents": 16000,
+        "credit_cents": 0,
+        "payment_method": "card",
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-10-29T20:20:00.000Z",
+        "updated_at": "2026-10-29T20:20:00.000Z"
+      },
+      {
+        "id": "demo_hist_8_ord_190ef6b7f9dc40c587ee",
+        "status": "demo_paid",
+        "total_cents": 23000,
+        "paid_cents": 23000,
+        "credit_cents": 0,
+        "payment_method": "cash",
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-10-27T22:20:00.000Z",
+        "updated_at": "2026-10-27T22:20:00.000Z"
+      },
+      {
+        "id": "demo_hist_10_ord_2f053751f68e43c6beab",
+        "status": "demo_paid",
+        "total_cents": 16000,
+        "paid_cents": 16000,
+        "credit_cents": 0,
+        "payment_method": "codi",
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-10-25T19:20:00.000Z",
+        "updated_at": "2026-10-25T19:20:00.000Z"
+      },
+      {
+        "id": "demo_hist_12_ord_0a845581474b4cb488e9",
+        "status": "demo_paid",
+        "total_cents": 24000,
+        "paid_cents": 24000,
+        "credit_cents": 0,
+        "payment_method": "cash",
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-10-23T21:20:00.000Z",
+        "updated_at": "2026-10-23T21:20:00.000Z"
+      },
+      {
+        "id": "demo_hist_15_ord_930ffddcd355493c9838",
+        "status": "demo_paid",
+        "total_cents": 19000,
+        "paid_cents": 19000,
+        "credit_cents": 0,
+        "payment_method": "card",
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-10-20T19:20:00.000Z",
+        "updated_at": "2026-10-20T19:20:00.000Z"
+      },
+      {
+        "id": "demo_hist_18_ord_7660051e46fc46e883a1",
+        "status": "demo_paid",
+        "total_cents": 19000,
+        "paid_cents": 19000,
+        "credit_cents": 0,
+        "payment_method": "cash",
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-10-17T22:20:00.000Z",
+        "updated_at": "2026-10-17T22:20:00.000Z"
+      },
+      {
+        "id": "demo_hist_21_ord_7a032741bb874cd08376",
+        "status": "demo_paid",
+        "total_cents": 13000,
+        "paid_cents": 13000,
+        "credit_cents": 0,
+        "payment_method": "codi",
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-10-14T20:20:00.000Z",
+        "updated_at": "2026-10-14T20:20:00.000Z"
+      },
+      {
+        "id": "demo_hist_25_ord_5e9c0ce786fa412b84c4",
+        "status": "demo_paid",
+        "total_cents": 16500,
+        "paid_cents": 16500,
+        "credit_cents": 0,
+        "payment_method": "cash",
+        "customer_name": null,
+        "credit_id": null,
+        "request_id": null,
+        "request_hash": null,
+        "demo": 1,
+        "created_at": "2026-10-10T19:20:00.000Z",
+        "updated_at": "2026-10-10T19:20:00.000Z"
+      }
+    ],
+    "markerOrders": [
+      {
+        "id": "ord_91e5bd49c3d24d6d83b0",
+        "status": "confirmed",
+        "total_cents": 9000,
+        "paid_cents": 6000,
+        "credit_cents": 3000,
+        "payment_method": "cash",
+        "customer_name": "Cliente Mixto AUD-FC-111553",
+        "credit_id": "cred_5af8176ecf8b450e8aa8",
+        "request_id": "sale_c4fcc7a6-94c0-4a36-bd9f-6da26418160a",
+        "demo": 1,
+        "created_at": "2026-11-04T17:16:09.310Z",
+        "updated_at": "2026-11-04T17:16:09.320Z"
+      },
+      {
+        "id": "ord_81cc6e31a1eb480189c9",
+        "status": "confirmed",
+        "total_cents": 10000,
+        "paid_cents": 0,
+        "credit_cents": 10000,
+        "payment_method": null,
+        "customer_name": "Cliente Fiado AUD-FC-111553",
+        "credit_id": "cred_e20b00d76d6d44adac2f",
+        "request_id": "sale_03cd0aa6-66dc-4c49-a336-872dffc85890",
+        "demo": 1,
+        "created_at": "2026-11-04T17:16:05.151Z",
+        "updated_at": "2026-11-04T17:16:05.157Z"
+      }
+    ],
+    "payments": [
+      {
+        "id": "pay_78f0de8ea47a49f89985",
+        "order_id": "ord_91e5bd49c3d24d6d83b0",
+        "provider": "cash",
+        "method": "cash",
+        "amount_cents": 6000,
+        "status": "paid",
+        "transaction_id": null,
+        "demo": 1,
+        "created_at": "2026-11-04T17:16:09.310Z"
+      }
+    ],
+    "credits": [
+      {
+        "id": "cred_e20b00d76d6d44adac2f",
+        "customer_id": "cus_d59beace135248cfadac",
+        "order_id": "ord_81cc6e31a1eb480189c9",
+        "original_cents": 10000,
+        "balance_cents": 10000,
+        "status": "open",
+        "demo": 1,
+        "created_at": "2026-11-04T17:16:05.151Z",
+        "customer_name": "Cliente Fiado AUD-FC-111553"
+      },
+      {
+        "id": "cred_5af8176ecf8b450e8aa8",
+        "customer_id": "cus_721d716d7fbc4e90bb36",
+        "order_id": "ord_91e5bd49c3d24d6d83b0",
+        "original_cents": 3000,
+        "balance_cents": 3000,
+        "status": "open",
+        "demo": 1,
+        "created_at": "2026-11-04T17:16:09.310Z",
+        "customer_name": "Cliente Mixto AUD-FC-111553"
+      }
+    ],
+    "creditPayments": [],
+    "auditLog": [
+      {
+        "id": "aud_d3535c587fcb469aa744",
+        "action": "order.created",
+        "entity": "order",
+        "entity_id": "ord_91e5bd49c3d24d6d83b0",
+        "detail": "{\"totalCents\":9000,\"cashCents\":6000,\"creditCents\":3000,\"creditId\":\"cred_5af8176ecf8b450e8aa8\",\"requestId\":\"sale_c4fcc7a6-94c0-4a36-bd9f-6da26418160a\"}",
+        "created_at": "2026-11-04T17:16:09.320Z"
+      },
+      {
+        "id": "aud_55594a236aa14cbf806e",
+        "action": "order.created",
+        "entity": "order",
+        "entity_id": "ord_81cc6e31a1eb480189c9",
+        "detail": "{\"totalCents\":10000,\"cashCents\":0,\"creditCents\":10000,\"creditId\":\"cred_e20b00d76d6d44adac2f\",\"requestId\":\"sale_03cd0aa6-66dc-4c49-a336-872dffc85890\"}",
+        "created_at": "2026-11-04T17:16:05.157Z"
+      }
+    ],
+    "cashCloses": [
+      {
+        "id": "cash_demo_prev",
+        "date": "2026-11-03",
+        "version": 1,
+        "opening_cents": 50000,
+        "cash_sales_cents": 0,
+        "cash_credit_cents": 0,
+        "expenses_cents": 0,
+        "withdrawals_cents": 0,
+        "expected_cents": 50000,
+        "counted_cents": 50000,
+        "snapshot_cash_cents": 0,
+        "snapshot_credit_cents": 0,
+        "snapshot_pending_digital_cents": 0,
+        "demo": 1,
+        "created_at": "2026-11-03T17:15:18.752Z"
+      }
+    ]
+  }
+}

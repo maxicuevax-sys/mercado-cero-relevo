@@ -1,0 +1,25 @@
+{
+  "creditId": "cred_2fdcd5066e2b4b9cb884",
+  "abono": {
+    "status": 200,
+    "body": {
+      "credit": {
+        "id": "cred_2fdcd5066e2b4b9cb884",
+        "customerId": "cus_8fef730cc5604aeda6d0",
+        "customerName": "Real Mixto AUD-RM-111754",
+        "orderId": "ord_f98e418ed26b43d7a5e8",
+        "originalCents": 3000,
+        "balanceCents": 0,
+        "status": "settled",
+        "dueDate": null,
+        "createdAt": "2026-11-04T17:17:54.974Z"
+      },
+      "appliedCents": 2000,
+      "balanceCents": 0,
+      "overpayCents": 0,
+      "duplicate": false
+    }
+  },
+  "ventasRow": "SALDADO\nPedido A5E8\n\nHoy 11:17 a.m. · Efectivo + fiado · Real Mixto AUD-RM-111754\n\n1 × Real mixto AUD-RM-111754\n\n$90.00\nCobrado $60.00\nFiado saldado $30.00\nVer conceptos",
+  "screenshot": "quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-real-ventas-mixto-saldado.png"
+}

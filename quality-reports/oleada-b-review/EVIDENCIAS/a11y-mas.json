@@ -1,0 +1,135 @@
+{
+  "open": {
+    "open": true,
+    "expanded": null,
+    "panel": {
+      "display": "grid",
+      "box": {
+        "x": 32,
+        "y": 402,
+        "width": 320,
+        "height": 266,
+        "top": 402,
+        "right": 352,
+        "bottom": 668,
+        "left": 32
+      },
+      "links": 5
+    },
+    "active": "SUMMARY:Mßs"
+  },
+  "tabSequence": [
+    {
+      "tag": "A",
+      "name": "Corte",
+      "rect": {
+        "x": 41,
+        "y": 411,
+        "w": 302,
+        "h": 48
+      },
+      "onscreen": true,
+      "covered": null
+    },
+    {
+      "tag": "A",
+      "name": "Metas",
+      "rect": {
+        "x": 41,
+        "y": 461,
+        "w": 302,
+        "h": 48
+      },
+      "onscreen": true,
+      "covered": null
+    },
+    {
+      "tag": "A",
+      "name": "Pendientes",
+      "rect": {
+        "x": 41,
+        "y": 511,
+        "w": 302,
+        "h": 48
+      },
+      "onscreen": true,
+      "covered": null
+    },
+    {
+      "tag": "A",
+      "name": "Ayuda",
+      "rect": {
+        "x": 41,
+        "y": 561,
+        "w": 302,
+        "h": 48
+      },
+      "onscreen": true,
+      "covered": null
+    },
+    {
+      "tag": "A",
+      "name": "Ajustes",
+      "rect": {
+        "x": 41,
+        "y": 611,
+        "w": 302,
+        "h": 48
+      },
+      "onscreen": true,
+      "covered": null
+    },
+    {
+      "tag": "BODY",
+      "name": "Saltar al contenido\n\nAntojitos",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 360,
+        "h": 740
+      },
+      "onscreen": true,
+      "covered": null
+    },
+    {
+      "tag": "A",
+      "name": "Saltar al contenido",
+      "rect": {
+        "x": 12,
+        "y": 10,
+        "w": 166,
+        "h": 48
+      },
+      "onscreen": true,
+      "covered": null
+    },
+    {
+      "tag": "A",
+      "name": "Ir a Inicio",
+      "rect": {
+        "x": 12,
+        "y": 8,
+        "w": 48,
+        "h": 48
+      },
+      "onscreen": true,
+      "covered": null
+    },
+    {
+      "tag": "A",
+      "name": "TOTAL\n$0.00\nVER COBRO",
+      "rect": {
+        "x": 10,
+        "y": 202,
+        "w": 340,
+        "h": 53
+      },
+      "onscreen": true,
+      "covered": null
+    }
+  ],
+  "afterEscape": {
+    "open": false,
+    "active": "SUMMARY:Mßs"
+  }
+}

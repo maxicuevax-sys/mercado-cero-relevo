@@ -1,0 +1,77 @@
+[
+  {
+    "name": "fiado puro: la orden no registra efectivo",
+    "ok": true,
+    "detail": "{\"paidCents\": 0, \"creditCents\": 10000, \"totalCents\": 10000}"
+  },
+  {
+    "name": "fiado puro: el resultado afirma que el efectivo sí se registró en la caja",
+    "ok": true,
+    "detail": "RESULTADO\n\nVenta registrada con fiado\n\nTOTAL DE LA VENTA\n\n$100.00\n\nLa venta quedó registrada. La parte fiada es deuda; no la cuentes como dinero recibido.\n\nPEDIDO\nA070\nESTADO\nRegistrado\nSALDO VIVO FIADO\n$100.00 · Cliente Fiado\n\nQuedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.\n\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $100.00. Si el estado no es pagado, no entregues como cobrado."
+  },
+  {
+    "name": "cambio fantasma: Mixto con efectivo 100 y fiado 100 sobre total 100 muestra cambio",
+    "ok": true,
+    "detail": "Cambio a devolver $100.00. Se aplicaron $0.00 al cobro."
+  },
+  {
+    "name": "cambio fantasma: confirmar sigue habilitado",
+    "ok": true,
+    "detail": "disabled=False"
+  },
+  {
+    "name": "cambio fantasma: la orden queda 100% fiada",
+    "ok": true,
+    "detail": "{\"paidCents\": 0, \"creditCents\": 10000, \"totalCents\": 10000}"
+  },
+  {
+    "name": "cambio fantasma: el resultado muestra 'Recibiste', 'Cambio' y 'Saldo vivo fiado'",
+    "ok": true,
+    "detail": "RESULTADO\n\nVenta registrada con fiado\n\nTOTAL DE LA VENTA\n\n$100.00\n\nLa venta quedó registrada. La parte fiada es deuda; no la cuentes como dinero recibido.\n\nPEDIDO\nA314\nESTADO\nRegistrado\nRECIBISTE\n$100.00\nSALDO VIVO FIADO\n$100.00 · Cliente Fantasma\nCAMBIO\n$100.00\n\nQuedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.\n\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $100.00. Si el estado no es pagado, no entregues como cobrado."
+  },
+  {
+    "name": "cambio fantasma: el resultado también afirma que el efectivo sí se registró",
+    "ok": true,
+    "detail": "RESULTADO\n\nVenta registrada con fiado\n\nTOTAL DE LA VENTA\n\n$100.00\n\nLa venta quedó registrada. La parte fiada es deuda; no la cuentes como dinero recibido.\n\nPEDIDO\nA314\nESTADO\nRegistrado\nRECIBISTE\n$100.00\nSALDO VIVO FIADO\n$100.00 · Cliente Fantasma\nCAMBIO\n$100.00\n\nQuedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.\n\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $100.00. Si el estado no es pagado, no entregues como cobrado."
+  },
+  {
+    "name": "payload: items tienen solo description/quantity/unitPriceCents",
+    "ok": true,
+    "detail": "{\"description\": \"Concepto manual\", \"quantity\": 2, \"unitPriceCents\": 1250}"
+  },
+  {
+    "name": "payload: no envía productId/sku/stock",
+    "ok": true,
+    "detail": "{\"items\": [{\"description\": \"Concepto manual\", \"quantity\": 2, \"unitPriceCents\": 1250}], \"cashCents\": 2500, \"creditCents\": 0, \"customerName\": null, \"requestId\": \"sale_4f1d10e6-0d83-4e0c-8d1a-cc67c8a63e45\"}"
+  },
+  {
+    "name": "ventas: venta digital sin link aparece",
+    "ok": true,
+    "detail": "DEMO\nPedido B96C\n\nHoy 11:10 a.m. · Digital\n\n1 × Digital sin link\n\n$50.00\nDemo, no es dinero real\nFalta cobrar $50.00\nVer conceptos"
+  },
+  {
+    "name": "ventas demo: la fila digital sin link se rotula Demo",
+    "ok": true,
+    "detail": "DEMO\nPedido B96C\n\nHoy 11:10 a.m. · Digital\n\n1 × Digital sin link\n\n$50.00\nDemo, no es dinero real\nFalta cobrar $50.00\nVer conceptos"
+  },
+  {
+    "name": "ventas: la fila sí muestra 'Falta cobrar'",
+    "ok": true,
+    "detail": "DEMO\nPedido B96C\n\nHoy 11:10 a.m. · Digital\n\n1 × Digital sin link\n\n$50.00\nDemo, no es dinero real\nFalta cobrar $50.00\nVer conceptos"
+  },
+  {
+    "name": "ventas: el resumen dice 'Links y QR' aunque no exista link",
+    "ok": true,
+    "detail": "Ventas hoy\n\n$240.00\nIncluye ventas demo; no es dinero real\n\nCobrado confirmado\n\n$0.00\nSolo efectivo real y pagos verificados; demo no cuenta\n\nPor cobrar digital\n\n$170.00\nLinks y QR de todos los días. No incluye fiado."
+  },
+  {
+    "name": "independencia: /caja no llama voz/catálogo/inventario/proveedores",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "runtime: sin errores de página",
+    "ok": true,
+    "detail": "[]"
+  }
+]

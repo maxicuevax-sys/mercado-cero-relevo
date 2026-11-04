@@ -1,0 +1,17 @@
+== Plan vigente ==
+**Alcance:** fiados, clientes, abonos, pendientes, corte, historial/reportes relacionados.
+### Oleada D — Gestión y crecimiento
+**Alcance:** productos/inventario, proveedores, metas, reportes, ayuda, ajustes, onboarding.
+**Alcance:** navegación completa, responsive, accesibilidad, assets, rendimiento, regresión, consistencia.
+
+== Auditoria previa MODULOS_NEGOCIO ==
+**Oleada C (Productos):**
+**Oleada D (Inventario/Proveedores):**
+
+== Entrega B ==
+- Foco al resultado/pago; foco al siguiente renglón o “Agregar” al borrar; foco no tapado por paybar/nav con scroll padding.
+- Targets =44 px; mobile 5 slots y “Más” con 48 px.
+## 12. Siguiente — Oleada C
+
+2. Migrar Fiados y Corte al AppShell y a rutas propias.
+3. Compartir un único draft/lock de venta entre `/` y `/caja`, o retirar la Caja legacy.

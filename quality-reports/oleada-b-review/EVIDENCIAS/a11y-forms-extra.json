@@ -1,0 +1,60 @@
+{
+  "cash": {
+    "inputs": [
+      {
+        "value": "",
+        "label": "Efectivo recibido",
+        "describedby": null,
+        "invalid": null
+      }
+    ],
+    "change": {
+      "id": null,
+      "role": null,
+      "live": "polite",
+      "text": "Faltan $70.00 para completar el cobro. Escribe más efectivo o elige Digital, Fiado o Mixto."
+    }
+  },
+  "credit": {
+    "inputs": [
+      {
+        "value": "70.00",
+        "label": "Monto a fiado",
+        "describedby": null,
+        "invalid": null
+      },
+      {
+        "value": "",
+        "label": "¿Quién queda a deber?",
+        "describedby": null,
+        "invalid": null
+      }
+    ],
+    "hints": [
+      {
+        "text": "Escribe el nombre de quien queda a deber para registrar el fiado.",
+        "role": null,
+        "id": null
+      }
+    ]
+  },
+  "demo_ax": [
+    {
+      "role": "generic",
+      "name": "Datos simulados, no dinero real",
+      "ignored": false
+    },
+    {
+      "role": "StaticText",
+      "name": "DEMO",
+      "ignored": false
+    },
+    {
+      "role": "InlineTextBox",
+      "name": "DEMO",
+      "ignored": false
+    }
+  ],
+  "finding_hints": "Los inputs de efectivo, fiado y cliente no tienen aria-describedby hacia los hints/errores; los avisos son globales (role=alert o texto) y no quedan asociados al campo.",
+  "finding_demo": "aria-label sobre span generic: axe lo marca aria-prohibited-attr; Chrome lo expone como generic, pero la cobertura AT es fragil."
+}

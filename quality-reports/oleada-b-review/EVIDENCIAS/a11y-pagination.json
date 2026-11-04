@@ -1,0 +1,94 @@
+{
+  "initial": {
+    "url": "http://127.0.0.1:3100/ventas",
+    "head": "125 en total · página 1 de 5",
+    "active": {
+      "tag": "BODY",
+      "text": "Saltar al contenido\nMercado\nCero\nInicio\n",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 1280,
+        "h": 4831,
+        "bottom": 4831
+      }
+    },
+    "scrollY": 0,
+    "onscreen": false,
+    "focusVisible": false,
+    "pagerHTML": "<span aria-disabled=\"true\">Anterior</span><a rel=\"next\" href=\"/ventas?page=2\">Siguiente</a>"
+  },
+  "keyboard_before": {
+    "url": "http://127.0.0.1:3100/ventas",
+    "head": "125 en total · página 1 de 5",
+    "active": {
+      "tag": "A",
+      "text": "Siguiente",
+      "rect": {
+        "x": 1150,
+        "y": 646,
+        "w": 99,
+        "h": 44,
+        "bottom": 690
+      }
+    },
+    "scrollY": 4031,
+    "onscreen": true,
+    "focusVisible": true
+  },
+  "keyboard_after": {
+    "url": "http://127.0.0.1:3100/ventas?page=2",
+    "head": "125 en total · página 2 de 5",
+    "active": {
+      "tag": "A",
+      "text": "Siguiente",
+      "rect": {
+        "x": 1150,
+        "y": 4674,
+        "w": 99,
+        "h": 44,
+        "bottom": 4718
+      }
+    },
+    "scrollY": 0,
+    "onscreen": false,
+    "focusVisible": true
+  },
+  "keyboard_after_tab": {
+    "url": "http://127.0.0.1:3100/ventas?page=2",
+    "head": "125 en total · página 2 de 5",
+    "active": {
+      "tag": "BODY",
+      "text": "Saltar al contenido\nMercado\nCero\nInicio\n",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 1280,
+        "h": 4828,
+        "bottom": 4828
+      }
+    },
+    "scrollY": 0,
+    "onscreen": false,
+    "focusVisible": false
+  },
+  "mouse_after": {
+    "url": "http://127.0.0.1:3100/ventas?page=2",
+    "head": "125 en total · página 2 de 5",
+    "active": {
+      "tag": "A",
+      "text": "Siguiente",
+      "rect": {
+        "x": 1150,
+        "y": 4674,
+        "w": 99,
+        "h": 44,
+        "bottom": 4718
+      }
+    },
+    "scrollY": 0,
+    "onscreen": false,
+    "focusVisible": false
+  },
+  "finding": "Teclado: Enter en Siguiente deja foco en BODY (scroll 0) y el siguiente Tab vuelve al skip. Puntero: el foco queda en el enlace Siguiente de la pagina nueva, fuera del viewport (scroll 0). No hay anuncio de pagina ni foco al encabezado de la lista."
+}

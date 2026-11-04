@@ -1,0 +1,21 @@
+{
+  "paidOrder": "ord_1b5738872ecb4a9b8813",
+  "results": [
+    {
+      "name": "restored result view hides the draft",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Nueva venta silently clears hidden draft",
+      "ok": true,
+      "detail": "None"
+    },
+    {
+      "name": "composer is empty",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "failed": 0
+}

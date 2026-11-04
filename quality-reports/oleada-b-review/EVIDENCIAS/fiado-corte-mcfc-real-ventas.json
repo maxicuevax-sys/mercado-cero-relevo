@@ -1,0 +1,703 @@
+{
+  "run": "111754",
+  "marker": "AUD-RM-111754",
+  "base": "http://127.0.0.1:3106",
+  "startedAt": "2026-11-04T11:17:54.677260",
+  "steps": [
+    {
+      "id": "real-parcial",
+      "orders": {
+        "fiado": {
+          "id": "ord_b2cd3771b672451faadc",
+          "merchantId": "lupita",
+          "status": "confirmed",
+          "totalCents": 10000,
+          "paidCents": 0,
+          "digitalPaidCents": 0,
+          "paymentMethod": null,
+          "lastPaymentProvider": null,
+          "lastPaymentDemo": false,
+          "customerName": "Real Fiado AUD-RM-111754",
+          "creditId": "cred_63595adf05dd48daab72",
+          "creditCents": 10000,
+          "paymentLinkId": null,
+          "paymentUrl": null,
+          "qrId": null,
+          "qrString": null,
+          "qrImage": null,
+          "numRef": null,
+          "createdAt": "2026-11-04T17:17:54.933Z",
+          "updatedAt": "2026-11-04T17:17:54.934Z",
+          "items": [
+            {
+              "id": "itm_6a22b29c877a4f39b194",
+              "description": "Real fiado AUD-RM-111754",
+              "quantity": 1,
+              "unitPriceCents": 10000,
+              "totalCents": 10000
+            }
+          ]
+        },
+        "mixto": {
+          "id": "ord_f98e418ed26b43d7a5e8",
+          "merchantId": "lupita",
+          "status": "confirmed",
+          "totalCents": 9000,
+          "paidCents": 6000,
+          "digitalPaidCents": 0,
+          "paymentMethod": "cash",
+          "lastPaymentProvider": "cash",
+          "lastPaymentDemo": false,
+          "customerName": "Real Mixto AUD-RM-111754",
+          "creditId": "cred_2fdcd5066e2b4b9cb884",
+          "creditCents": 3000,
+          "paymentLinkId": null,
+          "paymentUrl": null,
+          "qrId": null,
+          "qrString": null,
+          "qrImage": null,
+          "numRef": null,
+          "createdAt": "2026-11-04T17:17:54.974Z",
+          "updatedAt": "2026-11-04T17:17:54.976Z",
+          "items": [
+            {
+              "id": "itm_62a79b163aee4bd292ed",
+              "description": "Real mixto AUD-RM-111754",
+              "quantity": 1,
+              "unitPriceCents": 9000,
+              "totalCents": 9000
+            }
+          ]
+        },
+        "efectivo": {
+          "id": "ord_afa2e77e48064f1b9b55",
+          "merchantId": "lupita",
+          "status": "paid",
+          "totalCents": 5000,
+          "paidCents": 5000,
+          "digitalPaidCents": 0,
+          "paymentMethod": "cash",
+          "lastPaymentProvider": "cash",
+          "lastPaymentDemo": false,
+          "customerName": null,
+          "creditId": null,
+          "creditCents": 0,
+          "paymentLinkId": null,
+          "paymentUrl": null,
+          "qrId": null,
+          "qrString": null,
+          "qrImage": null,
+          "numRef": null,
+          "createdAt": "2026-11-04T17:17:54.994Z",
+          "updatedAt": "2026-11-04T17:17:54.995Z",
+          "items": [
+            {
+              "id": "itm_30a27d4e40454df9a21d",
+              "description": "Real efectivo AUD-RM-111754",
+              "quantity": 1,
+              "unitPriceCents": 5000,
+              "totalCents": 5000
+            }
+          ]
+        },
+        "digital": {
+          "id": "ord_a35445ba33d34ef99230",
+          "merchantId": "lupita",
+          "status": "confirmed",
+          "totalCents": 8000,
+          "paidCents": 0,
+          "digitalPaidCents": 0,
+          "paymentMethod": null,
+          "lastPaymentProvider": null,
+          "lastPaymentDemo": false,
+          "customerName": null,
+          "creditId": null,
+          "creditCents": 0,
+          "paymentLinkId": null,
+          "paymentUrl": null,
+          "qrId": null,
+          "qrString": null,
+          "qrImage": null,
+          "numRef": null,
+          "createdAt": "2026-11-04T17:17:55.008Z",
+          "updatedAt": "2026-11-04T17:17:55.008Z",
+          "items": [
+            {
+              "id": "itm_50343873cae047128dd3",
+              "description": "Real digital AUD-RM-111754",
+              "quantity": 1,
+              "unitPriceCents": 8000,
+              "totalCents": 8000
+            }
+          ]
+        }
+      },
+      "partial": {
+        "status": 200,
+        "body": {
+          "credit": {
+            "id": "cred_63595adf05dd48daab72",
+            "customerId": "cus_90be6451b91e4fa69008",
+            "customerName": "Real Fiado AUD-RM-111754",
+            "orderId": "ord_b2cd3771b672451faadc",
+            "originalCents": 10000,
+            "balanceCents": 6000,
+            "status": "partial",
+            "dueDate": null,
+            "createdAt": "2026-11-04T17:17:54.933Z"
+          },
+          "appliedCents": 4000,
+          "balanceCents": 6000,
+          "overpayCents": 0,
+          "duplicate": false
+        }
+      },
+      "cashAfter": {
+        "date": "2026-11-04",
+        "openingCents": 0,
+        "cashSalesCents": 22000,
+        "cashCreditCents": 14000,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 36000,
+        "saved": null,
+        "history": []
+      },
+      "summaryAfter": {
+        "date": "2026-11-04",
+        "salesCents": 64000,
+        "verifiedDigitalCents": 0,
+        "declaredDigitalCents": 0,
+        "demoDigitalCents": 0,
+        "demoCashCents": 0,
+        "cashCents": 36000,
+        "pendingCents": 16000,
+        "creditCents": 12000,
+        "demoCreditCents": 0,
+        "orderCount": 8,
+        "paidOrderCount": 2,
+        "methods": {
+          "cash": 36000
+        }
+      },
+      "ventas": {
+        "stats": "Ventas hoy\n\n$640.00\nRegistradas, no necesariamente cobradas\n\nCobrado confirmado\n\n$360.00\nEfectivo + pagos verificados por pey\n\nPor cobrar digital\n\n$160.00\nLinks y QR de todos los días. No incluye fiado.",
+        "note": "El historial se lee de la misma base que Caja. Un pedido pendiente o fiado no es dinero recibido; solo se marca pagado con la confirmación válida del proveedor o con el efectivo registrado.",
+        "rows": {
+          "0": "FIADO\nPedido AADC\n\nHoy 11:17 a.m. · Fiado · Real Fiado AUD-RM-111754\n\n1 × Real fiado AUD-RM-111754\n\n$100.00\nFiado, no cobrado\nSaldo vivo $60.00\nVer conceptos"
+        }
+      }
+    },
+    {
+      "id": "real-total",
+      "full": {
+        "status": 200,
+        "body": {
+          "credit": {
+            "id": "cred_63595adf05dd48daab72",
+            "customerId": "cus_90be6451b91e4fa69008",
+            "customerName": "Real Fiado AUD-RM-111754",
+            "orderId": "ord_b2cd3771b672451faadc",
+            "originalCents": 10000,
+            "balanceCents": 0,
+            "status": "settled",
+            "dueDate": null,
+            "createdAt": "2026-11-04T17:17:54.933Z"
+          },
+          "appliedCents": 6000,
+          "balanceCents": 0,
+          "overpayCents": 0,
+          "duplicate": false
+        }
+      },
+      "cashAfter": {
+        "date": "2026-11-04",
+        "openingCents": 0,
+        "cashSalesCents": 22000,
+        "cashCreditCents": 20000,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 42000,
+        "saved": null,
+        "history": []
+      },
+      "summaryAfter": {
+        "date": "2026-11-04",
+        "salesCents": 64000,
+        "verifiedDigitalCents": 0,
+        "declaredDigitalCents": 0,
+        "demoDigitalCents": 0,
+        "demoCashCents": 0,
+        "cashCents": 42000,
+        "pendingCents": 16000,
+        "creditCents": 6000,
+        "demoCreditCents": 0,
+        "orderCount": 8,
+        "paidOrderCount": 2,
+        "methods": {
+          "cash": 42000
+        }
+      },
+      "ventas": {
+        "stats": "Ventas hoy\n\n$640.00\nRegistradas, no necesariamente cobradas\n\nCobrado confirmado\n\n$420.00\nEfectivo + pagos verificados por pey\n\nPor cobrar digital\n\n$160.00\nLinks y QR de todos los días. No incluye fiado.",
+        "note": "El historial se lee de la misma base que Caja. Un pedido pendiente o fiado no es dinero recibido; solo se marca pagado con la confirmación válida del proveedor o con el efectivo registrado.",
+        "rows": {
+          "0": "SALDADO\nPedido AADC\n\nHoy 11:17 a.m. · Fiado · Real Fiado AUD-RM-111754\n\n1 × Real fiado AUD-RM-111754\n\n$100.00\nFiado saldado\nFiado saldado $100.00\nVer conceptos"
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "Servidor en modo real",
+      "ok": true,
+      "detail": false
+    },
+    {
+      "name": "POST real fiado 201",
+      "ok": true,
+      "detail": {
+        "status": 201,
+        "body": {
+          "order": {
+            "id": "ord_b2cd3771b672451faadc",
+            "merchantId": "lupita",
+            "status": "confirmed",
+            "totalCents": 10000,
+            "paidCents": 0,
+            "digitalPaidCents": 0,
+            "paymentMethod": null,
+            "lastPaymentProvider": null,
+            "lastPaymentDemo": false,
+            "customerName": "Real Fiado AUD-RM-111754",
+            "creditId": "cred_63595adf05dd48daab72",
+            "creditCents": 10000,
+            "paymentLinkId": null,
+            "paymentUrl": null,
+            "qrId": null,
+            "qrString": null,
+            "qrImage": null,
+            "numRef": null,
+            "createdAt": "2026-11-04T17:17:54.933Z",
+            "updatedAt": "2026-11-04T17:17:54.934Z",
+            "items": [
+              {
+                "id": "itm_6a22b29c877a4f39b194",
+                "description": "Real fiado AUD-RM-111754",
+                "quantity": 1,
+                "unitPriceCents": 10000,
+                "totalCents": 10000
+              }
+            ]
+          }
+        },
+        "requestId": "AUD-RM-111754-Real-fiado"
+      }
+    },
+    {
+      "name": "POST real mixto 201",
+      "ok": true,
+      "detail": {
+        "status": 201,
+        "body": {
+          "order": {
+            "id": "ord_f98e418ed26b43d7a5e8",
+            "merchantId": "lupita",
+            "status": "confirmed",
+            "totalCents": 9000,
+            "paidCents": 6000,
+            "digitalPaidCents": 0,
+            "paymentMethod": "cash",
+            "lastPaymentProvider": "cash",
+            "lastPaymentDemo": false,
+            "customerName": "Real Mixto AUD-RM-111754",
+            "creditId": "cred_2fdcd5066e2b4b9cb884",
+            "creditCents": 3000,
+            "paymentLinkId": null,
+            "paymentUrl": null,
+            "qrId": null,
+            "qrString": null,
+            "qrImage": null,
+            "numRef": null,
+            "createdAt": "2026-11-04T17:17:54.974Z",
+            "updatedAt": "2026-11-04T17:17:54.976Z",
+            "items": [
+              {
+                "id": "itm_62a79b163aee4bd292ed",
+                "description": "Real mixto AUD-RM-111754",
+                "quantity": 1,
+                "unitPriceCents": 9000,
+                "totalCents": 9000
+              }
+            ]
+          }
+        },
+        "requestId": "AUD-RM-111754-Real-mixto"
+      }
+    },
+    {
+      "name": "POST real efectivo 201",
+      "ok": true,
+      "detail": {
+        "status": 201,
+        "body": {
+          "order": {
+            "id": "ord_afa2e77e48064f1b9b55",
+            "merchantId": "lupita",
+            "status": "paid",
+            "totalCents": 5000,
+            "paidCents": 5000,
+            "digitalPaidCents": 0,
+            "paymentMethod": "cash",
+            "lastPaymentProvider": "cash",
+            "lastPaymentDemo": false,
+            "customerName": null,
+            "creditId": null,
+            "creditCents": 0,
+            "paymentLinkId": null,
+            "paymentUrl": null,
+            "qrId": null,
+            "qrString": null,
+            "qrImage": null,
+            "numRef": null,
+            "createdAt": "2026-11-04T17:17:54.994Z",
+            "updatedAt": "2026-11-04T17:17:54.995Z",
+            "items": [
+              {
+                "id": "itm_30a27d4e40454df9a21d",
+                "description": "Real efectivo AUD-RM-111754",
+                "quantity": 1,
+                "unitPriceCents": 5000,
+                "totalCents": 5000
+              }
+            ]
+          }
+        },
+        "requestId": "AUD-RM-111754-Real-efectivo"
+      }
+    },
+    {
+      "name": "POST real digital 201",
+      "ok": true,
+      "detail": {
+        "status": 201,
+        "body": {
+          "order": {
+            "id": "ord_a35445ba33d34ef99230",
+            "merchantId": "lupita",
+            "status": "confirmed",
+            "totalCents": 8000,
+            "paidCents": 0,
+            "digitalPaidCents": 0,
+            "paymentMethod": null,
+            "lastPaymentProvider": null,
+            "lastPaymentDemo": false,
+            "customerName": null,
+            "creditId": null,
+            "creditCents": 0,
+            "paymentLinkId": null,
+            "paymentUrl": null,
+            "qrId": null,
+            "qrString": null,
+            "qrImage": null,
+            "numRef": null,
+            "createdAt": "2026-11-04T17:17:55.008Z",
+            "updatedAt": "2026-11-04T17:17:55.008Z",
+            "items": [
+              {
+                "id": "itm_50343873cae047128dd3",
+                "description": "Real digital AUD-RM-111754",
+                "quantity": 1,
+                "unitPriceCents": 8000,
+                "totalCents": 8000
+              }
+            ]
+          }
+        },
+        "requestId": "AUD-RM-111754-Real-digital"
+      }
+    },
+    {
+      "name": "Real fiado: paid=0 credit=10000 confirmed",
+      "ok": true,
+      "detail": {
+        "id": "ord_b2cd3771b672451faadc",
+        "merchantId": "lupita",
+        "status": "confirmed",
+        "totalCents": 10000,
+        "paidCents": 0,
+        "digitalPaidCents": 0,
+        "paymentMethod": null,
+        "lastPaymentProvider": null,
+        "lastPaymentDemo": false,
+        "customerName": "Real Fiado AUD-RM-111754",
+        "creditId": "cred_63595adf05dd48daab72",
+        "creditCents": 10000,
+        "paymentLinkId": null,
+        "paymentUrl": null,
+        "qrId": null,
+        "qrString": null,
+        "qrImage": null,
+        "numRef": null,
+        "createdAt": "2026-11-04T17:17:54.933Z",
+        "updatedAt": "2026-11-04T17:17:54.934Z",
+        "items": [
+          {
+            "id": "itm_6a22b29c877a4f39b194",
+            "description": "Real fiado AUD-RM-111754",
+            "quantity": 1,
+            "unitPriceCents": 10000,
+            "totalCents": 10000
+          }
+        ]
+      }
+    },
+    {
+      "name": "Real mixto: paid=6000 credit=3000",
+      "ok": true,
+      "detail": {
+        "id": "ord_f98e418ed26b43d7a5e8",
+        "merchantId": "lupita",
+        "status": "confirmed",
+        "totalCents": 9000,
+        "paidCents": 6000,
+        "digitalPaidCents": 0,
+        "paymentMethod": "cash",
+        "lastPaymentProvider": "cash",
+        "lastPaymentDemo": false,
+        "customerName": "Real Mixto AUD-RM-111754",
+        "creditId": "cred_2fdcd5066e2b4b9cb884",
+        "creditCents": 3000,
+        "paymentLinkId": null,
+        "paymentUrl": null,
+        "qrId": null,
+        "qrString": null,
+        "qrImage": null,
+        "numRef": null,
+        "createdAt": "2026-11-04T17:17:54.974Z",
+        "updatedAt": "2026-11-04T17:17:54.976Z",
+        "items": [
+          {
+            "id": "itm_62a79b163aee4bd292ed",
+            "description": "Real mixto AUD-RM-111754",
+            "quantity": 1,
+            "unitPriceCents": 9000,
+            "totalCents": 9000
+          }
+        ]
+      }
+    },
+    {
+      "name": "Real efectivo: paid=5000 status=paid",
+      "ok": true,
+      "detail": {
+        "id": "ord_afa2e77e48064f1b9b55",
+        "merchantId": "lupita",
+        "status": "paid",
+        "totalCents": 5000,
+        "paidCents": 5000,
+        "digitalPaidCents": 0,
+        "paymentMethod": "cash",
+        "lastPaymentProvider": "cash",
+        "lastPaymentDemo": false,
+        "customerName": null,
+        "creditId": null,
+        "creditCents": 0,
+        "paymentLinkId": null,
+        "paymentUrl": null,
+        "qrId": null,
+        "qrString": null,
+        "qrImage": null,
+        "numRef": null,
+        "createdAt": "2026-11-04T17:17:54.994Z",
+        "updatedAt": "2026-11-04T17:17:54.995Z",
+        "items": [
+          {
+            "id": "itm_30a27d4e40454df9a21d",
+            "description": "Real efectivo AUD-RM-111754",
+            "quantity": 1,
+            "unitPriceCents": 5000,
+            "totalCents": 5000
+          }
+        ]
+      }
+    },
+    {
+      "name": "Real digital: paid=0 credit=0 con saldo pendiente",
+      "ok": true,
+      "detail": {
+        "id": "ord_a35445ba33d34ef99230",
+        "merchantId": "lupita",
+        "status": "confirmed",
+        "totalCents": 8000,
+        "paidCents": 0,
+        "digitalPaidCents": 0,
+        "paymentMethod": null,
+        "lastPaymentProvider": null,
+        "lastPaymentDemo": false,
+        "customerName": null,
+        "creditId": null,
+        "creditCents": 0,
+        "paymentLinkId": null,
+        "paymentUrl": null,
+        "qrId": null,
+        "qrString": null,
+        "qrImage": null,
+        "numRef": null,
+        "createdAt": "2026-11-04T17:17:55.008Z",
+        "updatedAt": "2026-11-04T17:17:55.008Z",
+        "items": [
+          {
+            "id": "itm_50343873cae047128dd3",
+            "description": "Real digital AUD-RM-111754",
+            "quantity": 1,
+            "unitPriceCents": 8000,
+            "totalCents": 8000
+          }
+        ]
+      }
+    },
+    {
+      "name": "Real abono parcial 4000 -> saldo 6000",
+      "ok": true,
+      "detail": {
+        "status": 200,
+        "body": {
+          "credit": {
+            "id": "cred_63595adf05dd48daab72",
+            "customerId": "cus_90be6451b91e4fa69008",
+            "customerName": "Real Fiado AUD-RM-111754",
+            "orderId": "ord_b2cd3771b672451faadc",
+            "originalCents": 10000,
+            "balanceCents": 6000,
+            "status": "partial",
+            "dueDate": null,
+            "createdAt": "2026-11-04T17:17:54.933Z"
+          },
+          "appliedCents": 4000,
+          "balanceCents": 6000,
+          "overpayCents": 0,
+          "duplicate": false
+        }
+      }
+    },
+    {
+      "name": "Real /ventas parcial muestra Saldo vivo 60.00",
+      "ok": true,
+      "detail": "FIADO\nPedido AADC\n\nHoy 11:17 a.m. · Fiado · Real Fiado AUD-RM-111754\n\n1 × Real fiado AUD-RM-111754\n\n$100.00\nFiado, no cobrado\nSaldo vivo $60.00\nVer conceptos"
+    },
+    {
+      "name": "Real /ventas parcial NO deberia decir 'Fiado, no cobrado' tras abono",
+      "ok": false,
+      "detail": "FIADO\nPedido AADC\n\nHoy 11:17 a.m. · Fiado · Real Fiado AUD-RM-111754\n\n1 × Real fiado AUD-RM-111754\n\n$100.00\nFiado, no cobrado\nSaldo vivo $60.00\nVer conceptos"
+    },
+    {
+      "name": "Real abono total 6000 -> saldo 0",
+      "ok": true,
+      "detail": {
+        "status": 200,
+        "body": {
+          "credit": {
+            "id": "cred_63595adf05dd48daab72",
+            "customerId": "cus_90be6451b91e4fa69008",
+            "customerName": "Real Fiado AUD-RM-111754",
+            "orderId": "ord_b2cd3771b672451faadc",
+            "originalCents": 10000,
+            "balanceCents": 0,
+            "status": "settled",
+            "dueDate": null,
+            "createdAt": "2026-11-04T17:17:54.933Z"
+          },
+          "appliedCents": 6000,
+          "balanceCents": 0,
+          "overpayCents": 0,
+          "duplicate": false
+        }
+      }
+    },
+    {
+      "name": "Real /ventas saldado muestra Saldado y ya no Saldo vivo",
+      "ok": true,
+      "detail": "SALDADO\nPedido AADC\n\nHoy 11:17 a.m. · Fiado · Real Fiado AUD-RM-111754\n\n1 × Real fiado AUD-RM-111754\n\n$100.00\nFiado saldado\nFiado saldado $100.00\nVer conceptos"
+    },
+    {
+      "name": "Real /ventas mixto muestra Cobrado 60.00 y Saldo vivo 30.00",
+      "ok": true,
+      "detail": "FIADO + COBRO\nPedido A5E8\n\nHoy 11:17 a.m. · Efectivo + fiado · Real Mixto AUD-RM-111754\n\n1 × Real mixto AUD-RM-111754\n\n$90.00\nCobrado $60.00\nSaldo vivo $30.00\nVer conceptos"
+    },
+    {
+      "name": "Real /ventas efectivo muestra Pagado/Cobrado 50.00",
+      "ok": true,
+      "detail": "PAGADO\nPedido 9B55\n\nHoy 11:17 a.m. · Efectivo\n\n1 × Real efectivo AUD-RM-111754\n\n$50.00\nCobrado $50.00\nVer conceptos"
+    },
+    {
+      "name": "Real /ventas digital muestra pendiente y Falta cobrar 80.00",
+      "ok": true,
+      "detail": "REGISTRADO\nPedido 9230\n\nHoy 11:17 a.m. · Digital\n\n1 × Real digital AUD-RM-111754\n\n$80.00\nSin cobro confirmado\nFalta cobrar $80.00\nVer conceptos"
+    }
+  ],
+  "ventasFinal": {
+    "mixto": {
+      "stats": "Ventas hoy\n\n$640.00\nRegistradas, no necesariamente cobradas\n\nCobrado confirmado\n\n$420.00\nEfectivo + pagos verificados por pey\n\nPor cobrar digital\n\n$160.00\nLinks y QR de todos los días. No incluye fiado.",
+      "note": "El historial se lee de la misma base que Caja. Un pedido pendiente o fiado no es dinero recibido; solo se marca pagado con la confirmación válida del proveedor o con el efectivo registrado.",
+      "rows": {
+        "0": "FIADO + COBRO\nPedido A5E8\n\nHoy 11:17 a.m. · Efectivo + fiado · Real Mixto AUD-RM-111754\n\n1 × Real mixto AUD-RM-111754\n\n$90.00\nCobrado $60.00\nSaldo vivo $30.00\nVer conceptos"
+      }
+    },
+    "efectivo": {
+      "stats": "Ventas hoy\n\n$640.00\nRegistradas, no necesariamente cobradas\n\nCobrado confirmado\n\n$420.00\nEfectivo + pagos verificados por pey\n\nPor cobrar digital\n\n$160.00\nLinks y QR de todos los días. No incluye fiado.",
+      "note": "El historial se lee de la misma base que Caja. Un pedido pendiente o fiado no es dinero recibido; solo se marca pagado con la confirmación válida del proveedor o con el efectivo registrado.",
+      "rows": {
+        "0": "PAGADO\nPedido 9B55\n\nHoy 11:17 a.m. · Efectivo\n\n1 × Real efectivo AUD-RM-111754\n\n$50.00\nCobrado $50.00\nVer conceptos"
+      }
+    },
+    "digital": {
+      "stats": "Ventas hoy\n\n$640.00\nRegistradas, no necesariamente cobradas\n\nCobrado confirmado\n\n$420.00\nEfectivo + pagos verificados por pey\n\nPor cobrar digital\n\n$160.00\nLinks y QR de todos los días. No incluye fiado.",
+      "note": "El historial se lee de la misma base que Caja. Un pedido pendiente o fiado no es dinero recibido; solo se marca pagado con la confirmación válida del proveedor o con el efectivo registrado.",
+      "rows": {
+        "0": "REGISTRADO\nPedido 9230\n\nHoy 11:17 a.m. · Digital\n\n1 × Real digital AUD-RM-111754\n\n$80.00\nSin cobro confirmado\nFalta cobrar $80.00\nVer conceptos"
+      }
+    }
+  },
+  "cash": {
+    "before": {
+      "date": "2026-11-04",
+      "openingCents": 0,
+      "cashSalesCents": 11000,
+      "cashCreditCents": 10000,
+      "expensesCents": 0,
+      "withdrawalsCents": 0,
+      "expectedCents": 21000,
+      "saved": null,
+      "history": []
+    },
+    "afterPartial": {
+      "date": "2026-11-04",
+      "openingCents": 0,
+      "cashSalesCents": 22000,
+      "cashCreditCents": 14000,
+      "expensesCents": 0,
+      "withdrawalsCents": 0,
+      "expectedCents": 36000,
+      "saved": null,
+      "history": []
+    },
+    "afterFull": {
+      "date": "2026-11-04",
+      "openingCents": 0,
+      "cashSalesCents": 22000,
+      "cashCreditCents": 20000,
+      "expensesCents": 0,
+      "withdrawalsCents": 0,
+      "expectedCents": 42000,
+      "saved": null,
+      "history": []
+    }
+  },
+  "finishedAt": "2026-11-04T11:18:18.315133",
+  "checksSummary": {
+    "total": 17,
+    "pass": 16,
+    "fail": 1
+  }
+}

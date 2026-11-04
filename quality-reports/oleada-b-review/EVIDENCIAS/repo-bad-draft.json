@@ -1,0 +1,29 @@
+{
+  "results": [
+    {
+      "case": "missing_fields",
+      "renderedTitle": false,
+      "composerVisible": false,
+      "pageErrors": [
+        "Cannot read properties of undefined (reading 'trim')"
+      ],
+      "bodyStart": "This page couldn’t load |  | Reload to try again, or go back. |  | Reload | Back"
+    },
+    {
+      "case": "lines_not_objects",
+      "renderedTitle": false,
+      "composerVisible": false,
+      "pageErrors": [
+        "Cannot read properties of undefined (reading 'trim')"
+      ],
+      "bodyStart": "This page couldn’t load |  | Reload to try again, or go back. |  | Reload | Back"
+    },
+    {
+      "case": "invalid_method",
+      "renderedTitle": true,
+      "composerVisible": true,
+      "pageErrors": [],
+      "bodyStart": "Saltar al contenido |  | Antojitos de Lupita |  | Coyoacán, CDMX |  | DEMO | L |  | CAJA |  | Nueva venta |  | miércoles, 4 de noviembre. Agrega l"
+    }
+  ]
+}

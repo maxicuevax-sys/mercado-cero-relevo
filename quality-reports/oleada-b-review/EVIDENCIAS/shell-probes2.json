@@ -1,0 +1,710 @@
+{
+  "ctaClean": {
+    "1448x1086-empty": {
+      "cta": {
+        "x": 1075.7,
+        "y": 676.1,
+        "w": 311.3,
+        "h": 56,
+        "bottom": 732.1,
+        "right": 1387,
+        "display": "inline-flex",
+        "position": "static",
+        "z": "auto",
+        "disabled": true,
+        "text": "Confirmar venta"
+      },
+      "total": {
+        "x": 1075.7,
+        "y": 360.9,
+        "w": 311.3,
+        "h": 40,
+        "bottom": 400.9,
+        "right": 1387,
+        "display": "block",
+        "position": "static",
+        "z": "auto",
+        "disabled": null,
+        "text": "$0.00"
+      },
+      "paybar": null,
+      "viewport": {
+        "w": 1448,
+        "h": 1086
+      }
+    },
+    "1448x1086-three": {
+      "cta": {
+        "x": 1075.7,
+        "y": 797.6,
+        "w": 311.3,
+        "h": 56,
+        "bottom": 853.6,
+        "right": 1387,
+        "display": "inline-flex",
+        "position": "static",
+        "z": "auto",
+        "disabled": true,
+        "text": "Faltan $60.00"
+      },
+      "total": {
+        "x": 1075.7,
+        "y": 360.9,
+        "w": 311.3,
+        "h": 40,
+        "bottom": 400.9,
+        "right": 1387,
+        "display": "block",
+        "position": "static",
+        "z": "auto",
+        "disabled": null,
+        "text": "$60.00"
+      },
+      "paybar": null,
+      "viewport": {
+        "w": 1448,
+        "h": 1086
+      }
+    },
+    "1366x768-empty": {
+      "cta": {
+        "x": 1020.8,
+        "y": 654.5,
+        "w": 285.4,
+        "h": 56,
+        "bottom": 710.5,
+        "right": 1306.2,
+        "display": "inline-flex",
+        "position": "static",
+        "z": "auto",
+        "disabled": true,
+        "text": "Confirmar venta"
+      },
+      "total": {
+        "x": 1020.8,
+        "y": 339.2,
+        "w": 285.4,
+        "h": 40,
+        "bottom": 379.2,
+        "right": 1306.2,
+        "display": "block",
+        "position": "static",
+        "z": "auto",
+        "disabled": null,
+        "text": "$0.00"
+      },
+      "paybar": null,
+      "viewport": {
+        "w": 1366,
+        "h": 768
+      }
+    },
+    "1366x768-three": {
+      "cta": {
+        "x": 1020.8,
+        "y": 775.9,
+        "w": 285.4,
+        "h": 56,
+        "bottom": 831.9,
+        "right": 1306.2,
+        "display": "inline-flex",
+        "position": "static",
+        "z": "auto",
+        "disabled": true,
+        "text": "Faltan $60.00"
+      },
+      "total": {
+        "x": 1020.8,
+        "y": 339.2,
+        "w": 285.4,
+        "h": 40,
+        "bottom": 379.2,
+        "right": 1306.2,
+        "display": "block",
+        "position": "static",
+        "z": "auto",
+        "disabled": null,
+        "text": "$60.00"
+      },
+      "paybar": null,
+      "viewport": {
+        "w": 1366,
+        "h": 768
+      }
+    },
+    "1024x768-empty": {
+      "cta": {
+        "x": 703,
+        "y": 646.6,
+        "w": 273,
+        "h": 56,
+        "bottom": 702.6,
+        "right": 975.9,
+        "display": "inline-flex",
+        "position": "static",
+        "z": "auto",
+        "disabled": true,
+        "text": "Confirmar venta"
+      },
+      "total": {
+        "x": 703,
+        "y": 311.8,
+        "w": 273,
+        "h": 40,
+        "bottom": 351.8,
+        "right": 975.9,
+        "display": "block",
+        "position": "static",
+        "z": "auto",
+        "disabled": null,
+        "text": "$0.00"
+      },
+      "paybar": null,
+      "viewport": {
+        "w": 1024,
+        "h": 768
+      }
+    },
+    "1024x768-three": {
+      "cta": {
+        "x": 703,
+        "y": 768.1,
+        "w": 273,
+        "h": 56,
+        "bottom": 824.1,
+        "right": 975.9,
+        "display": "inline-flex",
+        "position": "static",
+        "z": "auto",
+        "disabled": true,
+        "text": "Faltan $60.00"
+      },
+      "total": {
+        "x": 703,
+        "y": 311.8,
+        "w": 273,
+        "h": 40,
+        "bottom": 351.8,
+        "right": 975.9,
+        "display": "block",
+        "position": "static",
+        "z": "auto",
+        "disabled": null,
+        "text": "$60.00"
+      },
+      "paybar": null,
+      "viewport": {
+        "w": 1024,
+        "h": 768
+      }
+    },
+    "768x1024-empty": {
+      "cta": {
+        "x": 247.4,
+        "y": 1122,
+        "w": 483.2,
+        "h": 56,
+        "bottom": 1178,
+        "right": 730.6,
+        "display": "inline-flex",
+        "position": "static",
+        "z": "auto",
+        "disabled": true,
+        "text": "Confirmar venta"
+      },
+      "total": {
+        "x": 247.4,
+        "y": 806.7,
+        "w": 483.2,
+        "h": 40,
+        "bottom": 846.7,
+        "right": 730.6,
+        "display": "block",
+        "position": "static",
+        "z": "auto",
+        "disabled": null,
+        "text": "$0.00"
+      },
+      "paybar": null,
+      "viewport": {
+        "w": 768,
+        "h": 1024
+      }
+    },
+    "768x1024-three": {
+      "cta": {
+        "x": 247.4,
+        "y": 1383.6,
+        "w": 483.2,
+        "h": 56,
+        "bottom": 1439.6,
+        "right": 730.6,
+        "display": "inline-flex",
+        "position": "static",
+        "z": "auto",
+        "disabled": true,
+        "text": "Faltan $60.00"
+      },
+      "total": {
+        "x": 247.4,
+        "y": 968.6,
+        "w": 483.2,
+        "h": 40,
+        "bottom": 1008.6,
+        "right": 730.6,
+        "display": "block",
+        "position": "static",
+        "z": "auto",
+        "disabled": null,
+        "text": "$60.00"
+      },
+      "paybar": null,
+      "viewport": {
+        "w": 768,
+        "h": 1024
+      }
+    }
+  },
+  "hashConfirmarClean": {
+    "id": false,
+    "hash": "#confirmar",
+    "target": null
+  },
+  "volverACajaClean": {
+    "before": {
+      "url": "http://localhost:3100/caja",
+      "h1": "Venta registrada",
+      "result": true
+    },
+    "after": {
+      "url": "http://localhost:3100/caja",
+      "h1": "Venta registrada",
+      "result": true,
+      "bodyHasResult": true
+    }
+  },
+  "paginationPage1": {
+    "url": "http://localhost:3100/ventas",
+    "rows": 25,
+    "head": "Ventas registradas\n\n81 en total · página 1 de 4",
+    "first": "Pedido A0B9",
+    "pager": [
+      {
+        "text": "Anterior",
+        "href": null,
+        "disabled": "true",
+        "h": 44,
+        "w": 90.1
+      },
+      {
+        "text": "Siguiente",
+        "href": "/ventas?page=2",
+        "disabled": null,
+        "h": 44,
+        "w": 99.4
+      }
+    ],
+    "pagerAria": 0,
+    "scrollY": 0,
+    "focus": "BODY"
+  },
+  "paginationPage2": {
+    "url": "http://localhost:3100/ventas?page=2",
+    "rows": 25,
+    "head": "Ventas registradas\n\n82 en total · página 2 de 4",
+    "first": "Pedido 8F61",
+    "pager": [
+      {
+        "text": "Anterior",
+        "href": "/ventas?page=1",
+        "disabled": null,
+        "h": 44,
+        "w": 90.1
+      },
+      {
+        "text": "Siguiente",
+        "href": "/ventas?page=3",
+        "disabled": null,
+        "h": 44,
+        "w": 99.4
+      }
+    ],
+    "pagerAria": 0,
+    "scrollY": 0,
+    "focus": "BODY"
+  },
+  "pagination?page=1": {
+    "url": "http://localhost:3100/ventas?page=1",
+    "rows": 25,
+    "head": "Ventas registradas\n\n82 en total · página 1 de 4",
+    "first": "Pedido A0AB",
+    "pager": [
+      {
+        "text": "Anterior",
+        "href": null,
+        "disabled": "true",
+        "h": 44,
+        "w": 90.1
+      },
+      {
+        "text": "Siguiente",
+        "href": "/ventas?page=2",
+        "disabled": null,
+        "h": 44,
+        "w": 99.4
+      }
+    ],
+    "pagerAria": 0,
+    "scrollY": 0,
+    "focus": "BODY"
+  },
+  "pagination?page=999": {
+    "url": "http://localhost:3100/ventas?page=999",
+    "rows": 7,
+    "head": "Ventas registradas\n\n82 en total · página 4 de 4",
+    "first": "Pedido A8D5",
+    "pager": [
+      {
+        "text": "Anterior",
+        "href": "/ventas?page=3",
+        "disabled": null,
+        "h": 44,
+        "w": 90.1
+      },
+      {
+        "text": "Siguiente",
+        "href": null,
+        "disabled": "true",
+        "h": 44,
+        "w": 99.4
+      }
+    ],
+    "pagerAria": 0,
+    "scrollY": 0,
+    "focus": "BODY"
+  },
+  "pagination?page=abc": {
+    "url": "http://localhost:3100/ventas?page=abc",
+    "rows": 25,
+    "head": "Ventas registradas\n\n82 en total · página 1 de 4",
+    "first": "Pedido A0AB",
+    "pager": [
+      {
+        "text": "Anterior",
+        "href": null,
+        "disabled": "true",
+        "h": 44,
+        "w": 90.1
+      },
+      {
+        "text": "Siguiente",
+        "href": "/ventas?page=2",
+        "disabled": null,
+        "h": 44,
+        "w": 99.4
+      }
+    ],
+    "pagerAria": 0,
+    "scrollY": 0,
+    "focus": "BODY"
+  },
+  "pagination?page=0": {
+    "url": "http://localhost:3100/ventas?page=0",
+    "rows": 25,
+    "head": "Ventas registradas\n\n82 en total · página 1 de 4",
+    "first": "Pedido A0AB",
+    "pager": [
+      {
+        "text": "Anterior",
+        "href": null,
+        "disabled": "true",
+        "h": 44,
+        "w": 90.1
+      },
+      {
+        "text": "Siguiente",
+        "href": "/ventas?page=2",
+        "disabled": null,
+        "h": 44,
+        "w": 99.4
+      }
+    ],
+    "pagerAria": 0,
+    "scrollY": 0,
+    "focus": "BODY"
+  },
+  "paginationClickNext": {
+    "url": "http://localhost:3100/ventas?page=2",
+    "rows": 25,
+    "head": "Ventas registradas\n\n83 en total · página 2 de 4",
+    "first": "Pedido 8ECE",
+    "pager": [
+      {
+        "text": "Anterior",
+        "href": "/ventas?page=1",
+        "disabled": null,
+        "h": 44,
+        "w": 90.1
+      },
+      {
+        "text": "Siguiente",
+        "href": "/ventas?page=3",
+        "disabled": null,
+        "h": 44,
+        "w": 99.4
+      }
+    ],
+    "pagerAria": 0,
+    "scrollY": 0,
+    "focus": "A"
+  },
+  "paginationBack": {
+    "url": "http://localhost:3100/ventas",
+    "rows": 25,
+    "head": "Ventas registradas\n\n82 en total · página 1 de 4",
+    "first": "Pedido A0AB",
+    "pager": [
+      {
+        "text": "Anterior",
+        "href": null,
+        "disabled": "true",
+        "h": 44,
+        "w": 90.1
+      },
+      {
+        "text": "Siguiente",
+        "href": "/ventas?page=2",
+        "disabled": null,
+        "h": 44,
+        "w": 99.4
+      }
+    ],
+    "pagerAria": 0,
+    "scrollY": 3766,
+    "focus": "A"
+  },
+  "paginationForward": {
+    "url": "http://localhost:3100/ventas?page=2",
+    "rows": 25,
+    "head": "Ventas registradas\n\n83 en total · página 2 de 4",
+    "first": "Pedido 8ECE",
+    "pager": [
+      {
+        "text": "Anterior",
+        "href": "/ventas?page=1",
+        "disabled": null,
+        "h": 44,
+        "w": 90.1
+      },
+      {
+        "text": "Siguiente",
+        "href": "/ventas?page=3",
+        "disabled": null,
+        "h": 44,
+        "w": 99.4
+      }
+    ],
+    "pagerAria": 0,
+    "scrollY": 0,
+    "focus": "A"
+  },
+  "overflowVentas320Text200Clean": {
+    "vw": 320,
+    "htmlScroll": 337,
+    "htmlClient": 320,
+    "bodyScroll": 337,
+    "offenders": [
+      {
+        "tag": "A",
+        "cls": "",
+        "text": "Siguiente",
+        "left": 168.3,
+        "right": 337,
+        "w": 168.8
+      }
+    ]
+  },
+  "caja320Text200EmptyClean": {
+    "vw": 320,
+    "htmlScroll": 320,
+    "htmlClient": 320,
+    "bodyScroll": 320,
+    "offenders": []
+  },
+  "caja320Text200ItemClean": {
+    "vw": 320,
+    "htmlScroll": 320,
+    "htmlClient": 320,
+    "bodyScroll": 320,
+    "offenders": []
+  },
+  "caja320Text200GeometryClean": {
+    "cta": {
+      "x": 29,
+      "y": 1923.7,
+      "w": 262,
+      "h": 72.4,
+      "bottom": 1996.1,
+      "right": 291,
+      "display": "inline-flex",
+      "position": "static",
+      "z": "auto",
+      "disabled": true,
+      "text": "Faltan $2,469.00"
+    },
+    "paybar": {
+      "x": 0,
+      "y": 491,
+      "w": 320,
+      "h": 85,
+      "bottom": 576,
+      "right": 320,
+      "display": "flex",
+      "position": "fixed",
+      "z": "45",
+      "disabled": null,
+      "text": "TOTAL\n$2,469.00\nRevisar cobro"
+    },
+    "nav": {
+      "x": 0,
+      "y": 575,
+      "w": 320,
+      "h": 65,
+      "bottom": 640,
+      "right": 320,
+      "display": "grid",
+      "position": "fixed",
+      "z": "50",
+      "disabled": null,
+      "text": "Inicio\nCaja\nVentas\nFiados\nMás"
+    },
+    "total": {
+      "x": 29,
+      "y": 1025.5,
+      "w": 262,
+      "h": 35.2,
+      "bottom": 1060.7,
+      "right": 291,
+      "display": "block",
+      "position": "static",
+      "z": "auto",
+      "disabled": null,
+      "text": "$2,469.00"
+    }
+  },
+  "caja390Text200ItemClean": {
+    "vw": 390,
+    "htmlScroll": 390,
+    "htmlClient": 390,
+    "bodyScroll": 390,
+    "offenders": []
+  },
+  "caja390Text200GeometryClean": {
+    "cta": {
+      "x": 33,
+      "y": 1760.5,
+      "w": 324,
+      "h": 56,
+      "bottom": 1816.5,
+      "right": 357,
+      "display": "inline-flex",
+      "position": "static",
+      "z": "auto",
+      "disabled": true,
+      "text": "Faltan $2,469.00"
+    },
+    "paybar": {
+      "x": 0,
+      "y": 695,
+      "w": 390,
+      "h": 85,
+      "bottom": 780,
+      "right": 390,
+      "display": "flex",
+      "position": "fixed",
+      "z": "45",
+      "disabled": null,
+      "text": "TOTAL\n$2,469.00\nRevisar cobro"
+    },
+    "nav": {
+      "x": 0,
+      "y": 779,
+      "w": 390,
+      "h": 65,
+      "bottom": 844,
+      "right": 390,
+      "display": "grid",
+      "position": "fixed",
+      "z": "50",
+      "disabled": null,
+      "text": "Inicio\nCaja\nVentas\nFiados\nMás"
+    },
+    "total": {
+      "x": 33,
+      "y": 1020.1,
+      "w": 324,
+      "h": 40,
+      "bottom": 1060.1,
+      "right": 357,
+      "display": "block",
+      "position": "static",
+      "z": "auto",
+      "disabled": null,
+      "text": "$2,469.00"
+    }
+  },
+  "draftCoexistenceCajaMobile": {
+    "v1": true,
+    "v2": true,
+    "restore": false,
+    "hasV1Warning": true,
+    "body": "Saltar al contenido Antojitos de Lupita Coyoacán, CDMX DEMO L CAJA Nueva venta miércoles, 4 de noviembre. Agrega lo que vendiste, revisa el total y elige cómo te pagan. TOTAL $70.00 VER COBRO CONCEPTOS Qué estás vendiendo 1 concepto Concepto Cantidad Precio Importe $70.00 × Agregar concepto Producto o servicio Cantidad Precio unitario + Agregar COBRO Total de la venta $70.00 Lo que el cliente debe pagar. No es dinero recibido. Cómo se paga Efectivo Digital Fiado Mixto Efectivo recibido Faltan $70.00 para completar el cobro. Escribe más efectivo o elige Digital, Fiado o Mixto. Escribe el efectivo que te dieron o elige otro método. Faltan $70.00Descartar venta TOTAL $70.00 Revisar cobro Concepto agregado. 1 conceptos en curso. El total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme. ¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes. Inicio Caja Ventas Fiados Más"
+  },
+  "draftCoexistenceLegacyMobile": {
+    "body": "Saltar al contenido Antojitos de Lupita Coyoacán, CDMX DEMO Caja Fiado Corte Meta Tareas Caja Ventas registradas hoy $4,301.72 · Cobrado confirmado $240.00 · Por cobrar de hoy $818.00 Por cobrar de hoy $818.00 Ver la tira Recuperé tu venta de las 11:14 a.m. 1 producto · $70.00. Nada se envía hasta que confirmes. Seguir Empezar de nuevo ¿Qué vendiste? TU VENTA 1 renglón $70.00 $70.00 se cobran con link Mantén y habla Escribe la venta Interpretar Agregar a mano Sin IA: escribe producto, cantidad y precio. Si hay ruido en el mercado, escribe la venta o agrégala a mano. TOTAL DE LA VENTA $70.00 $70.00 por cobrar con link Fiar Cobrar Fiar Quesadillas $90 Juan pagó $50 ¿Cuánto vendí? Pedido en curso 1 producto Limpiar 01 − + $70.00 Agregar producto Efectivo recibido $ A fiado $ miércoles, 4 de noviembre ¡Buen día, Lupita! Así va tu negocio hoy. Ventas hoy $4,301.72 Registradas · demo Cobrado hoy $240.00 Efectivo + pey Por cobrar hoy $818.00 Aún no es dinero recibido Fiado pendiente $1,050.00",
+    "v1": true,
+    "v2": true,
+    "restored": true
+  },
+  "ayudaFromCajaBackClean": {
+    "mid": {
+      "url": "http://localhost:3100/?ayuda=1",
+      "dialog": true,
+      "v2": true
+    },
+    "back": {
+      "url": "http://localhost:3100/caja",
+      "restore": true,
+      "total": "$9.00",
+      "v2": true
+    }
+  },
+  "aliasHashBrowser": {
+    "url": "http://localhost:3100/?tab=fiado&ayuda=1#ajustes",
+    "hash": "#ajustes",
+    "dialog": true,
+    "helpTitle": true,
+    "v2": true
+  },
+  "route404": {
+    "status": 404,
+    "url": "http://localhost:3100/ruta-inexistente",
+    "body": "404 This page could not be found.",
+    "shells": {
+      "new": 0,
+      "legacy": 0,
+      "navs": 0
+    }
+  },
+  "payMissing": {
+    "status": 200,
+    "url": "http://localhost:3100/pay/inexistente",
+    "body": "Extraviado Cobro no disponible No encontramos este cobro Este link no corresponde a un cobro de Mercado Cero. Pide a la comerciante que genere uno nuevo. Volver Si llegaste desde una tienda, pide un link nuevo antes de pagar.",
+    "shells": {
+      "new": 0,
+      "legacy": 0,
+      "pay": 1,
+      "current": 0
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "results": [
+    {
+      "id": "REP-09",
+      "name": "Cambio fantasma en Mixto",
+      "ok": true,
+      "expected": "No debe haber cambio si el efectivo aplicado es $0",
+      "observed": "COBRO\n\nTotal de la venta\n\n$100.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\n\nCambio a devolver $100.00. Se aplicaron $0.00 al cobro.\n\nMonto a fiado\n¿Quién queda a deber?\nRegistrar fiado $100.00Descartar venta",
+      "evidence": "final-mixto-phantom.png"
+    },
+    {
+      "id": "REP-10",
+      "name": "Aviso falso 'El total cambió' en reparto válido",
+      "ok": true,
+      "expected": "No debe avisar que el total cambió en un reparto $40 efectivo + $30 fiado + $30 digital",
+      "observed": "COBRO\n\nTotal de la venta\n\n$100.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\n\nEl total cambió. Ajusta el monto a fiado para que coincida con $100.00.\n\nMonto a fiado\n¿Quién queda a deber?\n\nQuedan $30.00 por cobrar en digital. Se generará un cobro pendiente después de registrar la venta.\n\nEfectivo\n$40.00\nFiado\n$30.00\nGenerar cobro $30.00Descartar venta",
+      "evidence": "final-mixto-false-total.png"
+    }
+  ],
+  "failed": 0
+}

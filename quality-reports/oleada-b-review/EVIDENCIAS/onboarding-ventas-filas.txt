@@ -1,0 +1,27 @@
+9E3D
+DEMO
+Pedido 9E3D
+
+Hoy 11:08 a.m. · Efectivo + fiado · Juan
+
+1 × Venta mixta fiado
+
+$100.00
+Demo, no es dinero real
+Saldo vivo $40.00
+Ver conceptos
+
+=====
+
+AEA7
+DEMO
+Pedido AEA7
+
+Hoy 11:08 a.m. · Efectivo
+
+1 × Venta mixta digital
+
+$100.00
+Demo, no es dinero real
+Falta cobrar $40.00
+Ver conceptos

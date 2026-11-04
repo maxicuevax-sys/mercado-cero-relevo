@@ -1,0 +1,4 @@
+﻿CREATE 201 ord_4d1293fb94994d859eb7 confirmed 0
+RACE [(200, 'demo_paid', 5000), (200, 'demo_paid', 5000)]
+FINAL 200 demo_paid 5000 1
+PAYMENT demo card 5000 True demo_txn_tx_cdb8506ec2c84bf0aa20

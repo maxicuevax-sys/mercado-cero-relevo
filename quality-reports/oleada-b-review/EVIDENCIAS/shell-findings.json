@@ -1,0 +1,63 @@
+{
+  "audit": "03_shell",
+  "role": "mc-shell-responsive",
+  "head": "4130e71d668e5e4693a8f5b634d2d2f953d21b02",
+  "server": "http://localhost:3100",
+  "buildSha": "4130e71d668e5e4693a8f5b634d2d2f953d21b02",
+  "verdict": "NO-GO para declarar shell migrado y gate responsive/200%; P0 de producto (doble Caja/draft) no mitigado; camino feliz 1448/390 funciona",
+  "counts": {"p0": 1, "p1": 5, "p2": 9, "p3": 5},
+  "p0": [
+    {
+      "id": "P0-1",
+      "title": "Dos Cajas, dos borradores y dos requestId; la misma venta puede registrarse dos veces sin aviso contextual",
+      "evidence": ["shell-draft-v1-v2-caja-mobile-clean.png", "shell-draft-v1-restored-legacy-mobile-clean.png", "shell-probes2.json"],
+      "source": ["web/src/components/caja/caja-screen.tsx:32-34", "web/src/components/caja-app.tsx:110-116"],
+      "caveat": "No hay duplicación automática: requiere que la persona confirme en ambas pantallas. B lo documenta en ENTREGA §11.1, pero la UI no avisa cuando existe v1."
+    }
+  ],
+  "p1": [
+    {
+      "id": "P1-1",
+      "title": "200% de texto rompe el layout: solapamientos, valores recortados y CTA fuera de pantalla",
+      "evidence": ["shell-caja-1366-text200-three.png", "shell-caja-1448-text200-three.png", "shell-caja-390-text200-item-clean.png", "shell-caja-desktop-text200.json", "shell-text200-geometry.json", "shell-text200-navlabels.json"]
+    },
+    {
+      "id": "P1-2",
+      "title": "CTA/Confirmar fuera del primer viewport en 1366x768 con 3 conceptos y en 768x1024; hueco 761-980 sin paybar",
+      "evidence": ["shell-cta-scrolltop.json", "shell-cta-scrolltop-1366x768.png", "shell-cta-scrolltop-768x1024.png", "shell-761-cliff.json"]
+    },
+    {
+      "id": "P1-3",
+      "title": "/ventas a 320 + 200% desborda 17 px por el pager",
+      "evidence": ["shell-overflow-ventas-320-text200-clean.png", "shell-probes2.json"]
+    },
+    {
+      "id": "P1-4",
+      "title": "Foco de ruta en BODY y paginación sin foco/scroll al encabezado; sin anuncio de ruta",
+      "evidence": ["shell-audit.json", "shell-probes2.json", "keyboard-focus.json"]
+    },
+    {
+      "id": "P1-5",
+      "title": "La nav nueva promete Fiados/Corte/Metas/Pendientes migrados pero aterriza en el shell legacy; el modelo de nav cambia a 768 y en móvil",
+      "evidence": ["shell-768-inicio.png", "shell-768-legacy-corte.png", "shell-mobile-390-legacy-corte.png", "shell-http-matrix.json", "shell-nav-clicks.json"]
+    }
+  ],
+  "p2": [
+    {"id": "P2-1", "title": "Puente ayuda=1 ausente en /caja y /ventas; cerrar Ayuda deja al usuario en la Caja legacy", "evidence": ["shell-http-matrix.json", "shell-audit.json", "shell-help-close.json"]},
+    {"id": "P2-2", "title": "Paginación: 25/página, page=999/abc/0 no canonicaliza, pager de 44 px sin aria-current ni números", "evidence": ["shell-probes2.json", "repo-ventas-pagination.json"]},
+    {"id": "P2-3", "title": "404 por defecto de Next, en inglés y sin shell/nav", "evidence": ["shell-desktop-404.png", "shell-probes2.json"]},
+    {"id": "P2-4", "title": "/pay/inexistente responde 200 con UI de no encontrado (sin shell nuevo)", "evidence": ["shell-pay-missing.png", "shell-probes2.json"]},
+    {"id": "P2-5", "title": "'Volver a Caja' del resultado es un Link a /caja: no reinicia ni cambia de pantalla", "evidence": ["shell-volver-a-caja-noop.png", "shell-probes2.json"]},
+    {"id": "P2-6", "title": "Tabs legacy no escriben la URL: recargar pierde el tab seleccionado y atrás sale de /", "evidence": ["shell-state.json"]},
+    {"id": "P2-7", "title": "En Caja vacía a 390/320 el total y el CTA quedan fuera del primer viewport y no hay paybar (solo aparece con líneas)", "evidence": ["shell-cta-scrolltop.json", "shell-mobile-390-caja-empty.png"]},
+    {"id": "P2-8", "title": "Sin safe-area-inset-top en el shell nuevo; sin visualViewport/interactive-widget para teclado", "evidence": ["web/src/app/layout.tsx", "web/src/components/shell/shell.css", "web/src/components/caja/caja.css"]},
+    {"id": "P2-9", "title": "'Ver todos' de Inicio apunta a /?tab=pendientes (legacy) mientras la nav usa /pendientes", "evidence": ["shell-probes3.json", "web/src/app/inicio/page.tsx:179"]}
+  ],
+  "p3": [
+    {"id": "P3-1", "title": "aria-label de nav solo en Corte; faltan Caja/Ventas/Fiados respecto al contrato", "evidence": ["shell-probes3.json"]},
+    {"id": "P3-2", "title": "No existe #confirmar; el ancla real es #mc-caja-payment-summary", "evidence": ["shell-probes.json"]},
+    {"id": "P3-3", "title": "Más no implementa data-active-child ni aria-label de hijo activo (no observable aún porque sus destinos son legacy)", "evidence": ["web/src/components/shell/mobile-nav.tsx"]},
+    {"id": "P3-4", "title": "Next conserva árboles previos ocultos: 2-3 <main>/<h1> y varios aria-current en DOM; visible sigue siendo 1", "evidence": ["shell-duplicate-dom.json", "shell-audit.json"]},
+    {"id": "P3-5", "title": "Paybar y nav se tocan/solapan 1 px a 200%; copy 'Caja clásica' frente a dos Cajas", "evidence": ["shell-text200-geometry.json", "shell-caja-390-text200-item-clean.png"]}
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "auditoria": "Oleada B - diseno",
+  "fecha": "2026-11-04",
+  "rol": "mc-sistema-diseno",
+  "modo": "solo lectura, sin ediciones de producto ni commits",
+  "repo": "mercado-cero",
+  "head": "4130e71d668e5e4693a8f5b634d2d2f953d21b02",
+  "servidor": {
+    "url": "http://localhost:3100",
+    "buildSha": "4130e71d668e5e4693a8f5b634d2d2f953d21b02",
+    "health": "ok"
+  },
+  "viewports": ["1448x1086", "1366x768", "1280x800", "768x1024", "390x844", "320x640"],
+  "zoom200": "viewport 724x543 con deviceScaleFactor 2 (reflujo equivalente a 200% de 1448x1086)",
+  "altoContraste": "preferencia local mercado-cero:contrast=high",
+  "mediciones_clave": {
+    "caja_importe_linea": {
+      "regla": "src/components/caja/caja.css:177-184 oculta todo span hijo de .mc-caja-line__total",
+      "1448x1086": {"importe_span": "1x1 px", "clip": "rect(0px, 0px, 0px, 0px)", "visible": false},
+      "1366x768": {"importe_span": "1x1 px", "visible": false},
+      "1280x800": {"importe_span": "1x1 px", "visible": false},
+      "768x1024": {"importe_span": "1x1 px", "visible": false},
+      "390x844": {"importe_span": "96x22.6 px", "visible": true},
+      "320x640": {"importe_span": "240x18.5 px", "visible": true}
+    },
+    "caja_confirmar_primer_viewport": {
+      "1448x1086_conceptos": {"top": 797.6, "bottom": 853.6, "vh": 1086, "visible": true},
+      "1366x768_conceptos": {"top": 775.9, "bottom": 831.9, "vh": 768, "visible": false},
+      "1366x768_efectivo_cambio": {"top": 728.0, "bottom": 784.0, "vh": 768, "visible": false, "nota": "16 px recortados"},
+      "1366x768_fiado": {"top": 738.3, "bottom": 794.3, "vh": 768, "visible": false},
+      "1280x800_conceptos": {"top": 807.0, "bottom": 863.0, "vh": 800, "visible": false},
+      "768x1024_conceptos": {"top": 1305.6, "bottom": 1361.6, "vh": 1024, "visible": false},
+      "scroll_para_ver_cta_1366": 270
+    },
+    "caja_vacia_banda_fondo": {
+      "main_bg": "rgb(249, 246, 238)",
+      "shell_bg": "rgb(251, 243, 231)",
+      "frontera_y": 937,
+      "captura": "design-capturas/design-caja-vacia-1448x1086.png",
+      "recorte": "design-capturas/design-caja-1448-seam-crop.png"
+    },
+    "caja_vacia_390_add_vs_nav": {
+      "add_top": 745.5,
+      "add_bottom": 793.5,
+      "nav_top": 779,
+      "solape_px": 14.5
+    },
+    "resultado_fiado_390": {
+      "banner_top": 660.9,
+      "banner_bottom": 721.5,
+      "nueva_venta": {"top": 739.5, "bottom": 795.5},
+      "ver_ventas": {"top": 803.5, "bottom": 851.5},
+      "volver_a_caja": {"top": 859.5, "bottom": 907.5},
+      "nav_top": 779,
+      "nueva_venta_solape_px": 16.5,
+      "ver_ventas_cubierto": true,
+      "volver_a_caja_cubierto": true
+    },
+    "volver_a_caja_resultado": {
+      "prueba": "click en enlace Volver a Caja desde estado result",
+      "resultado": "permanece en estado result; h1 sigue 'Venta registrada'",
+      "nueva_venta": "si resetea a 'Nueva venta' y muestra vacio"
+    },
+    "inicio_768": {
+      "viewport": [768, 1024],
+      "content_right": 744,
+      "suggestion_cta": {"x": 629, "right": 829, "w": 200, "clipped_px": 85},
+      "suggestion": {"x": 234, "w": 510},
+      "inicio_h1": {"x": 314, "right": 740.4, "w": 426.4},
+      "picado": {"x": 281, "right": 744, "w": 463},
+      "nota": "el CTA sale del lienzo y el H1 se superpone al papel picado"
+    },
+    "ventas_390": {
+      "stats_height": 333.9,
+      "list_head_top": 626.3,
+      "first_row_top": 705.2,
+      "nav_top": 779,
+      "fila_completa_visible": false
+    },
+    "ventas_320": {
+      "stats_height": 316.9,
+      "list_head_top": 609.3,
+      "nav_top": 575,
+      "fila_visible": false
+    }
+  },
+  "conteo": {"P0": 0, "P1": 4, "P2": 7, "P3": 7},
+  "nota_datos": "La base demo del servidor 3100 esta contaminada por pedidos de pruebas previas (p. ej. 'AUDRES...', 'Auditoria shell') y el reset esta bloqueado por pagos firmados de pey. Las capturas actuales de /ventas se usan para geometria/estilos; para la composicion con datos limpios se conservan design-ventas-*-datos-limpios.png de la entrega Oleada B. No se modifico la base ni el producto."
+}

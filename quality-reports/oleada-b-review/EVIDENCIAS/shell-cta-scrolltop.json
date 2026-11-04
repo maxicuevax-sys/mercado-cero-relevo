@@ -1,0 +1,182 @@
+{
+  "1366x768-empty": {
+    "scrollY": 0,
+    "vh": 768,
+    "cta": {
+      "y": 654.5,
+      "bottom": 710.5,
+      "h": 56,
+      "text": "Confirmar venta"
+    },
+    "total": {
+      "y": 339.2,
+      "bottom": 379.2
+    },
+    "paybar": false
+  },
+  "1366x768-three": {
+    "scrollY": 0,
+    "vh": 768,
+    "cta": {
+      "y": 775.9,
+      "bottom": 831.9,
+      "h": 56,
+      "text": "Faltan $60.00"
+    },
+    "total": {
+      "y": 339.2,
+      "bottom": 379.2
+    },
+    "paybar": true
+  },
+  "1448x1086-empty": {
+    "scrollY": 0,
+    "vh": 1086,
+    "cta": {
+      "y": 676.1,
+      "bottom": 732.1,
+      "h": 56,
+      "text": "Confirmar venta"
+    },
+    "total": {
+      "y": 360.9,
+      "bottom": 400.9
+    },
+    "paybar": false
+  },
+  "1448x1086-three": {
+    "scrollY": 0,
+    "vh": 1086,
+    "cta": {
+      "y": 797.6,
+      "bottom": 853.6,
+      "h": 56,
+      "text": "Faltan $60.00"
+    },
+    "total": {
+      "y": 360.9,
+      "bottom": 400.9
+    },
+    "paybar": true
+  },
+  "1024x768-empty": {
+    "scrollY": 0,
+    "vh": 768,
+    "cta": {
+      "y": 646.6,
+      "bottom": 702.6,
+      "h": 56,
+      "text": "Confirmar venta"
+    },
+    "total": {
+      "y": 311.8,
+      "bottom": 351.8
+    },
+    "paybar": false
+  },
+  "1024x768-three": {
+    "scrollY": 0,
+    "vh": 768,
+    "cta": {
+      "y": 768.1,
+      "bottom": 824.1,
+      "h": 56,
+      "text": "Faltan $60.00"
+    },
+    "total": {
+      "y": 311.8,
+      "bottom": 351.8
+    },
+    "paybar": true
+  },
+  "768x1024-empty": {
+    "scrollY": 0,
+    "vh": 1024,
+    "cta": {
+      "y": 1122,
+      "bottom": 1178,
+      "h": 56,
+      "text": "Confirmar venta"
+    },
+    "total": {
+      "y": 806.7,
+      "bottom": 846.7
+    },
+    "paybar": false
+  },
+  "768x1024-three": {
+    "scrollY": 0,
+    "vh": 1024,
+    "cta": {
+      "y": 1383.6,
+      "bottom": 1439.6,
+      "h": 56,
+      "text": "Faltan $60.00"
+    },
+    "total": {
+      "y": 968.6,
+      "bottom": 1008.6
+    },
+    "paybar": true
+  },
+  "390x844-empty": {
+    "scrollY": 0,
+    "vh": 844,
+    "cta": {
+      "y": 1220,
+      "bottom": 1276,
+      "h": 56,
+      "text": "Confirmar venta"
+    },
+    "total": {
+      "y": 904.8,
+      "bottom": 944.8
+    },
+    "paybar": false
+  },
+  "390x844-three": {
+    "scrollY": 0,
+    "vh": 844,
+    "cta": {
+      "y": 1763.3,
+      "bottom": 1819.3,
+      "h": 56,
+      "text": "Faltan $60.00"
+    },
+    "total": {
+      "y": 1326.6,
+      "bottom": 1366.6
+    },
+    "paybar": true
+  },
+  "320x640-empty": {
+    "scrollY": 0,
+    "vh": 640,
+    "cta": {
+      "y": 1256.7,
+      "bottom": 1312.7,
+      "h": 56,
+      "text": "Confirmar venta"
+    },
+    "total": {
+      "y": 926.6,
+      "bottom": 961.8
+    },
+    "paybar": false
+  },
+  "320x640-three": {
+    "scrollY": 0,
+    "vh": 640,
+    "cta": {
+      "y": 2142.1,
+      "bottom": 2198.1,
+      "h": 56,
+      "text": "Faltan $60.00"
+    },
+    "total": {
+      "y": 1672.4,
+      "bottom": 1707.6
+    },
+    "paybar": true
+  }
+}

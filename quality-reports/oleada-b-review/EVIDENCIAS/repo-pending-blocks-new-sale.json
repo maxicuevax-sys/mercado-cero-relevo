@@ -1,0 +1,31 @@
+{
+  "pending": "ord_e45941c17dc04017b3d6",
+  "results": [
+    {
+      "name": "pending order auto-opens payment view",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "payment view has no Nueva venta action",
+      "ok": true,
+      "detail": "['Generar link', 'Actualizar estado', 'Simular CoDi', 'Simular tarjeta', 'Ver historial de ventas', 'Caja clásica']"
+    },
+    {
+      "name": "payment view has no Descartar action",
+      "ok": true,
+      "detail": "['Generar link', 'Actualizar estado', 'Simular CoDi', 'Simular tarjeta', 'Ver historial de ventas', 'Caja clásica']"
+    },
+    {
+      "name": "Nueva venta from history returns to payment view (not composer)",
+      "ok": true,
+      "detail": "http://localhost:3100/caja"
+    },
+    {
+      "name": "pending order still blocks new sale",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "failed": 0
+}

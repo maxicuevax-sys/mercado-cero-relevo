@@ -1,0 +1,69 @@
+{
+  "base": "http://localhost:3210",
+  "db": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\mc-audit-pagos\\pagos-copy.db",
+  "generatedAt": "2026-11-04T11:18:13-0600",
+  "cards": [
+    "Ventas hoy\n\n$3,579.36\nIncluye ventas demo; no es dinero real",
+    "Cobrado confirmado\n\n$100.00\nSolo efectivo real y pagos verificados; demo no cuenta",
+    "Por cobrar digital\n\n$723.00\nLinks y QR de todos los días. No incluye fiado."
+  ],
+  "expected": {
+    "sales": "$3,579.36",
+    "collected": "$100.00",
+    "pending": "$723.00",
+    "demo_credit_cash": "$100.00",
+    "cashCents": 10000,
+    "demoCashCents": 146736
+  },
+  "summary": {
+    "date": "2026-11-04",
+    "salesCents": 357936,
+    "verifiedDigitalCents": 0,
+    "declaredDigitalCents": 0,
+    "demoDigitalCents": 37900,
+    "demoCashCents": 146736,
+    "cashCents": 10000,
+    "pendingCents": 72300,
+    "creditCents": 96000,
+    "demoCreditCents": 96000,
+    "orderCount": 59,
+    "paidOrderCount": 31,
+    "methods": {
+      "cash": 10000
+    }
+  },
+  "results": [
+    {
+      "name": "E1 Ventas hoy coincide con el servidor",
+      "ok": true,
+      "detail": "$3,579.36 vs Ventas hoy\n\n$3,579.36\nIncluye ventas demo; no es dinero real",
+      "severity": ""
+    },
+    {
+      "name": "E2 Cobrado confirmado coincide con el servidor",
+      "ok": true,
+      "detail": "$100.00 vs Cobrado confirmado\n\n$100.00\nSolo efectivo real y pagos verificados; demo no cuenta",
+      "severity": ""
+    },
+    {
+      "name": "E3 Por cobrar digital coincide con la deuda viva",
+      "ok": true,
+      "detail": "$723.00 vs Por cobrar digital\n\n$723.00\nLinks y QR de todos los días. No incluye fiado.",
+      "severity": ""
+    },
+    {
+      "name": "E4 Cobrado confirmado no debe incluir abonos demo",
+      "ok": false,
+      "detail": "{\"sales\": \"$3,579.36\", \"collected\": \"$100.00\", \"pending\": \"$723.00\", \"demo_credit_cash\": \"$100.00\", \"cashCents\": 10000, \"demoCashCents\": 146736}",
+      "severity": "P1"
+    },
+    {
+      "name": "E5 cashCents del servidor no debe incluir abonos demo",
+      "ok": false,
+      "detail": "{\"sales\": \"$3,579.36\", \"collected\": \"$100.00\", \"pending\": \"$723.00\", \"demo_credit_cash\": \"$100.00\", \"cashCents\": 10000, \"demoCashCents\": 146736}",
+      "severity": "P1"
+    }
+  ],
+  "pass": 3,
+  "fail": 2
+}

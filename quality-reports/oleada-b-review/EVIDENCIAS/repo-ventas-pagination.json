@@ -1,0 +1,36 @@
+{
+  "results": [
+    {
+      "path": "/ventas",
+      "status": 200,
+      "url": "http://localhost:3100/ventas",
+      "rows": 25,
+      "meta": "107 en total · página 1 de 5",
+      "next": "/ventas?page=2"
+    },
+    {
+      "path": "/ventas?page=2",
+      "status": 200,
+      "url": "http://localhost:3100/ventas?page=2",
+      "rows": 25,
+      "meta": "107 en total · página 2 de 5",
+      "next": "/ventas?page=3"
+    },
+    {
+      "path": "/ventas?page=999",
+      "status": 200,
+      "url": "http://localhost:3100/ventas?page=999",
+      "rows": 7,
+      "meta": "107 en total · página 5 de 5",
+      "next": null
+    },
+    {
+      "path": "/ventas?page=abc",
+      "status": 200,
+      "url": "http://localhost:3100/ventas?page=abc",
+      "rows": 25,
+      "meta": "107 en total · página 1 de 5",
+      "next": "/ventas?page=2"
+    }
+  ]
+}

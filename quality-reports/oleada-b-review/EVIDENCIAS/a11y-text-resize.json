@@ -1,0 +1,1069 @@
+{
+  "method": "Chromium/Playwright. 'texto 200%' = documentElement.style.fontSize='32px' (16px base). 'zoom navegador (equivalente 200%)' = viewport CSS 640x400 / 512x320.",
+  "text200": {
+    "desktop": {
+      "fontSize": "32px",
+      "rects": [
+        {
+          "sel": "other:TOTAL",
+          "r": {
+            "x": 255.71875,
+            "y": 368.1875,
+            "width": 85.125,
+            "height": 37.6875,
+            "top": 368.1875,
+            "right": 340.84375,
+            "bottom": 405.875,
+            "left": 255.71875
+          },
+          "sw": 85,
+          "cw": 85,
+          "overflow": "visible"
+        },
+        {
+          "sel": "other:$70.00",
+          "r": {
+            "x": 350.84375,
+            "y": 372.1875,
+            "width": 70.734375,
+            "height": 31.890625,
+            "top": 372.1875,
+            "right": 421.578125,
+            "bottom": 404.078125,
+            "left": 350.84375
+          },
+          "sw": 71,
+          "cw": 71,
+          "overflow": "visible"
+        },
+        {
+          "sel": "other:VER COBRO",
+          "r": {
+            "x": 431.578125,
+            "y": 370.1875,
+            "width": 143.84375,
+            "height": 34.796875,
+            "top": 370.1875,
+            "right": 575.421875,
+            "bottom": 404.984375,
+            "left": 431.578125
+          },
+          "sw": 144,
+          "cw": 144,
+          "overflow": "visible"
+        },
+        {
+          "sel": "head:CONCEPTO",
+          "r": {
+            "x": 269.71875,
+            "y": 628.1875,
+            "width": 241.265625,
+            "height": 34.796875,
+            "top": 628.1875,
+            "right": 510.984375,
+            "bottom": 662.984375,
+            "left": 269.71875
+          },
+          "sw": 241,
+          "cw": 241,
+          "overflow": "visible"
+        },
+        {
+          "sel": "head:CANTIDAD",
+          "r": {
+            "x": 520.984375,
+            "y": 628.1875,
+            "width": 78,
+            "height": 34.796875,
+            "top": 628.1875,
+            "right": 598.984375,
+            "bottom": 662.984375,
+            "left": 520.984375
+          },
+          "sw": 128,
+          "cw": 78,
+          "overflow": "visible"
+        },
+        {
+          "sel": "head:PRECIO",
+          "r": {
+            "x": 608.984375,
+            "y": 628.1875,
+            "width": 110,
+            "height": 34.796875,
+            "top": 628.1875,
+            "right": 718.984375,
+            "bottom": 662.984375,
+            "left": 608.984375
+          },
+          "sw": 110,
+          "cw": 110,
+          "overflow": "visible"
+        },
+        {
+          "sel": "head:IMPORTE",
+          "r": {
+            "x": 728.984375,
+            "y": 628.1875,
+            "width": 96,
+            "height": 34.796875,
+            "top": 628.1875,
+            "right": 824.984375,
+            "bottom": 662.984375,
+            "left": 728.984375
+          },
+          "sw": 112,
+          "cw": 96,
+          "overflow": "visible"
+        },
+        {
+          "sel": "head:",
+          "r": {
+            "x": 834.984375,
+            "y": 628.1875,
+            "width": 44,
+            "height": 34.796875,
+            "top": 628.1875,
+            "right": 878.984375,
+            "bottom": 662.984375,
+            "left": 834.984375
+          },
+          "sw": 44,
+          "cw": 44,
+          "overflow": "visible"
+        },
+        {
+          "sel": "line:Concepto",
+          "r": {
+            "x": 278.71875,
+            "y": 685.984375,
+            "width": 1,
+            "height": 1,
+            "top": 685.984375,
+            "right": 279.71875,
+            "bottom": 686.984375,
+            "left": 278.71875
+          },
+          "sw": 105,
+          "cw": 1,
+          "overflow": "hidden"
+        },
+        {
+          "sel": "line:Cantidad",
+          "r": {
+            "x": 511.984375,
+            "y": 685.984375,
+            "width": 1,
+            "height": 1,
+            "top": 685.984375,
+            "right": 512.984375,
+            "bottom": 686.984375,
+            "left": 511.984375
+          },
+          "sw": 100,
+          "cw": 1,
+          "overflow": "hidden"
+        },
+        {
+          "sel": "line:Precio",
+          "r": {
+            "x": 599.984375,
+            "y": 685.984375,
+            "width": 1,
+            "height": 1,
+            "top": 685.984375,
+            "right": 600.984375,
+            "bottom": 686.984375,
+            "left": 599.984375
+          },
+          "sw": 69,
+          "cw": 1,
+          "overflow": "hidden"
+        },
+        {
+          "sel": "add:Producto o servicio",
+          "r": {
+            "x": 267.71875,
+            "y": 884.25,
+            "width": 228.265625,
+            "height": 37.6875,
+            "top": 884.25,
+            "right": 495.984375,
+            "bottom": 921.9375,
+            "left": 267.71875
+          },
+          "sw": 228,
+          "cw": 228,
+          "overflow": "visible"
+        },
+        {
+          "sel": "add:Cantidad",
+          "r": {
+            "x": 505.984375,
+            "y": 884.25,
+            "width": 99.671875,
+            "height": 37.6875,
+            "top": 884.25,
+            "right": 605.65625,
+            "bottom": 921.9375,
+            "left": 505.984375
+          },
+          "sw": 100,
+          "cw": 100,
+          "overflow": "visible"
+        },
+        {
+          "sel": "add:Precio unitario",
+          "r": {
+            "x": 593.984375,
+            "y": 846.5625,
+            "width": 110,
+            "height": 75.375,
+            "top": 846.5625,
+            "right": 703.984375,
+            "bottom": 921.9375,
+            "left": 593.984375
+          },
+          "sw": 110,
+          "cw": 110,
+          "overflow": "visible"
+        },
+        {
+          "sel": "other:Faltan $70.00",
+          "r": {
+            "x": 954.984375,
+            "y": 1471.828125,
+            "width": 267.296875,
+            "height": 56,
+            "top": 1471.828125,
+            "right": 1222.28125,
+            "bottom": 1527.828125,
+            "left": 954.984375
+          },
+          "sw": 265,
+          "cw": 265,
+          "overflow": "visible"
+        }
+      ],
+      "overlaps": [],
+      "scrollWidth": 1280,
+      "clientWidth": 1280
+    },
+    "mobile": {
+      "fontSize": "32px",
+      "rects": [
+        {
+          "sel": "other:TOTAL",
+          "r": {
+            "x": 25,
+            "y": -101.546875,
+            "width": 85.125,
+            "height": 37.6875,
+            "top": -101.546875,
+            "right": 110.125,
+            "bottom": -63.859375,
+            "left": 25
+          },
+          "sw": 85,
+          "cw": 85,
+          "overflow": "visible"
+        },
+        {
+          "sel": "other:$70.00",
+          "r": {
+            "x": 265.546875,
+            "y": -97.546875,
+            "width": 69.453125,
+            "height": 31.296875,
+            "top": -97.546875,
+            "right": 335,
+            "bottom": -66.25,
+            "left": 265.546875
+          },
+          "sw": 69,
+          "cw": 69,
+          "overflow": "visible"
+        },
+        {
+          "sel": "other:VER COBRO",
+          "r": {
+            "x": 25,
+            "y": -53.859375,
+            "width": 143.84375,
+            "height": 34.796875,
+            "top": -53.859375,
+            "right": 168.84375,
+            "bottom": -19.0625,
+            "left": 25
+          },
+          "sw": 144,
+          "cw": 144,
+          "overflow": "visible"
+        },
+        {
+          "sel": "line:Concepto",
+          "r": {
+            "x": 40,
+            "y": 252.078125,
+            "width": 280,
+            "height": 37.6875,
+            "top": 252.078125,
+            "right": 320,
+            "bottom": 289.765625,
+            "left": 40
+          },
+          "sw": 280,
+          "cw": 280,
+          "overflow": "visible"
+        },
+        {
+          "sel": "line:Cantidad",
+          "r": {
+            "x": 40,
+            "y": 351.15625,
+            "width": 136,
+            "height": 37.6875,
+            "top": 351.15625,
+            "right": 176,
+            "bottom": 388.84375,
+            "left": 40
+          },
+          "sw": 136,
+          "cw": 136,
+          "overflow": "visible"
+        },
+        {
+          "sel": "line:Precio",
+          "r": {
+            "x": 184,
+            "y": 351.15625,
+            "width": 136,
+            "height": 37.6875,
+            "top": 351.15625,
+            "right": 320,
+            "bottom": 388.84375,
+            "left": 184
+          },
+          "sw": 136,
+          "cw": 136,
+          "overflow": "visible"
+        },
+        {
+          "sel": "add:Producto o servicio",
+          "r": {
+            "x": 29,
+            "y": 714.609375,
+            "width": 302,
+            "height": 37.6875,
+            "top": 714.609375,
+            "right": 331,
+            "bottom": 752.296875,
+            "left": 29
+          },
+          "sw": 302,
+          "cw": 302,
+          "overflow": "visible"
+        },
+        {
+          "sel": "add:Cantidad",
+          "r": {
+            "x": 29,
+            "y": 853.375,
+            "width": 146,
+            "height": 37.6875,
+            "top": 853.375,
+            "right": 175,
+            "bottom": 891.0625,
+            "left": 29
+          },
+          "sw": 146,
+          "cw": 146,
+          "overflow": "visible"
+        },
+        {
+          "sel": "add:Precio unitario",
+          "r": {
+            "x": 185,
+            "y": 815.6875,
+            "width": 146,
+            "height": 75.375,
+            "top": 815.6875,
+            "right": 331,
+            "bottom": 891.0625,
+            "left": 185
+          },
+          "sw": 146,
+          "cw": 146,
+          "overflow": "visible"
+        },
+        {
+          "sel": "other:Faltan $70.00",
+          "r": {
+            "x": 29,
+            "y": 2031.609375,
+            "width": 302,
+            "height": 56,
+            "top": 2031.609375,
+            "right": 331,
+            "bottom": 2087.609375,
+            "left": 29
+          },
+          "sw": 300,
+          "cw": 300,
+          "overflow": "visible"
+        },
+        {
+          "sel": "nav:",
+          "r": {
+            "x": 25,
+            "y": 681.203125,
+            "width": 22,
+            "height": 22,
+            "top": 681.203125,
+            "right": 47,
+            "bottom": 703.203125,
+            "left": 25
+          },
+          "sw": 22,
+          "cw": 22,
+          "overflow": "visible"
+        },
+        {
+          "sel": "nav:Inicio",
+          "r": {
+            "x": 7.359375,
+            "y": 706.203125,
+            "width": 57.265625,
+            "height": 28.59375,
+            "top": 706.203125,
+            "right": 64.625,
+            "bottom": 734.796875,
+            "left": 7.359375
+          },
+          "sw": 57,
+          "cw": 57,
+          "overflow": "visible"
+        },
+        {
+          "sel": "nav:",
+          "r": {
+            "x": 97,
+            "y": 681.203125,
+            "width": 22,
+            "height": 22,
+            "top": 681.203125,
+            "right": 119,
+            "bottom": 703.203125,
+            "left": 97
+          },
+          "sw": 22,
+          "cw": 22,
+          "overflow": "visible"
+        },
+        {
+          "sel": "nav:Caja",
+          "r": {
+            "x": 83.65625,
+            "y": 706.203125,
+            "width": 48.6875,
+            "height": 28.59375,
+            "top": 706.203125,
+            "right": 132.34375,
+            "bottom": 734.796875,
+            "left": 83.65625
+          },
+          "sw": 49,
+          "cw": 49,
+          "overflow": "visible"
+        },
+        {
+          "sel": "nav:",
+          "r": {
+            "x": 169,
+            "y": 681.203125,
+            "width": 22,
+            "height": 22,
+            "top": 681.203125,
+            "right": 191,
+            "bottom": 703.203125,
+            "left": 169
+          },
+          "sw": 22,
+          "cw": 22,
+          "overflow": "visible"
+        },
+        {
+          "sel": "nav:Ventas",
+          "r": {
+            "x": 139.984375,
+            "y": 706.203125,
+            "width": 80.03125,
+            "height": 28.59375,
+            "top": 706.203125,
+            "right": 220.015625,
+            "bottom": 734.796875,
+            "left": 139.984375
+          },
+          "sw": 80,
+          "cw": 80,
+          "overflow": "visible"
+        },
+        {
+          "sel": "nav:",
+          "r": {
+            "x": 241,
+            "y": 681.203125,
+            "width": 22,
+            "height": 22,
+            "top": 681.203125,
+            "right": 263,
+            "bottom": 703.203125,
+            "left": 241
+          },
+          "sw": 22,
+          "cw": 22,
+          "overflow": "visible"
+        },
+        {
+          "sel": "nav:Fiados",
+          "r": {
+            "x": 215.0625,
+            "y": 706.203125,
+            "width": 73.890625,
+            "height": 28.59375,
+            "top": 706.203125,
+            "right": 288.953125,
+            "bottom": 734.796875,
+            "left": 215.0625
+          },
+          "sw": 74,
+          "cw": 74,
+          "overflow": "visible"
+        },
+        {
+          "sel": "nav:Más",
+          "r": {
+            "x": 300.21875,
+            "y": 706.203125,
+            "width": 47.5625,
+            "height": 28.59375,
+            "top": 706.203125,
+            "right": 347.78125,
+            "bottom": 734.796875,
+            "left": 300.21875
+          },
+          "sw": 48,
+          "cw": 48,
+          "overflow": "visible"
+        }
+      ],
+      "overlaps": [
+        [
+          "add:Producto o servicio",
+          "nav:Inicio"
+        ],
+        [
+          "add:Producto o servicio",
+          "nav:Caja"
+        ],
+        [
+          "add:Producto o servicio",
+          "nav:Ventas"
+        ],
+        [
+          "add:Producto o servicio",
+          "nav:Fiados"
+        ],
+        [
+          "add:Producto o servicio",
+          "nav:Más"
+        ]
+      ],
+      "scrollWidth": 360,
+      "clientWidth": 360
+    }
+  },
+  "text200_max": {
+    "zoom200_max": {
+      "inner": {
+        "vw": 1280,
+        "vh": 800
+      },
+      "zoom": "2",
+      "fontSize": "16px",
+      "scroll": {
+        "deW": 1315,
+        "deCw": 1280,
+        "bodyW": 658,
+        "bodyCw": 640,
+        "deH": 2399
+      },
+      "hScroll": true,
+      "over": [
+        {
+          "tag": "LI",
+          "cls": "mc-caja-lines__head",
+          "text": "CONCEPTO\nCANTIDAD\nPRECIO\nIMPORTE",
+          "left": 535,
+          "right": 1315,
+          "w": 780
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "",
+          "left": 1223,
+          "right": 1311,
+          "w": 88
+        },
+        {
+          "tag": "LI",
+          "cls": "mc-caja-line",
+          "text": "Concepto\nCantidad\nPrecio\nImporte\n$9,989,999,9",
+          "left": 535,
+          "right": 1315,
+          "w": 780
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "mc-caja-icon-button",
+          "text": "Î",
+          "left": 1205,
+          "right": 1293,
+          "w": 88
+        }
+      ],
+      "clipped": [
+        {
+          "cls": "mc-caja-total-chip",
+          "sw": 353,
+          "cw": 353,
+          "overflowX": "visible",
+          "text": "TOTAL $9,989,999,990.01 VER COBRO"
+        },
+        {
+          "cls": "mc-caja-line",
+          "sw": 388,
+          "cw": 388,
+          "overflowX": "visible",
+          "text": "Concepto Cantidad Precio Importe $9,989,999,990.01 Î"
+        },
+        {
+          "cls": "mc-caja-line__total",
+          "sw": 96,
+          "cw": 96,
+          "overflowX": "visible",
+          "text": "Importe $9,989,999,990.01"
+        },
+        {
+          "cls": "mc-caja-card mc-caja-summary",
+          "sw": 348,
+          "cw": 318,
+          "overflowX": "visible",
+          "text": "COBRO Total de la venta $9,989,999,990.01 Lo que el cliente debe pagar"
+        }
+      ],
+      "paybar": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "main": {
+        "x": 420,
+        "y": 168.859375,
+        "width": 860,
+        "height": 2230.03125,
+        "top": 168.859375,
+        "right": 1280,
+        "bottom": 2398.890625,
+        "left": 420
+      },
+      "active": "INPUT:line-description-line_18b2b8e8-64b2-44a1-a076-e03064a13a0a"
+    },
+    "text200_max": {
+      "inner": {
+        "vw": 1280,
+        "vh": 800
+      },
+      "zoom": null,
+      "fontSize": "32px",
+      "scroll": {
+        "deW": 1280,
+        "deCw": 1280,
+        "bodyW": 1280,
+        "bodyCw": 1280,
+        "deH": 1907
+      },
+      "hScroll": false,
+      "over": [],
+      "clipped": [
+        {
+          "cls": "mc-caja-total-chip",
+          "sw": 467,
+          "cw": 467,
+          "overflowX": "visible",
+          "text": "TOTAL $9,989,999,990.01 VER COBRO"
+        },
+        {
+          "cls": "mc-caja-line",
+          "sw": 611,
+          "cw": 611,
+          "overflowX": "visible",
+          "text": "Concepto Cantidad Precio Importe $9,989,999,990.01 Î"
+        },
+        {
+          "cls": "mc-caja-line__total",
+          "sw": 96,
+          "cw": 96,
+          "overflowX": "visible",
+          "text": "Importe $9,989,999,990.01"
+        },
+        {
+          "cls": "mc-caja-card mc-caja-summary",
+          "sw": 348,
+          "cw": 319,
+          "overflowX": "visible",
+          "text": "COBRO Total de la venta $9,989,999,990.01 Lo que el cliente debe pagar"
+        }
+      ],
+      "paybar": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "main": {
+        "x": 210,
+        "y": 107.625,
+        "width": 1070,
+        "height": 1798.921875,
+        "top": 107.625,
+        "right": 1280,
+        "bottom": 1906.546875,
+        "left": 210
+      },
+      "active": "INPUT:line-description-line_c0257ede-6a28-4f11-a8f1-630591334728"
+    },
+    "mobile_max": {
+      "inner": {
+        "vw": 360,
+        "vh": 740
+      },
+      "zoom": null,
+      "fontSize": "16px",
+      "scroll": {
+        "deW": 360,
+        "deCw": 360,
+        "bodyW": 360,
+        "bodyCw": 360,
+        "deH": 1922
+      },
+      "hScroll": false,
+      "over": [],
+      "clipped": [
+        {
+          "cls": "mc-caja-total-chip",
+          "sw": 338,
+          "cw": 338,
+          "overflowX": "visible",
+          "text": "TOTAL $9,989,999,990.01 VER COBRO"
+        },
+        {
+          "cls": "mc-caja-line",
+          "sw": 300,
+          "cw": 300,
+          "overflowX": "visible",
+          "text": "Concepto Cantidad Precio Importe $9,989,999,990.01 Î"
+        },
+        {
+          "cls": "mc-caja-line__total",
+          "sw": 280,
+          "cw": 280,
+          "overflowX": "visible",
+          "text": "Importe $9,989,999,990.01"
+        },
+        {
+          "cls": "mc-caja-card mc-caja-summary",
+          "sw": 338,
+          "cw": 338,
+          "overflowX": "visible",
+          "text": "COBRO Total de la venta $9,989,999,990.01 Lo que el cliente debe pagar"
+        },
+        {
+          "cls": "mc-caja-paybar",
+          "sw": 360,
+          "cw": 360,
+          "overflowX": "visible",
+          "text": "TOTAL $9,989,999,990.01 Revisar cobro"
+        }
+      ],
+      "paybar": {
+        "x": 0,
+        "y": 611,
+        "width": 360,
+        "height": 65,
+        "top": 611,
+        "right": 360,
+        "bottom": 676,
+        "left": 0
+      },
+      "main": {
+        "x": 0,
+        "y": -227,
+        "width": 360,
+        "height": 1857.671875,
+        "top": -227,
+        "right": 360,
+        "bottom": 1630.671875,
+        "left": 0
+      },
+      "active": "INPUT:line-description-line_0a26777f-869b-43b5-ac6e-f12e4ff2e2b8"
+    },
+    "mobile_text200_max": {
+      "inner": {
+        "vw": 360,
+        "vh": 740
+      },
+      "zoom": null,
+      "fontSize": "32px",
+      "scroll": {
+        "deW": 360,
+        "deCw": 360,
+        "bodyW": 360,
+        "bodyCw": 360,
+        "deH": 3378
+      },
+      "hScroll": false,
+      "over": [],
+      "clipped": [
+        {
+          "cls": "mc-caja-total-chip",
+          "sw": 338,
+          "cw": 338,
+          "overflowX": "visible",
+          "text": "TOTAL $9,989,999,990.01 VER COBRO"
+        },
+        {
+          "cls": "mc-caja-line",
+          "sw": 300,
+          "cw": 300,
+          "overflowX": "visible",
+          "text": "Concepto Cantidad Precio Importe $9,989,999,990.01 Î"
+        },
+        {
+          "cls": "mc-caja-line__total",
+          "sw": 280,
+          "cw": 280,
+          "overflowX": "visible",
+          "text": "Importe $9,989,999,990.01"
+        },
+        {
+          "cls": "mc-caja-card mc-caja-summary",
+          "sw": 338,
+          "cw": 338,
+          "overflowX": "visible",
+          "text": "COBRO Total de la venta $9,989,999,990.01 Lo que el cliente debe pagar"
+        },
+        {
+          "cls": "mc-caja-paybar",
+          "sw": 360,
+          "cw": 360,
+          "overflowX": "visible",
+          "text": "TOTAL $9,989,999,990.01 Revisar cobro"
+        }
+      ],
+      "paybar": {
+        "x": 0,
+        "y": 591,
+        "width": 360,
+        "height": 85,
+        "top": 591,
+        "right": 360,
+        "bottom": 676,
+        "left": 0
+      },
+      "main": {
+        "x": 0,
+        "y": 167.5625,
+        "width": 360,
+        "height": 3210.515625,
+        "top": 167.5625,
+        "right": 360,
+        "bottom": 3378.078125,
+        "left": 0
+      },
+      "active": "INPUT:line-description-line_0a26777f-869b-43b5-ac6e-f12e4ff2e2b8"
+    }
+  },
+  "browser_zoom_equiv_max": {
+    "640x400": {
+      "vw": 640,
+      "scrollWidth": 640,
+      "clientWidth": 640,
+      "hScroll": false,
+      "over": [],
+      "paybar": {
+        "x": 0,
+        "y": 271,
+        "width": 640,
+        "height": 65,
+        "top": 271,
+        "right": 640,
+        "bottom": 336,
+        "left": 0
+      },
+      "nav": {
+        "x": 0,
+        "y": 335,
+        "width": 640,
+        "height": 65,
+        "top": 335,
+        "right": 640,
+        "bottom": 400,
+        "left": 0
+      },
+      "line": {
+        "x": 33,
+        "y": -36.421875,
+        "width": 574,
+        "height": 175.40625,
+        "top": -36.421875,
+        "right": 607,
+        "bottom": 138.984375,
+        "left": 33
+      }
+    },
+    "512x320": {
+      "vw": 512,
+      "scrollWidth": 512,
+      "clientWidth": 512,
+      "hScroll": false,
+      "over": [],
+      "paybar": {
+        "x": 0,
+        "y": 191,
+        "width": 512,
+        "height": 65,
+        "top": 191,
+        "right": 512,
+        "bottom": 256,
+        "left": 0
+      },
+      "nav": {
+        "x": 0,
+        "y": 255,
+        "width": 512,
+        "height": 65,
+        "top": 255,
+        "right": 512,
+        "bottom": 320,
+        "left": 0
+      },
+      "line": {
+        "x": 33,
+        "y": 12.578125,
+        "width": 446,
+        "height": 175.40625,
+        "top": 12.578125,
+        "right": 479,
+        "bottom": 187.984375,
+        "left": 33
+      }
+    },
+    "360x740": {
+      "vw": 360,
+      "scrollWidth": 360,
+      "clientWidth": 360,
+      "hScroll": false,
+      "over": [],
+      "paybar": {
+        "x": 0,
+        "y": 611,
+        "width": 360,
+        "height": 65,
+        "top": 611,
+        "right": 360,
+        "bottom": 676,
+        "left": 0
+      },
+      "nav": {
+        "x": 0,
+        "y": 675,
+        "width": 360,
+        "height": 65,
+        "top": 675,
+        "right": 360,
+        "bottom": 740,
+        "left": 0
+      },
+      "line": {
+        "x": 29,
+        "y": 127.21875,
+        "width": 302,
+        "height": 281.6875,
+        "top": 127.21875,
+        "right": 331,
+        "bottom": 408.90625,
+        "left": 29
+      }
+    }
+  },
+  "ventas_320_text200": {
+    "viewport": "320x640",
+    "fontSize": "32px",
+    "scrollWidth": 337,
+    "clientWidth": 320,
+    "hScroll": true,
+    "cause": "Siguiente link right=337 (pager grid) and mobile nav width=337; document scrollWidth=337.",
+    "evidence_screenshot": "a11y-ventas-320-text200.png"
+  },
+  "mobile_nav_360_text200": {
+    "viewport": "360x740",
+    "fontSize": "32px",
+    "cells_px": 72,
+    "labels": [
+      {
+        "text": "Inicio",
+        "x": 7.36,
+        "w": 57.27
+      },
+      {
+        "text": "Caja",
+        "x": 83.66,
+        "w": 48.69
+      },
+      {
+        "text": "Ventas",
+        "x": 139.98,
+        "w": 80.03
+      },
+      {
+        "text": "Fiados",
+        "x": 215.06,
+        "w": 73.89
+      },
+      {
+        "text": "Más",
+        "x": 300.22,
+        "w": 47.56
+      }
+    ],
+    "overlap": [
+      {
+        "a": "Ventas",
+        "b": "Fiados",
+        "px": 4.96
+      }
+    ],
+    "finding": "Las etiquetas Ventas (80.03) y Fiados (73.89) no caben en celdas de 72 px y se solapan 4.96 px."
+  }
+}

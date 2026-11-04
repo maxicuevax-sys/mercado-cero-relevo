@@ -1,0 +1,35 @@
+{
+  "mark": "AUDLOST1793812710",
+  "steps": [
+    {
+      "step": "abort_post_commit",
+      "alert": "No sabemos si la venta quedó registrada. Revisa tu conexión y toca Reintentar. Si cambias los productos o el monto, revisa Ventas antes de cobrar otra vez.",
+      "cta": "Reintentar venta",
+      "requestId": "sale_77ac891e-be56-4513-86de-e28df117c6cf",
+      "orders": [
+        {
+          "id": "ord_1b5738872ecb4a9b8813",
+          "status": "paid",
+          "total_cents": 4000
+        }
+      ]
+    },
+    {
+      "step": "reintento",
+      "requests": [
+        "sale_77ac891e-be56-4513-86de-e28df117c6cf",
+        "sale_77ac891e-be56-4513-86de-e28df117c6cf"
+      ],
+      "orders": [
+        {
+          "id": "ord_1b5738872ecb4a9b8813",
+          "status": "paid",
+          "total_cents": 4000
+        }
+      ],
+      "same_key": true,
+      "one_order": true
+    }
+  ],
+  "ok": true
+}

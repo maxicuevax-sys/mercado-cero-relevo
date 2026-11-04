@@ -1,0 +1,105 @@
+ARCHIVOS DE /caja
+web\src\app\caja\page.tsx
+web\src\components\caja\caja-screen.tsx
+web\src\components\caja\payment-panel.tsx
+web\src\components\caja\sale-line-items.tsx
+web\src\components\caja\sale-result.tsx
+web\src\components\caja\sale-summary.tsx
+web\src\components\caja\types.ts
+
+IMPORTS
+--- web\src\app\caja\page.tsx
+import type { Metadata } from "next";
+import { connection } from "next/server";
+import { CajaScreen } from "@/components/caja/caja-screen";
+import { MERCHANT, isDemoMode } from "@/lib/config";
+--- web\src\components\caja\caja-screen.tsx
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import type { DashboardData } from "@/lib/dashboard";
+import type { Order } from "@/lib/types";
+import { AppShell } from "@/components/shell/app-shell";
+import { TopBar } from "@/components/shell/top-bar";
+import { PageHeader } from "@/components/shell/page-header";
+import {
+import { CurrencyAmount } from "@/components/ui/currency-amount";
+import { formatLongDate } from "@/lib/format";
+import { SaleLineItems } from "./sale-line-items";
+import { SaleSummary } from "./sale-summary";
+import { PaymentPanel } from "./payment-panel";
+import { SaleResult } from "./sale-result";
+import {
+import "@/app/inicio/inicio.css";
+import "./caja.css";
+--- web\src\components\caja\payment-panel.tsx
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { CurrencyAmount } from "@/components/ui/currency-amount";
+import { formatMxn } from "@/lib/format";
+import type { Order } from "@/lib/types";
+--- web\src\components\caja\sale-line-items.tsx
+import { useState } from "react";
+import { CurrencyAmount } from "@/components/ui/currency-amount";
+import { lineTotalCents, newLineId, parseMoneyCents, parseQuantity, type DraftLine } from "./types";
+--- web\src\components\caja\sale-result.tsx
+import Link from "next/link";
+import { CurrencyAmount } from "@/components/ui/currency-amount";
+import { formatMxn } from "@/lib/format";
+import type { Order } from "@/lib/types";
+--- web\src\components\caja\sale-summary.tsx
+import { CurrencyAmount } from "@/components/ui/currency-amount";
+import { formatMxn } from "@/lib/format";
+import { parseMoneyCents, type PaymentChoice } from "./types";
+--- web\src\components\caja\types.ts
+
+LLAMADAS FETCH / RUTAS
+web\src\components\caja\caja-screen.tsx:118: void fetch(`/api/orders/${pendingId}`, { cache: "no-store" })
+web\src\components\caja\caja-screen.tsx:285: const response = await fetch("/api/orders", {
+web\src\components\caja\caja-screen.tsx:297: const detailResponse = await fetch(`/api/orders/${created.id}`, {
+web\src\components\caja\payment-panel.tsx:38: const response = await fetch(`/api/orders/${order.id}`, { cache: "no-store" });
+web\src\components\caja\payment-panel.tsx:67: const response = await fetch(`/api/orders/${order.id}/pay`, {
+web\src\components\caja\payment-panel.tsx:89: const response = await fetch(`/api/orders/${order.id}`, { cache: "no-store" });
+web\src\components\caja\payment-panel.tsx:111: const response = await fetch("/api/demo/pay", {
+
+BUSQUEDA DE DOMINIOS DE CATALOGO/INVENTARIO/PROVEEDORES
+web\src\components\caja\payment-panel.tsx:245: válida del proveedor.
+web\src\components\caja\sale-line-items.tsx:68: <p>Agrega uno a mano. No necesitas inventario ni micrófono.</p>
+web\src\components\caja\sale-result.tsx:56: ? "Se registraron efectivo y pago digital. Solo la parte digital pasó por el proveedor."
+web\src\components\caja\sale-result.tsx:57: : "El pago fue confirmado por el proveedor. No lo confirmó una captura ni un botón."
+web\src\components\caja\sale-result.tsx:140: Confirmación del proveedor, no de una captura.
+
+ESQUEMA ZOD DE POST /api/orders
+const itemSchema = z.object({
+  description: z.string().trim().min(1).max(MAX_ITEM_DESCRIPTION_CHARS),
+  quantity: z.number().positive().max(MAX_ITEM_QUANTITY),
+  unitPriceCents: z.number().int().positive().max(MAX_UNIT_PRICE_CENTS),
+});
+
+const createOrderSchema = z.object({
+  items: z.array(itemSchema).min(1).max(MAX_ORDER_ITEMS),
+  cashCents: z.number().int().nonnegative().max(MAX_ORDER_TOTAL_CENTS).optional(),
+  customerName: z
+    .string()
+    .trim()
+    .max(MAX_CUSTOMER_NAME_CHARS)
+    .nullable()
+    .optional(),
+  creditCents: z.number().int().nonnegative().max(MAX_ORDER_TOTAL_CENTS).optional(),
+  paymentMethod: z.enum(["codi", "card", "wallet", "cash", "mixed"]).optional(),
+  requestId: z.string().trim().max(MAX_REQUEST_ID_CHARS).optional(),
+});
+
+
+TABLAS CREADAS EN db.ts
+CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE IF NOT EXISTS order_items (
+CREATE TABLE IF NOT EXISTS payments (
+CREATE TABLE IF NOT EXISTS payment_events (
+CREATE TABLE IF NOT EXISTS customers (
+CREATE TABLE IF NOT EXISTS credits (
+CREATE TABLE IF NOT EXISTS credit_payments (
+CREATE TABLE IF NOT EXISTS audit_log (
+CREATE TABLE IF NOT EXISTS cash_closes (
+CREATE TABLE IF NOT EXISTS goals (
+CREATE TABLE IF NOT EXISTS goal_contributions (
+CREATE TABLE IF NOT EXISTS tasks (

@@ -1,0 +1,494 @@
+[
+  {
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "impact": "serious",
+        "count": 1,
+        "targets": [
+          [
+            ".inicio-demo"
+          ]
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "count": 9,
+        "targets": [
+          [
+            ".inicio-brand__name"
+          ],
+          [
+            ".inicio-nav__item[href$=\"inicio\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"ventas\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"fiados\"] > span:nth-child(2)"
+          ],
+          [
+            "a[aria-label=\"Corte de caja\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"metas\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"pendientes\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1#ajustes\"] > span:nth-child(2)"
+          ]
+        ]
+      }
+    ],
+    "passes": 41,
+    "name": "caja-desktop-empty"
+  },
+  {
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "impact": "serious",
+        "count": 1,
+        "targets": [
+          [
+            ".inicio-demo"
+          ]
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "count": 9,
+        "targets": [
+          [
+            ".inicio-brand__name"
+          ],
+          [
+            ".inicio-nav__item[href$=\"inicio\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"ventas\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"fiados\"] > span:nth-child(2)"
+          ],
+          [
+            "a[aria-label=\"Corte de caja\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"metas\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"pendientes\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1#ajustes\"] > span:nth-child(2)"
+          ]
+        ]
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "count": 1,
+        "targets": [
+          [
+            ".mc-caja-icon-button"
+          ]
+        ]
+      }
+    ],
+    "passes": 43,
+    "name": "caja-desktop-valid-cash"
+  },
+  {
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "impact": "serious",
+        "count": 1,
+        "targets": [
+          [
+            ".inicio-demo"
+          ]
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "count": 9,
+        "targets": [
+          [
+            ".inicio-brand__name"
+          ],
+          [
+            ".inicio-nav__item[href$=\"inicio\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"ventas\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"fiados\"] > span:nth-child(2)"
+          ],
+          [
+            "a[aria-label=\"Corte de caja\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"metas\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"pendientes\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1#ajustes\"] > span:nth-child(2)"
+          ]
+        ]
+      }
+    ],
+    "passes": 41,
+    "name": "caja-desktop-add-error"
+  },
+  {
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "impact": "serious",
+        "count": 1,
+        "targets": [
+          [
+            ".inicio-demo"
+          ]
+        ]
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "count": 1,
+        "targets": [
+          [
+            ".mc-caja-icon-button"
+          ]
+        ]
+      }
+    ],
+    "passes": 42,
+    "name": "caja-mobile-filled"
+  },
+  {
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "impact": "serious",
+        "count": 1,
+        "targets": [
+          [
+            ".inicio-demo"
+          ]
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "count": 9,
+        "targets": [
+          [
+            ".inicio-brand__name"
+          ],
+          [
+            ".inicio-nav__item[href$=\"inicio\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"ventas\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"fiados\"] > span:nth-child(2)"
+          ],
+          [
+            "a[aria-label=\"Corte de caja\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"metas\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"pendientes\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1#ajustes\"] > span:nth-child(2)"
+          ]
+        ]
+      }
+    ],
+    "passes": 37,
+    "name": "caja-payment-pending"
+  },
+  {
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "impact": "serious",
+        "count": 1,
+        "targets": [
+          [
+            ".inicio-demo"
+          ]
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "count": 9,
+        "targets": [
+          [
+            ".inicio-brand__name"
+          ],
+          [
+            ".inicio-nav__item[href$=\"inicio\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"caja\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"fiados\"] > span:nth-child(2)"
+          ],
+          [
+            "a[aria-label=\"Corte de caja\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"metas\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"pendientes\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1#ajustes\"] > span:nth-child(2)"
+          ]
+        ]
+      }
+    ],
+    "passes": 38,
+    "name": "ventas-desktop-p1"
+  },
+  {
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "impact": "serious",
+        "count": 1,
+        "targets": [
+          [
+            ".inicio-demo"
+          ]
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "count": 9,
+        "targets": [
+          [
+            ".inicio-brand__name"
+          ],
+          [
+            ".inicio-nav__item[href$=\"inicio\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"caja\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"fiados\"] > span:nth-child(2)"
+          ],
+          [
+            "a[aria-label=\"Corte de caja\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"metas\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"pendientes\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1#ajustes\"] > span:nth-child(2)"
+          ]
+        ]
+      }
+    ],
+    "passes": 38,
+    "name": "ventas-desktop-p2"
+  },
+  {
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "impact": "serious",
+        "count": 1,
+        "targets": [
+          [
+            ".inicio-demo"
+          ]
+        ]
+      }
+    ],
+    "passes": 37,
+    "name": "ventas-mobile"
+  },
+  {
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "impact": "serious",
+        "count": 1,
+        "targets": [
+          [
+            ".inicio-demo"
+          ]
+        ]
+      }
+    ],
+    "passes": 41,
+    "name": "caja-app-high-contrast"
+  },
+  {
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          [
+            ".inicio-brand__name"
+          ],
+          [
+            ".inicio-nav__item[href$=\"inicio\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"ventas\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"fiados\"] > span:nth-child(2)"
+          ],
+          [
+            "a[aria-label=\"Corte de caja\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"metas\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"pendientes\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1#ajustes\"] > span:nth-child(2)"
+          ],
+          [
+            ".mc-caja-method--active > span"
+          ]
+        ]
+      }
+    ],
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "impact": "serious",
+        "count": 1,
+        "targets": [
+          [
+            ".inicio-demo"
+          ]
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "count": 1,
+        "targets": [
+          [
+            ".inicio-avatar"
+          ]
+        ]
+      }
+    ],
+    "passes": 41,
+    "name": "caja-forced-colors"
+  },
+  {
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "impact": "serious",
+        "count": 1,
+        "targets": [
+          [
+            ".inicio-demo"
+          ]
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "count": 9,
+        "targets": [
+          [
+            ".inicio-brand__name"
+          ],
+          [
+            ".inicio-nav__item[href$=\"inicio\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"ventas\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"fiados\"] > span:nth-child(2)"
+          ],
+          [
+            "a[aria-label=\"Corte de caja\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"metas\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href$=\"pendientes\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1\"] > span:nth-child(2)"
+          ],
+          [
+            ".inicio-nav__item[href=\"/?ayuda=1#ajustes\"] > span:nth-child(2)"
+          ]
+        ]
+      }
+    ],
+    "passes": 39,
+    "name": "caja-result-demo-cash"
+  }
+]

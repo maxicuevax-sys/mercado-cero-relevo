@@ -1,0 +1,38 @@
+{
+  "mark": "AUD5021793812283",
+  "steps": [
+    {
+      "step": "error_502",
+      "alert": "El banco tardo en responder. Reintenta.",
+      "button": "Confirmar venta",
+      "requestId": "sale_66b4abdd-0eab-478e-accd-64206690cccc"
+    },
+    {
+      "step": "edicion_y_reintento",
+      "requests": [
+        "sale_66b4abdd-0eab-478e-accd-64206690cccc",
+        "sale_9061f4bd-2027-48b7-a66b-8a2728f5122b"
+      ],
+      "orders": [
+        {
+          "id": "ord_1eccbce9cce842e2968b",
+          "request_id": "sale_66b4abdd-0eab-478e-accd-64206690cccc",
+          "total_cents": 4000,
+          "paid_cents": 4000,
+          "status": "paid",
+          "created_at": "2026-11-04T17:11:28.617Z"
+        },
+        {
+          "id": "ord_3f37f6c5f19846778160",
+          "request_id": "sale_9061f4bd-2027-48b7-a66b-8a2728f5122b",
+          "total_cents": 8000,
+          "paid_cents": 8000,
+          "status": "paid",
+          "created_at": "2026-11-04T17:11:30.318Z"
+        }
+      ],
+      "duplicated": true
+    }
+  ],
+  "ok": true
+}

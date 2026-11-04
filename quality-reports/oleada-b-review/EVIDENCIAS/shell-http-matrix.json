@@ -1,0 +1,251 @@
+{
+  "base": "http://localhost:3100",
+  "health": {
+    "ok": true,
+    "buildSha": "4130e71d668e5e4693a8f5b634d2d2f953d21b02",
+    "node": "v25.7.0",
+    "uptimeSeconds": 956
+  },
+  "routes": [
+    {
+      "route": "/inicio",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/caja",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/caja?ayuda=1",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/caja?ayuda=1#ajustes",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/ventas",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/ventas?page=1",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/ventas?page=2",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/ventas?page=999",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/ventas?page=abc",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/ventas?page=0",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/ventas?ayuda=1",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/fiados",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=fiado",
+      "cacheControl": null,
+      "contentType": null,
+      "contentLength": null
+    },
+    {
+      "route": "/corte",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=corte",
+      "cacheControl": null,
+      "contentType": null,
+      "contentLength": null
+    },
+    {
+      "route": "/metas",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=meta",
+      "cacheControl": null,
+      "contentType": null,
+      "contentLength": null
+    },
+    {
+      "route": "/pendientes",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=pendientes",
+      "cacheControl": null,
+      "contentType": null,
+      "contentLength": null
+    },
+    {
+      "route": "/fiados?ayuda=1",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=fiado&ayuda=1",
+      "cacheControl": null,
+      "contentType": null,
+      "contentLength": null
+    },
+    {
+      "route": "/corte?ayuda=1#ajustes",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=corte&ayuda=1",
+      "cacheControl": null,
+      "contentType": null,
+      "contentLength": null
+    },
+    {
+      "route": "/metas?ayuda=1",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=meta&ayuda=1",
+      "cacheControl": null,
+      "contentType": null,
+      "contentLength": null
+    },
+    {
+      "route": "/pendientes?ayuda=1",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=pendientes&ayuda=1",
+      "cacheControl": null,
+      "contentType": null,
+      "contentLength": null
+    },
+    {
+      "route": "/",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/?tab=caja",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/?tab=fiado",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/?tab=corte",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/?tab=meta",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/?tab=pendientes",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/?tab=inventado",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/?ayuda=1",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/?ayuda=1#ajustes",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/pay/inexistente",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": null
+    },
+    {
+      "route": "/ruta-inexistente",
+      "status": 404,
+      "location": null,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": "12233"
+    }
+  ]
+}

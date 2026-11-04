@@ -1,0 +1,15 @@
+DEMO DB (temp, aislada; no es la DB del repo)
+
+orders demo_hist count: 14
+orders demo_seed count: 1
+credits abiertos:
+  id=demo_seed_cred_0c672dafd2ac44d4b1b3 order_id=None original=5000 balance=5000 demo=1
+ordenes demo con status:
+  demo_paid: 14
+  paid: 1
+  payment_pending: 1
+pagos por provider/method/demo:
+  provider=cash method=cash demo=1 n=1 cents=1000
+  provider=demo method=card demo=1 n=3 cents=51000
+  provider=demo method=cash demo=1 n=8 cents=142000
+  provider=demo method=codi demo=1 n=3 cents=38500

@@ -1,0 +1,10 @@
+{
+  "emulation": "Playwright reduced_motion=reduce en Chromium 156",
+  "viewport": "360x740",
+  "matches": true,
+  "button_transition_duration": "1e-05s",
+  "html_scroll_behavior": "auto",
+  "tab_wipe": "no presente en el DOM al medir",
+  "goToPayment": "usa matchMedia(prefers-reduced-motion) y behavior auto (codigo)",
+  "finding": "Sin animacion esencial ni transiciones largas; pasa."
+}

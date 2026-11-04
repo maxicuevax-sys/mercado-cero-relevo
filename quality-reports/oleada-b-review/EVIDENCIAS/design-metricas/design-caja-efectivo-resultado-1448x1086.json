@@ -1,0 +1,168 @@
+{
+  "url": "/caja",
+  "viewport": {
+    "w": 1448,
+    "h": 1086,
+    "dpr": 1
+  },
+  "doc": {
+    "scrollWidth": 1448,
+    "clientWidth": 1448,
+    "scrollHeight": 1086
+  },
+  "body": {
+    "background-color": "rgb(249, 246, 238)",
+    "font-family": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+    "font-size": "17px",
+    "color": "rgb(31, 38, 34)"
+  },
+  "shell": {
+    "background-color": "rgb(251, 243, 231)",
+    "background-image": "none",
+    "font-family": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Inter, \"Segoe UI\", sans-serif"
+  },
+  "main": {
+    "background-color": "rgb(249, 246, 238)",
+    "padding": "34px 34px 72px",
+    "font-family": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, \"Segoe UI\", sans-serif",
+    "color": "rgb(31, 38, 34)"
+  },
+  "topbar": {
+    "background-color": "rgb(251, 239, 226)",
+    "min-height": "100px",
+    "height": "100px",
+    "padding": "0px 30px"
+  },
+  "sidebar": {
+    "x": 0,
+    "y": 0,
+    "w": 236,
+    "h": 1086,
+    "bottom": 1086,
+    "right": 236
+  },
+  "header": {
+    "x": 270,
+    "y": 134,
+    "w": 1144,
+    "h": 94.9,
+    "bottom": 228.9,
+    "right": 1414
+  },
+  "h1": {
+    "x": 270,
+    "y": 155.4,
+    "w": 373.2,
+    "h": 44.3,
+    "bottom": 199.7,
+    "right": 643.2
+  },
+  "h1style": {
+    "font-family": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Hearth, Georgia, serif",
+    "font-size": "43.44px",
+    "font-weight": "600",
+    "line-height": "44.3088px",
+    "letter-spacing": "-1.5204px"
+  },
+  "pageActions": {
+    "x": 1260.7,
+    "y": 175,
+    "w": 153.3,
+    "h": 53.9,
+    "bottom": 228.9,
+    "right": 1414
+  },
+  "totalChip": {
+    "x": 1260.7,
+    "y": 175,
+    "w": 153.3,
+    "h": 53.9,
+    "bottom": 228.9,
+    "right": 1414
+  },
+  "total": null,
+  "totalStyle": null,
+  "card": {
+    "x": 462,
+    "y": 248.9,
+    "w": 760,
+    "h": 486.2,
+    "bottom": 735.1,
+    "right": 1222
+  },
+  "summary": null,
+  "confirm": null,
+  "paybar": null,
+  "ventasStats": null,
+  "ventasListHead": null,
+  "ventasFirstRow": null,
+  "mobileNav": {
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "bottom": 0,
+    "right": 0
+  },
+  "headings": [
+    {
+      "text": "Venta registrada",
+      "fs": "43.44px",
+      "ff": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Hearth, Georgia, serif",
+      "rect": {
+        "x": 270,
+        "y": 155.4,
+        "w": 373.2,
+        "h": 44.3
+      }
+    },
+    {
+      "text": "Venta cobrada en efectivo (demo)",
+      "fs": "31.856px",
+      "ff": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Hearth, Georgia, serif",
+      "rect": {
+        "x": 489,
+        "y": 295.3,
+        "w": 706,
+        "h": 34.4
+      }
+    }
+  ],
+  "fixed": [
+    {
+      "cls": "inicio-skip",
+      "tag": "A",
+      "rect": {
+        "x": 12,
+        "y": -76.4,
+        "w": 166,
+        "h": 48
+      }
+    }
+  ],
+  "over": [],
+  "smallTexts": [],
+  "statCards": [],
+  "cajaCards": [
+    {
+      "x": 462,
+      "y": 248.9,
+      "w": 760,
+      "h": 486.2
+    }
+  ],
+  "methods": [],
+  "activeNav": [
+    {
+      "text": "Caja",
+      "aria": "page"
+    },
+    {
+      "text": "Caja",
+      "aria": "page"
+    }
+  ],
+  "scrollY": 0,
+  "title": "Caja · Mercado Cero",
+  "bodyText": "Saltar al contenido\nMercado\nCero\nInicio\nInicio\nCaja\nVentas\nFiados\nCorte\nMetas\nPendientes\nAyuda\nAjustes\n\nAntojitos de Lupita\n\nCoyoacán, CDMX\n\nDEMO\nL\n\nCAJA\n\nVenta registrada\n\nRevisa el resultado antes de entregar o iniciar otra venta.\n\nTOTAL\n$70.00\n\nRESULTADO\n\nVenta cobrada en efectivo (demo)\n\nTOTAL DE LA VENTA\n\n$70.00\n\nEfectivo de demostración. No es dinero real ni una confirmación bancaria.\n\nPEDIDO\nAEB7\nESTADO\nDemo (simulado)\nRECIBISTE\n$100.00\nEFECTIVO APLICADO\n$70.00\nCAMBIO\n$30.00\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $70.00. Si el estado no es pagado, no entregues como cobrado.\n\nConcepto agregado.\n\nEl total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes."
+}

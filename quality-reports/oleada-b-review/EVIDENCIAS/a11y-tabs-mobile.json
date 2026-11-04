@@ -1,0 +1,669 @@
+{
+  "init": {
+    "inner": {
+      "w": 360,
+      "h": 740
+    },
+    "scroll": {
+      "w": 360,
+      "h": 1606
+    },
+    "navs": [
+      {
+        "cls": "inicio-nav",
+        "visible": false,
+        "label": "Principal",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      {
+        "cls": "mc-mobile-nav",
+        "visible": true,
+        "label": "Principal",
+        "box": {
+          "x": 0,
+          "y": 675,
+          "width": 360,
+          "height": 65,
+          "top": 675,
+          "right": 360,
+          "bottom": 740,
+          "left": 0
+        }
+      }
+    ],
+    "mains": [
+      {
+        "id": "caja-main",
+        "visible": true
+      }
+    ],
+    "currents": [
+      {
+        "text": "Caja",
+        "visible": false,
+        "box": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      {
+        "text": "Caja",
+        "visible": true,
+        "box": {
+          "x": 72,
+          "y": 676,
+          "width": 72,
+          "height": 64,
+          "top": 676,
+          "right": 144,
+          "bottom": 740,
+          "left": 72
+        }
+      }
+    ],
+    "skips": [
+      {
+        "visible": true,
+        "box": {
+          "x": 12,
+          "y": -76.4000015258789,
+          "width": 165.953125,
+          "height": 48,
+          "top": -76.4000015258789,
+          "right": 177.953125,
+          "bottom": -28.400001525878906,
+          "left": 12
+        }
+      }
+    ],
+    "paybar": null,
+    "targets": [
+      {
+        "tag": "A",
+        "name": "Caja clßsica",
+        "w": 297,
+        "h": 34
+      }
+    ]
+  },
+  "afterAdd": {
+    "tag": "INPUT",
+    "id": "line-description-line_74cb8a7b-be78-4689-b905-4c426c9f2cc0",
+    "cls": "",
+    "name": "",
+    "rect": {
+      "x": 40,
+      "y": 162,
+      "w": 280,
+      "h": 48,
+      "bottom": 210
+    },
+    "offscreen": false,
+    "covered": false,
+    "coveredBy": null,
+    "intersectsPaybar": false,
+    "intersectsMobileNav": false,
+    "focusVisible": true,
+    "outline": "3px solid",
+    "disabled": false
+  },
+  "paybar": {
+    "display": "flex",
+    "box": {
+      "x": 0,
+      "y": 611,
+      "width": 360,
+      "height": 65,
+      "top": 611,
+      "right": 360,
+      "bottom": 676,
+      "left": 0
+    },
+    "z": "45"
+  },
+  "tabSequence": [
+    {
+      "tag": "INPUT",
+      "id": "line-quantity-line_74cb8a7b-be78-4689-b905-4c426c9f2cc0",
+      "cls": "",
+      "name": "",
+      "rect": {
+        "x": 40,
+        "y": 242,
+        "w": 136,
+        "h": 48,
+        "bottom": 290
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 1
+    },
+    {
+      "tag": "INPUT",
+      "id": "line-price-line_74cb8a7b-be78-4689-b905-4c426c9f2cc0",
+      "cls": "",
+      "name": "",
+      "rect": {
+        "x": 184,
+        "y": 242,
+        "w": 136,
+        "h": 48,
+        "bottom": 290
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 2
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "cls": "mc-caja-icon-button",
+      "name": "Î",
+      "rect": {
+        "x": 184,
+        "y": 316,
+        "w": 44,
+        "h": 44,
+        "bottom": 360
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 3
+    },
+    {
+      "tag": "INPUT",
+      "id": "mc-caja-new-description",
+      "cls": "",
+      "name": "Ej. Quesadilla",
+      "rect": {
+        "x": 29,
+        "y": 312,
+        "w": 302,
+        "h": 48,
+        "bottom": 360
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 4
+    },
+    {
+      "tag": "INPUT",
+      "id": "",
+      "cls": "",
+      "name": "",
+      "rect": {
+        "x": 29,
+        "y": 312,
+        "w": 146,
+        "h": 48,
+        "bottom": 360
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 5
+    },
+    {
+      "tag": "INPUT",
+      "id": "",
+      "cls": "",
+      "name": "0.00",
+      "rect": {
+        "x": 185,
+        "y": 312,
+        "w": 146,
+        "h": 48,
+        "bottom": 360
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 6
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "cls": "mc-caja-button mc-caja-button--secondary",
+      "name": "+\nAgregar",
+      "rect": {
+        "x": 29,
+        "y": 312,
+        "w": 302,
+        "h": 48,
+        "bottom": 360
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 7
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "cls": "mc-caja-method mc-caja-method--active",
+      "name": "Efectivo",
+      "rect": {
+        "x": 29,
+        "y": 162,
+        "w": 148,
+        "h": 48,
+        "bottom": 210
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 8
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "cls": "mc-caja-method",
+      "name": "Digital",
+      "rect": {
+        "x": 183,
+        "y": 162,
+        "w": 148,
+        "h": 48,
+        "bottom": 210
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 9
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "cls": "mc-caja-method",
+      "name": "Fiado",
+      "rect": {
+        "x": 29,
+        "y": 216,
+        "w": 148,
+        "h": 48,
+        "bottom": 264
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 10
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "cls": "mc-caja-method",
+      "name": "Mixto",
+      "rect": {
+        "x": 183,
+        "y": 216,
+        "w": 148,
+        "h": 48,
+        "bottom": 264
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 11
+    },
+    {
+      "tag": "INPUT",
+      "id": "",
+      "cls": "",
+      "name": "0.00",
+      "rect": {
+        "x": 29,
+        "y": 303,
+        "w": 302,
+        "h": 48,
+        "bottom": 351
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 12
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "cls": "mc-caja-clear",
+      "name": "Descartar venta",
+      "rect": {
+        "x": 29,
+        "y": 413,
+        "w": 117,
+        "h": 44,
+        "bottom": 457
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 13
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "cls": "mc-caja-button mc-caja-button--secondary",
+      "name": "Revisar cobro",
+      "rect": {
+        "x": 218,
+        "y": 620,
+        "w": 128,
+        "h": 48,
+        "bottom": 668
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": true,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 14
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "cls": "",
+      "name": "Caja clßsica",
+      "rect": {
+        "x": 10,
+        "y": 536,
+        "w": 297,
+        "h": 34,
+        "bottom": 569
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 15
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "cls": "mc-mobile-nav__item",
+      "name": "Inicio",
+      "rect": {
+        "x": 0,
+        "y": 676,
+        "w": 72,
+        "h": 64,
+        "bottom": 740
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": true,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 16
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "cls": "mc-mobile-nav__item",
+      "name": "Caja",
+      "rect": {
+        "x": 72,
+        "y": 676,
+        "w": 72,
+        "h": 64,
+        "bottom": 740
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": true,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 17
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "cls": "mc-mobile-nav__item",
+      "name": "Ventas",
+      "rect": {
+        "x": 144,
+        "y": 676,
+        "w": 72,
+        "h": 64,
+        "bottom": 740
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": true,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 18
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "cls": "mc-mobile-nav__item",
+      "name": "Fiados",
+      "rect": {
+        "x": 216,
+        "y": 676,
+        "w": 72,
+        "h": 64,
+        "bottom": 740
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": true,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 19
+    },
+    {
+      "tag": "SUMMARY",
+      "id": "",
+      "cls": "mc-mobile-nav__item",
+      "name": "Mßs",
+      "rect": {
+        "x": 288,
+        "y": 676,
+        "w": 72,
+        "h": 64,
+        "bottom": 740
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": true,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 20
+    },
+    {
+      "tag": "BODY",
+      "id": "",
+      "cls": "min-h-full",
+      "name": "Saltar al contenido\n\nAntojitos de Lupita\n\nCoyoacßn",
+      "rect": {
+        "x": 0,
+        "y": -1154,
+        "w": 360,
+        "h": 740,
+        "bottom": -414
+      },
+      "offscreen": true,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": false,
+      "outline": "3px none",
+      "disabled": false,
+      "n": 21
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "cls": "inicio-skip",
+      "name": "Saltar al contenido",
+      "rect": {
+        "x": 12,
+        "y": 10,
+        "w": 166,
+        "h": 48,
+        "bottom": 58
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 22
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "cls": "inicio-topbar__icon",
+      "name": "Ir a Inicio",
+      "rect": {
+        "x": 12,
+        "y": 8,
+        "w": 48,
+        "h": 48,
+        "bottom": 56
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 23
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "cls": "mc-caja-total-chip",
+      "name": "TOTAL\n$70.00\nVER COBRO",
+      "rect": {
+        "x": 10,
+        "y": 202,
+        "w": 340,
+        "h": 53,
+        "bottom": 256
+      },
+      "offscreen": false,
+      "covered": false,
+      "coveredBy": null,
+      "intersectsPaybar": false,
+      "intersectsMobileNav": false,
+      "focusVisible": true,
+      "outline": "3px solid",
+      "disabled": false,
+      "n": 24
+    }
+  ]
+}

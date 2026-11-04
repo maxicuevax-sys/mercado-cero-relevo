@@ -1,0 +1,40 @@
+{
+  "results": [
+    {
+      "name": "new caja shows v2 draft",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "detour reaches legacy fiado",
+      "ok": true,
+      "detail": "http://localhost:3100/?tab=fiado"
+    },
+    {
+      "name": "legacy sidebar exposes its own Caja",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "legacy Caja tab does not navigate to /caja",
+      "ok": true,
+      "detail": "http://localhost:3100/?tab=fiado"
+    },
+    {
+      "name": "legacy Caja composer is visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "new caja composer is not visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "v2 draft is still stored but not shown",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "failed": 0
+}

@@ -1,0 +1,229 @@
+
+== 1. Modo demo implicito si falta PEY_API_KEY ==
+export function isDemoMode(): boolean {
+  if (process.env.DEMO_MODE === "true") return true;
+  if (process.env.DEMO_MODE === "false") return false;
+  return !process.env.PEY_API_KEY;
+}
+
+
+== 2. Seed demo (solo demo; credito sin order) ==
+/**
+ * Fixtures de demo. Nunca se siembran en modo real: una caja que arranca en
+ * producción debe tener 0 pedidos, 0 efectivo, 0 fiado y 0 metas.
+ * Los ids y el proveedor quedan marcados para que los reportes reales los
+ * puedan excluir incluso si alguien cambia DEMO_MODE sobre una base vieja.
+ */
+function seed(database: DatabaseSync) {
+  if (!isDemoMode()) return;
+  const count = database
+    .prepare(
+      "SELECT COUNT(*) AS n FROM customers WHERE demo = 1 AND lower(name) = 'juan'",
+    )
+    .get() as { n: number };
+  if (count.n > 0) return;
+
+  const createdAt = nowIso();
+  const juanId = newId("demo_seed_cus");
+  database
+    .prepare(
+      "INSERT INTO customers (id, name, phone, demo, created_at) VALUES (?, ?, ?, 1, ?)",
+    )
+    .run(juanId, "Juan", null, createdAt);
+
+  const creditId = newId("demo_seed_cred");
+  database
+    .prepare(
+      "INSERT INTO credits (id, customer_id, order_id, original_cents, balance_cents, status, due_date, demo, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)",
+    )
+    .run(creditId, juanId, null, 5000, 5000, "open", null, createdAt);
+
+  const orderId = newId("demo_seed_ord");
+  database
+    .prepare(
+      "INSERT INTO orders (id, merchant_id, status, total_cents, paid_cents, payment_method, customer_name, credit_id, demo, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)",
+    )
+    .run(orderId, MERCHANT.id, "demo_paid", 7000, 7000, "cash", null, null, createdAt, createdAt);
+  database
+    .prepare(
+      "INSERT INTO order_items (id, order_id, description, quantity, unit_price_cents, total_cents) VALUES (?, ?, ?, ?, ?, ?)",
+    )
+    .run(newId("demo_seed_itm"), orderId, "Quesadilla", 2, 3500, 7000);
+  database
+    .prepare(
+      "INSERT INTO payments (id, order_id, provider, method, amount_cents, status, transaction_id, demo, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)",
+    )
+    .run(
+      newId("demo_seed_pay"),
+      orderId,
+      "demo",
+      "cash",
+      7000,
+      "paid",
+      `demo_seed_txn_${orderId}`,
+      createdAt,
+    );
+}
+
+== 3. Historia demo (13 ventas + 1 pendiente + corte de ayer) ==
+function seedDemoHistory(database: DatabaseSync) {
+  if (!isDemoMode()) return;
+
+  const existing = database
+    .prepare("SELECT COUNT(*) AS n FROM orders WHERE id LIKE 'demo_hist_%'")
+    .get() as { n: number };
+  if (existing.n > 0) return;
+
+  const history: Array<{
+    daysAgo: number;
+    method: "cash" | "card" | "codi";
+    items: Array<[string, number, number]>;
+  }> = [
+    { daysAgo: 1, method: "cash", items: [["Quesadillas", 3, 3500], ["Agua de horchata", 2, 2500]] },
+    { daysAgo: 2, method: "card", items: [["Tlayuda", 2, 5500], ["Refresco", 2, 2500]] },
+    { daysAgo: 3, method: "cash", items: [["Tacos al pastor", 4, 3000], ["Agua de jamaica", 2, 2000]] },
+    { daysAgo: 4, method: "codi", items: [["Quesadilla", 2, 3500], ["Café de olla", 1, 2500]] },
+    { daysAgo: 5, method: "cash", items: [["Tortas", 3, 4500], ["Refresco", 3, 2500]] },
+    { daysAgo: 6, method: "card", items: [["Enchiladas", 2, 6000], ["Agua", 2, 2000]] },
+    { daysAgo: 8, method: "cash", items: [["Tamales", 6, 2500], ["Atole", 4, 2000]] },
+    { daysAgo: 10, method: "codi", items: [["Tlayuda", 2, 5500], ["Agua de horchata", 2, 2500]] },
+    { daysAgo: 12, method: "cash", items: [["Quesadillas", 4, 3500], ["Refresco", 4, 2500]] },
+    { daysAgo: 15, method: "card", items: [["Pozole", 2, 7500], ["Agua", 2, 2000]] },
+    { daysAgo: 18, method: "cash", items: [["Tacos dorados", 5, 3000], ["Agua de jamaica", 2, 2000]] },
+    { daysAgo: 21, method: "codi", items: [["Tortas", 2, 4500], ["Café", 2, 2000]] },
+    { daysAgo: 25, method: "cash", items: [["Quesadillas", 3, 3500], ["Atole", 3, 2000]] },
+  ];
+
+  for (const day of history) {
+    const createdAt = new Date(Date.now() - day.daysAgo * 24 * 60 * 60 * 1000);
+    createdAt.setHours(13 + (day.daysAgo % 5), 20, 0, 0);
+    const id = `demo_hist_${day.daysAgo}_${newId("ord")}`;
+  // A las 00:00–00:10, "hace 10 minutos" cae en el día anterior y el fixture
+  // deja de contar como pendiente de hoy. Se ancla al menos a las 00:01 de
+  // México para que la demo y el preflight no dependan de la hora de arranque.
+  const pendingCreatedAt = new Date(
+    Math.max(
+      Date.now() - 10 * 60 * 1000,
+      startOfMexicoDay(0).getTime() + 60 * 1000,
+    ),
+  );
+  const pendingId = `demo_hist_pending_${newId("ord")}`;
+  const appUrl = (process.env.APP_URL ?? "http://localhost:3000").replace(/\/+$/, "");
+  database
+    .prepare(
+      `INSERT INTO orders
+       (id, merchant_id, status, total_cents, paid_cents, payment_method,
+        payment_link_id, payment_url, demo, created_at, updated_at)
+       VALUES (?, ?, 'payment_pending', 12000, 0, NULL, ?, ?, 1, ?, ?)`,
+    )
+    .run(
+      pendingId,
+      MERCHANT.id,
+      `demo_link_${pendingId}`,
+      `${appUrl}/pay/${pendingId}?demo=1`,
+      pendingCreatedAt.toISOString(),
+      pendingCreatedAt.toISOString(),
+    );
+  database
+    .prepare(
+      `INSERT INTO order_items
+       (id, order_id, description, quantity, unit_price_cents, total_cents)
+       VALUES (?, ?, 'Pedido para llevar', 1, 12000, 12000)`,
+    )
+    .run(newId("itm"), pendingId);
+
+  // Un corte de ayer deja una base de cambio para hoy.
+  const yesterday = mexicoDateKey(new Date(Date.now() - 24 * 60 * 60 * 1000));
+  const existingClose = database
+    .prepare("SELECT COUNT(*) AS n FROM cash_closes WHERE date = ?")
+
+== 4. Catalogo hardcodeado del parser legacy (no lo usa /caja) ==
+// Parser local puro: sin OpenAI y seguro para pruebas Node.
+
+import type { ParsedSale } from "./types";
+
+export const CATALOG = [
+  { name: "Quesadilla", priceCents: 3500 },
+  { name: "Agua", priceCents: 2000 },
+  { name: "Refresco", priceCents: 2200 },
+  { name: "Atole", priceCents: 2500 },
+  { name: "Taco", priceCents: 1800 },
+  { name: "Tortilla (kilo)", priceCents: 2500 },
+  { name: "Pan", priceCents: 800 },
+  { name: "Café", priceCents: 1500 },
+  { name: "Jugo", priceCents: 1800 },
+  { name: "Elote", priceCents: 2000 },
+  { name: "Tamal", priceCents: 2200 },
+  { name: "Sope", priceCents: 2500 },
+];
+
+const NUMBER_WORDS: Record<string, number> = {
+web\src\lib\voice.ts:5: import { CATALOG, mockParse } from "./voice-local";
+web\src\lib\voice.ts:55: const catalogText = CATALOG.map(
+web\src\lib\voice.ts:69: ${catalogText}
+
+== 5. Fixture visual 'Revisar inventario' (solo demo, etiquetado Ejemplo) ==
+  const homeTasks = tasks.length
+    ? tasks.map((task) => ({
+        id: task.id,
+        title: task.title,
+        meta: formatActivityDate(task.dueAt ?? task.postponedUntil ?? task.createdAt),
+        done: false,
+        fixture: false,
+      }))
+    : demo
+      ? [
+          { id: "fixture-1", title: "Recibir pedido", meta: "11:00 a.m.", done: false, fixture: true },
+          { id: "fixture-2", title: "Cobrar a Juan", meta: "$50.00", done: true, fixture: true },
+          { id: "fixture-3", title: "Revisar inventario", meta: "", done: false, fixture: true },
+        ]
+      : [];
+  const taskFixture = !tasks.length && demo;
+
+  return (
+        {homeTasks.length ? (
+          <ul className="inicio-pending__list">
+            {homeTasks.map((task) => (
+              <li key={task.id} className="inicio-task">
+                <span
+                  className={`inicio-task__check${task.done ? " inicio-task__check--done" : ""}`}
+                  aria-hidden="true"
+                />
+                {task.done ? <span className="sr-only">Hecho: </span> : null}
+                <span className="inicio-task__title">{task.title}</span>
+                {task.fixture ? <span className="inicio-task__badge">Ejemplo</span> : null}
+                <span className="inicio-task__time">{task.meta}</span>
+        {taskFixture ? (
+          <p className="inicio-pending__fixture">
+            Ejemplos demo; no son tareas reales. Se administran en Tareas.
+          </p>
+        ) : null}
+
+== 6. No hay tablas de productos/inventario/proveedores (runtime temp real) ==
+request_id TEXT
+request_hash TEXT
+demo INTEGER
+created_at TEXT
+updated_at TEXT
+
+PRODUCT_LIKE_TABLES
+(none)
+
+== 7. El smoke usa productos fijos, pero son datos de prueba, no producto ==
+web\scripts\oleada-b-smoke.py:37: f"{BASE}/api/demo/reset",
+web\scripts\oleada-b-smoke.py:47: def add_item(page, description: str, quantity: str, price: str) -> None:
+web\scripts\oleada-b-smoke.py:93: add_item(page, "Quesadilla", "2", "35")
+web\scripts\oleada-b-smoke.py:95: add_item(page, "Agua", "1", "20")
+web\scripts\oleada-b-smoke.py:101: page.locator(".mc-caja-line").last.get_by_role("button", name="Quitar Agua").click()
+web\scripts\oleada-b-smoke.py:121: add_item(page, "Mil", "1", "1,000")
+web\scripts\oleada-b-smoke.py:123: add_item(page, "Mil decimal", "1", "1,234.50")
+web\scripts\oleada-b-smoke.py:128: add_item(page, "Fracci�n", "1/2", "10")
+web\scripts\oleada-b-smoke.py:138: add_item(page, "Insuficiente", "1", "90")
+web\scripts\oleada-b-smoke.py:145: add_item(page, "Cambio m�todo", "1", "50")
+web\scripts\oleada-b-smoke.py:159: add_item(page, "Doble", "1", "30")
+web\scripts\oleada-b-smoke.py:171: add_item(page, "Reintento", "1", "40")
+web\scripts\oleada-b-smoke.py:206: add_item(page, "Digital", "1", "50")
+web\scripts\oleada-b-smoke.py:233: add_item(page, "Fiado", "1", "100")
+web\scripts\oleada-b-smoke.py:264: add_item(page, "Mixta", "1", "90")
+web\scripts\oleada-b-smoke.py:285: add_item(page, "Borrador", "2", "25")
+web\scripts\oleada-b-smoke.py:341: add_item(page, "Importe m�ximo", "1", "1,000,000")

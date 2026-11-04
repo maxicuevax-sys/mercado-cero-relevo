@@ -1,0 +1,71 @@
+
+== Hash actual de createOrder (orders.ts 196-207) ==
+  const requestHash = requestId
+    ? requestPayloadHash({
+        items: items.map((item) => ({
+          description: item.description,
+          quantity: item.quantity,
+          unitPriceCents: item.unitPriceCents,
+        })),
+        cashCents,
+        creditCents,
+        customerName,
+      })
+    : null;
+
+  const database = getDb();
+
+== Canonicalizacion (request-hash.ts 12-30) ==
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const sorted: Record<string, unknown> = {};
+    for (const key of Object.keys(record).sort()) {
+      sorted[key] = canonicalize(record[key]);
+    }
+    return sorted;
+  }
+  return value;
+}
+
+export function requestPayloadHash(payload: Record<string, unknown>): string {
+  return crypto
+    .createHash("sha256")
+    .update(JSON.stringify(canonicalize(payload)))
+    .digest("hex");
+}
+
+== Zod de items (api/orders/route.ts 30-48) ==
+const itemSchema = z.object({
+  description: z.string().trim().min(1).max(MAX_ITEM_DESCRIPTION_CHARS),
+  quantity: z.number().positive().max(MAX_ITEM_QUANTITY),
+  unitPriceCents: z.number().int().positive().max(MAX_UNIT_PRICE_CENTS),
+});
+
+const createOrderSchema = z.object({
+  items: z.array(itemSchema).min(1).max(MAX_ORDER_ITEMS),
+  cashCents: z.number().int().nonnegative().max(MAX_ORDER_TOTAL_CENTS).optional(),
+  customerName: z
+    .string()
+    .trim()
+    .max(MAX_CUSTOMER_NAME_CHARS)
+    .nullable()
+    .optional(),
+  creditCents: z.number().int().nonnegative().max(MAX_ORDER_TOTAL_CENTS).optional(),
+  paymentMethod: z.enum(["codi", "card", "wallet", "cash", "mixed"]).optional(),
+  requestId: z.string().trim().max(MAX_REQUEST_ID_CHARS).optional(),
+});
+
+
+== Runtime: campos desconocidos se descartan y dos productId distintos reutilizan la misma orden ==
+POST1_STATUS 201
+POST1_ITEM {"id": "itm_a8a9ae28ec69413bbde4", "description": "Producto con provenance", "quantity": 1, "unitPriceCents": 1000, "totalCents": 1000}
+POST1_PAYMENT_METHOD cash
+POST1_ORDER_ID ord_fa566ec69b9842b29fee
+POST2_STATUS 201
+POST2_SAME_ORDER True
+POST2_ITEM {"id": "itm_a8a9ae28ec69413bbde4", "description": "Producto con provenance", "quantity": 1, "unitPriceCents": 1000, "totalCents": 1000}
+GET_STATUS 200
+GET_ITEM {"id": "itm_a8a9ae28ec69413bbde4", "description": "Producto con provenance", "quantity": 1, "unitPriceCents": 1000, "totalCents": 1000}
+GET_ITEM_KEYS ['description', 'id', 'quantity', 'totalCents', 'unitPriceCents']

@@ -1,0 +1,593 @@
+{
+  "url": "/ventas",
+  "viewport": {
+    "w": 320,
+    "h": 640,
+    "dpr": 1
+  },
+  "doc": {
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "scrollHeight": 6876
+  },
+  "body": {
+    "background-color": "rgb(249, 246, 238)",
+    "font-family": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+    "font-size": "17px",
+    "color": "rgb(31, 38, 34)"
+  },
+  "shell": {
+    "background-color": "rgb(251, 243, 231)",
+    "background-image": "none",
+    "font-family": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Inter, \"Segoe UI\", sans-serif"
+  },
+  "main": {
+    "background-color": "rgb(249, 246, 238)",
+    "padding": "16px 10px 96px",
+    "font-family": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, \"Segoe UI\", sans-serif",
+    "color": "rgb(31, 38, 34)"
+  },
+  "topbar": {
+    "background-color": "rgb(251, 239, 226)",
+    "min-height": "64px",
+    "height": "64px",
+    "padding": "0px 12px"
+  },
+  "sidebar": {
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "bottom": 0,
+    "right": 0
+  },
+  "header": {
+    "x": 10,
+    "y": 80,
+    "w": 300,
+    "h": 170.4,
+    "bottom": 250.4,
+    "right": 310
+  },
+  "h1": {
+    "x": 10,
+    "y": 101.4,
+    "w": 300,
+    "h": 32.6,
+    "bottom": 134,
+    "right": 310
+  },
+  "h1style": {
+    "font-family": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Hearth, Georgia, serif",
+    "font-size": "32px",
+    "font-weight": "600",
+    "line-height": "32.64px",
+    "letter-spacing": "-1.12px"
+  },
+  "pageActions": {
+    "x": 10,
+    "y": 202.4,
+    "w": 125,
+    "h": 48,
+    "bottom": 250.4,
+    "right": 135
+  },
+  "totalChip": null,
+  "total": null,
+  "totalStyle": null,
+  "card": null,
+  "summary": null,
+  "confirm": null,
+  "paybar": null,
+  "ventasStats": {
+    "x": 10,
+    "y": 270.4,
+    "w": 300,
+    "h": 316.9,
+    "bottom": 587.3,
+    "right": 310
+  },
+  "ventasListHead": {
+    "x": 10,
+    "y": 609.3,
+    "w": 300,
+    "h": 68.9,
+    "bottom": 678.1,
+    "right": 310
+  },
+  "ventasFirstRow": {
+    "x": 10,
+    "y": 688.1,
+    "w": 300,
+    "h": 217.6,
+    "bottom": 905.8,
+    "right": 310
+  },
+  "mobileNav": {
+    "x": 0,
+    "y": 575,
+    "w": 320,
+    "h": 65,
+    "bottom": 640,
+    "right": 320
+  },
+  "headings": [
+    {
+      "text": "Ventas",
+      "fs": "32px",
+      "ff": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Hearth, Georgia, serif",
+      "rect": {
+        "x": 10,
+        "y": 101.4,
+        "w": 300,
+        "h": 32.6
+      }
+    },
+    {
+      "text": "Ventas registradas",
+      "fs": "28px",
+      "ff": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Hearth, Georgia, serif",
+      "rect": {
+        "x": 10,
+        "y": 609.3,
+        "w": 276.7,
+        "h": 40.6
+      }
+    },
+    {
+      "text": "Pedido 99BA",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 703.5,
+        "w": 97.5,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido AEB7",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 929.2,
+        "w": 97.1,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido A8EE",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 1154.8,
+        "w": 95.8,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido B5DA",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 1400.8,
+        "w": 99.2,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido AD3C",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 163.7,
+        "y": 1646.8,
+        "w": 97.3,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido 94B0",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 1892.8,
+        "w": 95.8,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido 97AF",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 163.7,
+        "y": 2118.4,
+        "w": 95.4,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido ABF0",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 2364.4,
+        "w": 96.6,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido 8D83",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 163.7,
+        "y": 2610.4,
+        "w": 96.5,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido B5B8",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 2856.4,
+        "w": 97,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido BA0A",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 3082,
+        "w": 98.9,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido 994F",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 163.7,
+        "y": 3328,
+        "w": 94,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido AC23",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 3574,
+        "w": 95.5,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido BB1A",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 3799.6,
+        "w": 98.7,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido 92D2",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 163.7,
+        "y": 4045.6,
+        "w": 96.5,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido B2CB",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 4291.6,
+        "w": 96.3,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido B02A",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 163.7,
+        "y": 4517.2,
+        "w": 97.5,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido B0F9",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 4763.2,
+        "w": 95.1,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido B3DA",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 5009.2,
+        "w": 99.2,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido A3FA",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 5234.8,
+        "w": 97.1,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido BDC9",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 163.7,
+        "y": 5460.4,
+        "w": 96.9,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido BC6F",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 5706.4,
+        "w": 94.4,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido A050",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 163.7,
+        "y": 5932,
+        "w": 96.3,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido 8AEE",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 163.7,
+        "y": 6178,
+        "w": 95.6,
+        "h": 23.2
+      }
+    },
+    {
+      "text": "Pedido A63C",
+      "fs": "16px",
+      "ff": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+      "rect": {
+        "x": 86.4,
+        "y": 6424,
+        "w": 95.6,
+        "h": 23.2
+      }
+    }
+  ],
+  "fixed": [
+    {
+      "cls": "inicio-skip",
+      "tag": "A",
+      "rect": {
+        "x": 12,
+        "y": -76.4,
+        "w": 166,
+        "h": 48
+      }
+    },
+    {
+      "cls": "mc-mobile-nav",
+      "tag": "NAV",
+      "rect": {
+        "x": 0,
+        "y": 575,
+        "w": 320,
+        "h": 65
+      }
+    }
+  ],
+  "over": [],
+  "smallTexts": [
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo · pendiente"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo · pendiente"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo · pendiente"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo · pendiente"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo · pendiente"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo · pendiente"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "mc-ventas-status mc-ventas-status--demo_paid",
+      "fs": "11px",
+      "text": "Demo"
+    }
+  ],
+  "statCards": [
+    {
+      "x": 10,
+      "y": 270.4,
+      "w": 300,
+      "h": 99
+    },
+    {
+      "x": 10,
+      "y": 379.3,
+      "w": 300,
+      "h": 99
+    },
+    {
+      "x": 10,
+      "y": 488.3,
+      "w": 300,
+      "h": 99
+    }
+  ],
+  "cajaCards": [],
+  "methods": [],
+  "activeNav": [
+    {
+      "text": "Ventas",
+      "aria": "page"
+    },
+    {
+      "text": "Ventas",
+      "aria": "page"
+    }
+  ],
+  "scrollY": 0,
+  "title": "Ventas · Mercado Cero",
+  "bodyText": "Saltar al contenido\n\nAntojitos de Lupita\n\nCoyoacán, CDMX\n\nDEMO\nL\n\nHISTORIAL\n\nVentas\n\nConsulta las ventas registradas. Los importes son ventas, no necesariamente dinero cobrado.\n\nNueva venta\n\nVentas hoy\n\n$1,632.00\nIncluye ventas demo; no es dinero real\n\nCobrado confirmado\n\n$0.00\nSolo efectivo real y pagos verificados; demo no cuenta\n\nPor cobrar digital\n\n$498.00\nLinks y QR de todos los días. No incluye fiado.\nVentas registradas\n\n42 en total · página 1 de 2\n\nDEMO\nPedido 99BA\n\nHoy 11:07 a.m. · Efectivo\n\n1 × Auditoria shell\n\n$5.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido AEB7\n\nHoy 11:07 a.m. · Efectivo\n\n2 × Quesadilla\n\n$70.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido A8EE\n\nHoy 11:07 a.m. · Fiado · Cliente B\n\n1 × Pedido fiado\n\n$100.00\nDemo, no es dinero real\nSaldo vivo $100.00\nVer conceptos\nDEMO\nPedido B5DA\n\nHoy 11:07 a.m. · Fiado · Cliente B\n\n1 × Pedido fiado\n\n$100.00\nDemo, no es dinero real\nSaldo vivo $100.00\nVer conceptos\nDEMO · PENDIENTE\nPedido AD3C\n\nHoy 11:07 a.m. · Por cobrar\n\n1 × Cobro digital\n\n$50.00\nDemo, no es dinero real\nFalta cobrar $50.00\nVer conceptos\nDEMO\nPedido 94B0\n\nHoy 11:07 a.m. · Efectivo\n\n2 × Quesadilla\n\n$70.00\nDemo, no es dinero real\nVer conceptos\nDEMO · PENDIENTE\nPedido 97AF\n\nHoy 11:07 a.m. · Por cobrar\n\n2 × Quesadilla · 1 × Agua de horchata\n\n$90.00\nDemo, no es dinero real\nFalta cobrar $90.00\nVer conceptos\nDEMO\nPedido ABF0\n\nHoy 11:07 a.m. · Fiado · Cliente B\n\n1 × Pedido fiado\n\n$100.00\nDemo, no es dinero real\nSaldo vivo $100.00\nVer conceptos\nDEMO · PENDIENTE\nPedido 8D83\n\nHoy 11:06 a.m. · Por cobrar\n\n1 × Cobro digital\n\n$50.00\nDemo, no es dinero real\nFalta cobrar $50.00\nVer conceptos\nDEMO\nPedido B5B8\n\nHoy 11:06 a.m. · Efectivo\n\n2 × Quesadilla\n\n$70.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido BA0A\n\nHoy 11:06 a.m. · Fiado · Cliente B\n\n1 × Pedido fiado\n\n$100.00\nDemo, no es dinero real\nSaldo vivo $100.00\nVer conceptos\nDEMO · PENDIENTE\nPedido 994F\n\nHoy 11:06 a.m. · Por cobrar\n\n1 × Cobro digital\n\n$50.00\nDemo, no es dinero real\nFalta cobrar $50.00\nVer conceptos\nDEMO\nPedido AC23\n\nHoy 11:06 a.m. · Efectivo\n\n2 × Quesadilla\n\n$70.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido BB1A\n\nHoy 11:06 a.m. · Fiado · Cliente B\n\n1 × Pedido fiado\n\n$100.00\nDemo, no es dinero real\nSaldo vivo $100.00\nVer conceptos\nDEMO · PENDIENTE\nPedido 92D2\n\nHoy 11:06 a.m. · Por cobrar\n\n1 × Cobro digital\n\n$50.00\nDemo, no es dinero real\nFalta cobrar $50.00\nVer conceptos\nDEMO\nPedido B2CB\n\nHoy 11:06 a.m. · Efectivo\n\n2 × Quesadilla\n\n$70.00\nDemo, no es dinero real\nVer conceptos\nDEMO · PENDIENTE\nPedido B02A\n\nHoy 11:06 a.m. · Por cobrar\n\n1 × Cobro digital\n\n$50.00\nDemo, no es dinero real\nFalta cobrar $50.00\nVer conceptos\nDEMO\nPedido B0F9\n\nHoy 11:06 a.m. · Fiado · Juan\n\n1 × Pedido fiado\n\n$100.00\nDemo, no es dinero real\nSaldo vivo $100.00\nVer conceptos\nDEMO\nPedido B3DA\n\nHoy 11:06 a.m. · Efectivo\n\n2 × Quesadilla\n\n$70.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido A3FA\n\nHoy 11:05 a.m. · CoDi\n\n1 × Prueba webhook\n\n$7.00\nDemo, no es dinero real\nVer conceptos\nDEMO · PENDIENTE\nPedido BDC9\n\nHoy 11:05 a.m. · Por cobrar\n\n1 × Prueba webhook\n\n$10.00\nDemo, no es dinero real\nFalta cobrar $10.00\nVer conceptos\nDEMO\nPedido BC6F\n\nHoy 11:05 a.m. · CoDi\n\n1 × Prueba webhook\n\n$12.00\nDemo, no es dinero real\nVer conceptos\nDEMO · PENDIENTE\nPedido A050\n\nHoy 11:05 a.m. · Por cobrar\n\n1 × Prueba webhook\n\n$9.00\nDemo, no es dinero real\nFalta cobrar $9.00\nVer conceptos\nDEMO · PENDIENTE\nPedido 8AEE\n\nHoy 11:05 a.m. · Por cobrar\n\n1 × Prueba webhook\n\n$9.00\nDemo, no es dinero real\nFalta cobrar $9.00\nVer conceptos\nDEMO\nPedido A63C\n\nHoy 11:05 a.m. · CoDi\n\n1 × Prueba webhook\n\n$10.00\nDemo, no es dinero real\nVer conceptos\nAnterior\nSiguiente\n\nEl historial se lee de la misma base que Caja. Un pedido pendiente o fiado no es dinero recibido; solo se marca pagado con la confirmación válida del proveedor o con el efectivo registrado.\n\nInicio\nCaja\nVentas\nFiados\nMás"
+}

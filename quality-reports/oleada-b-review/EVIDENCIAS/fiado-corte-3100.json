@@ -1,0 +1,230 @@
+{
+  "marker": "AUD-FC-3100-mw2dt62r",
+  "capturedAt": "2026-11-04T17:19:33.347Z",
+  "before": {
+    "date": "2026-11-04",
+    "openingCents": 50000,
+    "cashSalesCents": 250708,
+    "cashCreditCents": 34000,
+    "expensesCents": 0,
+    "withdrawalsCents": 0,
+    "expectedCents": 334708,
+    "saved": null,
+    "history": []
+  },
+  "created": {
+    "status": 201,
+    "body": {
+      "order": {
+        "id": "ord_10a0ae4799224c3890af",
+        "merchantId": "lupita",
+        "status": "confirmed",
+        "totalCents": 3000,
+        "paidCents": 0,
+        "digitalPaidCents": 0,
+        "paymentMethod": null,
+        "lastPaymentProvider": null,
+        "lastPaymentDemo": false,
+        "customerName": "Cliente 3100 AUD-FC-3100-mw2dt62r",
+        "creditId": "cred_2e655417fab1433bbe73",
+        "creditCents": 3000,
+        "paymentLinkId": null,
+        "paymentUrl": null,
+        "qrId": null,
+        "qrString": null,
+        "qrImage": null,
+        "numRef": null,
+        "createdAt": "2026-11-04T17:19:33.241Z",
+        "updatedAt": "2026-11-04T17:19:33.242Z",
+        "items": [
+          {
+            "id": "itm_c28ec0e1bec54c008fc8",
+            "description": "Fiado 3100 AUD-FC-3100-mw2dt62r",
+            "quantity": 1,
+            "unitPriceCents": 3000,
+            "totalCents": 3000
+          }
+        ]
+      }
+    }
+  },
+  "detailAfterCreate": {
+    "order": {
+      "id": "ord_10a0ae4799224c3890af",
+      "merchantId": "lupita",
+      "status": "confirmed",
+      "totalCents": 3000,
+      "paidCents": 0,
+      "digitalPaidCents": 0,
+      "paymentMethod": null,
+      "lastPaymentProvider": null,
+      "lastPaymentDemo": false,
+      "customerName": "Cliente 3100 AUD-FC-3100-mw2dt62r",
+      "creditId": "cred_2e655417fab1433bbe73",
+      "creditCents": 3000,
+      "paymentLinkId": null,
+      "paymentUrl": null,
+      "qrId": null,
+      "qrString": null,
+      "qrImage": null,
+      "numRef": null,
+      "createdAt": "2026-11-04T17:19:33.241Z",
+      "updatedAt": "2026-11-04T17:19:33.242Z",
+      "items": [
+        {
+          "id": "itm_c28ec0e1bec54c008fc8",
+          "description": "Fiado 3100 AUD-FC-3100-mw2dt62r",
+          "quantity": 1,
+          "unitPriceCents": 3000,
+          "totalCents": 3000
+        }
+      ]
+    },
+    "payments": [],
+    "credit": {
+      "id": "cred_2e655417fab1433bbe73",
+      "customerId": "cus_0bcd043380014aa1ad11",
+      "customerName": "Cliente 3100 AUD-FC-3100-mw2dt62r",
+      "orderId": "ord_10a0ae4799224c3890af",
+      "originalCents": 3000,
+      "balanceCents": 3000,
+      "status": "open",
+      "dueDate": null,
+      "createdAt": "2026-11-04T17:19:33.241Z"
+    }
+  },
+  "cashAfterCreate": {
+    "date": "2026-11-04",
+    "openingCents": 50000,
+    "cashSalesCents": 250708,
+    "cashCreditCents": 34000,
+    "expensesCents": 0,
+    "withdrawalsCents": 0,
+    "expectedCents": 334708,
+    "saved": null,
+    "history": []
+  },
+  "abono": {
+    "status": 200,
+    "body": {
+      "credit": {
+        "id": "cred_2e655417fab1433bbe73",
+        "customerId": "cus_0bcd043380014aa1ad11",
+        "customerName": "Cliente 3100 AUD-FC-3100-mw2dt62r",
+        "orderId": "ord_10a0ae4799224c3890af",
+        "originalCents": 3000,
+        "balanceCents": 2000,
+        "status": "partial",
+        "dueDate": null,
+        "createdAt": "2026-11-04T17:19:33.241Z"
+      },
+      "appliedCents": 1000,
+      "balanceCents": 2000,
+      "overpayCents": 0,
+      "duplicate": false
+    }
+  },
+  "detailAfterAbono": {
+    "order": {
+      "id": "ord_10a0ae4799224c3890af",
+      "merchantId": "lupita",
+      "status": "confirmed",
+      "totalCents": 3000,
+      "paidCents": 0,
+      "digitalPaidCents": 0,
+      "paymentMethod": null,
+      "lastPaymentProvider": null,
+      "lastPaymentDemo": false,
+      "customerName": "Cliente 3100 AUD-FC-3100-mw2dt62r",
+      "creditId": "cred_2e655417fab1433bbe73",
+      "creditCents": 3000,
+      "paymentLinkId": null,
+      "paymentUrl": null,
+      "qrId": null,
+      "qrString": null,
+      "qrImage": null,
+      "numRef": null,
+      "createdAt": "2026-11-04T17:19:33.241Z",
+      "updatedAt": "2026-11-04T17:19:33.242Z",
+      "items": [
+        {
+          "id": "itm_c28ec0e1bec54c008fc8",
+          "description": "Fiado 3100 AUD-FC-3100-mw2dt62r",
+          "quantity": 1,
+          "unitPriceCents": 3000,
+          "totalCents": 3000
+        }
+      ]
+    },
+    "payments": [],
+    "credit": {
+      "id": "cred_2e655417fab1433bbe73",
+      "customerId": "cus_0bcd043380014aa1ad11",
+      "customerName": "Cliente 3100 AUD-FC-3100-mw2dt62r",
+      "orderId": "ord_10a0ae4799224c3890af",
+      "originalCents": 3000,
+      "balanceCents": 2000,
+      "status": "partial",
+      "dueDate": null,
+      "createdAt": "2026-11-04T17:19:33.241Z"
+    }
+  },
+  "cashAfterAbono": {
+    "date": "2026-11-04",
+    "openingCents": 50000,
+    "cashSalesCents": 250708,
+    "cashCreditCents": 35000,
+    "expensesCents": 0,
+    "withdrawalsCents": 0,
+    "expectedCents": 335708,
+    "saved": null,
+    "history": []
+  },
+  "ordersTotal": 107,
+  "db": {
+    "order": {
+      "id": "ord_10a0ae4799224c3890af",
+      "status": "confirmed",
+      "total_cents": 3000,
+      "paid_cents": 0,
+      "credit_cents": 3000,
+      "customer_name": "Cliente 3100 AUD-FC-3100-mw2dt62r",
+      "credit_id": "cred_2e655417fab1433bbe73",
+      "demo": 1
+    },
+    "credit": {
+      "id": "cred_2e655417fab1433bbe73",
+      "order_id": "ord_10a0ae4799224c3890af",
+      "original_cents": 3000,
+      "balance_cents": 2000,
+      "status": "partial",
+      "demo": 1
+    },
+    "payments": [],
+    "creditPayments": [
+      {
+        "id": "cp_c5f59f4b95bb40a7994e",
+        "amount_cents": 1000,
+        "method": "cash",
+        "provider": "cash",
+        "request_id": "cp-AUD-FC-3100-mw2dt62r",
+        "demo": 1
+      }
+    ]
+  },
+  "checks": {
+    "fiadoNoPayment": true,
+    "fiadoCredit3000": true,
+    "fiadoNoCashSale": true,
+    "abonoOneRow": true,
+    "orderCreditOriginal": true,
+    "cashSalesUnchangedAfterFiado": true,
+    "cashCreditPlus1000": true,
+    "cashSalesUnchangedAfterAbono": true
+  },
+  "checksSummary": {
+    "total": 8,
+    "pass": 8,
+    "fail": 0
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "total": 125,
+  "pass": 108,
+  "fail": 17,
+  "info": 0,
+  "fails": [
+    {
+      "id": "D6.2",
+      "ok": false,
+      "detail": "focus after back={'tag': 'H2', 'id': 'mc-caja-result-title', 'cls': '', 'text': 'Venta cobrada en efectivo (demo)'}",
+      "severity": "info"
+    },
+    {
+      "id": "D8.999",
+      "ok": false,
+      "detail": "url=http://localhost:3100/ventas?page=999 page1text=False rows=17",
+      "severity": "info"
+    },
+    {
+      "id": "D9.2",
+      "ok": false,
+      "detail": "newShell=True legacy=True",
+      "severity": "info"
+    },
+    {
+      "id": "D9.5",
+      "ok": false,
+      "detail": "new aria-current visible=1",
+      "severity": "info"
+    },
+    {
+      "id": "D10.fiado",
+      "ok": false,
+      "detail": "url=http://localhost:3100/?tab=fiado selected=[] h1=[{'text': 'Caja', 'visible': False}, {'text': 'Fiado', 'visible': True}]",
+      "severity": "info"
+    },
+    {
+      "id": "D10.corte",
+      "ok": false,
+      "detail": "url=http://localhost:3100/?tab=corte selected=[] h1=[{'text': 'Caja', 'visible': False}, {'text': 'Corte de caja', 'visible': True}]",
+      "severity": "info"
+    },
+    {
+      "id": "D10.meta",
+      "ok": false,
+      "detail": "url=http://localhost:3100/?tab=meta selected=[] h1=[{'text': 'Caja', 'visible': False}, {'text': 'Meta', 'visible': True}]",
+      "severity": "info"
+    },
+    {
+      "id": "D10.pendientes",
+      "ok": false,
+      "detail": "url=http://localhost:3100/?tab=pendientes selected=[] h1=[{'text': 'Caja', 'visible': False}, {'text': 'Pendientes', 'visible': True}]",
+      "severity": "info"
+    },
+    {
+      "id": "D12.4",
+      "ok": false,
+      "detail": "url=http://localhost:3100/caja?ayuda=1 dialogs=[]",
+      "severity": "info"
+    },
+    {
+      "id": "D12.5",
+      "ok": false,
+      "detail": "url=http://localhost:3100/ventas?ayuda=1 dialogs=[]",
+      "severity": "info"
+    },
+    {
+      "id": "D14.6",
+      "ok": false,
+      "detail": "missing pay status=200 url=http://localhost:3100/pay/inexistente",
+      "severity": "info"
+    },
+    {
+      "id": "D15.2",
+      "ok": false,
+      "detail": "restore notice=1 total=$50.00",
+      "severity": "info"
+    },
+    {
+      "id": "D15.4",
+      "ok": false,
+      "detail": "v1 notice? bodyHasV1=False restore=1",
+      "severity": "info"
+    },
+    {
+      "id": "M1.3",
+      "ok": false,
+      "detail": "primary links=['Inicio', 'Caja', 'Ventas', 'Fiados', 'Corte', 'Metas', 'Pendientes', 'Ayuda', 'Ajustes']",
+      "severity": "info"
+    },
+    {
+      "id": "M5.1",
+      "ok": false,
+      "detail": "url=http://localhost:3100/?tab=corte legacy=True new=True",
+      "severity": "info"
+    },
+    {
+      "id": "M5.2",
+      "ok": false,
+      "detail": "aria-current visible=1",
+      "severity": "info"
+    },
+    {
+      "id": "M7.3",
+      "ok": false,
+      "detail": "overflow={'html': [337, 320], 'body': [337, 320], 'main': [337, 320], 'horizontal': True}",
+      "severity": "info"
+    }
+  ]
+}

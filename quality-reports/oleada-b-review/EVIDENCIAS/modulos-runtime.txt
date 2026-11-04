@@ -1,0 +1,137 @@
+PASS  fiado puro: la orden no registra efectivo - {"paidCents": 0, "creditCents": 10000, "totalCents": 10000}
+PASS  fiado puro: el resultado afirma que el efectivo sí se registró en la caja - RESULTADO
+
+Venta registrada con fiado
+
+TOTAL DE LA VENTA
+
+$100.00
+
+La venta quedó registrada. La parte fiada es deuda; no la cuentes como dinero recibido.
+
+PEDIDO
+A070
+ESTADO
+Registrado
+SALDO VIVO FIADO
+$100.00 · Cliente Fiado
+
+Quedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.
+
+Nueva venta
+Ver ventas
+Volver a Caja
+
+Total registrado $100.00. Si el estado no es pagado, no entregues como cobrado.
+PASS  cambio fantasma: Mixto con efectivo 100 y fiado 100 sobre total 100 muestra cambio - Cambio a devolver $100.00. Se aplicaron $0.00 al cobro.
+PASS  cambio fantasma: confirmar sigue habilitado - disabled=False
+PASS  cambio fantasma: la orden queda 100% fiada - {"paidCents": 0, "creditCents": 10000, "totalCents": 10000}
+PASS  cambio fantasma: el resultado muestra 'Recibiste', 'Cambio' y 'Saldo vivo fiado' - RESULTADO
+
+Venta registrada con fiado
+
+TOTAL DE LA VENTA
+
+$100.00
+
+La venta quedó registrada. La parte fiada es deuda; no la cuentes como dinero recibido.
+
+PEDIDO
+A314
+ESTADO
+Registrado
+RECIBISTE
+$100.00
+SALDO VIVO FIADO
+$100.00 · Cliente Fantasma
+CAMBIO
+$100.00
+
+Quedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.
+
+Nueva venta
+Ver ventas
+Volver a Caja
+
+Total registrado $100.00. Si el estado no es pagado, no entregues como cobrado.
+PASS  cambio fantasma: el resultado también afirma que el efectivo sí se registró - RESULTADO
+
+Venta registrada con fiado
+
+TOTAL DE LA VENTA
+
+$100.00
+
+La venta quedó registrada. La parte fiada es deuda; no la cuentes como dinero recibido.
+
+PEDIDO
+A314
+ESTADO
+Registrado
+RECIBISTE
+$100.00
+SALDO VIVO FIADO
+$100.00 · Cliente Fantasma
+CAMBIO
+$100.00
+
+Quedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.
+
+Nueva venta
+Ver ventas
+Volver a Caja
+
+Total registrado $100.00. Si el estado no es pagado, no entregues como cobrado.
+PASS  payload: items tienen solo description/quantity/unitPriceCents - {"description": "Concepto manual", "quantity": 2, "unitPriceCents": 1250}
+PASS  payload: no envía productId/sku/stock - {"items": [{"description": "Concepto manual", "quantity": 2, "unitPriceCents": 1250}], "cashCents": 2500, "creditCents": 0, "customerName": null, "requestId": "sale_4f1d10e6-0d83-4e0c-8d1a-cc67c8a63e45"}
+PASS  ventas: venta digital sin link aparece - DEMO
+Pedido B96C
+
+Hoy 11:10 a.m. · Digital
+
+1 × Digital sin link
+
+$50.00
+Demo, no es dinero real
+Falta cobrar $50.00
+Ver conceptos
+PASS  ventas demo: la fila digital sin link se rotula Demo - DEMO
+Pedido B96C
+
+Hoy 11:10 a.m. · Digital
+
+1 × Digital sin link
+
+$50.00
+Demo, no es dinero real
+Falta cobrar $50.00
+Ver conceptos
+PASS  ventas: la fila sí muestra 'Falta cobrar' - DEMO
+Pedido B96C
+
+Hoy 11:10 a.m. · Digital
+
+1 × Digital sin link
+
+$50.00
+Demo, no es dinero real
+Falta cobrar $50.00
+Ver conceptos
+PASS  ventas: el resumen dice 'Links y QR' aunque no exista link - Ventas hoy
+
+$240.00
+Incluye ventas demo; no es dinero real
+
+Cobrado confirmado
+
+$0.00
+Solo efectivo real y pagos verificados; demo no cuenta
+
+Por cobrar digital
+
+$170.00
+Links y QR de todos los días. No incluye fiado.
+PASS  independencia: /caja no llama voz/catálogo/inventario/proveedores - []
+PASS  runtime: sin errores de página - []
+
+15 PASS · 0 FAIL

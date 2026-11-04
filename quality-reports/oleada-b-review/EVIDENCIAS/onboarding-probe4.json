@@ -1,0 +1,20 @@
+{
+  "add390": {
+    "addTop": 745,
+    "addBottom": 793,
+    "navTop": 0,
+    "coveredByNav": true,
+    "viewport": 844,
+    "scrollHeight": 1607
+  },
+  "networkError": {
+    "main": "CAJA\n\nNueva venta\n\nmiércoles, 4 de noviembre. Agrega lo que vendiste, revisa el total y elige cómo te pagan.\n\nTOTAL\n$70.00\nVER COBRO\n\nCONCEPTOS\n\nQué estás vendiendo\n1 concepto\nConcepto\nCantidad\nPrecio\nImporte\n$70.00\n×\n\nAgregar concepto\n\nProducto o servicio\nCantidad\nPrecio unitario\n+\nAgregar\n\nCOBRO\n\nTotal de la venta\n\n$70.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\n\nEfectivo exacto. No hay cambio.\n\nNo sabemos si la venta quedó registrada. Revisa tu conexión y toca Reintentar. Si cambias los productos o el monto, revisa Ventas antes de cobrar otra vez.\n\nReintentar ventaDescartar venta\nTOTAL\n$70.00\nRevisar cobro\n\nConcepto agregado.\n\n1 conceptos en curso. El total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes.",
+    "button": "Reintentar venta",
+    "disabled": false,
+    "lines": "1 concepto"
+  },
+  "retry": {
+    "h1": "Venta registrada",
+    "main": "CAJA\n\nVenta registrada\n\nRevisa el resultado antes de entregar o iniciar otra venta.\n\nTOTAL\n$70.00\n\nRESULTADO\n\nVenta cobrada en efectivo (demo)\n\nTOTAL DE LA VENTA\n\n$70.00\n\nEfectivo de demostración. No es dinero real ni una confirmación bancaria.\n\nPEDIDO\nA9D5\nESTADO\nDemo (simulado)\nEFECTIVO RECIBIDO\n$70.00\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $70.00. Si el estado no es pagado, no entregues como cobrado.\n\nConcepto agregado.\n\nEl total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes."
+  }
+}

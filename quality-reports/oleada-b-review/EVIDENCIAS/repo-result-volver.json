@@ -1,0 +1,21 @@
+{
+  "orderId": "ord_125aa1fbeb464747b015",
+  "results": [
+    {
+      "name": "restores a result view from pending id",
+      "ok": true,
+      "detail": "Venta cobrada en efectivo (demo)"
+    },
+    {
+      "name": "URL stays /caja",
+      "ok": true,
+      "detail": "http://localhost:3100/caja"
+    },
+    {
+      "name": "Volver a Caja resets to composer",
+      "ok": false,
+      "detail": "new composer=False result=True"
+    }
+  ],
+  "failed": 1
+}

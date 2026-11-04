@@ -1,0 +1,251 @@
+{
+  "url": "/caja",
+  "viewport": {
+    "w": 1366,
+    "h": 768,
+    "dpr": 1
+  },
+  "doc": {
+    "scrollWidth": 1366,
+    "clientWidth": 1366,
+    "scrollHeight": 990
+  },
+  "body": {
+    "background-color": "rgb(249, 246, 238)",
+    "font-family": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+    "font-size": "17px",
+    "color": "rgb(31, 38, 34)"
+  },
+  "shell": {
+    "background-color": "rgb(251, 243, 231)",
+    "background-image": "none",
+    "font-family": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Inter, \"Segoe UI\", sans-serif"
+  },
+  "main": {
+    "background-color": "rgb(249, 246, 238)",
+    "padding": "32.784px 32.784px 72px",
+    "font-family": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, \"Segoe UI\", sans-serif",
+    "color": "rgb(31, 38, 34)"
+  },
+  "topbar": {
+    "background-color": "rgb(251, 239, 226)",
+    "min-height": "84px",
+    "height": "84px",
+    "padding": "0px 30px"
+  },
+  "sidebar": {
+    "x": 0,
+    "y": 0,
+    "w": 236,
+    "h": 768,
+    "bottom": 768,
+    "right": 236
+  },
+  "header": {
+    "x": 268.8,
+    "y": 116.8,
+    "w": 1064.4,
+    "h": 115.6,
+    "bottom": 232.3,
+    "right": 1333.2
+  },
+  "h1": {
+    "x": 268.8,
+    "y": 138.2,
+    "w": 513.6,
+    "h": 41.8,
+    "bottom": 180,
+    "right": 782.4
+  },
+  "h1style": {
+    "font-family": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Hearth, Georgia, serif",
+    "font-size": "40.98px",
+    "font-weight": "600",
+    "line-height": "41.7996px",
+    "letter-spacing": "-1.4343px"
+  },
+  "pageActions": {
+    "x": 1098,
+    "y": 178.5,
+    "w": 235.2,
+    "h": 53.9,
+    "bottom": 232.3,
+    "right": 1333.2
+  },
+  "totalChip": {
+    "x": 1098,
+    "y": 178.5,
+    "w": 235.2,
+    "h": 53.9,
+    "bottom": 232.3,
+    "right": 1333.2
+  },
+  "total": {
+    "x": 1020.8,
+    "y": 339.2,
+    "w": 285.4,
+    "h": 40,
+    "bottom": 379.2,
+    "right": 1306.2
+  },
+  "totalStyle": {
+    "font-family": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, sans-serif",
+    "font-size": "40px",
+    "font-weight": "700",
+    "letter-spacing": "-2.2px"
+  },
+  "card": {
+    "x": 268.8,
+    "y": 252.3,
+    "w": 705,
+    "h": 448.2,
+    "bottom": 700.5,
+    "right": 973.8
+  },
+  "summary": {
+    "x": 993.8,
+    "y": 252.3,
+    "w": 339.4,
+    "h": 606.6,
+    "bottom": 859,
+    "right": 1333.2
+  },
+  "confirm": {
+    "x": 1020.8,
+    "y": 728,
+    "w": 285.4,
+    "h": 56,
+    "bottom": 784,
+    "right": 1306.2
+  },
+  "paybar": {
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "bottom": 0,
+    "right": 0
+  },
+  "ventasStats": null,
+  "ventasListHead": null,
+  "ventasFirstRow": null,
+  "mobileNav": {
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "bottom": 0,
+    "right": 0
+  },
+  "headings": [
+    {
+      "text": "Nueva venta",
+      "fs": "40.98px",
+      "ff": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Hearth, Georgia, serif",
+      "rect": {
+        "x": 268.8,
+        "y": 138.2,
+        "w": 513.6,
+        "h": 41.8
+      }
+    },
+    {
+      "text": "Qué estás vendiendo",
+      "fs": "30.052px",
+      "ff": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Hearth, Georgia, serif",
+      "rect": {
+        "x": 295.8,
+        "y": 298.7,
+        "w": 332.4,
+        "h": 32.4
+      }
+    },
+    {
+      "text": "Total de la venta",
+      "fs": "30.052px",
+      "ff": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Hearth, Georgia, serif",
+      "rect": {
+        "x": 1020.8,
+        "y": 298.7,
+        "w": 285.4,
+        "h": 32.4
+      }
+    }
+  ],
+  "fixed": [
+    {
+      "cls": "inicio-skip",
+      "tag": "A",
+      "rect": {
+        "x": 12,
+        "y": -76.4,
+        "w": 166,
+        "h": 48
+      }
+    }
+  ],
+  "over": [],
+  "smallTexts": [],
+  "statCards": [],
+  "cajaCards": [
+    {
+      "x": 268.8,
+      "y": 252.3,
+      "w": 705,
+      "h": 448.2
+    },
+    {
+      "x": 993.8,
+      "y": 252.3,
+      "w": 339.4,
+      "h": 606.6
+    }
+  ],
+  "methods": [
+    {
+      "text": "Efectivo",
+      "pressed": "true",
+      "x": 1020.8,
+      "y": 448.6,
+      "w": 139.7,
+      "h": 48
+    },
+    {
+      "text": "Digital",
+      "pressed": "false",
+      "x": 1166.5,
+      "y": 448.6,
+      "w": 139.7,
+      "h": 48
+    },
+    {
+      "text": "Fiado",
+      "pressed": "false",
+      "x": 1020.8,
+      "y": 502.6,
+      "w": 139.7,
+      "h": 48
+    },
+    {
+      "text": "Mixto",
+      "pressed": "false",
+      "x": 1166.5,
+      "y": 502.6,
+      "w": 139.7,
+      "h": 48
+    }
+  ],
+  "activeNav": [
+    {
+      "text": "Caja",
+      "aria": "page"
+    },
+    {
+      "text": "Caja",
+      "aria": "page"
+    }
+  ],
+  "scrollY": 0,
+  "title": "Caja · Mercado Cero",
+  "bodyText": "Saltar al contenido\nMercado\nCero\nInicio\nInicio\nCaja\nVentas\nFiados\nCorte\nMetas\nPendientes\nAyuda\nAjustes\n\nAntojitos de Lupita\n\nCoyoacán, CDMX\n\nDEMO\nL\n\nCAJA\n\nNueva venta\n\nmiércoles, 4 de noviembre. Agrega lo que vendiste, revisa el total y elige cómo te pagan.\n\nTOTAL\n$90.00\nVER COBRO\n\nCONCEPTOS\n\nQué estás vendiendo\n2 conceptos\nCONCEPTO\nCANTIDAD\nPRECIO\nIMPORTE\nConcepto\nCantidad\nPrecio\nImporte\n$70.00\n×\nConcepto\nCantidad\nPrecio\nImporte\n$20.00\n×\n\nAgregar concepto\n\nProducto o servicio\nCantidad\nPrecio unitario\n+\nAgregar\n\nCOBRO\n\nTotal de la venta\n\n$90.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\n\nCambio a devolver $10.00. Recibiste $100.00; se aplicaron $90.00.\n\nConfirmar ventaDescartar venta\n\nConcepto agregado.\n\n2 conceptos en curso. El total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes."
+}

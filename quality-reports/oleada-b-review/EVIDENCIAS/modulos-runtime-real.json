@@ -1,0 +1,62 @@
+[
+  {
+    "name": "ventas real: mixta muestra efectivo cobrado",
+    "ok": true,
+    "detail": "FIADO + COBRO\nPedido BFA8\n\nHoy 11:08 a.m. · Efectivo + fiado · Cliente Parcial\n\n1 × Mixto real\n\n$100.00\nCobrado $60.00\nFalta cobrar $30.00\nSaldo vivo $10.00\nVer conceptos"
+  },
+  {
+    "name": "ventas real: mixta muestra digital pendiente",
+    "ok": true,
+    "detail": "FIADO + COBRO\nPedido BFA8\n\nHoy 11:08 a.m. · Efectivo + fiado · Cliente Parcial\n\n1 × Mixto real\n\n$100.00\nCobrado $60.00\nFalta cobrar $30.00\nSaldo vivo $10.00\nVer conceptos"
+  },
+  {
+    "name": "ventas real: mixta muestra saldo fiado",
+    "ok": true,
+    "detail": "FIADO + COBRO\nPedido BFA8\n\nHoy 11:08 a.m. · Efectivo + fiado · Cliente Parcial\n\n1 × Mixto real\n\n$100.00\nCobrado $60.00\nFalta cobrar $30.00\nSaldo vivo $10.00\nVer conceptos"
+  },
+  {
+    "name": "ventas real: digital sin link no dice 'Por cobrar' como estado",
+    "ok": true,
+    "detail": "REGISTRADO\nPedido 86F7\n\nHoy 11:08 a.m. · Digital\n\n1 × Digital real sin link\n\n$50.00\nSin cobro confirmado\nFalta cobrar $50.00\nVer conceptos"
+  },
+  {
+    "name": "ventas real: digital sin link muestra pendiente",
+    "ok": true,
+    "detail": "REGISTRADO\nPedido 86F7\n\nHoy 11:08 a.m. · Digital\n\n1 × Digital real sin link\n\n$50.00\nSin cobro confirmado\nFalta cobrar $50.00\nVer conceptos"
+  },
+  {
+    "name": "ventas real: payment_pending mixta conserva 'Falta cobrar $30.00'",
+    "ok": true,
+    "detail": "PENDIENTE\nPedido BFA8\n\nHoy 11:08 a.m. · Por cobrar · Cliente Parcial\n\n1 × Mixto real\n\n$100.00\nPendiente de cobro\nFalta cobrar $30.00\nSaldo vivo $10.00\nVer conceptos"
+  },
+  {
+    "name": "ventas real: payment_pending mixta oculta 'Cobrado $60.00'",
+    "ok": true,
+    "detail": "PENDIENTE\nPedido BFA8\n\nHoy 11:08 a.m. · Por cobrar · Cliente Parcial\n\n1 × Mixto real\n\n$100.00\nPendiente de cobro\nFalta cobrar $30.00\nSaldo vivo $10.00\nVer conceptos"
+  },
+  {
+    "name": "ventas real: payment_pending mixta conserva saldo fiado",
+    "ok": true,
+    "detail": "PENDIENTE\nPedido BFA8\n\nHoy 11:08 a.m. · Por cobrar · Cliente Parcial\n\n1 × Mixto real\n\n$100.00\nPendiente de cobro\nFalta cobrar $30.00\nSaldo vivo $10.00\nVer conceptos"
+  },
+  {
+    "name": "caja: no serializa el pedido de ventas",
+    "ok": true,
+    "detail": "order id absent"
+  },
+  {
+    "name": "caja: no serializa nombre del cliente de fiado",
+    "ok": true,
+    "detail": "customer absent"
+  },
+  {
+    "name": "caja: no serializa conceptos de ventas",
+    "ok": true,
+    "detail": "items absent"
+  },
+  {
+    "name": "caja real: no llama voz/catálogo/inventario/proveedores",
+    "ok": true,
+    "detail": "[]"
+  }
+]

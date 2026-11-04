@@ -1,0 +1,226 @@
+{
+  "audit": "Oleada B - ventas y pagos (revision adversarial)",
+  "head": "4130e71d668e5e4693a8f5b634d2d2f953d21b02",
+  "base": "26c7741433f18e4f4d0e78b1913df76ed09dae7e",
+  "generatedAt": "2026-11-04T11:24:07-0600",
+  "environment": {
+    "baseUrl": "http://localhost:3100",
+    "demoMode": true,
+    "appUrlLocal": "confirmado en link: http://localhost:3100/pay/<id>?demo=1",
+    "db": "web/data/mercado-cero.db",
+    "ordersAfterAudit": 120,
+    "allOrdersDemo": true,
+    "realPayments": 0,
+    "nota": "La copia para pruebas destructivas se hizo con VACUUM INTO en %TEMP%; los servidores 3210/3212 se apagaron al terminar."
+  },
+  "verdict": {
+    "P0": 0,
+    "P1": 2,
+    "P2": 4,
+    "P3": 2
+  },
+  "findings": [
+    {
+      "id": "P1-1",
+      "severity": "P1",
+      "title": "POST /api/demo/pay no valida order.demo ni tiene idempotencia durable por pedido",
+      "expected": "Rechazar pedidos demo=0; dos solicitudes concurrentes del mismo pedido producen como maximo un pago y paid_cents <= total.",
+      "observed": "En una copia, un pedido demo=0 payment_pending paso a demo_paid con un pago provider=demo. Con dos procesos (3210/3212) y contencion de escritura, dos POST concurrentes insertaron dos pagos de 10000 sobre un total de 10000: paid_cents=20000. En un solo proceso, 10 POST concurrentes y una repeticion secuencial no duplicaron.",
+      "reproduction": [
+        "Crear pedido digital 10000 y generar link.",
+        "Abrir dos instancias del mismo build contra la misma copia SQLite (3210 y 3212).",
+        "Tomar un lock de escritura externo, lanzar POST /api/demo/pay en cada instancia, liberar el lock.",
+        "Leer payments y orders: dos filas demo de 10000 y paid_cents=20000.",
+        "Para demo=0: insertar fixture demo=0 payment_pending en la copia y POST /api/demo/pay."
+      ],
+      "evidence": [
+        "pagos-demo-pay-adversarial.json",
+        "pagos-demo-lock-race.json",
+        "pagos-demo-multiproceso.json",
+        "pagos-demo-edge.json"
+      ],
+      "files": [
+        "web/src/app/api/demo/pay/route.ts:49-85",
+        "web/src/lib/orders.ts:554-555",
+        "web/src/components/caja/payment-panel.tsx:220-233"
+      ],
+      "impact": "Doble pago simulado y corrupcion de un pedido no demo en una base reutilizada. No es dinero real, pero rompe la verdad demo/real y la idempotencia prometida.",
+      "status": "abierto"
+    },
+    {
+      "id": "P1-2",
+      "severity": "P1",
+      "title": "Los abonos demo de fiado se suman a Cobrado confirmado / cashCents / declaredDigitalCents",
+      "expected": "Un credit_payment con demo=1 debe ir a demoCashCents o demoDigitalCents; en DEMO_MODE los buckets reales deben quedar en 0.",
+      "observed": "Abono demo de fiado 4000+6000 con method=cash: /ventas mostro Cobrado confirmado $100.00 y el dashboard cashCents=10000, aunque demoCashCents no lo incluye y la tarjeta dice \"demo no cuenta\". Un abono demo con method=card incremento declaredDigitalCents en 5000.",
+      "reproduction": [
+        "Crear venta a fiado demo por 100.",
+        "POST /api/credits/{id}/pay con method=cash 4000 y 6000.",
+        "Abrir /ventas y /api/dashboard.",
+        "Repetir con method=card 5000 y comparar declaredDigitalCents."
+      ],
+      "evidence": [
+        "pagos-ventas-stable.json",
+        "pagos-ventas-stable.png",
+        "pagos-demo-credit-digital.json"
+      ],
+      "files": [
+        "web/src/lib/db.ts:1832-1845",
+        "web/src/app/ventas/page.tsx:96-109"
+      ],
+      "impact": "La metrica principal de dinero cobrado presenta dinero simulado como real en el build demo. El bug de db.ts es preexistente (db.ts no cambia en B), pero la nueva /ventas lo expone con una etiqueta que lo contradice.",
+      "status": "abierto"
+    },
+    {
+      "id": "P2-1",
+      "severity": "P2",
+      "title": "Un 502 post-commit se trata como fallo normal; editar y confirmar duplica la venta",
+      "expected": "Un 502 de proxy/servidor despues del commit debe tratarse como resultado desconocido, mantener la misma requestId y pedir revisar Ventas antes de editar.",
+      "observed": "La UI mostro \"El banco tardo en responder. Reintenta.\" con CTA \"Confirmar venta\". Tras cambiar cantidad 1->2 y efectivo 40->80, el nuevo payload genero otra requestId y una segunda orden pagada: 4000 y 8000. El reintento sin editar si reutiliza la llave y no duplica (E4/E5).",
+      "reproduction": [
+        "Interceptar el primer POST /api/orders, hacer route.fetch() y responder 502.",
+        "Editar cantidad/efectivo y confirmar.",
+        "Comparar request_id y orders."
+      ],
+      "evidence": [
+        "pagos-502-edit.json",
+        "pagos-502-antes-de-editar.png",
+        "pagos-502-despues-de-editar.png",
+        "pagos-ui-flow.json"
+      ],
+      "files": [
+        "web/src/components/caja/caja-screen.tsx:630-642",
+        "web/src/components/caja/sale-summary.tsx:64-79"
+      ],
+      "impact": "Dos ventas pagadas por una sola operacion si hay 502 y la persona edita antes de reintentar.",
+      "status": "abierto"
+    },
+    {
+      "id": "P2-2",
+      "severity": "P2",
+      "title": "Actualizar estado ignora el guard de updatedAt y puede revivir un estado viejo",
+      "expected": "Toda respuesta GET de detalle debe ignorarse si su updatedAt es menor al estado actual (o abortar la peticion vieja).",
+      "observed": "Con un pedido ya en payment_pending y link/QR visibles, servir la orden confirmed anterior en GET y pulsar Actualizar estado hizo que el badge volviera a REGISTRADO y desapareciera el link. El polling automatico si compara updatedAt; el boton manual no.",
+      "reproduction": [
+        "Crear pedido digital, guardar la orden confirmed.",
+        "Generar link y confirmar payment_pending.",
+        "Interceptar GET /api/orders/{id} y devolver la orden confirmed vieja.",
+        "Pulsar Actualizar estado."
+      ],
+      "evidence": [
+        "pagos-polling-viejo.json",
+        "pagos-polling-viejo.png",
+        "pagos-ui-flow.json"
+      ],
+      "files": [
+        "web/src/components/caja/payment-panel.tsx:33-59",
+        "web/src/components/caja/payment-panel.tsx:83-96"
+      ],
+      "impact": "La UI puede mostrar un estado anterior y ocultar el link/QR de un cobro que sigue pendiente. No mueve dinero, pero rompe la verdad del estado.",
+      "status": "abierto"
+    },
+    {
+      "id": "P2-3",
+      "severity": "P2",
+      "title": "Nueva venta no borra el puntero pendiente; recargar resucita el resultado viejo",
+      "expected": "Al pulsar Nueva venta o al detectar una orden terminal, el puntero de la cola debe limpiarse; una recarga debe abrir una venta nueva.",
+      "observed": "Tras pagar por API un pedido pendiente y pulsar Nueva venta, localStorage seguia con {\"orderIds\":[id]}. Al recargar, /caja volvio a \"Venta registrada\" del pedido viejo.",
+      "reproduction": [
+        "Crear pedido digital (queda en PENDING_KEY).",
+        "Pagarlo por API.",
+        "Recargar, pulsar Nueva venta y recargar otra vez."
+      ],
+      "evidence": [
+        "pagos-ui-flow.json",
+        "pagos-caja-puntero-resucitado.png"
+      ],
+      "files": [
+        "web/src/components/caja/caja-screen.tsx:114-140",
+        "web/src/components/caja/caja-screen.tsx:164-185",
+        "web/src/components/caja/caja-screen.tsx:622-627"
+      ],
+      "impact": "La caja queda atrapada en el resultado de un cobro viejo en cada recarga; puede confundir la siguiente venta.",
+      "status": "abierto"
+    },
+    {
+      "id": "P2-4",
+      "severity": "P2",
+      "title": "Titular de venta mixta demo dice \"Venta cobrada en efectivo\" aunque haya fiado abierto",
+      "expected": "Si hay creditCents>0, el titular debe decir \"Venta registrada con saldo fiado\" (como en modo real) o \"Cobro mixto (demo)\".",
+      "observed": "Venta 90 con efectivo 60 + fiado 30 mostro \"Venta cobrada en efectivo (demo)\" y solo mas abajo \"Saldo vivo fiado $30.00\".",
+      "reproduction": [
+        "Crear venta 90, elegir Mixto, efectivo 100, fiado 30, cliente.",
+        "Confirmar y leer el titular y las facts."
+      ],
+      "evidence": [
+        "pagos-ui-flow.json",
+        "pagos-caja-mixto-fiado-demo.png"
+      ],
+      "files": [
+        "web/src/components/caja/sale-result.tsx:17-38"
+      ],
+      "impact": "El titular afirma cobro total cuando solo una parte fue efectivo; el detalle lo corrige, pero la lectura rapida es falsa. Solo demo.",
+      "status": "abierto"
+    },
+    {
+      "id": "P3-1",
+      "severity": "P3",
+      "title": "Por cobrar digital incluye pendientes demo sin decirlo",
+      "expected": "Indicar que incluye demo o excluir los pendientes demo del agregado real.",
+      "observed": "La tarjeta mostraba $723.00 con \"Links y QR de todos los dias. No incluye fiado.\"; el total incluye pedidos demo. La tarjeta no menciona demo, a diferencia de Ventas hoy y Cobrado confirmado.",
+      "reproduction": [
+        "Abrir /ventas en modo demo con pedidos payment_pending.",
+        "Comparar la tarjeta con sumPendingOrderBalances."
+      ],
+      "evidence": [
+        "pagos-ventas-stable.json",
+        "pagos-ventas-pendiente.png"
+      ],
+      "files": [
+        "web/src/app/ventas/page.tsx:107-109",
+        "web/src/lib/db.ts:1475-1487"
+      ],
+      "impact": "Ambiguedad de alcance; no afirma pagado, pero mezcla demo con deuda digital.",
+      "status": "abierto"
+    },
+    {
+      "id": "P3-2",
+      "severity": "P3",
+      "title": "La cola de pendientes solo reanuda el ultimo pedido",
+      "expected": "Mostrar o reanudar todos los pendientes, o al menos avisar de los anteriores.",
+      "observed": "PENDING_KEY guarda un array, pero el arranque usa pendingIds[pendingIds.length-1]. Los anteriores no se muestran en /caja.",
+      "reproduction": [
+        "Crear dos pedidos digitales sin pagar.",
+        "Recargar /caja.",
+        "Solo se reanuda el ultimo."
+      ],
+      "evidence": [
+        "pagos-ui-flow.json"
+      ],
+      "files": [
+        "web/src/components/caja/caja-screen.tsx:114-116"
+      ],
+      "impact": "Cobros pendientes anteriores quedan sin aviso en la pantalla nueva; siguen visibles en /ventas.",
+      "status": "conocido heredado"
+    }
+  ],
+  "positive": [
+    "Venta simple/multiple, cantidades, eliminacion, decimales, efectivo exacto y cambio correctos en UI y DB.",
+    "Efectivo insuficiente bloquea y no crea pedido.",
+    "Doble clic crea un solo POST y una sola orden.",
+    "Respuesta perdida real (abort) conserva requestId, muestra aviso correcto y no duplica al reintentar.",
+    "requestId: mismo payload -> misma orden; payload distinto -> 409; doble POST concurrente -> una orden.",
+    "Digital queda confirmed/payment_pending, link y QR generados, recarga reanuda, demo termina demo_paid, nunca paid.",
+    "Checkout demo termina en Pago demo (simulado); /api/verify responde verified:false para demo y pey-demo.",
+    "Fiado crea deuda; /ventas muestra saldo vivo 100 -> 60 -> saldado; importes y metodos de filas coinciden.",
+    "Webhook existente: 40/40; firma falsa, replay, monto, orden, timestamp, JSON invalido y QR cubiertos.",
+    "Motor financiero intacto: lib/orders.ts, db.ts, cash.ts, goals.ts, tasks.ts, payment-rules.ts, payment-labels.ts, pey-events.ts, checkout.ts, api/** y pay/** sin diff contra 26c7741. Solo next.config y lazy import de caja-app.",
+    "La UI nueva usa POST/GET /api/orders, GET /api/orders/[id], POST /api/orders/[id]/pay, POST /api/demo/pay; /ventas usa listOrders/getCredit/getDailySummary/sumPendingOrderBalances del mismo motor."
+  ],
+  "limitations": [
+    "No se probo pey real, QR real, lector de pantalla, iOS/Safari ni multi-instancia de produccion; la carrera demo se reprodujo en una copia SQLite con dos procesos.",
+    "La base demo 3100 quedo con 111 pedidos de auditoria; /api/demo/reset respondio 409 al final de la suite webhook y no se forzo el borrado.",
+    "La corrida principal tuvo 2 falsos negativos de asercion (B2/I2 por saltos de linea) y 1 carrera de otro escritor (L2); se revalidaron en pagos-result-assertions.json y pagos-ventas-stable.json.",
+    "No se modifico producto, endpoints ni base fuera de datos demo; no se hizo commit."
+  ]
+}

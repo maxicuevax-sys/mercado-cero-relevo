@@ -1,0 +1,21 @@
+REAL RUN 111754 · MARKER AUD-RM-111754 · BASE http://127.0.0.1:3106
+16/17 PASS
+
+PASS Servidor en modo real
+PASS POST real fiado 201
+PASS POST real mixto 201
+PASS POST real efectivo 201
+PASS POST real digital 201
+PASS Real fiado: paid=0 credit=10000 confirmed
+PASS Real mixto: paid=6000 credit=3000
+PASS Real efectivo: paid=5000 status=paid
+PASS Real digital: paid=0 credit=0 con saldo pendiente
+PASS Real abono parcial 4000 -> saldo 6000
+PASS Real /ventas parcial muestra Saldo vivo 60.00
+FAIL Real /ventas parcial NO deberia decir 'Fiado, no cobrado' tras abono
+     "FIADO\nPedido AADC\n\nHoy 11:17 a.m. · Fiado · Real Fiado AUD-RM-111754\n\n1 × Real fiado AUD-RM-111754\n\n$100.00\nFiado, no cobrado\nSaldo vivo $60.00\nVer conceptos"
+PASS Real abono total 6000 -> saldo 0
+PASS Real /ventas saldado muestra Saldado y ya no Saldo vivo
+PASS Real /ventas mixto muestra Cobrado 60.00 y Saldo vivo 30.00
+PASS Real /ventas efectivo muestra Pagado/Cobrado 50.00
+PASS Real /ventas digital muestra pendiente y Falta cobrar 80.00

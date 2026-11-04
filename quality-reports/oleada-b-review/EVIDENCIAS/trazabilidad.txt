@@ -1,0 +1,93 @@
+﻿date=2026-11-04T11:02:29.2994145-06:00
+branch=design/oleada-b-caja-ventas
+head=4130e71d668e5e4693a8f5b634d2d2f953d21b02
+base_oleada_a=26c7741433f18e4f4d0e78b1913df76ed09dae7e
+status_start
+tags
+fase-1-handoff  Fase 1: baseline commit + static 5/5 + full 21/23 (tunnel/preflight bloqueados)
+fase-1-inicio-aprobado Linea base Fase 1: Inicio APROBADO CON LIMITACIONES; handoff NO-GO hasta evidencia
+oleada-a-cierre docs: cierre local de Oleada A
+diff_name_status
+M	harness/STATE.md
+M	quality-reports/MIGRACION_INTEGRAL_MERCADO_CERO.md
+A	quality-reports/oleada-b/ACCESIBILIDAD.md
+A	quality-reports/oleada-b/AUDITORIA_REPO.md
+A	quality-reports/oleada-b/CONTRATOS_VENTAS_PAGOS.md
+A	quality-reports/oleada-b/DISENO_CAJA.md
+A	quality-reports/oleada-b/ENTREGA_OLEADA_B.md
+A	quality-reports/oleada-b/FIADO_CORTE.md
+A	quality-reports/oleada-b/MODULOS_NEGOCIO.md
+A	quality-reports/oleada-b/ONBOARDING_AYUDA.md
+A	quality-reports/oleada-b/SHELL_RUTAS.md
+A	quality-reports/oleada-b/VEREDICTO_INDEPENDIENTE.md
+A	quality-reports/oleada-b/a11y.json
+A	quality-reports/oleada-b/accesibilidad-evidence.json
+A	quality-reports/oleada-b/capturas/oleada-b-smoke.json
+A	quality-reports/oleada-b/oleada-b-smoke.json
+A	quality-reports/oleada-b/variantes-inicio.json
+M	web/next.config.ts
+M	web/scripts/oleada-a-smoke.py
+A	web/scripts/oleada-b-a11y.py
+A	web/scripts/oleada-b-captures.py
+A	web/scripts/oleada-b-smoke.py
+A	web/src/app/caja/page.tsx
+M	web/src/app/inicio/page.tsx
+A	web/src/app/ventas/page.tsx
+D	web/src/app/ventas/route.ts
+A	web/src/app/ventas/ventas.css
+M	web/src/components/caja-app.tsx
+A	web/src/components/caja/caja-screen.tsx
+A	web/src/components/caja/caja.css
+A	web/src/components/caja/payment-panel.tsx
+A	web/src/components/caja/sale-line-items.tsx
+A	web/src/components/caja/sale-result.tsx
+A	web/src/components/caja/sale-summary.tsx
+A	web/src/components/caja/types.ts
+M	web/src/components/shell/nav.ts
+diff_stat
+ harness/STATE.md                                   |   63 +-
+ quality-reports/MIGRACION_INTEGRAL_MERCADO_CERO.md |   32 +-
+ quality-reports/oleada-b/ACCESIBILIDAD.md          |  305 ++++
+ quality-reports/oleada-b/AUDITORIA_REPO.md         |  825 +++++++++
+ quality-reports/oleada-b/CONTRATOS_VENTAS_PAGOS.md |  653 +++++++
+ quality-reports/oleada-b/DISENO_CAJA.md            |  885 +++++++++
+ quality-reports/oleada-b/ENTREGA_OLEADA_B.md       |  176 ++
+ quality-reports/oleada-b/FIADO_CORTE.md            |  471 +++++
+ quality-reports/oleada-b/MODULOS_NEGOCIO.md        |  945 ++++++++++
+ quality-reports/oleada-b/ONBOARDING_AYUDA.md       |  562 ++++++
+ quality-reports/oleada-b/SHELL_RUTAS.md            |  769 ++++++++
+ .../oleada-b/VEREDICTO_INDEPENDIENTE.md            |  447 +++++
+ quality-reports/oleada-b/a11y.json                 |  290 +++
+ .../oleada-b/accesibilidad-evidence.json           | 1886 ++++++++++++++++++++
+ .../oleada-b/capturas/oleada-b-smoke.json          |  222 +++
+ quality-reports/oleada-b/oleada-b-smoke.json       |  222 +++
+ quality-reports/oleada-b/variantes-inicio.json     | 1082 +++++++++++
+ web/next.config.ts                                 |    2 +
+ web/scripts/oleada-a-smoke.py                      |   35 +-
+ web/scripts/oleada-b-a11y.py                       |   92 +
+ web/scripts/oleada-b-captures.py                   |  150 ++
+ web/scripts/oleada-b-smoke.py                      |  371 ++++
+ web/src/app/caja/page.tsx                          |   15 +
+ web/src/app/inicio/page.tsx                        |    2 +-
+ web/src/app/ventas/page.tsx                        |  298 ++++
+ web/src/app/ventas/route.ts                        |    6 -
+ web/src/app/ventas/ventas.css                      |  308 ++++
+ web/src/components/caja-app.tsx                    |    7 +-
+ web/src/components/caja/caja-screen.tsx            |  661 +++++++
+ web/src/components/caja/caja.css                   | 1017 +++++++++++
+ web/src/components/caja/payment-panel.tsx          |  281 +++
+ web/src/components/caja/sale-line-items.tsx        |  226 +++
+ web/src/components/caja/sale-result.tsx            |  182 ++
+ web/src/components/caja/sale-summary.tsx           |  264 +++
+ web/src/components/caja/types.ts                   |   67 +
+ web/src/components/shell/nav.ts                    |   39 +-
+ 36 files changed, 13782 insertions(+), 76 deletions(-)
+log
+4130e71 (HEAD -> design/oleada-b-caja-ventas) docs: cierre formal local de Oleada B
+7c48902 perf(caja): difiere ClosingChecklist y aligera la Caja nueva
+af381ad docs: cierre local de Oleada B
+d13d3df feat(caja): pantallas reales de Caja y Ventas de Oleada B
+26c7741 (tag: oleada-a-cierre, design/oleada-a-fundacion) docs: cierre local de Oleada A
+d30a31c feat(ui): fundacion compartida de Oleada A
+62c3fed (tag: fase-1-handoff, design/mercado-cero-v2) docs(handoff): consolida STATE de Fase 1 y evidencia vigente
+c60f7bb docs(handoff): actualiza STATE con cierre de Fase 1 y bloqueo de tunel

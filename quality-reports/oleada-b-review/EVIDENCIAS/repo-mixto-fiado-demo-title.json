@@ -1,0 +1,22 @@
+{
+  "order": "ord_7399b20bfa554ec880d0",
+  "title": "Venta cobrada en efectivo (demo)",
+  "results": [
+    {
+      "name": "mixed cash+credit opens result",
+      "ok": true,
+      "detail": "Venta cobrada en efectivo (demo)"
+    },
+    {
+      "name": "title does not claim full cash sale",
+      "ok": false,
+      "detail": "Venta cobrada en efectivo (demo)"
+    },
+    {
+      "name": "facts show both cash and fiado",
+      "ok": false,
+      "detail": ""
+    }
+  ],
+  "failed": 2
+}

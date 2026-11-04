@@ -1,0 +1,138 @@
+{
+  "base": "http://localhost:3100",
+  "results": [
+    {
+      "name": "/caja title",
+      "ok": true,
+      "detail": "Nueva venta"
+    },
+    {
+      "name": "/caja restores v2 draft",
+      "ok": true,
+      "detail": "Cafe nuevo"
+    },
+    {
+      "name": "/caja total from v2 draft",
+      "ok": true,
+      "detail": "$71.00"
+    },
+    {
+      "name": "/caja does not render legacy v1 item",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "sidebar Caja -> /caja",
+      "ok": true,
+      "detail": "{'Inicio': '/inicio', 'Caja': '/caja', 'Ventas': '/ventas', 'Fiados': '/fiados', 'Corte': '/corte', 'Metas': '/metas', 'Pendientes': '/pendientes'}"
+    },
+    {
+      "name": "sidebar Ventas -> /ventas",
+      "ok": true,
+      "detail": "{'Inicio': '/inicio', 'Caja': '/caja', 'Ventas': '/ventas', 'Fiados': '/fiados', 'Corte': '/corte', 'Metas': '/metas', 'Pendientes': '/pendientes'}"
+    },
+    {
+      "name": "sidebar Fiados -> /fiados",
+      "ok": true,
+      "detail": "{'Inicio': '/inicio', 'Caja': '/caja', 'Ventas': '/ventas', 'Fiados': '/fiados', 'Corte': '/corte', 'Metas': '/metas', 'Pendientes': '/pendientes'}"
+    },
+    {
+      "name": "active Caja has aria-current",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/ renders legacy composer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/ restores v1 draft",
+      "ok": true,
+      "detail": "Quesadilla legacy"
+    },
+    {
+      "name": "/ does not render v2 item",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "two draft keys coexist",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/ventas title",
+      "ok": true,
+      "detail": "Ventas"
+    },
+    {
+      "name": "/ventas has Nueva venta -> /caja",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/ventas exposes no cobro action",
+      "ok": true,
+      "detail": "[]"
+    },
+    {
+      "name": "/ventas mentions pendientes/por cobrar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/fiados final URL is legacy tab",
+      "ok": true,
+      "detail": "http://localhost:3100/?tab=fiado"
+    },
+    {
+      "name": "/fiados renders legacy heading",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/fiados replaces new sidebar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/fiados new caja composer is not visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "v2 draft survives legacy detour",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/?tab=ventas falls back to legacy caja",
+      "ok": true,
+      "detail": "http://localhost:3100/?tab=ventas"
+    },
+    {
+      "name": "mobile nav has Caja and Ventas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no pageerror on audited routes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no console errors on audited routes",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "passed": 25,
+  "failed": 0,
+  "pageErrors": [],
+  "consoleErrors": [],
+  "storageSeen": {
+    "v1": true,
+    "v2": true
+  }
+}

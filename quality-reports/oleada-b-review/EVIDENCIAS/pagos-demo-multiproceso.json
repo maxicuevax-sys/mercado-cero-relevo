@@ -1,0 +1,69 @@
+{
+  "orderId": "ord_9705e22297d446889fcb",
+  "order": {
+    "status": "demo_paid",
+    "total_cents": 10000,
+    "paid_cents": 10000
+  },
+  "payments": [
+    {
+      "id": "pay_eac2fba56a444c728a41",
+      "provider": "demo",
+      "demo": 1,
+      "amount_cents": 10000,
+      "transaction_id": "demo_txn_tx_e83f3ff4995b457999f3",
+      "created_at": "2026-11-04T17:21:47.995Z"
+    }
+  ],
+  "http": [
+    [
+      "http://localhost:3210",
+      200
+    ],
+    [
+      "http://localhost:3210",
+      200
+    ],
+    [
+      "http://localhost:3210",
+      200
+    ],
+    [
+      "http://localhost:3210",
+      200
+    ],
+    [
+      "http://localhost:3210",
+      200
+    ],
+    [
+      "http://localhost:3210",
+      200
+    ],
+    [
+      "http://localhost:3212",
+      200
+    ],
+    [
+      "http://localhost:3212",
+      200
+    ],
+    [
+      "http://localhost:3212",
+      200
+    ],
+    [
+      "http://localhost:3212",
+      200
+    ],
+    [
+      "http://localhost:3212",
+      200
+    ],
+    [
+      "http://localhost:3212",
+      200
+    ]
+  ],
+  "duplicated": false
+}

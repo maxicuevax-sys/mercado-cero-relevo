@@ -1,0 +1,37 @@
+HEAD=4130e71d668e5e4693a8f5b634d2d2f953d21b02
+BASE=26c7741433f18e4f4d0e78b1913df76ed09dae7e
+
+== git diff --name-status base..HEAD (motor/rutas/pay) ==
+M	web/next.config.ts
+M	web/src/components/caja-app.tsx
+
+== git diff --stat base..HEAD (motor/rutas/pay) ==
+
+
+== archivos protegidos: diff vacio ==
+SIN CAMBIO  web/src/lib/orders.ts
+SIN CAMBIO  web/src/lib/cash.ts
+SIN CAMBIO  web/src/lib/db.ts
+SIN CAMBIO  web/src/lib/goals.ts
+SIN CAMBIO  web/src/lib/tasks.ts
+SIN CAMBIO  web/src/lib/payment-rules.ts
+SIN CAMBIO  web/src/lib/payment-labels.ts
+SIN CAMBIO  web/src/lib/pey-events.ts
+SIN CAMBIO  web/src/lib/checkout.ts
+SIN CAMBIO  web/src/app/page.tsx
+SIN CAMBIO  web/src/app/pay/[id]/page.tsx
+SIN CAMBIO  web/src/app/api/webhooks/pey/route.ts
+SIN CAMBIO  web/src/app/api/demo/pay/route.ts
+SIN CAMBIO  web/src/app/api/orders/route.ts
+
+== endpoints usados por componentes nuevos ==
+web\src\components\caja\caja-screen.tsx:118: void fetch(`/api/orders/${pendingId}`, { cache: "no-store" })
+web\src\components\caja\caja-screen.tsx:285: const response = await fetch("/api/orders", {
+web\src\components\caja\caja-screen.tsx:297: const detailResponse = await fetch(`/api/orders/${created.id}`, {
+web\src\components\caja\payment-panel.tsx:38: const response = await fetch(`/api/orders/${order.id}`, { cache: "no-store" });
+web\src\components\caja\payment-panel.tsx:67: const response = await fetch(`/api/orders/${order.id}/pay`, {
+web\src\components\caja\payment-panel.tsx:89: const response = await fetch(`/api/orders/${order.id}`, { cache: "no-store" });
+web\src\components\caja\payment-panel.tsx:111: const response = await fetch("/api/demo/pay", {
+
+== git status ==
+?? quality-reports/oleada-b-review/
