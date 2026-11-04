@@ -286,3 +286,96 @@ La remediación **resuelve el P1 de producto**: el endpoint ya no acepta pedidos
 Lo que **no** está cerrado es el **cierre formal**: árbol sucio, sin commit, `verify:evidence` inválido, contrato A-J no atado al build ni integrado a gates, y sin lock externo/varios casos de la matriz. Por eso:
 
 **Producto: GO local. Handoff: NO-GO condicionado a evidencia limpia.**
+
+---
+
+# ADDENDUM — Commit limpio `178b619` y cierre local del producto
+
+> **Secciones 0–11:** veredicto original, conservado sin cambios. Este addendum registra la evidencia posterior y marca qué hallazgos quedaron superados. No modifica producto ni hace commits. Incluye una reproducción independiente del contrato de 59 checks en un worktree limpio.
+
+## A.1 Hechos verificados (no solo leídos)
+
+| Hecho | Verificación | Estado |
+|---|---|---|
+| HEAD y rama | `178b61957d786f3a982941dc06a946a8ed351ed6` en `design/oleada-b-caja-ventas` | Confirmado |
+| Commits de producto | `de7e339` (núcleo) + `f863df2` (mensaje de `requestId`) | Confirmado con `git show --stat` |
+| Build del contrato | `web/.next/BUILD_SHA = 178b619...`, `builtAt = 2026-11-04T19:14:58.906Z`; el chequeo `0` del contrato comparó `health.buildSha` contra HEAD | Confirmado |
+| Evidencia estática | `harness/evidence/latest-static.json`: `mode=static`, `ok=true`, `gitAtStart.sha=178b619...`, `dirty=false`, `buildSha=178b619...`, 5/5 gates | Confirmado |
+| `verify:evidence -- --static` | El artefacto es válido y pasa todos los checks; una reejecución **ahora** falla solo `árbol actual limpio` | Ver A.3/A.5 |
+| `package.json` | `test:demo-pay = node scripts/p0-demo-pay-contract.mjs` | Confirmado |
+| Runtime 7/7 | `runtime-after.txt`: 7/7 gates verdes, pero en modo **`partial`** por `--only`; no es una corrida full | Confirmado con la salvedad |
+| B smoke / dos pestañas | `smoke-b-after.txt` 44 PASS/0 FAIL; `two-tabs-after.txt` 1 panel por pestaña, 1 pago, `paid_cents=10000` | Confirmado |
+| Árbol actual | **No limpio**: `harness/STATE.md` modificado; `demo-pay-contract.txt` modificado; borrados `p0-*-after.txt`; `smoke-b-after.txt` modificado; `EVIDENCIA_FINAL.md` y `runtime-after.txt` untracked | **No se puede llamar “limpio” al árbol actual** |
+
+**Dato importante y adversarial:** el `demo-pay-contract.txt` **commiteado en `178b619` tiene 49 PASS**; el archivo del working tree tiene **59 PASS**. `EVIDENCIA_FINAL.md` y `runtime-after.txt` **no están en `178b619`**, están untracked. La foto limpia de 59/59 existe, pero su actualización de evidencia no está commiteada.
+
+No hay archivos de producto modificados en el árbol actual: el diff solo contiene `harness/STATE.md` y artefactos de `quality-reports/`. El producto `de7e339`/`f863df2` está intacto.
+
+## A.2 Reproducción independiente del 59/59
+
+Para no depender del archivo de evidencia ni del árbol sucio actual:
+
+1. Creé un worktree detached en `178b619` (limpio).
+2. Enlacé `web/node_modules` y `web/.next` al build `178b619` (junction; ambos ignorados por git).
+3. Copié el **script actual de 59 checks** a un archivo temporal, cambiando únicamente `WEB` para apuntar al worktree limpio. No cambié lógica ni aserciones.
+4. Ejecuté el script contra ese worktree limpio.
+
+Resultado real:
+
+```text
+PASS  0. buildSha sellado desde HEAD — 178b61957d78 vs 178b61957d78
+PASS  0b. árbol limpio para evidencia — limpio
+...
+PASS  G1..G6: 6 rondas, un solo pago/evento
+PASS  G7: llave automática
+PASS  G8: dos requestId distintos
+PASS  H: reinicio + replay
+PASS  I: llave automática
+PASS  K: fallo atómico
+PASS  L: lock externo → 503 demo_pay_busy; reintento cobra una vez
+PASS  M: invariantes globales (sin real en demo_paid, sin sobrepago, sin huérfanos)
+
+DEMO PAY CONTRACT — 59 PASS · 0 FAIL
+```
+
+El worktree temporal y las junctions se eliminaron después. **No se modificó producto ni se hizo commit.**
+
+## A.3 Qué quedó superado
+
+| Hallazgo original | Estado actualizado |
+|---|---|
+| **P1-E1** — árbol sucio / sin evidencia formal | **Superado para `178b619`**: `latest-static` es `ok:true`, 5/5, `gitAtStart.sha = 178b619`, `dirty=false`, `buildSha` idéntico; el 59/59 se reprodujo en worktree limpio. **Salvedad:** el árbol actual no está limpio porque la evidencia 59 y `EVIDENCIA_FINAL.md` están sin commit; una reejecución de `verify:evidence` ahora falla solo por eso. Es empaquetado, no producto. |
+| **P1-E2** — contrato no atado al build ni a gates | **Superado en lo esencial**: el contrato ahora tiene 0/0b (buildSha vs HEAD y árbol limpio), 59 checks, L (lock externo) y M (invariantes), y `npm run test:demo-pay` está en `package.json`. El waiver de `EVIDENCIA_FINAL.md` §6 es razonable para **no** meter tres servidores propios en el catálogo de 25 gates/`verify:full`; **no** es una excusa para no correrlo. Residual P2: no está en CI y el test versionado sigue sin G2/I(b-d)/J2/J3/J5 (M cubre J6; L cubre el lock). |
+| **P2-6** — mensaje engañoso de `requestId` | **Corregido en `f863df2`**: `too_big` da mensaje de longitud; tipo inválido da “El requestId no es válido.” Verificado en el diff y en la ruta actual. |
+| **P2-7** — test no portable/CI | **Mejorado, no cerrado**: ya es `npm run test:demo-pay`, con build/clean checks. Sigue sin CI, con puertos fijos `3331–3333` y `taskkill` en Windows. |
+| **P2-1…P2-5, P2-8…P2-12** | Aceptados/deferidos en `EVIDENCIA_FINAL.md` §7. No se corrigieron; no bloquean este P1 de producto. Siguen vigentes como deuda documentada. |
+| **P0/P1 de Oleada B** | Siguen abiertos según `09_HALLAZGOS_PRIORIZADOS.md` (2 P0 + 13 P1 en el informe). Este addendum solo cierra el P1 de `/api/demo/pay`; no toca el resto ni inicia Oleada C. |
+
+## A.4 Veredicto actualizado
+
+| Dimensión | Decisión |
+|---|---|
+| **P1 de producto `/api/demo/pay`** | **CERRADO LOCALMENTE** en `de7e339` + `f863df2`, con build `178b619` y 59/59 independiente. No quedan P0/P1 de producto para este endpoint. |
+| **Cierre formal local en `178b619`** | **CERRADO** con evidencia estática válida (`latest-static`, 5/5, `verify:evidence -- --static` PASS en el snapshot limpio). La evidencia 59/59 también es reproducible. |
+| **P1-E1 / P1-E2 anteriores** | **Sin P1 abierto en `178b619`**. P1-E1 queda con salvedad de empaquetado (documentos/evidencia sin commit); P1-E2 queda con waiver aceptado y P2 residual (CI/edge cases). |
+| **Árbol actual como handoff** | **No limpio**. Si se entrega el working tree tal cual, hay que commitear la evidencia/docs y repetir `verify:evidence`; si se congela `178b619`, la foto válida es esa. |
+| **Full local** | **NO-GO**: `tunnel`/`preflight` siguen pendientes; `runtime-after` es `partial` 7/7, no full. |
+| **Handoff público** | **NO-GO**: faltan tunnel/preflight, `latest.json` full, QR/lector/iOS y cadena pública de pey. |
+| **Oleada C** | **No iniciada**. |
+
+## A.5 Lectura adversarial del waiver y de la evidencia
+
+- **El waiver del harness es defendible en infraestructura, no en enforcement.** Es correcto no meter tres servidores `3331–3333` y SQLite temporal en el catálogo estable de 25 gates; pero un comando manual fuera de CI puede olvidarse. La solución madura sería un job CI dedicado (`test:demo-pay`), no necesariamente un gate de `verify:full`. Lo acepto para este P1; no lo aceptaría como garantía permanente sin CI.
+- **El 59/59 es fuerte, pero no es la matriz completa del análisis.** G2 (mismo `requestId`, otro importe sin pago), I(b-d), J2/J3 y J5 siguen fuera del test versionado; M cubre J6 y L cubre el lock. Para el P1 de dinero, A-M + las sondas anteriores son suficientes; para una matriz “completa”, falta.
+- **“Árbol limpio” es verdad para `178b619` y para el snapshot de `latest-static`; no es verdad para el working tree actual.** `harness/STATE.md` afirma “limpio”, pero `git status` muestra lo contrario: el documento está sin commit y su afirmación describe el snapshot, no el presente. No se debe usar el STATE como prueba de limpieza actual.
+- **El PASS de `verify:evidence` no se puede reclamar hoy sin matiz.** El artefacto es válido; la reejecución actual falla únicamente por `dirty=true`. La diferencia es de empaquetado de evidencia, no de producto.
+- **`runtime-after` 7/7 es `partial`, no full.** No lo convierto en “full verde”; el full local sigue NO-GO por tunnel/preflight.
+- **La B smoke y dos pestañas son auxiliares**, no sustituyen el contrato multiproceso; el contrato 59/59 es la evidencia principal.
+
+## A.6 Conclusión del addendum
+
+**Producto/demo local: GO y P1 CERRADO** en `178b619` (producto `de7e339` + `f863df2`), con 59/59 independiente en árbol limpio y evidencia estática válida.
+
+**Cierre formal local: CERRADO en `178b619`.** Para que el working tree actual sea un handoff reproducible, hay que commitear la evidencia 59 y `EVIDENCIA_FINAL.md`/`runtime-after.txt` y repetir `verify:evidence`; el addendum que estás leyendo también queda sin commit por instrucción.
+
+**Handoff público: NO-GO** por tunnel/preflight, full pendiente y los 2 P0 + 13 P1 de Oleada B. **Oleada C: no iniciada.**
