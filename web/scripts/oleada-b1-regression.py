@@ -1,0 +1,596 @@
+#!/usr/bin/env python3
+"""Regresión de Operación B.1 (Caja, Ventas y verdad financiera).
+
+Requiere un servidor aislado con SQLite temporal:
+  $env:BASE_URL="http://127.0.0.1:3340"
+  python scripts/oleada-b1-regression.py
+
+El script llama a /api/demo/reset y crea ventas demo. Se niega a correr
+contra los puertos de la base principal (3000/3100/3101) o contra una URL
+que no sea local. No usa la base principal ni pagos reales.
+"""
+from __future__ import annotations
+
+import json
+import os
+import sys
+import time
+from pathlib import Path
+from urllib.parse import urlparse
+
+from playwright.sync_api import expect, sync_playwright
+
+ROOT = Path(__file__).resolve().parents[2]
+BASE = os.environ.get("BASE_URL", "http://127.0.0.1:3340").rstrip("/")
+OUT = Path(
+    os.environ.get(
+        "OLEADA_B1_OUT",
+        str(ROOT / "quality-reports" / "oleada-b-estabilizacion" / "evidencia"),
+    )
+)
+OUT.mkdir(parents=True, exist_ok=True)
+
+parsed = urlparse(BASE)
+if parsed.hostname not in {"127.0.0.1", "localhost"} or parsed.port in {3000, 3100, 3101}:
+    raise SystemExit(
+        "B.1 regression: usa un servidor aislado en localhost con puerto distinto de 3000/3100/3101."
+    )
+
+RESULTS: list[dict] = []
+_ip = 40
+_run = int(time.time())
+_reset = 0
+
+
+def check(name: str, ok: bool, detail: str = "") -> None:
+    RESULTS.append({"name": name, "ok": bool(ok), "detail": detail})
+    print(f"{'PASS' if ok else 'FAIL'}  {name}{(' — ' + str(detail)) if detail else ''}")
+
+
+def next_ip() -> str:
+    global _ip
+    _ip += 1
+    return f"198.51.100.{(_ip % 200) + 1}"
+
+
+def reset(page) -> None:
+    global _reset
+    _reset += 1
+    response = page.request.post(
+        BASE + "/api/demo/reset", headers={"x-forwarded-for": next_ip()}
+    )
+    assert response.ok, f"demo/reset falló: {response.status} {response.text()}"
+    page.goto(BASE + "/inicio", wait_until="domcontentloaded")
+    page.evaluate("localStorage.clear()")
+    page.goto(BASE + "/caja", wait_until="domcontentloaded")
+    page.wait_for_timeout(350)
+
+
+def add_item(page, description: str, quantity: str = "1", price: str = "100") -> None:
+    box = page.locator(".mc-caja-add")
+    box.get_by_label("Producto o servicio").fill(description)
+    box.get_by_label("Cantidad").fill(quantity)
+    box.get_by_label("Precio unitario").fill(price)
+    box.get_by_role("button", name="Agregar", exact=True).click()
+    page.wait_for_timeout(100)
+
+
+def add_legacy_item(page, description: str, quantity: str, price: str) -> None:
+    page.get_by_role("button", name="Agregar producto", exact=True).click()
+    page.get_by_role("textbox", name="Producto").last.fill(description)
+    page.get_by_role("spinbutton", name="Cantidad").last.fill(quantity)
+    page.get_by_role("textbox", name="Precio unitario").last.fill(price)
+
+
+def new_customer(page, name: str) -> None:
+    page.locator("input[placeholder='Ej. Juan']").fill(name)
+
+
+def order_count(page) -> int:
+    response = page.request.get(BASE + "/api/orders")
+    assert response.ok, response.text()
+    return len(response.json()["orders"])
+
+
+def make_order(page, request_id: str, cash: int, total: int = 10000, credit: int = 0, customer=None):
+    response = page.request.post(
+        BASE + "/api/orders",
+        data=json.dumps(
+            {
+                "items": [
+                    {
+                        "description": f"B1 {request_id}",
+                        "quantity": 1,
+                        "unitPriceCents": total,
+                    }
+                ],
+                "cashCents": cash,
+                "creditCents": credit,
+                "customerName": customer,
+                "requestId": request_id,
+            }
+        ),
+        headers={"Content-Type": "application/json", "x-forwarded-for": next_ip()},
+    )
+    assert response.ok, f"{request_id}: {response.status} {response.text()}"
+    return response.json()["order"]
+
+
+def main() -> int:
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+
+        # ------------------------------------------------------------------
+        # P0-01 · fiado puro
+        # ------------------------------------------------------------------
+        ctx = browser.new_context(viewport={"width": 1366, "height": 768}, locale="es-MX")
+        page = ctx.new_page()
+        page.set_default_timeout(15_000)
+        page_errors: list[str] = []
+        page.on("pageerror", lambda error: page_errors.append(str(error)))
+
+        reset(page)
+        add_item(page, "Fiado puro", "1", "100")
+        page.get_by_role("button", name="Fiado", exact=True).click()
+        page.get_by_label("Monto a fiado").fill("100")
+        new_customer(page, "Juan")
+        page.locator(".mc-caja-confirm").click()
+        expect(page.locator(".mc-caja-result")).to_be_visible()
+        result_text = page.locator(".mc-caja-result").inner_text()
+        order = page.request.get(BASE + "/api/orders").json()["orders"][0]
+        check(
+            "P0-01 API paid=0 y credit=100",
+            order["paidCents"] == 0 and order["creditCents"] == 10000,
+            json.dumps({k: order[k] for k in ["status", "paidCents", "creditCents"]}),
+        )
+        check(
+            "P0-01 no afirma efectivo recibido",
+            "el efectivo sí se registró" not in result_text.lower(),
+            result_text,
+        )
+        check("P0-01 dice que no recibiste dinero", "no recibiste dinero" in result_text.lower())
+        check(
+            "P0-01 muestra efectivo $0 y saldo fiado",
+            "cobrado en efectivo" in result_text.lower()
+            and "$0.00" in result_text
+            and "saldo vivo fiado" in result_text.lower(),
+        )
+        page.screenshot(path=str(OUT / "p0-01-fiado-puro.png"), full_page=True)
+
+        # ------------------------------------------------------------------
+        # P0-02 · mixto efectivo + digital
+        # ------------------------------------------------------------------
+        reset(page)
+        add_item(page, "Mixto digital", "1", "100")
+        page.get_by_role("button", name="Mixto", exact=True).click()
+        page.get_by_label("Efectivo recibido").fill("60")
+        page.locator(".mc-caja-confirm").click()
+        expect(page.locator(".mc-caja-payment")).to_be_visible()
+        panel = page.locator(".mc-caja-payment").inner_text()
+        order = page.request.get(BASE + "/api/orders").json()["orders"][0]
+        check(
+            "P0-02 API paid=60 y due=40",
+            order["paidCents"] == 6000
+            and order["totalCents"] - order["paidCents"] - order["creditCents"] == 4000,
+            json.dumps({k: order[k] for k in ["status", "paidCents", "creditCents", "totalCents"]}),
+        )
+        check("P0-02 panel Ya recibiste $60", "ya recibiste" in panel.lower() and "$60.00" in panel)
+        check("P0-02 panel Falta cobrar $40", "falta cobrar" in panel.lower() and "$40.00" in panel)
+        check(
+            "P0-02 no dice que el dinero no se recibió",
+            "el dinero aún no se considera recibido" not in panel.lower(),
+        )
+        page.screenshot(path=str(OUT / "p0-02-mixto-panel.png"), full_page=True)
+
+        # ------------------------------------------------------------------
+        # P1-07 · cambio fantasma y aviso falso
+        # ------------------------------------------------------------------
+        reset(page)
+        add_item(page, "Fantasma", "1", "100")
+        page.get_by_role("button", name="Mixto", exact=True).click()
+        page.get_by_label("Efectivo recibido").fill("100")
+        page.get_by_label("Monto a fiado").fill("100")
+        new_customer(page, "Ana")
+        summary = page.locator(".mc-caja-summary").inner_text()
+        check("P1-07 sin cambio fantasma", "cambio a devolver" not in summary.lower(), summary)
+        check("P1-07 avisa suma mayor al total", "suman más que el total" in summary.lower())
+        check("P1-07 bloquea confirmar", page.locator(".mc-caja-confirm").is_disabled())
+
+        reset(page)
+        add_item(page, "Split válido", "1", "100")
+        page.get_by_role("button", name="Mixto", exact=True).click()
+        page.get_by_label("Efectivo recibido").fill("40")
+        page.get_by_label("Monto a fiado").fill("30")
+        new_customer(page, "Ana")
+        summary = page.locator(".mc-caja-summary").inner_text()
+        check("P1-07 sin aviso falso de total", "el total cambió" not in summary.lower(), summary)
+        check("P1-07 split válido pide digital $30", "$30.00" in summary)
+
+        # ------------------------------------------------------------------
+        # P1-08 · historial con pago parcial
+        # ------------------------------------------------------------------
+        reset(page)
+        make_order(page, f"b1_pending_{_run}", cash=6000)
+        page.goto(BASE + "/ventas", wait_until="domcontentloaded")
+        page.wait_for_timeout(400)
+        row = page.locator(".mc-ventas-row").first.inner_text()
+        check("P1-08 fila muestra cobrado $60", "cobrado" in row.lower() and "$60.00" in row, row)
+        check("P1-08 fila muestra falta $40", "falta cobrar" in row.lower() and "$40.00" in row, row)
+        page.screenshot(path=str(OUT / "p1-08-ventas-pendiente.png"), full_page=True)
+
+        # ------------------------------------------------------------------
+        # P1-09 · abono demo no suma a cobrado confirmado
+        # ------------------------------------------------------------------
+        reset(page)
+        before = page.request.get(BASE + "/api/dashboard").json()["summary"]
+        order = make_order(
+            page,
+            f"b1_credit_{_run}",
+            cash=0,
+            total=10000,
+            credit=10000,
+            customer="Cliente demo",
+        )
+        pay = page.request.post(
+            BASE + f"/api/credits/{order['creditId']}/pay",
+            data=json.dumps(
+                {
+                    "amountCents": 5000,
+                    "method": "cash",
+                    "requestId": f"b1_credit_pay_{_run}",
+                }
+            ),
+            headers={"Content-Type": "application/json", "x-forwarded-for": next_ip()},
+        )
+        check("P1-09 abono demo creado", pay.ok, f"{pay.status} {pay.text()}")
+        after = page.request.get(BASE + "/api/dashboard").json()["summary"]
+        check(
+            "P1-09 cashCents real no cambia; demoCashCents sí",
+            after["cashCents"] == before["cashCents"]
+            and after["demoCashCents"] == before["demoCashCents"] + 5000,
+            json.dumps(
+                {
+                    "before": before["cashCents"],
+                    "after": after["cashCents"],
+                    "demoBefore": before["demoCashCents"],
+                    "demoAfter": after["demoCashCents"],
+                }
+            ),
+        )
+        page.goto(BASE + "/ventas", wait_until="domcontentloaded")
+        page.wait_for_timeout(400)
+        confirmed_card = page.locator(".mc-ventas-stats article").filter(
+            has_text="Cobrado confirmado"
+        )
+        card = confirmed_card.inner_text()
+        check("P1-09 Cobrado confirmado no incluye el abono demo", "$0.00" in card, card)
+        page.screenshot(path=str(OUT / "p1-09-abono-demo.png"), full_page=True)
+
+        # ------------------------------------------------------------------
+        # P1-01 · puente de drafts v1/v2 y conflicto
+        # ------------------------------------------------------------------
+        reset(page)
+        legacy = {
+            "version": 1,
+            "items": [{"id": "legacy_1", "description": "Legacy", "quantity": 2, "unitPriceCents": 3500}],
+            "cashCents": 7000,
+            "creditCents": 0,
+            "customerName": "",
+            "textInput": "",
+            "transcript": "",
+            "updatedAt": "2026-11-04T00:00:00.000Z",
+        }
+        page.evaluate("v => localStorage.setItem('mercado-cero:draft:v1', JSON.stringify(v))", legacy)
+        page.goto(BASE + "/caja", wait_until="domcontentloaded")
+        page.wait_for_timeout(500)
+        body = page.locator(".mc-caja").inner_text()
+        check(
+            "P1-01 importa el draft v1",
+            page.locator(".mc-caja-line input").first.input_value() == "Legacy"
+            and "$70.00" in body,
+        )
+        check(
+            "P1-01 elimina v1 después de importar",
+            page.evaluate("localStorage.getItem('mercado-cero:draft:v1')") is None,
+        )
+        check("P1-01 avisa la importación", "recuperamos el borrador" in body.lower())
+
+        v2 = {
+            "lines": [{"id": "v2_1", "description": "Nueva", "quantity": "1", "price": "100"}],
+            "cashInput": "100",
+            "creditInput": "",
+            "customerName": "",
+            "method": "cash",
+        }
+        page.evaluate("v => localStorage.setItem('mercado-cero:caja-draft:v2', JSON.stringify(v))", v2)
+        page.evaluate("v => localStorage.setItem('mercado-cero:draft:v1', JSON.stringify(v))", legacy)
+        page.reload(wait_until="domcontentloaded")
+        page.wait_for_timeout(500)
+        body = page.locator(".mc-caja").inner_text()
+        check("P1-01 avisa dos drafts distintos", "borrador distinto" in body.lower(), body)
+        check("P1-01 bloquea confirmar en conflicto", page.locator(".mc-caja-confirm").is_disabled())
+        page.get_by_role("button", name="Usar esta venta").click()
+        page.wait_for_timeout(150)
+        check("P1-01 permite elegir esta venta", not page.locator(".mc-caja-confirm").is_disabled())
+
+        # ------------------------------------------------------------------
+        # P1-11 · nav honesta hacia la Caja clásica
+        # ------------------------------------------------------------------
+        fiados = page.get_by_role("link", name="Fiados (abre la Caja clásica)")
+        check("P1-11 Fiados se anuncia como Caja clásica", fiados.count() == 1)
+        check(
+            "P1-11 chip visible Clásica",
+            "clásica" in fiados.inner_text().lower(),
+            fiados.inner_text(),
+        )
+        fiados.click()
+        page.wait_for_timeout(500)
+        check("P1-11 el alias conserva tab=fiado", "tab=fiado" in page.url, page.url)
+
+        # ------------------------------------------------------------------
+        # P1-06 · cola completa y salida a nueva venta
+        # ------------------------------------------------------------------
+        reset(page)
+        o1 = make_order(page, f"b1_pending_a_{_run}", cash=6000)
+        o2 = make_order(page, f"b1_pending_b_{_run}", cash=3000)
+        page.evaluate(
+            "ids => localStorage.setItem('mercado-cero:caja-pending:v2', JSON.stringify({orderIds: ids}))",
+            [o1["id"], o2["id"]],
+        )
+        page.goto(BASE + "/caja", wait_until="domcontentloaded")
+        page.wait_for_timeout(700)
+        check("P1-06 no secuestra la Caja", page.locator("#caja-title").inner_text() == "Nueva venta")
+        check(
+            "P1-06 lista todos los pendientes",
+            page.locator(".mc-caja-pending__list > li").count() == 2,
+        )
+        page.get_by_role("button", name="Seguir cobrando").first.click()
+        page.wait_for_timeout(250)
+        check("P1-06 seguir cobrando abre el panel", page.locator(".mc-caja-payment").count() == 1)
+        page.get_by_role("button", name="Nueva venta").click()
+        page.wait_for_timeout(250)
+        check(
+            "P1-06 nueva venta conserva pendientes",
+            page.locator("#caja-title").inner_text() == "Nueva venta"
+            and page.locator(".mc-caja-pending__list > li").count() == 2,
+        )
+
+        # ------------------------------------------------------------------
+        # P1-12 · 502 post-commit, recarga y reconciliación
+        # ------------------------------------------------------------------
+        reset(page)
+        start_count = order_count(page)
+        state = {"posts": 0, "request_ids": []}
+
+        def fail_first_post(route):
+            if route.request.method == "POST":
+                state["posts"] += 1
+                state["request_ids"].append(route.request.post_data_json.get("requestId"))
+                route.fetch()
+                route.fulfill(
+                    status=502,
+                    content_type="application/json",
+                    body='{"error":"bad gateway"}',
+                )
+            else:
+                route.continue_()
+
+        page.route("**/api/orders", fail_first_post)
+        add_item(page, "502 post-commit", "1", "100")
+        page.get_by_label("Efectivo recibido").fill("100")
+        page.locator(".mc-caja-confirm").click()
+        expect(page.locator(".mc-caja-unknown")).to_be_visible()
+        check(
+            "P1-12 muestra estado desconocido",
+            "no sabemos si la venta quedó registrada"
+            in page.locator(".mc-caja-unknown").inner_text().lower(),
+        )
+        check(
+            "P1-12 bloquea edición",
+            page.locator(".mc-caja-line input").first.is_disabled(),
+        )
+        check("P1-12 hubo un solo POST", state["posts"] == 1, str(state))
+        page.reload(wait_until="domcontentloaded")
+        page.wait_for_timeout(600)
+        check(
+            "P1-12 conserva el aviso tras recargar",
+            page.locator(".mc-caja-unknown").count() == 1,
+        )
+        page.get_by_role("button", name="Consultar si se registró").click()
+        page.wait_for_timeout(900)
+        check("P1-12 reconcilia y muestra resultado", page.locator(".mc-caja-result").count() == 1)
+        check(
+            "P1-12 no duplica la venta",
+            order_count(page) == start_count + 1,
+            f"{start_count} -> {order_count(page)}",
+        )
+        page.unroute("**/api/orders")
+
+        # ------------------------------------------------------------------
+        # P1-05 · foco de ruta y paginación
+        # ------------------------------------------------------------------
+        page.goto(BASE + "/inicio", wait_until="domcontentloaded")
+        page.get_by_role("link", name="Caja", exact=True).click()
+        page.wait_for_timeout(500)
+        active = page.evaluate(
+            "document.activeElement && (document.activeElement.id || document.activeElement.tagName)"
+        )
+        check("P1-05 foco tras navegar a Caja", active in ("caja-title", "caja-main", "H1"), active)
+
+        for index in range(26):
+            make_order(page, f"b1_page_{_run}_{index}", cash=100)
+        page.goto(BASE + "/ventas", wait_until="domcontentloaded")
+        page.wait_for_timeout(400)
+        next_link = page.locator(".mc-ventas-pager a", has_text="Siguiente")
+        if next_link.count() == 0:
+            check("P1-05 paginación disponible", False, "sin página 2")
+        else:
+            next_link.click()
+            page.wait_for_timeout(700)
+            active = page.evaluate("document.activeElement && document.activeElement.id")
+            announcement = page.locator("[role='status'][aria-live='polite']").last.inner_text()
+            check("P1-05 foco al paginar", active == "mc-ventas-list-title", active)
+            check("P1-05 anuncia la página", "página 2" in announcement.lower(), announcement)
+
+        # ------------------------------------------------------------------
+        # P1-02 / P1-03 / P1-04 · geometría y reflow
+        # ------------------------------------------------------------------
+        for width, height in [(1448, 1086), (1366, 768), (1280, 800), (768, 1024)]:
+            pg = browser.new_page(viewport={"width": width, "height": height}, locale="es-MX")
+            pg.goto(BASE + "/caja", wait_until="domcontentloaded")
+            pg.wait_for_timeout(350)
+            pg.evaluate("localStorage.clear()")
+            pg.reload(wait_until="domcontentloaded")
+            pg.wait_for_timeout(350)
+            add_item(pg, "Uno", "1", "100")
+            add_item(pg, "Dos", "2", "50")
+            add_item(pg, "Tres", "1", "30")
+            amount = pg.locator(".mc-caja-line__total .tabular-nums").first.bounding_box()
+            check(
+                f"P1-02 importe visible a {width}",
+                bool(amount and amount["width"] > 20 and amount["height"] > 10),
+                str(amount),
+            )
+            confirm = pg.locator(".mc-caja-confirm").bounding_box()
+            bottom = confirm["y"] + confirm["height"] if confirm else 99999
+            check(f"P1-03 CTA visible a {width}x{height}", bottom <= height + 1, str(confirm))
+            pg.close()
+
+        pg = browser.new_page(viewport={"width": 1366, "height": 768}, locale="es-MX")
+        pg.goto(BASE + "/caja", wait_until="domcontentloaded")
+        pg.wait_for_timeout(350)
+        pg.evaluate("localStorage.clear()")
+        pg.reload(wait_until="domcontentloaded")
+        pg.wait_for_timeout(350)
+        add_item(pg, "Texto", "1", "100")
+        add_item(pg, "Grande", "1", "50")
+        add_item(pg, "Dos", "2", "30")
+        pg.evaluate("document.documentElement.style.fontSize='32px'")
+        pg.wait_for_timeout(400)
+        check(
+            "P1-04 cabecera de líneas apilada a 200%",
+            pg.locator(".mc-caja-lines__head").evaluate("el => getComputedStyle(el).display")
+            == "none",
+        )
+        confirm = pg.locator(".mc-caja-confirm").bounding_box()
+        bottom = confirm["y"] + confirm["height"] if confirm else 99999
+        check("P1-04 CTA visible a 200% en 1366", bottom <= 769, str(confirm))
+        pg.close()
+
+        pg = browser.new_page(viewport={"width": 320, "height": 640}, locale="es-MX")
+        pg.goto(BASE + "/ventas", wait_until="domcontentloaded")
+        pg.wait_for_timeout(350)
+        pg.evaluate("document.documentElement.style.fontSize='32px'")
+        pg.wait_for_timeout(300)
+        dims = pg.evaluate(
+            "({sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth})"
+        )
+        check("P1-04 /ventas 320 sin scroll horizontal", dims["sw"] <= dims["cw"], str(dims))
+        pg.close()
+
+        pg = browser.new_page(viewport={"width": 390, "height": 844}, locale="es-MX")
+        pg.goto(BASE + "/caja", wait_until="domcontentloaded")
+        pg.wait_for_timeout(350)
+        pg.evaluate("localStorage.clear()")
+        pg.reload(wait_until="domcontentloaded")
+        pg.wait_for_timeout(350)
+        add_item(pg, "Uno", "1", "100")
+        add_item(pg, "Dos", "1", "50")
+        add_item(pg, "Tres", "1", "30")
+        pg.evaluate("document.documentElement.style.fontSize='32px'")
+        pg.wait_for_timeout(400)
+        nav_columns = pg.locator(".mc-mobile-nav").evaluate(
+            "el => getComputedStyle(el).gridTemplateColumns"
+        )
+        check(
+            "P1-04 nav móvil 3+2 a 200%",
+            len(nav_columns.split()) == 3,
+            nav_columns,
+        )
+        total = pg.locator(".mc-caja-paybar > div").bounding_box()
+        button = pg.locator(".mc-caja-confirm").bounding_box()
+        check(
+            "P1-04 total y botón no se solapan",
+            bool(total and button and total["x"] + total["width"] <= button["x"]),
+            f"{total} / {button}",
+        )
+        pg.close()
+
+        # ------------------------------------------------------------------
+        # P1-13 · Inicio 768
+        # ------------------------------------------------------------------
+        pg = browser.new_page(viewport={"width": 768, "height": 1024}, locale="es-MX")
+        pg.goto(BASE + "/inicio", wait_until="domcontentloaded")
+        pg.wait_for_timeout(400)
+        picado = pg.locator(".inicio-picado")
+        check(
+            "P1-13 papel picado no invade a 768",
+            picado.count() == 0
+            or picado.evaluate("el => getComputedStyle(el).display") == "none",
+        )
+        cta = pg.locator(".inicio-suggestion__cta").bounding_box()
+        check(
+            "P1-13 CTA de sugerencia sin recorte",
+            bool(cta and cta["x"] + cta["width"] <= 768),
+            str(cta),
+        )
+        dims = pg.evaluate(
+            "({sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth})"
+        )
+        check("P1-13 Inicio 768 sin scroll horizontal", dims["sw"] <= dims["cw"], str(dims))
+        pg.close()
+
+        # ------------------------------------------------------------------
+        # P1-01 legacy · aviso y bloqueo hasta elegir
+        # ------------------------------------------------------------------
+        reset(page)
+        page.evaluate("v => localStorage.setItem('mercado-cero:caja-draft:v2', JSON.stringify(v))", v2)
+        page.goto(BASE, wait_until="domcontentloaded")
+        page.wait_for_selector("h1:has-text('Caja')", timeout=20_000)
+        page.wait_for_timeout(500)
+        legacy_body = page.locator("body").inner_text()
+        check(
+            "P1-01 legacy avisa de la venta en Caja nueva",
+            "hay una venta sin confirmar en la caja nueva" in legacy_body.lower(),
+            legacy_body[:600],
+        )
+        start_count = order_count(page)
+        add_legacy_item(page, "Bloqueada", "1", "10")
+        page.get_by_role("button", name="Confirmar venta").click()
+        page.wait_for_timeout(500)
+        check(
+            "P1-01 legacy bloquea la confirmación",
+            order_count(page) == start_count,
+            f"{start_count} -> {order_count(page)}",
+        )
+        page.get_by_role("button", name="Usar esta Caja clásica").click()
+        page.get_by_role("button", name="Confirmar venta").click()
+        page.wait_for_timeout(700)
+        check(
+            "P1-01 legacy permite confirmar tras elegir",
+            order_count(page) == start_count + 1,
+            f"{start_count} -> {order_count(page)}",
+        )
+
+        check("sin pageerrors", not page_errors, "; ".join(page_errors))
+        browser.close()
+
+    passed = sum(1 for item in RESULTS if item["ok"])
+    failed = sum(1 for item in RESULTS if not item["ok"])
+    payload = {
+        "suite": "oleada-b1-regression",
+        "baseUrl": BASE,
+        "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "summary": {"pass": passed, "fail": failed, "total": len(RESULTS)},
+        "results": RESULTS,
+    }
+    (OUT / "oleada-b1-regression.json").write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    print(f"\nB.1 REGRESSION · {passed} PASS · {failed} FAIL")
+    print(f"EVIDENCIA {OUT / 'oleada-b1-regression.json'}")
+    return 0 if failed == 0 else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

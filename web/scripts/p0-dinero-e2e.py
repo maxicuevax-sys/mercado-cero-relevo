@@ -609,14 +609,17 @@ def main() -> int:
     after_credit = summary()
     after_cash = cash_status()
     check(
-        "abono: cash suma a summary.cashCents y al corte",
-        after_credit["cashCents"] == before_credit["cashCents"] + 2000
+        "abono demo: no suma a cashCents real; sí al corte demo",
+        after_credit["cashCents"] == before_credit["cashCents"]
+        and after_credit["demoCashCents"] == before_credit["demoCashCents"] + 2000
         and after_cash["cashCreditCents"] == before_cash["cashCreditCents"] + 2000,
         json.dumps(
             {
                 "summary": {
-                    "before": before_credit["cashCents"],
-                    "after": after_credit["cashCents"],
+                    "cashBefore": before_credit["cashCents"],
+                    "cashAfter": after_credit["cashCents"],
+                    "demoCashBefore": before_credit["demoCashCents"],
+                    "demoCashAfter": after_credit["demoCashCents"],
                 },
                 "cash": {
                     "before": before_cash["cashCreditCents"],
@@ -627,10 +630,10 @@ def main() -> int:
         ),
     )
     check(
-        "abono: codi va a declaredDigitalCents, no a verificado",
-        after_credit["declaredDigitalCents"]
-        == before_credit["declaredDigitalCents"] + 1000
-        and after_credit["verifiedDigitalCents"] == before_credit["verifiedDigitalCents"],
+        "abono demo: codi va a demoDigitalCents, no a declarado ni verificado",
+        after_credit["declaredDigitalCents"] == before_credit["declaredDigitalCents"]
+        and after_credit["verifiedDigitalCents"] == before_credit["verifiedDigitalCents"]
+        and after_credit["demoDigitalCents"] == before_credit["demoDigitalCents"] + 1000,
         json.dumps(after_credit, ensure_ascii=False),
     )
     provider_rows = db_rows(
@@ -646,10 +649,15 @@ def main() -> int:
     )
     analytics_status, analytics_today = request("GET", "/api/analytics?period=today")
     check(
-        "abono: analytics de hoy usa fecha del abono",
+        "abono demo: analytics separa demo y usa la fecha del abono",
         analytics_status == 200
-        and analytics_today["cashCents"] >= 2000
-        and analytics_today["declaredDigitalCents"] >= 1000,
+        and analytics_today["demoCashCents"] >= 2000
+        and analytics_today["demoDigitalCents"] >= 1000
+        and analytics_today["cashCents"] == after_credit["cashCents"]
+        and analytics_today["collectedCents"]
+        == after_credit["cashCents"]
+        + after_credit["verifiedDigitalCents"]
+        + after_credit["declaredDigitalCents"],
         json.dumps(analytics_today, ensure_ascii=False)[:300],
     )
     final_pay_status, final_pay = request(
