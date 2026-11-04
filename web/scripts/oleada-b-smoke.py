@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import random
 import sys
 from pathlib import Path
 
@@ -23,6 +24,7 @@ OUT = Path(os.environ.get("OLEADA_B_OUT", ROOT / "quality-reports" / "oleada-b" 
 OUT.mkdir(parents=True, exist_ok=True)
 RESULTS: list[dict] = []
 _reset = 0
+_reset_base = random.randint(1, 120)
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
@@ -35,13 +37,15 @@ def reset(page) -> None:
     _reset += 1
     response = page.request.post(
         f"{BASE}/api/demo/reset",
-        headers={"x-forwarded-for": f"198.51.100.{(_reset % 180) + 20}"},
+        headers={
+            "x-forwarded-for": f"198.51.100.{((_reset + _reset_base) % 200) + 1}"
+        },
     )
     assert response.ok, response.text()
     page.goto(BASE + "/inicio", wait_until="domcontentloaded")
     page.evaluate("localStorage.removeItem('mercado-cero:caja-draft:v2'); localStorage.removeItem('mercado-cero:caja-pending:v2'); localStorage.removeItem('mercado-cero:caja-request:v2')")
-    page.goto(BASE + "/caja", wait_until="networkidle")
-    page.wait_for_timeout(350)
+    page.goto(BASE + "/caja", wait_until="domcontentloaded")
+    page.wait_for_timeout(600)
 
 
 def add_item(page, description: str, quantity: str, price: str) -> None:
@@ -192,9 +196,9 @@ def main() -> int:
 
         page.route("**/api/orders", lose_first)
         confirm(page)
-        expect(page.locator(".mc-caja-alert")).to_contain_text("Reintenta")
+        expect(page.locator(".mc-caja-unknown")).to_contain_text("No sabemos si la venta quedó registrada")
         check("H: error posterior al commit queda visible", len(new_orders(page, before)) == 1)
-        confirm(page)
+        page.get_by_role("button", name="Reintentar con la misma llave").click()
         expect(page.locator(".mc-caja-result")).to_be_visible()
         page.wait_for_timeout(300)
         retried = new_orders(page, before)
@@ -217,7 +221,16 @@ def main() -> int:
         page.reload(wait_until="networkidle")
         page.wait_for_timeout(800)
         check(
-            "I: el cobro pendiente se reanuda al recargar",
+            "I: el cobro pendiente queda en la lista al recargar",
+            page.locator("#caja-title").inner_text() == "Nueva venta"
+            and page.locator(".mc-caja-pending").count() == 1
+            and order_id[-4:].upper() in page.locator(".mc-caja-pending").inner_text(),
+            page.locator(".mc-caja-pending").inner_text() if page.locator(".mc-caja-pending").count() else "sin lista",
+        )
+        page.get_by_role("button", name="Seguir cobrando").click()
+        page.wait_for_timeout(300)
+        check(
+            "I: seguir cobrando reabre el pendiente",
             page.locator("#mc-caja-payment-title").count() == 1
             and order_id[-4:].upper() in page.locator("#mc-caja-payment-title").inner_text(),
             page.locator("#mc-caja-payment-title").inner_text() if page.locator("#mc-caja-payment-title").count() else "sin panel",

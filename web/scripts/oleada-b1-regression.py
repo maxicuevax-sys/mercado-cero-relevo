@@ -193,7 +193,10 @@ def main() -> int:
         new_customer(page, "Ana")
         summary = page.locator(".mc-caja-summary").inner_text()
         check("P1-07 sin cambio fantasma", "cambio a devolver" not in summary.lower(), summary)
-        check("P1-07 avisa suma mayor al total", "suman más que el total" in summary.lower())
+        check(
+            "P1-07 avisa que el fiado cubre todo y no se aplicó efectivo",
+            "no se aplicó el efectivo" in summary.lower(),
+        )
         check("P1-07 bloquea confirmar", page.locator(".mc-caja-confirm").is_disabled())
 
         reset(page)
@@ -316,7 +319,7 @@ def main() -> int:
         # ------------------------------------------------------------------
         # P1-11 · nav honesta hacia la Caja clásica
         # ------------------------------------------------------------------
-        fiados = page.get_by_role("link", name="Fiados (abre la Caja clásica)")
+        fiados = page.locator('.inicio-nav__item[href$="fiados"]').first
         check("P1-11 Fiados se anuncia como Caja clásica", fiados.count() == 1)
         check(
             "P1-11 chip visible Clásica",
