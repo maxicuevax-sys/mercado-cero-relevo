@@ -390,3 +390,58 @@ No lo ejecuté. Lo autorizaría como **checkpoint de rama**, nunca como commit d
 | **¿Qué falta para cierre formal?** | Commit acotado; `verify:static` y `verify:evidence` PASS contra HEAD limpio; `verify:full` (o full con tunnel omitido y documentado como parcial, nunca como `ok:true`); HIG/contrast/motion específicos de las rutas nuevas; decisión/cierre de P1-2; y, para publicación, pey/túnel/QR reales. |
 
 **Veredicto vigente:** Oleada B ya no tiene el P1 de dinero que bloqueaba la captura de cantidades. Queda **lista para construir C** y para un **commit acotado de checkpoint**. No está lista para **cierre formal ni handoff público**: el P1 heredado de demo-pay, la evidencia sucia y la ausencia de HIG/full gate siguen siendo bloqueos reales, no cosméticos.
+
+> **Actualización final:** ver §11. El estado `7c48902` sí tiene `verify:static` 5/5 y `verify:evidence --static` PASS; el full quedó parcial por `tunnel`/`preflight`. El veredicto de cierre local se actualiza allí.
+
+---
+
+## 11. Cierre formal (2026-11-04, 10:57)
+
+### 11.1 Estado final verificado
+
+| Elemento | Valor |
+|---|---|
+| Rama | `design/oleada-b-caja-ventas` |
+| HEAD | `7c48902583ff60e7a88cd713340a439141324e2a` |
+| Árbol | **limpio en `7c48902` antes de esta edición**; después de escribir este informe, el único cambio es este archivo de evidencia |
+| Commits | `d13d3df` Caja/Ventas; `af381ad` docs; `7c48902` perf |
+| Build servido | `:3100`, `buildSha=7c48902...`, health `ok:true` |
+| `latest-static.json` | `ok:true`, `mode=static`, `partial:false`, `sha=7c48902`, `dirty:false`, 5/5 gates |
+| `verify:evidence -- --static` | **PASS** (re-ejecutado por mí) |
+| Full documentado | `2026-11-04T16-44-44-732Z-full.json`: `partial:true`, `ok:false`, 21/21 gates ejecutados PASS, 21/23 |
+| `latest.json` full | Sigue siendo de `9206ea1`; no es de B |
+
+`7c48902` modificó `web/src/components/caja-app.tsx` solo para cargar `ClosingChecklist` con `dynamic(..., { ssr:false })` (`caja-app.tsx:4,26-28`). Es una desviación del contrato literal anterior “`caja-app.tsx` intacto”, pero **no toca lógica financiera**. `app/page.tsx`, `orders.ts`, `cash.ts`, `db.ts`, `payment-*`, `checkout.ts`, `pey-events.ts`, `api/**` y `pay/**` siguen sin diff financiero contra `26c7741`.
+
+### 11.2 Evidencia final que sostiene el cierre local
+
+- `verify:static`: **5/5 PASS**, `guard/lint/types/deps/build`, limpio en `7c48902`.
+- `verify:evidence -- --static`: **PASS**, SHA/build/árbol limpio.
+- `verify:full --skip=tunnel,preflight`: **21/21 gates ejecutados PASS**; `p0-venta 66/0`, `p0-fiado 51/0`, `p0-corte 69/0`, `p0-integración 51/0`, `p0-dinero 45/0 + 3 KNOWN`; webhook/checkout/HIG/motion/contrast/mobile-320/rehearsal/security/data/perf PASS.
+- `perf`: **200.1 KiB / 201.0 KiB** JS inicial; `ClosingChecklist` lazy y sin lucide en componentes nuevos.
+- Smoke B re-ejecutado por mí en `7c48902` con salida temporal: **44/44 PASS**.
+- A11y re-ejecutada en `7c48902`: **axe 0 normal/HC**, `under44=0`, 200% sin overflow en `/caja` y `/ventas` × 1448/1366/390/320.
+- El full es **parcial por diseño**: `skipped=tunnel,preflight`, `notRun=build,tunnel,preflight,film`; `reasons` incluye “modo partial” y gates críticos no ejecutados. No es un `latest.json` `ok:true` y no debe presentarse como full formal.
+- **Nota de integridad:** `verify:evidence --static` PASS se ejecutó con el árbol limpio de `7c48902`, antes de escribir esta sección. La edición de este informe deja el árbol sucio por un archivo de `quality-reports`; no es un cambio de producto. Para volver a sellar evidencia hay que commitear el informe o medir con él ya commiteado.
+
+### 11.3 P0/P1/P2 al cierre
+
+- **P0 de producto:** ninguno.
+- **P1-1 parser:** cerrado; regex y smoke E3.
+- **P1-2 demo-pay:** **sigue abierto y heredado**; `/api/demo/pay` no es idempotente por pedido ni valida `order.demo`. No se tocó.
+- **P2:** la cola de pendientes solo reanuda el último; foco de ruta y error de alta; total text-only al 200%; agregado “Por cobrar” con demo; HIG 48 vs 44; paginación >25/51; `/ventas` N+1/fechas; documentación `ENTREGA`/`STATE` aún referencia `d13d3df` para static/evidence. Ninguno es P1 de dinero.
+- **HIG específico:** el gate `HIG / WCAG 2.2 AA` del full pasa, pero su script navega a `BASE` (`hig-after-audit.py:705`), es decir `/` legacy; **no mide `/caja` ni `/ventas`**. Las rutas nuevas tienen axe/smoke, no un HIG específico. Si el cierre formal exige HIG por ruta, queda pendiente.
+
+### 11.4 Veredicto de cierre
+
+| Pregunta | Respuesta |
+|---|---|
+| **¿Quedan P0 abiertos?** | **No.** |
+| **¿Quedan P1 abiertos?** | **Uno heredado:** demo-pay sin idempotencia/`order.demo`. El P1 del parser está cerrado. |
+| **¿Oleada B lista para Oleada C?** | **Sí.** Base funcional, motor intacto, static formal PASS y 21/21 gates runtime ejecutados PASS. |
+| **¿Cierre formal local aceptable con full parcial documentado?** | **Sí como cierre local de ingeniería condicionado**, no como cierre formal pleno. El full es `partial:true/ok:false` y `latest.json` no es de B; si “formal” exige `latest.json` full `ok:true`, **no**. |
+| **¿Handoff público?** | **NO-GO.** `latest.json` de `9206ea1`, tunnel/preflight no ejecutados, link `localhost`, sin pey real. |
+| **¿Autorizas commit acotado?** | Ya está commiteado (`7c48902`). **No hace falta otro commit de producto**; si se actualizan docs a `7c48902`, que sea un commit documental separado. No lo ejecuté. |
+| **¿Qué falta para cierre formal pleno?** | Actualizar `ENTREGA_OLEADA_B.md`/`STATE.md` a `7c48902`; decidir/cerrar P1-2; HIG/contrast/motion específicos de las rutas nuevas si el estándar lo exige; ejecutar tunnel/preflight y obtener `verify:full`/`latest.json` `ok:true`; y, para publicación, pey/QR/túnel reales. |
+
+**Veredicto final:** Oleada B queda **cerrada localmente como base para Oleada C**, con evidencia estática formal, 21/21 gates runtime ejecutados en verde y smoke/a11y re-ejecutados sobre `7c48902`. No es un **GO formal pleno** ni un **handoff público**: el full está documentado como parcial (`tunnel`/`preflight`), `latest.json` sigue siendo de `9206ea1`, el P1 heredado de demo-pay no se tocó y el HIG específico de las rutas nuevas no existe. La decisión de aceptar el full parcial es una decisión de riesgo del dueño del producto, no una equivalencia con `ok:true`.
