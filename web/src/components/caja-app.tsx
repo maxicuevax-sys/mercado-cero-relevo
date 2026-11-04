@@ -7396,7 +7396,7 @@ function AppSidebar({
 }) {
   return (
     <aside className="app-sidebar" aria-label="Índice de la libreta">
-      <a className="brand-lockup" href="/inicio" aria-label="Ir a Inicio">
+      <a className="brand-lockup" href="/inicio">
         <div className="brand-mark flex h-[40px] w-[40px] shrink-0 items-center justify-center font-display text-xl font-bold text-white">
           <Image
             src={iconTienda}
@@ -7409,6 +7409,7 @@ function AppSidebar({
         <div className="min-w-0">
           <p className="brand-name">Mercado Cero</p>
           <p className="brand-tagline">La caja que habla</p>
+          <span className="sr-only">Inicio</span>
         </div>
       </a>
 
@@ -7486,7 +7487,11 @@ function TopBar({
       <div className="mx-auto flex min-h-14 max-w-[1200px] flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6 lg:px-8">
         <div className="min-w-0 flex-1 basis-[8rem]">
           <div className="flex items-center gap-2">
-            <a href="/inicio" aria-label="Ir a Inicio" className="shrink-0 lg:hidden">
+            <a
+              href="/inicio"
+              aria-label="Ir a Inicio"
+              className="flex h-12 w-12 shrink-0 items-center justify-center lg:hidden"
+            >
               <Image
                 src={iconTienda}
                 alt=""

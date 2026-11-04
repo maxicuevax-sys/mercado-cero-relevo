@@ -2319,3 +2319,24 @@ html[data-text-zoom="large"] .caja-entry {
 .app-sidebar .brand-lockup {
   text-decoration: none;
 }
+
+
+/* En 320 px el topbar no cabe en una sola fila con texto al 200%. */
+@media (max-width: 340px) {
+  .topbar-address {
+    display: none;
+  }
+
+  .topbar > div {
+    flex-wrap: wrap;
+  }
+
+  .topbar-tools {
+    flex-basis: 100%;
+    justify-content: flex-start;
+  }
+
+  .topbar .stamp--demo {
+    padding-inline: 8px;
+  }
+}
