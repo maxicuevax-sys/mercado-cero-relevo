@@ -966,10 +966,18 @@
 }
 
 .mc-caja-paybar__review {
-  min-height: 32px;
+  min-height: 44px;
   margin: 0 0 0 4px;
   padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
   font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 
 .mc-caja-footnote {

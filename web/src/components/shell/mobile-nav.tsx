@@ -51,12 +51,19 @@ export function MobileNav({
             key={item.id}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            aria-label={navAriaLabel(item)}
+            aria-label={item.legacy ? undefined : item.ariaLabel}
             className="mc-mobile-nav__item"
           >
             <MaskIcon src={item.icon} className="mc-mobile-nav__icon" />
             <span>{item.label}</span>
-            {item.legacy ? <span className="mc-mobile-nav__legacy">Clásica</span> : null}
+            {item.legacy ? (
+              <>
+                <span className="mc-mobile-nav__legacy">Clásica</span>
+                <span className="sr-only">
+                  {item.ariaLabel ? `${item.ariaLabel}, ` : ""}abre la Caja clásica.
+                </span>
+              </>
+            ) : null}
           </Link>
         );
       })}
@@ -73,12 +80,19 @@ export function MobileNav({
                 key={item.id}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                aria-label={navAriaLabel(item)}
+                aria-label={item.legacy ? undefined : item.ariaLabel}
                 className="mc-mobile-nav__link"
               >
                 <MaskIcon src={item.icon} className="mc-mobile-nav__link-icon" />
                 <span>{item.label}</span>
-                {item.legacy ? <span className="mc-mobile-nav__legacy">Clásica</span> : null}
+                {item.legacy ? (
+                  <>
+                    <span className="mc-mobile-nav__legacy">Clásica</span>
+                    <span className="sr-only">
+                      {item.ariaLabel ? `${item.ariaLabel}, ` : ""}abre la Caja clásica.
+                    </span>
+                  </>
+                ) : null}
               </Link>
             );
           })}
@@ -88,7 +102,3 @@ export function MobileNav({
   );
 }
 
-function navAriaLabel(item: ShellNavItem): string | undefined {
-  const base = item.ariaLabel ?? item.label;
-  return item.legacy ? `${base} (abre la Caja clásica)` : item.ariaLabel;
-}

@@ -23,6 +23,18 @@ export function RouteFocus({
   const [announcement, setAnnouncement] = useState("");
 
   useEffect(() => {
+    // La primera carga de la pestaña conserva el orden natural del teclado
+    // (skip link primero). Las navegaciones posteriores sí mueven el foco.
+    try {
+      if (!window.sessionStorage.getItem("mercado-cero:route-focus-seen")) {
+        window.sessionStorage.setItem("mercado-cero:route-focus-seen", "1");
+        return;
+      }
+    } catch {
+      // Sin sessionStorage se mantiene el foco natural.
+      return;
+    }
+
     const main = document.getElementById(mainId);
     const preferred = targetId ? document.getElementById(targetId) : null;
     const heading = main?.querySelector<HTMLElement>("h1") ?? null;

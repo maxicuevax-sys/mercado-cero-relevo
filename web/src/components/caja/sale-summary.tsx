@@ -52,11 +52,11 @@ export function SaleSummary({
   const creditEnteredCents = parseMoneyCents(creditInput);
   const cashEnteredCents = parseMoneyCents(cashInput);
   const creditOverpay = creditEnteredCents > totalCents;
-  const cashCreditOverpay =
+  const creditCoversAllWithCash =
     method === "mixed" &&
-    appliedCreditCents > 0 &&
-    cashEnteredCents > 0 &&
-    cashEnteredCents + appliedCreditCents > totalCents;
+    totalCents > 0 &&
+    appliedCreditCents >= totalCents &&
+    cashEnteredCents > 0;
   const creditShortfall =
     method === "credit" ? Math.max(0, totalCents - appliedCreditCents) : 0;
   const needsCustomer = appliedCreditCents > 0 && customerName.trim().length === 0;
@@ -153,10 +153,10 @@ export function SaleSummary({
         </p>
       ) : null}
 
-      {cashCreditOverpay ? (
+      {creditCoversAllWithCash ? (
         <p className="mc-caja-alert" role="alert">
-          El efectivo y el fiado suman más que el total ({formatMxn(totalCents)}). Ajusta el
-          efectivo o el monto a fiado; no se registrará cambio sobre dinero que no se aplicó.
+          El fiado ya cubre el total ({formatMxn(totalCents)}) y no se aplicó el efectivo.
+          Reduce el monto a fiado o el efectivo; no se registrará cambio fantasma.
         </p>
       ) : null}
 

@@ -170,7 +170,6 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.4;
-  text-transform: uppercase;
 }
 
 .inicio-nav__item[aria-current="page"] .inicio-nav__legacy {

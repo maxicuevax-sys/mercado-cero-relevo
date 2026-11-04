@@ -110,14 +110,15 @@ export function CajaScreen({
     Math.max(0, cashCents),
     Math.max(0, totalCents - appliedCreditCents),
   );
-  // En mixto, efectivo + fiado no pueden cubrir más que el total. Si el
-  // efectivo ya cubre todo, el fiado no debe aplicarse ni producir cambio.
-  const cashCreditOverpay =
+  // El fantasma aparece cuando el fiado ya cubre todo y, aun así, se quiere
+  // devolver el efectivo completo como cambio. En un split válido el fiado
+  // solo cubre una parte y el efectivo tendido puede incluir cambio real.
+  const creditCoversAllWithCash =
     method === "mixed" &&
-    appliedCreditCents > 0 &&
-    cashCents > 0 &&
-    cashCents + appliedCreditCents > totalCents;
-  const changeForSale = cashCreditOverpay
+    totalCents > 0 &&
+    appliedCreditCents >= totalCents &&
+    cashCents > 0;
+  const changeForSale = creditCoversAllWithCash
     ? 0
     : Math.max(0, cashCents - appliedCashCents);
   const digitalDueCents = Math.max(
@@ -309,8 +310,8 @@ export function CajaScreen({
       return "Revisa los conceptos marcados.";
     }
     if (overpay) return "El fiado no puede superar el total.";
-    if (cashCreditOverpay) {
-      return "El efectivo y el fiado no pueden superar el total. Ajusta uno de los dos.";
+    if (creditCoversAllWithCash) {
+      return "El fiado ya cubre el total y no se aplicó el efectivo. Ajusta el monto a fiado o el efectivo.";
     }
     if (appliedCreditCents > 0 && !customerName.trim()) {
       return "Para fiado necesito el nombre del cliente.";
@@ -655,7 +656,7 @@ export function CajaScreen({
     lines.length > 0 &&
     totalCents > 0 &&
     !overpay &&
-    !cashCreditOverpay &&
+    !creditCoversAllWithCash &&
     !saving &&
     !unknownResult &&
     !legacyConflict &&
@@ -927,7 +928,7 @@ export function CajaScreen({
             {!canConfirm ? (
               <button
                 type="button"
-                className="mc-caja-clear mc-caja-paybar__review"
+                className="mc-caja-paybar__review"
                 onClick={goToPayment}
               >
                 Revisar cobro
