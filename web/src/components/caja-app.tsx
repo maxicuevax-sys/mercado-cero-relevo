@@ -743,6 +743,8 @@ export default function CajaApp({
   const [creditPayRequestId, setCreditPayRequestId] = useState<string | null>(null);
   const [creditPaying, setCreditPaying] = useState(false);
   const [saleError, setSaleError] = useState<string | null>(null);
+  const [newCajaDraft, setNewCajaDraft] = useState(false);
+  const [legacyDraftAcknowledged, setLegacyDraftAcknowledged] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [verifyError, setVerifyError] = useState<string | null>(null);
 
@@ -1001,6 +1003,18 @@ export default function CajaApp({
       window.removeEventListener("focus", onFocus);
     };
   }, [loadDashboard]);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem("mercado-cero:caja-draft:v2");
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { lines?: unknown };
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setNewCajaDraft(Array.isArray(parsed.lines) && parsed.lines.length > 0);
+    } catch {
+      // Un borrador de la Caja nueva corrupto no debe tumbar la Caja clásica.
+    }
+  }, []);
 
   useEffect(() => {
     // El borrador se restaura después del montaje para no romper la hidratación.
@@ -1884,6 +1898,12 @@ export default function CajaApp({
       setSaleError("Agrega al menos un producto.");
       return;
     }
+    if (newCajaDraft && !legacyDraftAcknowledged) {
+      setSaleError(
+        "Hay una venta sin confirmar en la Caja nueva. Ábrela o elige «Usar esta Caja clásica» antes de registrar otra.",
+      );
+      return;
+    }
 
     const issues = validateDraftItems(draftItems);
     if (issues.size > 0) {
@@ -1997,7 +2017,9 @@ export default function CajaApp({
     creditCents,
     customerName,
     draftItems,
+    legacyDraftAcknowledged,
     loadDashboard,
+    newCajaDraft,
     overpay,
     playChime,
     showToast,
@@ -2574,6 +2596,38 @@ export default function CajaApp({
                         className="flex min-h-12 items-center px-3 text-sm font-semibold text-ink-2 transition hover:text-danger"
                       >
                         Descartar aviso
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+                {newCajaDraft && !legacyDraftAcknowledged ? (
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className="mb-4 flex flex-wrap items-center justify-between gap-2 border-l-2 border-attention bg-saffron-soft/50 px-3 py-2 text-sm text-ink-2"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-semibold text-ink">
+                        Hay una venta sin confirmar en la Caja nueva.
+                      </p>
+                      <p className="mt-0.5 leading-snug">
+                        No se mezcló con este borrador. Para evitar duplicarla, ábrela en la Caja
+                        nueva o confirma que quieres usar esta Caja clásica.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      <a
+                        href="/caja"
+                        className="flex min-h-12 items-center border border-control-border bg-surface px-3 text-sm font-semibold text-accent"
+                      >
+                        Abrir Caja nueva
+                      </a>
+                      <button
+                        type="button"
+                        className="flex min-h-12 items-center px-3 text-sm font-semibold text-ink-2"
+                        onClick={() => setLegacyDraftAcknowledged(true)}
+                      >
+                        Usar esta Caja clásica
                       </button>
                     </div>
                   </div>

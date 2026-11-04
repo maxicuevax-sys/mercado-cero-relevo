@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatMxn } from "@/lib/format";
+import { saleMoney } from "@/lib/sale-truth";
 import type { Order } from "@/lib/types";
 
 const TERMINAL = new Set(["paid", "demo_paid", "fulfilled", "cancelled"]);
@@ -11,11 +12,15 @@ const TERMINAL = new Set(["paid", "demo_paid", "fulfilled", "cancelled"]);
 export function PaymentPanel({
   order,
   demo,
+  creditBalanceCents,
   onOrder,
+  onNewSale,
 }: {
   order: Order;
   demo: boolean;
+  creditBalanceCents?: number | null;
   onOrder: (order: Order, creditBalanceCents?: number | null) => void;
+  onNewSale: () => void;
 }) {
   const [busy, setBusy] = useState<"link" | "qr" | "refresh" | "demo" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +32,8 @@ export function PaymentPanel({
     orderRef.current = order;
   }, [order]);
 
-  const dueCents = Math.max(0, order.totalCents - order.paidCents - order.creditCents);
+  const money = saleMoney(order, creditBalanceCents);
+  const dueCents = money.dueCents;
   const pending = !TERMINAL.has(order.status);
 
   useEffect(() => {
@@ -144,15 +150,46 @@ export function PaymentPanel({
             Pedido {order.id.slice(-4).toUpperCase()}
           </h2>
         </div>
-        <span className={`mc-caja-status mc-caja-status--${order.status}`}>
+        <span
+          className={`mc-caja-status mc-caja-status--${order.status}`}
+          role="status"
+          aria-live="polite"
+        >
           {statusLabel(order.status)}
         </span>
       </div>
 
       <div className="mc-caja-payment__amount">
-        <p>Falta cobrar</p>
-        <CurrencyAmount as="p" cents={dueCents} className="mc-caja-payment__value" />
-        <p>El pedido ya está registrado. El dinero aún no se considera recibido.</p>
+        {money.hasReceived ? (
+          <>
+            <p className="mc-caja-payment__label">Ya recibiste</p>
+            <CurrencyAmount as="p" cents={money.paidCents} className="mc-caja-payment__value" />
+            <p className="mc-caja-payment__detail">
+              {money.hasCash && money.hasDigital
+                ? `Efectivo ${formatMxn(money.cashPaidCents)} + digital confirmado ${formatMxn(money.digitalPaidCents)}.`
+                : money.hasCash
+                  ? `En efectivo: ${formatMxn(money.cashPaidCents)}.`
+                  : `Digital confirmado: ${formatMxn(money.digitalPaidCents)}.`}
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="mc-caja-payment__label">Falta cobrar</p>
+            <CurrencyAmount as="p" cents={dueCents} className="mc-caja-payment__value" />
+            <p className="mc-caja-payment__detail">Todavía no se recibe dinero.</p>
+          </>
+        )}
+        {money.hasReceived && dueCents > 0 ? (
+          <p className="mc-caja-payment__pending">
+            Falta cobrar <CurrencyAmount cents={dueCents} />. El cobro digital sigue pendiente.
+          </p>
+        ) : null}
+        {money.openCredit ? (
+          <p className="mc-caja-payment__credit">
+            Saldo fiado <CurrencyAmount cents={money.creditBalanceCents} />; es deuda, no dinero
+            recibido.
+          </p>
+        ) : null}
       </div>
 
       {order.qrImage ? (
@@ -208,12 +245,20 @@ export function PaymentPanel({
         ) : null}
         <button
           type="button"
-          className="mc-caja-button mc-caja-button--quiet"
+          className="mc-caja-button mc-caja-button--secondary"
           onClick={() => void refresh()}
           disabled={busy !== null}
         >
           {busy === "refresh" ? <span className="mc-caja-spinner" aria-hidden="true" /> : null}
           Actualizar estado
+        </button>
+        <button
+          type="button"
+          className="mc-caja-button mc-caja-button--quiet"
+          onClick={onNewSale}
+          disabled={busy !== null}
+        >
+          Nueva venta
         </button>
       </div>
 
@@ -241,8 +286,10 @@ export function PaymentPanel({
       ) : null}
 
       <p className="mc-caja-payment__note">
-        {formatMxn(dueCents)} siguen pendientes. No entregues como pagado hasta ver la confirmación
-        válida del proveedor.
+        {dueCents > 0
+          ? `${formatMxn(dueCents)} siguen pendientes. No entregues como pagado hasta ver la confirmación válida del proveedor.`
+          : "No queda saldo pendiente en este pedido."}{" "}
+        Si inicias otra venta, este cobro sigue registrado y queda en la lista de pendientes.
       </p>
       <Link className="mc-caja-clear" href="/ventas">
         Ver historial de ventas

@@ -203,10 +203,8 @@ export function getAnalytics(period: AnalyticsPeriod): AnalyticsReport {
 
   for (const payment of creditPayments) {
     const amount = Number(payment.amount_cents);
-    if (
-      payment.provider === "demo" ||
-      (!includeDemo && Number(payment.demo) === 1)
-    ) {
+    // Simetría con getDailySummary: un abono demo jamás suma a cobrado real.
+    if (payment.provider === "demo" || Number(payment.demo) === 1) {
       if (payment.method === "cash") demoCashCents += amount;
       else demoDigitalCents += amount;
       continue;

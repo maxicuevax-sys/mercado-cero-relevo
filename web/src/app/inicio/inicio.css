@@ -17,6 +17,7 @@
   min-height: 100dvh;
   display: grid;
   grid-template-columns: 236px minmax(0, 1fr);
+  container-type: inline-size;
   background: var(--inicio-paper);
   color: var(--inicio-ink);
   font-family: var(--font-inter), "Inter", "Segoe UI", sans-serif;
@@ -95,7 +96,9 @@
 
 .inicio-brand__name {
   font-family: var(--font-fraunces), Georgia, serif;
-  font-size: 2.375rem;
+  /* La marca es un logotipo: no debe empujar el sidebar fuera de su columna
+     cuando el texto del documento sube al 200 %. */
+  font-size: min(2.375rem, 38px);
   font-weight: 600;
   line-height: 0.92;
   letter-spacing: -0.035em;
@@ -122,8 +125,10 @@
 
 .inicio-nav__item {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
+  row-gap: 2px;
   min-height: 52px;
   padding: 0 12px;
   border-radius: 14px;
@@ -132,6 +137,11 @@
   font-weight: 500;
   line-height: 1.2;
   text-decoration: none;
+}
+
+.inicio-nav__item > span:not(.inicio-nav__legacy) {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .inicio-nav__item:hover {
@@ -148,6 +158,24 @@
 .inicio-nav__icon {
   width: 23px;
   height: 23px;
+}
+
+.inicio-nav__legacy {
+  margin-left: 0;
+  padding: 1px 6px;
+  border: 1px solid rgb(255 253 247 / 0.35);
+  border-radius: 999px;
+  color: #fff0d2;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.inicio-nav__item[aria-current="page"] .inicio-nav__legacy {
+  border-color: color-mix(in srgb, var(--inicio-green) 35%, transparent);
+  color: var(--inicio-green);
 }
 
 .inicio-sidebar__foot {
@@ -181,6 +209,7 @@
 .inicio-topbar {
   min-height: 100px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
@@ -789,6 +818,37 @@
   }
 }
 
+@media (min-width: 761px) and (max-width: 1100px) {
+  /* En tablet el papel picado se monta sobre el saludo y la sugerencia no
+     cabe en tres columnas. Se retira el arte decorativo y se apila el CTA. */
+  .inicio-picado {
+    display: none;
+  }
+
+  .inicio-suggestion {
+    grid-template-columns: 180px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 4px 16px;
+    padding: 12px 20px 12px 16px;
+  }
+
+  .inicio-suggestion__art {
+    grid-row: 1 / span 2;
+    width: 180px;
+  }
+
+  .inicio-suggestion__cta {
+    grid-column: 2;
+    justify-self: start;
+    min-width: 0;
+    min-height: 48px;
+    margin-top: 8px;
+    margin-left: 0;
+    padding: 0 16px;
+    font-size: 1rem;
+  }
+}
+
 @media (max-width: 760px) {
   .inicio-shell {
     display: block;
@@ -821,7 +881,7 @@
   }
 
   .inicio-brand__name {
-    font-size: 1.375rem;
+    font-size: min(1.375rem, 24px);
     line-height: 0.98;
   }
 
@@ -1195,7 +1255,7 @@
   }
 
   .inicio-brand__name {
-    font-size: 1.75rem;
+    font-size: min(1.75rem, 28px);
   }
 
   .inicio-nav {

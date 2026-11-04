@@ -27,11 +27,12 @@ export function Sidebar({
               key={item.id}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              aria-label={item.ariaLabel}
+              aria-label={navAriaLabel(item)}
               className="inicio-nav__item"
             >
               <MaskIcon src={item.icon} className="inicio-nav__icon" />
               <span>{item.label}</span>
+              {item.legacy ? <span className="inicio-nav__legacy">Clásica</span> : null}
             </Link>
           );
         })}
@@ -42,10 +43,11 @@ export function Sidebar({
             key={item.id}
             className="inicio-nav__item"
             href={item.href}
-            aria-label={item.ariaLabel}
+            aria-label={navAriaLabel(item)}
           >
             <MaskIcon src={item.icon} className="inicio-nav__icon" />
             <span>{item.label}</span>
+            {item.legacy ? <span className="inicio-nav__legacy">Clásica</span> : null}
           </Link>
         ))}
         <Image
@@ -58,4 +60,9 @@ export function Sidebar({
       </div>
     </aside>
   );
+}
+
+function navAriaLabel(item: ShellNavItem): string | undefined {
+  const base = item.ariaLabel ?? item.label;
+  return item.legacy ? `${base} (abre la Caja clásica)` : item.ariaLabel;
 }

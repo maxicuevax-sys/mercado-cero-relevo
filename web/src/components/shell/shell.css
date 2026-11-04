@@ -47,6 +47,7 @@
   font-weight: 600;
   line-height: 1.02;
   letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
 }
 
 .mc-page-header__subtitle {
@@ -133,6 +134,23 @@
     flex: 0 0 auto;
   }
 
+  .mc-mobile-nav__legacy {
+    color: var(--color-attention);
+    font-size: 0.5625rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .mc-mobile-nav__link .mc-mobile-nav__legacy {
+    margin-left: auto;
+    padding: 1px 5px;
+    border: 1px solid var(--color-separator);
+    border-radius: 999px;
+    color: var(--color-attention);
+  }
+
   .mc-mobile-nav__more {
     position: relative;
     min-width: 0;
@@ -193,5 +211,22 @@
     width: 20px;
     height: 20px;
     flex: 0 0 auto;
+  }
+}
+
+/* Con texto al 200 % las cinco celdas fijas no alcanzan para “Ventas” y
+   “Fiados”. La barra pasa a 3+2 sin tocar el orden de los destinos. */
+@container (max-width: 20em) {
+  .mc-mobile-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mc-mobile-nav__item {
+    min-height: 56px;
+    font-size: 0.75rem;
+  }
+
+  .mc-mobile-nav__legacy {
+    font-size: 0.5rem;
   }
 }

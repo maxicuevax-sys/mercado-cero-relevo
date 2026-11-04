@@ -21,6 +21,7 @@ import {
 } from "@/lib/db";
 import { MERCHANT, isDemoMode } from "@/lib/config";
 import { formatActivityDate, shortOrder } from "@/lib/format";
+import { saleMoney } from "@/lib/sale-truth";
 import type { Order } from "@/lib/types";
 import "@/app/inicio/inicio.css";
 import "./ventas.css";
@@ -56,6 +57,7 @@ export default async function VentasPage({
     <AppShell
       activeHref="/ventas"
       mainId="ventas-main"
+      focusTargetId="mc-ventas-list-title"
       contentClassName="mc-ventas"
       nav={cajaNav}
       foot={cajaFoot}
@@ -117,8 +119,10 @@ export default async function VentasPage({
       ) : (
         <section className="mc-ventas-list" aria-labelledby="mc-ventas-list-title">
           <div className="mc-ventas-list__head">
-            <h2 id="mc-ventas-list-title">Ventas registradas</h2>
-            <p>
+            <h2 id="mc-ventas-list-title" tabIndex={-1}>
+              Ventas registradas
+            </h2>
+            <p data-route-announcement>
               {total} en total · página {page} de {pageCount}
             </p>
           </div>
@@ -130,10 +134,8 @@ export default async function VentasPage({
               const creditKnown = credit !== null;
               const creditBalanceCents =
                 credit?.balanceCents ?? (order.creditCents > 0 ? order.creditCents : 0);
-              const digitalDueCents = Math.max(
-                0,
-                order.totalCents - order.paidCents - order.creditCents,
-              );
+              const money = saleMoney(order, creditBalanceCents);
+              const digitalDueCents = money.dueCents;
               return (
               <li key={order.id}>
                 <article className="mc-ventas-row">
@@ -161,22 +163,33 @@ export default async function VentasPage({
                   <div className="mc-ventas-row__amount">
                     <CurrencyAmount cents={order.totalCents} />
                     <span>
-                      {isDemoOrder ? (
-                        "Demo, no es dinero real"
-                      ) : order.status === "payment_pending" ? (
-                        "Pendiente de cobro"
-                      ) : order.paidCents > 0 ? (
-                        <>
-                          Cobrado <CurrencyAmount cents={order.paidCents} />
-                        </>
-                      ) : order.creditCents > 0 ? (
-                        creditKnown && creditBalanceCents === 0
-                          ? "Fiado saldado"
-                          : "Fiado, no cobrado"
-                      ) : (
-                        "Sin cobro confirmado"
-                      )}
+                      {isDemoOrder
+                        ? "Demo, no es dinero real"
+                        : money.paidCents > 0
+                          ? (
+                            <>
+                              Cobrado <CurrencyAmount cents={money.paidCents} />
+                            </>
+                          )
+                          : order.status === "payment_pending"
+                            ? "Pendiente de cobro"
+                            : money.creditCents > 0
+                              ? creditKnown && creditBalanceCents === 0
+                                ? "Fiado saldado"
+                                : "Fiado, no cobrado"
+                              : "Sin cobro confirmado"}
                     </span>
+                    {isDemoOrder && money.paidCents > 0 ? (
+                      <span className="mc-ventas-row__demo-paid">
+                        Simulado: cobrado <CurrencyAmount cents={money.paidCents} />
+                      </span>
+                    ) : null}
+                    {!isDemoOrder && money.hasCash && money.hasDigital ? (
+                      <span className="mc-ventas-row__split">
+                        Efectivo <CurrencyAmount cents={money.cashPaidCents} /> + digital{" "}
+                        <CurrencyAmount cents={money.digitalPaidCents} />
+                      </span>
+                    ) : null}
                     {digitalDueCents > 0 ? (
                       <span className="mc-ventas-row__due">
                         Falta cobrar <CurrencyAmount cents={digitalDueCents} />
@@ -274,7 +287,14 @@ function statusLabel(
 }
 
 function methodLabel(order: Order): string {
-  if (order.status === "payment_pending") return "Por cobrar";
+  if (order.status === "payment_pending") {
+    if (order.paidCents <= 0) return "Por cobrar";
+    if (order.digitalPaidCents > 0 && order.paidCents > order.digitalPaidCents) {
+      return "Efectivo + digital";
+    }
+    if (order.digitalPaidCents > 0) return "Digital";
+    return "Efectivo";
+  }
   if (order.creditCents > 0 && order.paymentMethod === "cash") return "Efectivo + fiado";
   if (order.creditCents > 0 && !order.paymentMethod) return "Fiado";
   if (!order.paymentMethod && order.creditCents === 0) return "Digital";

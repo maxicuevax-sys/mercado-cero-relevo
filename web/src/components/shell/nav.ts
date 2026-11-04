@@ -15,6 +15,8 @@ export type ShellNavItem = {
   href: string;
   icon: StaticImageData;
   ariaLabel?: string;
+  /** Destino que todavía abre la Caja clásica (/?tab=...), no una pantalla nueva. */
+  legacy?: boolean;
 };
 
 /**
@@ -26,20 +28,22 @@ export const appNav: ShellNavItem[] = [
   { id: "inicio", label: "Inicio", href: "/inicio", icon: iconInicio },
   { id: "caja", label: "Caja", href: "/caja", icon: iconCaja },
   { id: "ventas", label: "Ventas", href: "/ventas", icon: iconVentas },
-  { id: "fiados", label: "Fiados", href: "/fiados", icon: iconFiado },
+  { id: "fiados", label: "Fiados", href: "/fiados", icon: iconFiado, legacy: true },
   {
     id: "corte",
     label: "Corte",
     href: "/corte",
     icon: iconReportes,
     ariaLabel: "Corte de caja",
+    legacy: true,
   },
-  { id: "metas", label: "Metas", href: "/metas", icon: iconMetas },
+  { id: "metas", label: "Metas", href: "/metas", icon: iconMetas, legacy: true },
   {
     id: "pendientes",
     label: "Pendientes",
     href: "/pendientes",
     icon: iconPendientes,
+    legacy: true,
   },
 ];
 
@@ -52,12 +56,14 @@ export const appFoot: ShellNavItem[] = [
     label: "Ayuda",
     href: "/?ayuda=1",
     icon: iconAyuda,
+    legacy: true,
   },
   {
     id: "ajustes",
     label: "Ajustes",
     href: "/?ayuda=1#ajustes",
     icon: iconAjustes,
+    legacy: true,
   },
 ];
 

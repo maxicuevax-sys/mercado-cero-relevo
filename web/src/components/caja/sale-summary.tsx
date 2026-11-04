@@ -23,12 +23,11 @@ export function SaleSummary({
   customerName,
   error,
   saving,
-  canConfirm,
+  locked = false,
   onMethod,
   onCash,
   onCredit,
   onCustomer,
-  onConfirm,
   onClear,
 }: {
   totalCents: number;
@@ -42,41 +41,25 @@ export function SaleSummary({
   customerName: string;
   error: string | null;
   saving: boolean;
-  canConfirm: boolean;
+  locked?: boolean;
   onMethod: (method: PaymentChoice) => void;
   onCash: (value: string) => void;
   onCredit: (value: string) => void;
   onCustomer: (value: string) => void;
-  onConfirm: () => void;
   onClear: () => void;
 }) {
   const cashShortfall = method === "cash" ? Math.max(0, totalCents - appliedCashCents) : 0;
   const creditEnteredCents = parseMoneyCents(creditInput);
+  const cashEnteredCents = parseMoneyCents(cashInput);
   const creditOverpay = creditEnteredCents > totalCents;
+  const cashCreditOverpay =
+    method === "mixed" &&
+    appliedCreditCents > 0 &&
+    cashEnteredCents > 0 &&
+    cashEnteredCents + appliedCreditCents > totalCents;
   const creditShortfall =
     method === "credit" ? Math.max(0, totalCents - appliedCreditCents) : 0;
   const needsCustomer = appliedCreditCents > 0 && customerName.trim().length === 0;
-  const creditChanged =
-    (method === "credit" || method === "mixed") &&
-    creditEnteredCents > 0 &&
-    creditEnteredCents !== totalCents &&
-    !creditOverpay;
-  const retry = Boolean(error?.startsWith("No sabemos"));
-  const confirmLabel = saving
-    ? "Registrando…"
-    : retry
-      ? "Reintentar venta"
-      : method === "cash" && cashShortfall > 0
-      ? `Faltan ${formatMxn(cashShortfall)}`
-      : method === "credit" && creditShortfall > 0
-        ? `Faltan ${formatMxn(creditShortfall)}`
-        : digitalDueCents > 0 && method !== "cash" && method !== "credit"
-          ? `Generar cobro ${formatMxn(digitalDueCents)}`
-          : appliedCreditCents > 0 && appliedCashCents > 0
-            ? "Confirmar venta"
-            : appliedCreditCents > 0
-              ? `Registrar fiado ${formatMxn(appliedCreditCents)}`
-              : "Confirmar venta";
 
   return (
     <aside
@@ -85,6 +68,7 @@ export function SaleSummary({
       tabIndex={-1}
       aria-labelledby="mc-caja-summary-title"
     >
+      <div className="mc-caja-summary__body">
       <p className="mc-caja-eyebrow">Cobro</p>
       <h2 id="mc-caja-summary-title">Total de la venta</h2>
       <CurrencyAmount as="p" cents={totalCents} className="mc-caja-total" />
@@ -100,7 +84,7 @@ export function SaleSummary({
               className={`mc-caja-method${method === id ? " mc-caja-method--active" : ""}`}
               aria-pressed={method === id}
               onClick={() => onMethod(id)}
-              disabled={saving}
+              disabled={saving || locked}
             >
               <span>{label}</span>
             </button>
@@ -116,7 +100,7 @@ export function SaleSummary({
             onChange={(event) => onCash(event.target.value)}
             inputMode="decimal"
             placeholder="0.00"
-            disabled={saving}
+            disabled={saving || locked}
           />
         </label>
       ) : null}
@@ -169,9 +153,10 @@ export function SaleSummary({
         </p>
       ) : null}
 
-      {creditChanged ? (
-        <p className="mc-caja-hint">
-          El total cambió. Ajusta el monto a fiado para que coincida con {formatMxn(totalCents)}.
+      {cashCreditOverpay ? (
+        <p className="mc-caja-alert" role="alert">
+          El efectivo y el fiado suman más que el total ({formatMxn(totalCents)}). Ajusta el
+          efectivo o el monto a fiado; no se registrará cambio sobre dinero que no se aplicó.
         </p>
       ) : null}
 
@@ -190,7 +175,7 @@ export function SaleSummary({
               onChange={(event) => onCredit(event.target.value)}
               inputMode="decimal"
               placeholder="0.00"
-              disabled={saving}
+              disabled={saving || locked}
             />
           </label>
           <label className="mc-caja-field">
@@ -200,14 +185,15 @@ export function SaleSummary({
               onChange={(event) => onCustomer(event.target.value)}
               placeholder="Ej. Juan"
               autoComplete="off"
-              disabled={saving}
+              aria-describedby={needsCustomer ? "mc-caja-customer-hint" : undefined}
+              disabled={saving || locked}
             />
-            {needsCustomer ? (
-              <span className="mc-caja-hint">
-                Escribe el nombre de quien queda a deber para registrar el fiado.
-              </span>
-            ) : null}
           </label>
+          {needsCustomer ? (
+            <span id="mc-caja-customer-hint" className="mc-caja-hint">
+              Escribe el nombre de quien queda a deber para registrar el fiado.
+            </span>
+          ) : null}
         </>
       ) : null}
 
@@ -247,18 +233,13 @@ export function SaleSummary({
           {error}
         </p>
       ) : null}
+      </div>
 
-      <button
-        type="button"
-        className="mc-caja-button mc-caja-button--primary mc-caja-confirm"
-        onClick={onConfirm}
-        disabled={!canConfirm || saving}
-      >
-        {confirmLabel}
-      </button>
-      <button type="button" className="mc-caja-clear" onClick={onClear} disabled={saving}>
-        Descartar venta
-      </button>
+      <div className="mc-caja-summary__footer">
+        <button type="button" className="mc-caja-clear" onClick={onClear} disabled={saving || locked}>
+          Descartar venta
+        </button>
+      </div>
     </aside>
   );
 }

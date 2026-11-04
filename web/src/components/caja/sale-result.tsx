@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatMxn } from "@/lib/format";
+import { isDemoSale, saleMoney } from "@/lib/sale-truth";
 import type { Order } from "@/lib/types";
 
 export function SaleResult({
@@ -20,46 +21,66 @@ export function SaleResult({
   demo: boolean;
   onNewSale: () => void;
 }) {
-  const cashPaidCents = Math.max(0, order.paidCents - order.digitalPaidCents);
-  const hasCash = cashPaidCents > 0;
-  const hasDigital = order.digitalPaidCents > 0;
-  const isDigitalDemo =
-    order.status === "demo_paid" || ((order.lastPaymentDemo || demo) && hasDigital);
-  const isCashDemo = (order.lastPaymentDemo || demo) && hasCash && !hasDigital;
-  const openCredit = creditBalanceCents > 0;
-  const isCreditOnly = openCredit && order.paidCents === 0 && order.digitalPaidCents === 0;
+  const money = saleMoney(order, creditBalanceCents);
+  const {
+    paidCents,
+    cashPaidCents,
+    digitalPaidCents,
+    creditCents,
+    creditBalanceCents: balanceCents,
+    dueCents,
+    hasCash,
+    hasDigital,
+    hasReceived,
+    openCredit,
+    creditSettled,
+  } = money;
+  const isDemo = isDemoSale(order, demo);
+  const isDigitalDemo = isDemo && hasDigital;
+  const isCashDemo = isDemo && hasCash && !hasDigital;
+  const isCreditOnly = openCredit && paidCents === 0;
+
   const title = isDigitalDemo
     ? "Pago demo (simulado)"
     : isCashDemo
       ? "Venta cobrada en efectivo (demo)"
       : openCredit && !isCreditOnly
-      ? "Venta registrada con saldo fiado"
-      : order.status === "paid"
-        ? hasCash && hasDigital
-          ? "Pago mixto registrado"
-          : hasCash
-            ? "Venta cobrada en efectivo"
-            : "Pago confirmado por pey"
+        ? "Venta registrada con saldo fiado"
         : isCreditOnly
           ? "Venta registrada con fiado"
-          : order.status === "confirmed"
-            ? "Venta registrada"
-            : "Operación registrada";
+          : order.status === "paid"
+            ? hasCash && hasDigital
+              ? "Pago mixto registrado"
+              : hasCash
+                ? "Venta cobrada en efectivo"
+                : "Pago confirmado por pey"
+            : order.status === "confirmed"
+              ? "Venta registrada"
+              : "Operación registrada";
+
   const note = isDigitalDemo
     ? "Esta simulación no es dinero real ni una confirmación del banco."
     : isCashDemo
       ? "Efectivo de demostración. No es dinero real ni una confirmación bancaria."
-      : order.status === "paid"
-      ? hasCash && !hasDigital
-        ? "El efectivo se registró en la caja. No pasó por pey ni es una confirmación bancaria."
-        : hasCash && hasDigital
-          ? "Se registraron efectivo y pago digital. Solo la parte digital pasó por el proveedor."
-          : "El pago fue confirmado por el proveedor. No lo confirmó una captura ni un botón."
       : openCredit
-        ? "La venta quedó registrada. La parte fiada es deuda; no la cuentes como dinero recibido."
-        : isCreditOnly
-          ? "El importe quedó como deuda en Fiado. No es dinero recibido."
-          : "La venta quedó registrada. Revisa el estado antes de entregar.";
+        ? hasCash && hasDigital
+          ? `Recibiste ${formatMxn(cashPaidCents)} en efectivo y ${formatMxn(digitalPaidCents)} digital confirmado. El saldo de ${formatMxn(balanceCents)} quedó como deuda en Fiado.`
+          : hasCash
+            ? `Recibiste ${formatMxn(cashPaidCents)} en efectivo. El saldo de ${formatMxn(balanceCents)} quedó como deuda en Fiado.`
+            : hasDigital
+              ? `Recibiste ${formatMxn(digitalPaidCents)} digital confirmado. El saldo de ${formatMxn(balanceCents)} quedó como deuda en Fiado.`
+              : `No recibiste dinero. El importe de ${formatMxn(balanceCents)} quedó como deuda en Fiado.`
+        : creditSettled
+          ? "El fiado quedó saldado. Revisa el total cobrado antes de entregar."
+          : order.status === "paid"
+            ? hasCash && !hasDigital
+              ? "El efectivo se registró en la caja. No pasó por pey ni es una confirmación bancaria."
+              : hasCash && hasDigital
+                ? "Se registraron efectivo y pago digital. Solo la parte digital pasó por el proveedor."
+                : "El pago fue confirmado por el proveedor. No lo confirmó una captura ni un botón."
+            : dueCents > 0
+              ? `La venta quedó registrada. Todavía falta cobrar ${formatMxn(dueCents)}; no lo cuentes como recibido.`
+              : "La venta quedó registrada. Revisa el estado antes de entregar.";
 
   return (
     <section className="mc-caja-card mc-caja-result" aria-labelledby="mc-caja-result-title">
@@ -78,10 +99,22 @@ export function SaleResult({
         </div>
         <div>
           <dt>Estado</dt>
+          <dd>{isDemo ? "Demo (simulado)" : statusLabel(order.status)}</dd>
+        </div>
+        <div>
+          <dt>Cobrado</dt>
           <dd>
-            {isDigitalDemo || isCashDemo ? "Demo (simulado)" : statusLabel(order.status)}
+            <CurrencyAmount cents={paidCents} />
           </dd>
         </div>
+        {hasCash || (!hasReceived && (openCredit || dueCents > 0)) ? (
+          <div>
+            <dt>Cobrado en efectivo</dt>
+            <dd>
+              <CurrencyAmount cents={cashPaidCents} />
+            </dd>
+          </div>
+        ) : null}
         {cashReceivedCents > cashPaidCents ? (
           <div>
             <dt>Recibiste</dt>
@@ -90,33 +123,33 @@ export function SaleResult({
             </dd>
           </div>
         ) : null}
-        {cashPaidCents > 0 ? (
+        {hasDigital ? (
           <div>
-            <dt>{cashReceivedCents > cashPaidCents ? "Efectivo aplicado" : "Efectivo recibido"}</dt>
+            <dt>Digital confirmado</dt>
             <dd>
-              <CurrencyAmount cents={cashPaidCents} />
+              <CurrencyAmount cents={digitalPaidCents} />
             </dd>
           </div>
         ) : null}
-        {order.creditCents > 0 ? (
+        {creditCents > 0 ? (
           <div>
             <dt>{openCredit ? "Saldo vivo fiado" : "Fiado saldado"}</dt>
             <dd>
-              <CurrencyAmount cents={openCredit ? creditBalanceCents : order.creditCents} />
+              <CurrencyAmount cents={openCredit ? balanceCents : creditCents} />
               {order.customerName ? ` · ${order.customerName}` : ""}
-              {openCredit && creditBalanceCents < order.creditCents ? (
+              {openCredit && balanceCents < creditCents ? (
                 <span className="mc-caja-result__original">
-                  {" "}Original <CurrencyAmount cents={order.creditCents} />
+                  {" "}Original <CurrencyAmount cents={creditCents} />
                 </span>
               ) : null}
             </dd>
           </div>
         ) : null}
-        {order.digitalPaidCents > 0 ? (
+        {dueCents > 0 ? (
           <div>
-            <dt>Digital</dt>
+            <dt>Pendiente de cobro</dt>
             <dd>
-              <CurrencyAmount cents={order.digitalPaidCents} />
+              <CurrencyAmount cents={dueCents} />
             </dd>
           </div>
         ) : null}
@@ -132,12 +165,21 @@ export function SaleResult({
 
       {openCredit ? (
         <p className="mc-caja-result__banner">
-          Quedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.
+          {isDemo
+            ? "Quedó anotado en Fiado. Solo el fiado es deuda; el pago demo no es dinero real y el saldo restante es deuda."
+            : hasReceived
+              ? "Quedó anotado en Fiado. Solo el fiado es deuda; el dinero recibido sí se registró y el saldo restante es deuda."
+              : "Quedó anotado en Fiado. Solo el fiado es deuda; no recibiste dinero."}
         </p>
       ) : null}
-      {order.status === "paid" && !hasCash ? (
+      {order.status === "paid" && !hasCash && hasDigital ? (
         <p className="mc-caja-result__banner">
           Confirmación del proveedor, no de una captura.
+        </p>
+      ) : null}
+      {dueCents > 0 && !openCredit ? (
+        <p className="mc-caja-result__banner">
+          El cobro pendiente no es dinero recibido. No entregues como pagado hasta la confirmación.
         </p>
       ) : null}
 

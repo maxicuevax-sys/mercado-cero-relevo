@@ -1,7 +1,8 @@
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { MobileNav } from "./mobile-nav";
 import { Sidebar } from "./sidebar";
 import { SkipLink } from "./skip-link";
+import { RouteFocus } from "./route-focus";
 import {
   inicioFoot,
   inicioNav,
@@ -21,6 +22,7 @@ export function AppShell({
   foot = inicioFoot,
   mobilePrimaryItems = mobilePrimary,
   mobileMoreItems = mobileMore,
+  focusTargetId,
 }: {
   children: ReactNode;
   activeHref: string;
@@ -32,9 +34,13 @@ export function AppShell({
   foot?: ShellNavItem[];
   mobilePrimaryItems?: ShellNavItem[];
   mobileMoreItems?: ShellNavItem[];
+  focusTargetId?: string;
 }) {
   return (
     <div className={`inicio-shell ${className}`.trim()}>
+      <Suspense fallback={null}>
+        <RouteFocus mainId={mainId} targetId={focusTargetId} />
+      </Suspense>
       <SkipLink href={`#${mainId}`} />
       <Sidebar items={nav} foot={foot} activeHref={activeHref} />
       <div className="inicio-main">

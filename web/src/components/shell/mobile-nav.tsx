@@ -51,10 +51,12 @@ export function MobileNav({
             key={item.id}
             href={item.href}
             aria-current={active ? "page" : undefined}
+            aria-label={navAriaLabel(item)}
             className="mc-mobile-nav__item"
           >
             <MaskIcon src={item.icon} className="mc-mobile-nav__icon" />
             <span>{item.label}</span>
+            {item.legacy ? <span className="mc-mobile-nav__legacy">Clásica</span> : null}
           </Link>
         );
       })}
@@ -71,10 +73,12 @@ export function MobileNav({
                 key={item.id}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
+                aria-label={navAriaLabel(item)}
                 className="mc-mobile-nav__link"
               >
                 <MaskIcon src={item.icon} className="mc-mobile-nav__link-icon" />
                 <span>{item.label}</span>
+                {item.legacy ? <span className="mc-mobile-nav__legacy">Clásica</span> : null}
               </Link>
             );
           })}
@@ -82,4 +86,9 @@ export function MobileNav({
       </details>
     </nav>
   );
+}
+
+function navAriaLabel(item: ShellNavItem): string | undefined {
+  const base = item.ariaLabel ?? item.label;
+  return item.legacy ? `${base} (abre la Caja clásica)` : item.ariaLabel;
 }

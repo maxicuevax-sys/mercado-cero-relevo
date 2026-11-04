@@ -1,6 +1,6 @@
 import { connection } from "next/server";
 import { z } from "zod";
-import { countOrders, listOrders } from "@/lib/db";
+import { countOrders, getOrderByRequestId, listOrders } from "@/lib/db";
 import { appErrorResponse, unexpectedResponse } from "@/lib/errors";
 import { MAX_JSON_BODY_BYTES } from "@/lib/http";
 import { cachedJson } from "@/lib/http-cache";
@@ -50,6 +50,26 @@ const createOrderSchema = z.object({
 export async function GET(request: Request) {
   await connection();
   const params = new URL(request.url).searchParams;
+  const requestId = params.get("requestId")?.trim();
+  if (requestId) {
+    if (requestId.length > MAX_REQUEST_ID_CHARS) {
+      return Response.json(
+        { error: "El identificador de la solicitud no es válido.", code: "request_id_invalid" },
+        { status: 400, headers: { "Cache-Control": "no-store" } },
+      );
+    }
+    const order = getOrderByRequestId(requestId);
+    if (!order) {
+      return Response.json(
+        { error: "No se encontró una venta con esa llave.", code: "order_not_found" },
+        { status: 404, headers: { "Cache-Control": "no-store" } },
+      );
+    }
+    return Response.json(
+      { order },
+      { headers: { "Cache-Control": "no-store" } },
+    );
+  }
   const limit = parseLimit(params, DEFAULT_ORDERS_LIMIT, MAX_ORDERS_LIMIT);
   const offset = parseOffset(params);
   const orders = listOrders(limit, offset);

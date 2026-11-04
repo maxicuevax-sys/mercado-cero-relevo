@@ -1831,10 +1831,9 @@ export function getDailySummary(): DailySummary {
 
   for (const payment of creditPayments) {
     const amount = Number(payment.amount_cents);
-    if (
-      payment.provider === "demo" ||
-      (!includeDemo && Number(payment.demo) === 1)
-    ) {
+    // Un abono demo nunca es cobrado confirmado, ni siquiera en modo demo.
+    // El subtítulo de la UI dice "demo no cuenta"; el agregado debe cumplirlo.
+    if (payment.provider === "demo" || Number(payment.demo) === 1) {
       if (payment.method === "cash") demoCashCents += amount;
       else demoDigitalCents += amount;
       continue;

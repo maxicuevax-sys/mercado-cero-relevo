@@ -194,6 +194,16 @@
   font-size: 0.75rem;
 }
 
+.mc-ventas-row__split {
+  color: var(--color-ink) !important;
+  font-weight: 600;
+}
+
+.mc-ventas-row__demo-paid {
+  color: var(--color-attention) !important;
+  font-weight: 700;
+}
+
 .mc-ventas-row__due {
   color: var(--color-info) !important;
   font-weight: 700;
@@ -241,6 +251,7 @@
 
 .mc-ventas-pager {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 8px;
   margin-top: 14px;

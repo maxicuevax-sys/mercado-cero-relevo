@@ -146,7 +146,7 @@ export function SaleLineItems({
                   ) : null}
                 </label>
                 <div className="mc-caja-line__total">
-                  <span>Importe</span>
+                  <span className="mc-caja-line__label">Importe</span>
                   <CurrencyAmount cents={lineTotalCents(line)} />
                 </div>
                 <button

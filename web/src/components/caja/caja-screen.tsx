@@ -18,9 +18,11 @@ import { formatLongDate } from "@/lib/format";
 import { SaleLineItems } from "./sale-line-items";
 import { SaleSummary } from "./sale-summary";
 import { PaymentPanel } from "./payment-panel";
+import { PendingTray, type PendingEntry } from "./pending-tray";
 import { SaleResult } from "./sale-result";
 import {
   draftTotalCents,
+  newLineId,
   parseMoneyCents,
   parseQuantity,
   type DraftLine,
@@ -32,6 +34,9 @@ import "./caja.css";
 const DRAFT_KEY = "mercado-cero:caja-draft:v2";
 const REQUEST_KEY = "mercado-cero:caja-request:v2";
 const PENDING_KEY = "mercado-cero:caja-pending:v2";
+const UNKNOWN_KEY = "mercado-cero:caja-unknown:v2";
+const LEGACY_DRAFT_KEY = "mercado-cero:draft:v1";
+const LEGACY_REQUEST_KEY = "mercado-cero:sale-request:v1";
 
 type View = "compose" | "payment" | "result";
 
@@ -47,6 +52,24 @@ type StoredRequest = {
   requestId: string;
   signature: string;
 };
+
+type UnknownResult = {
+  requestId: string;
+  signature: string;
+  message: string;
+};
+
+type LegacyImport = {
+  draft: StoredDraft;
+  request: StoredRequest | null;
+};
+
+const TERMINAL_ORDER_STATUSES = new Set<Order["status"]>([
+  "paid",
+  "demo_paid",
+  "fulfilled",
+  "cancelled",
+]);
 
 export function CajaScreen({
   merchant,
@@ -69,6 +92,11 @@ export function CajaScreen({
   const [cashReceivedCents, setCashReceivedCents] = useState(0);
   const [view, setView] = useState<View>("compose");
   const [restoredNotice, setRestoredNotice] = useState(false);
+  const [legacyNotice, setLegacyNotice] = useState<string | null>(null);
+  const [legacyConflict, setLegacyConflict] = useState(false);
+  const [pendingEntries, setPendingEntries] = useState<PendingEntry[]>([]);
+  const [unknownResult, setUnknownResult] = useState<UnknownResult | null>(null);
+  const [reconcileMessage, setReconcileMessage] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const saleLockRef = useRef(false);
@@ -82,7 +110,16 @@ export function CajaScreen({
     Math.max(0, cashCents),
     Math.max(0, totalCents - appliedCreditCents),
   );
-  const changeForSale = Math.max(0, cashCents - appliedCashCents);
+  // En mixto, efectivo + fiado no pueden cubrir más que el total. Si el
+  // efectivo ya cubre todo, el fiado no debe aplicarse ni producir cambio.
+  const cashCreditOverpay =
+    method === "mixed" &&
+    appliedCreditCents > 0 &&
+    cashCents > 0 &&
+    cashCents + appliedCreditCents > totalCents;
+  const changeForSale = cashCreditOverpay
+    ? 0
+    : Math.max(0, cashCents - appliedCashCents);
   const digitalDueCents = Math.max(
     0,
     totalCents - appliedCashCents - appliedCreditCents,
@@ -90,61 +127,83 @@ export function CajaScreen({
   const overpay = creditCents > totalCents;
 
   useEffect(() => {
+    let active = true;
+    let hasV2Draft = false;
+
     try {
       const raw = window.localStorage.getItem(DRAFT_KEY);
-      if (raw) {
-        const stored = JSON.parse(raw) as Partial<StoredDraft>;
-        if (Array.isArray(stored.lines) && stored.lines.length > 0) {
-          // El borrador vive en localStorage; el effect es la frontera con ese sistema externo.
-          // eslint-disable-next-line react-hooks/set-state-in-effect
-          setLines(stored.lines);
-          setCashInput(typeof stored.cashInput === "string" ? stored.cashInput : "");
-          setCreditInput(typeof stored.creditInput === "string" ? stored.creditInput : "");
-          setCustomerName(typeof stored.customerName === "string" ? stored.customerName : "");
-          setMethod(stored.method ?? "cash");
-          setRestoredNotice(true);
-        }
+      const storedDraft = raw ? parseStoredDraft(raw) : null;
+      if (storedDraft && storedDraft.lines.length > 0) {
+        // El borrador vive en localStorage; el effect es la frontera con ese sistema externo.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setLines(storedDraft.lines);
+        setCashInput(storedDraft.cashInput);
+        setCreditInput(storedDraft.creditInput);
+        setCustomerName(storedDraft.customerName);
+        setMethod(storedDraft.method);
+        setRestoredNotice(true);
+        hasV2Draft = true;
       }
     } catch {
       // Un borrador corrupto no debe bloquear una venta nueva.
       window.localStorage.removeItem(DRAFT_KEY);
     }
+
+    try {
+      const legacy = readLegacyImport();
+      if (legacy) {
+        if (!hasV2Draft) {
+          // Una sola fuente visible: el borrador de la Caja clásica se importa
+          // a /caja, conservando la llave de idempotencia si coincide.
+          setLines(legacy.draft.lines);
+          setCashInput(legacy.draft.cashInput);
+          setCreditInput(legacy.draft.creditInput);
+          setCustomerName(legacy.draft.customerName);
+          setMethod(legacy.draft.method);
+          setRestoredNotice(true);
+          if (legacy.request) {
+            requestRef.current = legacy.request;
+            writeStoredRequest(legacy.request);
+          }
+          window.localStorage.removeItem(LEGACY_DRAFT_KEY);
+          setLegacyNotice("Recuperamos el borrador que estaba en la Caja clásica. Esta pantalla es ahora la única que lo usa.");
+        } else {
+          setLegacyConflict(true);
+          setLegacyNotice(
+            "También hay un borrador distinto en la Caja clásica. No se mezcló con este y la confirmación queda bloqueada hasta que elijas cuál usar.",
+          );
+        }
+      }
+    } catch {
+      // Un borrador legacy corrupto no debe bloquear /caja.
+    }
+
     setHydrated(true);
 
     try {
+      const unknown = readStoredUnknown();
+      const storedRequest = readStoredRequest();
+      if (unknown && storedRequest?.requestId === unknown.requestId) {
+        setUnknownResult(unknown);
+      }
+    } catch {
+      window.localStorage.removeItem(UNKNOWN_KEY);
+    }
+
+    try {
       const pendingIds = readPendingIds();
-      const pendingId = pendingIds[pendingIds.length - 1];
-      if (!pendingId) return;
-      void fetch(`/api/orders/${pendingId}`, { cache: "no-store" })
-        .then(async (response) => {
-          if (response.status === 404) {
-            removePendingId(pendingId);
-            return null;
-          }
-          if (!response.ok) return null;
-          return (await response.json()) as {
-            order?: Order;
-            credit?: { balanceCents: number } | null;
-          };
-        })
-        .then((data) => {
-          if (!data?.order) return;
-          const due = Math.max(
-            0,
-            data.order.totalCents - data.order.paidCents - data.order.creditCents,
-          );
-          setOrder(data.order);
-          setCreditBalanceCents(
-            data.credit?.balanceCents ?? (data.order.creditCents > 0 ? data.order.creditCents : 0),
-          );
-          setView(due > 0 ? "payment" : "result");
-        })
-        .catch(() => {
-          // Sin red se conserva el aviso para el siguiente intento.
+      if (pendingIds.length > 0) {
+        void loadPendingEntries(pendingIds).then((entries) => {
+          if (active) setPendingEntries(entries);
         });
+      }
     } catch {
       // Un puntero corrupto no debe bloquear una venta nueva.
     }
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -191,6 +250,23 @@ export function CajaScreen({
     });
   }, [clearDraft]);
 
+  function discardLegacyDraft() {
+    if (
+      !window.confirm(
+        "¿Descartar el borrador de la Caja clásica? Esta venta de la Caja nueva no se toca.",
+      )
+    ) {
+      return;
+    }
+    try {
+      window.localStorage.removeItem(LEGACY_DRAFT_KEY);
+    } catch {
+      // Sin storage no hay borrador que descartar.
+    }
+    setLegacyConflict(false);
+    setLegacyNotice("Se descartó el borrador de la Caja clásica. Esta venta sigue intacta.");
+  }
+
   function chooseMethod(next: PaymentChoice) {
     setMethod(next);
     setError(null);
@@ -233,6 +309,9 @@ export function CajaScreen({
       return "Revisa los conceptos marcados.";
     }
     if (overpay) return "El fiado no puede superar el total.";
+    if (cashCreditOverpay) {
+      return "El efectivo y el fiado no pueden superar el total. Ajusta uno de los dos.";
+    }
     if (appliedCreditCents > 0 && !customerName.trim()) {
       return "Para fiado necesito el nombre del cliente.";
     }
@@ -259,17 +338,12 @@ export function CajaScreen({
     setSaving(true);
     setError(null);
 
-    const payload = {
-      items: lines.map((line) => ({
-        description: line.description.trim(),
-        quantity: parseQuantity(line.quantity),
-        unitPriceCents: parseMoneyCents(line.price),
-      })),
-      cashCents: appliedCashCents,
-      creditCents: appliedCreditCents,
-      customerName: appliedCreditCents > 0 ? customerName.trim() : null,
-    };
-    const signature = JSON.stringify(payload);
+    const { payload, signature } = buildSalePayload(
+      lines,
+      cashInput,
+      creditInput,
+      customerName,
+    );
     let requestId = newRequestId("sale");
     const request = { requestId, signature };
     try {
@@ -282,15 +356,49 @@ export function CajaScreen({
     }
 
     try {
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...payload, requestId }),
-      });
+      let response: Response;
+      try {
+        response = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...payload, requestId }),
+        });
+      } catch {
+        const unknown: UnknownResult = {
+          requestId,
+          signature,
+          message:
+            "La conexión falló después de enviar la venta. El servidor pudo haberla registrado.",
+        };
+        setUnknownResult(unknown);
+        writeStoredUnknown(unknown);
+        setReconcileMessage(
+          "No edites ni cobres otra vez todavía. Consulta si la venta se registró.",
+        );
+        return;
+      }
+
+      if (response.status === 502 || response.status === 503 || response.status === 504) {
+        const unknown: UnknownResult = {
+          requestId,
+          signature,
+          message: `El servidor respondió ${response.status} después de recibir la venta. El resultado es desconocido.`,
+        };
+        setUnknownResult(unknown);
+        writeStoredUnknown(unknown);
+        setReconcileMessage(
+          "No edites ni cobres otra vez todavía. Consulta si la venta se registró.",
+        );
+        return;
+      }
+
       const data = (await response.json()) as { order?: Order; error?: string };
       if (!response.ok || !data.order) {
         throw new Error(data.error ?? "No se pudo registrar la venta.");
       }
+      setUnknownResult(null);
+      setReconcileMessage(null);
+      writeStoredUnknown(null);
       let created = data.order;
       let creditBalance = created.creditCents;
       try {
@@ -321,8 +429,16 @@ export function CajaScreen({
       try {
         if (due > 0) {
           const pendingIds = readPendingIds();
-          pendingIds.push(created.id);
-          writePendingIds(pendingIds);
+          if (!pendingIds.includes(created.id)) {
+            writePendingIds([...pendingIds, created.id]);
+          }
+          setPendingEntries((current) => [
+            { id: created.id, order: created, creditBalanceCents: creditBalance },
+            ...current.filter((entry) => entry.id !== created.id),
+          ]);
+        } else {
+          removePendingId(created.id);
+          setPendingEntries((current) => current.filter((entry) => entry.id !== created.id));
         }
       } catch {
         // Sin storage el resultado vive en memoria.
@@ -370,14 +486,160 @@ export function CajaScreen({
         due <= 0 ||
         next.status === "paid" ||
         next.status === "demo_paid" ||
-        next.status === "fulfilled"
+        next.status === "fulfilled" ||
+        next.status === "cancelled"
       ) {
         setView("result");
         removePendingId(next.id);
+        setPendingEntries((current) => current.filter((entry) => entry.id !== next.id));
+      } else {
+        setPendingEntries((current) =>
+          current.map((entry) =>
+            entry.id === next.id
+              ? { ...entry, order: next, creditBalanceCents: balance ?? entry.creditBalanceCents }
+              : entry,
+          ),
+        );
       }
     },
     [],
   );
+
+  const openPendingEntry = useCallback((entry: PendingEntry) => {
+    if (!entry.order) return;
+    const due = Math.max(
+      0,
+      entry.order.totalCents - entry.order.paidCents - entry.order.creditCents,
+    );
+    setOrder(entry.order);
+    setCreditBalanceCents(entry.creditBalanceCents);
+    setChangeCents(0);
+    setCashReceivedCents(0);
+    setUnknownResult(null);
+    setReconcileMessage(null);
+    setView(due > 0 ? "payment" : "result");
+  }, []);
+
+  const refreshPending = useCallback(async () => {
+    try {
+      const ids = readPendingIds();
+      const entries = await loadPendingEntries(ids);
+      setPendingEntries(entries);
+      setAnnouncement(
+        entries.length === 1
+          ? "Lista actualizada. Hay 1 cobro pendiente."
+          : `Lista actualizada. Hay ${entries.length} cobros pendientes.`,
+      );
+    } catch {
+      setAnnouncement("No se pudo actualizar la lista de pendientes.");
+    }
+  }, []);
+
+  const reconcileUnknown = useCallback(async () => {
+    if (!unknownResult) return;
+    setReconcileMessage("Consultando el estado de la venta…");
+    try {
+      const response = await fetch(
+        `/api/orders?requestId=${encodeURIComponent(unknownResult.requestId)}`,
+        { cache: "no-store" },
+      );
+      if (response.status === 404) {
+        requestRef.current = null;
+        try {
+          window.localStorage.removeItem(REQUEST_KEY);
+        } catch {
+          // Sin storage no hay llave que limpiar.
+        }
+        setUnknownResult(null);
+        writeStoredUnknown(null);
+        setReconcileMessage(
+          "No se encontró una venta con esa llave. Puedes corregir los datos y confirmar de nuevo con una llave nueva.",
+        );
+        return;
+      }
+      if (!response.ok) {
+        setReconcileMessage(
+          "No pudimos consultar el estado. No edites ni cobres otra vez; reintenta la consulta.",
+        );
+        return;
+      }
+      const data = (await response.json()) as { order?: Order };
+      if (!data.order) {
+        setReconcileMessage(
+          "La consulta no devolvió la venta. No edites ni cobres otra vez; revisa Ventas.",
+        );
+        return;
+      }
+
+      let recovered = data.order;
+      let balance = recovered.creditCents;
+      try {
+        const detailResponse = await fetch(`/api/orders/${recovered.id}`, {
+          cache: "no-store",
+        });
+        if (detailResponse.ok) {
+          const detail = (await detailResponse.json()) as {
+            order?: Order;
+            credit?: { balanceCents: number } | null;
+          };
+          if (detail.order) recovered = detail.order;
+          balance = detail.credit?.balanceCents ?? balance;
+        }
+      } catch {
+        // La venta ya está recuperada; el saldo se toma del listado.
+      }
+
+      const due = Math.max(
+        0,
+        recovered.totalCents - recovered.paidCents - recovered.creditCents,
+      );
+      if (due > 0) {
+        const pendingIds = readPendingIds();
+        if (!pendingIds.includes(recovered.id)) {
+          writePendingIds([...pendingIds, recovered.id]);
+        }
+        setPendingEntries((current) => [
+          { id: recovered.id, order: recovered, creditBalanceCents: balance },
+          ...current.filter((entry) => entry.id !== recovered.id),
+        ]);
+      } else {
+        removePendingId(recovered.id);
+        setPendingEntries((current) => current.filter((entry) => entry.id !== recovered.id));
+      }
+
+      setUnknownResult(null);
+      writeStoredUnknown(null);
+      setReconcileMessage(null);
+      setOrder(recovered);
+      setCreditBalanceCents(balance);
+      setChangeCents(0);
+      setCashReceivedCents(0);
+      setView(due > 0 ? "payment" : "result");
+      setLines([]);
+      setCashInput("");
+      setCreditInput("");
+      setCustomerName("");
+      setLineErrors({});
+      setRestoredNotice(false);
+      setLegacyNotice(null);
+      requestRef.current = null;
+      try {
+        window.localStorage.removeItem(DRAFT_KEY);
+        window.localStorage.removeItem(REQUEST_KEY);
+      } catch {
+        // Sin storage no hay llave que limpiar.
+      }
+      setAnnouncement(
+        due > 0
+          ? "La venta sí estaba registrada. Se recuperó el cobro pendiente."
+          : "La venta sí estaba registrada. Se recuperó el resultado.",
+      );
+    } catch {
+      setReconcileMessage(
+        "No pudimos consultar el estado. No edites ni cobres otra vez; reintenta la consulta.",
+      );
+    }
+  }, [unknownResult]);
 
   function goToPayment() {
     const target = document.getElementById("mc-caja-payment-summary");
@@ -393,7 +655,10 @@ export function CajaScreen({
     lines.length > 0 &&
     totalCents > 0 &&
     !overpay &&
+    !cashCreditOverpay &&
     !saving &&
+    !unknownResult &&
+    !legacyConflict &&
     (appliedCreditCents === 0 || customerName.trim().length > 0) &&
     (method !== "cash" || cashCents >= totalCents) &&
     (method !== "credit" || appliedCreditCents >= totalCents) &&
@@ -477,12 +742,94 @@ export function CajaScreen({
         </div>
       ) : null}
 
+      {legacyNotice ? (
+        <div className="mc-caja-restore" role="status">
+          <p>{legacyNotice}</p>
+          <div>
+            {legacyConflict ? (
+              <>
+                <button
+                  type="button"
+                  className="mc-caja-button mc-caja-button--secondary"
+                  onClick={() => {
+                    setLegacyConflict(false);
+                    setLegacyNotice("Usarás esta venta. El borrador de la Caja clásica sigue allí.");
+                  }}
+                >
+                  Usar esta venta
+                </button>
+                <button type="button" className="mc-caja-clear" onClick={discardLegacyDraft}>
+                  Descartar la de la Caja clásica
+                </button>
+              </>
+            ) : null}
+            <Link href="/" className="mc-caja-button mc-caja-button--secondary">
+              Abrir Caja clásica
+            </Link>
+            <button
+              type="button"
+              className="mc-caja-clear"
+              onClick={() => setLegacyNotice(null)}
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {unknownResult ? (
+        <section className="mc-caja-card mc-caja-unknown" role="alert">
+          <p className="mc-caja-eyebrow">Estado desconocido</p>
+          <h2>No sabemos si la venta quedó registrada</h2>
+          <p>{unknownResult.message}</p>
+          <p>
+            La llave de esta operación se conserva. No edites los conceptos ni cobres otra vez
+            hasta consultar o reintentar con la misma llave.
+          </p>
+          <div className="mc-caja-unknown__actions">
+            <button
+              type="button"
+              className="mc-caja-button mc-caja-button--primary"
+              onClick={() => void reconcileUnknown()}
+              disabled={saving}
+            >
+              Consultar si se registró
+            </button>
+            <button
+              type="button"
+              className="mc-caja-button mc-caja-button--secondary"
+              onClick={() => {
+                setReconcileMessage(null);
+                void confirmSale();
+              }}
+              disabled={saving}
+            >
+              Reintentar con la misma llave
+            </button>
+            <Link href="/ventas" className="mc-caja-button mc-caja-button--quiet">
+              Ver ventas
+            </Link>
+          </div>
+          {reconcileMessage ? (
+            <p className="mc-caja-unknown__message" role="status" aria-live="polite">
+              {reconcileMessage}
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+
       {view === "compose" ? (
-        <div className="mc-caja-grid">
+        <>
+          <PendingTray
+            entries={pendingEntries}
+            onOpen={openPendingEntry}
+            onRefresh={() => void refreshPending()}
+          />
+          <div className="mc-caja-grid">
           <SaleLineItems
             lines={lines}
             errors={lineErrors}
-            disabled={saving}
+            disabled={saving || Boolean(unknownResult)}
             onAdd={(line) => {
               setLines((current) => [...current, line]);
               setError(null);
@@ -529,7 +876,7 @@ export function CajaScreen({
             customerName={customerName}
             error={error}
             saving={saving}
-            canConfirm={canConfirm}
+            locked={Boolean(unknownResult)}
             onMethod={chooseMethod}
             onCash={(value) => {
               setCashInput(value);
@@ -543,16 +890,22 @@ export function CajaScreen({
               setCustomerName(value);
               setError(null);
             }}
-            onConfirm={() => void confirmSale()}
             onClear={() => {
               if (window.confirm("¿Descartar la venta sin confirmar?")) clearDraft();
             }}
           />
-        </div>
+          </div>
+        </>
       ) : null}
 
       {view === "payment" && order ? (
-        <PaymentPanel order={order} demo={demo} onOrder={handleOrderUpdate} />
+        <PaymentPanel
+          order={order}
+          demo={demo}
+          creditBalanceCents={creditBalanceCents}
+          onOrder={handleOrderUpdate}
+          onNewSale={resetSale}
+        />
       ) : null}
 
       {view === "result" && order ? (
@@ -566,18 +919,28 @@ export function CajaScreen({
         />
       ) : null}
 
-      {view === "compose" && lines.length > 0 ? (
+      {view === "compose" && !unknownResult ? (
         <div className="mc-caja-paybar">
           <div>
             <span>Total</span>
             <CurrencyAmount cents={totalCents} />
+            {!canConfirm ? (
+              <button
+                type="button"
+                className="mc-caja-clear mc-caja-paybar__review"
+                onClick={goToPayment}
+              >
+                Revisar cobro
+              </button>
+            ) : null}
           </div>
           <button
             type="button"
-            className="mc-caja-button mc-caja-button--secondary"
-            onClick={goToPayment}
+            className="mc-caja-button mc-caja-button--primary mc-caja-confirm"
+            onClick={() => void confirmSale()}
+            disabled={!canConfirm || saving}
           >
-            Revisar cobro
+            {saving ? "Registrando…" : "Confirmar venta"}
           </button>
         </div>
       ) : null}
@@ -594,21 +957,305 @@ export function CajaScreen({
         </p>
         <p>
           ¿Necesitas dictar o verificar un comprobante? Usa la{" "}
-          <Link href="/">Caja clásica</Link>; los borradores de cada pantalla son independientes.
+          <Link href="/">Caja clásica</Link>. Si allí queda un borrador, esta pantalla lo avisa
+          antes de cobrar para que no se dupliquen ventas.
         </p>
       </div>
     </AppShell>
   );
 }
 
+function buildSalePayload(
+  lines: DraftLine[],
+  cashInput: string,
+  creditInput: string,
+  customerName: string,
+) {
+  const total = draftTotalCents(lines);
+  const credit = Math.max(0, parseMoneyCents(creditInput));
+  const appliedCredit = Math.min(credit, total);
+  const cash = Math.max(0, parseMoneyCents(cashInput));
+  const appliedCash = Math.min(cash, Math.max(0, total - appliedCredit));
+  const payload = {
+    items: lines.map((line) => ({
+      description: line.description.trim(),
+      quantity: parseQuantity(line.quantity),
+      unitPriceCents: parseMoneyCents(line.price),
+    })),
+    cashCents: appliedCash,
+    creditCents: appliedCredit,
+    customerName: appliedCredit > 0 ? customerName.trim() : null,
+  };
+  return { payload, signature: JSON.stringify(payload) };
+}
+
+function parseStoredDraft(raw: string): StoredDraft | null {
+  try {
+    const parsed = JSON.parse(raw) as Partial<StoredDraft>;
+    if (!Array.isArray(parsed.lines)) return null;
+    const lines = parsed.lines.flatMap((item) => {
+      if (!item || typeof item !== "object") return [];
+      const candidate = item as Partial<DraftLine>;
+      const description =
+        typeof candidate.description === "string" ? candidate.description : "";
+      const price =
+        typeof candidate.price === "string"
+          ? candidate.price
+          : typeof candidate.price === "number" && Number.isFinite(candidate.price)
+            ? (candidate.price / 100).toFixed(2)
+            : "";
+      const quantity =
+        typeof candidate.quantity === "string"
+          ? candidate.quantity
+          : typeof candidate.quantity === "number" && Number.isFinite(candidate.quantity)
+            ? String(candidate.quantity)
+            : "1";
+      // Un renglón sin concepto ni precio no es un borrador útil y no debe
+      // romper la pantalla al leer `.trim()`.
+      if (!description && !price) return [];
+      return [
+        {
+          id:
+            typeof candidate.id === "string" && candidate.id
+              ? candidate.id
+              : newLineId(),
+          description,
+          quantity,
+          price,
+        } satisfies DraftLine,
+      ];
+    });
+    if (lines.length === 0) return null;
+    return {
+      lines,
+      cashInput: typeof parsed.cashInput === "string" ? parsed.cashInput : "",
+      creditInput: typeof parsed.creditInput === "string" ? parsed.creditInput : "",
+      customerName:
+        typeof parsed.customerName === "string" ? parsed.customerName : "",
+      method: isPaymentChoice(parsed.method) ? parsed.method : "cash",
+    };
+  } catch {
+    return null;
+  }
+}
+
+type LegacyStoredItem = {
+  id?: string;
+  description?: string;
+  quantity?: number;
+  unitPriceCents?: number;
+};
+
+type LegacyStoredDraft = {
+  version?: number;
+  items?: LegacyStoredItem[];
+  cashCents?: number;
+  creditCents?: number;
+  customerName?: string;
+};
+
+function readLegacyImport(): LegacyImport | null {
+  try {
+    const raw = window.localStorage.getItem(LEGACY_DRAFT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as LegacyStoredDraft;
+    if (parsed.version !== 1 || !Array.isArray(parsed.items)) {
+      window.localStorage.removeItem(LEGACY_DRAFT_KEY);
+      return null;
+    }
+    const lines = parsed.items.flatMap((item) => {
+      if (!item || typeof item !== "object") return [];
+      const description = typeof item.description === "string" ? item.description : "";
+      const priceCents = Number(item.unitPriceCents);
+      if (!description && (!Number.isFinite(priceCents) || priceCents <= 0)) return [];
+      const quantity = Number(item.quantity);
+      return [
+        {
+          id: typeof item.id === "string" && item.id ? item.id : newLineId(),
+          description,
+          quantity: Number.isFinite(quantity) && quantity > 0 ? String(quantity) : "1",
+          price:
+            Number.isFinite(priceCents) && priceCents > 0
+              ? (priceCents / 100).toFixed(2)
+              : "",
+        } satisfies DraftLine,
+      ];
+    });
+    if (lines.length === 0) {
+      window.localStorage.removeItem(LEGACY_DRAFT_KEY);
+      return null;
+    }
+
+    const cashCents = safeLegacyCents(parsed.cashCents);
+    const creditCents = safeLegacyCents(parsed.creditCents);
+    const draft: StoredDraft = {
+      lines,
+      cashInput: cashCents > 0 ? (cashCents / 100).toFixed(2) : "",
+      creditInput: creditCents > 0 ? (creditCents / 100).toFixed(2) : "",
+      customerName:
+        typeof parsed.customerName === "string" ? parsed.customerName : "",
+      method:
+        creditCents > 0
+          ? cashCents > 0
+            ? "mixed"
+            : "credit"
+          : cashCents > 0
+            ? "cash"
+            : "digital",
+    };
+
+    return { draft, request: readLegacyRequest(draft) };
+  } catch {
+    try {
+      window.localStorage.removeItem(LEGACY_DRAFT_KEY);
+    } catch {
+      // Sin storage no hay nada que limpiar.
+    }
+    return null;
+  }
+}
+
+function readLegacyRequest(draft: StoredDraft): StoredRequest | null {
+  try {
+    const raw = window.localStorage.getItem(LEGACY_REQUEST_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<StoredRequest> & { version?: number };
+    if (
+      parsed.version !== 1 ||
+      typeof parsed.requestId !== "string" ||
+      typeof parsed.signature !== "string"
+    ) {
+      return null;
+    }
+    const { signature } = buildSalePayload(
+      draft.lines,
+      draft.cashInput,
+      draft.creditInput,
+      draft.customerName,
+    );
+    // Se conserva la llave aunque la firma haya cambiado: si el servidor ya
+    // había registrado la operación, devolverá la misma venta o un 409 de
+    // conflicto; nunca una segunda venta con la misma llave.
+    return { requestId: parsed.requestId, signature };
+  } catch {
+    return null;
+  }
+}
+
+function safeLegacyCents(value: unknown): number {
+  const amount = Number(value);
+  if (!Number.isFinite(amount) || amount <= 0) return 0;
+  return Math.round(amount);
+}
+
+function isPaymentChoice(value: unknown): value is PaymentChoice {
+  return value === "cash" || value === "digital" || value === "credit" || value === "mixed";
+}
+
+function readStoredUnknown(): UnknownResult | null {
+  try {
+    const raw = window.localStorage.getItem(UNKNOWN_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<UnknownResult>;
+    if (
+      typeof parsed.requestId !== "string" ||
+      typeof parsed.signature !== "string" ||
+      typeof parsed.message !== "string"
+    ) {
+      return null;
+    }
+    return {
+      requestId: parsed.requestId,
+      signature: parsed.signature,
+      message: parsed.message,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredUnknown(value: UnknownResult | null) {
+  try {
+    if (!value) {
+      window.localStorage.removeItem(UNKNOWN_KEY);
+      return;
+    }
+    window.localStorage.setItem(UNKNOWN_KEY, JSON.stringify(value));
+  } catch {
+    // Sin storage el aviso vive en memoria.
+  }
+}
+
+async function loadPendingEntries(ids: string[]): Promise<PendingEntry[]> {
+  const unique = [...new Set(ids)];
+  const entries = await Promise.all(
+    unique.map(async (id): Promise<PendingEntry | null> => {
+      try {
+        const response = await fetch(`/api/orders/${id}`, { cache: "no-store" });
+        if (response.status === 404) {
+          removePendingId(id);
+          return null;
+        }
+        if (!response.ok) {
+          return {
+            id,
+            order: null,
+            creditBalanceCents: 0,
+            error: `No se pudo leer (${response.status}).`,
+          };
+        }
+        const data = (await response.json()) as {
+          order?: Order;
+          credit?: { balanceCents: number } | null;
+        };
+        if (!data.order) {
+          return {
+            id,
+            order: null,
+            creditBalanceCents: 0,
+            error: "La respuesta no trajo el pedido.",
+          };
+        }
+        const due = Math.max(
+          0,
+          data.order.totalCents - data.order.paidCents - data.order.creditCents,
+        );
+        if (TERMINAL_ORDER_STATUSES.has(data.order.status) || due <= 0) {
+          removePendingId(id);
+          return null;
+        }
+        return {
+          id,
+          order: data.order,
+          creditBalanceCents:
+            data.credit?.balanceCents ??
+            (data.order.creditCents > 0 ? data.order.creditCents : 0),
+        };
+      } catch {
+        return {
+          id,
+          order: null,
+          creditBalanceCents: 0,
+          error: "No se pudo leer por un problema de conexión.",
+        };
+      }
+    }),
+  );
+  return entries.filter((entry): entry is PendingEntry => entry !== null);
+}
+
 function readPendingIds(): string[] {
   const raw = window.localStorage.getItem(PENDING_KEY);
   if (!raw) return [];
-  const parsed = JSON.parse(raw) as { orderIds?: string[]; orderId?: string };
-  if (Array.isArray(parsed.orderIds)) {
-    return parsed.orderIds.filter((id): id is string => typeof id === "string");
+  try {
+    const parsed = JSON.parse(raw) as { orderIds?: string[]; orderId?: string };
+    if (Array.isArray(parsed.orderIds)) {
+      return parsed.orderIds.filter((id): id is string => typeof id === "string");
+    }
+    return typeof parsed.orderId === "string" ? [parsed.orderId] : [];
+  } catch {
+    return [];
   }
-  return typeof parsed.orderId === "string" ? [parsed.orderId] : [];
 }
 
 function writePendingIds(orderIds: string[]) {
@@ -649,11 +1296,23 @@ function newRequestId(prefix: string): string {
 }
 
 function readStoredRequest(): StoredRequest | null {
-  const raw = window.localStorage.getItem(REQUEST_KEY);
-  if (!raw) return null;
-  const parsed = JSON.parse(raw) as Partial<StoredRequest>;
-  if (!parsed.requestId || !parsed.signature) return null;
-  return { requestId: parsed.requestId, signature: parsed.signature };
+  try {
+    const raw = window.localStorage.getItem(REQUEST_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<StoredRequest>;
+    if (typeof parsed.requestId !== "string" || typeof parsed.signature !== "string") {
+      window.localStorage.removeItem(REQUEST_KEY);
+      return null;
+    }
+    return { requestId: parsed.requestId, signature: parsed.signature };
+  } catch {
+    try {
+      window.localStorage.removeItem(REQUEST_KEY);
+    } catch {
+      // Sin storage no hay llave que limpiar.
+    }
+    return null;
+  }
 }
 
 function writeStoredRequest(request: StoredRequest) {
