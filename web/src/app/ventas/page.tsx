@@ -109,29 +109,6 @@ export default async function VentasPage({
         sizes="(max-width: 767px) 120px, 210px"
       />
 
-      {/* Momento ilustrado (solo si hay ventas: la otra variante es el empty). */}
-      {hasOrders ? (
-        <section className="mc-ventas-hero">
-          <div className="mc-ventas-hero__copy">
-            <p className="mc-ventas-hero__kicker">Consulta, no cobro</p>
-            <p className="mc-ventas-hero__lead">
-              Ventas registradas, dinero por confirmar.
-            </p>
-            <p className="mc-ventas-hero__note">
-              Cada fila distingue lo cobrado, lo pendiente y lo fiado. Un pedido
-              pagado no es lo mismo que un pedido registrado.
-            </p>
-          </div>
-          <Image
-            src={tacosArt}
-            alt=""
-            aria-hidden="true"
-            className="mc-ventas-hero__art"
-            sizes="(max-width: 767px) 128px, 300px"
-          />
-        </section>
-      ) : null}
-
       <section
         className="mc-ventas-summary mc-ventas-stats"
         aria-label="Resumen de ventas"
@@ -388,6 +365,29 @@ export default async function VentasPage({
           ) : null}
         </section>
       )}
+
+      {/* Momento ilustrado (solo si hay ventas: la otra variante es el empty). */}
+      {hasOrders ? (
+        <section className="mc-ventas-hero">
+          <div className="mc-ventas-hero__copy">
+            <p className="mc-ventas-hero__kicker">Consulta, no cobro</p>
+            <p className="mc-ventas-hero__lead">
+              Ventas registradas, dinero por confirmar.
+            </p>
+            <p className="mc-ventas-hero__note">
+              Cada fila distingue lo cobrado, lo pendiente y lo fiado. Un pedido
+              pagado no es lo mismo que un pedido registrado.
+            </p>
+          </div>
+          <Image
+            src={tacosArt}
+            alt=""
+            aria-hidden="true"
+            className="mc-ventas-hero__art"
+            sizes="(max-width: 767px) 128px, 300px"
+          />
+        </section>
+      ) : null}
 
       <p className="mc-ventas-note">
         El historial se lee de la misma base que Caja. Un pedido <strong>pendiente</strong> o{" "}
