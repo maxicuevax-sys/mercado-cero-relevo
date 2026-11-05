@@ -2,9 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { MoreHorizontal, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { MaskIcon } from "@/components/ui/icon";
 import { isNavItemActive, type ShellNavItem } from "./nav";
+import reportIcon from "@/assets/inicio/icons/reportes.svg";
 import "./shell.css";
 
 export function MobileNav({
@@ -71,13 +72,13 @@ export function MobileNav({
             className="mc-mobile-nav__item mc-mobile-nav__sale"
           >
             <span className="mc-mobile-nav__sale-circle"><Plus aria-hidden="true" /></span>
-            <span>Vender</span>
+            <span className="sr-only">Vender</span>
           </Link>
       ) : null}
       {destinations.slice(2).map(destination)}
       <details className="mc-mobile-nav__more" ref={moreRef}>
         <summary className="mc-mobile-nav__item" aria-current={more.some((item) => isNavItemActive(item, activeHref)) ? "page" : undefined}>
-          <MoreHorizontal className="mc-mobile-nav__icon" aria-hidden="true" />
+          <MaskIcon src={reportIcon} className="mc-mobile-nav__icon" />
           <span>Más</span>
         </summary>
         <div className="mc-mobile-nav__panel">

@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import logoInk from "@/assets/inicio/logo-simbolo.svg";
+import bellIcon from "@/assets/inicio/icons/campana.svg";
+import { MaskIcon } from "@/components/ui/icon";
 
 export function TopBar({
   merchant,
@@ -36,6 +38,9 @@ export function TopBar({
             DEMO
           </span>
         ) : null}
+        <Link href="/pendientes" className="inicio-topbar__alerts" aria-label="Ver pendientes">
+          <MaskIcon src={bellIcon} className="inicio-topbar__bell" />
+        </Link>
         <span className="inicio-avatar" aria-hidden="true">
           {initial}
         </span>
