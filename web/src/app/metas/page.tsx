@@ -100,17 +100,17 @@ export default async function MetasPage() {
       demo={demo}
       contentClassName="mc-metas-main"
     >
+      <Image
+        src={picadoArt}
+        alt=""
+        aria-hidden="true"
+        className="mc-metas-page__picado"
+        sizes="(max-width: 767px) 116px, 260px"
+      />
       <section
         className={protagonist ? "mc-metas-hero mc-metas-hero--active" : "mc-metas-hero"}
         aria-labelledby="mc-metas-hero-title"
       >
-        <Image
-          src={picadoArt}
-          alt=""
-          aria-hidden="true"
-          className="mc-metas-hero__picado"
-          sizes="(max-width: 767px) 170px, 230px"
-        />
         <div className="mc-metas-hero__art">
           <Image
             src={ahorroArt}

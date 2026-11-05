@@ -436,11 +436,11 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px 16px;
+  gap: 8px 12px;
 }
 
 .mc-pend-collections .mc-pend-foot-note {
-  flex: 1 1 16rem;
+  flex: 1 1 12rem;
 }
 
 .mc-pend-grid {

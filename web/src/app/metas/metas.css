@@ -7,6 +7,7 @@
    Ritmo de página (override acotado por el class de esta ruta)
    ------------------------------------------------------------------------- */
 .mc-op-main.mc-metas-main {
+  position: relative;
   max-width: 1440px;
   margin-inline: auto;
   padding: 24px 24px 72px;
@@ -17,7 +18,19 @@
 }
 
 .mc-metas-main > .mc-op-header .mc-page-header__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: clamp(2rem, 3vw, 2.5rem);
+}
+
+.mc-metas-main > .mc-op-header .mc-page-header__title::before {
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  background: var(--color-attention);
+  mask: url("../../assets/inicio/icons/metas.svg") center / contain no-repeat;
+  content: "";
 }
 
 .mc-metas-main > .mc-op-header .mc-page-header__eyebrow {
@@ -156,8 +169,7 @@
 }
 
 /* -------------------------------------------------------------------------
-   Hero protagonista (una ilustración grande + picado en esquina superior
-   derecha del contenido)
+   Tarjeta ilustrada y papel picado en la esquina del encabezado.
    ------------------------------------------------------------------------- */
 .mc-metas-hero {
   position: relative;
@@ -167,22 +179,19 @@
   gap: 16px;
   min-width: 0;
   padding: 24px;
-  padding-top: 36px;
   border: 1px solid var(--color-separator);
   border-radius: 22px;
   background: var(--color-surface);
   box-shadow: 0 2px 8px rgb(31 38 34 / 0.05);
 }
 
-.mc-metas-hero__picado {
+.mc-metas-page__picado {
   position: absolute;
-  top: -10px;
-  right: 8px;
-  z-index: 1;
-  width: clamp(150px, 17vw, 210px);
+  top: 4px;
+  right: clamp(12px, 2vw, 24px);
+  width: clamp(132px, 18vw, 260px);
   height: auto;
   pointer-events: none;
-  transform: rotate(-1deg);
 }
 
 .mc-metas-hero__art {
@@ -350,7 +359,7 @@
   .mc-metas-hero {
     grid-template-columns: minmax(0, 10rem) minmax(0, 1fr);
     gap: 24px;
-    padding: 28px 24px 20px;
+    padding: 20px 24px;
   }
 
   .mc-metas-hero__art {
@@ -839,14 +848,12 @@
 @media (max-width: 479.98px) {
   .mc-metas-hero {
     padding: 16px;
-    padding-top: 32px;
     border-radius: 16px;
   }
 
-  .mc-metas-hero__picado {
-    top: -8px;
-    right: 4px;
-    width: 150px;
+  .mc-metas-page__picado {
+    right: 8px;
+    width: 116px;
   }
 
   .mc-metas-hero__art-img {
@@ -887,10 +894,6 @@
     transition: none;
   }
 
-  .mc-metas-hero__picado {
-    transform: none;
-  }
-
   .mc-metas-spin {
     animation-duration: 1.5s;
   }
@@ -911,7 +914,8 @@
     background: Highlight;
   }
 
-  .mc-metas-hero__picado,
+  .mc-metas-main > .mc-op-header .mc-page-header__title::before,
+  .mc-metas-page__picado,
   .mc-metas-hero__art-img,
   .mc-metas-objective__icon,
   .mc-metas-medallion__art {
