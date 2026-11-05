@@ -44,6 +44,12 @@ export default async function AjustesPage() {
       demo={isDemoMode()}
     >
       <div className="mc-ajustes-layout">
+
+
+        <div className="mc-ajustes-main">
+          <AccessibilityPanel />
+        </div>
+
         <ArtBanner
           art={lupitaArt}
           kicker="A tu manera"
@@ -55,10 +61,6 @@ export default async function AjustesPage() {
             este dispositivo y se aplica en todas las pantallas.
           </p>
         </ArtBanner>
-
-        <div className="mc-ajustes-main">
-          <AccessibilityPanel />
-        </div>
 
         <div className="mc-ajustes-side">
           <section
