@@ -70,7 +70,7 @@ export default async function AyudaPage() {
       title="Ayuda"
       titleId="ayuda-title"
       eyebrow="Ayuda"
-      subtitle="Cómo registrar, cobrar y fiar; y cómo leer la app a tu manera."
+      subtitle="Respuestas para vender, cobrar y fiar."
       merchant={MERCHANT.name}
       address={MERCHANT.address}
       demo={isDemoMode()}
@@ -94,11 +94,11 @@ export default async function AyudaPage() {
             </h2>
             <span className="mc-art-stamp mc-art-stamp--green">7 respuestas</span>
           </div>
+          <HelpFaq />
           <p className="mc-art-paper__note">
             Respuestas fijas y verificadas: la app no usa el modelo para decidir
             si un pago llegó.
           </p>
-          <HelpFaq />
           <p className="mc-ayuda-note">
             ¿Tu duda no está aquí? En Ajustes cambias cómo se lee la app; en Caja
             practicas el recorrido completo.

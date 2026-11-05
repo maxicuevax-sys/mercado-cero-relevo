@@ -65,6 +65,59 @@ export function SaleLineItems({
         </span>
       </div>
 
+      <div className="mc-caja-add">
+        <p className="mc-caja-add__title">Agregar concepto</p>
+        <div className="mc-caja-add__grid">
+          <label className="mc-caja-field mc-caja-add__description">
+            <span>Producto o servicio</span>
+            <input
+              id="mc-caja-new-description"
+              value={description}
+              onChange={(event) => {
+                setDescription(event.target.value);
+                setAddError(null);
+              }}
+              placeholder="Ej. Quesadilla"
+              autoComplete="off"
+              aria-invalid={addError ? true : undefined}
+              aria-describedby={addError ? "mc-caja-add-error" : undefined}
+            />
+          </label>
+          <label className="mc-caja-field">
+            <span>Cantidad</span>
+            <input
+              value={quantity}
+              onChange={(event) => {
+                setQuantity(event.target.value);
+                setAddError(null);
+              }}
+              inputMode="decimal"
+            />
+          </label>
+          <label className="mc-caja-field">
+            <span>Precio unitario</span>
+            <input
+              value={price}
+              onChange={(event) => {
+                setPrice(event.target.value);
+                setAddError(null);
+              }}
+              inputMode="decimal"
+              placeholder="0.00"
+            />
+          </label>
+          <button type="button" className="mc-caja-button mc-caja-button--secondary" onClick={addLine} disabled={disabled}>
+            <span aria-hidden="true">+</span>
+            <span className="mc-caja-add__button-label">Agregar</span>
+          </button>
+        </div>
+        {addError ? (
+          <p id="mc-caja-add-error" className="mc-caja-field-error" role="alert">
+            {addError}
+          </p>
+        ) : null}
+      </div>
+
       {lines.length === 0 ? (
         <div className="mc-caja-empty">
           <Image
@@ -183,58 +236,7 @@ export function SaleLineItems({
         </ul>
       )}
 
-      <div className="mc-caja-add">
-        <p className="mc-caja-add__title">Agregar concepto</p>
-        <div className="mc-caja-add__grid">
-          <label className="mc-caja-field mc-caja-add__description">
-            <span>Producto o servicio</span>
-            <input
-              id="mc-caja-new-description"
-              value={description}
-              onChange={(event) => {
-                setDescription(event.target.value);
-                setAddError(null);
-              }}
-              placeholder="Ej. Quesadilla"
-              autoComplete="off"
-              aria-invalid={addError ? true : undefined}
-              aria-describedby={addError ? "mc-caja-add-error" : undefined}
-            />
-          </label>
-          <label className="mc-caja-field">
-            <span>Cantidad</span>
-            <input
-              value={quantity}
-              onChange={(event) => {
-                setQuantity(event.target.value);
-                setAddError(null);
-              }}
-              inputMode="decimal"
-            />
-          </label>
-          <label className="mc-caja-field">
-            <span>Precio unitario</span>
-            <input
-              value={price}
-              onChange={(event) => {
-                setPrice(event.target.value);
-                setAddError(null);
-              }}
-              inputMode="decimal"
-              placeholder="0.00"
-            />
-          </label>
-          <button type="button" className="mc-caja-button mc-caja-button--secondary" onClick={addLine} disabled={disabled}>
-            <span aria-hidden="true">+</span>
-            Agregar
-          </button>
-        </div>
-        {addError ? (
-          <p id="mc-caja-add-error" className="mc-caja-field-error" role="alert">
-            {addError}
-          </p>
-        ) : null}
-      </div>
+
     </section>
   );
 }

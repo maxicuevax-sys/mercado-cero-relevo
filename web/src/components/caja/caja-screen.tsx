@@ -786,7 +786,7 @@ export function CajaScreen({
         titleId="caja-title"
         subtitle={
           view === "compose"
-            ? `${formatLongDate()}. Agrega lo que vendiste, revisa el total y elige cómo te pagan.`
+            ? `${formatLongDate()}. Revisa el total antes de cobrar.`
             : view === "payment"
               ? "El pedido ya está registrado. El pago sigue pendiente hasta que el banco lo confirme."
               : "Revisa el resultado antes de entregar o iniciar otra venta."

@@ -33,7 +33,7 @@ export default async function AjustesPage() {
       title="Ajustes"
       titleId="ajustes-title"
       eyebrow="Accesibilidad"
-      subtitle="El tamaño del texto, el contraste y la voz. Se aplican a toda la app y se guardan en este dispositivo."
+      subtitle="Texto, contraste y voz, a tu manera."
       actions={
         <Link href="/ayuda" className="mc-ajustes-action">
           Volver a la ayuda
