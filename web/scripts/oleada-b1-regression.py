@@ -329,18 +329,28 @@ def main() -> int:
         check("P1-01 permite elegir esta venta", not page.locator(".mc-caja-confirm").is_disabled())
 
         # ------------------------------------------------------------------
-        # P1-11 · nav honesta hacia la Caja clásica
+        # P1-11 · navegación única: Fiados es una pantalla nueva, no un alias
         # ------------------------------------------------------------------
-        fiados = page.locator('.inicio-nav__item[href$="fiados"]').first
-        check("P1-11 Fiados se anuncia como Caja clásica", fiados.count() == 1)
+        fiados = page.locator('.inicio-nav__item[href="/fiados"]').first
         check(
-            "P1-11 chip visible Clásica",
-            "clásica" in fiados.inner_text().lower(),
-            fiados.inner_text(),
+            "P1-11 Fiados es una pantalla nueva en la nav",
+            fiados.count() == 1 and fiados.get_attribute("href") == "/fiados",
+            str(fiados.count()),
+        )
+        check(
+            "P1-11 la nav ya no marca destinos clásicos",
+            page.locator(".inicio-nav__legacy, .mc-mobile-nav__legacy").count() == 0
+            and "clásica" not in page.locator(".inicio-sidebar").inner_text().lower(),
+            page.locator(".inicio-sidebar").inner_text()[:200],
         )
         fiados.click()
-        page.wait_for_timeout(500)
-        check("P1-11 el alias conserva tab=fiado", "tab=fiado" in page.url, page.url)
+        page.wait_for_timeout(700)
+        check(
+            "P1-11 /fiados renderiza el shell nuevo",
+            page.locator(".inicio-shell").count() == 1
+            and page.locator(".app-shell, .app-sidebar, .tab-panel").count() == 0,
+            page.url,
+        )
 
         page.set_viewport_size({"width": 1366, "height": 768})
         page.goto(BASE + "/caja", wait_until="domcontentloaded")
