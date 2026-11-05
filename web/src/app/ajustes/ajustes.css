@@ -1,0 +1,228 @@
+/* Ajustes · estilos propios de la pantalla.
+   El layout y los paneles vienen de `.mc-op-*`
+   (`components/shell/operational.css`); aquí solo se compone `.mc-ajustes-*`.
+   Paleta: tokens existentes, sin colores nuevos. */
+
+.mc-ajustes-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+  min-width: 0;
+}
+
+.mc-ajustes-col {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .mc-ajustes-layout {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  }
+}
+
+.mc-ajustes-action {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border: 1.5px solid var(--color-control-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.mc-ajustes-action:hover {
+  background: var(--color-surface-2);
+}
+
+/* -------------------------------------------------------------------------
+   Panel de accesibilidad
+   ------------------------------------------------------------------------- */
+.mc-ajustes-lead {
+  max-width: 58ch;
+  margin: 0 0 4px;
+  color: var(--color-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.mc-ajustes-group {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-separator);
+}
+
+.mc-ajustes-group__label {
+  margin: 0 0 8px;
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.mc-ajustes-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 92px), 1fr));
+  gap: 8px;
+}
+
+.mc-ajustes-option {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  cursor: pointer;
+}
+
+.mc-ajustes-option:hover {
+  background: var(--color-surface-2);
+}
+
+.mc-ajustes-option--active {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: #fffdf7;
+  font-weight: 700;
+}
+
+.mc-ajustes-option--active:hover {
+  background: var(--color-accent-press);
+  color: #fffdf7;
+}
+
+.mc-ajustes-hint {
+  margin: 8px 0 0;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.mc-ajustes-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-separator);
+}
+
+.mc-ajustes-speech {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-ink-2);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.mc-ajustes-speech:hover {
+  background: var(--color-surface-2);
+  color: var(--color-ink);
+}
+
+.mc-ajustes-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.mc-ajustes-feedback {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--color-green-soft);
+  color: var(--color-green);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.mc-ajustes-feedback:empty {
+  display: none;
+}
+
+/* -------------------------------------------------------------------------
+   Preferencias de acompañamiento (componente existente)
+   ------------------------------------------------------------------------- */
+.mc-ajustes-companion #companion-preferences {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* -------------------------------------------------------------------------
+   Qué se guarda
+   ------------------------------------------------------------------------- */
+.mc-ajustes-stored {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0 0 0 18px;
+  color: var(--color-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.mc-ajustes-stored li {
+  overflow-wrap: anywhere;
+}
+
+/* -------------------------------------------------------------------------
+   Responsive
+   ------------------------------------------------------------------------- */
+@media (max-width: 479.98px) {
+  .mc-ajustes-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mc-ajustes-speech {
+    justify-content: flex-start;
+  }
+}
+
+@media (forced-colors: active) {
+  .mc-ajustes-action,
+  .mc-ajustes-option,
+  .mc-ajustes-speech {
+    border: 1px solid ButtonText;
+  }
+
+  .mc-ajustes-option--active {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .mc-ajustes-feedback {
+    border: 1px solid CanvasText;
+  }
+}
