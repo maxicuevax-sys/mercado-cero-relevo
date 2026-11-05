@@ -462,7 +462,7 @@ export function TasksPanel({
           {announcement}
         </p>
 
-        {!formOpen ? (
+        {!formOpen && openTasks.length > 0 ? (
           <div className="mc-pend-tasks__toolbar">
             <button
               type="button"
@@ -606,6 +606,7 @@ export function TasksPanel({
               <div className="mc-op-empty__action">
                 <button
                   type="button"
+                  data-focus="create"
                   className="mc-pend-cta"
                   onClick={openForm}
                 >
