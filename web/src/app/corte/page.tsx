@@ -1,14 +1,35 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
+import { Check } from "lucide-react";
 import { OperationalPage } from "@/components/shell/operational-page";
+import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { CashCount } from "@/components/corte/cash-count";
-import { differenceText } from "@/components/corte/money";
+import { differenceText, differenceWord } from "@/components/corte/money";
 import { getCashClose, getCashStatus, listCashCloses } from "@/lib/cash";
-import { countPendingOrders, sumPendingOrderBalances } from "@/lib/db";
+import {
+  countPendingOrders,
+  getDailySummary,
+  sumPendingOrderBalances,
+} from "@/lib/db";
 import { MERCHANT, isDemoMode } from "@/lib/config";
-import { formatActivityDate, formatMxn, formatTime } from "@/lib/format";
+import {
+  formatActivityDate,
+  formatDayMonth,
+  formatMxn,
+  formatTime,
+} from "@/lib/format";
 import type { CashClose } from "@/lib/types";
+import puestoArt from "@/assets/brand/ilustraciones/transparent/puesto.png";
+import papelPicadoArt from "@/assets/inicio/papel-picado.png";
+import iconRecibo from "@/assets/brand/iconos/transparent/recibo.png";
+import iconRegistradora from "@/assets/brand/iconos/transparent/registradora.png";
+import iconTienda from "@/assets/brand/iconos/transparent/tienda.png";
+import iconQr from "@/assets/brand/iconos/transparent/qr-telefono.png";
+import iconCamion from "@/assets/brand/iconos/transparent/camion.png";
+import iconLista from "@/assets/brand/iconos/transparent/lista.png";
+import iconReporte from "@/assets/brand/iconos/transparent/reporte.png";
 import "./corte.css";
 
 export const metadata: Metadata = {
@@ -90,22 +111,29 @@ export default async function CortePage() {
   const history = listCashCloses(status.date, 6);
   const pendingCount = countPendingOrders();
   const pendingCents = sumPendingOrderBalances();
+  const summary = getDailySummary();
   const merchant = MERCHANT;
   const demo = isDemoMode();
   const previousVersions = history.slice(1);
+
+  // Recibo del día: efectivo real de caja y digital verificado separados; el
+  // fiado pendiente y los cobros por confirmar no son efectivo de cajón.
+  const cashTodayCents = status.cashSalesCents + status.cashCreditCents;
+  const stampTone = saved
+    ? saved.differenceCents === 0
+      ? "ok"
+      : saved.differenceCents > 0
+        ? "extra"
+        : "missing"
+    : "none";
 
   return (
     <OperationalPage
       activeHref="/corte"
       title="Corte de caja"
       titleId="corte-title"
-      eyebrow="Cierre del día"
-      subtitle="Primero cuenta el efectivo; después revisa los movimientos. El corte no se guarda solo: tú confirmas."
-      actions={
-        <Link href="/ventas" className="mc-corte-action">
-          Ver ventas
-        </Link>
-      }
+      eyebrow={`Cierre del día · ${formatDayMonth(status.date)}`}
+      subtitle="Cuenta el efectivo, revisa gastos y retiros, y guarda el corte solo cuando el saldo tenga sentido."
       merchant={merchant.name}
       address={merchant.address}
       demo={demo}
@@ -114,148 +142,239 @@ export default async function CortePage() {
       contentClassName="mc-corte-page"
       focusTargetId="mc-corte-tally-title"
     >
+      {/* Acento decorativo en la esquina superior derecha del contenido. */}
+      <Image
+        src={papelPicadoArt}
+        alt=""
+        aria-hidden="true"
+        className="mc-corte-page__picado"
+        sizes="(max-width: 767px) 130px, 280px"
+      />
+
       <div className="mc-corte-body">
-        {/* 1. Conteo primero: DOM y orden de tabulación. */}
+        {/* PASO 1 · Conteo primero en DOM y en el orden de tabulación. */}
         <div className="mc-corte-body__tally">
           <CashCount initialStatus={status} titleId="mc-corte-tally-title" />
         </div>
 
-        {/* 2. Checklist / revisión posterior al conteo. */}
+        {/* PASO 2 · Resumen en tarjeta tipo recibo. */}
         <section
-          className="mc-op-panel mc-corte-checks"
-          aria-labelledby="mc-corte-checks-title"
+          className="mc-corte-receipt"
+          aria-labelledby="mc-corte-receipt-title"
         >
-          <div className="mc-op-panel__head">
-            <h2 id="mc-corte-checks-title" className="mc-op-panel__title">
-              Antes de cerrar
-            </h2>
-            <p className="mc-op-panel__meta">
-              {saved ? `Corte #${saved.version} guardado` : "Sin corte guardado hoy"}
-            </p>
-          </div>
-          <ul className="mc-corte-checks__list">
-            <li className="mc-corte-check">
-              <span
-                className={`mc-corte-check__mark${
-                  saved ? " mc-corte-check__mark--done" : ""
-                }`}
+            <div className="mc-corte-receipt__head">
+              <span className="mc-corte-receipt__badge" aria-hidden="true">
+                <Image src={iconRecibo} alt="" sizes="44px" />
+              </span>
+              <div className="mc-corte-receipt__headline">
+                <p className="mc-corte-receipt__kicker">
+                  Resumen del día · {formatDayMonth(status.date)}
+                </p>
+                <h2 id="mc-corte-receipt-title" className="mc-corte-receipt__title">
+                  Así va la caja
+                </h2>
+              </div>
+              <Image
+                src={puestoArt}
+                alt=""
                 aria-hidden="true"
-              >
-                {saved ? "✓" : "1"}
-              </span>
-              <div className="mc-corte-check__copy">
-                <p className="mc-corte-check__title">
-                  {saved
-                    ? `Corte del día guardado (#${saved.version})`
-                    : "Corte del día pendiente"}
-                </p>
-                <p className="mc-corte-check__body">
-                  {saved
-                    ? `Guardado ${formatActivityDate(
-                        saved.createdAt,
-                      )}. Si lo corriges se guarda una versión nueva con motivo; la anterior no se borra.`
-                    : "El conteo es el primer paso. Al confirmar se registra la versión 1 del día."}
-                </p>
-              </div>
-            </li>
-            <li className="mc-corte-check">
-              <span className="mc-corte-check__mark" aria-hidden="true">
-                {pendingCount > 0 ? "!" : "✓"}
-              </span>
-              <div className="mc-corte-check__copy">
-                <p className="mc-corte-check__title">Cobros digitales por confirmar</p>
-                <p className="mc-corte-check__body">
-                  {pendingCount > 0
-                    ? `${pendingCount} ${
-                        pendingCount === 1 ? "cobro" : "cobros"
-                      } por ${formatMxn(
-                        pendingCents,
-                      )}. No son efectivo de caja y no se suman al conteo. `
-                    : "No hay cobros digitales esperando confirmación. "}
-                  <Link href="/pendientes">Ver pendientes</Link>
-                </p>
-              </div>
-            </li>
-            <li className="mc-corte-check">
-              <span className="mc-corte-check__mark" aria-hidden="true">
-                i
-              </span>
-              <div className="mc-corte-check__copy">
-                <p className="mc-corte-check__title">Fiado no es efectivo recibido</p>
-                <p className="mc-corte-check__body">
-                  Solo las ventas en efectivo y los abonos de fiado en efectivo
-                  entran al esperado. El fiado pendiente se cobra desde{" "}
-                  <Link href="/fiados">Fiados</Link>.
-                </p>
-              </div>
-            </li>
-          </ul>
-        </section>
-
-        {/* 3. Resumen del servidor, después del checklist. */}
-        <div className="mc-corte-summary">
-          <section
-            className="mc-op-panel mc-corte-cash-now"
-            aria-labelledby="mc-corte-cash-now-title"
-          >
-            <div className="mc-op-panel__head">
-              <h2 id="mc-corte-cash-now-title" className="mc-op-panel__title">
-                Así va la caja
-              </h2>
-              <p className="mc-op-panel__meta">Cifras del servidor, hoy</p>
+                className="mc-corte-receipt__art"
+                sizes="(max-width: 767px) 82px, 128px"
+              />
             </div>
-            <dl className="mc-corte-cash-now__rows">
-              <div>
-                <dt>Ventas en efectivo</dt>
-                <dd>{formatMxn(status.cashSalesCents)}</dd>
+
+            <div className="mc-corte-receipt__saldo">
+              <span className="mc-corte-receipt__saldo-check" aria-hidden="true">
+                <Check />
+              </span>
+              <div className="mc-corte-receipt__saldo-copy">
+                <p className="mc-corte-receipt__saldo-label">Saldo del día</p>
+                <CurrencyAmount
+                  as="p"
+                  cents={status.expectedCents}
+                  className="mc-corte-receipt__saldo-value"
+                />
               </div>
-              <div>
-                <dt>Abonos de fiado en efectivo</dt>
-                <dd>{formatMxn(status.cashCreditCents)}</dd>
+              <span
+                className={`mc-corte-receipt__stamp mc-corte-receipt__stamp--${stampTone}`}
+              >
+                {saved ? (
+                  <>
+                    <span className="mc-corte-receipt__stamp-word">
+                      {differenceWord(saved.differenceCents)}
+                    </span>
+                    <span className="mc-corte-receipt__stamp-amount">
+                      {formatMxn(Math.abs(saved.differenceCents))}
+                    </span>
+                  </>
+                ) : (
+                  <span className="mc-corte-receipt__stamp-word">Sin corte</span>
+                )}
+              </span>
+            </div>
+
+            <dl className="mc-corte-receipt__rows">
+              <div className="mc-corte-receipt__row">
+                <span className="mc-corte-receipt__row-icon mc-corte-receipt__row-icon--green" aria-hidden="true">
+                  <Image src={iconTienda} alt="" sizes="32px" />
+                </span>
+                <dt>Ventas</dt>
+                <dd>{formatMxn(summary.salesCents)}</dd>
               </div>
-              <div>
-                <dt>Base inicial</dt>
-                <dd>{formatMxn(status.openingCents)}</dd>
+              <div className="mc-corte-receipt__row">
+                <span className="mc-corte-receipt__row-icon" aria-hidden="true">
+                  <Image src={iconRegistradora} alt="" sizes="32px" />
+                </span>
+                <dt>Efectivo</dt>
+                <dd>{formatMxn(cashTodayCents)}</dd>
               </div>
-              <div>
+              <div className="mc-corte-receipt__row">
+                <span className="mc-corte-receipt__row-icon mc-corte-receipt__row-icon--green" aria-hidden="true">
+                  <Image src={iconQr} alt="" sizes="32px" />
+                </span>
+                <dt>Digital verificado</dt>
+                <dd>{formatMxn(summary.verifiedDigitalCents)}</dd>
+              </div>
+              {summary.declaredDigitalCents > 0 ? (
+                <div className="mc-corte-receipt__row">
+                  <span className="mc-corte-receipt__row-icon mc-corte-receipt__row-icon--saffron" aria-hidden="true">
+                    <Image src={iconQr} alt="" sizes="32px" />
+                  </span>
+                  <dt>Digital declarado</dt>
+                  <dd>{formatMxn(summary.declaredDigitalCents)}</dd>
+                </div>
+              ) : null}
+              <div className="mc-corte-receipt__row">
+                <span className="mc-corte-receipt__row-icon mc-corte-receipt__row-icon--terracotta" aria-hidden="true">
+                  <Image src={iconRecibo} alt="" sizes="32px" />
+                </span>
                 <dt>Gastos</dt>
-                <dd>{formatMxn(status.expensesCents)}</dd>
+                <dd className="mc-corte-receipt__out">
+                  − {formatMxn(status.expensesCents)}
+                </dd>
               </div>
-              <div>
+              <div className="mc-corte-receipt__row">
+                <span className="mc-corte-receipt__row-icon mc-corte-receipt__row-icon--saffron" aria-hidden="true">
+                  <Image src={iconCamion} alt="" sizes="32px" />
+                </span>
                 <dt>Retiros</dt>
-                <dd>{formatMxn(status.withdrawalsCents)}</dd>
-              </div>
-              <div className="mc-corte-cash-now__total">
-                <dt>Debería haber</dt>
-                <dd>{formatMxn(status.expectedCents)}</dd>
-              </div>
-              <div>
-                <dt>Diferencia del último corte</dt>
-                <dd
-                  className={
-                    saved
-                      ? `mc-corte-difference ${differenceTone(saved.differenceCents)}`
-                      : "mc-corte-difference"
-                  }
-                >
-                  {saved ? differenceText(saved.differenceCents) : "Sin corte guardado"}
+                <dd className="mc-corte-receipt__out">
+                  − {formatMxn(status.withdrawalsCents)}
                 </dd>
               </div>
             </dl>
-            <p className="mc-corte-cash-now__note">
-              Esta vista se actualiza al recargar. El corte guardado no cambia
-              aunque entren movimientos después del cierre.
-            </p>
+
+            <div className="mc-corte-receipt__foot">
+              <p className="mc-corte-receipt__note">
+                {demo
+                  ? "Modo demo: los pagos simulados no cuentan como dinero real."
+                  : "El digital verificado no es efectivo de cajón y el fiado pendiente no entra al corte."}{" "}
+                El saldo se recalcula con los movimientos vivos al confirmar.
+              </p>
+              {saved ? (
+                <p className="mc-corte-receipt__saved">
+                  Último corte #{saved.version} · {differenceText(saved.differenceCents)} ·{" "}
+                  {formatTime(saved.createdAt)}
+                </p>
+              ) : null}
+            </div>
           </section>
 
+          <div className="mc-corte-lower">
+            {/* Checklist de revisión (después del conteo en DOM). */}
+          <section
+            className="mc-op-panel mc-corte-checks"
+            aria-labelledby="mc-corte-checks-title"
+          >
+            <div className="mc-op-panel__head">
+              <div className="mc-corte-panel-title">
+                <span
+                  className="mc-corte-panel-title__badge mc-corte-panel-title__badge--green"
+                  aria-hidden="true"
+                >
+                  <Image src={iconLista} alt="" sizes="34px" />
+                </span>
+                <h2 id="mc-corte-checks-title" className="mc-op-panel__title">
+                  Antes de cerrar
+                </h2>
+              </div>
+              <p className="mc-op-panel__meta">
+                {saved ? `Corte #${saved.version} guardado` : "Sin corte guardado hoy"}
+              </p>
+            </div>
+            <ul className="mc-corte-checks__list">
+              <li className="mc-corte-check">
+                <span
+                  className={`mc-corte-check__mark${
+                    saved ? " mc-corte-check__mark--done" : ""
+                  }`}
+                  aria-hidden="true"
+                >
+                  {saved ? "✓" : "1"}
+                </span>
+                <div className="mc-corte-check__copy">
+                  <p className="mc-corte-check__title">
+                    {saved
+                      ? `Corte del día guardado (#${saved.version})`
+                      : "Corte del día pendiente"}
+                  </p>
+                  <p className="mc-corte-check__body">
+                    {saved
+                      ? `Guardado ${formatActivityDate(
+                          saved.createdAt,
+                        )}. Si lo corriges se guarda una versión nueva con motivo; la anterior no se borra.`
+                      : "El conteo es el primer paso. Al confirmar se registra la versión 1 del día."}
+                  </p>
+                </div>
+              </li>
+              <li className="mc-corte-check">
+                <span className="mc-corte-check__mark" aria-hidden="true">
+                  {pendingCount > 0 ? "!" : "✓"}
+                </span>
+                <div className="mc-corte-check__copy">
+                  <p className="mc-corte-check__title">Cobros digitales por confirmar</p>
+                  <p className="mc-corte-check__body">
+                    {pendingCount > 0
+                      ? `${pendingCount} ${
+                          pendingCount === 1 ? "cobro" : "cobros"
+                        } por ${formatMxn(
+                          pendingCents,
+                        )}. No son efectivo de caja y no se suman al conteo. `
+                      : "No hay cobros digitales esperando confirmación. "}
+                    <Link href="/pendientes">Ver pendientes</Link>
+                  </p>
+                </div>
+              </li>
+              <li className="mc-corte-check">
+                <span className="mc-corte-check__mark" aria-hidden="true">
+                  i
+                </span>
+                <div className="mc-corte-check__copy">
+                  <p className="mc-corte-check__title">Fiado no es efectivo recibido</p>
+                  <p className="mc-corte-check__body">
+                    Solo las ventas en efectivo y los abonos de fiado en efectivo
+                    entran al esperado. El fiado pendiente se cobra desde{" "}
+                    <Link href="/fiados">Fiados</Link>.
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </section>
+
+          {/* Historial del día (secundario). */}
           <section
             className="mc-op-panel mc-corte-history"
             aria-labelledby="mc-corte-history-title"
           >
             <div className="mc-op-panel__head">
-              <h2 id="mc-corte-history-title" className="mc-op-panel__title">
-                Cortes de hoy
-              </h2>
+              <div className="mc-corte-panel-title">
+                <span className="mc-corte-panel-title__badge" aria-hidden="true">
+                  <Image src={iconReporte} alt="" sizes="36px" />
+                </span>
+                <h2 id="mc-corte-history-title" className="mc-op-panel__title">
+                  Cortes de hoy
+                </h2>
+              </div>
               <p className="mc-op-panel__meta">
                 {saved
                   ? `${saved.version} ${

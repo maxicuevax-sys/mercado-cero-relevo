@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   useId,
   useRef,
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn, formatMxn } from "@/lib/format";
 import type { CashClose, CashStatus } from "@/lib/types";
+import registradoraIcon from "@/assets/brand/iconos/transparent/registradora.png";
 import { CloseConfirmDialog } from "./close-confirm-dialog";
 import {
   DENOMINATIONS,
@@ -315,10 +317,15 @@ export function CashCount({
 
       <div className="mc-op-panel__head">
         <div className="mc-corte-tally__heading">
-          <p className="mc-corte-step">Paso 1 · Conteo</p>
-          <h2 id={headingId} className="mc-op-panel__title">
-            Cuenta el efectivo de hoy
-          </h2>
+          <span className="mc-corte-tally__medallion" aria-hidden="true">
+            <Image src={registradoraIcon} alt="" sizes="40px" />
+          </span>
+          <div className="mc-corte-tally__title">
+            <p className="mc-corte-step">Paso 1 · Conteo</p>
+            <h2 id={headingId} className="mc-op-panel__title">
+              Cuenta el efectivo de hoy
+            </h2>
+          </div>
         </div>
         <button
           type="button"
