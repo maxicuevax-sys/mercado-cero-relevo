@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { lineTotalCents, newLineId, parseMoneyCents, parseQuantity, type DraftLine } from "./types";
+import tacosArt from "@/assets/brand/ilustraciones/transparent/tacos.png";
 
 export function SaleLineItems({
   lines,
@@ -65,8 +67,19 @@ export function SaleLineItems({
 
       {lines.length === 0 ? (
         <div className="mc-caja-empty">
-          <p>Aún no hay conceptos.</p>
-          <p>Agrega uno a mano. No necesitas inventario ni micrófono.</p>
+          <Image
+            src={tacosArt}
+            alt=""
+            aria-hidden="true"
+            width={112}
+            height={106}
+            className="mc-caja-empty__art"
+            sizes="112px"
+          />
+          <div className="mc-caja-empty__copy">
+            <p className="mc-caja-empty__title">Aún no hay conceptos.</p>
+            <p>Agrega uno a mano. No necesitas inventario ni micrófono.</p>
+          </div>
         </div>
       ) : (
         <ul className="mc-caja-lines">

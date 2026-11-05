@@ -74,10 +74,16 @@ export function SaleSummary({
       aria-labelledby="mc-caja-summary-title"
     >
       <div className="mc-caja-summary__body">
-      <p className="mc-caja-eyebrow">Cobro</p>
-      <h2 id="mc-caja-summary-title">Total de la venta</h2>
-      <CurrencyAmount as="p" cents={totalCents} className="mc-caja-total" />
-      <p className="mc-caja-total__note">Lo que el cliente debe pagar. No es dinero recibido.</p>
+      <div className="mc-caja-summary__receipt">
+        <p className="mc-caja-eyebrow">Cobro</p>
+        <h2 id="mc-caja-summary-title">Total de la venta</h2>
+        <CurrencyAmount as="p" cents={totalCents} className="mc-caja-total" />
+        <p className="mc-caja-total__note">Lo que el cliente debe pagar. No es dinero recibido.</p>
+      </div>
+      <div className="mc-caja-receipt__rule" aria-hidden="true" />
+      <p className="mc-caja-receipt__micro">
+        Elige cómo te pagan. El importe ya está calculado.
+      </p>
 
       <fieldset className="mc-caja-methods">
         <legend>Cómo se paga</legend>
