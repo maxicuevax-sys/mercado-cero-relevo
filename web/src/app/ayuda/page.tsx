@@ -2,12 +2,10 @@ import type { Metadata } from "next";
 import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
-import { ArtBanner } from "@/components/shell/art-banner";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { HelpFaq } from "@/components/ayuda/help-faq";
 import { MERCHANT, isDemoMode } from "@/lib/config";
 import botArt from "@/assets/brand/ilustraciones/transparent/bot.png";
-import qrArt from "@/assets/brand/ilustraciones/transparent/qr.png";
 import ajustesIcon from "@/assets/brand/iconos/transparent/ajustes.png";
 import reciboIcon from "@/assets/brand/iconos/transparent/recibo.png";
 import qrTelefonoIcon from "@/assets/brand/iconos/transparent/qr-telefono.png";
@@ -78,31 +76,34 @@ export default async function AyudaPage() {
       demo={isDemoMode()}
     >
       <div className="mc-ayuda-layout">
-        <ArtBanner
-          art={botArt}
-          invert
-          kicker="La caja que habla"
-          title="Vender, cobrar y fiar, sin letras chiquitas."
-          className="mc-ayuda-hero"
+        <section className="mc-ayuda-intro" aria-labelledby="mc-ayuda-intro-title">
+          <Image src={botArt} alt="" aria-hidden="true" width={48} height={48} />
+          <div>
+            <h2 id="mc-ayuda-intro-title">¿En qué te puedo ayudar?</h2>
+            <p>Elige una pregunta sobre ventas, cobros o fiados.</p>
+          </div>
+        </section>
+
+        <section
+          className="mc-art-paper mc-ayuda-faq-panel"
+          aria-labelledby="mc-ayuda-faq-title"
         >
-          <p className="mc-ayuda-hero__lead">
-            Esta ayuda es fija y verificada. Si algo no se siente claro, cambia
-            el texto, el contraste y la voz desde Ajustes.
+          <div className="mc-art-paper__head">
+            <h2 id="mc-ayuda-faq-title" className="mc-art-paper__title">
+              Preguntas frecuentes
+            </h2>
+            <span className="mc-art-stamp mc-art-stamp--green">7 respuestas</span>
+          </div>
+          <p className="mc-art-paper__note">
+            Respuestas fijas y verificadas: la app no usa el modelo para decidir
+            si un pago llegó.
           </p>
-          <p className="mc-ayuda-hero__chip">
-            <Image
-              src={qrArt}
-              alt=""
-              aria-hidden="true"
-              className="mc-ayuda-hero__qr"
-              sizes="64px"
-            />
-            <span>
-              <strong>Cobra con QR o link.</strong> Un pago solo se marca
-              verificado cuando llega la confirmación firmada de pey.
-            </span>
+          <HelpFaq />
+          <p className="mc-ayuda-note">
+            ¿Tu duda no está aquí? En Ajustes cambias cómo se lee la app; en Caja
+            practicas el recorrido completo.
           </p>
-        </ArtBanner>
+        </section>
 
         <section className="mc-ayuda-steps" aria-labelledby="mc-ayuda-steps-title">
           <div className="mc-art-head">
@@ -159,26 +160,7 @@ export default async function AyudaPage() {
           </ol>
         </section>
 
-        <section
-          className="mc-art-paper mc-ayuda-faq-panel"
-          aria-labelledby="mc-ayuda-faq-title"
-        >
-          <div className="mc-art-paper__head">
-            <h2 id="mc-ayuda-faq-title" className="mc-art-paper__title">
-              Preguntas frecuentes
-            </h2>
-            <span className="mc-art-stamp mc-art-stamp--green">7 respuestas</span>
-          </div>
-          <p className="mc-art-paper__note">
-            Respuestas fijas y verificadas: la app no usa el modelo para decidir
-            si un pago llegó.
-          </p>
-          <HelpFaq />
-          <p className="mc-ayuda-note">
-            ¿Tu duda no está aquí? En Ajustes cambias cómo se lee la app; en Caja
-            practicas el recorrido completo.
-          </p>
-        </section>
+
 
         <section
           className="mc-art-paper mc-ayuda-cta"
