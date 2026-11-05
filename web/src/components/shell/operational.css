@@ -432,3 +432,334 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
     outline-color: Highlight;
   }
 }
+
+/* =========================================================================
+   Arte compartido (pasada ilustrada): banda con ilustración de marca, papel
+   picado, medallones, sellos y tarjetas de papel. Reutiliza toda la paleta y
+   las tipografías del shell; no define colores nuevos. Las pantallas que lo
+   usan añaden su propia composición (`mc-ayuda-*`, `mc-ajustes-*`, etc.).
+   ========================================================================= */
+
+/* --- Banda ilustrada ----------------------------------------------------- */
+.mc-art-banner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
+  align-items: end;
+  gap: 0 12px;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-separator);
+  border-radius: 24px;
+  background:
+    radial-gradient(115% 120% at 100% 0%, var(--color-surface-2) 0%, transparent 62%),
+    var(--color-surface);
+  box-shadow: 0 22px 44px -38px rgb(31 38 34 / 0.55);
+}
+
+.mc-art-banner__picado {
+  position: absolute;
+  top: -4px;
+  right: 8px;
+  width: clamp(148px, 32%, 300px);
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.mc-art-banner__copy {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  min-width: 0;
+  padding: clamp(20px, 3vw, 32px) 0 clamp(20px, 3vw, 30px) clamp(18px, 3vw, 32px);
+}
+
+.mc-art-banner__kicker {
+  color: var(--color-attention);
+  font-family: var(--font-alder), "Alder", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.mc-art-banner__title {
+  margin-top: 6px;
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: clamp(1.6rem, 4.2vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+  overflow-wrap: anywhere;
+}
+
+.mc-art-banner__body {
+  margin-top: 12px;
+  max-width: 48ch;
+  color: var(--color-ink-2);
+  font-family: var(--font-alder), "Alder", sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.mc-art-banner__body > * + * {
+  margin-top: 12px;
+}
+
+.mc-art-banner__art {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-self: end;
+  justify-content: center;
+  min-width: 0;
+  padding: 0 clamp(6px, 2vw, 18px);
+}
+
+.mc-art-banner__image {
+  display: block;
+  width: auto;
+  max-width: clamp(150px, 26vw, 270px);
+  height: auto;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: drop-shadow(0 14px 20px rgb(31 38 34 / 0.14));
+}
+
+/* Banda verde profunda: mismo lenguaje que el hero de Inicio. */
+.mc-art-banner--invert {
+  border-color: transparent;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgb(255 253 247 / 0.14) 0%, transparent 58%),
+    var(--color-accent);
+  box-shadow: 0 24px 46px -34px rgb(0 63 49 / 0.55);
+}
+
+.mc-art-banner--invert .mc-art-banner__kicker {
+  color: var(--color-saffron-soft);
+}
+
+.mc-art-banner--invert .mc-art-banner__title {
+  color: #fffdf7;
+}
+
+.mc-art-banner--invert .mc-art-banner__body {
+  color: rgb(255 253 247 / 0.86);
+}
+
+/* --- Papel picado suelto ------------------------------------------------- */
+.mc-art-picado {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  margin: 0 auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* --- Medallón de marca --------------------------------------------------- */
+.mc-art-medallion {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 18px;
+  background: var(--color-green-soft);
+  box-shadow: inset 0 0 0 1px rgb(31 38 34 / 0.06);
+}
+
+.mc-art-medallion--saffron {
+  background: var(--color-saffron-soft);
+}
+
+.mc-art-medallion--clay {
+  background: var(--color-terracotta-soft);
+}
+
+.mc-art-medallion--small {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+
+.mc-art-medallion__icon {
+  display: block;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.mc-art-medallion--small .mc-art-medallion__icon {
+  width: 26px;
+  height: 26px;
+}
+
+/* --- Sello / stamp ------------------------------------------------------- */
+.mc-art-stamp {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-green);
+  font-family: var(--font-alder), "Alder", sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+  transform: rotate(-2.5deg);
+}
+
+.mc-art-stamp--green {
+  color: var(--color-green);
+}
+
+.mc-art-stamp--clay {
+  color: var(--color-attention);
+}
+
+/* --- Tarjeta de papel ---------------------------------------------------- */
+.mc-art-paper {
+  position: relative;
+  min-width: 0;
+  padding: clamp(16px, 2.2vw, 24px);
+  border: 1px solid var(--color-separator);
+  border-radius: 22px;
+  background: var(--color-surface);
+  box-shadow: 0 16px 36px -32px rgb(31 38 34 / 0.5);
+}
+
+.mc-art-paper__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 14px;
+  margin-bottom: 12px;
+}
+
+.mc-art-paper__title {
+  min-width: 0;
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.mc-art-paper__note {
+  margin-top: 4px;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+/* --- Encabezado de sección ilustrada ------------------------------------ */
+.mc-art-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 14px;
+  margin-bottom: 12px;
+}
+
+.mc-art-section-title {
+  min-width: 0;
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+/* --- Responsive de la banda --------------------------------------------- */
+@media (max-width: 767.98px) {
+  .mc-art-banner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .mc-art-banner__copy {
+    padding: 22px 18px 0;
+  }
+
+  .mc-art-banner__art {
+    justify-content: flex-end;
+    padding: 4px 16px 0;
+  }
+
+  .mc-art-banner__image {
+    max-width: 200px;
+  }
+
+  .mc-art-banner__picado {
+    width: clamp(120px, 38%, 200px);
+  }
+}
+
+@media (max-width: 479.98px) {
+  .mc-art-banner {
+    border-radius: 20px;
+  }
+
+  .mc-art-banner__copy {
+    padding: 18px 14px 0;
+  }
+
+  .mc-art-banner__art {
+    padding: 0 12px 0;
+  }
+
+  .mc-art-banner__image {
+    max-width: 156px;
+  }
+
+  .mc-art-medallion {
+    width: 48px;
+    height: 48px;
+    border-radius: 15px;
+  }
+
+  .mc-art-medallion__icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .mc-art-paper {
+    padding: 16px 14px;
+    border-radius: 18px;
+  }
+}
+
+@media (forced-colors: active) {
+  .mc-art-banner,
+  .mc-art-paper,
+  .mc-art-medallion,
+  .mc-art-stamp {
+    border-color: CanvasText;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mc-art-banner,
+  .mc-art-banner *,
+  .mc-art-paper,
+  .mc-art-paper * {
+    transition-duration: 0.01ms !important;
+  }
+}

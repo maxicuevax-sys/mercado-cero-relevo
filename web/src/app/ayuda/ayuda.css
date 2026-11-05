@@ -1,25 +1,24 @@
-/* Ayuda · estilos propios de la pantalla.
-   El layout, los paneles y los kpis vienen de `.mc-op-*`
-   (`components/shell/operational.css`); aquí solo se compone `.mc-ayuda-*`.
-   Paleta: tokens existentes, sin colores nuevos. */
+/* Ayuda · composición ilustrada.
+   Las utilidades de arte vienen de `.mc-art-*` (`components/shell/operational.css`);
+   aquí solo se compone `.mc-ayuda-*`. Paleta: tokens existentes. */
 
 .mc-ayuda-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
-  gap: 16px;
+  gap: 18px;
   min-width: 0;
 }
 
 .mc-ayuda-col {
   display: grid;
-  gap: 16px;
+  gap: 18px;
   min-width: 0;
 }
 
 @media (min-width: 1024px) {
   .mc-ayuda-layout {
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
   }
 }
 
@@ -40,11 +39,13 @@
   line-height: 1.3;
   text-align: center;
   text-decoration: none;
+  transition: background-color 160ms ease, color 160ms ease;
 }
 
 .mc-ayuda-action--primary {
   background: var(--color-accent);
   color: #fffdf7;
+  box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.18);
 }
 
 .mc-ayuda-action--primary:hover {
@@ -62,76 +63,75 @@
 }
 
 /* -------------------------------------------------------------------------
-   Introducción
+   Banda ilustrada (bot + papel picado de `.mc-art-banner`)
    ------------------------------------------------------------------------- */
-.mc-ayuda-intro__body {
+.mc-ayuda-hero {
+  min-height: 0;
+}
+
+.mc-ayuda-hero__lead {
+  margin: 0;
+  max-width: 46ch;
+}
+
+.mc-ayuda-hero__chip {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 14px 22px;
+  gap: 12px;
+  margin: 0;
+  padding: 10px 14px 10px 10px;
+  border: 1px solid rgb(255 253 247 / 0.28);
+  border-radius: 16px;
+  background: rgb(255 253 247 / 0.12);
 }
 
-.mc-ayuda-intro__copy {
-  min-width: 0;
-  flex: 1 1 260px;
-}
-
-.mc-ayuda-intro__lead {
-  margin-top: 8px;
-  max-width: 52ch;
-  color: var(--color-ink-2);
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-.mc-ayuda-intro__art {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 8px;
-}
-
-.mc-ayuda-intro__bot,
-.mc-ayuda-intro__qr {
+.mc-ayuda-hero__qr {
   display: block;
+  width: 56px;
   height: auto;
-  object-fit: contain;
+  flex: 0 0 auto;
+  border-radius: 12px;
 }
 
-.mc-ayuda-intro__bot {
-  width: 96px;
+.mc-ayuda-hero__chip span {
+  min-width: 0;
+  flex: 1 1 12rem;
+  color: rgb(255 253 247 / 0.9);
+  font-size: 0.875rem;
+  line-height: 1.45;
 }
 
-.mc-ayuda-intro__qr {
-  width: 72px;
+.mc-ayuda-hero__chip strong {
+  color: #fffdf7;
 }
 
 /* -------------------------------------------------------------------------
-   Tres pasos
+   Tres pasos: tarjetas de papel con medallón de marca
    ------------------------------------------------------------------------- */
-.mc-ayuda-section-title {
-  margin-bottom: 10px;
-  color: var(--color-ink);
-  font-family: var(--font-hearth), "Hearth", Georgia, serif;
-  font-size: 1.375rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-}
-
 .mc-ayuda-steps__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 172px), 1fr));
+  gap: 12px;
 }
 
 .mc-ayuda-step {
-  min-width: 0;
-  padding: 14px;
-  border: 1px solid var(--color-separator);
-  border-radius: 16px;
-  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 18px;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.mc-ayuda-step:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 42px -34px rgb(31 38 34 / 0.6);
+}
+
+.mc-ayuda-step .mc-art-medallion {
+  margin-bottom: 4px;
 }
 
 .mc-ayuda-step__eyebrow {
@@ -151,24 +151,26 @@
 }
 
 .mc-ayuda-step__title {
-  margin-top: 4px;
+  margin-top: 2px;
   color: var(--color-ink);
-  font-size: 0.9375rem;
-  font-weight: 700;
-  line-height: 1.35;
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.1875rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .mc-ayuda-step__note {
-  margin-top: 4px;
   color: var(--color-ink-2);
-  font-size: 0.8125rem;
-  line-height: 1.4;
+  font-size: 0.875rem;
+  line-height: 1.45;
 }
 
 /* -------------------------------------------------------------------------
    Primeros pasos
    ------------------------------------------------------------------------- */
-.mc-ayuda-first {
+.mc-ayuda-first__list {
   display: grid;
   gap: 0;
   margin: 0;
@@ -179,17 +181,17 @@
 .mc-ayuda-first__item {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--color-separator);
+  padding: 11px 0;
+  border-bottom: 1px dashed var(--color-separator);
   color: var(--color-ink);
   font-size: 0.9375rem;
   line-height: 1.45;
 }
 
 .mc-ayuda-first__item:first-child {
-  padding-top: 0;
+  padding-top: 2px;
 }
 
 .mc-ayuda-first__item:last-child {
@@ -199,8 +201,8 @@
 
 .mc-ayuda-first__number {
   display: inline-flex;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
@@ -213,18 +215,21 @@
 }
 
 /* -------------------------------------------------------------------------
-   Preguntas frecuentes (acordeón)
+   Preguntas frecuentes (acordeón dentro de panel papel)
    ------------------------------------------------------------------------- */
 .mc-ayuda-faq {
+  margin-top: 12px;
   display: grid;
-  gap: 8px;
+  gap: 0;
 }
 
 .mc-ayuda-faq__item {
   min-width: 0;
-  border: 1px solid var(--color-separator);
-  border-radius: 12px;
-  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-separator);
+}
+
+.mc-ayuda-faq__item:last-child {
+  border-bottom: 0;
 }
 
 .mc-ayuda-faq__heading {
@@ -235,13 +240,13 @@
 .mc-ayuda-faq__button {
   display: flex;
   width: 100%;
-  min-height: 52px;
-  align-items: center;
+  min-height: 48px;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 14px;
+  padding: 12px 2px;
   border: 0;
-  border-radius: 12px;
+  border-radius: 10px;
   background: transparent;
   color: var(--color-ink);
   font-family: inherit;
@@ -250,10 +255,12 @@
   line-height: 1.35;
   text-align: left;
   cursor: pointer;
+  transition: color 160ms ease;
 }
 
-.mc-ayuda-faq__button:hover {
-  background: var(--color-surface-2);
+.mc-ayuda-faq__button:hover,
+.mc-ayuda-faq__button[aria-expanded="true"] {
+  color: var(--color-accent);
 }
 
 .mc-ayuda-faq__question {
@@ -265,6 +272,7 @@
   width: 18px;
   height: 18px;
   flex: 0 0 auto;
+  margin-top: 2px;
   color: var(--color-ink-2);
   transition: transform 0.2s ease;
 }
@@ -274,7 +282,7 @@
 }
 
 .mc-ayuda-faq__panel {
-  padding: 0 14px 12px;
+  padding: 0 2px 12px;
 }
 
 .mc-ayuda-faq__panel p {
@@ -286,7 +294,9 @@
 
 .mc-ayuda-note {
   min-width: 0;
-  margin: 0;
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px dashed var(--color-separator);
   color: var(--color-ink-2);
   font-size: 0.8125rem;
   line-height: 1.5;
@@ -295,38 +305,78 @@
 /* -------------------------------------------------------------------------
    Tarjeta hacia Ajustes
    ------------------------------------------------------------------------- */
+.mc-ayuda-ajustes__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.mc-ayuda-ajustes__copy {
+  min-width: 0;
+}
+
 .mc-ayuda-ajustes__text {
+  margin-top: 12px;
   max-width: 52ch;
   color: var(--color-ink-2);
   font-size: 0.9375rem;
   line-height: 1.5;
 }
 
+.mc-ayuda-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
 /* -------------------------------------------------------------------------
    Responsive
    ------------------------------------------------------------------------- */
 @media (max-width: 479.98px) {
-  .mc-ayuda-intro__bot {
-    width: 72px;
-  }
-
-  .mc-ayuda-intro__qr {
-    width: 56px;
+  .mc-ayuda-hero__qr {
+    width: 48px;
   }
 
   .mc-ayuda-action {
     width: 100%;
   }
 
-  .mc-op-panel__foot .mc-ayuda-action {
+  .mc-ayuda-actions .mc-ayuda-action {
     flex: 1 1 auto;
+  }
+
+  .mc-ayuda-step {
+    padding: 14px;
+  }
+
+  .mc-ayuda-ajustes__head {
+    align-items: center;
   }
 }
 
 @media (forced-colors: active) {
   .mc-ayuda-action,
   .mc-ayuda-step,
-  .mc-ayuda-faq__item {
+  .mc-ayuda-faq__item,
+  .mc-ayuda-hero__chip,
+  .mc-ayuda-first__number {
     border: 1px solid CanvasText;
+  }
+
+  .mc-ayuda-action--primary {
+    background: ButtonFace;
+    color: ButtonText;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mc-ayuda-step:hover {
+    transform: none;
+  }
+
+  .mc-ayuda-faq__icon {
+    transition: none;
   }
 }
