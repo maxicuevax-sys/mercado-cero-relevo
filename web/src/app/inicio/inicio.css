@@ -692,6 +692,11 @@
   .inicio-hero__content { padding: 20px; }
 }
 
+/* A 200 % en 320-390 el título de Pendientes no cabe junto al icono. */
+@container inicio-main (max-width: 15rem) {
+  .inicio-pending h2 { font-size: 1.125rem; }
+}
+
 /* Variante tablet del mismo AppShell/menú B.1. Scope solo a Inicio. */
 @media (max-width: 1023px) {
   .inicio-shell--compact { display: block; }
