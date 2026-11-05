@@ -176,7 +176,7 @@ export default async function InicioPage() {
           titleId="inicio-pending-title"
           titleClassName="inicio-pending__title"
           icon={<MaskIcon src={iconPendientes} className="inicio-pending__icon" />}
-          action={<Link href="/?tab=pendientes">Ver todos</Link>}
+          action={<Link href="/pendientes">Ver todos</Link>}
         />
         {homeTasks.length ? (
           <ul className="inicio-pending__list">
