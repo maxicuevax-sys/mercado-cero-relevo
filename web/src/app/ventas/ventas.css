@@ -403,7 +403,9 @@
 /* Sello de estado: texto + borde, nunca solo color. */
 .mc-ventas-stamp {
   display: inline-flex;
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   align-items: center;
   padding: 2px 8px;
   border: 1.5px solid currentColor;

@@ -316,6 +316,28 @@
   background: transparent;
 }
 
+/* Reflujo de las tres preferencias al ampliar texto, sin cambiar el
+   componente compartido ni sus valores/eventos de almacenamiento. */
+.mc-ajustes-companion #companion-preferences button > span:first-child {
+  overflow-wrap: anywhere;
+}
+
+.mc-ajustes-companion #companion-preferences button > span:last-child {
+  min-width: 0;
+  flex-shrink: 1;
+  flex-wrap: wrap;
+}
+
+.mc-ajustes-companion #companion-preferences button > span:last-child > span {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.mc-ajustes-companion #companion-preferences button > span:last-child > [aria-hidden] {
+  flex-shrink: 0;
+}
+
 /* -------------------------------------------------------------------------
    Qué se guarda (privacidad y movimiento)
    ------------------------------------------------------------------------- */
