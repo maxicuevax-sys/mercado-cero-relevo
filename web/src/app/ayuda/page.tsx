@@ -73,169 +73,150 @@ export default async function AyudaPage() {
       titleId="ayuda-title"
       eyebrow="Ayuda"
       subtitle="Cómo registrar, cobrar y fiar; y cómo leer la app a tu manera."
-      actions={
-        <>
-          <Link href="/ajustes" className="mc-ayuda-action mc-ayuda-action--primary">
-            Cambiar texto, contraste o voz
-          </Link>
-          <Link href="/caja" className="mc-ayuda-action mc-ayuda-action--secondary">
-            Volver a Caja
-          </Link>
-        </>
-      }
       merchant={MERCHANT.name}
       address={MERCHANT.address}
       demo={isDemoMode()}
     >
       <div className="mc-ayuda-layout">
-        <div className="mc-ayuda-col mc-ayuda-col--main">
-          <ArtBanner
-            art={botArt}
-            invert
-            kicker="La caja que habla"
-            title="Vender, cobrar y fiar, sin letras chiquitas."
-            className="mc-ayuda-hero"
-          >
-            <p className="mc-ayuda-hero__lead">
-              Esta ayuda es fija y verificada. Si algo no se siente claro, cambia
-              el texto, el contraste y la voz desde Ajustes.
-            </p>
-            <p className="mc-ayuda-hero__chip">
-              <Image
-                src={qrArt}
-                alt=""
-                aria-hidden="true"
-                className="mc-ayuda-hero__qr"
-                sizes="64px"
-              />
-              <span>
-                <strong>Cobra con QR o link.</strong> Un pago solo se marca
-                verificado cuando llega la confirmación firmada de pey.
-              </span>
-            </p>
-          </ArtBanner>
+        <ArtBanner
+          art={botArt}
+          invert
+          kicker="La caja que habla"
+          title="Vender, cobrar y fiar, sin letras chiquitas."
+          className="mc-ayuda-hero"
+        >
+          <p className="mc-ayuda-hero__lead">
+            Esta ayuda es fija y verificada. Si algo no se siente claro, cambia
+            el texto, el contraste y la voz desde Ajustes.
+          </p>
+          <p className="mc-ayuda-hero__chip">
+            <Image
+              src={qrArt}
+              alt=""
+              aria-hidden="true"
+              className="mc-ayuda-hero__qr"
+              sizes="64px"
+            />
+            <span>
+              <strong>Cobra con QR o link.</strong> Un pago solo se marca
+              verificado cuando llega la confirmación firmada de pey.
+            </span>
+          </p>
+        </ArtBanner>
 
-          <section className="mc-ayuda-steps" aria-labelledby="mc-ayuda-steps-title">
-            <div className="mc-art-head">
-              <h2 id="mc-ayuda-steps-title" className="mc-art-section-title">
-                Tres cosas que conviene tener claras
-              </h2>
-              <span className="mc-art-stamp mc-art-stamp--clay">
-                Sin letras chiquitas
-              </span>
-            </div>
-            <div className="mc-ayuda-steps__grid">
-              {STEPS.map((step) => (
-                <article key={step.eyebrow} className="mc-art-paper mc-ayuda-step">
-                  <span className={`mc-art-medallion mc-art-medallion--${step.medallion}`}>
-                    <Image
-                      src={step.icon}
-                      alt=""
-                      aria-hidden="true"
-                      className="mc-art-medallion__icon"
-                      sizes="32px"
-                    />
-                  </span>
-                  <p className={`mc-ayuda-step__eyebrow mc-ayuda-step__eyebrow--${step.tone}`}>
-                    {step.eyebrow}
-                  </p>
-                  <p className="mc-ayuda-step__title">{step.title}</p>
-                  <p className="mc-ayuda-step__note">{step.note}</p>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section
-            className="mc-art-paper mc-ayuda-first"
-            aria-labelledby="mc-ayuda-first-title"
-          >
-            <div className="mc-art-paper__head">
-              <h2 id="mc-ayuda-first-title" className="mc-art-paper__title">
-                Primeros pasos
-              </h2>
-              <span className="mc-art-stamp mc-art-stamp--green">
-                Tu primer día, en orden
-              </span>
-            </div>
-            <ol className="mc-ayuda-first__list">
-              {FIRST_STEPS.map((step, index) => (
-                <li key={step} className="mc-ayuda-first__item">
-                  <span className="mc-ayuda-first__number" aria-hidden="true">
-                    {index + 1}
-                  </span>
-                  <span>{step}</span>
-                </li>
-              ))}
-            </ol>
-          </section>
-        </div>
-
-        <aside className="mc-ayuda-col mc-ayuda-col--side">
-          <section
-            className="mc-art-paper mc-ayuda-faq"
-            aria-labelledby="mc-ayuda-faq-title"
-          >
-            <div className="mc-art-paper__head">
-              <h2 id="mc-ayuda-faq-title" className="mc-art-paper__title">
-                Preguntas frecuentes
-              </h2>
-              <span className="mc-art-stamp mc-art-stamp--green">7 respuestas</span>
-            </div>
-            <p className="mc-art-paper__note">
-              Respuestas fijas y verificadas: la app no usa el modelo para decidir
-              si un pago llegó.
-            </p>
-            <HelpFaq />
-            <p className="mc-ayuda-note">
-              ¿Tu duda no está aquí? En Ajustes cambias cómo se lee la app; en
-              Caja practicas el recorrido completo.
-            </p>
-          </section>
-
-          <section
-            className="mc-art-paper mc-ayuda-ajustes"
-            aria-labelledby="mc-ayuda-ajustes-title"
-          >
-            <div className="mc-ayuda-ajustes__head">
-              <span className="mc-art-medallion mc-art-medallion--saffron">
-                <Image
-                  src={ajustesIcon}
-                  alt=""
-                  aria-hidden="true"
-                  className="mc-art-medallion__icon"
-                  sizes="32px"
-                />
-              </span>
-              <div className="mc-ayuda-ajustes__copy">
-                <h2 id="mc-ayuda-ajustes-title" className="mc-art-paper__title">
-                  ¿Necesitas otra letra o menos contraste?
-                </h2>
-                <p className="mc-art-paper__note">
-                  Se guarda solo en este dispositivo.
+        <section className="mc-ayuda-steps" aria-labelledby="mc-ayuda-steps-title">
+          <div className="mc-art-head">
+            <h2 id="mc-ayuda-steps-title" className="mc-art-section-title">
+              Tres cosas que conviene tener claras
+            </h2>
+            <span className="mc-art-stamp mc-art-stamp--clay">
+              Sin letras chiquitas
+            </span>
+          </div>
+          <div className="mc-ayuda-steps__grid">
+            {STEPS.map((step) => (
+              <article key={step.eyebrow} className="mc-art-paper mc-ayuda-step">
+                <span className={`mc-art-medallion mc-art-medallion--${step.medallion}`}>
+                  <Image
+                    src={step.icon}
+                    alt=""
+                    aria-hidden="true"
+                    className="mc-art-medallion__icon"
+                    sizes="30px"
+                  />
+                </span>
+                <p className={`mc-ayuda-step__eyebrow mc-ayuda-step__eyebrow--${step.tone}`}>
+                  {step.eyebrow}
                 </p>
-              </div>
-            </div>
-            <p className="mc-ayuda-ajustes__text">
-              En Ajustes puedes cambiar el tamaño del texto, el contraste y la
-              velocidad de la voz.
+                <p className="mc-ayuda-step__title">{step.title}</p>
+                <p className="mc-ayuda-step__note">{step.note}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section
+          className="mc-ayuda-first"
+          aria-labelledby="mc-ayuda-first-title"
+        >
+          <div className="mc-art-head">
+            <h2 id="mc-ayuda-first-title" className="mc-art-section-title">
+              Primeros pasos
+            </h2>
+            <span className="mc-art-stamp mc-art-stamp--green">
+              Tu primer día, en orden
+            </span>
+          </div>
+          <ol className="mc-art-paper mc-ayuda-first__list">
+            {FIRST_STEPS.map((step, index) => (
+              <li key={step} className="mc-ayuda-first__item">
+                <span className="mc-ayuda-first__number" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section
+          className="mc-art-paper mc-ayuda-faq"
+          aria-labelledby="mc-ayuda-faq-title"
+        >
+          <div className="mc-art-paper__head">
+            <h2 id="mc-ayuda-faq-title" className="mc-art-paper__title">
+              Preguntas frecuentes
+            </h2>
+            <span className="mc-art-stamp mc-art-stamp--green">7 respuestas</span>
+          </div>
+          <p className="mc-art-paper__note">
+            Respuestas fijas y verificadas: la app no usa el modelo para decidir
+            si un pago llegó.
+          </p>
+          <HelpFaq />
+          <p className="mc-ayuda-note">
+            ¿Tu duda no está aquí? En Ajustes cambias cómo se lee la app; en Caja
+            practicas el recorrido completo.
+          </p>
+        </section>
+
+        <section
+          className="mc-art-paper mc-ayuda-cta"
+          aria-labelledby="mc-ayuda-cta-title"
+        >
+          <span className="mc-art-medallion mc-art-medallion--saffron">
+            <Image
+              src={ajustesIcon}
+              alt=""
+              aria-hidden="true"
+              className="mc-art-medallion__icon"
+              sizes="30px"
+            />
+          </span>
+          <div className="mc-ayuda-cta__copy">
+            <h2 id="mc-ayuda-cta-title" className="mc-art-paper__title">
+              ¿Necesitas otra letra o menos contraste?
+            </h2>
+            <p className="mc-art-paper__note">
+              En Ajustes cambias el tamaño, el contraste y la velocidad de la
+              voz. Se guarda solo en este dispositivo.
             </p>
-            <div className="mc-ayuda-actions">
-              <Link
-                href="/ajustes"
-                className="mc-ayuda-action mc-ayuda-action--primary"
-              >
-                Ir a Ajustes
-              </Link>
-              <Link
-                href="/caja"
-                className="mc-ayuda-action mc-ayuda-action--secondary"
-              >
-                Volver a Caja
-              </Link>
-            </div>
-          </section>
-        </aside>
+          </div>
+          <div className="mc-ayuda-cta__actions">
+            <Link
+              href="/ajustes"
+              className="mc-ayuda-action mc-ayuda-action--primary"
+            >
+              Ir a Ajustes
+            </Link>
+            <Link
+              href="/caja"
+              className="mc-ayuda-action mc-ayuda-action--secondary"
+            >
+              Volver a Caja
+            </Link>
+          </div>
+        </section>
       </div>
     </OperationalPage>
   );

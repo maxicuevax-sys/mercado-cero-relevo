@@ -27,7 +27,7 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
    ------------------------------------------------------------------------- */
 .mc-op-main {
   min-width: 0;
-  padding: clamp(16px, 2vw, 28px);
+  padding: 24px;
   padding-bottom: 72px;
   background: var(--color-canvas);
   color: var(--color-ink);
@@ -53,12 +53,12 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
 
 /* Encabezado: el margen inferior lo fija el layout, no cada pantalla. */
 .mc-op-main > .mc-op-header {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .mc-op-main .mc-page-header__title {
-  font-size: clamp(1.75rem, 2.6vw, 2.375rem);
-  line-height: 1.08;
+  font-size: clamp(2rem, 3vw, 2.5rem);
+  line-height: 1.1;
 }
 
 .mc-op-page {
@@ -75,7 +75,7 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
 .mc-op-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 14px;
+  gap: 16px;
   align-items: start;
   min-width: 0;
 }
@@ -83,7 +83,7 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
 .mc-op-grid--sidebar {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 14px;
+  gap: 16px;
   align-items: start;
   min-width: 0;
 }
@@ -106,15 +106,15 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
 .mc-op-kpis {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
-  gap: 10px;
+  gap: 16px;
   min-width: 0;
 }
 
 .mc-op-kpi {
   min-width: 0;
-  padding: 14px 16px;
+  padding: 20px;
   border: 1px solid var(--color-separator);
-  border-radius: 16px;
+  border-radius: 20px;
   background: var(--color-surface);
 }
 
@@ -151,11 +151,11 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: 18px 20px;
+  padding: 20px 24px;
   border: 1px solid var(--color-separator);
   border-radius: 20px;
   background: var(--color-surface);
-  box-shadow: 0 2px 8px rgb(31 38 34 / 0.045);
+  box-shadow: 0 2px 8px rgb(31 38 34 / 0.05);
 }
 
 .mc-op-panel--flush {
@@ -349,27 +349,28 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
    ------------------------------------------------------------------------- */
 @media (max-width: 1023.98px) {
   .mc-op-main {
-    padding: 18px 16px 72px;
+    padding: 20px 20px 72px;
   }
 }
 
 @media (max-width: 767.98px) {
   .mc-op-main {
-    padding: 16px 14px calc(96px + env(safe-area-inset-bottom));
+    padding: 16px;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
 
   .mc-op-main > .mc-op-header {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
   }
 
   .mc-op-page,
   .mc-op-grid {
-    gap: 14px;
+    gap: 16px;
   }
 
   .mc-op-panel {
-    padding: 16px;
-    border-radius: 18px;
+    padding: 20px;
+    border-radius: 20px;
   }
 
   .mc-op-panel__title {
@@ -402,17 +403,18 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
 
 @media (max-width: 479.98px) {
   .mc-op-main {
-    padding: 14px 10px calc(96px + env(safe-area-inset-bottom));
+    padding: 16px;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
 
   .mc-op-kpi {
-    padding: 12px;
-    border-radius: 14px;
+    padding: 16px;
+    border-radius: 16px;
   }
 
   .mc-op-panel {
-    padding: 14px 12px;
-    border-radius: 16px;
+    padding: 20px;
+    border-radius: 20px;
   }
 
   .mc-op-empty {
@@ -434,34 +436,33 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
 }
 
 /* =========================================================================
-   Arte compartido (pasada ilustrada): banda con ilustración de marca, papel
-   picado, medallones, sellos y tarjetas de papel. Reutiliza toda la paleta y
-   las tipografías del shell; no define colores nuevos. Las pantallas que lo
-   usan añaden su propia composición (`mc-ayuda-*`, `mc-ajustes-*`, etc.).
+   Arte compartido (contrato de ritmo v2): banda ilustrada, papel picado,
+   medallones de marca, sellos y tarjetas de papel.
+   Ritmo 4/8/12/16/20/24/32/40/48, radios 16/22, una sola sombra
+   `0 2px 8px rgb(31 38 34 / 5%)`, una ilustración grande por pantalla y
+   patrón decorativo solo en la esquina superior derecha del contenido.
    ========================================================================= */
 
-/* --- Banda ilustrada ----------------------------------------------------- */
+/* --- Banda ilustrada (1 ilustración grande por pantalla) ----------------- */
 .mc-art-banner {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   align-items: end;
-  gap: 0 12px;
+  gap: 0 16px;
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--color-separator);
-  border-radius: 24px;
-  background:
-    radial-gradient(115% 120% at 100% 0%, var(--color-surface-2) 0%, transparent 62%),
-    var(--color-surface);
-  box-shadow: 0 22px 44px -38px rgb(31 38 34 / 0.55);
+  border-radius: 22px;
+  background: var(--color-surface);
+  box-shadow: 0 2px 8px rgb(31 38 34 / 0.05);
 }
 
 .mc-art-banner__picado {
   position: absolute;
-  top: -4px;
-  right: 8px;
-  width: clamp(148px, 32%, 300px);
+  top: 0;
+  right: 12px;
+  width: clamp(148px, 30%, 288px);
   height: auto;
   pointer-events: none;
   user-select: none;
@@ -472,13 +473,13 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
   z-index: 1;
   align-self: center;
   min-width: 0;
-  padding: clamp(20px, 3vw, 32px) 0 clamp(20px, 3vw, 30px) clamp(18px, 3vw, 32px);
+  padding: 24px 0 24px 24px;
 }
 
 .mc-art-banner__kicker {
   color: var(--color-attention);
   font-family: var(--font-alder), "Alder", sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 800;
   letter-spacing: 0.1em;
   line-height: 1.3;
@@ -486,19 +487,19 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
 }
 
 .mc-art-banner__title {
-  margin-top: 6px;
+  margin-top: 8px;
   color: var(--color-ink);
   font-family: var(--font-hearth), "Hearth", Georgia, serif;
-  font-size: clamp(1.6rem, 4.2vw, 2.75rem);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
   font-weight: 600;
   letter-spacing: -0.035em;
-  line-height: 1.04;
+  line-height: 1.08;
   overflow-wrap: anywhere;
 }
 
 .mc-art-banner__body {
   margin-top: 12px;
-  max-width: 48ch;
+  max-width: 52ch;
   color: var(--color-ink-2);
   font-family: var(--font-alder), "Alder", sans-serif;
   font-size: 1rem;
@@ -516,26 +517,22 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
   align-self: end;
   justify-content: center;
   min-width: 0;
-  padding: 0 clamp(6px, 2vw, 18px);
+  padding: 0 20px;
 }
 
 .mc-art-banner__image {
   display: block;
   width: auto;
-  max-width: clamp(150px, 26vw, 270px);
+  max-width: clamp(150px, 24vw, 260px);
   height: auto;
   object-fit: contain;
   object-position: bottom center;
-  filter: drop-shadow(0 14px 20px rgb(31 38 34 / 0.14));
 }
 
-/* Banda verde profunda: mismo lenguaje que el hero de Inicio. */
+/* Banda verde plana: mismo lenguaje que el hero de Inicio. */
 .mc-art-banner--invert {
   border-color: transparent;
-  background:
-    radial-gradient(120% 140% at 100% 0%, rgb(255 253 247 / 0.14) 0%, transparent 58%),
-    var(--color-accent);
-  box-shadow: 0 24px 46px -34px rgb(0 63 49 / 0.55);
+  background: var(--color-accent);
 }
 
 .mc-art-banner--invert .mc-art-banner__kicker {
@@ -550,7 +547,7 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
   color: rgb(255 253 247 / 0.86);
 }
 
-/* --- Papel picado suelto ------------------------------------------------- */
+/* --- Papel picado suelto (patrón decorativo; nunca fondo general) -------- */
 .mc-art-picado {
   display: block;
   width: 100%;
@@ -561,14 +558,14 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
   user-select: none;
 }
 
-/* --- Medallón de marca --------------------------------------------------- */
+/* --- Medallón de icono de marca (filas; no ilustraciones sueltas) -------- */
 .mc-art-medallion {
   display: grid;
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   flex: 0 0 auto;
   place-items: center;
-  border-radius: 18px;
+  border-radius: 14px;
   background: var(--color-green-soft);
   box-shadow: inset 0 0 0 1px rgb(31 38 34 / 0.06);
 }
@@ -582,21 +579,21 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
 }
 
 .mc-art-medallion--small {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
 }
 
 .mc-art-medallion__icon {
   display: block;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
 }
 
 .mc-art-medallion--small .mc-art-medallion__icon {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
 }
 
 /* --- Sello / stamp ------------------------------------------------------- */
@@ -611,7 +608,7 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
   background: var(--color-surface);
   color: var(--color-green);
   font-family: var(--font-alder), "Alder", sans-serif;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   line-height: 1.3;
@@ -632,11 +629,11 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
 .mc-art-paper {
   position: relative;
   min-width: 0;
-  padding: clamp(16px, 2.2vw, 24px);
+  padding: 24px;
   border: 1px solid var(--color-separator);
   border-radius: 22px;
   background: var(--color-surface);
-  box-shadow: 0 16px 36px -32px rgb(31 38 34 / 0.5);
+  box-shadow: 0 2px 8px rgb(31 38 34 / 0.05);
 }
 
 .mc-art-paper__head {
@@ -644,25 +641,25 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px 14px;
-  margin-bottom: 12px;
+  gap: 8px 16px;
+  margin-bottom: 16px;
 }
 
 .mc-art-paper__title {
   min-width: 0;
   color: var(--color-ink);
   font-family: var(--font-hearth), "Hearth", Georgia, serif;
-  font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+  font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1.15;
+  line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
 .mc-art-paper__note {
   margin-top: 4px;
   color: var(--color-ink-2);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1.45;
 }
 
@@ -672,43 +669,54 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px 14px;
-  margin-bottom: 12px;
+  gap: 8px 16px;
+  margin-bottom: 16px;
 }
 
 .mc-art-section-title {
   min-width: 0;
   color: var(--color-ink);
   font-family: var(--font-hearth), "Hearth", Georgia, serif;
-  font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+  font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1.15;
+  line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
-/* --- Responsive de la banda --------------------------------------------- */
-@media (max-width: 767.98px) {
+/* --- Responsive de la banda (1023.98 / 767.98 / 479.98) ------------------ */
+@media (max-width: 1023.98px) {
   .mc-art-banner {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
   }
 
   .mc-art-banner__copy {
-    padding: 22px 18px 0;
+    padding: 20px 20px 0;
   }
 
   .mc-art-banner__art {
     justify-content: flex-end;
-    padding: 4px 16px 0;
+    padding: 4px 20px 0;
   }
 
   .mc-art-banner__image {
-    max-width: 200px;
+    max-width: 210px;
   }
 
   .mc-art-banner__picado {
-    width: clamp(120px, 38%, 200px);
+    width: clamp(120px, 34%, 190px);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .mc-art-paper {
+    padding: 20px;
+  }
+
+  .mc-art-head,
+  .mc-art-paper__head {
+    margin-bottom: 12px;
   }
 }
 
@@ -718,21 +726,21 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
   }
 
   .mc-art-banner__copy {
-    padding: 18px 14px 0;
+    padding: 20px 16px 0;
   }
 
   .mc-art-banner__art {
-    padding: 0 12px 0;
+    padding: 0 16px 0;
   }
 
   .mc-art-banner__image {
-    max-width: 156px;
+    max-width: 168px;
   }
 
   .mc-art-medallion {
-    width: 48px;
-    height: 48px;
-    border-radius: 15px;
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
   }
 
   .mc-art-medallion__icon {
@@ -741,8 +749,8 @@ html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
   }
 
   .mc-art-paper {
-    padding: 16px 14px;
-    border-radius: 18px;
+    padding: 20px;
+    border-radius: 20px;
   }
 }
 
