@@ -5,6 +5,10 @@
   display: none;
 }
 
+.inicio-topbar__mobile-brand {
+  display: none;
+}
+
 .inicio-icon {
   display: inline-block;
   width: 1.4375rem;
@@ -82,6 +86,92 @@
 }
 
 @media (max-width: 760px) {
+  /* Lámina 02_Inicio_móvil: marca sobre papel, negocio legible y acción +.
+     Solo chrome móvil; el Inicio de escritorio conserva su composición. */
+  .inicio-shell .inicio-topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 12px;
+    padding: 16px;
+    background: var(--inicio-paper);
+  }
+
+  .inicio-shell .inicio-topbar__mobile-brand {
+    display: flex;
+    min-width: 0;
+    min-height: 48px;
+    align-items: center;
+    gap: 8px;
+    color: var(--inicio-green);
+    font-family: var(--font-hearth), "Hearth", Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .inicio-topbar__mobile-brand img {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 auto;
+  }
+
+  .inicio-topbar__brand-rays {
+    display: inline-block;
+    width: 20px;
+    height: 24px;
+    margin-left: 4px;
+    color: var(--inicio-maize);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+
+  .inicio-shell .inicio-topbar__merchant {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    gap: 0;
+  }
+
+  .inicio-shell .inicio-topbar__merchant > .inicio-topbar__icon {
+    display: none;
+  }
+
+  .inicio-shell .inicio-topbar__copy {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+  }
+
+  .inicio-shell .inicio-topbar__name {
+    font-family: var(--font-alder), "Alder", sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.35;
+  }
+
+  .inicio-shell .inicio-topbar__address {
+    margin: 0;
+    font-size: 0.75rem;
+  }
+
+  .inicio-shell .inicio-topbar__actions {
+    grid-column: 2;
+    grid-row: 1;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    max-width: 96px;
+  }
+
+  .inicio-shell .inicio-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
   .inicio-shell > .inicio-sidebar {
     display: none;
   }
@@ -98,10 +188,12 @@
     z-index: 50;
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    padding-bottom: env(safe-area-inset-bottom);
-    border-top: 1px solid var(--color-separator);
-    background: var(--color-surface);
-    box-shadow: 0 -8px 24px rgb(31 38 34 / 0.08);
+    padding: 0 8px env(safe-area-inset-bottom);
+    border: 1px solid var(--inicio-border);
+    border-bottom: 0;
+    border-radius: 24px 24px 0 0;
+    background: var(--inicio-paper);
+    box-shadow: 0 -2px 8px rgb(31 38 34 / 0.05);
   }
 
   .mc-mobile-nav__item {
@@ -111,15 +203,19 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 4px;
+    padding: 4px 2px;
+    border-radius: 16px;
     border: 0;
     background: transparent;
     color: var(--color-ink-2);
     font-family: var(--font-alder), "Alder", sans-serif;
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     font-weight: 600;
     line-height: 1.1;
     text-decoration: none;
+    overflow-wrap: anywhere;
+    text-align: center;
   }
 
   .mc-mobile-nav__item[aria-current="page"],
@@ -132,6 +228,49 @@
     width: 22px;
     height: 22px;
     flex: 0 0 auto;
+  }
+
+  .mc-mobile-nav__item > span {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .mc-mobile-nav__sale {
+    gap: 0;
+    padding-block: 0;
+    color: var(--inicio-green);
+    font-weight: 700;
+  }
+
+  .mc-mobile-nav__sale-circle {
+    display: grid;
+    width: 48px;
+    height: 48px;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 2px solid var(--inicio-green);
+    border-radius: 50%;
+    background: var(--inicio-green);
+    color: var(--inicio-paper);
+    box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.16);
+  }
+
+  .mc-mobile-nav__sale-circle svg {
+    width: 32px;
+    height: 32px;
+    stroke-width: 2.5;
+  }
+
+  .mc-mobile-nav__sale[aria-current="page"] {
+    background: transparent;
+    color: var(--inicio-green);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .mc-mobile-nav__sale[aria-current="page"] .mc-mobile-nav__sale-circle {
+    outline: 2px solid var(--inicio-green);
+    outline-offset: 2px;
   }
 
   .mc-mobile-nav__more {
@@ -195,17 +334,41 @@
     height: 20px;
     flex: 0 0 auto;
   }
-}
 
-/* Con texto al 200 % las cinco celdas fijas no alcanzan para “Ventas” y
-   “Fiados”. La barra pasa a 3+2 sin tocar el orden de los destinos. */
-@container (max-width: 18em) {
-  .mc-mobile-nav {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Inicio compacto aún trae reglas anteriores de la barra. Su mayor
+     especificidad se resuelve aquí, sin editar el Inicio protegido. */
+  .inicio-shell.inicio-shell--compact .mc-mobile-nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding: 0 8px env(safe-area-inset-bottom);
+    background: var(--inicio-paper);
+    box-shadow: 0 -2px 8px rgb(31 38 34 / 0.05);
   }
 
-  .mc-mobile-nav__item {
-    min-height: 56px;
+  .inicio-shell.inicio-shell--compact .mc-mobile-nav__item {
+    min-height: 64px;
+    gap: 4px;
+    padding: 4px 2px;
     font-size: 0.75rem;
+    line-height: 1.1;
+  }
+
+  .inicio-shell.inicio-shell--compact .mc-mobile-nav__sale {
+    gap: 0;
+    padding-block: 0;
+    color: var(--inicio-green);
+  }
+
+  .inicio-shell.inicio-shell--compact .mc-mobile-nav__sale[aria-current="page"] {
+    background: transparent;
+  }
+}
+
+/* A texto ampliado, conservar 3+2 y el espacio que ya reserva Caja para
+   esa altura. El umbral permite mantener las cinco posiciones a 320px
+   con texto normal, sin reducir los targets para forzar la composición. */
+@container (max-width: 14em) {
+  .mc-mobile-nav,
+  .inicio-shell.inicio-shell--compact .mc-mobile-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

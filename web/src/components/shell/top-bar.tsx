@@ -17,6 +17,10 @@ export function TopBar({
 }) {
   return (
     <header className={`inicio-topbar ${className}`.trim()}>
+      <Link className="inicio-topbar__mobile-brand" href="/inicio" aria-label="Mercado Cero · Ir a Inicio">
+        <Image src={logoInk} alt="" aria-hidden="true" sizes="48px" />
+        <span>Mercado<br />Cero<svg className="inicio-topbar__brand-rays" aria-hidden="true" viewBox="0 0 20 24"><path d="M4 6 13 2M5 12h12M4 18l9 4" /></svg></span>
+      </Link>
       <div className="inicio-topbar__merchant">
         <Link className="inicio-topbar__icon" href="/inicio" aria-label="Ir a Inicio">
           <Image src={logoInk} alt="" aria-hidden="true" sizes="46px" />

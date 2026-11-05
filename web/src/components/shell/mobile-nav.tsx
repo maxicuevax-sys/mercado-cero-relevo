@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Plus } from "lucide-react";
 import { MaskIcon } from "@/components/ui/icon";
 import { isNavItemActive, type ShellNavItem } from "./nav";
 import "./shell.css";
@@ -17,6 +17,24 @@ export function MobileNav({
   activeHref: string;
 }) {
   const moreRef = useRef<HTMLDetailsElement>(null);
+  const sale = primary.find((item) => item.href === "/caja");
+  const destinations = primary.filter((item) => item !== sale);
+
+  function destination(item: ShellNavItem) {
+    const active = isNavItemActive(item, activeHref);
+    return (
+      <Link
+        key={item.id}
+        href={item.href}
+        aria-current={active ? "page" : undefined}
+        aria-label={item.ariaLabel}
+        className="mc-mobile-nav__item"
+      >
+        <MaskIcon src={item.icon} className="mc-mobile-nav__icon" />
+        <span>{item.label}</span>
+      </Link>
+    );
+  }
 
   useEffect(() => {
     function closeOnEscape(event: KeyboardEvent) {
@@ -44,23 +62,21 @@ export function MobileNav({
 
   return (
     <nav className="mc-mobile-nav" aria-label="Principal">
-      {primary.map((item) => {
-        const active = isNavItemActive(item, activeHref);
-        return (
+      {destinations.slice(0, 2).map(destination)}
+      {sale ? (
           <Link
-            key={item.id}
-            href={item.href}
-            aria-current={active ? "page" : undefined}
-            aria-label={item.ariaLabel}
-            className="mc-mobile-nav__item"
+            href={sale.href}
+            aria-current={isNavItemActive(sale, activeHref) ? "page" : undefined}
+            aria-label="Nueva venta"
+            className="mc-mobile-nav__item mc-mobile-nav__sale"
           >
-            <MaskIcon src={item.icon} className="mc-mobile-nav__icon" />
-            <span>{item.label}</span>
+            <span className="mc-mobile-nav__sale-circle"><Plus aria-hidden="true" /></span>
+            <span>Vender</span>
           </Link>
-        );
-      })}
+      ) : null}
+      {destinations.slice(2).map(destination)}
       <details className="mc-mobile-nav__more" ref={moreRef}>
-        <summary className="mc-mobile-nav__item">
+        <summary className="mc-mobile-nav__item" aria-current={more.some((item) => isNavItemActive(item, activeHref)) ? "page" : undefined}>
           <MoreHorizontal className="mc-mobile-nav__icon" aria-hidden="true" />
           <span>Más</span>
         </summary>
@@ -74,6 +90,7 @@ export function MobileNav({
                 aria-current={active ? "page" : undefined}
                 aria-label={item.ariaLabel}
                 className="mc-mobile-nav__link"
+                onClick={() => { if (moreRef.current) moreRef.current.open = false; }}
               >
                 <MaskIcon src={item.icon} className="mc-mobile-nav__link-icon" />
                 <span>{item.label}</span>
