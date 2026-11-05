@@ -1,24 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import { Check, X } from "lucide-react";
+import { Check, ChevronRight, X } from "lucide-react";
 import type { Credit } from "@/lib/types";
 import { CreditPaySheet } from "./credit-pay-sheet";
 
 /**
- * Acción "Registrar abono" de una fila de Fiados.
+ * Acción de cobro de una fila de Fiados.
  *
- * La lista se renderiza en el servidor; este componente es el único trozo
- * cliente por fila: abre la hoja de abono cuando la persona lo pide y muestra
- * el resultado del último abono sin navegar ni robar foco al cargar la página.
+ * La referencia de la libreta termina cada fila con un chevron: por eso el
+ * disparador es un botón circular con chevron y su nombre accesible completo
+ * (`Registrar abono a <cliente>`) explica la acción sin depender del icono.
+ * La lista se renderiza en el servidor; este es el único trozo cliente por
+ * fila y solo abre la hoja cuando la persona lo pide.
  */
 export function CreditPayButton({ credit }: { credit: Credit }) {
   const [open, setOpen] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const settled = credit.status === "settled" || credit.balanceCents <= 0;
+  const name = credit.customerName ?? "cliente";
 
   if (settled) {
-    return <p className="mc-fiados-row__settled">Sin saldo pendiente</p>;
+    return (
+      <span className="mc-fiados-row__settled" aria-label="Fiado saldado">
+        <Check aria-hidden="true" />
+      </span>
+    );
   }
 
   return (
@@ -30,9 +37,11 @@ export function CreditPayButton({ credit }: { credit: Credit }) {
           setSuccess(null);
           setOpen(true);
         }}
+        aria-label={`Registrar abono a ${name}`}
         aria-haspopup="dialog"
+        title="Registrar abono"
       >
-        Registrar abono
+        <ChevronRight aria-hidden="true" />
       </button>
 
       {success ? (

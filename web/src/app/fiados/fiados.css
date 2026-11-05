@@ -1,57 +1,287 @@
-/* Fiados · pantalla operativa nueva. Solo clases `.mc-fiados-*`; el layout
-   base, paneles, KPI y estados vacíos vienen del wrapper `.mc-op-*`
-   (`components/shell/operational.css`). Tokens: los aprobados en
-   `components/ui/operational-tokens.css` vía `--color-*`; no se define paleta
-   nueva. Nada aquí puede colisionar con las clases históricas `.mc-fiados`
-   (Caja clásica): por eso el contenedor es `.mc-fiados-page`. */
+/* Fiados · libreta de la clientela (pantalla operativa nueva).
+   Solo clases `.mc-fiados-*`; el shell y el layout base vienen del wrapper
+   `.mc-op-*`. Ritmo, radios, tipografía y sombras siguen el contrato v2 de
+   `reports/RELEVO/VISUAL-DIRECTION.md` (base 4, página 24, tarjeta 20-24,
+   radios 16/22, borde cálido 1px, sombra 0 2px 8px rgb(31 38 34 / 5%)).
+   Nada aquí puede colisionar con las clases históricas `.mc-fiados` de la
+   Caja clásica: por eso el contenedor es `.mc-fiados-page`. */
 
 .mc-fiados-page {
-  --mc-fiados-danger-bg: var(--color-terracotta-soft);
+  --mc-fiados-border: var(--color-separator);
+  --mc-fiados-shadow: 0 2px 8px rgb(31 38 34 / 0.05);
+  --mc-fiados-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  position: relative;
+}
+
+/* Padding de página del contrato: 24 desktop / 16-20 móvil. */
+.mc-fiados-page.mc-op-main {
+  padding: 24px;
+  padding-bottom: 72px;
+}
+
+@media (max-width: 1023.98px) {
+  .mc-fiados-page.mc-op-main {
+    padding: 20px 16px 72px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .mc-fiados-page.mc-op-main {
+    padding: 20px 16px calc(96px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Ritmo del encabezado: H1 serif de 2rem a 2.5rem como Inicio. */
+.mc-fiados-page > .mc-op-header {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 24px;
+  padding-right: clamp(132px, 20vw, 300px);
+}
+
+.mc-fiados-page > .mc-op-header .mc-page-header__title {
+  font-size: clamp(2rem, 3vw, 2.5rem);
+}
+
+.mc-fiados-page > .mc-op-page {
+  gap: 24px;
+}
+
+/* Papel picado: solo acento en la esquina superior derecha del contenido. */
+.mc-fiados-page__picado {
+  position: absolute;
+  top: 4px;
+  right: clamp(12px, 2vw, 24px);
+  width: clamp(132px, 18vw, 280px);
+  height: auto;
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* -------------------------------------------------------------------------
-   Cabecera: acción del PageHeader
+   Tarjeta protagonista: Total por cobrar (ilustración + cifra grande).
+   Una sola ilustración grande por pantalla, sobre superficie crema para que
+   el degradado propio del asset se funda con la tarjeta.
    ------------------------------------------------------------------------- */
-.mc-fiados-action {
-  display: inline-flex;
-  min-height: 44px;
+.mc-fiados-total {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
-  padding: 10px 16px;
-  border: 1.5px solid var(--color-accent);
-  border-radius: 12px;
+  gap: 20px;
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--mc-fiados-border);
+  border-radius: 22px;
   background: var(--color-surface);
-  color: var(--color-accent);
+  box-shadow: var(--mc-fiados-shadow);
+}
+
+.mc-fiados-total__art {
+  width: clamp(96px, 11vw, 148px);
+  height: auto;
+  object-fit: contain;
+}
+
+.mc-fiados-total__copy {
+  min-width: 0;
+  padding-left: 20px;
+  border-left: 1px solid var(--mc-fiados-border);
+}
+
+.mc-fiados-total__label {
+  color: var(--color-ink);
   font-size: 0.9375rem;
   font-weight: 700;
   line-height: 1.3;
-  text-align: center;
-  text-decoration: none;
 }
 
-.mc-fiados-action:hover {
-  background: var(--color-green-soft);
-  color: var(--color-accent-press);
+.mc-fiados-total__value {
+  margin-top: 4px;
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.mc-fiados-total__meta {
+  margin-top: 8px;
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.4;
 }
 
 /* -------------------------------------------------------------------------
-   Lista de saldos
+   Búsqueda de clientes (GET en el servidor, sin estado cliente).
+   ------------------------------------------------------------------------- */
+.mc-fiados-search {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  max-width: 560px;
+  min-width: 0;
+  min-height: 52px;
+  padding: 4px;
+  border: 1px solid var(--mc-fiados-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  box-shadow: var(--mc-fiados-shadow);
+}
+
+.mc-fiados-search:focus-within {
+  border-color: var(--color-focus);
+}
+
+.mc-fiados-search__submit {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-ink-2);
+  cursor: pointer;
+  transition: background-color 180ms var(--mc-fiados-ease), color 180ms var(--mc-fiados-ease);
+}
+
+.mc-fiados-search__submit:hover {
+  background: var(--color-green-soft);
+  color: var(--color-accent);
+}
+
+.mc-fiados-search__submit svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mc-fiados-search__input {
+  min-width: 0;
+  min-height: 44px;
+  flex: 1 1 auto;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.mc-fiados-search__input::placeholder {
+  color: var(--color-placeholder);
+}
+
+.mc-fiados-search__input:focus {
+  outline: none;
+}
+
+.mc-fiados-search__clear {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  flex: 0 0 auto;
+  padding: 0 10px;
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* -------------------------------------------------------------------------
+   Libreta: encabezado de sección + filas tarjeta con medallón, saldo y
+   chevron. Las filas son tarjetas sueltas (como la referencia), no una
+   tabla dentro de otra tarjeta.
    ------------------------------------------------------------------------- */
 .mc-fiados-ledger {
+  display: grid;
+  gap: 12px;
   min-width: 0;
 }
 
+.mc-fiados-ledger__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 0 2px;
+}
+
+.mc-fiados-ledger__title {
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.mc-fiados-ledger__meta {
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
 .mc-fiados-list {
-  margin-top: 2px;
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .mc-fiados-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
-  gap: 10px 18px;
+  gap: 12px;
   min-width: 0;
-  padding: 16px 2px;
+  padding: 16px 20px;
+  border: 1px solid var(--mc-fiados-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  box-shadow: var(--mc-fiados-shadow);
+  transition: border-color 180ms var(--mc-fiados-ease);
+}
+
+.mc-fiados-row:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 32%, var(--mc-fiados-border));
+}
+
+.mc-fiados-row__medallion {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  background: var(--color-green-soft);
+}
+
+.mc-fiados-row--saffron .mc-fiados-row__medallion {
+  background: var(--color-saffron-soft);
+}
+
+.mc-fiados-row--terracotta .mc-fiados-row__medallion {
+  background: var(--color-terracotta-soft);
+}
+
+.mc-fiados-row--settled .mc-fiados-row__medallion {
+  background: color-mix(in srgb, var(--mc-fiados-border) 55%, var(--color-surface));
+}
+
+.mc-fiados-row__medallion-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
 }
 
 .mc-fiados-row__main {
@@ -62,7 +292,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 10px;
+  gap: 4px 8px;
   min-width: 0;
 }
 
@@ -73,128 +303,136 @@
   font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: -0.015em;
-  line-height: 1.2;
+  line-height: 1.25;
   overflow-wrap: anywhere;
 }
 
-.mc-fiados-status {
+/* Sello de estado con borde: se lee sin depender del color. */
+.mc-fiados-stamp {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
   padding: 2px 8px;
-  border: 1px solid var(--color-separator);
-  border-radius: 999px;
-  background: var(--color-surface);
-  color: var(--color-ink-2);
+  border: 1.5px solid currentColor;
+  border-radius: 6px;
   font-size: 0.6875rem;
   font-weight: 800;
-  letter-spacing: 0.04em;
-  line-height: 1.4;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
   text-transform: uppercase;
+  transform: rotate(-2deg);
 }
 
-.mc-fiados-status--open {
-  border-color: color-mix(in srgb, var(--color-attention) 42%, transparent);
-  background: var(--mc-fiados-danger-bg);
+.mc-fiados-stamp--pendiente {
+  background: color-mix(in srgb, var(--color-terracotta-soft) 75%, transparent);
   color: var(--color-attention);
 }
 
-.mc-fiados-status--partial {
-  border-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
+.mc-fiados-stamp--parcial {
   background: var(--color-green-soft);
   color: var(--color-accent);
+  transform: rotate(1.5deg);
 }
 
-.mc-fiados-row__meta,
-.mc-fiados-row__detail {
-  margin-top: 4px;
+.mc-fiados-stamp--saldado {
+  background: var(--color-surface);
   color: var(--color-ink-2);
-  font-size: 0.8125rem;
-  line-height: 1.45;
+  transform: none;
+}
+
+.mc-fiados-row__meta {
+  margin-top: 3px;
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.4;
   overflow-wrap: anywhere;
-}
-
-.mc-fiados-row__detail {
-  margin-top: 2px;
-  font-size: 0.8125rem;
-}
-
-.mc-fiados-row__side {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  max-width: 20rem;
 }
 
 .mc-fiados-row__amount {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  margin: 0;
   color: var(--color-attention);
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: 1.05;
+  text-align: right;
 }
 
 .mc-fiados-row__amount-value {
-  font-size: 1.375rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: clamp(1.375rem, 1.8vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
 }
 
 .mc-fiados-row__amount-label {
   margin-top: 2px;
   color: var(--color-ink-2);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-/* El abono settleado no ofrece acción: el saldo ya no existe. */
-.mc-fiados-row__settled {
-  color: var(--color-ink-2);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  line-height: 1.4;
-  text-align: right;
+.mc-fiados-row--settled .mc-fiados-row__amount {
+  color: var(--color-accent);
 }
 
+/* Chevron de la fila: dispara la hoja de abono. */
 .mc-fiados-pay-wrap {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
 }
 
 .mc-fiados-pay {
-  display: inline-flex;
-  min-height: 44px;
-  min-width: 44px;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 16px;
-  border: 1px solid var(--color-accent);
-  border-radius: 12px;
-  background: var(--color-accent);
-  color: #fffdf7;
-  font-family: inherit;
-  font-size: 0.9375rem;
-  font-weight: 700;
-  line-height: 1.3;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  border: 1px solid var(--mc-fiados-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-accent);
   cursor: pointer;
+  transition: background-color 180ms var(--mc-fiados-ease), border-color 180ms var(--mc-fiados-ease);
 }
 
 .mc-fiados-pay:hover {
-  background: var(--color-accent-press);
+  border-color: var(--color-accent);
+  background: var(--color-green-soft);
+}
+
+.mc-fiados-pay svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mc-fiados-row__settled {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--color-green-soft);
+  color: var(--color-accent);
+}
+
+.mc-fiados-row__settled svg {
+  width: 20px;
+  height: 20px;
 }
 
 .mc-fiados-flash {
   display: flex;
   align-items: flex-start;
   gap: 6px;
-  max-width: 26ch;
+  width: min(260px, 52vw);
   padding: 8px 10px;
   border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
   border-radius: 10px;
@@ -242,7 +480,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 12px;
-  margin-top: 14px;
+  padding-top: 4px;
 }
 
 .mc-fiados-pager__link {
@@ -250,8 +488,9 @@
   min-height: 44px;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   padding: 8px 16px;
-  border: 1px solid var(--color-control-border, var(--color-separator));
+  border: 1px solid var(--mc-fiados-border);
   border-radius: 12px;
   background: var(--color-surface);
   color: var(--color-accent);
@@ -265,6 +504,12 @@
   color: var(--color-accent-press);
 }
 
+.mc-fiados-pager__link svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
 .mc-fiados-pager__link--off {
   color: var(--color-ink-2);
   opacity: 0.6;
@@ -272,6 +517,84 @@
 }
 
 .mc-fiados-pager__status {
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* -------------------------------------------------------------------------
+   Estado vacío y CTA
+   ------------------------------------------------------------------------- */
+.mc-fiados-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 24px;
+  border-radius: 20px;
+  background: var(--color-surface);
+  text-align: center;
+}
+
+.mc-fiados-empty__art {
+  width: 96px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.mc-fiados-empty .mc-op-empty__action {
+  display: flex;
+  justify-content: center;
+}
+
+.mc-fiados-cta,
+.mc-fiados-new {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: 1px solid var(--color-accent);
+  border-radius: 12px;
+  background: var(--color-accent);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 253 247 / 0.16),
+    0 6px 14px -10px rgb(0 63 49 / 0.5);
+  color: #fffdf7;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 180ms var(--mc-fiados-ease);
+}
+
+.mc-fiados-cta:hover,
+.mc-fiados-new:hover {
+  background: var(--color-accent-press);
+}
+
+.mc-fiados-cta svg,
+.mc-fiados-new svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+.mc-fiados-ledger__foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-top: 8px;
+}
+
+.mc-fiados-new {
+  width: 100%;
+  max-width: 420px;
+}
+
+.mc-fiados-ledger__foot-note {
   color: var(--color-ink-2);
   font-size: 0.8125rem;
   line-height: 1.4;
@@ -282,8 +605,9 @@
    ------------------------------------------------------------------------- */
 .mc-fiados-note {
   max-width: 78ch;
+  padding: 0 2px;
   color: var(--color-ink-2);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1.5;
 }
 
@@ -742,46 +1066,151 @@
 }
 
 /* -------------------------------------------------------------------------
-   Responsive
+   Responsive: 900 / 768 / 480. La ilustración nunca tapa el CTA y el importe
+   no provoca scroll horizontal en 320.
    ------------------------------------------------------------------------- */
-@media (max-width: 639.98px) {
-  .mc-fiados-row {
-    grid-template-columns: minmax(0, 1fr);
+@media (max-width: 899.98px) {
+  .mc-fiados-page > .mc-op-page {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .mc-fiados-page > .mc-op-header {
+    margin-bottom: 20px;
+    padding-right: clamp(120px, 28vw, 220px);
+  }
+
+  .mc-fiados-page > .mc-op-page {
+    gap: 16px;
+  }
+
+  .mc-fiados-total {
+    gap: 14px;
+    padding: 18px 16px;
+  }
+
+  .mc-fiados-total__art {
+    width: 92px;
+  }
+
+  .mc-fiados-total__copy {
+    padding-left: 14px;
+  }
+
+  .mc-fiados-total__value {
+    font-size: clamp(1.75rem, 7.4vw, 2.25rem);
+  }
+
+  .mc-fiados-ledger {
     gap: 10px;
   }
 
-  .mc-fiados-row__side {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px 12px;
-    max-width: none;
+  .mc-fiados-ledger__title {
+    font-size: 1.375rem;
   }
 
-  .mc-fiados-row__amount {
-    align-items: flex-start;
+  .mc-fiados-row {
+    gap: 10px;
+    padding: 14px 16px;
   }
 
+  .mc-fiados-row__medallion {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+
+  .mc-fiados-row__medallion-img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .mc-fiados-row__name {
+    font-size: 1.0625rem;
+  }
+
+  .mc-fiados-row__amount-value {
+    font-size: 1.25rem;
+  }
+
+  .mc-fiados-pay,
   .mc-fiados-row__settled {
-    text-align: left;
-  }
-
-  .mc-fiados-pay-wrap {
-    width: 100%;
-    align-items: stretch;
-  }
-
-  .mc-fiados-pay {
-    width: 100%;
+    width: 44px;
+    height: 44px;
   }
 
   .mc-fiados-flash {
-    max-width: none;
+    width: min(210px, 56vw);
   }
 }
 
 @media (max-width: 479.98px) {
+  .mc-fiados-page__picado {
+    right: 8px;
+    width: 116px;
+  }
+
+  .mc-fiados-page > .mc-op-header {
+    padding-right: 128px;
+  }
+
+  .mc-fiados-total {
+    gap: 12px;
+    padding: 16px 14px;
+  }
+
+  .mc-fiados-total__art {
+    width: 78px;
+  }
+
+  .mc-fiados-total__copy {
+    padding-left: 12px;
+  }
+
+  .mc-fiados-total__label {
+    font-size: 0.875rem;
+  }
+
+  .mc-fiados-total__meta {
+    font-size: 0.8125rem;
+  }
+
+  .mc-fiados-search {
+    min-height: 48px;
+  }
+
+  .mc-fiados-row {
+    gap: 8px;
+    padding: 12px 14px;
+  }
+
+  .mc-fiados-stamp {
+    padding: 2px 6px;
+    font-size: 0.625rem;
+  }
+
+  .mc-fiados-row__meta {
+    font-size: 0.8125rem;
+  }
+
+  .mc-fiados-ledger__foot-note {
+    display: none;
+  }
+
+  .mc-fiados-pager {
+    align-items: stretch;
+  }
+
+  .mc-fiados-pager__link {
+    flex: 1 1 auto;
+  }
+
+  .mc-fiados-pager__status {
+    order: -1;
+    width: 100%;
+  }
+
   .mc-fiados-methods__options {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -810,23 +1239,11 @@
   .mc-fiados-dialog__body {
     padding: 14px 14px calc(18px + env(safe-area-inset-bottom));
   }
-
-  .mc-fiados-pager {
-    align-items: stretch;
-  }
-
-  .mc-fiados-pager__link {
-    flex: 1 1 auto;
-  }
-
-  .mc-fiados-pager__status {
-    order: -1;
-    width: 100%;
-  }
 }
 
 @media (forced-colors: active) {
-  .mc-fiados-action,
+  .mc-fiados-cta,
+  .mc-fiados-new,
   .mc-fiados-pay,
   .mc-fiados-pager__link,
   .mc-fiados-method,
@@ -834,11 +1251,15 @@
   .mc-fiados-note-input,
   .mc-fiados-submit,
   .mc-fiados-cancel,
-  .mc-fiados-dialog__close {
+  .mc-fiados-dialog__close,
+  .mc-fiados-total,
+  .mc-fiados-search,
+  .mc-fiados-row,
+  .mc-fiados-row__medallion {
     border-color: CanvasText;
   }
 
-  .mc-fiados-status,
+  .mc-fiados-stamp,
   .mc-fiados-applied,
   .mc-fiados-flash {
     border-color: CanvasText;
