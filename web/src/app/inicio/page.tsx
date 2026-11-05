@@ -64,6 +64,7 @@ export default async function InicioPage() {
     <AppShell
       activeHref="/inicio"
       mainId="inicio-main"
+      className="inicio-shell--compact"
       topbar={
         <TopBar
           merchant={dashboard.merchant.name}
@@ -73,14 +74,6 @@ export default async function InicioPage() {
         />
       }
     >
-      <Image
-        src={picadoArt}
-        alt=""
-        aria-hidden="true"
-        className="inicio-picado"
-        sizes="463px"
-      />
-
       <section className="inicio-greeting" aria-labelledby="inicio-title">
         <Image
           src={sunArt}
@@ -98,6 +91,13 @@ export default async function InicioPage() {
             </span>
           </p>
         </div>
+        <Image
+          src={picadoArt}
+          alt=""
+          aria-hidden="true"
+          className="inicio-picado"
+          sizes="250px"
+        />
       </section>
 
       <section className="inicio-kpis" aria-label="Resumen del negocio">
