@@ -367,7 +367,7 @@ def main() -> int:
         page.wait_for_timeout(500)
         settings_hit = page.evaluate(
             """() => {
-              const link = document.querySelector('a[href="/?ayuda=1#ajustes"]');
+              const link = document.querySelector('a[href="/ajustes"]');
               if (!link) return null;
               const r = link.getBoundingClientRect();
               const hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
@@ -380,7 +380,7 @@ def main() -> int:
         )
         check(
             "P1-11 Ajustes sigue clicable sobre la barra de cobro",
-            bool(settings_hit and settings_hit["hitHref"] == "/?ayuda=1#ajustes"),
+            bool(settings_hit and settings_hit["hitHref"] == "/ajustes"),
             str(settings_hit),
         )
 

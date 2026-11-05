@@ -46,17 +46,12 @@ export const cajaNav = appNav;
 export const operationalNav = appNav;
 
 /**
- * Pie del shell. Ayuda y Ajustes conservan la hoja heredada `/?ayuda=1` porque
- * no son pantallas operativas, pero ya no se anuncian como "Clásica".
+ * Pie del shell. Ayuda y Ajustes son pantallas nuevas con el mismo shell; ya
+ * no abren la hoja heredada `/?ayuda=1` de la Caja clásica.
  */
 export const appFoot: ShellNavItem[] = [
-  { id: "ayuda", label: "Ayuda", href: "/?ayuda=1", icon: iconAyuda },
-  {
-    id: "ajustes",
-    label: "Ajustes",
-    href: "/?ayuda=1#ajustes",
-    icon: iconAjustes,
-  },
+  { id: "ayuda", label: "Ayuda", href: "/ayuda", icon: iconAyuda },
+  { id: "ajustes", label: "Ajustes", href: "/ajustes", icon: iconAjustes },
 ];
 
 export const inicioFoot = appFoot;
@@ -84,8 +79,8 @@ export const cajaMobileMore = mobileMore;
 export const operationalMobileMore = mobileMore;
 
 /**
- * Activo por ruta. Ignora `?query` y `#hash` del href destino, salvo en los
- * enlaces del pie (`/?ayuda=1`), que solo se marcan si el href coincide tal cual.
+ * Activo por ruta: compara el pathname e ignora query/hash. Un href con query
+ * solo se marca si coincide completo (salvaguarda para enlaces heredados).
  */
 export function isNavItemActive(item: ShellNavItem, activeHref: string): boolean {
   if (item.href.includes("?")) return item.href === activeHref;

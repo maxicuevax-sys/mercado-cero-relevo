@@ -3,6 +3,7 @@ import { MobileNav } from "./mobile-nav";
 import { Sidebar } from "./sidebar";
 import { SkipLink } from "./skip-link";
 import { RouteFocus } from "./route-focus";
+import { PreferencesBoot } from "./preferences-boot";
 import {
   inicioFoot,
   inicioNav,
@@ -38,6 +39,7 @@ export function AppShell({
 }) {
   return (
     <div className={`inicio-shell ${className}`.trim()}>
+      <PreferencesBoot />
       <Suspense fallback={null}>
         <RouteFocus mainId={mainId} targetId={focusTargetId} />
       </Suspense>

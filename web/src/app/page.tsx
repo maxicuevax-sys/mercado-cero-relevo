@@ -14,9 +14,9 @@ export const instant = false;
  * clásico. Sin `tab`, `/` sigue renderizando la Caja clásica (compatibilidad
  * temporal B1, fuera del alcance del relevo).
  *
- * `ayuda=1` no se propaga a las rutas nuevas: la hoja de ayuda solo existe en
- * la Caja clásica y las pantallas nuevas no la implementan. Sin `tab`,
- * `/?ayuda=1` conserva la hoja como siempre.
+ * La hoja de ayuda clásica (`/?ayuda=1`) también se redirige a su pantalla
+ * nueva. `/` sin `tab` sigue renderizando la Caja clásica (compatibilidad
+ * temporal B1, fuera del alcance del relevo).
  */
 const TAB_REDIRECTS = {
   caja: "/caja",
@@ -44,6 +44,11 @@ export default async function Home({
   const destination = tabDestination(params.tab);
   if (destination) redirect(destination);
 
+  // La hoja de ayuda clásica pasa a ser una pantalla nueva. Un bookmark viejo
+  // `/?ayuda=1#ajustes` llega sin el hash al servidor y cae en /ayuda; el enlace
+  // nuevo del pie apunta directo a /ajustes.
+  if (params.ayuda === "1") redirect("/ayuda");
+
   const initialDashboard = getDashboardData({ compactPending: true });
 
   return (
@@ -51,7 +56,6 @@ export default async function Home({
       initialDashboard={initialDashboard}
       initialDemoMode={isDemoMode()}
       initialTab="caja"
-      initialHelpOpen={params.ayuda === "1"}
     />
   );
 }
