@@ -93,7 +93,8 @@
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px 12px;
     padding: 16px;
-    background: var(--inicio-paper);
+    background: var(--inicio-green);
+    border-bottom: 0;
   }
 
   .inicio-shell .inicio-topbar__mobile-brand {
@@ -102,7 +103,7 @@
     min-height: 48px;
     align-items: center;
     gap: 8px;
-    color: var(--inicio-green);
+    color: var(--inicio-paper);
     font-family: var(--font-hearth), "Hearth", Georgia, serif;
     font-size: 1.5rem;
     font-weight: 700;
@@ -116,6 +117,7 @@
     width: 48px;
     height: 48px;
     flex: 0 0 auto;
+    filter: brightness(0) invert(1);
   }
 
   .inicio-topbar__brand-rays {
@@ -128,6 +130,14 @@
     stroke: currentColor;
     stroke-width: 3;
     stroke-linecap: round;
+  }
+
+  html[data-contrast="high"] .inicio-topbar__mobile-brand {
+    color: var(--inicio-ink);
+  }
+
+  html[data-contrast="high"] .inicio-topbar__mobile-brand img {
+    filter: none;
   }
 
   .inicio-shell .inicio-topbar__merchant {
@@ -151,11 +161,13 @@
     font-family: var(--font-alder), "Alder", sans-serif;
     font-size: 0.875rem;
     line-height: 1.35;
+    color: var(--inicio-paper);
   }
 
   .inicio-shell .inicio-topbar__address {
     margin: 0;
     font-size: 0.75rem;
+    color: var(--inicio-paper);
   }
 
   .inicio-shell .inicio-topbar__actions {
@@ -171,6 +183,21 @@
     width: 40px;
     height: 40px;
     font-size: 1.25rem;
+    border: 1px solid var(--inicio-paper);
+  }
+
+  .inicio-shell .inicio-demo {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .inicio-shell .inicio-main {
+    background: var(--inicio-green);
+  }
+
+  .inicio-shell .inicio-main > main {
+    border-radius: 24px 24px 0 0;
+    background: var(--inicio-paper);
   }
   .inicio-shell > .inicio-sidebar {
     display: none;
