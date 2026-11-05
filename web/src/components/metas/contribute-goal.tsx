@@ -20,7 +20,7 @@ export type ContributeGoalTarget = {
 };
 
 /**
- * CTA "Aportar" + diálogo de aportación a una meta.
+ * CTA "Apartar" + diálogo de apartado a una meta.
  * `POST /api/goals/[id]/contribute` `{ amountCents, note?, requestId }`.
  *
  * `requestId` es idempotente: si el envío falla sin respuesta cierta, el
@@ -122,11 +122,11 @@ export function ContributeGoalButton({
       setNote("");
       setOpen(false);
       setAnnouncement(
-        `Aportaste ${formatMxn(amountCents)} a ${goal.title}.`,
+        `Apartaste ${formatMxn(amountCents)} a ${goal.title}.`,
       );
       router.refresh();
     } catch (caught) {
-      setError(humanError(caught, "No pude registrar la aportación."));
+      setError(humanError(caught, "No pude registrar el apartado."));
     } finally {
       setSaving(false);
     }
@@ -142,10 +142,10 @@ export function ContributeGoalButton({
         aria-describedby={hintId}
       >
         <Plus className="mc-metas-cta__icon" aria-hidden="true" />
-        Aportar
+        Apartar
       </button>
       <span id={hintId} className="sr-only">
-        Aportar a {goal.title}. Faltan {formatMxn(remaining)}.
+        Apartar a {goal.title}. Faltan {formatMxn(remaining)}.
       </span>
       <p role="status" aria-live="polite" className="sr-only">
         {announcement}
@@ -153,7 +153,7 @@ export function ContributeGoalButton({
 
       <ModalDialog
         open={open}
-        title={`Aportar a ${goal.title}`}
+        title={`Apartar a ${goal.title}`}
         description={`Faltan ${formatMxn(remaining)} para llegar a la meta. El apartado es un registro declarado: el efectivo sigue en tu resguardo.`}
         onClose={closeDialog}
         closeDisabled={saving}
@@ -218,7 +218,7 @@ export function ContributeGoalButton({
               {saving ? (
                 <Loader2 className="mc-metas-cta__icon mc-metas-spin" aria-hidden="true" />
               ) : null}
-              {saving ? "Aportando…" : "Aportar"}
+              {saving ? "Apartando…" : "Apartar"}
             </button>
             <button
               type="button"

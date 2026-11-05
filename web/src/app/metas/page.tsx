@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { connection } from "next/server";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { ProgressIndicator } from "@/components/ui/progress-indicator";
+import { MaskIcon } from "@/components/ui/icon";
 import { CreateGoalButton } from "@/components/metas/create-goal";
 import { ContributeGoalButton } from "@/components/metas/contribute-goal";
 import { MERCHANT, isDemoMode } from "@/lib/config";
@@ -10,6 +12,11 @@ import { formatMxn } from "@/lib/format";
 import { listGoals } from "@/lib/goals";
 import { MEXICO_TZ } from "@/lib/mexico-date";
 import type { Goal } from "@/lib/types";
+import ahorroArt from "@/assets/brand/ilustraciones/transparent/ahorro.png";
+import metaIcon from "@/assets/brand/iconos/transparent/meta.png";
+import picadoArt from "@/assets/inicio/papel-picado.png";
+import iconMetas from "@/assets/inicio/icons/metas.svg";
+import iconMonedas from "@/assets/inicio/icons/monedas.svg";
 import "./metas.css";
 
 export const metadata: Metadata = {
@@ -36,12 +43,12 @@ type GoalStatusTone = "active" | "done" | "late";
 
 function statusOf(goal: Goal): { label: string; tone: GoalStatusTone } {
   if (goal.remainingCents <= 0) {
-    return { label: "Meta alcanzada", tone: "done" };
+    return { label: "Lograda", tone: "done" };
   }
   if (goal.deadline) {
     const deadline = Date.parse(goal.deadline);
     if (Number.isFinite(deadline) && deadline < Date.now()) {
-      return { label: "Fecha límite pasada", tone: "late" };
+      return { label: "Fecha vencida", tone: "late" };
     }
   }
   return { label: "En curso", tone: "active" };
@@ -54,7 +61,7 @@ function statusOf(goal: Goal): { label: string; tone: GoalStatusTone } {
  */
 function goalHint(goal: Goal): string {
   if (goal.remainingCents <= 0) {
-    return "Puedes dejar la meta como referencia de lo que lograste.";
+    return "Queda como referencia de lo que lograste.";
   }
   if (goal.weeklyNeededCents !== null) {
     return `Aparta ${formatMxn(goal.weeklyNeededCents)} por semana para llegar a tiempo.`;
@@ -73,151 +80,257 @@ export default async function MetasPage() {
   const remainingTotal = goals.reduce((sum, goal) => sum + goal.remainingCents, 0);
   const activeCount = goals.filter((goal) => goal.remainingCents > 0).length;
 
+  // Tarjeta protagonista: la primera meta activa; si todas están logradas, la
+  // primera. Las demás pasan a la lista breve "Otras metas".
+  const protagonist =
+    goals.find((goal) => goal.remainingCents > 0) ?? goals[0] ?? null;
+  const otherGoals = protagonist
+    ? goals.filter((goal) => goal.id !== protagonist.id)
+    : [];
+
   return (
     <OperationalPage
       activeHref="/metas"
       title="Metas"
       titleId="metas-title"
-      eyebrow="Ahorro"
-      subtitle="Un objetivo concreto y un avance visible. El apartado es un registro declarado: el efectivo sigue en tu resguardo."
-      actions={<CreateGoalButton />}
+      eyebrow="AHORRO"
+      subtitle="Organiza lo que quieres comprar o apartar para una emergencia. Se anota aquí; no es una cuenta bancaria."
+      actions={
+        goals.length > 0 ? (
+          <CreateGoalButton label="Nueva meta" variant="secondary" />
+        ) : undefined
+      }
       merchant={MERCHANT.name}
       address={MERCHANT.address}
       demo={demo}
+      contentClassName="mc-metas-main"
     >
-      <section className="mc-op-kpis" aria-label="Resumen de metas">
-        <article className="mc-op-kpi">
-          <p className="mc-op-kpi__label">Metas en curso</p>
-          <p className="mc-op-kpi__value">{activeCount}</p>
-          <p className="mc-op-kpi__note">
-            {goals.length === 1
-              ? "1 meta registrada en total"
-              : `${goals.length} metas registradas en total`}
-          </p>
-        </article>
-        <article className="mc-op-kpi">
-          <p className="mc-op-kpi__label">Ahorrado</p>
-          <CurrencyAmount as="p" cents={savedTotal} className="mc-op-kpi__value" />
-          <p className="mc-op-kpi__note">Apartado declarado, no dinero custodiado</p>
-        </article>
-        <article className="mc-op-kpi">
-          <p className="mc-op-kpi__label">Falta para tus metas</p>
-          <CurrencyAmount
-            as="p"
-            cents={remainingTotal}
-            className="mc-op-kpi__value"
+      <section
+        className="mc-metas-hero"
+        aria-labelledby="mc-metas-hero-title"
+      >
+        <Image
+          src={picadoArt}
+          alt=""
+          aria-hidden="true"
+          className="mc-metas-hero__picado"
+          sizes="(max-width: 767px) 170px, 230px"
+        />
+        <div className="mc-metas-hero__art">
+          <Image
+            src={ahorroArt}
+            alt=""
+            aria-hidden="true"
+            width={433}
+            height={439}
+            className="mc-metas-hero__art-img"
+            sizes="(max-width: 767px) 170px, 250px"
           />
-          <p className="mc-op-kpi__note">No se suma a la caja ni a lo cobrado</p>
-        </article>
+        </div>
+
+        {protagonist ? (
+          <div className="mc-metas-hero__copy">
+            <p className="mc-metas-hero__kicker">Apartado en tu registro</p>
+            <h2 id="mc-metas-hero-title" className="mc-metas-hero__title">
+              {protagonist.title}
+            </h2>
+            <p className="mc-metas-hero__objective">
+              <span className="mc-metas-objective">
+                <Image
+                  src={metaIcon}
+                  alt=""
+                  aria-hidden="true"
+                  width={17}
+                  height={18}
+                  className="mc-metas-objective__icon"
+                />
+                Objetivo{" "}
+                <CurrencyAmount
+                  cents={protagonist.targetCents}
+                  className="mc-metas-hero__objective-amount"
+                />
+              </span>
+              <span className="mc-metas-hero__deadline">
+                {deadlineLabel(protagonist)}
+              </span>
+            </p>
+            <div className="mc-metas-hero__progress">
+              <div className="mc-metas-hero__progress-head">
+                <p className="mc-metas-hero__pct">
+                  <span>{protagonist.progressPct}</span>%
+                </p>
+                <p className="mc-metas-hero__progress-label">apartado</p>
+              </div>
+              <ProgressIndicator
+                value={protagonist.progressPct}
+                label={`Progreso de ${protagonist.title}`}
+                className="mc-metas-hero__bar"
+                barClassName="mc-metas-hero__bar-fill"
+              />
+              <p className="mc-metas-hero__amounts">
+                <CurrencyAmount
+                  cents={protagonist.savedCents}
+                  className="mc-metas-hero__saved"
+                />{" "}
+                de{" "}
+                <CurrencyAmount cents={protagonist.targetCents} /> · falta{" "}
+                {formatMxn(protagonist.remainingCents)}
+              </p>
+            </div>
+            <div className="mc-metas-hero__actions">
+              {protagonist.remainingCents > 0 ? (
+                <ContributeGoalButton
+                  goal={{
+                    id: protagonist.id,
+                    title: protagonist.title,
+                    remainingCents: protagonist.remainingCents,
+                  }}
+                />
+              ) : (
+                <p className="mc-metas-hero__done">
+                  Meta alcanzada. ¡Bien hecho!
+                </p>
+              )}
+              <p className="mc-metas-hero__note">
+                El efectivo sigue en tu caja: aquí solo anotas cuánto llevas
+                apartado.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="mc-metas-hero__copy">
+            <p className="mc-metas-hero__kicker">Apartado en tu registro</p>
+            <h2 id="mc-metas-hero-title" className="mc-metas-hero__title">
+              Tu primera meta
+            </h2>
+            <p className="mc-metas-hero__intro">
+              Elige algo concreto para tu puesto y apunta cuánto llevas
+              apartado. Puedes empezar con 50 pesos.
+            </p>
+            <div className="mc-metas-hero__actions">
+              <CreateGoalButton label="Crear mi primera meta" />
+              <p className="mc-metas-hero__note">
+                No es una cuenta bancaria: el dinero se queda en tu caja.
+              </p>
+            </div>
+          </div>
+        )}
       </section>
 
-      {goals.length === 0 ? (
-        <div className="mc-op-empty" role="status">
-          <p className="mc-op-empty__title">Aún no hay una meta.</p>
-          <p className="mc-op-empty__body">
-            La primera puede ser algo concreto para tu puesto: una sombrilla,
-            una hielera, el enganche de una báscula. Define el monto y, si
-            quieres, una fecha límite.
-          </p>
-          <div className="mc-op-empty__action">
-            <CreateGoalButton label="Crear mi primera meta" variant="secondary" />
-          </div>
-        </div>
-      ) : (
-        <section className="mc-metas-list" aria-label="Tus metas">
-          <div className="mc-metas-list__grid">
-            {goals.map((goal) => {
-              const status = statusOf(goal);
-              return (
-                <article
-                  key={goal.id}
-                  className="mc-op-panel mc-metas-goal"
-                  aria-labelledby={`mc-metas-goal-${goal.id}`}
-                >
-                  <div className="mc-op-panel__head">
-                    <h2
-                      id={`mc-metas-goal-${goal.id}`}
-                      className="mc-op-panel__title"
-                    >
-                      {goal.title}
-                    </h2>
-                    <span
-                      className={`mc-metas-status mc-metas-status--${status.tone}`}
-                    >
-                      {status.label}
-                    </span>
-                  </div>
+      {goals.length > 0 ? (
+        <section className="mc-metas-summary" aria-label="Resumen de metas">
+          <article className="mc-metas-summary__item">
+            <span className="mc-metas-medallion mc-metas-medallion--saffron">
+              <MaskIcon src={iconMonedas} className="mc-metas-medallion__glyph" />
+            </span>
+            <div className="mc-metas-summary__copy">
+              <p className="mc-metas-summary__label">Ahorrado</p>
+              <CurrencyAmount
+                as="p"
+                cents={savedTotal}
+                className="mc-metas-summary__value"
+              />
+            </div>
+          </article>
+          <article className="mc-metas-summary__item">
+            <span className="mc-metas-medallion mc-metas-medallion--green">
+              <MaskIcon src={iconMetas} className="mc-metas-medallion__glyph" />
+            </span>
+            <div className="mc-metas-summary__copy">
+              <p className="mc-metas-summary__label">Metas activas</p>
+              <p className="mc-metas-summary__value">{activeCount}</p>
+            </div>
+          </article>
+          <article className="mc-metas-summary__item">
+            <span className="mc-metas-medallion mc-metas-medallion--clay">
+              <Image
+                src={metaIcon}
+                alt=""
+                aria-hidden="true"
+                width={22}
+                height={23}
+                className="mc-metas-medallion__art"
+              />
+            </span>
+            <div className="mc-metas-summary__copy">
+              <p className="mc-metas-summary__label">Falta para tus metas</p>
+              <CurrencyAmount
+                as="p"
+                cents={remainingTotal}
+                className="mc-metas-summary__value"
+              />
+            </div>
+          </article>
+        </section>
+      ) : null}
 
-                  <div className="mc-op-panel__body">
-                    <div className="mc-metas-goal__progress-row">
-                      <p className="mc-metas-goal__amounts">
-                        <CurrencyAmount
-                          cents={goal.savedCents}
-                          className="mc-metas-goal__saved"
-                        />{" "}
-                        de{" "}
-                        <CurrencyAmount
-                          cents={goal.targetCents}
-                          className="mc-metas-goal__target"
-                        />
-                      </p>
-                      <p className="mc-metas-goal__pct">{goal.progressPct}%</p>
-                    </div>
-                    <ProgressIndicator
-                      value={goal.progressPct}
-                      label={`Progreso de ${goal.title}`}
-                      className="mc-metas-goal__progress"
-                      barClassName="mc-metas-goal__progress-fill"
-                    />
-
-                    <dl className="mc-metas-goal__stats">
-                      <div>
-                        <dt>Falta</dt>
-                        <dd className="tabular-nums">
-                          {formatMxn(goal.remainingCents)}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt>Fecha límite</dt>
-                        <dd>{deadlineLabel(goal)}</dd>
-                      </div>
-                      <div>
-                        <dt>Por semana</dt>
-                        <dd className="tabular-nums">
-                          {goal.weeklyNeededCents !== null
-                            ? formatMxn(goal.weeklyNeededCents)
-                            : "—"}
-                        </dd>
-                      </div>
-                    </dl>
-                  </div>
-
-                  <div className="mc-op-panel__foot mc-metas-goal__foot">
-                    {goal.remainingCents > 0 ? (
-                      <ContributeGoalButton
-                        goal={{
-                          id: goal.id,
-                          title: goal.title,
-                          remainingCents: goal.remainingCents,
-                        }}
+      {otherGoals.length > 0 ? (
+        <section className="mc-metas-others" aria-labelledby="mc-metas-others-title">
+          <h2 id="mc-metas-others-title" className="mc-metas-section-label">
+            Otras metas
+          </h2>
+          <div className="mc-metas-others__card">
+            <ul className="mc-metas-others__list">
+              {otherGoals.map((goal) => {
+                const status = statusOf(goal);
+                return (
+                  <li key={goal.id} className="mc-metas-other">
+                    <span className="mc-metas-medallion mc-metas-medallion--clay mc-metas-medallion--sm">
+                      <Image
+                        src={metaIcon}
+                        alt=""
+                        aria-hidden="true"
+                        width={18}
+                        height={19}
+                        className="mc-metas-medallion__art"
                       />
-                    ) : (
-                      <p className="mc-metas-goal__done">
-                        Meta alcanzada. ¡Bien hecho!
+                    </span>
+                    <div className="mc-metas-other__main">
+                      <div className="mc-metas-other__title-row">
+                        <h3 className="mc-metas-other__title">{goal.title}</h3>
+                        <span
+                          className={`mc-metas-sello mc-metas-sello--${status.tone}`}
+                        >
+                          {status.label}
+                        </span>
+                      </div>
+                      <p className="mc-metas-other__meta">
+                        {formatMxn(goal.savedCents)} de{" "}
+                        {formatMxn(goal.targetCents)} · {deadlineLabel(goal)}
                       </p>
-                    )}
-                    <p className="mc-metas-goal__hint">{goalHint(goal)}</p>
-                  </div>
-                </article>
-              );
-            })}
+                      <ProgressIndicator
+                        value={goal.progressPct}
+                        label={`Progreso de ${goal.title}`}
+                        className="mc-metas-other__bar"
+                        barClassName="mc-metas-other__bar-fill"
+                      />
+                    </div>
+                    <div className="mc-metas-other__side">
+                      <p className="mc-metas-other__pct">{goal.progressPct}%</p>
+                      {goal.remainingCents > 0 ? (
+                        <ContributeGoalButton
+                          goal={{
+                            id: goal.id,
+                            title: goal.title,
+                            remainingCents: goal.remainingCents,
+                          }}
+                          variant="secondary"
+                        />
+                      ) : null}
+                      <p className="mc-metas-other__hint">{goalHint(goal)}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         </section>
-      )}
+      ) : null}
 
       <p className="mc-metas-note">
-        El ahorro es un apartado declarado en tu registro: no es una cuenta
-        bancaria, no genera intereses y el efectivo sigue bajo tu resguardo.
+        El apartado es un registro declarado: no es una cuenta bancaria, no
+        genera intereses y el efectivo sigue en tu caja. El historial de
+        movimientos no se muestra en esta pantalla.
       </p>
     </OperationalPage>
   );
