@@ -1,0 +1,437 @@
+/* Metas · estilos propios de la pantalla.
+   El layout, los paneles y los kpis vienen de `.mc-op-*`
+   (`components/shell/operational.css`); aquí solo se compone `.mc-metas-*`.
+   Paleta: tokens de `components/ui/operational-tokens.css`, sin paletas
+   nuevas. */
+
+/* -------------------------------------------------------------------------
+   Botones de la pantalla
+   ------------------------------------------------------------------------- */
+.mc-metas-cta {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--color-accent);
+  color: #fffdf7;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mc-metas-cta:hover {
+  background: var(--color-accent-press);
+}
+
+.mc-metas-cta:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.mc-metas-cta--secondary {
+  border: 1.5px solid var(--color-control-border);
+  background: var(--color-surface);
+  color: var(--color-accent);
+}
+
+.mc-metas-cta--secondary:hover {
+  background: var(--color-surface-2);
+}
+
+.mc-metas-cta__icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+.mc-metas-spin {
+  animation: mc-metas-spin 1s linear infinite;
+}
+
+@keyframes mc-metas-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Lista de metas
+   ------------------------------------------------------------------------- */
+.mc-metas-list {
+  min-width: 0;
+}
+
+.mc-metas-list__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .mc-metas-list__grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  }
+}
+
+.mc-metas-goal {
+  min-width: 0;
+}
+
+.mc-metas-status {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.mc-metas-status--active {
+  background: var(--color-green-soft);
+  color: var(--color-green);
+}
+
+.mc-metas-status--done {
+  background: var(--color-green);
+  color: #fffdf7;
+}
+
+.mc-metas-status--late {
+  background: var(--color-saffron-soft);
+  color: var(--color-attention);
+}
+
+.mc-metas-goal__progress-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 12px;
+  min-width: 0;
+}
+
+.mc-metas-goal__amounts {
+  min-width: 0;
+  color: var(--color-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.mc-metas-goal__saved {
+  color: var(--color-ink);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.mc-metas-goal__target {
+  color: var(--color-ink-2);
+  font-weight: 600;
+}
+
+.mc-metas-goal__pct {
+  color: var(--color-accent);
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.mc-metas-goal__progress {
+  height: 10px;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-surface-2);
+}
+
+.mc-metas-goal__progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-accent);
+  transition: width 0.3s ease;
+}
+
+.mc-metas-goal__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr));
+  gap: 10px 16px;
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-separator);
+}
+
+.mc-metas-goal__stats dt {
+  color: var(--color-ink-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.mc-metas-goal__stats dd {
+  margin: 3px 0 0;
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.mc-metas-goal__foot {
+  align-items: flex-start;
+}
+
+.mc-metas-goal__hint {
+  min-width: 0;
+  max-width: 44ch;
+  margin: 0;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.mc-metas-goal__done {
+  margin: 0;
+  color: var(--color-green);
+  font-weight: 700;
+}
+
+.mc-metas-note {
+  max-width: 70ch;
+  margin: 0;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------------------------------
+   Diálogo (crear meta / aportar)
+   ------------------------------------------------------------------------- */
+.mc-metas-dialog {
+  width: min(480px, calc(100vw - 24px));
+  max-width: none;
+  max-height: calc(100dvh - 24px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+}
+
+.mc-metas-dialog::backdrop {
+  background: rgb(29 36 31 / 0.5);
+}
+
+.mc-metas-dialog__card {
+  display: grid;
+  gap: 14px;
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  padding: 20px;
+  border: 1px solid var(--color-separator);
+  border-radius: 20px;
+  background: var(--color-surface);
+  box-shadow: 0 24px 60px -24px rgb(31 38 34 / 0.5);
+}
+
+.mc-metas-dialog__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mc-metas-dialog__title {
+  min-width: 0;
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.mc-metas-dialog__close {
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  margin: -8px -8px 0 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-ink-2);
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mc-metas-dialog__close:hover {
+  background: var(--color-surface-2);
+  color: var(--color-ink);
+}
+
+.mc-metas-dialog__close:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.mc-metas-dialog__description {
+  margin: 0;
+  color: var(--color-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------------------------------
+   Formulario
+   ------------------------------------------------------------------------- */
+.mc-metas-form {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.mc-metas-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.mc-metas-field__label {
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.mc-metas-field__optional {
+  color: var(--color-ink-2);
+  font-weight: 400;
+}
+
+.mc-metas-field__hint {
+  margin: 0;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.mc-metas-input,
+.mc-metas-money {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 12px;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.mc-metas-input {
+  padding: 10px 12px;
+}
+
+.mc-metas-input--date {
+  max-width: 240px;
+}
+
+.mc-metas-money {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+}
+
+.mc-metas-money__prefix {
+  color: var(--color-ink-2);
+  font-weight: 700;
+}
+
+.mc-metas-money__input {
+  min-width: 0;
+  min-height: 46px;
+  flex: 1 1 auto;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+}
+
+.mc-metas-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--color-terracotta-soft);
+  color: var(--color-danger);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.mc-metas-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+/* -------------------------------------------------------------------------
+   Responsive
+   ------------------------------------------------------------------------- */
+@media (max-width: 767.98px) {
+  .mc-metas-dialog__title {
+    font-size: 1.375rem;
+  }
+}
+
+@media (max-width: 479.98px) {
+  .mc-metas-dialog__card {
+    padding: 16px 14px;
+    border-radius: 16px;
+  }
+
+  .mc-metas-form__actions .mc-metas-cta {
+    flex: 1 1 auto;
+  }
+
+  .mc-metas-goal__stats {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+}
+
+@media (forced-colors: active) {
+  .mc-metas-cta {
+    border: 1px solid ButtonText;
+  }
+
+  .mc-metas-dialog__card {
+    border: 2px solid CanvasText;
+  }
+
+  .mc-metas-goal__progress-fill {
+    background: Highlight;
+  }
+}
