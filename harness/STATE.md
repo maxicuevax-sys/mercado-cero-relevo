@@ -1,16 +1,46 @@
 # STATE — Mercado Cero
 
 > Handoff vivo para agentes. Última actualización: **4 de noviembre de 2026**,
-> al cerrar la Operación B.1.
+> al integrar el Inicio compacto de Codex sobre B.1.
 > No reconstruyas el estado de memoria: si un dato no está aquí ni en
 > `latest.json`/`latest-static.json`, no lo asumas.
 
-## Corte actual — Operación B.1 (estabilización de Oleada B)
+## Corte actual — Integración Codex Inicio vNext (4 nov 2026)
+
+- **Rama:** `integration/codex-inicio-vnext` (no mergeada).
+- **Base B.1:** `424fdd2d197aab550f52244413df7eb8b45414de`, tag
+  `oleada-b1-cierre`.
+- **Producto:** `bd15f22` (integración) + `0de183f` (Pendientes a 200 %).
+- **Pruebas:** `a439b9a` (contrato/gate) + `5ea2d85` (identidad de evidencia).
+- **Build de código:** `5ea2d853841e8f324c63486eafd4c2f033d407a4`;
+  `/api/health` del servidor aislado lo confirma.
+- **Cambio:** solo `web/src/app/inicio/page.tsx` + `inicio.css` y los scripts
+  de prueba. No se tocaron `orders.ts`, `cash.ts`, `db.ts`, pagos, webhooks,
+  pey, checkout, idempotencia, fiados ni reconciliación.
+- **Regresión:** gate Inicio 111/0; B.1 65/65; smoke A 33/33; HIG 5/5;
+  a11y B axe 0 normal/HC; mobile 320/360 60/60; demo-pay 59/59 en árbol
+  limpio; p0-venta/fiado/corte/integración/dinero 7/7 gates verdes
+  (`--only`, partial); fix-datos 32/0; seguridad 58/58.
+- **Verificador independiente:** **GO con residuales, sin P0/P1**. El P3 de
+  “Pendientes” partido a 200 % se corrigió en `0de183f`.
+- **Evidencia:** `quality-reports/codex-inicio-vnext/` (informe, JSON, capturas
+  A/B/C y logs).
+- **Pendiente formal:** `verify:static` y `verify:evidence -- --static` sobre el
+  HEAD documental limpio; `latest.json` full sigue sin infraestructura de
+  `tunnel`/`preflight`.
+- **Handoff público:** **NO-GO** heredado.
+- **Oleada C:** **NO INICIADA**; plan en el informe de integración y en
+  `quality-reports/oleada-b-estabilizacion/12_PENDIENTES_OLEADA_C.md`.
+- **Nota de entorno:** `node_modules` perdió `@swc/helpers`; se reparó con
+  `npm ci` en directorio temporal y merge, sin cambiar código ni lockfile.
+
+## Corte previo — Operación B.1 (base oficial)
 
 - **Rama:** `fix/oleada-b1-estabilizacion` (no mergeada).
 - **Base:** `844f759`; handoff versionado en `e025895`.
-- **Producto final:** `bdfbe8b` (fix) + `8101849` (pruebas).
-- **Build:** mismo SHA; `/api/health` del servidor aislado lo confirma.
+- **Producto:** `bdfbe8b` (fix) + `8101849` (pruebas).
+- **Build de cierre:** `424fdd2`; `/api/health` del servidor aislado lo
+  confirmó antes de la integración.
 - **Evidencia y veredicto:** `quality-reports/oleada-b-estabilizacion/`.
 - **Estado del árbol:** debe quedar limpio después del commit documental;
   la evidencia estática y `test:demo-pay` se repiten sobre ese estado.

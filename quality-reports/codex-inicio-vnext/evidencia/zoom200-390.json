@@ -1,0 +1,145 @@
+{
+  "vh": 844,
+  "sw": 390,
+  "cw": 390,
+  "kpis": [
+    {
+      "x": 16,
+      "y": 763,
+      "w": 358,
+      "h": 211,
+      "right": 374,
+      "bottom": 975,
+      "sw": 356,
+      "cw": 356
+    },
+    {
+      "x": 16,
+      "y": 985,
+      "w": 358,
+      "h": 178,
+      "right": 374,
+      "bottom": 1162,
+      "sw": 356,
+      "cw": 356
+    },
+    {
+      "x": 16,
+      "y": 1172,
+      "w": 358,
+      "h": 211,
+      "right": 374,
+      "bottom": 1383,
+      "sw": 356,
+      "cw": 356
+    },
+    {
+      "x": 16,
+      "y": 1393,
+      "w": 358,
+      "h": 196,
+      "right": 374,
+      "bottom": 1589,
+      "sw": 356,
+      "cw": 356
+    }
+  ],
+  "values": [
+    "$190.00",
+    "$0.00",
+    "$120.00",
+    "17%"
+  ],
+  "cta": {
+    "x": 36,
+    "y": 664,
+    "w": 188,
+    "h": 62,
+    "right": 224,
+    "bottom": 725,
+    "sw": 188,
+    "cw": 188
+  },
+  "suggestionCta": {
+    "x": 35,
+    "y": 2508,
+    "w": 320,
+    "h": 64,
+    "right": 355,
+    "bottom": 2571,
+    "sw": 318,
+    "cw": 318
+  },
+  "pending": {
+    "x": 16,
+    "y": 1607,
+    "w": 358,
+    "h": 577,
+    "right": 374,
+    "bottom": 2184,
+    "sw": 356,
+    "cw": 356
+  },
+  "pendingTitle": "Pendientes",
+  "suggestion": {
+    "x": 16,
+    "y": 2202,
+    "w": 358,
+    "h": 388,
+    "right": 374,
+    "bottom": 2590,
+    "sw": 356,
+    "cw": 356
+  },
+  "hero": {
+    "x": 16,
+    "y": 405,
+    "w": 358,
+    "h": 340,
+    "right": 374,
+    "bottom": 745,
+    "sw": 358,
+    "cw": 358
+  },
+  "h1": {
+    "x": 62,
+    "y": 170,
+    "w": 312,
+    "h": 134,
+    "right": 374,
+    "bottom": 305,
+    "sw": 312,
+    "cw": 312
+  },
+  "picado": {
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "right": 0,
+    "bottom": 0,
+    "sw": 0,
+    "cw": 0
+  },
+  "picadoVisible": false,
+  "nav": {
+    "x": 0,
+    "y": 678,
+    "w": 390,
+    "h": 166,
+    "right": 390,
+    "bottom": 844,
+    "sw": 390,
+    "cw": 390
+  },
+  "navVisible": true,
+  "sidebarVisible": false,
+  "overflow": [],
+  "fonts": [
+    "hearth",
+    "hearth Fallback",
+    "alder",
+    "alder Fallback"
+  ],
+  "axe": []
+}

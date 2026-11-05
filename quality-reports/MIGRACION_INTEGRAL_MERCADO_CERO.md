@@ -1,13 +1,22 @@
 # Migración integral de Mercado Cero
 
-> **Actualización B.1 (4 nov 2026):** la auditoría adversarial de B encontró
+> **Actualización integración Codex Inicio (4 nov 2026):** el Inicio compacto
+> de Codex se integró sobre B.1 en `integration/codex-inicio-vnext`. Base
+> `424fdd2`; producto `bd15f22` + `0de183f`; pruebas `a439b9a` + `5ea2d85`;
+> build `5ea2d85`. Gate Inicio 111/0; B.1 65/65; demo-pay 59/59; verificador
+> independiente **GO con residuales, sin P0/P1**. Solo cambiaron Inicio y sus
+> pruebas. **Oleada C no iniciada; handoff público NO-GO.** Informe:
+> `quality-reports/codex-inicio-vnext/00_INFORME_INTEGRACION.md`.
+>
+> **Cierre B.1 (histórico inmediato):** la auditoría adversarial de B encontró
 > 2 P0 + 13 P1; la Operación B.1 corrigió los P0 y los P1 del alcance, preservó
-> P1-10 y dejó un residual P2 en la venta legacy. **GO local condicionado a la
-> firma independiente; handoff público NO-GO; Oleada C no iniciada.**
-> Estado real: rama `fix/oleada-b1-estabilizacion`, producto
-> `16cb40fd201b9a16d0747cce72b247669611e6ff`, evidencia en
-> `quality-reports/oleada-b-estabilizacion/`. La sección histórica siguiente
-> describe el estado anterior a B.1 y no debe usarse como estado actual.
+> P1-10 y dejó un residual P2 en la venta legacy. **GO local firmado; handoff
+> público NO-GO; Oleada C no iniciada.** Rama
+> `fix/oleada-b1-estabilizacion`, cierre `424fdd2`, tag `oleada-b1-cierre`;
+> evidencia en `quality-reports/oleada-b-estabilizacion/`.
+>
+> La sección histórica siguiente describe el estado anterior a B.1 y no debe
+> usarse como estado actual.
 >
 > **Estado histórico (pre-B.1):** Oleada A cerrada en `26c7741`; Oleada B (Caja y Ventas) commiteada en `7c48902` con estático 5/5 y full parcial 21/23. Verificador la aprueba como base para Oleada C; handoff público sigue NO-GO.
 > **Rama:** `design/oleada-b-caja-ventas` · **Base/tag:** `oleada-a-cierre` = `26c7741`
@@ -78,7 +87,7 @@
 
 | URL | Componente actual | Interfaz | Funciones disponibles | Servicios/datos | Acciones que llegan | Integración design system | Dependencias | Riesgo | Pruebas | Criterio de migración |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `/inicio` | `web/src/app/inicio/page.tsx` + `inicio.css` | **Nueva** | Saludo, 4 KPI, hero Nueva venta, Pendientes, Sugerencia, enlaces, skip link, escala de texto, alto contraste | `getDashboardData`, `listGoals`, `listTasks`, `isDemoMode` | Sidebar de Inicio, marca de Caja, PWA (`start_url`) | Parcial: sistema propio de Inicio, no compartido aún | `dashboard`, `goals`, `tasks`, `config`, assets de Inicio | Shell duplicado; navegación a módulos legacy; `Caja`/`Reportes` comparten destino | Capturas 1448/1366/390/320/200%/HC; axe 0; veredicto pendiente | Misma experiencia que el resto; nav honesta; componentes compartidos; sin deuda de shell |
+| `/inicio` | `web/src/app/inicio/page.tsx` + `inicio.css` | **Nueva, integración Codex** | Saludo, 4 KPI compactos, hero Nueva venta, Pendientes, Sugerencia, enlaces, skip link, escala de texto, alto contraste | `getDashboardData`, `listGoals`, `listTasks`, `isDemoMode` | Sidebar de Inicio, marca de Caja, PWA (`start_url`) | **Completa en Inicio**: composición compacta sobre shell B.1; tokens propios aún no compartidos | `dashboard`, `goals`, `tasks`, `config`, assets de Inicio | Shell duplicado; navegación a módulos legacy; `Caja`/`Reportes` comparten destino; 1024×768 con CTA bajo el pliegue | Gate Inicio 111/0; capturas 6 viewports/200%/HC; B.1 65/65; smoke 33/33; verificador GO con residuales | Integración local aprobada; unificar shell/tokens en C/D; no mergeada |
 | `/` | `web/src/app/page.tsx` → `CajaApp` (`caja-app.tsx`) | **Legacy** | Caja/venta, fiado, corte, meta, pendientes, ayuda, demo, QR, verificación | `/api/dashboard`, `/api/orders`, `/api/credits`, `/api/cash`, `/api/goals`, `/api/tasks`, `/api/verify`, `/api/demo/*` | Inicio CTA, sidebar, marca, deep links `?tab=` | Baja: shell y CSS heredados | Monolito; `db.ts`; `orders.ts`; `cash.ts`; `goals.ts`; `tasks.ts` | Regresión financiera si se reescribe sin contratos; colisión de archivos | p0-venta 66/0, p0-fiado 51/0, p0-corte 69/0, p0-dinero 45/0+3 KNOWN | Rutas y componentes nuevos; misma lógica; p0 verdes; verificación independiente |
 | `/pay/[id]` | `web/src/app/pay/[id]/page.tsx`, `checkout-client.tsx`, `checkout.css` | **Legacy** | Checkout público, métodos demo/reales soportados, estado, QR/link | `checkout.ts`, `/api/checkout/[id]`, `/api/demo/pay`, `/api/verify` | Link/QR generado en Caja | Baja | `checkout.ts`, `payment-labels.ts`, `orders.ts` | No mostrar demo como real; no confirmar offline | checkout 19/19, webhook 40/40 | UI nueva, mismos contratos, estados de pago inequívocos |
 | `/pay/[id]/success` | `web/src/app/pay/[id]/success/page.tsx`, `success-client.tsx` | **Legacy** | Polling de estado, pendiente/verificado/demo/efectivo | `/api/checkout/[id]`, `/api/verify` | Checkout | Baja | `checkout.ts`, `payment-labels.ts` | Estado falso si se pinta sin servidor | checkout 19/19 | UI nueva; estados derivados del servidor; no confirmar por cliente |
@@ -241,6 +250,32 @@ Durante la migración, `/` puede seguir sirviendo Caja y `?tab=` puede redirigir
 **Alcance:** fiados, clientes, abonos, pendientes, corte, historial/reportes relacionados.
 **Aceptación:** p0-fiado 51/0, p0-corte 69/0, p0-dinero 45/0+3 KNOWN; saldos y corte conciliables; capturas.
 
+**Preparación con matrices de Codex (no ejecutada):**
+
+- **Fiados:** separar el contenedor de datos de la lista; total global del
+  servidor independiente de paginación/filtros; historial autorizado por
+  crédito con venta original y abonos; reusar `POST /api/credits/[id]/pay` y
+  `recordCreditPayment` con `requestId`, `expectedBalanceCents`, sobrepago,
+  replay y 409 `balance_changed`; no copiar `applyPayment` ni localStorage del
+  laboratorio. Pruebas: dos créditos de la misma persona, abono parcial,
+  sobrepago con devolución, cuenta liquidada, error de red sin convertir deuda
+  en cero.
+- **Corte:** día operativo México; efectivo separado de digital; fiado como
+  deuda, no cajón; abonos solo efectivo al cajón; pendientes fuera del
+  esperado; conservar `previewCashClose`/`closeCash`, `expectedVersion`,
+  `previewFingerprint`, `requestId` y `expected = opening + cashSales +
+  cashCredit − expenses − withdrawals`. La variante compacta de Codex
+  (~356 px menos hasta el CTA) es referencia de densidad, no contrato.
+- **Metas:** crear/editar/aportar/historial solo con API real; hoy Inicio usa
+  `goals[0]`.
+- **Pendientes:** CRUD y agrupación/posposiciones requieren contrato nuevo; no
+  simular checks locales.
+- **Regla:** ninguna simulación del Design Lab se copia a servicios reales;
+  cada módulo conserva contratos y pasa p0 antes de declararse migrado.
+- **Evidencia de referencia:** matrices `FIADOS_ADOPTION_MATRIX.md` y
+  `CORTE_ADOPTION_MATRIX.md` del worktree de Codex; el informe de integración
+  deja el plan resumido en `quality-reports/codex-inicio-vnext/`.
+
 ### Oleada D — Gestión y crecimiento
 
 **Dueños:** `mc-modulos-negocio` + `mc-onboarding-ayuda`.
@@ -258,8 +293,8 @@ Durante la migración, `/` puede seguir sirviendo Caja y `?tab=` puede redirigir
 
 | Estado | Significado | Módulos |
 |---|---|---|
-| **A** | Completo visual y funcional, aprobado | **Ninguno todavía** |
-| **B** | Visual nueva o parcial; migración visual/funcional pendiente | Inicio, Caja/venta, fiado, corte, metas, pendientes, ayuda/ajustes, checkout |
+| **A** | Completo visual y funcional, aprobado en local | **Inicio** (integración Codex, no mergeada) |
+| **B** | Visual nueva o parcial; migración visual/funcional pendiente | Caja/venta, fiado, corte, metas, pendientes, ayuda/ajustes, checkout |
 | **C** | Funcionalidad pendiente | Selector de método, fiado avanzado, metas crear/editar/historial, reportes, onboarding |
 | **D** | Bloqueado o ausente | Productos/inventario, proveedores, auth/roles, exportación, onboarding |
 | **E** | No verificado | Migración completa; lector de pantalla real; pey real; auth |
