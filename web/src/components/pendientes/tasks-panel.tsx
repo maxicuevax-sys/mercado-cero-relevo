@@ -462,19 +462,19 @@ export function TasksPanel({
           {announcement}
         </p>
 
-        <div className="mc-pend-tasks__toolbar">
-          <button
-            type="button"
-            data-focus="create"
-            onClick={openForm}
-            aria-expanded={formOpen}
-            aria-controls={formOpen ? `${headingId}-form` : undefined}
-            className="mc-pend-cta"
-          >
-            <Plus className="mc-pend-icon" aria-hidden="true" />
-            Anotar tarea
-          </button>
-        </div>
+        {!formOpen ? (
+          <div className="mc-pend-tasks__toolbar">
+            <button
+              type="button"
+              data-focus="create"
+              onClick={openForm}
+              className="mc-pend-cta"
+            >
+              <Plus className="mc-pend-icon" aria-hidden="true" />
+              Anotar tarea
+            </button>
+          </div>
+        ) : null}
 
         {formOpen ? (
           <form

@@ -52,9 +52,13 @@ export function ModalDialog({
     if (!dialog) return;
 
     if (open) {
-      const active = document.activeElement;
-      triggerRef.current = active instanceof HTMLElement ? active : null;
-      wasOpenRef.current = true;
+      // El disparador se guarda solo al abrir: en Strict Mode el efecto corre
+      // dos veces y la segunda ya encontraría el foco dentro del diálogo.
+      if (!wasOpenRef.current) {
+        const active = document.activeElement;
+        triggerRef.current = active instanceof HTMLElement ? active : null;
+        wasOpenRef.current = true;
+      }
       if (!dialog.open) {
         if (typeof dialog.showModal === "function") {
           dialog.showModal();
