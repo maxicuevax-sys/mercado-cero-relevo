@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import Image from "next/image";
 import { RefreshCw, Volume2 } from "lucide-react";
 import { cn } from "@/lib/format";
+import ajustesIcon from "@/assets/brand/iconos/transparent/ajustes.png";
+import listaIcon from "@/assets/brand/iconos/transparent/lista.png";
+import microfonoIcon from "@/assets/brand/iconos/transparent/microfono.png";
 
 /**
  * Controles reales de accesibilidad de la app.
@@ -238,171 +242,246 @@ export function AccessibilityPanel() {
   }
 
   return (
-    <section
-      className="mc-op-panel mc-ajustes-panel"
-      aria-labelledby={headingId}
-    >
-      <div className="mc-op-panel__head">
-        <h2 id={headingId} className="mc-op-panel__title">
-          Accesibilidad
-        </h2>
-        <p className="mc-op-panel__meta">Se guarda en este dispositivo</p>
+    <section className="mc-ajustes-panel" aria-labelledby={headingId}>
+      <div className="mc-ajustes-panel__head">
+        <div className="mc-ajustes-panel__heading">
+          <h2 id={headingId} className="mc-art-section-title">
+            Accesibilidad
+          </h2>
+          <p className="mc-ajustes-lead">
+            Ajusta el texto, el contraste y la voz. Los cambios se aplican a toda
+            la app y quedan guardados en este dispositivo.
+          </p>
+        </div>
+        <span className="mc-art-stamp mc-art-stamp--green">
+          Se aplica al instante
+        </span>
       </div>
 
-      <div className="mc-op-panel__body">
-        <p className="mc-ajustes-lead">
-          Ajusta el texto, el contraste y la voz. Los cambios se aplican a toda
-          la app y quedan guardados en este dispositivo.
-        </p>
-
-        <div className="mc-ajustes-group">
-          <p id={`${headingId}-size`} className="mc-ajustes-group__label">
-            Tamaño del texto
-          </p>
-          <div
-            role="group"
-            aria-labelledby={`${headingId}-size`}
-            className="mc-ajustes-options"
-          >
-            {TEXT_SIZE_OPTIONS.map((option) => {
-              const pressed = preferences.textSize === option.id;
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  aria-pressed={pressed}
-                  onClick={() => chooseTextSize(option.id)}
-                  className={cn(
-                    "mc-ajustes-option",
-                    pressed && "mc-ajustes-option--active",
-                  )}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
+      <div className="mc-ajustes-groups">
+        <section
+          className="mc-art-paper mc-ajustes-card"
+          aria-labelledby={`${headingId}-visual`}
+        >
+          <div className="mc-ajustes-card__head">
+            <span className="mc-art-medallion">
+              <Image
+                src={ajustesIcon}
+                alt=""
+                aria-hidden="true"
+                className="mc-art-medallion__icon"
+                sizes="32px"
+              />
+            </span>
+            <div className="mc-ajustes-card__copy">
+              <h3 id={`${headingId}-visual`} className="mc-ajustes-card__title">
+                Texto y contraste
+              </h3>
+              <p className="mc-ajustes-card__note">
+                Para leer sin forzar la vista.
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="mc-ajustes-group">
-          <p id={`${headingId}-contrast`} className="mc-ajustes-group__label">
-            Contraste
-          </p>
-          <div
-            role="group"
-            aria-labelledby={`${headingId}-contrast`}
-            className="mc-ajustes-options"
-          >
-            {CONTRAST_OPTIONS.map((option) => {
-              const pressed = preferences.contrast === option.id;
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  aria-pressed={pressed}
-                  onClick={() => chooseContrast(option.id)}
-                  className={cn(
-                    "mc-ajustes-option",
-                    pressed && "mc-ajustes-option--active",
-                  )}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
+          <div className="mc-ajustes-group">
+            <p id={`${headingId}-size`} className="mc-ajustes-group__label">
+              Tamaño del texto
+            </p>
+            <div
+              role="group"
+              aria-labelledby={`${headingId}-size`}
+              className="mc-ajustes-options"
+            >
+              {TEXT_SIZE_OPTIONS.map((option) => {
+                const pressed = preferences.textSize === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    aria-pressed={pressed}
+                    onClick={() => chooseTextSize(option.id)}
+                    className={cn(
+                      "mc-ajustes-option",
+                      pressed && "mc-ajustes-option--active",
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        <div className="mc-ajustes-group">
-          <p id={`${headingId}-rate`} className="mc-ajustes-group__label">
-            Velocidad de la voz
-          </p>
-          <div
-            role="group"
-            aria-labelledby={`${headingId}-rate`}
-            className="mc-ajustes-options"
-          >
-            {VOICE_RATE_OPTIONS.map((option) => {
-              const pressed = preferences.voiceRate === option.id;
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  aria-pressed={pressed}
-                  onClick={() => chooseVoiceRate(option.id)}
-                  className={cn(
-                    "mc-ajustes-option",
-                    pressed && "mc-ajustes-option--active",
-                  )}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
+          <div className="mc-ajustes-group">
+            <p id={`${headingId}-contrast`} className="mc-ajustes-group__label">
+              Contraste
+            </p>
+            <div
+              role="group"
+              aria-labelledby={`${headingId}-contrast`}
+              className="mc-ajustes-options"
+            >
+              {CONTRAST_OPTIONS.map((option) => {
+                const pressed = preferences.contrast === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    aria-pressed={pressed}
+                    onClick={() => chooseContrast(option.id)}
+                    className={cn(
+                      "mc-ajustes-option",
+                      pressed && "mc-ajustes-option--active",
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div className="mc-ajustes-group">
-          <p id={`${headingId}-muted`} className="mc-ajustes-group__label">
-            Silencio
-          </p>
-          <div
-            role="group"
-            aria-labelledby={`${headingId}-muted`}
-            className="mc-ajustes-options"
-          >
-            {MUTED_OPTIONS.map((option) => {
-              const pressed =
-                option.id === "off" ? preferences.muted : !preferences.muted;
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  aria-pressed={pressed}
-                  onClick={() => chooseMuted(option.id === "off")}
-                  className={cn(
-                    "mc-ajustes-option",
-                    pressed && "mc-ajustes-option--active",
-                  )}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
+        <section
+          className="mc-art-paper mc-ajustes-card"
+          aria-labelledby={`${headingId}-voice`}
+        >
+          <div className="mc-ajustes-card__head">
+            <span className="mc-art-medallion mc-art-medallion--saffron">
+              <Image
+                src={microfonoIcon}
+                alt=""
+                aria-hidden="true"
+                className="mc-art-medallion__icon"
+                sizes="32px"
+              />
+            </span>
+            <div className="mc-ajustes-card__copy">
+              <h3 id={`${headingId}-voice`} className="mc-ajustes-card__title">
+                Voz
+              </h3>
+              <p className="mc-ajustes-card__note">
+                La lectura en voz alta, a tu ritmo.
+              </p>
+            </div>
           </div>
+
+          <div className="mc-ajustes-group">
+            <p id={`${headingId}-rate`} className="mc-ajustes-group__label">
+              Velocidad de la voz
+            </p>
+            <div
+              role="group"
+              aria-labelledby={`${headingId}-rate`}
+              className="mc-ajustes-options"
+            >
+              {VOICE_RATE_OPTIONS.map((option) => {
+                const pressed = preferences.voiceRate === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    aria-pressed={pressed}
+                    onClick={() => chooseVoiceRate(option.id)}
+                    className={cn(
+                      "mc-ajustes-option",
+                      pressed && "mc-ajustes-option--active",
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mc-ajustes-group">
+            <p id={`${headingId}-muted`} className="mc-ajustes-group__label">
+              Silencio
+            </p>
+            <div
+              role="group"
+              aria-labelledby={`${headingId}-muted`}
+              className="mc-ajustes-options"
+            >
+              {MUTED_OPTIONS.map((option) => {
+                const pressed =
+                  option.id === "off" ? preferences.muted : !preferences.muted;
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    aria-pressed={pressed}
+                    onClick={() => chooseMuted(option.id === "off")}
+                    className={cn(
+                      "mc-ajustes-option",
+                      pressed && "mc-ajustes-option--active",
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mc-ajustes-hint">
+              Silenciar la voz no apaga los avisos de dinero, pagos ni cobros
+              pendientes: solo la lectura en voz alta.
+            </p>
+          </div>
+        </section>
+
+        <section
+          className="mc-art-paper mc-ajustes-card"
+          aria-labelledby={`${headingId}-read`}
+        >
+          <div className="mc-ajustes-card__head">
+            <span className="mc-art-medallion mc-art-medallion--clay">
+              <Image
+                src={listaIcon}
+                alt=""
+                aria-hidden="true"
+                className="mc-art-medallion__icon"
+                sizes="32px"
+              />
+            </span>
+            <div className="mc-ajustes-card__copy">
+              <h3 id={`${headingId}-read`} className="mc-ajustes-card__title">
+                Leer y repetir
+              </h3>
+              <p className="mc-ajustes-card__note">
+                Escucha esta pantalla con la voz de tu navegador.
+              </p>
+            </div>
+          </div>
+
+          <div className="mc-ajustes-actions">
+            <button
+              type="button"
+              onClick={readScreen}
+              className="mc-ajustes-speech"
+            >
+              <Volume2 className="mc-ajustes-icon" aria-hidden="true" />
+              Leer esta pantalla
+            </button>
+            <button
+              type="button"
+              onClick={repeatLast}
+              className="mc-ajustes-speech"
+            >
+              <RefreshCw className="mc-ajustes-icon" aria-hidden="true" />
+              Repetir último aviso
+            </button>
+          </div>
+
+          <p role="status" aria-live="polite" className="mc-ajustes-feedback">
+            {announcement}
+          </p>
+
           <p className="mc-ajustes-hint">
-            Silenciar la voz no apaga los avisos de dinero, pagos ni cobros
-            pendientes: solo la lectura en voz alta.
+            La lectura en voz alta usa la voz de tu navegador; el texto no se
+            envía a ningún servidor desde esta pantalla.
           </p>
-        </div>
-
-        <div className="mc-ajustes-actions">
-          <button
-            type="button"
-            onClick={readScreen}
-            className="mc-ajustes-speech"
-          >
-            <Volume2 className="mc-ajustes-icon" aria-hidden="true" />
-            Leer esta pantalla
-          </button>
-          <button
-            type="button"
-            onClick={repeatLast}
-            className="mc-ajustes-speech"
-          >
-            <RefreshCw className="mc-ajustes-icon" aria-hidden="true" />
-            Repetir último aviso
-          </button>
-        </div>
-
-        <p role="status" aria-live="polite" className="mc-ajustes-feedback">
-          {announcement}
-        </p>
-
-        <p className="mc-ajustes-hint">
-          La lectura en voz alta usa la voz de tu navegador; el texto no se
-          envía a ningún servidor desde esta pantalla.
-        </p>
+        </section>
       </div>
     </section>
   );
