@@ -742,6 +742,91 @@
   .inicio-shell--compact .mc-mobile-nav__item { min-height: 56px; }
 }
 
+/* Canon Inicio 1448×1086: ajustes sobre la composición existente.
+   Arial es el fallback sans local; Inter no está en los assets del kit. */
+.inicio-shell--compact {
+  --font-inter: Arial, "Segoe UI", sans-serif;
+}
+
+.inicio-shell--compact .inicio-kpi__value {
+  font-family: var(--font-hearth), Georgia, serif;
+}
+
+@media (min-width: 1200px) {
+  .inicio-shell--compact { grid-template-columns: 240px minmax(0, 1fr); }
+  .inicio-shell--compact .inicio-sidebar { padding-top: 24px; }
+  .inicio-shell--compact .inicio-brand__name { font-size: min(2.5rem, 40px); }
+  .inicio-shell--compact .inicio-nav__item { min-height: 58px; font-size: 1.375rem; }
+  .inicio-shell--compact .inicio-nav__icon { width: 32px; height: 32px; }
+  .inicio-shell--compact .inicio-topbar {
+    min-height: 102px;
+    padding: 16px 28px;
+  }
+  .inicio-shell--compact .inicio-topbar__icon,
+  .inicio-shell--compact .inicio-topbar__icon img { width: 58px; height: 58px; }
+  .inicio-shell--compact .inicio-topbar__name { font-size: 1.875rem; }
+  .inicio-shell--compact .inicio-topbar__address { font-size: 1.25rem; }
+  .inicio-shell--compact .inicio-avatar { width: 58px; height: 58px; font-size: 1.75rem; }
+  .inicio-shell--compact .inicio-content {
+    width: calc(100% - 52px);
+    max-width: none;
+    padding: 24px 0 34px;
+    gap: 24px 20px;
+    grid-template-columns: minmax(0, 0.484fr) minmax(0, 0.516fr);
+  }
+  .inicio-shell--compact .inicio-greeting {
+    position: relative;
+    min-height: 116px;
+    grid-template-columns: 104px minmax(0, 1fr);
+    gap: 26px;
+    align-items: start;
+    padding: 8px 0 0;
+  }
+  .inicio-shell--compact .inicio-sun { width: 96px; height: 96px; }
+  .inicio-shell--compact .inicio-greeting h1 { font-size: 3rem; }
+  .inicio-shell--compact .inicio-greeting p { font-size: 1.5rem; }
+  .inicio-shell--compact .inicio-picado {
+    position: absolute;
+    top: -24px;
+    right: -26px;
+    width: 460px;
+  }
+  .inicio-shell--compact .inicio-kpis { gap: 16px; }
+  .inicio-shell--compact .inicio-kpi { min-height: 204px; padding: 20px 22px; border-radius: 24px; }
+  .inicio-shell--compact .inicio-kpi__top { gap: 16px; font-size: 1.25rem; }
+  .inicio-shell--compact .inicio-kpi__icon { width: 60px; height: 60px; border-radius: 50%; }
+  .inicio-shell--compact .inicio-kpi__glyph { width: 36px; height: 36px; }
+  .inicio-shell--compact .inicio-kpi__value { margin-top: 14px; font-size: 2.5rem; }
+  .inicio-shell--compact .inicio-kpi__note { font-size: 0.75rem; }
+  .inicio-shell--compact .inicio-goal { height: 18px; margin-top: 18px; }
+  .inicio-shell--compact .inicio-hero { min-height: 310px; border-radius: 26px; }
+  .inicio-shell--compact .inicio-hero__content { padding: 24px 24px 24px 0; }
+  .inicio-shell--compact .inicio-hero h2 { font-size: 2.75rem; }
+  .inicio-shell--compact .inicio-hero p { font-size: 0.875rem; }
+  .inicio-shell--compact .inicio-hero__cta { min-height: 62px; padding: 12px 32px; border-radius: 30px; font-size: 1.5rem; }
+  .inicio-shell--compact .inicio-hero__cta svg { width: 30px; height: 30px; }
+  .inicio-shell--compact .inicio-pending { min-height: 310px; padding: 20px 34px; border-radius: 26px; }
+  .inicio-shell--compact .inicio-pending h2 { font-size: 2rem; }
+  .inicio-shell--compact .inicio-pending__icon { width: 40px; height: 40px; }
+  .inicio-shell--compact .inicio-pending__head a { font-size: 1.25rem; }
+  .inicio-shell--compact .inicio-task { min-height: 66px; font-size: 1.25rem; }
+  .inicio-shell--compact .inicio-task__check { width: 34px; height: 34px; }
+  .inicio-shell--compact .inicio-task__time { font-size: 1.125rem; }
+  .inicio-shell--compact .inicio-suggestion {
+    min-height: 214px;
+    grid-template-columns: 330px minmax(0, 1fr) auto;
+    gap: 20px;
+    padding: 0 26px 0 0;
+    border-radius: 26px;
+    overflow: hidden;
+  }
+  .inicio-shell--compact .inicio-suggestion__content { padding: 20px 0; }
+  .inicio-shell--compact .inicio-suggestion__kicker { font-family: var(--font-hearth), Georgia, serif; font-size: 2rem; color: var(--inicio-ink); }
+  .inicio-shell--compact .inicio-suggestion h2 { font-size: 1.375rem; }
+  .inicio-shell--compact .inicio-suggestion__content > p:last-child { font-size: 1rem; }
+  .inicio-shell--compact .inicio-suggestion__cta { margin: 0; min-height: 64px; padding: 12px 32px; font-size: 1.5rem; border-radius: 18px; }
+}
+
 /* Alto contraste: se activa desde Caja y desde la preferencia local. */
 html[data-contrast="high"] .inicio-shell {
   --inicio-paper: #ffffff;
