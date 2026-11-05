@@ -48,15 +48,11 @@
   align-items: stretch;
 }
 
-/* En la banda estrecha el papel picado va como orla superior, sin tapar texto. */
+/* El papel picado acompaña la ilustración desde la esquina. */
 .mc-ajustes-band .mc-art-banner__picado {
   top: 0;
-  right: 0;
-  width: 100%;
-  max-width: none;
-  height: 24px;
-  object-fit: cover;
-  object-position: center top;
+  right: 8px;
+  width: min(32%, 144px);
 }
 
 .mc-ajustes-band .mc-art-banner__copy {
@@ -73,7 +69,7 @@
 }
 
 .mc-ajustes-band .mc-art-banner__image {
-  max-width: 220px;
+  max-width: min(100%, 144px);
 }
 
 .mc-ajustes-band__lead {
@@ -81,6 +77,21 @@
   max-width: 36ch;
   font-size: 1rem;
   line-height: 1.5;
+}
+
+@media (min-width: 1280px) {
+  .mc-ajustes-band.mc-art-banner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 8rem);
+    gap: 0 8px;
+  }
+
+  .mc-ajustes-band .mc-art-banner__copy {
+    padding: 24px 0 20px 24px;
+  }
+
+  .mc-ajustes-band .mc-art-banner__art {
+    padding: 0 12px 0 0;
+  }
 }
 
 /* -------------------------------------------------------------------------
@@ -367,10 +378,6 @@
 
   .mc-ajustes-band .mc-art-banner__art {
     padding: 0 16px 0;
-  }
-
-  .mc-ajustes-band .mc-art-banner__image {
-    max-width: 176px;
   }
 
   .mc-ajustes-actions {

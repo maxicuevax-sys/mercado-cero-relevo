@@ -14,8 +14,36 @@
    Banda ilustrada: bot grande + papel picado (la ilustración va a la derecha;
    en móvil baja debajo del texto y nunca tapa una acción).
    ------------------------------------------------------------------------- */
-.mc-ayuda-hero .mc-art-banner__copy {
-  max-width: 62ch;
+.mc-ayuda-hero .mc-art-banner__image {
+  max-width: min(100%, 144px);
+}
+
+.mc-ayuda-hero .mc-art-banner__picado {
+  width: min(34%, 180px);
+}
+
+@media (min-width: 1024px) {
+  .mc-ayuda-hero.mc-art-banner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 14rem);
+    align-items: center;
+  }
+
+  .mc-ayuda-hero .mc-art-banner__copy {
+    padding-block: 20px;
+  }
+
+  .mc-ayuda-hero .mc-art-banner__title {
+    font-size: 2rem;
+  }
+
+  .mc-ayuda-hero .mc-art-banner__body {
+    max-width: 62ch;
+    margin-top: 8px;
+  }
+
+  .mc-ayuda-hero .mc-art-banner__image {
+    max-width: min(100%, 168px);
+  }
 }
 
 .mc-ayuda-hero__lead {

@@ -399,10 +399,9 @@
 
 @media (min-width: 768px) {
   .mc-pend-hero {
-    grid-template-columns: minmax(160px, 0.62fr) minmax(0, 1.6fr);
-    gap: 32px;
-    padding: 24px 32px 24px 24px;
-    padding-top: 36px;
+    grid-template-columns: minmax(0, 8rem) minmax(0, 1fr);
+    gap: 24px;
+    padding: 24px;
   }
 
   .mc-pend-hero__art {
@@ -415,8 +414,12 @@
   }
 
   .mc-pend-hero__art-img {
-    width: min(100%, 210px);
+    width: 100%;
     margin: 0;
+  }
+
+  .mc-pend-hero__text {
+    max-width: 60ch;
   }
 }
 
@@ -1192,7 +1195,7 @@
   }
 
   .mc-pend-hero__art-img {
-    width: min(100%, 165px);
+    width: min(100%, 112px);
   }
 
   .mc-pend-collections,
