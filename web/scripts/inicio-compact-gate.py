@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Gate de integraciÃ³n de Inicio compacto sobre B.1.
+"""Gate de integración de Inicio compacto sobre B.1.
 
 Uso (servidor aislado ya levantado):
   $env:BASE_URL="http://127.0.0.1:3340"
   python scripts/inicio-compact-gate.py
 
-Comprueba los seis viewports de la operaciÃ³n, texto al 200 %, foco de ruta,
+Comprueba los seis viewports de la operación, texto al 200 %, foco de ruta,
 axe, CTA, Pendientes, sugerencia y ausencia de overflow. Solo hace GET: no
 ejecuta POST, demo/reset ni pagos. No debe apuntarse a la base principal.
 """
@@ -15,6 +15,7 @@ import datetime
 import json
 import os
 import re
+import subprocess
 import sys
 import urllib.request
 from pathlib import Path
@@ -40,7 +41,7 @@ RESULTS: list[dict] = []
 
 def check(name: str, ok: bool, detail: object = "") -> None:
     RESULTS.append({"name": name, "ok": bool(ok), "detail": detail})
-    print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f" â€” {detail}" if detail != "" else ""))
+    print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f" — {detail}" if detail != "" else ""))
 
 
 def get_json(path: str) -> dict:
@@ -133,6 +134,7 @@ def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
 
     dashboard = get_json("/api/dashboard")
+    health = get_json("/api/health")
     summary = dashboard["summary"]
     expected = [
         money(summary["salesCents"]),
@@ -147,7 +149,7 @@ def main() -> int:
         browser = p.chromium.launch(headless=True)
 
         # ------------------------------------------------------------------
-        # Seis viewports de la operaciÃ³n.
+        # Seis viewports de la operación.
         # ------------------------------------------------------------------
         for width, height in VIEWPORTS:
             context = browser.new_context(
@@ -210,7 +212,7 @@ def main() -> int:
 
             limit = 175 if width >= 768 else 160
             tallest = max((kpi["h"] for kpi in data["kpis"]), default=999)
-            check(f"{width}: KPI compactos (â‰¤{limit} px)", tallest <= limit, f"{tallest} px")
+            check(f"{width}: KPI compactos (≤{limit} px)", tallest <= limit, f"{tallest} px")
 
             if width >= 1024:
                 check(f"{width}: sidebar visible y mobile nav oculto", data["sidebarVisible"] and not data["navVisible"])
@@ -243,7 +245,7 @@ def main() -> int:
             context.close()
 
         # ------------------------------------------------------------------
-        # Foco de ruta y orden de tabulaciÃ³n.
+        # Foco de ruta y orden de tabulación.
         # ------------------------------------------------------------------
         context = browser.new_context(viewport={"width": 1280, "height": 800}, locale="es-MX")
         page = context.new_page()
@@ -281,7 +283,7 @@ def main() -> int:
         context.close()
 
         # ------------------------------------------------------------------
-        # Texto al 200 % (reflow real, no zoom de pÃ¡gina).
+        # Texto al 200 % (reflow real, no zoom de página).
         # ------------------------------------------------------------------
         for width, height in ZOOM_VIEWPORTS:
             context = browser.new_context(
@@ -344,11 +346,15 @@ def main() -> int:
 
         browser.close()
 
-    check("Sin errores de pÃ¡gina", not errors, errors[:3])
+    check("Sin errores de página", not errors, errors[:3])
     check("Sin POST a /api durante el gate", not mutations, mutations[:3])
 
     report = {
         "base": BASE,
+        "buildSha": health.get("buildSha"),
+        "gitSha": subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
+        ).strip(),
         "generatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "demoMode": demo,
         "expected": expected,
@@ -360,11 +366,10 @@ def main() -> int:
         json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     print(
-        f"INICIO COMPACTO GATE â€” {report['pass']} PASS Â· {report['fail']} FAIL"
+        f"INICIO COMPACTO GATE — {report['pass']} PASS · {report['fail']} FAIL"
     )
     return 0 if report["fail"] == 0 else 1
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
