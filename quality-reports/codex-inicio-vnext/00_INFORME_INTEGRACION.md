@@ -164,7 +164,10 @@ Un agente distinto del implementador revisó el diff, la CSS, los datos, las cap
 
 ## 9. Residuales y límites
 
-1. **P2 — certificación formal:** no hay `latest.json` full 23/23; `tunnel`/`preflight` siguen sin infraestructura. Se ejecutará `verify:static` y `verify:evidence -- --static` sobre el HEAD documental limpio.
+1. **P2 — certificación formal:** `verify:static` **5/5 PASS** y
+   `verify:evidence -- --static` **PASS** sobre el HEAD documental limpio.
+   No hay `latest.json` full 23/23; `tunnel`/`preflight` siguen sin
+   infraestructura válida, por lo que el full no se declara.
 2. **P2 — 1024×768:** el CTA de Nueva venta queda ligeramente bajo el pliegue (`bottom≈800 > 768`); no está en la matriz obligatoria y es accesible por scroll. El corte 1023/1024 cambia de MobileNav a sidebar; documentado.
 3. **P3 — flake P1-11:** una corrida de B.1 falló el asentamiento de la redirección; dos corridas y 10/10 manuales pasan. No hay regresión de código.
 4. **P3 — contraste:** axe solo reporta violaciones; no se emite certificación WCAG formal ni se probó lector de pantalla real.
