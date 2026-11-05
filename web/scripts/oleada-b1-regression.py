@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -344,12 +345,21 @@ def main() -> int:
             page.locator(".inicio-sidebar").inner_text()[:200],
         )
         fiados.click()
+        page.wait_for_url(re.compile(r"/fiados"), timeout=15_000)
         page.wait_for_timeout(700)
+        # Next conserva la página anterior oculta tras navegar por SPA: se
+        # cuentan los shells visibles, no los nodos totales del DOM.
+        shell_total = page.locator(".inicio-shell").count()
+        shell_visible = page.locator(".inicio-shell:visible").count()
+        classic_total = page.locator(".app-shell, .app-sidebar, .tab-panel").count()
+        classic_visible = page.locator(
+            ".app-shell:visible, .app-sidebar:visible, .tab-panel:visible"
+        ).count()
         check(
             "P1-11 /fiados renderiza el shell nuevo",
-            page.locator(".inicio-shell").count() == 1
-            and page.locator(".app-shell, .app-sidebar, .tab-panel").count() == 0,
-            page.url,
+            shell_visible == 1 and classic_visible == 0,
+            f"shell total={shell_total} visible={shell_visible} · "
+            f"clásico total={classic_total} visible={classic_visible} · {page.url}",
         )
 
         page.set_viewport_size({"width": 1366, "height": 768})
