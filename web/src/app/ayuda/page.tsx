@@ -160,7 +160,7 @@ export default async function AyudaPage() {
         </section>
 
         <section
-          className="mc-art-paper mc-ayuda-faq"
+          className="mc-art-paper mc-ayuda-faq-panel"
           aria-labelledby="mc-ayuda-faq-title"
         >
           <div className="mc-art-paper__head">
