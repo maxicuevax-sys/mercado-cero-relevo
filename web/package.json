@@ -24,6 +24,8 @@
     "test:p0-adversarial": "python scripts/p0-adversarial-e2e.py",
     "test:harness": "node --test scripts/harness-gate.test.mjs scripts/check-deps.test.mjs scripts/evidence-integrity.test.mjs scripts/checkout-gate.test.mjs",
     "test:mobile-320": "python scripts/mobile-320-e2e.py",
+    "test:inicio-contract": "node scripts/inicio-adoption-contract.mjs",
+    "test:inicio-compact": "python scripts/inicio-compact-gate.py",
     "test:perf-data": "node scripts/perf-data-contract.mjs",
     "test:perf-data:http": "node scripts/perf-data-http.mjs",
     "verify:fast": "node scripts/harness-gate.mjs --fast",
