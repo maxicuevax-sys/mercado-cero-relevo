@@ -95,18 +95,13 @@ export default async function MetasPage() {
       titleId="metas-title"
       eyebrow="AHORRO"
       subtitle="Organiza lo que quieres comprar o apartar para una emergencia. Se anota aquí; no es una cuenta bancaria."
-      actions={
-        goals.length > 0 ? (
-          <CreateGoalButton label="Nueva meta" variant="secondary" />
-        ) : undefined
-      }
       merchant={MERCHANT.name}
       address={MERCHANT.address}
       demo={demo}
       contentClassName="mc-metas-main"
     >
       <section
-        className="mc-metas-hero"
+        className={protagonist ? "mc-metas-hero mc-metas-hero--active" : "mc-metas-hero"}
         aria-labelledby="mc-metas-hero-title"
       >
         <Image
@@ -121,8 +116,6 @@ export default async function MetasPage() {
             src={ahorroArt}
             alt=""
             aria-hidden="true"
-            width={433}
-            height={439}
             className="mc-metas-hero__art-img"
             sizes="(max-width: 767px) 170px, 250px"
           />
@@ -155,11 +148,16 @@ export default async function MetasPage() {
               </span>
             </p>
             <div className="mc-metas-hero__progress">
-              <div className="mc-metas-hero__progress-head">
-                <p className="mc-metas-hero__pct">
-                  <span>{protagonist.progressPct}</span>%
+              <div className="mc-metas-hero__figures">
+                <p className="mc-metas-hero__amounts">
+                  <CurrencyAmount
+                    cents={protagonist.savedCents}
+                    className="mc-metas-hero__saved"
+                  />{" "}
+                  de{" "}
+                  <CurrencyAmount cents={protagonist.targetCents} />
                 </p>
-                <p className="mc-metas-hero__progress-label">apartado</p>
+                <span className="mc-metas-hero__pct">{protagonist.progressPct}%</span>
               </div>
               <ProgressIndicator
                 value={protagonist.progressPct}
@@ -168,13 +166,7 @@ export default async function MetasPage() {
                 barClassName="mc-metas-hero__bar-fill"
               />
               <p className="mc-metas-hero__amounts">
-                <CurrencyAmount
-                  cents={protagonist.savedCents}
-                  className="mc-metas-hero__saved"
-                />{" "}
-                de{" "}
-                <CurrencyAmount cents={protagonist.targetCents} /> · falta{" "}
-                {formatMxn(protagonist.remainingCents)}
+                Falta {formatMxn(protagonist.remainingCents)}
               </p>
             </div>
             <div className="mc-metas-hero__actions">
@@ -216,53 +208,6 @@ export default async function MetasPage() {
           </div>
         )}
       </section>
-
-      {goals.length > 0 ? (
-        <section className="mc-metas-summary" aria-label="Resumen de metas">
-          <article className="mc-metas-summary__item">
-            <span className="mc-metas-medallion mc-metas-medallion--saffron">
-              <MaskIcon src={iconMonedas} className="mc-metas-medallion__glyph" />
-            </span>
-            <div className="mc-metas-summary__copy">
-              <p className="mc-metas-summary__label">Ahorrado</p>
-              <CurrencyAmount
-                as="p"
-                cents={savedTotal}
-                className="mc-metas-summary__value"
-              />
-            </div>
-          </article>
-          <article className="mc-metas-summary__item">
-            <span className="mc-metas-medallion mc-metas-medallion--green">
-              <MaskIcon src={iconMetas} className="mc-metas-medallion__glyph" />
-            </span>
-            <div className="mc-metas-summary__copy">
-              <p className="mc-metas-summary__label">Metas activas</p>
-              <p className="mc-metas-summary__value">{activeCount}</p>
-            </div>
-          </article>
-          <article className="mc-metas-summary__item">
-            <span className="mc-metas-medallion mc-metas-medallion--clay">
-              <Image
-                src={metaIcon}
-                alt=""
-                aria-hidden="true"
-                width={22}
-                height={23}
-                className="mc-metas-medallion__art"
-              />
-            </span>
-            <div className="mc-metas-summary__copy">
-              <p className="mc-metas-summary__label">Falta para tus metas</p>
-              <CurrencyAmount
-                as="p"
-                cents={remainingTotal}
-                className="mc-metas-summary__value"
-              />
-            </div>
-          </article>
-        </section>
-      ) : null}
 
       {otherGoals.length > 0 ? (
         <section className="mc-metas-others" aria-labelledby="mc-metas-others-title">
@@ -324,6 +269,59 @@ export default async function MetasPage() {
               })}
             </ul>
           </div>
+        </section>
+      ) : null}
+
+      {goals.length > 0 ? (
+        <div className="mc-metas-create">
+          <CreateGoalButton label="Nueva meta" />
+        </div>
+      ) : null}
+
+      {goals.length > 0 ? (
+        <section className="mc-metas-summary" aria-label="Resumen de metas">
+          <article className="mc-metas-summary__item">
+            <span className="mc-metas-medallion mc-metas-medallion--saffron">
+              <MaskIcon src={iconMonedas} className="mc-metas-medallion__glyph" />
+            </span>
+            <div className="mc-metas-summary__copy">
+              <p className="mc-metas-summary__label">Ahorrado</p>
+              <CurrencyAmount
+                as="p"
+                cents={savedTotal}
+                className="mc-metas-summary__value"
+              />
+            </div>
+          </article>
+          <article className="mc-metas-summary__item">
+            <span className="mc-metas-medallion mc-metas-medallion--green">
+              <MaskIcon src={iconMetas} className="mc-metas-medallion__glyph" />
+            </span>
+            <div className="mc-metas-summary__copy">
+              <p className="mc-metas-summary__label">Metas activas</p>
+              <p className="mc-metas-summary__value">{activeCount}</p>
+            </div>
+          </article>
+          <article className="mc-metas-summary__item">
+            <span className="mc-metas-medallion mc-metas-medallion--clay">
+              <Image
+                src={metaIcon}
+                alt=""
+                aria-hidden="true"
+                width={22}
+                height={23}
+                className="mc-metas-medallion__art"
+              />
+            </span>
+            <div className="mc-metas-summary__copy">
+              <p className="mc-metas-summary__label">Falta para tus metas</p>
+              <CurrencyAmount
+                as="p"
+                cents={remainingTotal}
+                className="mc-metas-summary__value"
+              />
+            </div>
+          </article>
         </section>
       ) : null}
 

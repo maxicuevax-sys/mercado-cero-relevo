@@ -60,8 +60,7 @@
 
 /* -------------------------------------------------------------------------
    Tarjeta protagonista: Total por cobrar (ilustración + cifra grande).
-   Una sola ilustración grande por pantalla, sobre superficie crema para que
-   el degradado propio del asset se funda con la tarjeta.
+   Arte a la izquierda y cifra en verde sobre el panel agave de la lámina.
    ------------------------------------------------------------------------- */
 .mc-fiados-total {
   display: grid;
@@ -72,7 +71,7 @@
   padding: 24px;
   border: 1px solid var(--mc-fiados-border);
   border-radius: 22px;
-  background: var(--color-surface);
+  background: color-mix(in srgb, var(--color-green-soft) 66%, var(--color-saffron-soft));
   box-shadow: var(--mc-fiados-shadow);
 }
 
@@ -97,7 +96,7 @@
 
 .mc-fiados-total__value {
   margin-top: 4px;
-  color: var(--color-ink);
+  color: var(--color-green);
   font-family: var(--font-hearth), "Hearth", Georgia, serif;
   font-size: clamp(2rem, 3.6vw, 3rem);
   font-weight: 600;
@@ -122,7 +121,6 @@
   align-items: center;
   gap: 4px;
   width: 100%;
-  max-width: 560px;
   min-width: 0;
   min-height: 52px;
   padding: 4px;
@@ -195,9 +193,7 @@
 }
 
 /* -------------------------------------------------------------------------
-   Libreta: encabezado de sección + filas tarjeta con medallón, saldo y
-   chevron. Las filas son tarjetas sueltas (como la referencia), no una
-   tabla dentro de otra tarjeta.
+   Libreta: una superficie continua con divisores, como la lámina maestra.
    ------------------------------------------------------------------------- */
 .mc-fiados-ledger {
   display: grid;
@@ -232,9 +228,11 @@
 
 .mc-fiados-list {
   display: grid;
-  gap: 8px;
   margin: 0;
   padding: 0;
+  border: 1px solid var(--mc-fiados-border);
+  border-radius: 16px;
+  background: var(--color-surface);
   list-style: none;
 }
 
@@ -245,15 +243,10 @@
   gap: 12px;
   min-width: 0;
   padding: 16px 20px;
-  border: 1px solid var(--mc-fiados-border);
-  border-radius: 16px;
-  background: var(--color-surface);
-  box-shadow: var(--mc-fiados-shadow);
-  transition: border-color 180ms var(--mc-fiados-ease);
 }
 
-.mc-fiados-row:hover {
-  border-color: color-mix(in srgb, var(--color-accent) 32%, var(--mc-fiados-border));
+.mc-fiados-row + .mc-fiados-row {
+  border-top: 1px solid var(--mc-fiados-border);
 }
 
 .mc-fiados-row__medallion {
@@ -1077,17 +1070,21 @@
 
 @media (max-width: 767.98px) {
   .mc-fiados-page > .mc-op-header {
-    margin-bottom: 20px;
-    padding-right: clamp(120px, 28vw, 220px);
+    margin-bottom: 16px;
+    padding-right: 0;
+  }
+
+  .mc-fiados-page .mc-page-header__title {
+    padding-inline-end: 116px;
   }
 
   .mc-fiados-page > .mc-op-page {
-    gap: 16px;
+    gap: 12px;
   }
 
   .mc-fiados-total {
     gap: 14px;
-    padding: 18px 16px;
+    padding: 12px 16px;
   }
 
   .mc-fiados-total__art {
@@ -1151,13 +1148,9 @@
     width: 116px;
   }
 
-  .mc-fiados-page > .mc-op-header {
-    padding-right: 128px;
-  }
-
   .mc-fiados-total {
     gap: 12px;
-    padding: 16px 14px;
+    padding: 8px 12px;
   }
 
   .mc-fiados-total__art {
@@ -1182,7 +1175,7 @@
 
   .mc-fiados-row {
     gap: 8px;
-    padding: 12px 14px;
+    padding: 8px 12px;
   }
 
   .mc-fiados-stamp {

@@ -252,29 +252,6 @@ export default async function FiadosPage({
       />
 
       {/* Tarjeta protagonista: el dato principal de la pantalla. */}
-      <section className="mc-fiados-total" aria-labelledby="mc-fiados-total-label">
-        <Image
-          src={ahorroArt}
-          alt=""
-          aria-hidden="true"
-          className="mc-fiados-total__art"
-          sizes="(max-width: 767px) 92px, 140px"
-        />
-        <div className="mc-fiados-total__copy">
-          <p id="mc-fiados-total-label" className="mc-fiados-total__label">
-            Total por cobrar
-          </p>
-          <CurrencyAmount
-            as="p"
-            cents={openTotals.balanceCents}
-            className="mc-fiados-total__value"
-          />
-          <p className="mc-fiados-total__meta">
-            {customersLabel} · {openLabel}
-          </p>
-        </div>
-      </section>
-
       <form className="mc-fiados-search" role="search" action="/fiados" method="get">
         <button type="submit" className="mc-fiados-search__submit" aria-label="Buscar">
           <Search aria-hidden="true" />
@@ -297,6 +274,29 @@ export default async function FiadosPage({
           </Link>
         ) : null}
       </form>
+
+      <section className="mc-fiados-total" aria-labelledby="mc-fiados-total-label">
+        <Image
+          src={ahorroArt}
+          alt=""
+          aria-hidden="true"
+          className="mc-fiados-total__art"
+          sizes="(max-width: 767px) 92px, 140px"
+        />
+        <div className="mc-fiados-total__copy">
+          <p id="mc-fiados-total-label" className="mc-fiados-total__label">
+            Total por cobrar
+          </p>
+          <CurrencyAmount
+            as="p"
+            cents={openTotals.balanceCents}
+            className="mc-fiados-total__value"
+          />
+          <p className="mc-fiados-total__meta">
+            {customersLabel} · {openLabel}
+          </p>
+        </div>
+      </section>
 
       <section className="mc-fiados-ledger" aria-labelledby="mc-fiados-ledger-title">
         <div className="mc-fiados-ledger__head">

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
-import { Check } from "lucide-react";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { CashCount } from "@/components/corte/cash-count";
@@ -21,7 +20,7 @@ import {
   formatTime,
 } from "@/lib/format";
 import type { CashClose } from "@/lib/types";
-import puestoArt from "@/assets/brand/ilustraciones/transparent/puesto.png";
+import ahorroArt from "@/assets/brand/ilustraciones/transparent/ahorro.png";
 import papelPicadoArt from "@/assets/inicio/papel-picado.png";
 import iconRecibo from "@/assets/brand/iconos/transparent/recibo.png";
 import iconRegistradora from "@/assets/brand/iconos/transparent/registradora.png";
@@ -174,43 +173,6 @@ export default async function CortePage() {
                   Así va la caja
                 </h2>
               </div>
-              <Image
-                src={puestoArt}
-                alt=""
-                aria-hidden="true"
-                className="mc-corte-receipt__art"
-                sizes="(max-width: 767px) 82px, 128px"
-              />
-            </div>
-
-            <div className="mc-corte-receipt__saldo">
-              <span className="mc-corte-receipt__saldo-check" aria-hidden="true">
-                <Check />
-              </span>
-              <div className="mc-corte-receipt__saldo-copy">
-                <p className="mc-corte-receipt__saldo-label">Saldo del día</p>
-                <CurrencyAmount
-                  as="p"
-                  cents={status.expectedCents}
-                  className="mc-corte-receipt__saldo-value"
-                />
-              </div>
-              <span
-                className={`mc-corte-receipt__stamp mc-corte-receipt__stamp--${stampTone}`}
-              >
-                {saved ? (
-                  <>
-                    <span className="mc-corte-receipt__stamp-word">
-                      {differenceWord(saved.differenceCents)}
-                    </span>
-                    <span className="mc-corte-receipt__stamp-amount">
-                      {formatMxn(Math.abs(saved.differenceCents))}
-                    </span>
-                  </>
-                ) : (
-                  <span className="mc-corte-receipt__stamp-word">Sin corte</span>
-                )}
-              </span>
             </div>
 
             <dl className="mc-corte-receipt__rows">
@@ -263,6 +225,40 @@ export default async function CortePage() {
                 </dd>
               </div>
             </dl>
+
+            <div className="mc-corte-receipt__saldo">
+              <div className="mc-corte-receipt__saldo-copy">
+                <p className="mc-corte-receipt__saldo-label">Saldo del día</p>
+                <CurrencyAmount
+                  as="p"
+                  cents={status.expectedCents}
+                  className="mc-corte-receipt__saldo-value"
+                />
+              </div>
+              <Image
+                src={ahorroArt}
+                alt=""
+                aria-hidden="true"
+                className="mc-corte-receipt__art"
+                sizes="(max-width: 479px) 84px, 112px"
+              />
+              <span
+                className={`mc-corte-receipt__stamp mc-corte-receipt__stamp--${stampTone}`}
+              >
+                {saved ? (
+                  <>
+                    <span className="mc-corte-receipt__stamp-word">
+                      {differenceWord(saved.differenceCents)}
+                    </span>
+                    <span className="mc-corte-receipt__stamp-amount">
+                      {formatMxn(Math.abs(saved.differenceCents))}
+                    </span>
+                  </>
+                ) : (
+                  <span className="mc-corte-receipt__stamp-word">Sin corte</span>
+                )}
+              </span>
+            </div>
 
             <div className="mc-corte-receipt__foot">
               <p className="mc-corte-receipt__note">

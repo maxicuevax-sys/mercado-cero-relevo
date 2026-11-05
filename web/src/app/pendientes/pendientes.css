@@ -299,9 +299,10 @@
   overflow: visible;
   padding: 24px;
   padding-top: 36px;
+  border: 1px solid var(--color-separator);
   border-radius: 22px;
-  background: var(--color-green);
-  color: #fffdf7;
+  background: var(--color-surface);
+  color: var(--color-ink);
   box-shadow: 0 2px 8px rgb(31 38 34 / 0.05);
 }
 
@@ -339,7 +340,7 @@
 
 .mc-pend-hero__kicker {
   margin: 0;
-  color: var(--color-saffron);
+  color: var(--color-attention);
   font-size: 0.8125rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -349,7 +350,7 @@
 
 .mc-pend-hero__title {
   margin: 4px 0 0;
-  color: #fffdf7;
+  color: var(--color-ink);
   font-family: var(--font-hearth), "Hearth", Georgia, serif;
   font-size: clamp(1.75rem, 2.6vw, 2.25rem);
   font-weight: 600;
@@ -361,7 +362,7 @@
 .mc-pend-hero__text {
   max-width: 44ch;
   margin: 8px 0 0;
-  color: #dce9df;
+  color: var(--color-ink-2);
   font-size: 1rem;
   line-height: 1.5;
 }
@@ -381,10 +382,10 @@
   gap: 6px;
   min-height: 34px;
   padding: 4px 12px;
-  border: 1px solid rgb(255 240 210 / 0.28);
+  border: 1px solid var(--color-separator);
   border-radius: 999px;
-  background: rgb(255 253 247 / 0.1);
-  color: #fff0d2;
+  background: var(--color-canvas);
+  color: var(--color-ink);
   font-size: 0.8125rem;
   font-weight: 600;
   line-height: 1.3;
@@ -394,7 +395,7 @@
   width: 16px;
   height: 16px;
   flex: 0 0 auto;
-  color: var(--color-saffron);
+  color: var(--color-accent);
 }
 
 @media (min-width: 768px) {
@@ -428,6 +429,18 @@
    ------------------------------------------------------------------------- */
 .mc-pend-collections {
   scroll-margin-top: 16px;
+}
+
+.mc-pend-collections .mc-op-panel__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.mc-pend-collections .mc-pend-foot-note {
+  flex: 1 1 16rem;
 }
 
 .mc-pend-grid {

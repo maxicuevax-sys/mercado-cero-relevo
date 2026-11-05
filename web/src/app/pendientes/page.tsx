@@ -78,61 +78,11 @@ export default async function PendientesPage() {
       titleId="pendientes-title"
       eyebrow="LO QUE SIGUE"
       subtitle="Cobros que faltan y tareas para después. Un cobro pendiente no es dinero recibido."
-      actions={
-        <Link href="/caja" className="mc-pend-cta mc-pend-cta--secondary">
-          Ir a Caja
-          <ArrowRight className="mc-pend-icon" aria-hidden="true" />
-        </Link>
-      }
       merchant={MERCHANT.name}
       address={MERCHANT.address}
       demo={isDemoMode()}
       contentClassName="mc-pend-main"
     >
-      <section className="mc-pend-hero" aria-labelledby="mc-pend-hero-title">
-        <Image
-          src={picadoArt}
-          alt=""
-          aria-hidden="true"
-          className="mc-pend-hero__picado"
-          sizes="(max-width: 767px) 160px, 200px"
-        />
-        <div className="mc-pend-hero__art">
-          <Image
-            src={botArt}
-            alt=""
-            aria-hidden="true"
-            width={435}
-            height={414}
-            className="mc-pend-hero__art-img"
-            sizes="(max-width: 767px) 150px, 210px"
-          />
-        </div>
-        <div className="mc-pend-hero__copy">
-          <p className="mc-pend-hero__kicker">Tu asistente</p>
-          <h2 id="mc-pend-hero-title" className="mc-pend-hero__title">
-            Tu día, en orden.
-          </h2>
-          <p className="mc-pend-hero__text">
-            Los cobros por un lado, los recados por otro. Lo que falta queda a
-            la vista, sin mezclarlo con el dinero que ya entró.
-          </p>
-          <ul className="mc-pend-hero__chips">
-            <li className="mc-pend-hero__chip">
-              <MaskIcon src={iconMonedas} className="mc-pend-hero__chip-icon" />
-              {pendingCount === 1 ? "1 cobro" : `${pendingCount} cobros`}
-            </li>
-            <li className="mc-pend-hero__chip">
-              <MaskIcon
-                src={iconPendientes}
-                className="mc-pend-hero__chip-icon"
-              />
-              {openTasks === 1 ? "1 tarea" : `${openTasks} tareas`}
-            </li>
-          </ul>
-        </div>
-      </section>
-
       <div className="mc-op-grid mc-op-grid--sidebar mc-pend-grid">
         <section
           id="mc-pend-cobros"
@@ -288,11 +238,61 @@ export default async function PendientesPage() {
               El cobro se completa con el enlace de pago o al registrar el
               efectivo en Caja.
             </p>
+            {pendingOrders.length > 0 ? (
+              <Link href="/caja" className="mc-pend-cta mc-pend-cta--secondary">
+                Ir a Caja
+                <ArrowRight className="mc-pend-icon" aria-hidden="true" />
+              </Link>
+            ) : null}
           </div>
         </section>
 
         <TasksPanel initialTasks={tasks} totalCount={tasksTotal} />
       </div>
+
+      <section className="mc-pend-hero" aria-labelledby="mc-pend-hero-title">
+        <Image
+          src={picadoArt}
+          alt=""
+          aria-hidden="true"
+          className="mc-pend-hero__picado"
+          sizes="(max-width: 767px) 160px, 200px"
+        />
+        <div className="mc-pend-hero__art">
+          <Image
+            src={botArt}
+            alt=""
+            aria-hidden="true"
+            width={435}
+            height={414}
+            className="mc-pend-hero__art-img"
+            sizes="(max-width: 767px) 150px, 210px"
+          />
+        </div>
+        <div className="mc-pend-hero__copy">
+          <p className="mc-pend-hero__kicker">Tu asistente</p>
+          <h2 id="mc-pend-hero-title" className="mc-pend-hero__title">
+            Tu día, en orden.
+          </h2>
+          <p className="mc-pend-hero__text">
+            Los cobros por un lado, los recados por otro. Lo que falta queda a
+            la vista, sin mezclarlo con el dinero que ya entró.
+          </p>
+          <ul className="mc-pend-hero__chips">
+            <li className="mc-pend-hero__chip">
+              <MaskIcon src={iconMonedas} className="mc-pend-hero__chip-icon" />
+              {pendingCount === 1 ? "1 cobro" : `${pendingCount} cobros`}
+            </li>
+            <li className="mc-pend-hero__chip">
+              <MaskIcon
+                src={iconPendientes}
+                className="mc-pend-hero__chip-icon"
+              />
+              {openTasks === 1 ? "1 tarea" : `${openTasks} tareas`}
+            </li>
+          </ul>
+        </div>
+      </section>
 
       <p className="mc-pend-note">
         Un cobro pendiente no es dinero recibido: no entra a la caja hasta que
