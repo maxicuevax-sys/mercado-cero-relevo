@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
 import { ArrowRight } from "lucide-react";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
+import { MaskIcon } from "@/components/ui/icon";
 import { TasksPanel } from "@/components/pendientes/tasks-panel";
 import { MERCHANT, isDemoMode } from "@/lib/config";
 import {
@@ -16,6 +18,12 @@ import { addDaysToDateKey, DAY_MS, mexicoDateKey } from "@/lib/mexico-date";
 import { saleMoney } from "@/lib/sale-truth";
 import { countTasks, listTasks } from "@/lib/tasks";
 import type { Order } from "@/lib/types";
+import botArt from "@/assets/brand/ilustraciones/transparent/bot.png";
+import reciboIcon from "@/assets/brand/iconos/transparent/recibo.png";
+import qrIcon from "@/assets/brand/iconos/transparent/qr-telefono.png";
+import picadoArt from "@/assets/inicio/papel-picado.png";
+import iconMonedas from "@/assets/inicio/icons/monedas.svg";
+import iconPendientes from "@/assets/inicio/icons/pendientes.svg";
 import "./pendientes.css";
 
 export const metadata: Metadata = {
@@ -62,77 +70,125 @@ export default async function PendientesPage() {
   const tasks = listTasks(50);
   const tasksTotal = countTasks();
   const openTasks = tasks.filter((task) => task.status === "open").length;
-  const tasksTruncated = tasksTotal > tasks.length;
 
   return (
     <OperationalPage
       activeHref="/pendientes"
       title="Pendientes"
       titleId="pendientes-title"
-      eyebrow="Lo que sigue"
+      eyebrow="LO QUE SIGUE"
       subtitle="Cobros que faltan y tareas para después. Un cobro pendiente no es dinero recibido."
+      actions={
+        <Link href="/caja" className="mc-pend-cta mc-pend-cta--secondary">
+          Ir a Caja
+          <ArrowRight className="mc-pend-icon" aria-hidden="true" />
+        </Link>
+      }
       merchant={MERCHANT.name}
       address={MERCHANT.address}
       demo={isDemoMode()}
+      contentClassName="mc-pend-main"
     >
-      <section className="mc-op-kpis" aria-label="Resumen de pendientes">
-        <article className="mc-op-kpi">
-          <p className="mc-op-kpi__label">Falta cobrar</p>
-          <CurrencyAmount
-            as="p"
-            cents={pendingCents}
-            className="mc-op-kpi__value"
+      <section className="mc-pend-hero" aria-labelledby="mc-pend-hero-title">
+        <Image
+          src={picadoArt}
+          alt=""
+          aria-hidden="true"
+          className="mc-pend-hero__picado"
+          sizes="(max-width: 767px) 160px, 200px"
+        />
+        <div className="mc-pend-hero__art">
+          <Image
+            src={botArt}
+            alt=""
+            aria-hidden="true"
+            width={435}
+            height={414}
+            className="mc-pend-hero__art-img"
+            sizes="(max-width: 767px) 150px, 210px"
           />
-          <p className="mc-op-kpi__note">
-            {pendingCount === 1
-              ? "1 cobro pendiente · no se suma a la caja"
-              : `${pendingCount} cobros pendientes · no se suma a la caja`}
+        </div>
+        <div className="mc-pend-hero__copy">
+          <p className="mc-pend-hero__kicker">Tu asistente</p>
+          <h2 id="mc-pend-hero-title" className="mc-pend-hero__title">
+            Tu día, en orden.
+          </h2>
+          <p className="mc-pend-hero__text">
+            Los cobros por un lado, los recados por otro. Lo que falta queda a
+            la vista, sin mezclarlo con el dinero que ya entró.
           </p>
-        </article>
-        <article className="mc-op-kpi">
-          <p className="mc-op-kpi__label">Tareas abiertas</p>
-          <p className="mc-op-kpi__value">{openTasks}</p>
-          <p className="mc-op-kpi__note">
-            {tasksTruncated
-              ? `En las ${tasks.length} primeras de ${tasksTotal} tareas`
-              : tasksTotal === 1
-                ? "1 tarea registrada"
-                : `${tasksTotal} tareas registradas en total`}
-          </p>
-        </article>
-        <article className="mc-op-kpi">
-          <p className="mc-op-kpi__label">Cobros en la lista</p>
-          <p className="mc-op-kpi__value">{pendingOrders.length}</p>
-          <p className="mc-op-kpi__note">Los más antiguos primero</p>
-        </article>
+          <ul className="mc-pend-hero__chips">
+            <li className="mc-pend-hero__chip">
+              <MaskIcon src={iconMonedas} className="mc-pend-hero__chip-icon" />
+              {pendingCount === 1 ? "1 cobro" : `${pendingCount} cobros`}
+            </li>
+            <li className="mc-pend-hero__chip">
+              <MaskIcon
+                src={iconPendientes}
+                className="mc-pend-hero__chip-icon"
+              />
+              {openTasks === 1 ? "1 tarea" : `${openTasks} tareas`}
+            </li>
+          </ul>
+        </div>
       </section>
 
-      <div className="mc-op-grid mc-op-grid--sidebar">
+      <div className="mc-op-grid mc-op-grid--sidebar mc-pend-grid">
         <section
+          id="mc-pend-cobros"
           className="mc-op-panel mc-pend-collections"
           aria-labelledby="mc-pend-collections-title"
         >
-          <div className="mc-op-panel__head">
-            <h2
-              id="mc-pend-collections-title"
-              className="mc-op-panel__title"
-            >
-              Cobros pendientes
-            </h2>
-            <p className="mc-op-panel__meta">
-              {pendingCount === 1 ? "1 en total" : `${pendingCount} en total`} ·
-              Falta {formatMxn(pendingCents)}
-            </p>
+          <div className="mc-pend-panel-head">
+            <span className="mc-pend-medallion mc-pend-medallion--saffron">
+              <Image
+                src={reciboIcon}
+                alt=""
+                aria-hidden="true"
+                width={22}
+                height={25}
+                className="mc-pend-medallion__art"
+              />
+            </span>
+            <div className="mc-pend-panel-head__copy">
+              <h2
+                id="mc-pend-collections-title"
+                className="mc-op-panel__title"
+              >
+                Cobros pendientes
+              </h2>
+              <p className="mc-op-panel__meta">
+                {pendingCount === 1 ? "1 en total" : `${pendingCount} en total`}{" "}
+                · Falta {formatMxn(pendingCents)}
+              </p>
+            </div>
           </div>
 
           <div className="mc-op-panel__body">
             {pendingOrders.length === 0 ? (
-              <div className="mc-op-empty" role="status">
-                <p className="mc-op-empty__title">No hay cobros pendientes.</p>
-                <p className="mc-op-empty__body">
-                  Cuando una venta quede por cobrar aparecerá aquí, con su
-                  enlace de pago y lo que falta cobrar.
-                </p>
+              <div className="mc-pend-empty" role="status">
+                <Image
+                  src={qrIcon}
+                  alt=""
+                  aria-hidden="true"
+                  width={80}
+                  height={93}
+                  className="mc-pend-empty__art"
+                  sizes="80px"
+                />
+                <div className="mc-pend-empty__copy">
+                  <p className="mc-pend-empty__title">
+                    No hay cobros pendientes.
+                  </p>
+                  <p className="mc-pend-empty__text">
+                    Cuando una venta quede por cobrar aparecerá aquí, con su
+                    enlace de pago y lo que falta cobrar.
+                  </p>
+                  <Link href="/caja" className="mc-pend-cta mc-pend-cta--secondary">
+                    Ir a Caja
+                    <ArrowRight className="mc-pend-icon" aria-hidden="true" />
+                  </Link>
+                </div>
               </div>
             ) : (
               <ul className="mc-pend-orders">
@@ -141,13 +197,23 @@ export default async function PendientesPage() {
                   const money = saleMoney(order);
                   return (
                     <li key={order.id} className="mc-pend-order">
+                      <span className="mc-pend-order__medallion">
+                        <Image
+                          src={reciboIcon}
+                          alt=""
+                          aria-hidden="true"
+                          width={20}
+                          height={23}
+                          className="mc-pend-order__medallion-art"
+                        />
+                      </span>
                       <div className="mc-pend-order__main">
                         <div className="mc-pend-order__title-row">
                           <p className="mc-pend-order__title">
                             Pedido {shortOrder(order.id)}
                           </p>
                           <span
-                            className={`mc-pend-status mc-pend-status--${status.tone}`}
+                            className={`mc-pend-sello mc-pend-sello--${status.tone}`}
                           >
                             {status.label}
                           </span>
@@ -156,9 +222,7 @@ export default async function PendientesPage() {
                           </span>
                         </div>
                         <p className="mc-pend-order__meta">
-                          {order.customerName
-                            ? `${order.customerName} · `
-                            : ""}
+                          {order.customerName ? `${order.customerName} · ` : ""}
                           {formatActivityDate(order.createdAt)}
                           {order.items.length > 0
                             ? ` · ${order.items.length} ${
@@ -169,8 +233,7 @@ export default async function PendientesPage() {
                             : ""}
                         </p>
                         <p className="mc-pend-order__amounts">
-                          Total{" "}
-                          <CurrencyAmount cents={money.totalCents} />
+                          Total <CurrencyAmount cents={money.totalCents} />
                           {money.paidCents > 0 ? (
                             <>
                               {" "}
@@ -185,26 +248,27 @@ export default async function PendientesPage() {
                               <CurrencyAmount cents={order.creditCents} />
                             </>
                           ) : null}
-                          <span className="mc-pend-order__due">
-                            {" "}
-                            · Falta cobrar{" "}
-                            <strong>
-                              <CurrencyAmount cents={money.dueCents} />
-                            </strong>
-                          </span>
                         </p>
                       </div>
-                      <Link
-                        href={`/pay/${order.id}`}
-                        className="mc-pend-order__cta"
-                        aria-label={`Cobrar pedido ${shortOrder(order.id)}`}
-                      >
-                        Cobrar
-                        <ArrowRight
-                          className="mc-pend-icon"
-                          aria-hidden="true"
-                        />
-                      </Link>
+                      <div className="mc-pend-order__side">
+                        <p className="mc-pend-order__due-label">
+                          Falta cobrar
+                        </p>
+                        <p className="mc-pend-order__due-amount">
+                          <CurrencyAmount cents={money.dueCents} />
+                        </p>
+                        <Link
+                          href={`/pay/${order.id}`}
+                          className="mc-pend-order__cta"
+                          aria-label={`Cobrar pedido ${shortOrder(order.id)}`}
+                        >
+                          Cobrar
+                          <ArrowRight
+                            className="mc-pend-icon"
+                            aria-hidden="true"
+                          />
+                        </Link>
+                      </div>
                     </li>
                   );
                 })}
@@ -220,9 +284,6 @@ export default async function PendientesPage() {
           </div>
 
           <div className="mc-op-panel__foot">
-            <Link href="/caja" className="mc-pend-link">
-              Ir a Caja
-            </Link>
             <p className="mc-pend-foot-note">
               El cobro se completa con el enlace de pago o al registrar el
               efectivo en Caja.

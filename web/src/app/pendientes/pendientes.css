@@ -1,8 +1,7 @@
-/* Pendientes · estilos propios de la pantalla.
-   El layout, los paneles y los kpis vienen de `.mc-op-*`
-   (`components/shell/operational.css`); aquí solo se compone `.mc-pend-*`.
-   Paleta: tokens de `components/ui/operational-tokens.css`, sin paletas
-   nuevas. */
+/* Pendientes · pasada de arte v2 (ritmo de Inicio canónico).
+   El shell y el layout base vienen de `.mc-op-*`; aquí se compone
+   `.mc-pend-*` con ritmo 4/8/12/16/20/24/32/40/48 y los assets originales.
+   Un solo CTA primario por tarea: Cobrar (fila) / acciones de tarea. */
 
 .mc-pend-icon {
   width: 18px;
@@ -21,7 +20,48 @@
 }
 
 /* -------------------------------------------------------------------------
-   Botones y estados compartidos del panel
+   Ritmo de página (override acotado por el class de esta ruta)
+   ------------------------------------------------------------------------- */
+.mc-op-main.mc-pend-main {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding: 24px 24px 72px;
+}
+
+.mc-pend-main > .mc-op-header {
+  margin-bottom: 24px;
+}
+
+.mc-pend-main > .mc-op-header .mc-page-header__title {
+  font-size: clamp(2rem, 3vw, 2.5rem);
+}
+
+.mc-pend-main > .mc-op-header .mc-page-header__eyebrow {
+  letter-spacing: 0.1em;
+}
+
+.mc-pend-main .mc-op-page {
+  gap: 24px;
+}
+
+@media (max-width: 1023.98px) {
+  .mc-op-main.mc-pend-main {
+    padding: 20px 16px 72px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .mc-op-main.mc-pend-main {
+    padding: 16px 16px calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .mc-pend-main .mc-op-page {
+    gap: 20px;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Botones
    ------------------------------------------------------------------------- */
 .mc-pend-cta {
   display: inline-flex;
@@ -35,12 +75,16 @@
   border-radius: 12px;
   background: var(--color-accent);
   color: #fffdf7;
-  font-family: inherit;
+  font-family: var(--font-alder), "Alder", sans-serif;
   font-size: 0.9375rem;
   font-weight: 700;
   line-height: 1.3;
+  text-align: center;
   text-decoration: none;
+  white-space: nowrap;
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.16);
   cursor: pointer;
+  transition: background-color 120ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 .mc-pend-cta:hover {
@@ -52,6 +96,17 @@
   opacity: 0.6;
 }
 
+.mc-pend-cta--secondary {
+  border: 1.5px solid var(--color-control-border);
+  background: var(--color-surface);
+  color: var(--color-accent);
+  box-shadow: none;
+}
+
+.mc-pend-cta--secondary:hover {
+  background: var(--color-surface-2);
+}
+
 .mc-pend-button {
   display: inline-flex;
   min-width: 0;
@@ -61,10 +116,10 @@
   gap: 6px;
   padding: 8px 14px;
   border: 1px solid var(--color-control-border);
-  border-radius: 11px;
+  border-radius: 12px;
   background: var(--color-surface);
   color: var(--color-ink);
-  font-family: inherit;
+  font-family: var(--font-alder), "Alder", sans-serif;
   font-size: 0.9375rem;
   font-weight: 600;
   line-height: 1.3;
@@ -87,52 +142,328 @@
 }
 
 .mc-pend-button--danger {
-  border-color: transparent;
-  background: var(--color-danger);
-  color: #fffdf7;
+  border-color: var(--color-danger);
+  background: var(--color-terracotta-soft);
+  color: var(--color-danger);
 }
 
 .mc-pend-button--danger:hover {
-  opacity: 0.9;
-}
-
-.mc-pend-link {
-  display: inline-flex;
-  min-height: 44px;
-  align-items: center;
-  padding: 0 4px;
-  border-radius: 8px;
-  color: var(--color-accent);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.mc-pend-link:hover {
-  text-decoration: underline;
+  background: var(--color-surface-2);
 }
 
 /* -------------------------------------------------------------------------
-   Cobros pendientes (solo lectura + enlace a /pay/[id])
+   Medallones de marca / sellos
    ------------------------------------------------------------------------- */
+.mc-pend-medallion {
+  display: inline-grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-green-soft);
+  color: var(--color-green);
+}
+
+.mc-pend-medallion--green {
+  background: var(--color-green-soft);
+  color: var(--color-green);
+}
+
+.mc-pend-medallion--saffron {
+  background: var(--color-saffron-soft);
+  color: var(--color-attention);
+}
+
+.mc-pend-medallion__art {
+  width: 22px;
+  height: auto;
+  object-fit: contain;
+}
+
+.mc-pend-sello {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  padding: 2px 8px;
+  border: 1.5px solid currentColor;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: rotate(-2deg);
+}
+
+.mc-pend-sello--pending {
+  color: var(--color-info);
+}
+
+.mc-pend-sello--partial {
+  color: var(--color-attention);
+}
+
+.mc-pend-sello--registered {
+  color: var(--color-ink-2);
+}
+
+.mc-pend-age {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  padding: 0 8px;
+  border: 1px solid var(--color-separator);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-ink-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.mc-pend-count {
+  display: inline-flex;
+  min-height: 22px;
+  align-items: center;
+  padding: 0 8px;
+  border: 1px solid var(--color-separator);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-ink-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* -------------------------------------------------------------------------
+   Encabezados de panel
+   ------------------------------------------------------------------------- */
+.mc-pend-collections,
+.mc-pend-tasks {
+  min-width: 0;
+  padding: 20px 24px 24px;
+  border-radius: 22px;
+  box-shadow: 0 2px 8px rgb(31 38 34 / 0.05);
+}
+
+.mc-pend-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin-bottom: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-separator);
+}
+
+.mc-pend-panel-head__copy {
+  min-width: 0;
+  flex: 1 1 180px;
+}
+
+.mc-pend-panel-head .mc-op-panel__title {
+  margin: 0;
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.mc-pend-panel-head .mc-op-panel__meta {
+  margin: 2px 0 0;
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.mc-pend-collections .mc-op-panel__body,
+.mc-pend-tasks .mc-op-panel__body {
+  min-width: 0;
+}
+
+/* -------------------------------------------------------------------------
+   Hero ilustrado (ilustración izquierda, copy derecha; arte abajo en móvil)
+   ------------------------------------------------------------------------- */
+.mc-pend-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  overflow: visible;
+  padding: 24px;
+  padding-top: 36px;
+  border-radius: 22px;
+  background: var(--color-green);
+  color: #fffdf7;
+  box-shadow: 0 2px 8px rgb(31 38 34 / 0.05);
+}
+
+.mc-pend-hero__picado {
+  position: absolute;
+  top: -10px;
+  right: 8px;
+  z-index: 1;
+  width: clamp(140px, 15vw, 195px);
+  height: auto;
+  pointer-events: none;
+  transform: rotate(1deg);
+}
+
+.mc-pend-hero__art {
+  min-width: 0;
+  order: 2;
+  justify-self: center;
+}
+
+.mc-pend-hero__art-img {
+  display: block;
+  width: min(100%, 190px);
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+.mc-pend-hero__copy {
+  position: relative;
+  z-index: 2;
+  order: 1;
+  min-width: 0;
+}
+
+.mc-pend-hero__kicker {
+  margin: 0;
+  color: var(--color-saffron);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.mc-pend-hero__title {
+  margin: 4px 0 0;
+  color: #fffdf7;
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.06;
+  overflow-wrap: anywhere;
+}
+
+.mc-pend-hero__text {
+  max-width: 44ch;
+  margin: 8px 0 0;
+  color: #dce9df;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.mc-pend-hero__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mc-pend-hero__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 4px 12px;
+  border: 1px solid rgb(255 240 210 / 0.28);
+  border-radius: 999px;
+  background: rgb(255 253 247 / 0.1);
+  color: #fff0d2;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.mc-pend-hero__chip-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  color: var(--color-saffron);
+}
+
+@media (min-width: 768px) {
+  .mc-pend-hero {
+    grid-template-columns: minmax(160px, 0.62fr) minmax(0, 1.6fr);
+    gap: 32px;
+    padding: 24px 32px 24px 24px;
+    padding-top: 36px;
+  }
+
+  .mc-pend-hero__art {
+    order: 1;
+    justify-self: start;
+  }
+
+  .mc-pend-hero__copy {
+    order: 2;
+  }
+
+  .mc-pend-hero__art-img {
+    width: min(100%, 210px);
+    margin: 0;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Cobros pendientes (filas compactas con medallón, importe y CTA)
+   ------------------------------------------------------------------------- */
+.mc-pend-collections {
+  scroll-margin-top: 16px;
+}
+
+.mc-pend-grid {
+  scroll-margin-top: 16px;
+}
+
 .mc-pend-orders {
   margin: 0;
   padding: 0;
-  border-top: 1px solid var(--color-separator);
   list-style: none;
 }
 
 .mc-pend-order {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px 16px;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 6px 12px;
   min-width: 0;
-  padding: 14px 2px;
+  padding: 16px 0;
   border-bottom: 1px solid var(--color-separator);
 }
 
 .mc-pend-order:last-child {
   border-bottom: 0;
+}
+
+.mc-pend-order__medallion {
+  display: inline-grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-saffron-soft);
+}
+
+.mc-pend-order__medallion-art {
+  width: 20px;
+  height: auto;
+  object-fit: contain;
 }
 
 .mc-pend-order__main {
@@ -150,76 +481,59 @@
 .mc-pend-order__title {
   min-width: 0;
   color: var(--color-ink);
-  font-size: 1.0625rem;
+  font-family: var(--font-alder), "Alder", sans-serif;
+  font-size: 1rem;
   font-weight: 700;
   line-height: 1.3;
   overflow-wrap: anywhere;
 }
 
-.mc-pend-status {
-  display: inline-flex;
-  min-height: 24px;
-  align-items: center;
-  padding: 0 8px;
-  border-radius: 999px;
-  font-size: 0.6875rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.mc-pend-status--pending {
-  background: var(--color-blue-soft);
-  color: var(--color-info);
-}
-
-.mc-pend-status--partial {
-  background: var(--color-saffron-soft);
-  color: var(--color-attention);
-}
-
-.mc-pend-status--registered {
-  background: var(--color-surface-2);
-  color: var(--color-ink-2);
-}
-
-.mc-pend-age {
-  display: inline-flex;
-  min-height: 24px;
-  align-items: center;
-  padding: 0 8px;
-  border: 1px solid var(--color-separator);
-  border-radius: 999px;
-  background: var(--color-surface);
-  color: var(--color-ink-2);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
 .mc-pend-order__meta {
-  margin-top: 3px;
+  margin: 3px 0 0;
   color: var(--color-ink-2);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
 .mc-pend-order__amounts {
-  margin-top: 4px;
+  margin: 4px 0 0;
   color: var(--color-ink-2);
   font-size: 0.8125rem;
   line-height: 1.45;
+  font-variant-numeric: tabular-nums lining-nums;
   overflow-wrap: anywhere;
 }
 
-.mc-pend-order__due {
-  color: var(--color-ink);
+.mc-pend-order__side {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+  min-width: 0;
+  padding-top: 4px;
 }
 
-.mc-pend-order__due strong {
+.mc-pend-order__due-label {
+  margin: 0;
+  color: var(--color-ink-2);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.mc-pend-order__due-amount {
+  margin: 0;
+  color: var(--color-attention);
+  font-size: 1.375rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums lining-nums;
+  overflow-wrap: anywhere;
 }
 
 .mc-pend-order__cta {
@@ -228,17 +542,43 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
+  margin-left: auto;
   padding: 0 16px;
   border-radius: 12px;
   background: var(--color-accent);
   color: #fffdf7;
+  font-family: var(--font-alder), "Alder", sans-serif;
+  font-size: 0.9375rem;
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.16);
 }
 
 .mc-pend-order__cta:hover {
   background: var(--color-accent-press);
+}
+
+@media (min-width: 1024px) {
+  .mc-pend-order {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .mc-pend-order__side {
+    display: grid;
+    grid-column: auto;
+    grid-template-columns: minmax(0, auto);
+    justify-items: end;
+    gap: 2px;
+    padding-top: 0;
+    text-align: right;
+  }
+
+  .mc-pend-order__cta {
+    margin-left: 0;
+    margin-top: 6px;
+  }
 }
 
 .mc-pend-more {
@@ -260,15 +600,60 @@
   max-width: 76ch;
   margin: 0;
   color: var(--color-ink-2);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1.5;
 }
 
 /* -------------------------------------------------------------------------
-   Tareas
+   Vacío ilustrado (cobros y tareas)
    ------------------------------------------------------------------------- */
-.mc-pend-tasks {
+.mc-pend-empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  padding: 20px;
+  border: 1px dashed var(--color-separator);
+  border-radius: 16px;
+  background: var(--color-surface);
+}
+
+.mc-pend-empty__art {
+  width: 80px;
+  height: auto;
+  flex: 0 0 auto;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+.mc-pend-empty__copy {
   min-width: 0;
+  flex: 1 1 220px;
+}
+
+.mc-pend-empty__title {
+  margin: 0;
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.mc-pend-empty__text {
+  margin: 6px 0 12px;
+  color: var(--color-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------------------------------
+   Tareas (filas compactas con checkbox 48px)
+   ------------------------------------------------------------------------- */
+.mc-pend-tasks__new {
+  margin-left: auto;
 }
 
 .mc-pend-tasks__toolbar {
@@ -276,17 +661,27 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .mc-pend-form {
   display: grid;
   gap: 12px;
   margin-bottom: 16px;
-  padding: 14px;
+  padding: 16px;
   border: 1px dashed var(--color-separator);
   border-radius: 16px;
-  background: var(--color-surface);
+  background: var(--color-canvas);
+}
+
+.mc-pend-form__kicker {
+  margin: 0;
+  color: var(--color-attention);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
 }
 
 .mc-pend-field {
@@ -319,7 +714,7 @@
   padding: 10px 12px;
   border: 1px solid var(--color-control-border);
   border-radius: 12px;
-  background: var(--color-canvas);
+  background: var(--color-surface);
   color: var(--color-ink);
   font-family: inherit;
   font-size: 1rem;
@@ -337,8 +732,8 @@
 .mc-pend-form__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 2px;
+  gap: 12px;
+  margin-top: 4px;
 }
 
 .mc-pend-alert {
@@ -367,27 +762,52 @@
   gap: 6px;
 }
 
+.mc-pend-group {
+  margin-top: 20px;
+}
+
+.mc-pend-group:first-child {
+  margin-top: 4px;
+}
+
+.mc-pend-group__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+  color: var(--color-ink-2);
+  font-family: var(--font-alder), "Alder", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
 .mc-pend-task-list {
   margin: 0;
   padding: 0;
-  border-top: 1px solid var(--color-separator);
   list-style: none;
 }
 
 .mc-pend-task {
   min-width: 0;
-  padding: 12px 0;
+  padding: 14px 0;
   border-bottom: 1px solid var(--color-separator);
 }
 
+.mc-pend-task:last-child {
+  border-bottom: 0;
+}
+
 .mc-pend-task[aria-busy="true"] {
-  opacity: 0.75;
+  opacity: 0.78;
 }
 
 .mc-pend-task__row {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -398,8 +818,7 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  margin-top: 2px;
-  border: 1px solid var(--color-separator);
+  border: 1.5px solid var(--color-control-border);
   border-radius: 12px;
   background: var(--color-surface);
   color: var(--color-ink-2);
@@ -425,14 +844,14 @@
 .mc-pend-task__title {
   color: var(--color-ink);
   font-family: var(--font-alder), "Alder", sans-serif;
-  font-size: 1.0625rem;
+  font-size: 1rem;
   font-weight: 600;
-  line-height: 1.3;
+  line-height: 1.35;
   overflow-wrap: anywhere;
 }
 
 .mc-pend-task__note {
-  margin-top: 3px;
+  margin-top: 2px;
   color: var(--color-ink-2);
   font-size: 0.875rem;
   line-height: 1.45;
@@ -440,33 +859,33 @@
   overflow-wrap: anywhere;
 }
 
-.mc-pend-task__due {
+.mc-pend-task__meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 8px;
-  margin-top: 5px;
+  margin-top: 4px;
   color: var(--color-ink-2);
   font-size: 0.8125rem;
   font-weight: 500;
   line-height: 1.4;
 }
 
-.mc-pend-task__due .mc-pend-icon {
+.mc-pend-task__meta .mc-pend-icon {
   width: 16px;
   height: 16px;
 }
 
-.mc-pend-task__due--overdue {
+.mc-pend-task__meta--overdue {
   color: var(--color-danger);
 }
 
-.mc-pend-task__due--today {
+.mc-pend-task__meta--today {
   color: var(--color-attention);
 }
 
-.mc-pend-task__due--soon,
-.mc-pend-task__due--none {
+.mc-pend-task__meta--soon,
+.mc-pend-task__meta--none {
   color: var(--color-ink-2);
 }
 
@@ -505,7 +924,7 @@
   border-radius: 10px;
   background: var(--color-surface);
   color: var(--color-ink-2);
-  font-family: inherit;
+  font-family: var(--font-alder), "Alder", sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -533,8 +952,8 @@
 }
 
 .mc-pend-confirm {
-  margin-top: 8px;
-  padding: 10px;
+  margin-top: 10px;
+  padding: 12px;
   border: 1px solid rgb(138 40 27 / 0.3);
   border-radius: 12px;
   background: var(--color-terracotta-soft);
@@ -563,18 +982,20 @@
 }
 
 .mc-pend-postpone {
-  margin-top: 8px;
-  padding: 10px;
-  border: 1px solid var(--color-separator);
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px dashed var(--color-separator);
   border-radius: 12px;
-  background: var(--color-surface-2);
+  background: var(--color-canvas);
 }
 
 .mc-pend-postpone__title {
   padding: 0 2px 6px;
   color: var(--color-ink-2);
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .mc-pend-postpone__choices {
@@ -585,22 +1006,26 @@
 
 .mc-pend-postpone__choice {
   display: inline-flex;
+  min-width: 0;
   min-height: 44px;
   align-items: center;
   padding: 0 10px;
-  border: 0;
+  border: 1px solid transparent;
   border-radius: 10px;
-  background: transparent;
+  background: var(--color-surface);
   color: var(--color-ink);
-  font-family: inherit;
+  font-family: var(--font-alder), "Alder", sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
+  line-height: 1.3;
   text-align: left;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
 .mc-pend-postpone__choice:hover {
-  background: var(--color-surface);
+  border-color: var(--color-accent);
+  background: var(--color-green-soft);
 }
 
 .mc-pend-postpone__choice:disabled {
@@ -614,7 +1039,7 @@
   margin-top: 8px;
   padding: 8px;
   border: 1px solid var(--color-separator);
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--color-surface);
 }
 
@@ -626,7 +1051,9 @@
 
 /* Hechas */
 .mc-pend-done {
-  margin-top: 18px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-separator);
 }
 
 .mc-pend-done__heading {
@@ -647,7 +1074,7 @@
   border-radius: 12px;
   background: var(--color-surface);
   color: var(--color-ink);
-  font-family: inherit;
+  font-family: var(--font-alder), "Alder", sans-serif;
   font-size: 0.9375rem;
   font-weight: 700;
   text-align: left;
@@ -665,19 +1092,6 @@
   min-width: 0;
 }
 
-.mc-pend-count {
-  display: inline-flex;
-  min-height: 24px;
-  align-items: center;
-  padding: 0 8px;
-  border: 1px solid var(--color-separator);
-  border-radius: 999px;
-  background: var(--color-surface);
-  color: var(--color-ink-2);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
 .mc-pend-done__chevron--open {
   transform: rotate(180deg);
 }
@@ -688,13 +1102,13 @@
   border: 1px dashed var(--color-separator);
   border-radius: 12px;
   color: var(--color-ink-2);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 
 .mc-pend-done__list {
   display: grid;
-  gap: 8px;
-  margin: 8px 0 0;
+  gap: 0;
+  margin: 4px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -705,10 +1119,12 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 6px 10px;
-  padding: 10px 12px;
-  border: 1px solid var(--color-separator);
-  border-radius: 12px;
-  background: var(--color-surface);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-separator);
+}
+
+.mc-pend-done__item:last-child {
+  border-bottom: 0;
 }
 
 .mc-pend-done__copy {
@@ -720,12 +1136,12 @@
 
 .mc-pend-done__icon {
   display: inline-flex;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
+  border-radius: 50%;
   background: var(--color-green-soft);
   color: var(--color-accent);
 }
@@ -750,20 +1166,71 @@
 }
 
 /* -------------------------------------------------------------------------
-   Responsive
+   Responsive fino
    ------------------------------------------------------------------------- */
-@media (max-width: 767.98px) {
-  .mc-pend-order {
-    grid-template-columns: minmax(0, 1fr);
-    align-items: start;
+@media (min-width: 480px) {
+  .mc-pend-empty {
+    flex-wrap: nowrap;
   }
 
-  .mc-pend-order__cta {
-    justify-self: start;
+  .mc-pend-empty__art {
+    margin: 0;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .mc-pend-hero {
+    padding: 20px 18px;
+    padding-top: 34px;
+    border-radius: 20px;
+  }
+
+  .mc-pend-hero__picado {
+    top: -8px;
+    right: 4px;
+    width: min(46vw, 165px);
+  }
+
+  .mc-pend-hero__art-img {
+    width: min(100%, 165px);
+  }
+
+  .mc-pend-collections,
+  .mc-pend-tasks {
+    padding: 18px 16px;
+  }
+
+  /* En móvil los targets suben a 48px (contrato de ritmo). */
+  .mc-pend-task__action,
+  .mc-pend-postpone__choice {
+    min-height: 48px;
   }
 }
 
 @media (max-width: 479.98px) {
+  .mc-pend-hero {
+    padding: 16px;
+    padding-top: 32px;
+    border-radius: 16px;
+  }
+
+  .mc-pend-hero__picado {
+    top: -8px;
+    right: 2px;
+    width: 140px;
+  }
+
+  .mc-pend-tasks__new {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 8px;
+  }
+
+  .mc-pend-order__cta {
+    width: 100%;
+    margin-left: 0;
+  }
+
   .mc-pend-postpone__choices {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -773,18 +1240,38 @@
   }
 }
 
-@media (forced-colors: active) {
+@media (prefers-reduced-motion: reduce) {
   .mc-pend-cta,
   .mc-pend-order__cta {
-    border: 1px solid ButtonText;
+    transition: none;
   }
 
-  .mc-pend-task__check {
-    border: 1px solid ButtonText;
+  .mc-pend-hero__picado {
+    transform: none;
   }
 
-  .mc-pend-status,
-  .mc-pend-age {
+  .mc-pend-spin {
+    animation-duration: 1.5s;
+  }
+}
+
+@media (forced-colors: active) {
+  .mc-pend-cta,
+  .mc-pend-sello,
+  .mc-pend-collections,
+  .mc-pend-tasks,
+  .mc-pend-order,
+  .mc-pend-task,
+  .mc-pend-empty,
+  .mc-pend-form {
     border: 1px solid CanvasText;
+  }
+
+  .mc-pend-hero__picado,
+  .mc-pend-hero__art-img,
+  .mc-pend-empty__art,
+  .mc-pend-medallion__art,
+  .mc-pend-order__medallion-art {
+    display: none;
   }
 }

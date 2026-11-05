@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   useCallback,
   useEffect,
@@ -29,6 +30,7 @@ import {
   mexicoDateKey,
 } from "@/lib/mexico-date";
 import type { Task } from "@/lib/types";
+import listaIcon from "@/assets/brand/iconos/transparent/lista.png";
 
 /*
  * Panel de Tareas de /pendientes.
@@ -203,7 +205,6 @@ export function TasksPanel({
 
   const rootRef = useRef<HTMLElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const inFlight = useRef<Set<string>>(new Set());
 
   const [tasks, setTasks] = useState<Task[]>(() =>
     [...initialTasks].sort(sortTasks),
@@ -339,8 +340,9 @@ export function TasksPanel({
     action: "complete" | "reopen" | "postpone" | "delete",
     postponeUntil?: string,
   ) {
-    if (inFlight.current.has(id)) return;
-    inFlight.current.add(id);
+    // El botón se deshabilita con `actionsDisabled`; el estado evita además
+    // una segunda acción mientras la primera está en vuelo.
+    if (busyId !== null || saving) return;
     setBusyId(id);
     setActionError(null);
 
@@ -391,7 +393,6 @@ export function TasksPanel({
     } catch (caught) {
       setActionError(humanError(caught, "No pude actualizar la tarea."));
     } finally {
-      inFlight.current.delete(id);
       setBusyId(null);
     }
   }
@@ -440,41 +441,90 @@ export function TasksPanel({
     setFocusTarget(`delete-${id}`);
   }
 
+  // Secciones Hoy / Esta semana / Todos. Durante el render de servidor no hay
+  // reloj de cliente: todo cae en "Todos" y al hidratar se reagrupa sin saltos
+  // focales (la lista ya está ordenada por vencimiento).
+  const groups: Array<{ id: string; label: string; tasks: Task[] }> = [];
+  if (now) {
+    const todayKey = mexicoDateKey(now);
+    const weekEndKey = addDaysToDateKey(todayKey, 7);
+    const today: Task[] = [];
+    const week: Task[] = [];
+    const rest: Task[] = [];
+    for (const task of openTasks) {
+      const iso = task.postponedUntil ?? task.dueAt;
+      const date = iso ? new Date(iso) : null;
+      if (!date || Number.isNaN(date.getTime())) {
+        rest.push(task);
+        continue;
+      }
+      const key = mexicoDateKey(date);
+      if (key <= todayKey) today.push(task);
+      else if (key < weekEndKey) week.push(task);
+      else rest.push(task);
+    }
+    if (today.length > 0) {
+      groups.push({ id: `${headingId}-hoy`, label: "Hoy", tasks: today });
+    }
+    if (week.length > 0) {
+      groups.push({
+        id: `${headingId}-semana`,
+        label: "Esta semana",
+        tasks: week,
+      });
+    }
+    if (rest.length > 0) {
+      groups.push({ id: `${headingId}-todos`, label: "Todos", tasks: rest });
+    }
+  } else if (openTasks.length > 0) {
+    groups.push({ id: `${headingId}-todos`, label: "Todos", tasks: openTasks });
+  }
+
   return (
     <section
       ref={rootRef}
+      id="mc-pend-tareas"
       className="mc-op-panel mc-pend-tasks"
       aria-labelledby={headingId}
     >
-      <div className="mc-op-panel__head">
-        <h2 id={headingId} className="mc-op-panel__title">
-          Tareas
-        </h2>
-        <p className="mc-op-panel__meta">
-          {openTasks.length} {openTasks.length === 1 ? "abierta" : "abiertas"} ·{" "}
-          {doneTasks.length} {doneTasks.length === 1 ? "hecha" : "hechas"}
-          {totalLabel}
-        </p>
+      <div className="mc-pend-panel-head">
+        <span className="mc-pend-medallion mc-pend-medallion--green">
+          <Image
+            src={listaIcon}
+            alt=""
+            aria-hidden="true"
+            width={20}
+            height={25}
+            className="mc-pend-medallion__art"
+          />
+        </span>
+        <div className="mc-pend-panel-head__copy">
+          <h2 id={headingId} className="mc-op-panel__title">
+            Tareas
+          </h2>
+          <p className="mc-op-panel__meta">
+            {openTasks.length} {openTasks.length === 1 ? "abierta" : "abiertas"} ·{" "}
+            {doneTasks.length} {doneTasks.length === 1 ? "hecha" : "hechas"}
+            {totalLabel}
+          </p>
+        </div>
+        {!formOpen ? (
+          <button
+            type="button"
+            data-focus="create"
+            onClick={openForm}
+            className="mc-pend-cta mc-pend-cta--secondary mc-pend-tasks__new"
+          >
+            <Plus className="mc-pend-icon" aria-hidden="true" />
+            Anotar tarea
+          </button>
+        ) : null}
       </div>
 
       <div className="mc-op-panel__body">
         <p role="status" aria-live="polite" className="sr-only">
           {announcement}
         </p>
-
-        {!formOpen && openTasks.length > 0 ? (
-          <div className="mc-pend-tasks__toolbar">
-            <button
-              type="button"
-              data-focus="create"
-              onClick={openForm}
-              className="mc-pend-cta"
-            >
-              <Plus className="mc-pend-icon" aria-hidden="true" />
-              Anotar tarea
-            </button>
-          </div>
-        ) : null}
 
         {formOpen ? (
           <form
@@ -483,6 +533,7 @@ export function TasksPanel({
             onSubmit={handleCreate}
             noValidate
           >
+            <p className="mc-pend-form__kicker">Nueva tarea</p>
             <div className="mc-pend-field">
               <label htmlFor={formTitleId} className="mc-pend-field__label">
                 ¿Qué quieres recordar?
@@ -591,19 +642,28 @@ export function TasksPanel({
         ) : null}
 
         {openTasks.length === 0 ? (
-          <div className="mc-op-empty">
-            <p className="mc-op-empty__title">
-              {tasks.length === 0
-                ? "Aún no hay tareas."
-                : "No hay tareas abiertas."}
-            </p>
-            <p className="mc-op-empty__body">
-              {tasks.length === 0
-                ? "Aquí van los recordatorios del puesto: pagar al proveedor, recoger un pedido, llamar a un cliente."
-                : "Las hechas quedan abajo. Anota otra cuando algo quede para después."}
-            </p>
-            {!formOpen ? (
-              <div className="mc-op-empty__action">
+          <div className="mc-pend-empty" role="status">
+            <Image
+              src={listaIcon}
+              alt=""
+              aria-hidden="true"
+              width={88}
+              height={108}
+              className="mc-pend-empty__art"
+              sizes="88px"
+            />
+            <div className="mc-pend-empty__copy">
+              <p className="mc-pend-empty__title">
+                {tasks.length === 0
+                  ? "Aún no hay recados."
+                  : "No hay tareas abiertas."}
+              </p>
+              <p className="mc-pend-empty__text">
+                {tasks.length === 0
+                  ? "Aquí van los recordatorios del puesto: pagar al proveedor, recoger un pedido, llamar a un cliente."
+                  : "Las hechas quedan abajo. Anota otra cuando algo quede para después."}
+              </p>
+              {!formOpen ? (
                 <button
                   type="button"
                   data-focus="create"
@@ -613,12 +673,22 @@ export function TasksPanel({
                   <Plus className="mc-pend-icon" aria-hidden="true" />
                   Anotar tarea
                 </button>
-              </div>
-            ) : null}
+              ) : null}
+            </div>
           </div>
         ) : (
-          <ul className="mc-pend-task-list" aria-label="Tareas abiertas">
-            {openTasks.map((task) => {
+          groups.map((group) => (
+            <section
+              key={group.id}
+              className="mc-pend-group"
+              aria-labelledby={group.id}
+            >
+              <h3 id={group.id} className="mc-pend-group__label">
+                {group.label}
+                <span className="mc-pend-count">{group.tasks.length}</span>
+              </h3>
+              <ul className="mc-pend-task-list" aria-labelledby={group.id}>
+                {group.tasks.map((task) => {
               const due = dueMeta(task, now);
               const isBusy = busyId === task.id;
               const isPostponing = postponeId === task.id;
@@ -645,15 +715,15 @@ export function TasksPanel({
                     </button>
 
                     <div className="mc-pend-task__main">
-                      <h3 className="mc-pend-task__title">{task.title}</h3>
+                      <p className="mc-pend-task__title">{task.title}</p>
                       {task.note ? (
                         <p className="mc-pend-task__note">{task.note}</p>
                       ) : null}
 
                       <p
                         className={cn(
-                          "mc-pend-task__due",
-                          `mc-pend-task__due--${due.tone}`,
+                          "mc-pend-task__meta",
+                          `mc-pend-task__meta--${due.tone}`,
                         )}
                       >
                         <Clock3 className="mc-pend-icon" aria-hidden="true" />
@@ -872,7 +942,9 @@ export function TasksPanel({
                 </li>
               );
             })}
-          </ul>
+              </ul>
+            </section>
+          ))
         )}
 
         <section
