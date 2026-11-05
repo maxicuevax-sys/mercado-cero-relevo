@@ -1,14 +1,19 @@
 "use client";
 
+import Image from "next/image";
+import iconCash from "@/assets/brand/iconos/transparent/caja.png";
+import iconDigital from "@/assets/brand/iconos/transparent/qr-telefono.png";
+import iconCredit from "@/assets/brand/iconos/transparent/libreta.png";
+import iconMixed from "@/assets/brand/iconos/transparent/registradora.png";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatMxn } from "@/lib/format";
 import { parseMoneyCents, type PaymentChoice } from "./types";
 
-const METHODS: Array<{ id: PaymentChoice; label: string }> = [
-  { id: "cash", label: "Efectivo" },
-  { id: "digital", label: "Digital" },
-  { id: "credit", label: "Fiado" },
-  { id: "mixed", label: "Mixto" },
+const METHODS: Array<{ id: PaymentChoice; label: string; icon: typeof iconCash }> = [
+  { id: "cash", label: "Efectivo", icon: iconCash },
+  { id: "digital", label: "Digital", icon: iconDigital },
+  { id: "credit", label: "Fiado", icon: iconCredit },
+  { id: "mixed", label: "Mixto", icon: iconMixed },
 ];
 
 export function SaleSummary({
@@ -77,7 +82,7 @@ export function SaleSummary({
       <fieldset className="mc-caja-methods">
         <legend>Cómo se paga</legend>
         <div className="mc-caja-methods__grid">
-          {METHODS.map(({ id, label }) => (
+          {METHODS.map(({ id, label, icon }) => (
             <button
               key={id}
               type="button"
@@ -86,6 +91,7 @@ export function SaleSummary({
               onClick={() => onMethod(id)}
               disabled={saving || locked}
             >
+              <Image src={icon} alt="" aria-hidden="true" width={28} height={28} className="mc-caja-method__icon" />
               <span>{label}</span>
             </button>
           ))}

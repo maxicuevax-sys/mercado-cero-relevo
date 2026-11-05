@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Trash2 } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { lineTotalCents, newLineId, parseMoneyCents, parseQuantity, type DraftLine } from "./types";
 
@@ -151,12 +152,12 @@ export function SaleLineItems({
                 </div>
                 <button
                   type="button"
-                  className="mc-caja-icon-button"
+                  className="mc-caja-icon-button mc-caja-icon-button--danger"
                   onClick={() => onRemove(line.id)}
                   disabled={disabled}
                   aria-label={`Quitar ${line.description || "concepto"}`}
                 >
-                  <span className="mc-caja-trash" aria-hidden="true">×</span>
+                  <Trash2 aria-hidden="true" focusable="false" />
                 </button>
                 {showBaseError ? (
                   <p id={`line-error-${line.id}`} className="mc-caja-field-error" role="alert">

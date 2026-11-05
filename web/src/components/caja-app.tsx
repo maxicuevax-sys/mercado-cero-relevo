@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import Image from "next/image";
+import "./legacy-ui.css";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, memo, type ReactNode } from "react";
 import { createPortal } from "react-dom";
@@ -763,6 +764,12 @@ export default function CajaApp({
   const saleLockRef = useRef(false);
   const toastTimerRef = useRef<number | null>(null);
   const keyboardTabRef = useRef(false);
+  const visitedRouteEntriesRef = useRef(new Map<string, number>());
+  const activeRouteEntryRef = useRef<string | null>(null);
+  const routeFocusRef = useRef<{
+    key: string;
+    kind: "initial" | "push" | "restore";
+  } | null>(null);
   const dashboardAbortRef = useRef<AbortController | null>(null);
   const dashboardInFlightRef = useRef(false);
   const dashboardEtagRef = useRef<string | null>(null);
@@ -1263,18 +1270,91 @@ export default function CajaApp({
   );
 
   useEffect(() => {
+    // Next conserva esta vista al navegar por los alias y volver con Atrás.
+    // La entrada activada identifica la carga de documento; una entrada ya vista
+    // restaura historial. El fallback por URL conserva el comportamiento sin Navigation API.
+    const navigation = (window as Window & {
+      navigation?: {
+        currentEntry?: { key: string };
+        activation?: { entry: { key: string } };
+      };
+    }).navigation;
+    const documentUrl = performance.getEntriesByType("navigation")[0]?.name;
+    const url = window.location.href.split("#")[0];
+    const entry = navigation?.currentEntry?.key;
+    const key = `${entry ?? url}:${initialTab}`;
+    const initialEntry = entry
+      ? entry === navigation?.activation?.entry.key
+      : documentUrl?.split("#")[0] === url;
+    routeFocusRef.current = {
+      key,
+      kind: visitedRouteEntriesRef.current.has(key)
+        ? "restore"
+        : initialEntry ? "initial" : "push",
+    };
+    keyboardTabRef.current = false;
+    const frame = window.requestAnimationFrame(() => {
+      setVisitedTabs((visited) =>
+        visited.has(initialTab) ? visited : new Set([...visited, initialTab]),
+      );
+      setTab(initialTab);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [initialTab]);
+
+  useEffect(() => {
+    const routeVisit = routeFocusRef.current;
+    // Esperar a que el tab de la ruta esté montado, sin enfocar el anterior.
+    if (routeVisit && tab !== initialTab) return;
     // Al volver a un tab con scroll guardado conservamos la posición solo si
     // la activación fue con puntero. Con teclado vamos arriba y enfocamos el
     // título: el foco nunca queda 800 px fuera de la pantalla.
     const restore = keyboardTabRef.current ? 0 : (scrollPositions.current[tab] ?? 0);
+    const scroller = mobileScroller();
+    const rememberScroll = () => {
+      const key = activeRouteEntryRef.current;
+      // Activity oculta main y pierde su offset; no guardar ese cero transitorio.
+      if (key && tab === initialTab && !routeFocusRef.current && scroller?.getClientRects().length) {
+        visitedRouteEntriesRef.current.set(key, scroller.scrollTop);
+      }
+    };
+    scroller?.addEventListener("scroll", rememberScroll, { passive: true });
     const frame = window.requestAnimationFrame(() => {
+      if (routeVisit) {
+        // Registrar solo el frame ejecutado: StrictMode puede cancelar el primero.
+        const savedScroll = visitedRouteEntriesRef.current.get(routeVisit.key) ?? 0;
+        visitedRouteEntriesRef.current.set(routeVisit.key, savedScroll);
+        activeRouteEntryRef.current = routeVisit.key;
+        routeFocusRef.current = null;
+        if (routeVisit.kind === "initial") return;
+        const heading = document.getElementById(TAB_HEADINGS[tab]);
+        if (routeVisit.kind === "restore") {
+          // Next restaura window; el contenedor móvil requiere su propio offset.
+          if (scroller) scroller.scrollTop = savedScroll;
+          const active = document.activeElement;
+          const panel = heading?.closest(".tab-panel");
+          if (active instanceof HTMLElement &&
+              (active.checkVisibility?.() ?? active.getClientRects().length > 0) &&
+              panel?.contains(active)) return;
+          // Anunciar el destino si no se restauró un control, sin mover el scroll del historial.
+          heading?.focus({ preventScroll: true });
+          return;
+        }
+        setScrollTop(0);
+        heading?.focus({ preventScroll: true });
+        return;
+      }
       setScrollTop(restore);
       if (keyboardTabRef.current) {
         document.getElementById(TAB_HEADINGS[tab])?.focus({ preventScroll: true });
       }
     });
-    return () => window.cancelAnimationFrame(frame);
-  }, [tab]);
+    return () => {
+      rememberScroll();
+      scroller?.removeEventListener("scroll", rememberScroll);
+      window.cancelAnimationFrame(frame);
+    };
+  }, [initialTab, tab]);
 
   useEffect(() => {
     // El chrome fijo se mide de verdad: `scroll-padding` no puede adivinar el
@@ -2422,7 +2502,7 @@ export default function CajaApp({
   const merchantUnavailable = Boolean(dashboardError && !dashboard);
 
   return (
-    <div className="app-shell paper-canvas min-h-dvh">
+    <div className="app-shell paper-canvas min-h-dvh mc-legacy-ui">
       {tabWipe > 0 ? (
         <div
           key={tabWipe}
@@ -2811,7 +2891,7 @@ export default function CajaApp({
           </div>
 
           {visitedTabs.has("fiado") ? (
-            <section hidden={tab !== "fiado"} className="tab-panel tab-shell">
+            <section hidden={tab !== "fiado"} className="tab-panel tab-shell mc-fiados">
               <ScreenHeading
                 title="Fiado"
                 headingId="fiado-heading"
@@ -2857,30 +2937,36 @@ export default function CajaApp({
           ) : null}
 
           {visitedTabs.has("corte") ? (
-            <section hidden={tab !== "corte"} className="tab-panel tab-shell">
+            <section hidden={tab !== "corte"} className="tab-panel tab-shell mc-corte">
               <ScreenHeading
                 title="Corte de caja"
                 headingId="corte-heading"
                 subtitle="Compara lo contado con lo esperado."
               />
-              <div className="space-y-5">
+              <div className="mc-corte-layout">
+                <div className="mc-corte-count">
+                <MemoCashCloseCard
+                  key={cashCloseKey}
+                  active={tab === "corte"}
+                  showToast={showToast}
+                />
+                </div>
+                <div className="mc-corte-checklist">
                 <MemoClosingChecklist
                   active={tab === "corte"}
                   pendingOrders={dashboard?.pendingOrders ?? []}
                   onOpenOrder={selectOrder}
                   onGoToTasks={goToTasks}
                 />
-                <MemoCashCloseCard
-                  key={cashCloseKey}
-                  active={tab === "corte"}
-                  showToast={showToast}
-                />
+                </div>
+                <div className="mc-corte-overview">
                 <MemoBusinessOverview
                   active={tab === "corte"}
                   demoMode={demoMode}
                   onSpeak={speakOverview}
                 />
-                <MemoReconcileCard demoMode={demoMode} />
+                </div>
+                <div className="mc-corte-reconcile"><MemoReconcileCard demoMode={demoMode} /></div>
               </div>
             </section>
           ) : null}
@@ -5461,7 +5547,7 @@ function CashCloseCard({
   }
 
   return (
-    <div className="book-sheet p-[20px] sm:p-6">
+    <div className="mc-cash-count book-sheet p-[20px] sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <h2 className="min-w-0 text-[1.375rem] font-semibold tracking-tight text-ink">
           Cuenta el efectivo de hoy
@@ -6709,6 +6795,7 @@ function CreditList({
     <div className="space-y-4">
       <div className="credit-list-card">
         <div className="flex flex-wrap items-end justify-between gap-3">
+          <Image src={libretaArt} alt="" aria-hidden="true" className="mc-fiados-art" width={60} height={60} />
           <div>
             <p className="text-sm font-semibold text-ink-2">Saldo pendiente</p>
             <p className="tabular mt-1 text-[1.75rem] font-semibold leading-none tracking-tight text-ink">
@@ -7757,7 +7844,7 @@ function Sheet({
 
   return createPortal(
     <div
-      className="sheet-backdrop fixed inset-0 z-[60] flex items-end justify-center bg-ink/40 p-0 backdrop-blur-[2px] sm:items-center sm:p-4"
+      className="mc-legacy-ui sheet-backdrop fixed inset-0 z-[60] flex items-end justify-center bg-ink/40 p-0 backdrop-blur-[2px] sm:items-center sm:p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           event.preventDefault();

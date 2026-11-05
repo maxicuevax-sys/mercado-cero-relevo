@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { Check, Copy } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatMxn } from "@/lib/format";
 import { saleMoney } from "@/lib/sale-truth";
@@ -209,7 +210,7 @@ export function PaymentPanel({
               <span className="sr-only"> (abre en una pestaña nueva)</span>
             </a>
             <button type="button" className="mc-caja-icon-button" onClick={copyLink}>
-              <span aria-hidden="true">{copied ? "✓" : "⧉"}</span>
+              {copied ? <Check aria-hidden="true" focusable="false" /> : <Copy aria-hidden="true" focusable="false" />}
               <span className="sr-only">Copiar link</span>
               <span className="sr-only" role="status" aria-live="polite">
                 {copied ? "Link copiado" : ""}
