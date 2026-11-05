@@ -3,7 +3,7 @@ import Link from "next/link";
 import plantsArt from "@/assets/inicio/sidebar-plantas.png";
 import { MaskIcon } from "@/components/ui/icon";
 import { BrandLockup } from "./brand-lockup";
-import type { ShellNavItem } from "./nav";
+import { isNavItemActive, type ShellNavItem } from "./nav";
 
 export function Sidebar({
   items,
@@ -21,49 +21,37 @@ export function Sidebar({
       <BrandLockup />
       <nav className="inicio-nav" aria-label="Principal">
         {items.map((item) => {
-          const active = item.href === activeHref;
+          const active = isNavItemActive(item, activeHref);
           return (
             <Link
               key={item.id}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              aria-label={item.legacy ? undefined : item.ariaLabel}
+              aria-label={item.ariaLabel}
               className="inicio-nav__item"
             >
               <MaskIcon src={item.icon} className="inicio-nav__icon" />
               <span>{item.label}</span>
-              {item.legacy ? (
-                <>
-                  <span className="inicio-nav__legacy">Clásica</span>
-                  <span className="sr-only">
-                    {item.ariaLabel ? `${item.ariaLabel}, ` : ""}abre la Caja clásica.
-                  </span>
-                </>
-              ) : null}
             </Link>
           );
         })}
       </nav>
       <div className="inicio-sidebar__foot">
-        {foot.map((item) => (
-          <Link
-            key={item.id}
-            className="inicio-nav__item"
-            href={item.href}
-            aria-label={item.legacy ? undefined : item.ariaLabel}
-          >
-            <MaskIcon src={item.icon} className="inicio-nav__icon" />
-            <span>{item.label}</span>
-            {item.legacy ? (
-              <>
-                <span className="inicio-nav__legacy">Clásica</span>
-                <span className="sr-only">
-                  {item.ariaLabel ? `${item.ariaLabel}, ` : ""}abre la Caja clásica.
-                </span>
-              </>
-            ) : null}
-          </Link>
-        ))}
+        {foot.map((item) => {
+          const active = isNavItemActive(item, activeHref);
+          return (
+            <Link
+              key={item.id}
+              className="inicio-nav__item"
+              href={item.href}
+              aria-current={active ? "page" : undefined}
+              aria-label={item.ariaLabel}
+            >
+              <MaskIcon src={item.icon} className="inicio-nav__icon" />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
         <Image
           src={plantsArt}
           alt=""
@@ -75,4 +63,3 @@ export function Sidebar({
     </aside>
   );
 }
-

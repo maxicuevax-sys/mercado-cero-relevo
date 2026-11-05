@@ -1,0 +1,434 @@
+/* Fundación compartida de las pantallas operativas (Fiados, Corte, Metas,
+   Pendientes). Prefijo `.mc-op-*`: layout, paneles, kpis, toolbar, vacíos y
+   listas base. No sustituye el CSS propio de cada pantalla (`.mc-fiados-*`,
+   `.mc-corte-*`, `.mc-metas-*`, `.mc-pend-*`), que se monta encima.
+
+   Paleta: la misma de Inicio/`components/ui/operational-tokens.css`; aquí solo
+   se expone a `.mc-op-main` para que el CSS de cada pantalla use los tokens
+   `--color-*` aprobados. No se toca `:root` ni la Caja clásica. */
+@import "../ui/operational-tokens.css";
+
+html:not([data-contrast="high"]) .inicio-shell .mc-op-main {
+  --color-canvas: var(--inicio-paper);
+  --color-surface: var(--inicio-surface);
+  --color-surface-2: var(--inicio-border-soft);
+  --color-ink: var(--inicio-ink);
+  --color-ink-2: var(--inicio-ink-2);
+  --color-separator: var(--inicio-border);
+  --color-accent: var(--inicio-green);
+  --color-accent-press: var(--inicio-green-deep);
+  --color-green: var(--inicio-green);
+  --color-green-deep: var(--inicio-green-deep);
+  --color-focus: var(--inicio-focus);
+}
+
+/* -------------------------------------------------------------------------
+   Página
+   ------------------------------------------------------------------------- */
+.mc-op-main {
+  min-width: 0;
+  padding: clamp(16px, 2vw, 28px);
+  padding-bottom: 72px;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-alder), "Alder", "Segoe UI", sans-serif;
+  container: mc-op-main / inline-size;
+}
+
+.mc-op-main *,
+.mc-op-main *::before,
+.mc-op-main *::after {
+  box-sizing: border-box;
+}
+
+.mc-op-main:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: -3px;
+}
+
+.mc-op-main :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Encabezado: el margen inferior lo fija el layout, no cada pantalla. */
+.mc-op-main > .mc-op-header {
+  margin-bottom: 20px;
+}
+
+.mc-op-main .mc-page-header__title {
+  font-size: clamp(1.75rem, 2.6vw, 2.375rem);
+  line-height: 1.08;
+}
+
+.mc-op-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  min-width: 0;
+}
+
+/* -------------------------------------------------------------------------
+   Grid de paneles (1 columna; 2 desde 768 px)
+   ------------------------------------------------------------------------- */
+.mc-op-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  min-width: 0;
+}
+
+.mc-op-grid--sidebar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .mc-op-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .mc-op-grid--sidebar {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Kpis
+   ------------------------------------------------------------------------- */
+.mc-op-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+
+.mc-op-kpi {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--color-separator);
+  border-radius: 16px;
+  background: var(--color-surface);
+}
+
+.mc-op-kpi__label {
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.mc-op-kpi__value {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-accent);
+  font-size: clamp(1.25rem, 5vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.mc-op-kpi__note {
+  margin-top: 4px;
+  color: var(--color-ink-2);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+/* -------------------------------------------------------------------------
+   Panel
+   ------------------------------------------------------------------------- */
+.mc-op-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 18px 20px;
+  border: 1px solid var(--color-separator);
+  border-radius: 20px;
+  background: var(--color-surface);
+  box-shadow: 0 2px 8px rgb(31 38 34 / 0.045);
+}
+
+.mc-op-panel--flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+.mc-op-panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 12px;
+  margin-bottom: 12px;
+}
+
+.mc-op-panel__title {
+  min-width: 0;
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.mc-op-panel__meta {
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.mc-op-panel__body {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.mc-op-panel__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* -------------------------------------------------------------------------
+   Toolbar
+   ------------------------------------------------------------------------- */
+.mc-op-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.mc-op-toolbar__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mc-op-toolbar__spacer {
+  margin-left: auto;
+}
+
+/* -------------------------------------------------------------------------
+   Estado vacío (se puede usar solo o como className de <EmptyState>)
+   ------------------------------------------------------------------------- */
+.mc-op-empty {
+  padding: 20px;
+  border: 1px dashed var(--color-separator);
+  border-radius: 16px;
+  background: var(--color-surface);
+  color: var(--color-ink-2);
+}
+
+.mc-op-empty__title {
+  color: var(--color-ink);
+  font-family: var(--font-alder), "Alder", sans-serif;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.mc-op-empty__body {
+  margin-top: 4px;
+  color: var(--color-ink-2);
+  line-height: 1.45;
+}
+
+.mc-op-empty__action {
+  margin-top: 12px;
+}
+
+/* -------------------------------------------------------------------------
+   Listas y tablas base
+   ------------------------------------------------------------------------- */
+.mc-op-list {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border-block: 1px solid var(--color-separator);
+  list-style: none;
+}
+
+.mc-op-list > li {
+  min-width: 0;
+  border-bottom: 1px solid var(--color-separator);
+}
+
+.mc-op-list > li:last-child {
+  border-bottom: 0;
+}
+
+.mc-op-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 16px;
+  min-width: 0;
+  min-height: 48px;
+  padding: 13px 2px;
+}
+
+.mc-op-row__title {
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.mc-op-row__meta {
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.mc-op-row__amount {
+  justify-self: end;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.mc-op-table-wrap {
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border: 1px solid var(--color-separator);
+  border-radius: 16px;
+  background: var(--color-surface);
+}
+
+.mc-op-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.mc-op-table :is(th, td) {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-separator);
+  text-align: left;
+  vertical-align: top;
+}
+
+.mc-op-table th {
+  color: var(--color-ink-2);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mc-op-table tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.mc-op-table .mc-op-row__amount,
+.mc-op-table .tabular {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------------
+   Responsive 1023.98 / 768 / 480
+   ------------------------------------------------------------------------- */
+@media (max-width: 1023.98px) {
+  .mc-op-main {
+    padding: 18px 16px 72px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .mc-op-main {
+    padding: 16px 14px calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .mc-op-main > .mc-op-header {
+    margin-bottom: 16px;
+  }
+
+  .mc-op-page,
+  .mc-op-grid {
+    gap: 14px;
+  }
+
+  .mc-op-panel {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .mc-op-panel__title {
+    font-size: 1.375rem;
+  }
+
+  .mc-op-row {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .mc-op-row__amount {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .mc-op-toolbar,
+  .mc-op-toolbar__group {
+    align-items: stretch;
+  }
+
+  .mc-op-toolbar__spacer {
+    display: none;
+  }
+
+  .mc-op-table :is(th, td) {
+    padding: 9px 10px;
+  }
+}
+
+@media (max-width: 479.98px) {
+  .mc-op-main {
+    padding: 14px 10px calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .mc-op-kpi {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .mc-op-panel {
+    padding: 14px 12px;
+    border-radius: 16px;
+  }
+
+  .mc-op-empty {
+    padding: 16px 14px;
+  }
+}
+
+@media (forced-colors: active) {
+  .mc-op-panel,
+  .mc-op-kpi,
+  .mc-op-empty,
+  .mc-op-table-wrap {
+    border-color: CanvasText;
+  }
+
+  .mc-op-main :focus-visible {
+    outline-color: Highlight;
+  }
+}
