@@ -356,6 +356,14 @@
   }
 }
 
+/* La navegación fija también ocupa espacio al hacer zoom del navegador.
+   Reservarlo al desplazar un control enfocado, sin cambiar sus handlers. */
+@media (max-width: 1023.98px) {
+  .mc-ayuda-faq__button {
+    scroll-margin-block: 16px calc(var(--mc-chrome-bottom, 64px) + 16px);
+  }
+}
+
 @media (forced-colors: active) {
   .mc-ayuda-action,
   .mc-ayuda-faq__item,
