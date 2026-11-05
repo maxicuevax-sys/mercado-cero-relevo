@@ -47,6 +47,24 @@ function statusOf(goal: Goal): { label: string; tone: GoalStatusTone } {
   return { label: "En curso", tone: "active" };
 }
 
+/**
+ * Texto de apoyo del pie de cada meta. `weeklyNeededCents` es `null` cuando
+ * falta menos de una semana o no hay fecha: se distinguen ambos casos para no
+ * decir "sin fecha límite" a una meta que vence esta semana.
+ */
+function goalHint(goal: Goal): string {
+  if (goal.remainingCents <= 0) {
+    return "Puedes dejar la meta como referencia de lo que lograste.";
+  }
+  if (goal.weeklyNeededCents !== null) {
+    return `Aparta ${formatMxn(goal.weeklyNeededCents)} por semana para llegar a tiempo.`;
+  }
+  if (goal.deadline) {
+    return "La fecha límite está encima: aparta lo que puedas.";
+  }
+  return "Sin fecha límite: aparta a tu ritmo.";
+}
+
 export default async function MetasPage() {
   await connection();
   const goals = listGoals();
@@ -188,13 +206,7 @@ export default async function MetasPage() {
                         Meta alcanzada. ¡Bien hecho!
                       </p>
                     )}
-                    <p className="mc-metas-goal__hint">
-                      {goal.remainingCents <= 0
-                        ? "Puedes dejar la meta como referencia de lo que lograste."
-                        : goal.weeklyNeededCents !== null
-                          ? `Aparta ${formatMxn(goal.weeklyNeededCents)} por semana para llegar a tiempo.`
-                          : "Sin fecha límite: aparta a tu ritmo."}
-                    </p>
+                    <p className="mc-metas-goal__hint">{goalHint(goal)}</p>
                   </div>
                 </article>
               );

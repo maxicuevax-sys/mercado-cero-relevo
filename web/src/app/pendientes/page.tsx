@@ -62,6 +62,7 @@ export default async function PendientesPage() {
   const tasks = listTasks(50);
   const tasksTotal = countTasks();
   const openTasks = tasks.filter((task) => task.status === "open").length;
+  const tasksTruncated = tasksTotal > tasks.length;
 
   return (
     <OperationalPage
@@ -92,9 +93,11 @@ export default async function PendientesPage() {
           <p className="mc-op-kpi__label">Tareas abiertas</p>
           <p className="mc-op-kpi__value">{openTasks}</p>
           <p className="mc-op-kpi__note">
-            {tasksTotal === 1
-              ? "1 tarea registrada"
-              : `${tasksTotal} tareas registradas en total`}
+            {tasksTruncated
+              ? `En las ${tasks.length} primeras de ${tasksTotal} tareas`
+              : tasksTotal === 1
+                ? "1 tarea registrada"
+                : `${tasksTotal} tareas registradas en total`}
           </p>
         </article>
         <article className="mc-op-kpi">
