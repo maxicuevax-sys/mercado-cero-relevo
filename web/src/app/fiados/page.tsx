@@ -247,7 +247,7 @@ export default async function FiadosPage({
         alt=""
         aria-hidden="true"
         className="mc-fiados-page__picado"
-        sizes="(max-width: 767px) 130px, 280px"
+        sizes="(max-width: 479px) 148px, (max-width: 767px) 130px, 280px"
       />
 
       <form className="mc-fiados-search" role="search" action="/fiados" method="get">

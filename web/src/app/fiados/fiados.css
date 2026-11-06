@@ -1154,8 +1154,8 @@ html:not([data-contrast="high"]) .mc-fiados-total {
 
 @media (max-width: 479.98px) {
   .mc-fiados-page__picado {
-    right: 8px;
-    width: 116px;
+    right: 0;
+    width: clamp(116px, 37vw, 148px);
   }
 
   .mc-fiados-total__label {
