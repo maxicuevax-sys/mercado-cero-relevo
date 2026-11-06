@@ -58,15 +58,16 @@ export function SaleLineItems({
       <div className="mc-caja-card__head">
         <div>
           <p className="mc-caja-eyebrow">Conceptos</p>
-          <h2 id="mc-caja-items-title">Qué estás vendiendo</h2>
+          <h2 id="mc-caja-items-title">Ticket de venta</h2>
         </div>
         <span className="mc-caja-count" aria-live="polite">
           {lines.length} {lines.length === 1 ? "concepto" : "conceptos"}
         </span>
       </div>
 
+      <details id="mc-caja-manual" className="mc-caja-manual">
+        <summary>Agregar concepto a mano</summary>
       <div className="mc-caja-add">
-        <p className="mc-caja-add__title">Agregar concepto</p>
         <div className="mc-caja-add__grid">
           <label className="mc-caja-field mc-caja-add__description">
             <span>Producto o servicio</span>
@@ -117,6 +118,8 @@ export function SaleLineItems({
           </p>
         ) : null}
       </div>
+
+      </details>
 
       {lines.length === 0 ? (
         <div className="mc-caja-empty">

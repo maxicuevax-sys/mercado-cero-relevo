@@ -146,6 +146,7 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
       const chunks: Blob[] = [];
       capture.ondataavailable = (event) => { if (event.data.size) chunks.push(event.data); };
       capture.onerror = () => {
+        if (generation.current !== token) return;
         failure(new Error("La grabación se interrumpió. Revisa el micrófono o escribe la venta."), token);
         generation.current++;
         capture.onstop = null;

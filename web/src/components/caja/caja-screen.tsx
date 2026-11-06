@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import type { DashboardData } from "@/lib/dashboard";
 import type { Order } from "@/lib/types";
 import { AppShell } from "@/components/shell/app-shell";
@@ -765,6 +766,7 @@ export function CajaScreen({
 
   return (
     <AppShell
+      className="mc-caja-shell"
       activeHref="/caja"
       mainId="caja-main"
       contentClassName="mc-caja"
@@ -781,6 +783,8 @@ export function CajaScreen({
         />
       }
     >
+      <div className="mc-caja-heading">
+      <Link href="/inicio" className="mc-caja-back" aria-label="Volver a Inicio"><ArrowLeft aria-hidden="true" /></Link>
       <PageHeader
         eyebrow="Caja"
         title={view === "compose" ? "Nueva venta" : view === "payment" ? "Cobrar venta" : "Venta registrada"}
@@ -810,6 +814,7 @@ export function CajaScreen({
           )
         }
       />
+      </div>
 
       {restoredNotice && view === "compose" ? (
         <div className="mc-caja-restore" role="status">
@@ -980,6 +985,8 @@ export function CajaScreen({
                 const target = next
                   ? document.getElementById(`line-description-${next.id}`)
                   : document.getElementById("mc-caja-new-description");
+                const manual = target?.closest("details");
+                if (manual) manual.open = true;
                 target?.focus();
               });
             }}
@@ -1076,7 +1083,7 @@ export function CajaScreen({
           confirme.
         </p>
         <p>
-          ¿Necesitas dictar o verificar un comprobante? Usa la{" "}
+          Para revisar un comprobante también puedes abrir la{" "}
           <Link href="/">Caja clásica</Link>. Si allí queda un borrador, esta pantalla lo avisa
           antes de cobrar para que no se dupliquen ventas.
         </p>

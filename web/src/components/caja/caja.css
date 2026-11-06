@@ -1687,3 +1687,48 @@
     transition: none;
   }
 }
+
+/* Ticket y captura de la lámina, sin alterar payloads ni confirmación. */
+.mc-caja.mc-caja { font-family: Arial, "Segoe UI", sans-serif; }
+.mc-caja-back { display: none; }
+.mc-caja-manual { margin-bottom: 12px; }
+.mc-caja-manual > summary {
+  display: flex; align-items: center; min-height: 48px;
+  padding: 8px 12px; border: 1px solid var(--color-separator); border-radius: 14px;
+  background: var(--color-surface-2); color: var(--color-ink); cursor: pointer;
+  font-size: 0.875rem; font-weight: 700;
+}
+.mc-caja-manual[open] > summary { margin-bottom: 12px; }
+.mc-caja-summary__receipt { border-radius: 20px; }
+.mc-caja-total, .mc-caja-payment__value { font-family: var(--font-hearth), Georgia, serif; }
+
+@media (max-width: 760px) {
+  .inicio-shell.mc-caja-shell .inicio-topbar,
+  .inicio-shell.mc-caja-shell .inicio-main { background: var(--inicio-green); }
+  .inicio-shell.mc-caja-shell .inicio-topbar__mobile-brand,
+  .inicio-shell.mc-caja-shell .inicio-topbar__name,
+  .inicio-shell.mc-caja-shell .inicio-topbar__address,
+  .inicio-shell.mc-caja-shell .inicio-topbar__alerts { color: var(--inicio-paper); }
+  .inicio-shell.mc-caja-shell .inicio-topbar__mobile-brand img { filter: brightness(0) invert(1); }
+  .inicio-shell.mc-caja-shell .inicio-main > main { border-radius: 24px 24px 0 0; }
+  .mc-caja-heading { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 14px; align-items: start; margin-bottom: 20px; }
+  .mc-caja-back { display: grid; width: 48px; height: 48px; place-items: center; border: 1px solid var(--color-separator); border-radius: 16px; color: var(--color-ink); }
+  .mc-caja-back svg { width: 24px; height: 24px; }
+  .mc-caja-heading .mc-page-header { margin: 0; padding-top: 6px; }
+  .mc-caja-heading .mc-page-header__title { font-size: 1.75rem; }
+  .mc-caja-heading .mc-page-header__eyebrow,
+  .mc-caja-heading .mc-page-header__subtitle,
+  .mc-caja-heading .mc-caja-total-chip { display: none; }
+  .mc-caja-items { padding: 16px; }
+  .mc-caja-items .mc-caja-card__head { margin-bottom: 10px; }
+  .mc-caja-empty { padding: 12px 0; background: transparent; border: 0; }
+  .mc-caja-empty__art { display: none; }
+  .mc-caja-line { border: 0; border-bottom: 1px solid var(--color-separator); border-radius: 0; box-shadow: none; }
+  .mc-caja-lines { gap: 0; }
+  .mc-caja-method { min-height: 64px; border-radius: 18px; }
+}
+
+html[data-contrast="high"] .mc-caja-shell .inicio-topbar__mobile-brand,
+html[data-contrast="high"] .mc-caja-shell .inicio-topbar__name,
+html[data-contrast="high"] .mc-caja-shell .inicio-topbar__address,
+html[data-contrast="high"] .mc-caja-shell .inicio-topbar__alerts { color: #ffffff; }
