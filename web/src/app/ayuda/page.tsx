@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
-import { ArtBanner } from "@/components/shell/art-banner";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { HelpFaq } from "@/components/ayuda/help-faq";
+import { OptionalAssistant } from "@/components/ayuda/optional-assistant";
+import { BookOpen, ChevronRight, MessageSquare, Settings, Sparkles } from "lucide-react";
 import { MERCHANT, isDemoMode } from "@/lib/config";
-import botArt from "@/assets/brand/ilustraciones/transparent/bot.png";
-import qrArt from "@/assets/brand/ilustraciones/transparent/qr.png";
 import ajustesIcon from "@/assets/brand/iconos/transparent/ajustes.png";
 import reciboIcon from "@/assets/brand/iconos/transparent/recibo.png";
 import qrTelefonoIcon from "@/assets/brand/iconos/transparent/qr-telefono.png";
@@ -72,42 +71,23 @@ export default async function AyudaPage() {
       title="Ayuda"
       titleId="ayuda-title"
       eyebrow="Ayuda"
-      subtitle="Cómo registrar, cobrar y fiar; y cómo leer la app a tu manera."
+      subtitle="Respuestas para vender, cobrar y fiar."
+      contentClassName="mc-ayuda-page"
       merchant={MERCHANT.name}
       address={MERCHANT.address}
       demo={isDemoMode()}
     >
       <div className="mc-ayuda-layout">
-        <ArtBanner
-          art={botArt}
-          invert
-          kicker="La caja que habla"
-          title="Vender, cobrar y fiar, sin letras chiquitas."
-          className="mc-ayuda-hero"
-        >
-          <p className="mc-ayuda-hero__lead">
-            Esta ayuda es fija y verificada. Si algo no se siente claro, cambia
-            el texto, el contraste y la voz desde Ajustes.
-          </p>
-          <p className="mc-ayuda-hero__chip">
-            <Image
-              src={qrArt}
-              alt=""
-              aria-hidden="true"
-              className="mc-ayuda-hero__qr"
-              sizes="64px"
-            />
-            <span>
-              <strong>Cobra con QR o link.</strong> Un pago solo se marca
-              verificado cuando llega la confirmación firmada de pey.
-            </span>
-          </p>
-        </ArtBanner>
-
+        <nav className="mc-ayuda-menu" aria-label="Explorar la ayuda">
+          <Link href="#mc-ayuda-first-title"><BookOpen aria-hidden="true" /><span>Guías paso a paso</span><ChevronRight aria-hidden="true" /></Link>
+          <Link href="#mc-ayuda-faq-title"><MessageSquare aria-hidden="true" /><span>Preguntas frecuentes</span><ChevronRight aria-hidden="true" /></Link>
+          <Link href="/ajustes"><Settings aria-hidden="true" /><span>Texto, contraste y voz</span><ChevronRight aria-hidden="true" /></Link>
+          <Link href="#asistente" className="mc-ayuda-menu__assistant"><Sparkles aria-hidden="true" /><span>Pregúntale a Mercado Cero<small>Guía local · asistente opcional</small></span><ChevronRight aria-hidden="true" /></Link>
+        </nav>
         <section className="mc-ayuda-steps" aria-labelledby="mc-ayuda-steps-title">
           <div className="mc-art-head">
             <h2 id="mc-ayuda-steps-title" className="mc-art-section-title">
-              Tres cosas que conviene tener claras
+              Vende y cobra en tres pasos
             </h2>
             <span className="mc-art-stamp mc-art-stamp--clay">
               Sin letras chiquitas
@@ -159,6 +139,8 @@ export default async function AyudaPage() {
           </ol>
         </section>
 
+
+
         <section
           className="mc-art-paper mc-ayuda-faq-panel"
           aria-labelledby="mc-ayuda-faq-title"
@@ -169,16 +151,18 @@ export default async function AyudaPage() {
             </h2>
             <span className="mc-art-stamp mc-art-stamp--green">7 respuestas</span>
           </div>
+          <HelpFaq />
           <p className="mc-art-paper__note">
             Respuestas fijas y verificadas: la app no usa el modelo para decidir
             si un pago llegó.
           </p>
-          <HelpFaq />
           <p className="mc-ayuda-note">
             ¿Tu duda no está aquí? En Ajustes cambias cómo se lee la app; en Caja
             practicas el recorrido completo.
           </p>
         </section>
+
+        <OptionalAssistant />
 
         <section
           className="mc-art-paper mc-ayuda-cta"
@@ -195,7 +179,7 @@ export default async function AyudaPage() {
           </span>
           <div className="mc-ayuda-cta__copy">
             <h2 id="mc-ayuda-cta-title" className="mc-art-paper__title">
-              ¿Necesitas otra letra o menos contraste?
+              Lee la app a tu manera
             </h2>
             <p className="mc-art-paper__note">
               En Ajustes cambias el tamaño, el contraste y la velocidad de la

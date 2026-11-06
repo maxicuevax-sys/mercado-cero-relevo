@@ -40,7 +40,17 @@ export const appNav: ShellNavItem[] = [
   { id: "pendientes", label: "Pendientes", href: "/pendientes", icon: iconPendientes },
 ];
 
-export const inicioNav = appNav;
+/** Orden del sidebar del Inicio canónico; no altera el navegador operativo
+ * ni las posiciones del chrome móvil, que siguen usando appNav directamente. */
+export const inicioNav: ShellNavItem[] = [
+  appNav[0],
+  appNav[2],
+  appNav[3],
+  appNav[1],
+  appNav[4],
+  appNav[5],
+  appNav[6],
+];
 export const cajaNav = appNav;
 /** Mismo navegador para las pantallas operativas nuevas (Fiados, Corte, Metas, Pendientes). */
 export const operationalNav = appNav;

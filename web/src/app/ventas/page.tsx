@@ -6,7 +6,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Plus,
+  Mic,
 } from "lucide-react";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
@@ -88,7 +88,7 @@ export default async function VentasPage({
       subtitle="Consulta las ventas registradas. Los importes son ventas, no necesariamente dinero cobrado."
       actions={
         <Link href="/caja" className="mc-ventas-cta">
-          <Plus aria-hidden="true" />
+          <Mic aria-hidden="true" />
           Nueva venta
         </Link>
       }
@@ -108,29 +108,6 @@ export default async function VentasPage({
         className="mc-ventas-page__picado"
         sizes="(max-width: 767px) 120px, 210px"
       />
-
-      {/* Momento ilustrado (solo si hay ventas: la otra variante es el empty). */}
-      {hasOrders ? (
-        <section className="mc-ventas-hero">
-          <div className="mc-ventas-hero__copy">
-            <p className="mc-ventas-hero__kicker">Consulta, no cobro</p>
-            <p className="mc-ventas-hero__lead">
-              Ventas registradas, dinero por confirmar.
-            </p>
-            <p className="mc-ventas-hero__note">
-              Cada fila distingue lo cobrado, lo pendiente y lo fiado. Un pedido
-              pagado no es lo mismo que un pedido registrado.
-            </p>
-          </div>
-          <Image
-            src={tacosArt}
-            alt=""
-            aria-hidden="true"
-            className="mc-ventas-hero__art"
-            sizes="(max-width: 767px) 128px, 300px"
-          />
-        </section>
-      ) : null}
 
       <section
         className="mc-ventas-summary mc-ventas-stats"
@@ -388,6 +365,29 @@ export default async function VentasPage({
           ) : null}
         </section>
       )}
+
+      {/* Momento ilustrado (solo si hay ventas: la otra variante es el empty). */}
+      {hasOrders ? (
+        <section className="mc-ventas-hero">
+          <div className="mc-ventas-hero__copy">
+            <p className="mc-ventas-hero__kicker">Consulta, no cobro</p>
+            <p className="mc-ventas-hero__lead">
+              Ventas registradas, dinero por confirmar.
+            </p>
+            <p className="mc-ventas-hero__note">
+              Cada fila distingue lo cobrado, lo pendiente y lo fiado. Un pedido
+              pagado no es lo mismo que un pedido registrado.
+            </p>
+          </div>
+          <Image
+            src={tacosArt}
+            alt=""
+            aria-hidden="true"
+            className="mc-ventas-hero__art"
+            sizes="(max-width: 767px) 128px, 300px"
+          />
+        </section>
+      ) : null}
 
       <p className="mc-ventas-note">
         El historial se lee de la misma base que Caja. Un pedido <strong>pendiente</strong> o{" "}

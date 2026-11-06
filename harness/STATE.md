@@ -1,5 +1,36 @@
 # STATE — Mercado Cero
 
+## Continuación local — Ayuda, Ajustes y asistente opcional, 6 nov 2026
+
+- Base: `7543210`; informe: `exact-parity-ayuda-ajustes-report.md`.
+- Ayuda con accesos por filas; asistente de guía local opt-in, compartido con
+  Ajustes y sincronizado entre pestañas. No usa modelo, cifras ni micrófono.
+- UI Chromium **96/0**, nueve auditorías axe del main sin violaciones,
+  1448/390/320, texto 200%, HC, offline y almacenamiento denegado.
+- Evidencia UI local: `harness/evidence/exact-parity/help/`.
+- Validación estática en `../mercado-cero-ayuda-ajustes`: consultar su
+  `latest-static.json` y `verify:evidence -- --static`, ligados al HEAD.
+- Static **5/5 PASS** y verificador **PASS** en árbol limpio; se repiten al
+  cierre documental. Arranque de producción adicional bloqueado por revisión
+  automática (`blocked by policy`); la prueba UI corresponde a desarrollo.
+- Paridad exacta y handoff público: **NO certificados**. Sin canon dedicado
+  de Ajustes ni desktop del asistente; sin full, aceptación visual o deploy.
+- Cambios concurrentes de Inicio y shell preservados fuera del commit del carril.
+
+## Continuación local — Ventas y Caja, 5 nov 2026
+
+- Rama actual: `codex/visual-session-b`; base `9252f38`.
+- Ajustes de micrófono principal, frases cortas, ticket vacío móvil y estados
+  accesibles. Ventas conserva historial y CTA hacia Caja con icono de micrófono.
+- Informe: `quality-reports/exact-parity/ENTREGA.md`.
+- Pruebas: UI 42/0 (1448/390/320, texto200 y permiso denegado), adaptador voz
+  10/0, harness 58/0. Capturas en `harness/evidence/exact-parity/`.
+- Transcripción real: 500 reproducido; falta OPENAI_API_KEY en este entorno.
+- Paridad exacta: NO-GO; falta canon dedicado de historial Ventas y persisten
+  diferencias de composición documentadas en Caja. Sin aceptación visual.
+- Evidencia estática: consultar `latest-static.json` contra HEAD con
+  `npm run verify:evidence -- --static`. No se ejecutó full ni despliegue.
+
 > Handoff vivo para agentes. Última actualización: **4 de noviembre de 2026**,
 > al integrar el Inicio compacto de Codex sobre B.1.
 > No reconstruyas el estado de memoria: si un dato no está aquí ni en

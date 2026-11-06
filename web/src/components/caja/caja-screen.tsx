@@ -2,11 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { ArrowLeft, Bell } from "lucide-react";
 import type { DashboardData } from "@/lib/dashboard";
 import type { Order } from "@/lib/types";
 import { AppShell } from "@/components/shell/app-shell";
 import { TopBar } from "@/components/shell/top-bar";
 import { PageHeader } from "@/components/shell/page-header";
+import { BrandLockup } from "@/components/shell/brand-lockup";
 import {
   cajaFoot,
   cajaMobileMore,
@@ -16,6 +18,8 @@ import {
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatLongDate } from "@/lib/format";
 import { SaleLineItems } from "./sale-line-items";
+import { SaleVoice } from "./sale-voice";
+import { CajaSpecCheckout } from "./caja-spec-checkout";
 import { SaleSummary } from "./sale-summary";
 import { PaymentPanel } from "./payment-panel";
 import { PendingTray, type PendingEntry } from "./pending-tray";
@@ -30,6 +34,7 @@ import {
 } from "./types";
 import "@/app/inicio/inicio.css";
 import "./caja.css";
+import "./caja-spec.css";
 
 const DRAFT_KEY = "mercado-cero:caja-draft:v2";
 const REQUEST_KEY = "mercado-cero:caja-request:v2";
@@ -147,7 +152,7 @@ export function CajaScreen({
     try {
       const raw = window.localStorage.getItem(DRAFT_KEY);
       const storedDraft = raw ? parseStoredDraft(raw) : null;
-      if (storedDraft && storedDraft.lines.length > 0) {
+      if (storedDraft && storedDraft.lines.length > 0 && (demo || !storedDraft.lines.some(line => line.id.startsWith("spec-demo-")))) {
         // El borrador vive en localStorage; el effect es la frontera con ese sistema externo.
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setLines(storedDraft.lines);
@@ -183,6 +188,7 @@ export function CajaScreen({
           }
           window.localStorage.removeItem(LEGACY_DRAFT_KEY);
           setLegacyNotice("Recuperamos el borrador que estaba en la Caja clásica. Esta pantalla es ahora la única que lo usa.");
+          hasV2Draft = true;
         } else {
           setLegacyConflict(true);
           setLegacyNotice(
@@ -192,6 +198,22 @@ export function CajaScreen({
       }
     } catch {
       // Un borrador legacy corrupto no debe bloquear /caja.
+    }
+
+    // La spec autoriza este ticket de ejemplo solo en DEMO. Un borrador,
+    // legado o intento sin resolver siempre tiene prioridad sobre el ejemplo.
+    if (demo && !hasV2Draft) {
+      try {
+        if (!window.localStorage.getItem(LEGACY_DRAFT_KEY) && !window.localStorage.getItem(UNKNOWN_KEY) && !window.localStorage.getItem(CONFIRMED_KEY)) {
+          setLines([
+            { id: "spec-demo-tortilla", description: "Tortilla", quantity: "2", price: "35.00" },
+            { id: "spec-demo-huevo", description: "Huevo", quantity: "1", price: "50.00" },
+            { id: "spec-demo-refresco", description: "Refresco", quantity: "1", price: "20.00" },
+          ]);
+        }
+      } catch {
+        // Sin almacenamiento legible no se sustituye ningún estado recuperable.
+      }
     }
 
     setHydrated(true);
@@ -226,7 +248,7 @@ export function CajaScreen({
     return () => {
       active = false;
     };
-  }, []);
+  }, [demo]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -764,6 +786,7 @@ export function CajaScreen({
 
   return (
     <AppShell
+      className="mc-caja-shell"
       activeHref="/caja"
       mainId="caja-main"
       contentClassName="mc-caja"
@@ -772,21 +795,29 @@ export function CajaScreen({
       mobilePrimaryItems={cajaMobilePrimary}
       mobileMoreItems={cajaMobileMore}
       topbar={
-        <TopBar
+        <><TopBar
           merchant={merchant.name}
           address={merchant.address}
           initial={initial}
           demo={demo}
-        />
+        /><header className="mc-caja-spec-header">
+          <BrandLockup />
+          <div className="mc-caja-spec-header__actions">
+            <Link href="/pendientes" aria-label="Ver pendientes"><Bell aria-hidden="true" /></Link>
+            <span className="mc-caja-spec-avatar" title={demo ? "Modo demo: datos simulados" : merchant.name}>{initial}</span>
+          </div>
+        </header></>
       }
     >
+      <div className="mc-caja-heading">
+      <Link href="/inicio" className="mc-caja-back" aria-label="Volver a Inicio"><ArrowLeft aria-hidden="true" /></Link>
       <PageHeader
         eyebrow="Caja"
         title={view === "compose" ? "Nueva venta" : view === "payment" ? "Cobrar venta" : "Venta registrada"}
         titleId="caja-title"
         subtitle={
           view === "compose"
-            ? `${formatLongDate()}. Agrega lo que vendiste, revisa el total y elige cómo te pagan.`
+            ? `${formatLongDate()}. Revisa el total antes de cobrar.`
             : view === "payment"
               ? "El pedido ya está registrado. El pago sigue pendiente hasta que el banco lo confirme."
               : "Revisa el resultado antes de entregar o iniciar otra venta."
@@ -809,6 +840,7 @@ export function CajaScreen({
           )
         }
       />
+      </div>
 
       {restoredNotice && view === "compose" ? (
         <div className="mc-caja-restore" role="status">
@@ -922,6 +954,23 @@ export function CajaScreen({
 
       {view === "compose" ? (
         <>
+          <SaleVoice
+            disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated}
+            onAdd={(proposed) => {
+              if (saving || unknownResult || legacyConflict || !hydrated) return false;
+              if (lines.length + proposed.length > 50 || draftTotalCents([...lines, ...proposed]) > 100_000_000) {
+                setError("El ticket excede el límite de conceptos o importe. No se añadió la propuesta.");
+                return false;
+              }
+              setLines((current) => [...current, ...proposed]);
+              setError(null);
+              setAnnouncement("Conceptos dictados añadidos. Revisa el ticket antes de confirmar.");
+              window.requestAnimationFrame(() => {
+                document.getElementById(`line-description-${proposed[0]?.id}`)?.focus();
+              });
+              return true;
+            }}
+          />
           <PendingTray
             entries={pendingEntries}
             onOpen={openPendingEntry}
@@ -962,6 +1011,8 @@ export function CajaScreen({
                 const target = next
                   ? document.getElementById(`line-description-${next.id}`)
                   : document.getElementById("mc-caja-new-description");
+                const manual = target?.closest("details");
+                if (manual) manual.open = true;
                 target?.focus();
               });
             }}
@@ -997,6 +1048,12 @@ export function CajaScreen({
             }}
           />
           </div>
+          <CajaSpecCheckout totalCents={totalCents} changeCents={changeForSale} method={method}
+            cashInput={cashInput} creditInput={creditInput} customerName={customerName} error={error}
+            canConfirm={canConfirm} demo={demo} disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated || !lines.length}
+            onMethod={chooseMethod} onCash={value => { setCashInput(value); setError(null); }}
+            onCredit={value => { setCreditInput(value); setError(null); }}
+            onCustomer={value => { setCustomerName(value); setError(null); }} onConfirm={confirmSale} />
         </>
       ) : null}
 
@@ -1058,7 +1115,7 @@ export function CajaScreen({
           confirme.
         </p>
         <p>
-          ¿Necesitas dictar o verificar un comprobante? Usa la{" "}
+          Para revisar un comprobante también puedes abrir la{" "}
           <Link href="/">Caja clásica</Link>. Si allí queda un borrador, esta pantalla lo avisa
           antes de cobrar para que no se dupliquen ventas.
         </p>

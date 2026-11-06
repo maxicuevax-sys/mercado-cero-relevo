@@ -151,7 +151,7 @@
 .mc-ventas-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 16px;
   min-width: 0;
 }
 
@@ -159,15 +159,16 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: 12px;
+  padding: 20px;
   border: 1px solid var(--mc-ventas-border);
-  border-radius: 16px;
+  border-radius: 22px;
   background: var(--color-surface);
   box-shadow: var(--mc-ventas-shadow);
 }
 
 .mc-ventas-kpi__top {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   min-width: 0;
@@ -198,6 +199,7 @@
 }
 
 .mc-ventas-kpi__label {
+  flex: 1 1 5rem;
   min-width: 0;
   color: var(--color-ink-2);
   font-size: 0.75rem;
@@ -221,7 +223,7 @@
 .mc-ventas-kpi__note {
   margin-top: 4px;
   color: var(--color-ink-2);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   line-height: 1.35;
 }
 
@@ -341,7 +343,7 @@
   min-width: 0;
   padding: 16px 20px;
   border: 1px solid var(--mc-ventas-border);
-  border-radius: 16px;
+  border-radius: 22px;
   background: var(--color-surface);
   box-shadow: var(--mc-ventas-shadow);
   transition: border-color 180ms var(--mc-ventas-ease);
@@ -401,7 +403,9 @@
 /* Sello de estado: texto + borde, nunca solo color. */
 .mc-ventas-stamp {
   display: inline-flex;
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   align-items: center;
   padding: 2px 8px;
   border: 1.5px solid currentColor;
@@ -796,6 +800,54 @@
   .mc-ventas-kpi__note {
     font-size: 0.8125rem;
   }
+}
+
+/* Historial en una libreta continua: medallón, concepto/estado e importe.
+   Conserva todos los estados financieros y la paginación existentes. */
+.mc-ventas-page.mc-op-main { font-family: Arial, "Segoe UI", sans-serif; }
+.mc-ventas-items {
+  gap: 0;
+  border: 1px solid var(--mc-ventas-border);
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+.mc-ventas-items .mc-ventas-row {
+  border: 0;
+  border-bottom: 1px solid var(--mc-ventas-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+.mc-ventas-item:last-child .mc-ventas-row { border-bottom: 0; }
+.mc-ventas-row__title h3 { font-family: Arial, "Segoe UI", sans-serif; font-weight: 700; }
+.mc-ventas-row__total { font-family: Arial, "Segoe UI", sans-serif; overflow-wrap: anywhere; white-space: normal; }
+.mc-ventas-row__medallion { border-radius: 50%; }
+.mc-ventas-kpi__value { font-family: var(--font-hearth), Georgia, serif; }
+
+@media (max-width: 479.98px) {
+  .mc-ventas-summary { gap: 8px; }
+  .mc-ventas-kpi { padding: 12px 10px; border-radius: 20px; }
+  .mc-ventas-kpi__top { gap: 6px; }
+  .mc-ventas-kpi__note { font-size: 0.6875rem; }
+  .mc-ventas-items .mc-ventas-row {
+    grid-template-columns: 36px minmax(0, 1fr) minmax(68px, 0.8fr);
+    gap: 8px;
+    padding: 14px 12px;
+  }
+  .mc-ventas-row__medallion { width: 36px; height: 36px; }
+  .mc-ventas-row__medallion-img { width: 26px; height: 26px; }
+  .mc-ventas-row__title h3 { font-size: 0.9375rem; }
+  .mc-ventas-row__meta, .mc-ventas-row__items { font-size: 0.75rem; }
+  .mc-ventas-items .mc-ventas-row__amount { grid-column: 3; grid-row: 1; align-items: flex-end; text-align: right; }
+  .mc-ventas-row__total { font-size: 1.125rem; }
+  .mc-ventas-row__amount-note, .mc-ventas-row__demo-paid { font-size: 0.6875rem; }
+  .mc-ventas-row__details { border-top: 0; padding-top: 0; margin-top: 0; }
+}
+
+/* Una columna de información al ampliar texto: el estado nunca se recorta. */
+@container mc-op-main (max-width: 14em) {
+  .mc-ventas-items .mc-ventas-row { grid-template-columns: 36px minmax(0, 1fr); }
+  .mc-ventas-items .mc-ventas-row__amount { grid-column: 2; grid-row: auto; align-items: flex-start; text-align: left; }
 }
 
 @media (forced-colors: active) {
