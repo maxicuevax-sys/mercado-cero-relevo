@@ -907,7 +907,13 @@
     right: -21px;
     width: 488px;
   }
-  .inicio-shell--compact .inicio-kpis { gap: 16px; margin-bottom: 10px; }
+  /* El raster canónico tiene anchos desiguales; estas proporciones reproducen
+     sus cuatro bordes a 1448, en lugar de imponer columnas matemáticamente iguales. */
+  .inicio-shell--compact .inicio-kpis {
+    grid-template-columns: minmax(0, 286fr) minmax(0, 268fr) minmax(0, 277fr) minmax(0, 287fr);
+    gap: 14px;
+    margin-bottom: 10px;
+  }
   .inicio-shell--compact .inicio-kpi { min-height: 202px; padding: 19px 22px; border-radius: 24px; }
   .inicio-shell--compact .inicio-kpi__top { gap: 16px; font-size: 1.25rem; }
   .inicio-shell--compact .inicio-kpi__icon { width: 60px; height: 60px; border-radius: 50%; }
