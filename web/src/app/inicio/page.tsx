@@ -11,6 +11,7 @@ import { formatActivityDate, formatLongDate } from "@/lib/format";
 import heroArt from "@/assets/inicio/hero-registradora.png";
 import lupitaArt from "@/assets/inicio/sugerencia-lupita.png";
 import picadoArt from "@/assets/inicio/papel-picado.png";
+import mobileLupitaArt from "@/assets/brand/ilustraciones/transparent/lupita.png";
 import sunArt from "@/assets/inicio/icons/sol-bienvenida.svg";
 import iconCompras from "@/assets/inicio/icons/compras.svg";
 import iconMonedas from "@/assets/inicio/icons/monedas.svg";
@@ -98,6 +99,7 @@ export default async function InicioPage() {
           className="inicio-picado"
           sizes="250px"
         />
+        <Image src={mobileLupitaArt} alt="" aria-hidden="true" className="inicio-greeting__mobile-art" sizes="145px" />
       </section>
 
       <section className="inicio-kpis" aria-label="Resumen del negocio">
@@ -164,7 +166,7 @@ export default async function InicioPage() {
           <h2 id="inicio-hero-title">Nueva venta</h2>
           <p>Registra lo que vendiste y decide cómo cobrar.</p>
           <Link href="/caja" className="inicio-hero__cta">
-            <Plus aria-hidden="true" /> Registrar
+            <Plus aria-hidden="true" /><span className="inicio-hero__desktop-label">Registrar</span><span className="inicio-hero__mobile-label">Nueva venta</span>
           </Link>
         </div>
       </section>

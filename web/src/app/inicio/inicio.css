@@ -752,6 +752,76 @@
   font-family: var(--font-hearth), Georgia, serif;
 }
 
+.inicio-greeting__mobile-art,
+.inicio-hero__mobile-label { display: none; }
+
+@media (max-width: 760px) {
+  .inicio-shell--compact .inicio-content {
+    grid-template-areas: "greeting" "kpis" "hero" "pending" "suggestion";
+    gap: 16px;
+  }
+  .inicio-shell--compact .inicio-greeting {
+    position: relative;
+    isolation: isolate;
+    min-height: 90px;
+    align-items: start;
+    padding-top: 10px;
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 10px;
+  }
+  .inicio-shell--compact .inicio-greeting > div { position: relative; z-index: 1; }
+  .inicio-shell--compact .inicio-greeting h1 { font-size: 1.375rem; }
+  .inicio-shell--compact .inicio-greeting p { max-width: 26ch; font-size: 0.75rem; }
+  .inicio-shell--compact .inicio-greeting__mobile-art {
+    display: block;
+    position: absolute;
+    z-index: -1;
+    right: -16px;
+    bottom: -16px;
+    width: 145px;
+    height: 145px;
+    object-fit: contain;
+    object-position: right bottom;
+    opacity: 0.9;
+    pointer-events: none;
+  }
+  .inicio-shell--compact .inicio-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  /* La lámina móvil prioriza Ventas, Por cobrar y Meta; Cobrado sigue en
+     desktop y en el historial real de Ventas, sin cambiar su cálculo. */
+  .inicio-shell--compact .inicio-kpi:nth-child(2) { display: none; }
+  .inicio-shell--compact .inicio-kpi { padding: 10px 8px; border-radius: 16px; min-height: 96px; }
+  .inicio-shell--compact .inicio-kpi__top { gap: 5px; font-size: 0.6875rem; flex-wrap: wrap; }
+  .inicio-shell--compact .inicio-kpi__icon { width: 28px; height: 28px; border-radius: 50%; }
+  .inicio-shell--compact .inicio-kpi__value { font-size: clamp(0.875rem, 18cqi, 1.375rem); margin-top: 8px; overflow-wrap: anywhere; }
+  .inicio-shell--compact .inicio-kpi__note { font-size: 0.625rem; }
+  .inicio-shell--compact .inicio-goal { height: 10px; }
+  .inicio-shell--compact .inicio-hero { display: block; border-radius: 20px; }
+  .inicio-shell--compact .inicio-hero__art,
+  .inicio-shell--compact .inicio-hero h2,
+  .inicio-shell--compact .inicio-hero p,
+  .inicio-shell--compact .inicio-hero__desktop-label { display: none; }
+  .inicio-shell--compact .inicio-hero__mobile-label { display: inline; }
+  .inicio-shell--compact .inicio-hero__content { padding: 0; }
+  .inicio-shell--compact .inicio-hero__cta {
+    display: flex;
+    min-height: 64px;
+    margin: 0;
+    padding: 12px 16px;
+    background: var(--inicio-green);
+    color: #fffdf7;
+    font-family: Arial, "Segoe UI", sans-serif;
+    font-size: 1.375rem;
+    border: 1px solid #006b53;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 3px rgb(255 253 247 / 0.06);
+  }
+}
+
+@container inicio-main (max-width: 19rem) {
+  .inicio-shell--compact .inicio-kpis { grid-template-columns: minmax(0, 1fr); }
+  .inicio-shell--compact .inicio-greeting__mobile-art { display: none; }
+}
+
 @media (min-width: 1200px) {
   .inicio-shell--compact { grid-template-columns: 240px minmax(0, 1fr); }
   .inicio-shell--compact .inicio-sidebar { padding-top: 24px; }
