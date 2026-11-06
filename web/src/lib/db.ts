@@ -1353,7 +1353,7 @@ function loadLastPaymentProviders(
         provider: row.provider,
         // El efectivo demo conserva su etiqueta "Efectivo recibido" (known de
         // UX); el flag demo es para el pago digital simulado (pey + demo=1).
-        demo: Number(row.demo ?? 0) === 1 && row.method !== "cash",
+        demo: Number(row.demo ?? 0) === 1,
       });
     }
   }

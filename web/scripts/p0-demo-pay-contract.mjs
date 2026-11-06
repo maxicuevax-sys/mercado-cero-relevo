@@ -211,6 +211,39 @@ async function main() {
   await start("A", DEMO_A, true);
   await start("B", DEMO_B, true);
 
+  // El efectivo de una sesión DEMO también es simulado. La orden y su
+  // proyección pública deben conservar la misma verdad que payments.demo.
+  const cashRequest = `demo_cash_${Date.now()}`;
+  const cashBody = {
+    items: [{ description: "Contrato efectivo DEMO", quantity: 1, unitPriceCents: 14000 }],
+    cashCents: 14000,
+    requestId: cashRequest,
+  };
+  const demoCash = await api(DEMO_A, "/api/orders", cashBody);
+  const demoCashId = demoCash.json?.order?.id;
+  check("N. efectivo DEMO queda demo_paid, nunca paid", demoCash.status === 201 && demoCash.json?.order?.status === "demo_paid");
+  check("N. efectivo DEMO se proyecta como simulado", demoCash.json?.order?.lastPaymentProvider === "cash" && demoCash.json?.order?.lastPaymentDemo === true);
+  const cashDb = openDb();
+  const storedCash = cashDb.prepare("SELECT p.demo AS payment_demo, o.demo AS order_demo FROM payments p JOIN orders o ON o.id = p.order_id WHERE o.id = ?").get(demoCashId);
+  check("N. flags demo del ledger y pedido coinciden", Number(storedCash?.payment_demo) === 1 && Number(storedCash?.order_demo) === 1);
+  cashDb.close();
+  const cashRead = await api(DEMO_B, `/api/orders/${demoCashId}`);
+  check("N. otro proceso conserva estado y flag demo", cashRead.status === 200 && cashRead.json?.order?.status === "demo_paid" && cashRead.json?.order?.lastPaymentDemo === true);
+  const cashReplay = await api(DEMO_B, "/api/orders", cashBody);
+  const replayDb = openDb();
+  check("N. reintento de efectivo no duplica", cashReplay.json?.order?.id === demoCashId && paymentCount(replayDb, demoCashId) === 1 && paymentSum(replayDb, demoCashId) === 14000);
+  replayDb.close();
+  const partialCash = await api(DEMO_A, "/api/orders", {
+    items: [{ description: "Contrato efectivo DEMO parcial", quantity: 1, unitPriceCents: 14000 }],
+    cashCents: 4000,
+    requestId: `${cashRequest}_partial`,
+  });
+  check("N. efectivo parcial no liquida el pedido", partialCash.status === 201 && partialCash.json?.order?.status === "confirmed" && partialCash.json?.order?.paidCents === 4000 && partialCash.json?.order?.lastPaymentDemo === true);
+  const cashNoOp = await api(DEMO_A, "/api/demo/pay", { orderId: demoCashId, method: "card" });
+  const noOpDb = openDb();
+  check("N. demo/pay sobre efectivo cubierto no agrega dinero", cashNoOp.status === 200 && cashNoOp.json?.alreadySettled === true && cashNoOp.json?.order?.status === "demo_paid" && paymentCount(noOpDb, demoCashId) === 1);
+  noOpDb.close();
+
   const db0 = openDb();
   check("A0. pedido real existe con demo=0", Number(db0.prepare("SELECT demo FROM orders WHERE id = ?").get(realOrder.id).demo) === 0);
   db0.close();
