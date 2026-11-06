@@ -678,7 +678,7 @@ export function CashCount({
             ? "Actualizando…"
             : status.saved
               ? "Corregir corte"
-              : "Guardar corte"}
+              : "Realizar corte"}
         </button>
         <p className="mc-corte-hint">
           El corte no se guarda solo. Gastos, retiros y base se registran cuando

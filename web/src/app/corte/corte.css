@@ -840,7 +840,7 @@
 
 .mc-corte-receipt__art {
   grid-column: 2;
-  grid-row: 1 / span 2;
+  grid-row: 1;
   width: 100%;
   max-width: 112px;
   height: auto;
@@ -849,7 +849,7 @@
   object-fit: contain;
 }
 
-/* Saldo del día: bloque menta con la cifra protagonista y el sello. */
+/* La lámina maestra muestra el saldo al final, sobre papel maíz. */
 .mc-corte-receipt__saldo {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 28%);
@@ -859,7 +859,20 @@
   padding: 16px;
   border: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
   border-radius: 16px;
-  background: color-mix(in srgb, var(--color-green-soft) 52%, var(--color-saffron-soft));
+  background: var(--color-saffron-soft);
+}
+
+html:not([data-contrast="high"]) .mc-corte-receipt__saldo {
+  background: #f0eccc;
+}
+
+html:not([data-contrast="high"]) .mc-corte-save {
+  border-color: #034538;
+  background: #034538;
+}
+
+html:not([data-contrast="high"]) .mc-corte-save:hover:not(:disabled) {
+  background: var(--color-accent-press);
 }
 
 .mc-corte-receipt__saldo-copy {
@@ -892,7 +905,7 @@
   flex-direction: column;
   align-items: center;
   gap: 1px;
-  justify-self: start;
+  margin-bottom: 8px;
   padding: 5px 10px;
   border: 1.5px solid currentColor;
   border-radius: 8px;
@@ -1350,7 +1363,31 @@
   }
 
   .mc-corte-receipt {
-    padding: 16px;
+    padding: 12px 4px;
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .mc-corte-receipt__head,
+  .mc-corte-receipt__foot {
+    padding-inline: 12px;
+  }
+
+  .mc-corte-receipt__rows {
+    padding-inline: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .mc-corte-receipt .mc-corte-receipt__row {
+    min-height: clamp(3rem, 15.4vw, 3.75rem);
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 8px 4px;
+  }
+
+  .mc-corte-receipt__row-icon {
+    display: none;
   }
 
   .mc-corte-receipt__title {
@@ -1359,16 +1396,15 @@
 
   .mc-corte-receipt__saldo {
     grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
-    padding: 14px;
+    min-height: clamp(4rem, 21.5vw, 5.25rem);
+    margin-top: 4px;
+    padding: 8px 16px;
+    border-radius: 12px;
   }
 
   .mc-corte-receipt__saldo-copy {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 4px 12px;
+    display: grid;
+    gap: 4px;
   }
 
   .mc-corte-receipt__art {
@@ -1415,10 +1451,6 @@
     padding: 16px 14px;
   }
 
-  .mc-corte-receipt {
-    padding: 14px;
-  }
-
   .mc-corte-receipt__badge {
     width: 40px;
     height: 40px;
@@ -1437,12 +1469,13 @@
     font-size: 0.75rem;
   }
 
-  .mc-corte-receipt__saldo {
-    padding: 12px;
+  .mc-corte-receipt__saldo-label {
+    font-size: 1rem;
   }
 
   .mc-corte-receipt__saldo-value {
-    font-size: clamp(1.5rem, 7vw, 1.875rem);
+    font-size: clamp(1.5rem, 8.5vw, 2.125rem);
+    text-align: right;
   }
 
   .mc-corte-receipt__stamp {

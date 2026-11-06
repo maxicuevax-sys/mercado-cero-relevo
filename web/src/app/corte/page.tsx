@@ -177,24 +177,17 @@ export default async function CortePage() {
 
             <dl className="mc-corte-receipt__rows">
               <div className="mc-corte-receipt__row">
-                <span className="mc-corte-receipt__row-icon mc-corte-receipt__row-icon--green" aria-hidden="true">
-                  <Image src={iconTienda} alt="" sizes="32px" />
-                </span>
-                <dt>Ventas</dt>
-                <dd>{formatMxn(summary.salesCents)}</dd>
-              </div>
-              <div className="mc-corte-receipt__row">
                 <span className="mc-corte-receipt__row-icon" aria-hidden="true">
                   <Image src={iconRegistradora} alt="" sizes="32px" />
                 </span>
-                <dt>Efectivo</dt>
+                <dt>Efectivo recibido</dt>
                 <dd>{formatMxn(cashTodayCents)}</dd>
               </div>
               <div className="mc-corte-receipt__row">
                 <span className="mc-corte-receipt__row-icon mc-corte-receipt__row-icon--green" aria-hidden="true">
                   <Image src={iconQr} alt="" sizes="32px" />
                 </span>
-                <dt>Digital verificado</dt>
+                <dt>Cobros digitales verificados</dt>
                 <dd>{formatMxn(summary.verifiedDigitalCents)}</dd>
               </div>
               {summary.declaredDigitalCents > 0 ? (
@@ -207,10 +200,17 @@ export default async function CortePage() {
                 </div>
               ) : null}
               <div className="mc-corte-receipt__row">
+                <span className="mc-corte-receipt__row-icon mc-corte-receipt__row-icon--green" aria-hidden="true">
+                  <Image src={iconTienda} alt="" sizes="32px" />
+                </span>
+                <dt>Ventas del día</dt>
+                <dd>{formatMxn(summary.salesCents)}</dd>
+              </div>
+              <div className="mc-corte-receipt__row">
                 <span className="mc-corte-receipt__row-icon mc-corte-receipt__row-icon--terracotta" aria-hidden="true">
                   <Image src={iconRecibo} alt="" sizes="32px" />
                 </span>
-                <dt>Gastos</dt>
+                <dt>Gastos del día</dt>
                 <dd className="mc-corte-receipt__out">
                   − {formatMxn(status.expensesCents)}
                 </dd>
@@ -242,6 +242,9 @@ export default async function CortePage() {
                 className="mc-corte-receipt__art"
                 sizes="(max-width: 479px) 84px, 112px"
               />
+            </div>
+
+            <div className="mc-corte-receipt__foot">
               <span
                 className={`mc-corte-receipt__stamp mc-corte-receipt__stamp--${stampTone}`}
               >
@@ -258,9 +261,6 @@ export default async function CortePage() {
                   <span className="mc-corte-receipt__stamp-word">Sin corte</span>
                 )}
               </span>
-            </div>
-
-            <div className="mc-corte-receipt__foot">
               <p className="mc-corte-receipt__note">
                 {demo
                   ? "Modo demo: los pagos simulados no cuentan como dinero real."
