@@ -833,6 +833,7 @@
   .inicio-shell--compact .inicio-kpi { padding: 10px 8px; border-radius: 16px; min-height: 96px; }
   .inicio-shell--compact .inicio-kpi__top { gap: 5px; font-size: 0.6875rem; flex-wrap: wrap; }
   .inicio-shell--compact .inicio-kpi__icon { width: 28px; height: 28px; border-radius: 50%; }
+  .inicio-shell--compact .inicio-kpi__glyph { width: 20px; height: 20px; }
   .inicio-shell--compact .inicio-kpi__value { font-size: clamp(0.875rem, 18cqi, 1.375rem); margin-top: 8px; overflow-wrap: anywhere; }
   .inicio-shell--compact .inicio-kpi__note { font-size: 0.625rem; }
   .inicio-shell--compact .inicio-goal { height: 10px; }
