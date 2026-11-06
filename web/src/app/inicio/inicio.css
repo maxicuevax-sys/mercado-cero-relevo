@@ -753,6 +753,7 @@
 }
 
 .inicio-greeting__mobile-art,
+.inicio-hero__mobile-icon,
 .inicio-hero__mobile-label { display: none; }
 
 .inicio-shortcuts { display: none; grid-area: shortcuts; }
@@ -783,7 +784,8 @@
 @media (max-width: 760px) {
   .inicio-shell--compact .inicio-content {
     grid-template-areas: "greeting" "kpis" "hero" "shortcuts" "pending" "suggestion" "assistant";
-    gap: 16px;
+    gap: clamp(16px, 5.13vw, 20px);
+    padding-top: clamp(20px, 6.4vw, 25px);
   }
   .inicio-shell--compact .inicio-greeting {
     position: relative;
@@ -797,7 +799,8 @@
   .inicio-shell--compact .inicio-greeting > div { position: relative; z-index: 1; }
   .inicio-shell--compact .inicio-sun { grid-column: 2; grid-row: 1; }
   .inicio-shell--compact .inicio-greeting > div { grid-column: 1; grid-row: 1; }
-  .inicio-shell--compact .inicio-greeting h1 { font-size: 1.375rem; }
+  .inicio-shell--compact .inicio-greeting h1 { font-size: clamp(1.5rem, 7.18vw, 1.75rem); }
+  .inicio-shell--compact .inicio-greeting__owner { display: none; }
   .inicio-shell--compact .inicio-greeting p { max-width: 26ch; font-size: 0.75rem; }
   .inicio-shell--compact .inicio-greeting p { display: none; }
   .inicio-shell--compact .inicio-greeting__mobile-art {
@@ -833,27 +836,38 @@
   .inicio-shell--compact .inicio-hero__content { padding: 0; }
   .inicio-shell--compact .inicio-hero__cta {
     display: flex;
-    min-height: 64px;
+    min-height: clamp(48px, 19.5vw, 76px);
     margin: 0;
     padding: 12px 16px;
     background: var(--inicio-green);
     color: #fffdf7;
     font-family: Arial, "Segoe UI", sans-serif;
-    font-size: 1.375rem;
+    font-size: 1.125rem;
     border: 1px solid #006b53;
     border-radius: inherit;
     box-shadow: inset 0 0 0 3px rgb(255 253 247 / 0.06);
   }
+  .inicio-shell--compact .inicio-hero__cta > svg { display: none; }
+  .inicio-shell--compact .inicio-hero__mobile-icon { display: inline-block; width: 24px; height: 24px; }
   .inicio-shortcuts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
   .inicio-shortcuts a {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 6px; min-height: 64px; min-width: 0; padding: 8px 4px;
+    gap: 6px; min-height: clamp(88px, 30.5vw, 119px); min-width: 0; padding: 8px 4px;
     border: 1px solid var(--inicio-border); border-radius: 14px;
     background: var(--inicio-surface); color: var(--inicio-ink);
     font-size: 0.6875rem; line-height: 1.2; text-align: center; text-decoration: none;
     overflow-wrap: anywhere;
   }
   .inicio-shortcuts svg, .inicio-shortcuts .inicio-icon { width: 24px; height: 24px; }
+  .inicio-shell--compact .inicio-pending {
+    padding: 0 8px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .inicio-shell--compact .inicio-pending__title { gap: 14px; }
+  .inicio-shell--compact .inicio-pending__icon { color: var(--inicio-maize); }
   .inicio-assistant { grid-template-columns: 48px minmax(0, 1fr); }
   .inicio-assistant > img { width: 48px; height: 48px; }
   .inicio-assistant a { grid-column: span 1; }

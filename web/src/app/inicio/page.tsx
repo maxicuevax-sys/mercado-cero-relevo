@@ -87,7 +87,7 @@ export default async function InicioPage() {
           sizes="62px"
         />
         <div>
-          <h1 id="inicio-title">¡Buen día, {owner}!</h1>
+          <h1 id="inicio-title">¡Buen día<span className="inicio-greeting__owner">, {owner}</span>!</h1>
           <p>
             {formatLongDate()}.{" "}
             <span className="inicio-greeting__demo">
@@ -168,7 +168,7 @@ export default async function InicioPage() {
           <h2 id="inicio-hero-title">Nueva venta</h2>
           <p>Registra lo que vendiste y decide cómo cobrar.</p>
           <Link href="/caja" className="inicio-hero__cta">
-            <Plus aria-hidden="true" /><span className="inicio-hero__desktop-label">Registrar</span><span className="inicio-hero__mobile-label">Nueva venta</span>
+            <Plus aria-hidden="true" /><MaskIcon src={iconCompras} className="inicio-hero__mobile-icon" /><span className="inicio-hero__desktop-label">Registrar</span><span className="inicio-hero__mobile-label">Nueva venta</span>
           </Link>
         </div>
       </section>
