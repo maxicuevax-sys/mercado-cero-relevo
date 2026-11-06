@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
-import { ArrowLeft, ChevronLeft, ChevronRight, Plus, Search, NotebookPen, Store, Users } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { CreditPayButton } from "@/components/fiados/credit-pay-button";
@@ -10,6 +11,11 @@ import { MERCHANT, isDemoMode } from "@/lib/config";
 import { formatMxn } from "@/lib/format";
 import { DAY_MS, mexicoDateKey } from "@/lib/mexico-date";
 import type { Credit, CreditStatus } from "@/lib/types";
+import libretaIcon from "@/assets/brand/iconos/transparent/libreta.png";
+import tiendaIcon from "@/assets/brand/iconos/transparent/tienda.png";
+import listaIcon from "@/assets/brand/iconos/transparent/lista.png";
+import ahorroArt from "@/assets/brand/ilustraciones/transparent/ahorro.png";
+import papelPicadoArt from "@/assets/inicio/papel-picado.png";
 import "./fiados.css";
 import "@/components/shell/ledger-parity.css";
 
@@ -22,8 +28,7 @@ export const instant = false;
 
 const PAGE_SIZE = 20;
 
-// Three line icons follow the master ledger rows; no customer avatar is inferred.
-const MEDALLIONS = [NotebookPen, Store, Users];
+const MEDALLIONS = [libretaIcon, tiendaIcon, listaIcon];
 const MEDALLION_TONES = ["green", "saffron", "terracotta"];
 
 const ageFormat = new Intl.DateTimeFormat("es-MX", {
@@ -84,7 +89,7 @@ function FiadosRow({ credit, index }: { credit: Credit; index: number }) {
   const slot = ((index % MEDALLION_TONES.length) + MEDALLION_TONES.length) %
     MEDALLION_TONES.length;
   const tone = MEDALLION_TONES[slot];
-  const Medallion = MEDALLIONS[slot];
+  const medallion = MEDALLIONS[slot];
   const stampTone = settled
     ? "saldado"
     : credit.status === "partial"
@@ -94,7 +99,7 @@ function FiadosRow({ credit, index }: { credit: Credit; index: number }) {
   return (
     <li className={`mc-fiados-row mc-fiados-row--${tone}${settled ? " mc-fiados-row--settled" : ""}`}>
       <span className="mc-fiados-row__medallion" aria-hidden="true">
-        <Medallion aria-hidden="true" />
+        <Image src={medallion} alt="" sizes="24px" className="mc-fiados-row__medallion-img" />
       </span>
 
       <div className="mc-fiados-row__main">
@@ -193,6 +198,8 @@ export default async function FiadosPage({ searchParams }: {
       actions={<Link className="mc-parity-back" href="/inicio" aria-label="Volver a Inicio"><ArrowLeft aria-hidden="true" /></Link>}
       merchant={MERCHANT.name} address={MERCHANT.address} demo={demo}
       mainId="fiados-main" contentClassName="mc-fiados-page" focusTargetId="fiados-title">
+      <Image src={papelPicadoArt} alt="" aria-hidden="true"
+        className="mc-fiados-page__picado" sizes="(max-width: 767px) 80px, 132px" />
       <nav className="mc-fiados-tabs" aria-label="Vista de fiados">
         <Link href={pagerHref(1, query)} aria-current={!history ? "page" : undefined}>Por cobrar ({openTotals.count})</Link>
         <Link href={pagerHref(1, query, true)} aria-current={history ? "page" : undefined}>Historial</Link>
@@ -200,6 +207,7 @@ export default async function FiadosPage({ searchParams }: {
       <details className="mc-fiados-tools" open={query ? true : undefined}>
         <summary><Search aria-hidden="true" /><span className="sr-only">Buscar cliente y ver total por cobrar</span></summary>
         <section className="mc-fiados-total" aria-labelledby="mc-fiados-total-label">
+          <Image src={ahorroArt} alt="" aria-hidden="true" className="mc-fiados-total__art" sizes="56px" />
           <div className="mc-fiados-total__copy">
             <p id="mc-fiados-total-label" className="mc-fiados-total__label">Total por cobrar</p>
             <CurrencyAmount as="p" cents={openTotals.balanceCents} className="mc-fiados-total__value" />
