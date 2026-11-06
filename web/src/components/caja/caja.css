@@ -1359,13 +1359,13 @@
 }
 
 /* La barra no debe cubrir el sidebar de escritorio: empieza donde termina. */
-@media (min-width: 1341px) {
+@media (min-width: 1200px) {
   .mc-caja-paybar {
-    left: 236px;
+    left: 240px;
   }
 }
 
-@media (min-width: 761px) and (max-width: 1340px) {
+@media (min-width: 761px) and (max-width: 1199px) {
   .mc-caja-paybar {
     left: 210px;
   }

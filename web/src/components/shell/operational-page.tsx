@@ -67,6 +67,7 @@ export function OperationalPage({
 
   return (
     <AppShell
+      className={activeHref === "/fiados" ? "inicio-shell--desktop" : ""}
       activeHref={activeHref}
       mainId={mainId}
       focusTargetId={focusTargetId}

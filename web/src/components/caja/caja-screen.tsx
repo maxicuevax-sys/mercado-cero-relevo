@@ -786,7 +786,7 @@ export function CajaScreen({
 
   return (
     <AppShell
-      className="mc-caja-shell"
+      className="mc-caja-shell inicio-shell--desktop"
       activeHref="/caja"
       mainId="caja-main"
       contentClassName="mc-caja"

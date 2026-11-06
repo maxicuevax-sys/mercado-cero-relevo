@@ -893,33 +893,41 @@
 }
 
 @media (min-width: 1200px) {
-  .inicio-shell--compact { grid-template-columns: 240px minmax(0, 1fr); }
-  .inicio-shell--compact .inicio-sidebar { padding: 20px 12px 0; }
-  .inicio-shell--compact .inicio-brand { padding: 4px 0 17px; border: 0; }
-  .inicio-shell--compact .inicio-brand__name { font: 700 min(2.5rem, 40px)/0.94 Georgia, serif; }
-  .inicio-shell--compact .inicio-nav__item { min-height: 58px; gap: 24px; padding-inline: 22px; border-radius: 20px; font-size: 1.375rem; }
-  .inicio-shell--compact .inicio-nav__item[aria-current="page"] { background: #ffe8bf; color: var(--inicio-ink); }
-  .inicio-shell--compact .inicio-nav__item[aria-current="page"] .inicio-nav__icon { color: var(--inicio-green); }
-  .inicio-shell--compact .inicio-sidebar__foot { margin-top: 23px; padding-top: 3px; }
-  .inicio-shell--compact .inicio-sidebar__foot::before {
+  :is(.inicio-shell--compact, .inicio-shell--desktop) {
+    --font-inter: Arial, "Segoe UI", sans-serif;
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-sidebar { padding: 20px 12px 0; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-brand { padding: 4px 0 17px; border: 0; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-brand__name { font: 700 min(2.5rem, 40px)/0.94 Georgia, serif; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item { min-height: 58px; gap: 24px; padding-inline: 22px; border-radius: 20px; font-size: 1.375rem; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item[aria-current="page"] { background: #ffe8bf; color: var(--inicio-ink); }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item[aria-current="page"] .inicio-nav__icon { color: var(--inicio-green); }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-sidebar__foot { margin-top: 23px; padding-top: 3px; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-sidebar__foot::before {
     content: "";
     margin: 0 17px 18px;
     border-top: 1px solid rgb(255 253 247 / 0.5);
   }
-  .inicio-shell--compact .inicio-sidebar__art { width: calc(100% + 24px); margin: 0 -12px; }
-  .inicio-shell--compact .inicio-nav__icon { width: 32px; height: 32px; }
-  .inicio-shell--compact .inicio-topbar {
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-sidebar__art { width: calc(100% + 24px); margin: 0 -12px; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__icon { width: 32px; height: 32px; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-topbar {
     min-height: 108px;
     padding: 16px 32px 16px 35px;
   }
-  .inicio-shell--compact .inicio-topbar__merchant { gap: 21px; }
-  .inicio-shell--compact .inicio-topbar__icon,
-  .inicio-shell--compact .inicio-topbar__icon img { width: 58px; height: 58px; }
-  .inicio-shell--compact .inicio-topbar__name { font: 700 2rem/1.12 Georgia, serif; }
-  .inicio-shell--compact .inicio-topbar__address { font-size: 1.25rem; }
-  .inicio-shell--compact .inicio-topbar__actions { gap: 40px; }
-  .inicio-shell.inicio-shell--compact .inicio-topbar__bell { width: 42px; height: 42px; }
-  .inicio-shell--compact .inicio-avatar { width: 58px; height: 58px; font-size: 1.75rem; line-height: 1; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-topbar__merchant { gap: 21px; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-topbar__icon,
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-topbar__icon img { width: 58px; height: 58px; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-topbar__name { font: 700 2rem/1.12 Georgia, serif; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-topbar__address { font-size: 1.25rem; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-topbar__actions { gap: 40px; }
+  .inicio-shell:is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-topbar__bell { width: 42px; height: 42px; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-avatar { width: 58px; height: 58px; font-size: 1.75rem; line-height: 1; }
+  /* Operativas: comparte el shell, conserva el layout propio del contenido.
+     Esta variante no tiene reglas moviles. */
+  .inicio-shell--desktop :is(.mc-caja, .mc-op-main) {
+    padding: 18px 20px 104px 27px;
+  }
   .inicio-shell--compact .inicio-content {
     width: calc(100% - 47px);
     max-width: none;
