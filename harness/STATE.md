@@ -10,6 +10,9 @@
 - Evidencia UI local: `harness/evidence/exact-parity/help/`.
 - Validación estática en `../mercado-cero-ayuda-ajustes`: consultar su
   `latest-static.json` y `verify:evidence -- --static`, ligados al HEAD.
+- Static **5/5 PASS** y verificador **PASS** en árbol limpio; se repiten al
+  cierre documental. Arranque de producción adicional bloqueado por revisión
+  automática (`blocked by policy`); la prueba UI corresponde a desarrollo.
 - Paridad exacta y handoff público: **NO certificados**. Sin canon dedicado
   de Ajustes ni desktop del asistente; sin full, aceptación visual o deploy.
 - Cambios concurrentes de Inicio y shell preservados fuera del commit del carril.

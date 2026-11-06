@@ -55,15 +55,21 @@ la base del servidor compartido.
 - Linter de hardcodes de la skill: PASS en los dos archivos nuevos del asistente.
   El validador DTCG genérico de contraste no representa los tokens CSS de este
   repo; su salida predeterminada no se usa como evidencia del producto.
-- `verify:fast`: guard/lint/types; consultar la corrida final. Con árbol sucio
-  es diagnóstico y no produce evidencia formal válida.
-- Evidencia estática formal: consultar `harness/evidence/latest-static.json`
+- `verify:fast`: guard/lint/types verdes, diagnóstico por árbol sucio.
+- `verify:static`: **5/5 PASS**, y `verify:evidence -- --static`: **PASS**
+  en árbol limpio. Se repiten sobre el commit documental final.
+  Evidencia estática formal: consultar `harness/evidence/latest-static.json`
   en el worktree aislado `../mercado-cero-ayuda-ajustes` y validarla desde su
   `web/` con `npm run verify:evidence -- --static` contra el HEAD entregado.
 
 No se ejecuta full: no se acredita túnel, preflight, pagos reales, lector de
 pantalla físico, Safari ni transcripción. Sin aceptación visual ni handoff público.
 No se modifican API, contabilidad, webhook, checkout ni dependencias.
+
+El arranque adicional de `next start` para repetir la UI en producción aislada
+fue rechazado por la revisión automática: `blocked by policy`, sin explicación
+adicional. No se ejecutó ni se atribuye una prueba runtime de producción.
+Las 96 comprobaciones corresponden al servidor de desarrollo aislado.
 
 ## Integración
 
