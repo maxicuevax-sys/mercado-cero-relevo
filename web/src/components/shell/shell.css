@@ -210,7 +210,8 @@
   .inicio-shell .inicio-topbar__alerts { color: var(--inicio-paper); }
   .inicio-shell .inicio-topbar :focus-visible { outline-color: var(--inicio-paper); }
   html[data-contrast="high"] .inicio-shell .inicio-topbar__alerts { color: #000000; }
-  html[data-contrast="high"] .inicio-shell .inicio-topbar__symbol--mobile { filter: brightness(0); }
+  html[data-contrast="high"] .inicio-shell:not(.mc-caja-shell) .inicio-topbar__symbol--mobile { filter: brightness(0); }
+  html[data-contrast="high"] .inicio-shell.mc-caja-shell .inicio-topbar :focus-visible { outline-color: #ffffff; }
 
   .inicio-shell .inicio-demo {
     max-width: 100%;
