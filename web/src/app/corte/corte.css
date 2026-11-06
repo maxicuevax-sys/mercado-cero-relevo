@@ -1631,7 +1631,7 @@ html:not([data-contrast="high"]) .mc-corte-save:hover:not(:disabled) {
 .mc-corte-summary__balance {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 4px 12px;
   margin-top: 14px;
@@ -1645,6 +1645,7 @@ html:not([data-contrast="high"]) .mc-corte-save:hover:not(:disabled) {
 }
 html:not([data-contrast="high"]) .mc-corte-summary__balance { background: #eeedcf; }
 .mc-corte-summary__balance p {
+  align-self: flex-end;
   margin: 0 0 0 auto;
   font-size: 1.75rem;
   font-weight: 700;

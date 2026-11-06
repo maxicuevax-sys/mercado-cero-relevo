@@ -1326,6 +1326,8 @@ html:not([data-contrast="high"]) .mc-fiados-total {
   text-align: center;
 }
 .mc-fiados-tabs a[aria-current] {
+  border-radius: 8px 8px 0 0;
+  background: color-mix(in srgb, var(--color-surface) 60%, white);
   color: var(--color-accent);
   font-weight: 700;
   border-color: currentColor;
