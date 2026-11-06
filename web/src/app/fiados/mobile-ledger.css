@@ -47,7 +47,7 @@
     display: flex;
     align-items: center;
     min-height: calc(66 * var(--fi-u));
-    gap: calc(12 * var(--fi-u));
+    gap: calc(10 * var(--fi-u));
     padding: max(env(safe-area-inset-top), calc(20 * var(--fi-u))) calc(20 * var(--fi-u)) 0;
     background: var(--fi-green);
     color: var(--fi-paper);
@@ -250,7 +250,15 @@
     font-weight: 700;
   }
 
-  .mc-fiados-mobile__tabs svg,
+  .mc-fiados-mobile__icon {
+    width: calc(22 * var(--fi-u));
+    height: calc(22 * var(--fi-u));
+    flex: 0 0 auto;
+    background: currentColor;
+    mask: var(--fi-icon) center / contain no-repeat;
+    forced-color-adjust: none;
+  }
+
   .mc-fiados-mobile__search svg {
     width: calc(19 * var(--fi-u));
     height: auto;
@@ -391,6 +399,7 @@
     color: #bd2c16;
     font-size: clamp(.875rem, 4.62vw, 1.125rem);
     font-weight: 730;
+    letter-spacing: -.022em;
     line-height: 1.1;
     text-align: end;
     overflow-wrap: anywhere;
@@ -438,7 +447,7 @@
     min-height: var(--fi-nav-height);
     grid-template-columns: repeat(5, minmax(0, 1fr));
     align-items: center;
-    padding: calc(3 * var(--fi-u)) calc(5 * var(--fi-u)) max(2px, env(safe-area-inset-bottom));
+    padding: calc(1 * var(--fi-u)) calc(5 * var(--fi-u)) max(calc(6 * var(--fi-u)), env(safe-area-inset-bottom));
     border-top: 1px solid var(--fi-line);
     border-radius: calc(16 * var(--fi-u)) calc(16 * var(--fi-u)) 0 0;
     background: var(--fi-paper);
@@ -466,8 +475,4 @@
     font-weight: 750;
   }
 
-  .mc-fiados-mobile__nav svg {
-    width: calc(20 * var(--fi-u));
-    height: auto;
-  }
 }

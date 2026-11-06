@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, BriefcaseBusiness, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, House, Package, Plus, Search, Store, Target, Wallet } from "lucide-react";
-import type { ReactNode } from "react";
+import { Bell, ChevronDown, ChevronLeft, ChevronRight, Plus, Search, Store } from "lucide-react";
+import type { CSSProperties, ReactNode } from "react";
 import brand from "@/assets/inicio/brand-shop-cream.svg";
 import papelPicado from "@/assets/inicio/papel-picado.png";
 import { CreditPayButton } from "@/components/fiados/credit-pay-button";
@@ -20,12 +20,17 @@ const sample = [
 ] as const;
 
 const navigation = [
-  { href: "/inicio", label: "Inicio", Icon: House },
-  { href: "/ventas", label: "Ventas", Icon: Package },
-  { href: "/fiados", label: "Fiados", Icon: Wallet },
-  { href: "/caja", label: "Caja", Icon: BriefcaseBusiness },
-  { href: "/metas", label: "Metas", Icon: Target },
-];
+  { href: "/inicio", label: "Inicio", icon: "inicio" },
+  { href: "/ventas", label: "Ventas", icon: "ventas" },
+  { href: "/fiados", label: "Fiados", icon: "saldos" },
+  { href: "/caja", label: "Caja", icon: "caja" },
+  { href: "/metas", label: "Metas", icon: "metas" },
+] as const;
+
+function LedgerIcon({ name }: { name: (typeof navigation)[number]["icon"] | "historial" }) {
+  const style = { "--fi-icon": `url("/assets/spec/fiados-icono-${name}.png")` } as CSSProperties;
+  return <span aria-hidden="true" className="mc-fiados-mobile__icon" style={style} />;
+}
 
 function ledgerHref(query: string, history: boolean, practice: boolean) {
   const params = new URLSearchParams();
@@ -116,10 +121,10 @@ export function MobileLedger({
 
         <nav className="mc-fiados-mobile__tabs" aria-label="Vista de fiados">
           <Link href={ledgerHref(query, false, practice)} aria-current={!history ? "page" : undefined}>
-            <Wallet aria-hidden="true" />Saldos
+            <LedgerIcon name="saldos" />Saldos
           </Link>
           <Link href={ledgerHref(query, true, practice)} aria-current={history ? "page" : undefined}>
-            <ClipboardList aria-hidden="true" />Historial
+            <LedgerIcon name="historial" />Historial
           </Link>
         </nav>
 
@@ -182,9 +187,9 @@ export function MobileLedger({
       </div>
 
       <nav className="mc-fiados-mobile__nav" aria-label="Navegación principal">
-        {navigation.map(({ href, label, Icon }) => (
+        {navigation.map(({ href, label, icon }) => (
           <Link key={href} href={href} prefetch={false} aria-current={href === "/fiados" ? "page" : undefined}>
-            <Icon aria-hidden="true" /><span>{label}</span>
+            <LedgerIcon name={icon} /><span>{label}</span>
           </Link>
         ))}
       </nav>
