@@ -650,7 +650,7 @@ export function TasksPanel({
               width={88}
               height={108}
               className="mc-pend-empty__art"
-              sizes="88px"
+              sizes="(max-width: 479px) 44px, 80px"
             />
             <div className="mc-pend-empty__copy">
               <p className="mc-pend-empty__title">

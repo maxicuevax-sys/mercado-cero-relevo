@@ -209,6 +209,7 @@ export default async function PendientesPage() {
                         </p>
                         <Link
                           href={`/pay/${order.id}`}
+                          prefetch={false}
                           className="mc-pend-order__cta"
                           aria-label={`Cobrar pedido ${shortOrder(order.id)}`}
                         >
