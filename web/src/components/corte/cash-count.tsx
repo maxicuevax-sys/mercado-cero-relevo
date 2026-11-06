@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import {
   useId,
@@ -20,7 +21,6 @@ import {
 import { cn, formatMxn } from "@/lib/format";
 import type { CashClose, CashStatus } from "@/lib/types";
 import registradoraIcon from "@/assets/brand/iconos/transparent/registradora.png";
-import { CloseConfirmDialog } from "./close-confirm-dialog";
 import {
   DENOMINATIONS,
   denominationLabel,
@@ -34,6 +34,11 @@ import {
   type MoneyField,
   type MoneyParseError,
 } from "./money";
+
+const CloseConfirmDialog = dynamic(
+  () => import("./close-confirm-dialog").then((module) => module.CloseConfirmDialog),
+  { loading: () => <p role="status">Abriendo la revisión del corte…</p> },
+);
 
 /**
  * Conteo del corte. Es el primer bloque del DOM y del orden de tabulación:
