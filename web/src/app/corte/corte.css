@@ -790,6 +790,7 @@
 
 .mc-corte-receipt__head {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: 12px;
   min-width: 0;
@@ -816,6 +817,21 @@
 .mc-corte-receipt__headline {
   min-width: 0;
   flex: 1 1 auto;
+}
+
+.mc-corte-receipt__voice {
+  max-width: 100%;
+}
+
+.mc-corte-receipt__voice button {
+  min-height: 48px;
+}
+
+.mc-corte-receipt__voice-status:not(:empty) {
+  margin-top: 4px;
+  max-width: 26ch;
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
 }
 
 .mc-corte-receipt__kicker {

@@ -5,6 +5,7 @@ import { connection } from "next/server";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { CashCount } from "@/components/corte/cash-count";
+import { ReadReceipt } from "@/components/corte/read-receipt";
 import { differenceText, differenceWord } from "@/components/corte/money";
 import { getCashClose, getCashStatus, listCashCloses } from "@/lib/cash";
 import {
@@ -118,6 +119,18 @@ export default async function CortePage() {
   // Recibo del día: efectivo real de caja y digital verificado separados; el
   // fiado pendiente y los cobros por confirmar no son efectivo de cajón.
   const cashTodayCents = status.cashSalesCents + status.cashCreditCents;
+  const receiptSpeech = [
+    demo ? "Resumen del día. Modo demo." : "Resumen del día.",
+    `Efectivo recibido: ${formatMxn(cashTodayCents)}.`,
+    `Cobros digitales verificados: ${formatMxn(summary.verifiedDigitalCents)}.`,
+    summary.declaredDigitalCents > 0
+      ? `Cobros digitales declarados, sin verificar: ${formatMxn(summary.declaredDigitalCents)}.`
+      : "",
+    `Ventas del día: ${formatMxn(summary.salesCents)}.`,
+    `Gastos del día: ${formatMxn(status.expensesCents)}.`,
+    `Retiros: ${formatMxn(status.withdrawalsCents)}.`,
+    `Saldo esperado: ${formatMxn(status.expectedCents)}.`,
+  ].filter(Boolean).join(" ");
   const stampTone = saved
     ? saved.differenceCents === 0
       ? "ok"
@@ -173,6 +186,7 @@ export default async function CortePage() {
                   Así va la caja
                 </h2>
               </div>
+              <ReadReceipt text={receiptSpeech} />
             </div>
 
             <dl className="mc-corte-receipt__rows">
