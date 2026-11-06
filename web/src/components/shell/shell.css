@@ -9,6 +9,10 @@
   display: none;
 }
 
+.inicio-topbar__icon .inicio-topbar__symbol--mobile {
+  display: none;
+}
+
 .inicio-topbar__alerts {
   display: grid;
   width: 48px;
@@ -98,7 +102,7 @@
 }
 
 @media (max-width: 760px) {
-  /* Lámina 02_Inicio_móvil: marca sobre papel, negocio legible y acción +.
+  /* Móvil del tablero maestro confirmado: negocio sobre verde y acción +.
      Solo chrome móvil; el Inicio de escritorio conserva su composición. */
   .inicio-shell .inicio-topbar {
     display: grid;
@@ -165,7 +169,9 @@
     height: 48px;
     flex: 0 0 auto;
   }
-  .inicio-shell .inicio-topbar__icon img { width: 32px; height: 32px; filter: brightness(0) invert(1); }
+  .inicio-shell .inicio-topbar__icon img { width: 32px; height: 32px; filter: none; }
+  .inicio-shell .inicio-topbar__icon .inicio-topbar__symbol--desktop { display: none; }
+  .inicio-shell .inicio-topbar__icon .inicio-topbar__symbol--mobile { display: block; }
 
   .inicio-shell .inicio-topbar__copy {
     display: block;
@@ -173,7 +179,7 @@
 
   .inicio-shell .inicio-topbar__name {
     font-family: Arial, "Segoe UI", sans-serif;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     line-height: 1.35;
     color: var(--inicio-paper);
   }
@@ -268,8 +274,9 @@
 
   .mc-mobile-nav__item[aria-current="page"],
   .mc-mobile-nav__item[aria-current="page"]:visited {
-    background: var(--color-green-soft);
+    background: transparent;
     color: var(--color-green);
+    font-weight: 700;
   }
 
   .mc-mobile-nav__icon {
@@ -398,6 +405,12 @@
     padding: 4px 2px;
     font-size: 0.75rem;
     line-height: 1.1;
+  }
+
+  .inicio-shell.inicio-shell--compact .mc-mobile-nav__item[aria-current="page"] {
+    background: transparent;
+    color: var(--inicio-green);
+    font-weight: 700;
   }
 
   .inicio-shell.inicio-shell--compact .mc-mobile-nav__sale {

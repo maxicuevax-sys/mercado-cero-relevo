@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { MaskIcon } from "@/components/ui/icon";
 import { isNavItemActive, type ShellNavItem } from "./nav";
 import reportIcon from "@/assets/inicio/icons/reportes.svg";
+import shopIcon from "@/assets/inicio/brand-shop-cream.svg";
 import "./shell.css";
 
 export function MobileNav({
@@ -31,7 +32,7 @@ export function MobileNav({
         aria-label={item.ariaLabel}
         className="mc-mobile-nav__item"
       >
-        <MaskIcon src={item.icon} className="mc-mobile-nav__icon" />
+        <MaskIcon src={item.id === "ventas" ? shopIcon : item.icon} className="mc-mobile-nav__icon" />
         <span>{item.label}</span>
       </Link>
     );

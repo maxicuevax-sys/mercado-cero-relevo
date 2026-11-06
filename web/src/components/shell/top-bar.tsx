@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import logoInk from "@/assets/inicio/logo-simbolo.svg";
+import logoCream from "@/assets/inicio/brand-shop-cream.svg";
 import bellIcon from "@/assets/inicio/icons/campana.svg";
 import { MaskIcon } from "@/components/ui/icon";
 
@@ -25,7 +26,8 @@ export function TopBar({
       </Link>
       <div className="inicio-topbar__merchant">
         <Link className="inicio-topbar__icon" href="/inicio" aria-label="Ir a Inicio">
-          <Image src={logoInk} alt="" aria-hidden="true" sizes="46px" />
+          <Image src={logoInk} alt="" aria-hidden="true" className="inicio-topbar__symbol--desktop" sizes="46px" />
+          <Image src={logoCream} alt="" aria-hidden="true" className="inicio-topbar__symbol--mobile" sizes="32px" />
         </Link>
         <div className="inicio-topbar__copy">
           <p className="inicio-topbar__name">{merchant}</p>
