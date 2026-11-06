@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
-import { Plus, QrCode } from "lucide-react";
+import { Plus, QrCode, Sparkles } from "lucide-react";
 import { getDashboardData } from "@/lib/dashboard";
 import { isDemoMode } from "@/lib/config";
 import { listGoals } from "@/lib/goals";
@@ -201,7 +201,7 @@ export default async function InicioPage() {
                 {task.done ? <span className="sr-only">Hecho: </span> : null}
                 <span className="inicio-task__title">{task.title}</span>
                 {task.fixture ? <span className="inicio-task__badge">Ejemplo</span> : null}
-                <span className="inicio-task__time">{task.meta}</span>
+                <span className={`inicio-task__time${task.fixture && task.done ? " inicio-task__time--balance" : ""}`}>{task.meta}</span>
               </li>
             ))}
           </ul>
@@ -220,7 +220,7 @@ export default async function InicioPage() {
         ) : null}
       </section>
 
-      <section className="inicio-suggestion" aria-labelledby="inicio-suggestion-title">
+      <section className="inicio-suggestion" aria-label="Sugerencia">
         <Image
           src={lupitaArt}
           alt=""
@@ -229,9 +229,15 @@ export default async function InicioPage() {
           sizes="330px"
         />
         <div className="inicio-suggestion__content">
-          <p className="inicio-suggestion__kicker">Sugerencia</p>
-          <h2 id="inicio-suggestion-title">Tu negocio, en orden.</h2>
-          <p>Registra una venta o revisa tus pendientes antes de cerrar el día.</p>
+          <div className="inicio-suggestion__mobile-copy">
+            <p className="inicio-suggestion__kicker">Sugerencia</p>
+            <h2>Tu negocio, en orden.</h2>
+            <p>Registra una venta o revisa tus pendientes antes de cerrar el día.</p>
+          </div>
+          <div className="inicio-suggestion__desktop-copy">
+            <h2><Sparkles aria-hidden="true" />Sugerencia</h2>
+            <p>Agrega un producto nuevo.</p>
+          </div>
         </div>
         <Link href="/ventas" className="inicio-suggestion__cta">
           Ir a ventas <Plus aria-hidden="true" />
