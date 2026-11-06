@@ -250,29 +250,6 @@ export default async function FiadosPage({
         sizes="(max-width: 479px) 148px, (max-width: 767px) 130px, 280px"
       />
 
-      <form className="mc-fiados-search" role="search" action="/fiados" method="get">
-        <button type="submit" className="mc-fiados-search__submit" aria-label="Buscar">
-          <Search aria-hidden="true" />
-        </button>
-        <label className="sr-only" htmlFor="mc-fiados-search">
-          Buscar cliente
-        </label>
-        <input
-          id="mc-fiados-search"
-          className="mc-fiados-search__input"
-          type="search"
-          name="q"
-          defaultValue={query}
-          placeholder="Buscar cliente"
-          autoComplete="off"
-        />
-        {query ? (
-          <Link className="mc-fiados-search__clear" href="/fiados">
-            Limpiar
-          </Link>
-        ) : null}
-      </form>
-
       <section
         className="mc-fiados-total"
         aria-labelledby="mc-fiados-total-label"
@@ -296,6 +273,29 @@ export default async function FiadosPage({
           />
         </div>
       </section>
+
+      <form className="mc-fiados-search" role="search" action="/fiados" method="get">
+        <button type="submit" className="mc-fiados-search__submit" aria-label="Buscar">
+          <Search aria-hidden="true" />
+        </button>
+        <label className="sr-only" htmlFor="mc-fiados-search">
+          Buscar cliente
+        </label>
+        <input
+          id="mc-fiados-search"
+          className="mc-fiados-search__input"
+          type="search"
+          name="q"
+          defaultValue={query}
+          placeholder="Buscar cliente"
+          autoComplete="off"
+        />
+        {query ? (
+          <Link className="mc-fiados-search__clear" href="/fiados">
+            Limpiar
+          </Link>
+        ) : null}
+      </form>
 
       <section className="mc-fiados-ledger" aria-labelledby="mc-fiados-ledger-title">
         <div className="mc-fiados-ledger__head">
