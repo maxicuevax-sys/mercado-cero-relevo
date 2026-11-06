@@ -285,11 +285,10 @@
 }
 
 .mc-metas-hero__figures {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 4px 12px;
+  gap: 8px;
 }
 
 .mc-metas-hero__pct {
@@ -412,7 +411,7 @@
   border-left: 0;
 }
 
-.mc-metas-summary__item:not(:last-child) .mc-metas-medallion {
+.mc-metas-summary__item:nth-child(2) .mc-metas-medallion {
   display: none;
 }
 
@@ -474,6 +473,16 @@
 }
 
 @media (max-width: 767.98px) {
+  .mc-metas-summary__item:first-child {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .mc-metas-summary__item:first-child .mc-metas-medallion {
+    width: 28px;
+    height: 28px;
+  }
+
   .mc-metas-summary__value {
     font-size: 1.25rem;
   }
@@ -499,6 +508,12 @@
 
   .mc-metas-create .mc-metas-cta {
     width: 100%;
+  }
+}
+
+@media (max-width: 359.98px) {
+  .mc-metas-hero--active {
+    grid-template-columns: 52px minmax(0, 1fr);
   }
 }
 

@@ -1410,8 +1410,8 @@ html:not([data-contrast="high"]) .mc-fiados-total {
   font-weight: 700;
   letter-spacing: normal;
 }
-/* Status remains available to assistive technology; balance is the visual cue. */
-.mc-fiados-page .mc-fiados-stamp,
+/* Keep the basic ledger row quiet, but surface a settled credit in history. */
+.mc-fiados-page .mc-fiados-row:not(.mc-fiados-row--settled) .mc-fiados-stamp,
 .mc-fiados-page .mc-fiados-row__amount-label {
   position: absolute;
   width: 1px;
@@ -1419,6 +1419,11 @@ html:not([data-contrast="high"]) .mc-fiados-total {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+.mc-fiados-page .mc-fiados-row--settled .mc-fiados-stamp {
+  display: inline-flex;
+  margin-top: 4px;
+  transform: none;
 }
 .mc-fiados-page .mc-fiados-pay-wrap { display: contents; }
 .mc-fiados-page .mc-fiados-pay {

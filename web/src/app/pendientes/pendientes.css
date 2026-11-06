@@ -199,7 +199,19 @@
 }
 
 .mc-pend-sello--pending {
-  color: var(--color-info);
+  gap: 4px;
+  border-radius: 999px;
+  background: var(--color-saffron-soft);
+  color: var(--color-attention);
+  letter-spacing: normal;
+  text-transform: none;
+  transform: none;
+}
+
+.mc-pend-sello--pending svg {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
 }
 
 .mc-pend-sello--partial {
@@ -1232,7 +1244,7 @@
 
   .mc-pend-collections,
   .mc-pend-tasks {
-    padding: 18px 16px;
+    padding: 16px 12px;
   }
 
   /* En móvil los targets suben a 48px (contrato de ritmo). */

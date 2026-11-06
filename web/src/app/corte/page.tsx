@@ -117,7 +117,12 @@ export default async function CortePage() {
           <div><dt>Efectivo en caja</dt><dd>{formatMxn(status.expectedCents)}</dd></div>
           <div><dt>Cobros digitales <span className="sr-only">verificados</span></dt><dd>{formatMxn(summary.verifiedDigitalCents)}</dd></div>
           <div><dt>Ventas del día</dt><dd>{formatMxn(summary.salesCents)}</dd></div>
-          <div><dt>Gastos del día</dt><dd className="mc-corte-summary__out">-{formatMxn(status.expensesCents)}</dd></div>
+          <div>
+            <dt>Gastos del día</dt>
+            <dd className={status.expensesCents > 0 ? "mc-corte-summary__out" : undefined}>
+              {formatMxn(0 - status.expensesCents)}
+            </dd>
+          </div>
           {status.withdrawalsCents > 0 ? <div><dt>Retiros</dt><dd className="mc-corte-summary__out">-{formatMxn(status.withdrawalsCents)}</dd></div> : null}
         </dl>
         <div className="mc-corte-summary__balance"><span>Saldo del día</span><CurrencyAmount as="p" cents={status.expectedCents} /></div>

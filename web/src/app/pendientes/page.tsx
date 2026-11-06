@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock3 } from "lucide-react";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { MaskIcon } from "@/components/ui/icon";
@@ -165,6 +165,7 @@ export default async function PendientesPage() {
                           <span
                             className={`mc-pend-sello mc-pend-sello--${status.tone}`}
                           >
+                            {status.tone === "pending" ? <Clock3 aria-hidden="true" /> : null}
                             {status.label}
                           </span>
                           <span className="mc-pend-age">
