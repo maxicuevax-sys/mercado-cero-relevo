@@ -1011,7 +1011,7 @@ html:not([data-contrast="high"]) .mc-corte-save:hover:not(:disabled) {
   text-align: right;
 }
 
-.mc-corte-receipt__out {
+.mc-corte-receipt__row .mc-corte-receipt__out {
   color: var(--color-attention);
 }
 
@@ -1362,8 +1362,13 @@ html:not([data-contrast="high"]) .mc-corte-save:hover:not(:disabled) {
     padding: 20px 16px;
   }
 
+  .mc-corte-save {
+    min-height: clamp(3.5rem, 18vw, 4.5rem);
+    border-radius: 16px;
+  }
+
   .mc-corte-receipt {
-    padding: 12px 4px;
+    padding: 12px 6px;
     border-color: transparent;
     background: transparent;
     box-shadow: none;
@@ -1530,6 +1535,12 @@ html:not([data-contrast="high"]) .mc-corte-save:hover:not(:disabled) {
 
   .mc-corte-dialog__body {
     padding: 14px 14px calc(18px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 359.98px) {
+  .mc-corte-receipt {
+    padding-inline: 2px;
   }
 }
 
