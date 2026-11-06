@@ -216,7 +216,7 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
         {SUGGESTIONS.map(({ label, image }) => <button type="button" key={label} className={`mc-sale-voice__chip mc-sale-voice__chip--${image}`} disabled={disabled || busy} onClick={() => { setText(label); setProposal([]); setError(null); document.getElementById("mc-sale-voice-text")?.focus(); }}>
           {/* Original reference crop; intentionally rendered at its requested 20px size. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`/assets/spec/caja-chip-${image}.png`} alt="" width={20} height={20} />
+          <span className="mc-sale-voice__chip-art"><img src={`/assets/spec/caja-chip-${image}.png`} alt="" width={20} height={20} /></span>
           <span>{label}</span>
         </button>)}
         <button type="button" className="mc-sale-voice__chip mc-sale-voice__chip--more" disabled={disabled || busy} onClick={openManual}><Plus aria-hidden="true" /><span>Más</span></button>
