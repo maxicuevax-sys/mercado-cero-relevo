@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
-import { Plus } from "lucide-react";
+import { Plus, QrCode } from "lucide-react";
 import { getDashboardData } from "@/lib/dashboard";
 import { isDemoMode } from "@/lib/config";
 import { listGoals } from "@/lib/goals";
@@ -16,6 +16,10 @@ import iconCompras from "@/assets/inicio/icons/compras.svg";
 import iconMonedas from "@/assets/inicio/icons/monedas.svg";
 import iconPendientes from "@/assets/inicio/icons/pendientes.svg";
 import iconMetas from "@/assets/inicio/icons/metas.svg";
+import iconFiado from "@/assets/inicio/icons/fiado.svg";
+import iconCaja from "@/assets/inicio/icons/caja.svg";
+import botArt from "@/assets/brand/ilustraciones/transparent/bot.png";
+import microphoneArt from "@/assets/brand/iconos/transparent/microfono.png";
 import { AppShell } from "@/components/shell/app-shell";
 import { TopBar } from "@/components/shell/top-bar";
 import { MaskIcon } from "@/components/ui/icon";
@@ -169,6 +173,13 @@ export default async function InicioPage() {
         </div>
       </section>
 
+      <nav className="inicio-shortcuts" aria-label="Accesos rápidos">
+        <Link href="/caja#mc-caja-payment-summary"><QrCode aria-hidden="true" /><span>Cobro digital</span></Link>
+        <Link href="/fiados"><MaskIcon src={iconFiado} /><span>Fiados</span></Link>
+        <Link href="/corte" aria-label="Caja y corte"><MaskIcon src={iconCaja} /><span>Caja</span></Link>
+        <Link href="/metas"><MaskIcon src={iconMetas} /><span>Metas</span></Link>
+      </nav>
+
       <section className="inicio-pending" aria-labelledby="inicio-pending-title">
         <SectionHeader
           className="inicio-pending__head"
@@ -224,6 +235,13 @@ export default async function InicioPage() {
         <Link href="/ventas" className="inicio-suggestion__cta">
           Ir a ventas <Plus aria-hidden="true" />
         </Link>
+      </section>
+
+      <section className="inicio-assistant" aria-labelledby="inicio-assistant-title">
+        <Image src={botArt} alt="" aria-hidden="true" width={72} height={72} sizes="72px" />
+        <div><h2 id="inicio-assistant-title">Asistente <span>(opcional)</span></h2><p>Consulta la guía o dicta una venta cuando lo necesites.</p></div>
+        <Link href="/ayuda">Ver ayuda</Link>
+        <Link href="/caja"><Image src={microphoneArt} alt="" aria-hidden="true" width={24} height={24} />Dictar venta</Link>
       </section>
     </AppShell>
   );

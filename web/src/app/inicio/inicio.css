@@ -500,7 +500,7 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "greeting" "kpis" "hero" "pending" "suggestion";
+  grid-template-areas: "greeting" "kpis" "hero" "pending" "suggestion" "assistant";
   gap: 20px;
   align-items: start;
   width: calc(100% - 48px);
@@ -641,7 +641,7 @@
 @container inicio-main (min-width: 52rem) {
   .inicio-content {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-areas: "greeting greeting" "kpis kpis" "hero pending" "suggestion suggestion";
+    grid-template-areas: "greeting greeting" "kpis kpis" "hero pending" "suggestion suggestion" "assistant assistant";
   }
   .inicio-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
@@ -755,9 +755,34 @@
 .inicio-greeting__mobile-art,
 .inicio-hero__mobile-label { display: none; }
 
+.inicio-shortcuts { display: none; grid-area: shortcuts; }
+.inicio-assistant {
+  grid-area: assistant;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--inicio-border);
+  border-radius: 22px;
+  background: var(--inicio-surface);
+}
+.inicio-assistant > img { width: 72px; height: 72px; object-fit: contain; }
+.inicio-assistant h2 { font-family: var(--font-hearth), Georgia, serif; font-size: 1.25rem; font-weight: 600; }
+.inicio-assistant h2 span { font-family: Arial, "Segoe UI", sans-serif; font-size: 0.8125rem; }
+.inicio-assistant p { margin-top: 4px; font-size: 0.875rem; }
+.inicio-assistant a {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 8px 14px; border: 1px solid var(--inicio-border);
+  border-radius: 14px; color: var(--inicio-green); text-decoration: none;
+  font-size: 0.875rem; font-weight: 600;
+}
+.inicio-assistant a img { width: 24px; height: 24px; object-fit: contain; }
+
 @media (max-width: 760px) {
   .inicio-shell--compact .inicio-content {
-    grid-template-areas: "greeting" "kpis" "hero" "pending" "suggestion";
+    grid-template-areas: "greeting" "kpis" "hero" "shortcuts" "pending" "suggestion" "assistant";
     gap: 16px;
   }
   .inicio-shell--compact .inicio-greeting {
@@ -774,6 +799,7 @@
   .inicio-shell--compact .inicio-greeting > div { grid-column: 1; grid-row: 1; }
   .inicio-shell--compact .inicio-greeting h1 { font-size: 1.375rem; }
   .inicio-shell--compact .inicio-greeting p { max-width: 26ch; font-size: 0.75rem; }
+  .inicio-shell--compact .inicio-greeting p { display: none; }
   .inicio-shell--compact .inicio-greeting__mobile-art {
     display: block;
     position: absolute;
@@ -818,15 +844,30 @@
     border-radius: inherit;
     box-shadow: inset 0 0 0 3px rgb(255 253 247 / 0.06);
   }
+  .inicio-shortcuts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .inicio-shortcuts a {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; min-height: 64px; min-width: 0; padding: 8px 4px;
+    border: 1px solid var(--inicio-border); border-radius: 14px;
+    background: var(--inicio-surface); color: var(--inicio-ink);
+    font-size: 0.6875rem; line-height: 1.2; text-align: center; text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+  .inicio-shortcuts svg, .inicio-shortcuts .inicio-icon { width: 24px; height: 24px; }
+  .inicio-assistant { grid-template-columns: 48px minmax(0, 1fr); }
+  .inicio-assistant > img { width: 48px; height: 48px; }
+  .inicio-assistant a { grid-column: span 1; }
 }
 
 @container inicio-main (max-width: 19rem) {
   .inicio-shell--compact .inicio-kpis { grid-template-columns: minmax(0, 1fr); }
   .inicio-shell--compact .inicio-greeting__mobile-art { display: none; }
+  .inicio-shortcuts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .inicio-assistant { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (min-width: 1200px) {
-  .inicio-shell--compact { grid-template-columns: 240px minmax(0, 1fr); }
+  .inicio-shell--compact { grid-template-columns: 241px minmax(0, 1fr); }
   .inicio-shell--compact .inicio-sidebar { padding-top: 24px; }
   .inicio-shell--compact .inicio-brand__name { font-size: min(2.5rem, 40px); }
   .inicio-shell--compact .inicio-nav__item { min-height: 58px; font-size: 1.375rem; }
@@ -842,8 +883,9 @@
   .inicio-shell--compact .inicio-topbar__address { font-size: 1.25rem; }
   .inicio-shell--compact .inicio-avatar { width: 58px; height: 58px; font-size: 1.75rem; }
   .inicio-shell--compact .inicio-content {
-    width: calc(100% - 52px);
+    width: calc(100% - 47px);
     max-width: none;
+    margin-inline: 26px 21px;
     padding: 24px 0 34px;
     gap: 24px 20px;
     grid-template-columns: minmax(0, 0.484fr) minmax(0, 0.516fr);
@@ -862,24 +904,24 @@
   .inicio-shell--compact .inicio-picado {
     position: absolute;
     top: -24px;
-    right: -26px;
-    width: 460px;
+    right: -21px;
+    width: 488px;
   }
-  .inicio-shell--compact .inicio-kpis { gap: 16px; }
-  .inicio-shell--compact .inicio-kpi { min-height: 204px; padding: 20px 22px; border-radius: 24px; }
+  .inicio-shell--compact .inicio-kpis { gap: 16px; margin-bottom: 10px; }
+  .inicio-shell--compact .inicio-kpi { min-height: 202px; padding: 19px 22px; border-radius: 24px; }
   .inicio-shell--compact .inicio-kpi__top { gap: 16px; font-size: 1.25rem; }
   .inicio-shell--compact .inicio-kpi__icon { width: 60px; height: 60px; border-radius: 50%; }
   .inicio-shell--compact .inicio-kpi__glyph { width: 36px; height: 36px; }
   .inicio-shell--compact .inicio-kpi__value { margin-top: 14px; font-size: 2.5rem; }
-  .inicio-shell--compact .inicio-kpi__note { font-size: 0.75rem; }
-  .inicio-shell--compact .inicio-goal { height: 18px; margin-top: 18px; }
+  .inicio-shell--compact .inicio-kpi__note { font-size: 0.75rem; margin-top: 1px; }
+  .inicio-shell--compact .inicio-goal { height: 18px; margin-top: 8px; }
   .inicio-shell--compact .inicio-hero { min-height: 310px; border-radius: 26px; }
   .inicio-shell--compact .inicio-hero__content { padding: 24px 24px 24px 0; }
-  .inicio-shell--compact .inicio-hero h2 { font-size: 2.75rem; }
-  .inicio-shell--compact .inicio-hero p { font-size: 0.875rem; }
+  .inicio-shell--compact .inicio-hero h2 { font-size: 2.375rem; }
+  .inicio-shell--compact .inicio-hero p { display: none; }
   .inicio-shell--compact .inicio-hero__cta { min-height: 62px; padding: 12px 32px; border-radius: 30px; font-size: 1.5rem; }
   .inicio-shell--compact .inicio-hero__cta svg { width: 30px; height: 30px; }
-  .inicio-shell--compact .inicio-pending { min-height: 310px; padding: 20px 34px; border-radius: 26px; }
+  .inicio-shell--compact .inicio-pending { min-height: 308px; padding: 14px 34px; border-radius: 26px; }
   .inicio-shell--compact .inicio-pending h2 { font-size: 2rem; }
   .inicio-shell--compact .inicio-pending__icon { width: 40px; height: 40px; }
   .inicio-shell--compact .inicio-pending__head a { font-size: 1.25rem; }
@@ -888,6 +930,7 @@
   .inicio-shell--compact .inicio-task__time { font-size: 1.125rem; }
   .inicio-shell--compact .inicio-suggestion {
     min-height: 214px;
+    margin-top: 1px;
     grid-template-columns: 330px minmax(0, 1fr) auto;
     gap: 20px;
     padding: 0 26px 0 0;
