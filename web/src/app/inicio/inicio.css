@@ -788,16 +788,25 @@
     padding-top: clamp(20px, 6.4vw, 25px);
   }
   .inicio-shell--compact .inicio-greeting {
+    --inicio-mobile-sun-size: clamp(48px, 15.642vw, 61px);
     position: relative;
     isolation: isolate;
     min-height: 48px;
     align-items: center;
     padding-top: 0;
-    grid-template-columns: minmax(0, 1fr) 36px;
+    grid-template-columns: minmax(0, 1fr) var(--inicio-mobile-sun-size);
     gap: 10px;
+    padding-left: clamp(9px, 3.077vw, 12px);
   }
   .inicio-shell--compact .inicio-greeting > div { position: relative; z-index: 1; }
-  .inicio-shell--compact .inicio-sun { grid-column: 2; grid-row: 1; }
+  .inicio-shell--compact .inicio-sun {
+    position: absolute;
+    width: var(--inicio-mobile-sun-size);
+    height: var(--inicio-mobile-sun-size);
+    right: clamp(9px, 2.82vw, 11px);
+    top: 50%;
+    transform: translateY(-50%);
+  }
   .inicio-shell--compact .inicio-greeting > div { grid-column: 1; grid-row: 1; }
   .inicio-shell--compact .inicio-greeting h1 { font-size: clamp(1.5rem, 7.18vw, 1.75rem); }
   .inicio-shell--compact .inicio-greeting__owner { display: none; }
