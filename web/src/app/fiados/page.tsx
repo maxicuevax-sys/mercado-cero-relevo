@@ -232,7 +232,6 @@ export default async function FiadosPage({
       title="Fiados"
       titleId="fiados-title"
       eyebrow="Libreta de la clientela"
-      subtitle="Lo que te deben, no dinero recibido. Un abono baja el saldo y no crea una venta nueva."
       merchant={merchant.name}
       address={merchant.address}
       demo={demo}
@@ -251,7 +250,6 @@ export default async function FiadosPage({
         sizes="(max-width: 767px) 130px, 280px"
       />
 
-      {/* Tarjeta protagonista: el dato principal de la pantalla. */}
       <form className="mc-fiados-search" role="search" action="/fiados" method="get">
         <button type="submit" className="mc-fiados-search__submit" aria-label="Buscar">
           <Search aria-hidden="true" />
@@ -275,7 +273,11 @@ export default async function FiadosPage({
         ) : null}
       </form>
 
-      <section className="mc-fiados-total" aria-labelledby="mc-fiados-total-label">
+      <section
+        className="mc-fiados-total"
+        aria-labelledby="mc-fiados-total-label"
+        aria-describedby="mc-fiados-total-meta"
+      >
         <Image
           src={ahorroArt}
           alt=""
@@ -292,9 +294,6 @@ export default async function FiadosPage({
             cents={openTotals.balanceCents}
             className="mc-fiados-total__value"
           />
-          <p className="mc-fiados-total__meta">
-            {customersLabel} · {openLabel}
-          </p>
         </div>
       </section>
 
@@ -378,7 +377,10 @@ export default async function FiadosPage({
       </section>
 
       <p className="mc-fiados-note">
-        Un abono reduce la deuda y no crea una venta nueva. Si fue en efectivo,
+        <span id="mc-fiados-total-meta" className="mc-fiados-note__total">
+          {customersLabel} · {openLabel}
+        </span>
+        Lo que te deben no es dinero recibido. Un abono reduce la deuda y no crea una venta nueva. Si fue en efectivo,
         suma al efectivo de hoy; digital o tarjeta quedan como abono declarado,
         sin verificación de pey. El fiado no se suma a la caja hasta que se cobra.
       </p>
