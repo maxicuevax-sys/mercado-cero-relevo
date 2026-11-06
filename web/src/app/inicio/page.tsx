@@ -20,6 +20,7 @@ import iconFiado from "@/assets/inicio/icons/fiado.svg";
 import iconCaja from "@/assets/inicio/icons/caja.svg";
 import botArt from "@/assets/brand/ilustraciones/transparent/bot.png";
 import microphoneArt from "@/assets/brand/iconos/transparent/microfono.png";
+import pendingPhoneArt from "@/assets/brand/iconos/transparent/qr-telefono.png";
 import { AppShell } from "@/components/shell/app-shell";
 import { TopBar } from "@/components/shell/top-bar";
 import { MaskIcon } from "@/components/ui/icon";
@@ -128,7 +129,7 @@ export default async function InicioPage() {
         <article className="inicio-kpi">
           <div className="inicio-kpi__top">
             <span className="inicio-kpi__icon">
-              <MaskIcon src={iconPendientes} className="inicio-kpi__glyph" />
+              <Image src={pendingPhoneArt} alt="" aria-hidden="true" className="inicio-kpi__glyph" sizes="36px" />
             </span>
             <span>Por cobrar</span>
           </div>

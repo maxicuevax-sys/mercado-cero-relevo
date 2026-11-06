@@ -549,11 +549,12 @@
   box-shadow: 0 2px 8px rgb(31 38 34 / 0.045);
 }
 .inicio-kpi__top { display: flex; align-items: center; gap: 10px; font-size: 0.9375rem; font-weight: 600; line-height: 1.3; }
-.inicio-kpi__icon { width: 32px; height: 32px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 10px; background: #e2f3e7; color: #0a5039; }
-.inicio-kpi__glyph { width: 20px; height: 20px; }
-.inicio-kpi:nth-child(2) .inicio-kpi__icon { background: #f7e8c9; color: #725012; }
-.inicio-kpi:nth-child(3) .inicio-kpi__icon { background: #fbe9e6; color: #8f2d1c; }
-.inicio-kpi:nth-child(4) .inicio-kpi__icon { background: #fbe9e6; color: #c1492e; }
+/* Medianas del fondo de los medallones del canon1448 (sin trazo del icono). */
+.inicio-kpi__icon { width: 32px; height: 32px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 10px; background: #e5ebb6; color: #0a5039; }
+.inicio-kpi__glyph { width: 20px; height: 20px; object-fit: contain; }
+.inicio-kpi:nth-child(2) .inicio-kpi__icon { background: #fde4b1; color: #725012; }
+.inicio-kpi:nth-child(3) .inicio-kpi__icon { background: #fde4b2; color: #725012; }
+.inicio-kpi:nth-child(4) .inicio-kpi__icon { background: #fde1ca; color: #c1492e; }
 .inicio-kpi__value {
   margin-top: 14px;
   font-family: var(--font-alder), sans-serif;
