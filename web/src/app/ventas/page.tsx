@@ -6,7 +6,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Plus,
+  Mic,
 } from "lucide-react";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
@@ -88,7 +88,7 @@ export default async function VentasPage({
       subtitle="Consulta las ventas registradas. Los importes son ventas, no necesariamente dinero cobrado."
       actions={
         <Link href="/caja" className="mc-ventas-cta">
-          <Plus aria-hidden="true" />
+          <Mic aria-hidden="true" />
           Nueva venta
         </Link>
       }

@@ -1,5 +1,19 @@
 # STATE — Mercado Cero
 
+## Continuación local — Ventas y Caja, 5 nov 2026
+
+- Rama actual: `codex/visual-session-b`; base `9252f38`.
+- Ajustes de micrófono principal, frases cortas, ticket vacío móvil y estados
+  accesibles. Ventas conserva historial y CTA hacia Caja con icono de micrófono.
+- Informe: `quality-reports/exact-parity/ENTREGA.md`.
+- Pruebas: UI 42/0 (1448/390/320, texto200 y permiso denegado), adaptador voz
+  10/0, harness 58/0. Capturas en `harness/evidence/exact-parity/`.
+- Transcripción real: 500 reproducido; falta OPENAI_API_KEY en este entorno.
+- Paridad exacta: NO-GO; falta canon dedicado de historial Ventas y persisten
+  diferencias de composición documentadas en Caja. Sin aceptación visual.
+- Evidencia estática: consultar `latest-static.json` contra HEAD con
+  `npm run verify:evidence -- --static`. No se ejecutó full ni despliegue.
+
 > Handoff vivo para agentes. Última actualización: **4 de noviembre de 2026**,
 > al integrar el Inicio compacto de Codex sobre B.1.
 > No reconstruyas el estado de memoria: si un dato no está aquí ni en

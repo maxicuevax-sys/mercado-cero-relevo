@@ -54,7 +54,7 @@ export function SaleLineItems({
   }
 
   return (
-    <section className="mc-caja-card mc-caja-items" aria-labelledby="mc-caja-items-title">
+    <section className={`mc-caja-card mc-caja-items${lines.length === 0 ? " mc-caja-items--empty" : ""}`} aria-labelledby="mc-caja-items-title">
       <div className="mc-caja-card__head">
         <div>
           <p className="mc-caja-eyebrow">Conceptos</p>

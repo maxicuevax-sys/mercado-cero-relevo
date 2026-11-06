@@ -7,7 +7,11 @@ import { draftTotalCents, lineTotalCents, newLineId, type DraftLine } from "./ty
 import { voiceDraft } from "./voice-draft";
 
 type Phase = "idle" | "permission" | "recording" | "transcribing" | "parsing";
-const SUGGESTIONS = ["2 quesadillas de 35 pesos", "1 refresco de 20 pesos", "3 tacos de 15 pesos"];
+const SUGGESTIONS = [
+  { label: "Quesadilla", text: "2 quesadillas de 35 pesos" },
+  { label: "Refresco", text: "1 refresco de 20 pesos" },
+  { label: "Taco", text: "3 tacos de 15 pesos" },
+];
 
 /** Mismo MediaRecorder y APIs que Caja clásica. Solo propone conceptos, sin mutar pedidos. */
 export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (lines: DraftLine[]) => boolean }) {
@@ -185,24 +189,24 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
 
   return (
     <section className="mc-sale-voice" aria-labelledby="mc-sale-voice-title">
-      <h2 id="mc-sale-voice-title">¿Qué vendiste?</h2>
+      <h2 id="mc-sale-voice-title"><label htmlFor="mc-sale-voice-text">¿Qué vendiste?</label></h2>
       <div className="mc-sale-voice__field">
         <input id="mc-sale-voice-text" aria-label="Describe lo que vendiste" placeholder="Ej. 2 quesadillas de 35 pesos" value={text} maxLength={2000}
-          disabled={disabled || busy} aria-describedby="mc-sale-voice-hint" onChange={(event) => { setText(event.target.value); setProposal([]); setError(null); }}
+          disabled={disabled || busy} aria-describedby={error ? "mc-sale-voice-hint mc-sale-voice-error" : "mc-sale-voice-hint"} onChange={(event) => { setText(event.target.value); setProposal([]); setError(null); }}
           onKeyDown={(event) => { if (event.key === "Enter" && !event.nativeEvent.isComposing) { event.preventDefault(); void parseText(); } }} />
-        <button type="button" className="mc-sale-voice__mic" aria-label={phase === "recording" ? "Detener dictado" : "Dictar venta"} aria-pressed={phase === "recording"}
+        <button type="button" className="mc-sale-voice__mic" aria-label={phase === "recording" ? "Detener dictado" : "Dictar venta"} aria-pressed={phase === "recording"} aria-describedby={error ? "mc-sale-voice-hint mc-sale-voice-error" : "mc-sale-voice-hint"}
           disabled={disabled || (busy && phase !== "recording")} onClick={() => void microphone()}>
           {phase === "recording" ? <Square aria-hidden="true" /> : <Mic aria-hidden="true" />}
         </button>
       </div>
       <div className="mc-sale-voice__phrases" aria-label="Frases sugeridas">
-        {SUGGESTIONS.map((phrase) => <button type="button" key={phrase} disabled={disabled || busy} onClick={() => { setText(phrase); setProposal([]); setError(null); document.getElementById("mc-sale-voice-text")?.focus(); }}>{phrase}</button>)}
+        {SUGGESTIONS.map(({ label, text: phrase }) => <button type="button" key={label} disabled={disabled || busy} onClick={() => { setText(phrase); setProposal([]); setError(null); document.getElementById("mc-sale-voice-text")?.focus(); }}>{label}</button>)}
       </div>
       <div className="mc-sale-voice__actions">
-        <p id="mc-sale-voice-hint">{phase === "recording" ? "Escuchando… Pulsa detener al terminar. Máximo 30 segundos." : phase === "permission" ? "Esperando permiso de micrófono…" : phase === "transcribing" ? "Transcribiendo audio…" : phase === "parsing" ? "Interpretando venta…" : "Pulsa el micrófono para dictar o escribe la venta."}</p>
+        <p id="mc-sale-voice-hint" role="status">{phase === "recording" ? "Escuchando… Pulsa detener al terminar. Máximo 30 segundos." : phase === "permission" ? "Esperando permiso de micrófono…" : phase === "transcribing" ? "Transcribiendo audio…" : phase === "parsing" ? "Interpretando venta…" : "Pulsa el micrófono para dictar o escribe la venta."}</p>
         {busy ? <button type="button" className="mc-caja-clear" onClick={cancel}>Cancelar dictado</button> : <button type="button" className="mc-caja-button mc-caja-button--secondary" disabled={disabled || !text.trim()} onClick={() => void parseText()}>Interpretar</button>}
       </div>
-      {error ? <p className="mc-sale-voice__error" role="alert">{error}</p> : null}
+      {error ? <p id="mc-sale-voice-error" className="mc-sale-voice__error" role="alert">{error}</p> : null}
       <p className="mc-sale-voice__notice" role="status">{notice}</p>
       {proposal.length ? <div className="mc-sale-voice__proposal">
         <h3>Revisa lo que entendí</h3>
