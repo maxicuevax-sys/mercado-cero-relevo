@@ -106,7 +106,7 @@
      Solo chrome móvil; el Inicio de escritorio conserva su composición. */
   .inicio-shell .inicio-topbar {
     display: grid;
-    min-height: 0;
+    min-height: 78px;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 4px 8px;
     padding: 12px 16px;
@@ -185,9 +185,9 @@
   }
 
   .inicio-shell .inicio-topbar__address {
-    margin: 0;
-    font-size: 0.75rem;
-    color: var(--inicio-paper);
+    /* El maestro móvil muestra solo el negocio; la dirección completa
+       permanece en el topbar desktop, sin añadir otra fila al chrome. */
+    display: none;
   }
 
   .inicio-shell .inicio-topbar__actions {
@@ -224,7 +224,8 @@
     width: 100%;
     max-width: none;
     margin-inline: 0;
-    padding-inline: 16px;
+    padding-inline: 8px;
+    border-radius: 30px 30px 0 0;
   }
   .inicio-shell > .inicio-sidebar {
     display: none;
