@@ -43,7 +43,7 @@ test("rechaza NaN, negativos, infinitos, fracciones de centavo y precios fuera d
   for (const unitPriceCents of [NaN, Infinity, -1, 1.5, 10000001]) assert.throws(() => voiceDraft(sale([item({ unitPriceCents })])));
 });
 test("no trunca ni redondea silenciosamente cantidades", () => {
-  for (const quantity of [0, -1, 1000, NaN, Infinity, 0.0001]) assert.throws(() => voiceDraft(sale([item({ quantity })])));
+  for (const quantity of [0, -1, 1000, NaN, Infinity, 0.0001, 1e-10, 1e-7]) assert.throws(() => voiceDraft(sale([item({ quantity })])));
 });
 test("respeta límites de descripción y número de líneas", () => {
   for (const description of [" ", "x".repeat(161)]) assert.throws(() => voiceDraft(sale([item({ description })])));

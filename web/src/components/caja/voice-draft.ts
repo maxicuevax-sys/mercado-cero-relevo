@@ -1,4 +1,4 @@
-import { parseMoneyCents, type DraftLine } from "./types";
+import { parseMoneyCents, parseQuantity, type DraftLine } from "./types";
 
 /** Adaptar el parser existente al ticket editable; nunca aceptar una operación de cobro. */
 export function voiceDraft(value: unknown): Array<Omit<DraftLine, "id">> {
@@ -12,7 +12,7 @@ export function voiceDraft(value: unknown): Array<Omit<DraftLine, "id">> {
         typeof item.description !== "string" || !item.description.trim() || item.description.trim().length > 160 ||
         !("quantity" in item) || typeof item.quantity !== "number" ||
         !Number.isFinite(item.quantity) || item.quantity <= 0 || item.quantity > 999 ||
-        Math.abs(item.quantity * 1000 - Math.round(item.quantity * 1000)) > 0.000001 ||
+        parseQuantity(String(item.quantity)) !== item.quantity ||
         !("unitPriceCents" in item) || typeof item.unitPriceCents !== "number" ||
         !Number.isSafeInteger(item.unitPriceCents) || item.unitPriceCents < 0 || item.unitPriceCents > 10_000_000) {
       throw new Error("No pude leer todos los conceptos con seguridad. Revisa la frase o agrégalos a mano.");

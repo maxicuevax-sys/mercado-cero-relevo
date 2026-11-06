@@ -25,15 +25,15 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
   const busy = phase !== "idle";
   const invalidate = useCallback(() => { generation.current++; }, []);
 
-  function release() {
+  const release = useCallback(() => {
     if (timer.current) clearTimeout(timer.current);
     timer.current = null;
     stream.current?.getTracks().forEach((track) => track.stop());
     stream.current = null;
-  }
+  }, []);
 
-  function cancel() {
-    generation.current++;
+  const cancel = useCallback(() => {
+    invalidate();
     request.current?.abort();
     request.current = null;
     const current = recorder.current;
@@ -47,7 +47,11 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
     active.current = false;
     setPhase("idle");
     setNotice("Dictado cancelado. El ticket no cambió.");
-  }
+  }, [invalidate, release]);
+
+  useEffect(() => {
+    if (disabled && active.current) cancel();
+  }, [disabled, cancel]);
 
   useEffect(() => {
     function hidden() {
