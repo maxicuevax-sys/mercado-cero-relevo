@@ -899,14 +899,16 @@
   .inicio-shell--compact .inicio-nav__icon { width: 32px; height: 32px; }
   .inicio-shell--compact .inicio-topbar {
     min-height: 102px;
-    padding: 16px 35px;
+    padding: 16px 32px 16px 35px;
   }
   .inicio-shell--compact .inicio-topbar__merchant { gap: 21px; }
   .inicio-shell--compact .inicio-topbar__icon,
   .inicio-shell--compact .inicio-topbar__icon img { width: 58px; height: 58px; }
   .inicio-shell--compact .inicio-topbar__name { font-size: 1.875rem; }
   .inicio-shell--compact .inicio-topbar__address { font-size: 1.25rem; }
-  .inicio-shell--compact .inicio-avatar { width: 58px; height: 58px; font-size: 1.75rem; }
+  .inicio-shell--compact .inicio-topbar__actions { gap: 40px; }
+  .inicio-shell.inicio-shell--compact .inicio-topbar__bell { width: 48px; height: 48px; transform: translateY(2px); }
+  .inicio-shell--compact .inicio-avatar { width: 58px; height: 58px; font-size: 1.75rem; line-height: 1; }
   .inicio-shell--compact .inicio-content {
     width: calc(100% - 47px);
     max-width: none;

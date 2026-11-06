@@ -23,7 +23,7 @@
   color: var(--inicio-ink);
 }
 
-.inicio-topbar__bell { width: 32px; height: 32px; }
+.inicio-shell .inicio-topbar__bell { width: 32px; height: 32px; }
 
 .inicio-icon {
   display: inline-block;
