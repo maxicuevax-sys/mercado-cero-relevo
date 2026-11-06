@@ -10,6 +10,7 @@ import ajustesIcon from "@/assets/brand/iconos/transparent/ajustes.png";
 import reciboIcon from "@/assets/brand/iconos/transparent/recibo.png";
 import qrTelefonoIcon from "@/assets/brand/iconos/transparent/qr-telefono.png";
 import registradoraIcon from "@/assets/brand/iconos/transparent/registradora.png";
+import microfonoIcon from "@/assets/brand/iconos/transparent/microfono.png";
 import "./ayuda.css";
 
 export const metadata: Metadata = {
@@ -71,44 +72,34 @@ export default async function AyudaPage() {
       titleId="ayuda-title"
       eyebrow="Ayuda"
       subtitle="Respuestas para vender, cobrar y fiar."
+      contentClassName="mc-ayuda-page"
       merchant={MERCHANT.name}
       address={MERCHANT.address}
       demo={isDemoMode()}
     >
       <div className="mc-ayuda-layout">
         <section className="mc-ayuda-intro" aria-labelledby="mc-ayuda-intro-title">
-          <Image src={botArt} alt="" aria-hidden="true" width={48} height={48} />
+          <Image src={botArt} alt="" aria-hidden="true" width={116} height={116} sizes="(max-width: 767px) 80px, 116px" />
           <div>
+            <p className="mc-ayuda-intro__eyebrow">Asistente · opcional</p>
             <h2 id="mc-ayuda-intro-title">¿En qué te puedo ayudar?</h2>
-            <p>Elige una pregunta sobre ventas, cobros o fiados.</p>
+            <p>Consulta la guía o ve a Caja para dictar tu venta.</p>
+            <div className="mc-ayuda-intro__actions">
+              <Link href="/caja" className="mc-ayuda-action mc-ayuda-action--primary">
+                <Image src={microfonoIcon} alt="" aria-hidden="true" width={24} height={24} />
+                Dictar una venta
+              </Link>
+              <Link href="#mc-ayuda-faq-title" className="mc-ayuda-action mc-ayuda-action--secondary">Ver preguntas</Link>
+            </div>
           </div>
         </section>
 
-        <section
-          className="mc-art-paper mc-ayuda-faq-panel"
-          aria-labelledby="mc-ayuda-faq-title"
-        >
-          <div className="mc-art-paper__head">
-            <h2 id="mc-ayuda-faq-title" className="mc-art-paper__title">
-              Preguntas frecuentes
-            </h2>
-            <span className="mc-art-stamp mc-art-stamp--green">7 respuestas</span>
-          </div>
-          <HelpFaq />
-          <p className="mc-art-paper__note">
-            Respuestas fijas y verificadas: la app no usa el modelo para decidir
-            si un pago llegó.
-          </p>
-          <p className="mc-ayuda-note">
-            ¿Tu duda no está aquí? En Ajustes cambias cómo se lee la app; en Caja
-            practicas el recorrido completo.
-          </p>
-        </section>
+
 
         <section className="mc-ayuda-steps" aria-labelledby="mc-ayuda-steps-title">
           <div className="mc-art-head">
             <h2 id="mc-ayuda-steps-title" className="mc-art-section-title">
-              Tres cosas que conviene tener claras
+              Vende y cobra en tres pasos
             </h2>
             <span className="mc-art-stamp mc-art-stamp--clay">
               Sin letras chiquitas
@@ -161,6 +152,27 @@ export default async function AyudaPage() {
         </section>
 
 
+
+        <section
+          className="mc-art-paper mc-ayuda-faq-panel"
+          aria-labelledby="mc-ayuda-faq-title"
+        >
+          <div className="mc-art-paper__head">
+            <h2 id="mc-ayuda-faq-title" className="mc-art-paper__title">
+              Preguntas frecuentes
+            </h2>
+            <span className="mc-art-stamp mc-art-stamp--green">7 respuestas</span>
+          </div>
+          <HelpFaq />
+          <p className="mc-art-paper__note">
+            Respuestas fijas y verificadas: la app no usa el modelo para decidir
+            si un pago llegó.
+          </p>
+          <p className="mc-ayuda-note">
+            ¿Tu duda no está aquí? En Ajustes cambias cómo se lee la app; en Caja
+            practicas el recorrido completo.
+          </p>
+        </section>
 
         <section
           className="mc-art-paper mc-ayuda-cta"

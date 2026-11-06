@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { connection } from "next/server";
 import { ArtBanner } from "@/components/shell/art-banner";
 import { OperationalPage } from "@/components/shell/operational-page";
@@ -7,6 +8,7 @@ import { AccessibilityPanel } from "@/components/ajustes/accessibility-panel";
 import { CompanionPreferences } from "@/components/companion-preferences";
 import { MERCHANT, isDemoMode } from "@/lib/config";
 import lupitaArt from "@/assets/brand/ilustraciones/transparent/lupita.png";
+import microfonoIcon from "@/assets/brand/iconos/transparent/microfono.png";
 import "./ajustes.css";
 
 export const metadata: Metadata = {
@@ -34,6 +36,7 @@ export default async function AjustesPage() {
       titleId="ajustes-title"
       eyebrow="Accesibilidad"
       subtitle="Texto, contraste y voz, a tu manera."
+      contentClassName="mc-ajustes-page"
       actions={
         <Link href="/ayuda" className="mc-ajustes-action">
           Volver a la ayuda
@@ -53,7 +56,7 @@ export default async function AjustesPage() {
         <ArtBanner
           art={lupitaArt}
           kicker="A tu manera"
-          title="La app se ajusta a tu vista."
+          title="Diseñada para todas las personas."
           className="mc-ajustes-band"
         >
           <p className="mc-ajustes-band__lead">
@@ -77,11 +80,15 @@ export default async function AjustesPage() {
               <span className="mc-art-stamp mc-art-stamp--clay">Opcional</span>
             </div>
             <p className="mc-art-paper__note">
-              Sugerencias, recordatorios y explicaciones de Lupita.
+              Sugerencias, recordatorios y explicaciones de Lupita. Tú eliges cuándo usarlo.
             </p>
             <div className="mc-ajustes-companion__body">
               <CompanionPreferences />
             </div>
+            <Link href="/caja" className="mc-ajustes-action mc-ajustes-dictate">
+              <Image src={microfonoIcon} alt="" aria-hidden="true" width={24} height={24} />
+              Ir al dictado de ventas
+            </Link>
           </section>
 
           <section
