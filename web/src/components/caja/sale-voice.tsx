@@ -1,16 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Mic, Square } from "lucide-react";
+import { Mic, Plus, ScanBarcode, Square } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { draftTotalCents, lineTotalCents, newLineId, type DraftLine } from "./types";
 import { voiceDraft } from "./voice-draft";
+import "./sale-voice-spec.css";
 
 type Phase = "idle" | "permission" | "recording" | "transcribing" | "parsing";
 const SUGGESTIONS = [
-  { label: "Quesadilla", text: "2 quesadillas de 35 pesos" },
-  { label: "Refresco", text: "1 refresco de 20 pesos" },
-  { label: "Taco", text: "3 tacos de 15 pesos" },
+  { label: "Manzana", image: "manzana" },
+  { label: "Jitomate", image: "jitomate" },
+  { label: "Huevo", image: "huevo" },
 ];
 
 /** Mismo MediaRecorder y APIs que Caja clásica. Solo propone conceptos, sin mutar pedidos. */
@@ -187,24 +188,42 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
     }
   }
 
+  function openManual() {
+    if (disabled || busy) return;
+    const manual = document.getElementById("mc-caja-manual");
+    if (manual instanceof HTMLDetailsElement) manual.open = true;
+    document.getElementById("mc-caja-new-description")?.focus();
+  }
+
   return (
     <section className="mc-sale-voice" aria-labelledby="mc-sale-voice-title">
       <h2 id="mc-sale-voice-title"><label htmlFor="mc-sale-voice-text">¿Qué vendiste?</label></h2>
       <div className="mc-sale-voice__field">
-        <input id="mc-sale-voice-text" aria-label="Describe lo que vendiste" placeholder="Ej. 2 quesadillas de 35 pesos" value={text} maxLength={2000}
+        <div className="mc-sale-voice__entry flex min-w-0 items-center">
+        <button type="button" className="mc-sale-voice__manual hidden" aria-label="Escribir un producto a mano" disabled={disabled || busy} onClick={openManual}>
+          <ScanBarcode aria-hidden="true" />
+        </button>
+        <input id="mc-sale-voice-text" aria-label="Describe lo que vendiste" placeholder="Producto" value={text} maxLength={2000}
           disabled={disabled || busy} aria-describedby={error ? "mc-sale-voice-hint mc-sale-voice-error" : "mc-sale-voice-hint"} onChange={(event) => { setText(event.target.value); setProposal([]); setError(null); }}
           onKeyDown={(event) => { if (event.key === "Enter" && !event.nativeEvent.isComposing) { event.preventDefault(); void parseText(); } }} />
+        </div>
         <button type="button" className="mc-sale-voice__mic" aria-label={phase === "recording" ? "Detener dictado" : "Dictar venta"} aria-pressed={phase === "recording"} aria-describedby={error ? "mc-sale-voice-hint mc-sale-voice-error" : "mc-sale-voice-hint"}
           disabled={disabled || (busy && phase !== "recording")} onClick={() => void microphone()}>
           {phase === "recording" ? <Square aria-hidden="true" /> : <Mic aria-hidden="true" />}
         </button>
       </div>
-      <div className="mc-sale-voice__phrases" aria-label="Frases sugeridas">
-        {SUGGESTIONS.map(({ label, text: phrase }) => <button type="button" key={label} disabled={disabled || busy} onClick={() => { setText(phrase); setProposal([]); setError(null); document.getElementById("mc-sale-voice-text")?.focus(); }}>{label}</button>)}
+      <div className="mc-sale-voice__phrases" aria-label="Productos sugeridos">
+        {SUGGESTIONS.map(({ label, image }) => <button type="button" key={label} className={`mc-sale-voice__chip mc-sale-voice__chip--${image}`} disabled={disabled || busy} onClick={() => { setText(label); setProposal([]); setError(null); document.getElementById("mc-sale-voice-text")?.focus(); }}>
+          {/* Original reference crop; intentionally rendered at its requested 20px size. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={`/assets/spec/caja-chip-${image}.png`} alt="" width={20} height={20} />
+          <span>{label}</span>
+        </button>)}
+        <button type="button" className="mc-sale-voice__chip mc-sale-voice__chip--more" disabled={disabled || busy} onClick={openManual}><Plus aria-hidden="true" /><span>Más</span></button>
       </div>
-      <div className="mc-sale-voice__actions">
+      <div className={`mc-sale-voice__actions${!busy && !text.trim() ? " mc-sale-voice__actions--idle" : ""}`}>
         <p id="mc-sale-voice-hint" role="status">{phase === "recording" ? "Escuchando… Pulsa detener al terminar. Máximo 30 segundos." : phase === "permission" ? "Esperando permiso de micrófono…" : phase === "transcribing" ? "Transcribiendo audio…" : phase === "parsing" ? "Interpretando venta…" : "Pulsa el micrófono para dictar o escribe la venta."}</p>
-        {busy ? <button type="button" className="mc-caja-clear" onClick={cancel}>Cancelar dictado</button> : <button type="button" className="mc-caja-button mc-caja-button--secondary" disabled={disabled || !text.trim()} onClick={() => void parseText()}>Interpretar</button>}
+        {busy ? <button type="button" className="mc-caja-clear" onClick={cancel}>Cancelar dictado</button> : text.trim() ? <button type="button" className="mc-caja-button mc-caja-button--secondary" disabled={disabled} onClick={() => void parseText()}>Interpretar</button> : null}
       </div>
       {error ? <p id="mc-sale-voice-error" className="mc-sale-voice__error" role="alert">{error}</p> : null}
       <p className="mc-sale-voice__notice" role="status">{notice}</p>

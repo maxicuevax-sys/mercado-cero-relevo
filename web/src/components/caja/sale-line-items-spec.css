@@ -1,0 +1,244 @@
+/* The desktop ticket keeps its editable columns. The reference composition is
+   deliberately limited to Caja on narrow screens. */
+.mc-caja-line__art,
+.mc-caja-line__step,
+.mc-caja-line__price-toggle { display: none; }
+
+.mc-caja-line__quantity { display: contents; }
+
+.mc-caja-line .mc-caja-field textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px;
+  border: 1.5px solid var(--color-control-border);
+  border-radius: 11px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.4;
+  resize: vertical;
+  overflow-wrap: anywhere;
+  field-sizing: content;
+}
+
+@media (max-width: 760px) {
+  .mc-caja-shell .mc-caja-items {
+    padding: 0 8px;
+    border: 1px solid #e4dac3;
+    border-radius: 14px;
+    background: #fff9f0;
+    box-shadow: none;
+  }
+
+  .mc-caja-shell .mc-caja-items .mc-caja-card__head,
+  .mc-caja-shell .mc-caja-lines__head,
+  .mc-caja-shell .mc-caja-line .mc-caja-field--description > span,
+  .mc-caja-shell .mc-caja-line .mc-caja-field--qty > span,
+  .mc-caja-shell .mc-caja-line__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .mc-caja-shell .mc-caja-manual:not([open]) { display: none; }
+  .mc-caja-shell .mc-caja-manual[open] { padding: 12px 0; margin: 0; }
+  .mc-caja-shell .mc-caja-manual .mc-caja-add { margin-top: 0; padding-top: 0; }
+  .mc-caja-shell .mc-caja-lines { gap: 0; }
+
+  .mc-caja-shell .mc-caja-line {
+    grid-template-columns: 44px minmax(0, 1fr) 78px minmax(0, 64px) 28px;
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: 7px;
+    row-gap: 0;
+    min-height: 60px;
+    padding: 8px 0;
+    border: 0;
+    border-bottom: 1px solid #e4dac3;
+    border-radius: 0;
+    background: transparent;
+  }
+  .mc-caja-shell .mc-caja-line:last-child { border-bottom: 0; }
+  .mc-caja-shell .mc-caja-line--error { background: var(--color-terracotta-soft); }
+  .mc-caja-shell .mc-caja-line > * { min-width: 0; }
+
+  .mc-caja-shell .mc-caja-line__art {
+    display: grid;
+    grid-column: 1;
+    grid-row: 1 / 3;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+  }
+  .mc-caja-shell .mc-caja-line__art img { width: 44px; height: 44px; object-fit: contain; }
+  .mc-caja-shell .mc-caja-line .mc-caja-field--description {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    gap: 0;
+  }
+  .mc-caja-shell .mc-caja-line .mc-caja-field--description textarea {
+    min-height: 21px;
+    height: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 2px;
+    background: transparent;
+    color: #1e1f1a;
+    font-size: .9375rem;
+    font-weight: 700;
+    line-height: 1.35;
+    resize: none;
+  }
+  .mc-caja-shell .mc-caja-line__price-toggle {
+    display: block;
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    justify-self: start;
+    min-height: 19px;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 2px;
+    background: transparent;
+    color: #6e7468;
+    font-size: .6875rem;
+    line-height: 1.4;
+    text-align: left;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+
+  .mc-caja-shell .mc-caja-line__quantity {
+    display: grid;
+    grid-column: 3;
+    grid-row: 1 / 3;
+    grid-template-columns: 24px minmax(0, 1fr) 24px;
+    align-items: center;
+    min-height: 32px;
+    border: 1px solid #e4dac3;
+    border-radius: 18px;
+  }
+  .mc-caja-shell .mc-caja-line__step {
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    min-height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 16px;
+    background: transparent;
+    color: #0c4133;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .mc-caja-shell .mc-caja-line__step:disabled { opacity: .4; cursor: default; }
+  .mc-caja-shell .mc-caja-line .mc-caja-field--qty { display: block; }
+  .mc-caja-shell .mc-caja-line .mc-caja-field--qty input {
+    min-height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 2px;
+    background: transparent;
+    color: #1e1f1a;
+    font-size: .9375rem;
+    font-weight: 700;
+    text-align: center;
+  }
+  .mc-caja-shell .mc-caja-line .mc-caja-field--price { display: none; }
+  .mc-caja-shell .mc-caja-line .mc-caja-field--price-open {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin-top: 8px;
+  }
+  .mc-caja-shell .mc-caja-line .mc-caja-field--price-open > span {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+  .mc-caja-shell .mc-caja-line__total {
+    grid-column: 4;
+    grid-row: 1 / 3;
+    min-height: 0;
+    justify-self: end;
+    color: #1e1f1a;
+    font-size: .9375rem;
+    font-weight: 700;
+    line-height: 1.35;
+    text-align: right;
+  }
+  .mc-caja-shell .mc-caja-line .mc-caja-icon-button {
+    grid-column: 5;
+    grid-row: 1 / 3;
+    align-self: center;
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+    border: 1px solid #e4dac3;
+    border-radius: 9px;
+    color: #1e1f1a;
+  }
+  .mc-caja-shell .mc-caja-line .mc-caja-icon-button svg { width: 18px; height: 18px; }
+  .mc-caja-shell .mc-caja-line > .mc-caja-field-error {
+    grid-column: 1 / -1;
+    position: static;
+    margin-top: 6px;
+    overflow-wrap: anywhere;
+  }
+  .mc-caja-shell .mc-caja-line :is(button, input, textarea):focus-visible {
+    outline: 2px solid #0c4133;
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 360px) {
+  .mc-caja-shell .mc-caja-line {
+    grid-template-columns: 36px minmax(0, 1fr) 70px minmax(0, 54px) 26px;
+    column-gap: 4px;
+  }
+  .mc-caja-shell .mc-caja-line__art,
+  .mc-caja-shell .mc-caja-line__art img { width: 36px; height: 36px; }
+  .mc-caja-shell .mc-caja-line__quantity { grid-template-columns: 22px minmax(0, 1fr) 22px; }
+  .mc-caja-shell .mc-caja-line .mc-caja-icon-button { width: 26px; height: 28px; }
+}
+
+/* With enlarged text, allow the amount to wrap instead of widening the page. */
+@media (max-width: 760px) {
+  .mc-caja-shell .mc-caja-line__total { max-width: 5.5rem; }
+
+  @container (max-width: 12em) {
+    .mc-caja-shell .mc-caja-line {
+      grid-template-columns: 44px minmax(0, 1fr) 28px;
+      row-gap: 4px;
+    }
+    .mc-caja-shell .mc-caja-line__quantity {
+      grid-column: 2;
+      grid-row: 3;
+      grid-template-columns: 1.5rem minmax(3ch, 1fr) 1.5rem;
+      width: 100%;
+      max-width: 6rem;
+    }
+    .mc-caja-shell .mc-caja-line__total {
+      grid-column: 2;
+      grid-row: 4;
+      justify-self: start;
+      text-align: left;
+    }
+    .mc-caja-shell .mc-caja-line .mc-caja-icon-button { grid-column: 3; }
+    .mc-caja-shell .mc-caja-line .mc-caja-field--price-open { grid-row: 5; }
+  }
+}

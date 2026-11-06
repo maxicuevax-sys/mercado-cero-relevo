@@ -6,6 +6,21 @@ import { Trash2 } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { lineTotalCents, newLineId, parseMoneyCents, parseQuantity, type DraftLine } from "./types";
 import tacosArt from "@/assets/brand/ilustraciones/transparent/tacos.png";
+import "./sale-line-items-spec.css";
+
+function productPresentation(description: string, quantity: string) {
+  const name = description.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+  if (/^tortillas?(?:\s+\d+(?:[.,]\d+)?\s*kg)?$/.test(name)) {
+    return { image: "tortilla", detail: `${quantity} kg` };
+  }
+  if (/^huevos?(?:\s+(?:\d+\s+)?cajas?)?$/.test(name)) {
+    return { image: "huevo", detail: `${quantity} ${quantity === "1" ? "caja" : "cajas"}` };
+  }
+  if (/^refresco(?:\s+600\s*ml)?$/.test(name)) {
+    return { image: "refresco", detail: "600 ml" };
+  }
+  return { image: null, detail: "Editar precio" };
+}
 
 export function SaleLineItems({
   lines,
@@ -26,6 +41,13 @@ export function SaleLineItems({
   const [quantity, setQuantity] = useState("1");
   const [price, setPrice] = useState("");
   const [addError, setAddError] = useState<string | null>(null);
+  const [editingPrice, setEditingPrice] = useState<string | null>(null);
+
+  function stepQuantity(line: DraftLine, direction: -1 | 1) {
+    const current = parseQuantity(line.quantity);
+    const next = Math.min(999, Math.round((current + direction) * 1000) / 1000);
+    if (next > 0) onUpdate(line.id, { quantity: String(next) });
+  }
 
   function addLine() {
     const cleanDescription = description.trim();
@@ -147,6 +169,7 @@ export function SaleLineItems({
             <span />
           </li>
           {lines.map((line) => {
+            const product = productPresentation(line.description, line.quantity);
             const baseError = errors[line.id];
             const descriptionInvalid = Boolean(
               baseError && /concepto|qué vendiste/i.test(baseError),
@@ -169,10 +192,16 @@ export function SaleLineItems({
                 key={line.id}
                 className={`mc-caja-line${baseError ? " mc-caja-line--error" : ""}`}
               >
+                <div className="mc-caja-line__art" aria-hidden="true">
+                  {product.image ? (
+                    <Image src={`/assets/spec/caja-producto-${product.image}.png`} alt="" width={44} height={44} sizes="44px" />
+                  ) : null}
+                </div>
                 <label className="mc-caja-field mc-caja-field--description">
                   <span>Concepto</span>
-                  <input
+                  <textarea
                     id={`line-description-${line.id}`}
+                    rows={1}
                     value={line.description}
                     onChange={(event) => onUpdate(line.id, { description: event.target.value })}
                     aria-invalid={descriptionInvalid ? true : undefined}
@@ -181,6 +210,25 @@ export function SaleLineItems({
                     disabled={disabled}
                   />
                 </label>
+                <button
+                  type="button"
+                  className="mc-caja-line__price-toggle"
+                  aria-label={`Editar precio de ${line.description || "concepto"}`}
+                  aria-expanded={editingPrice === line.id || Boolean(priceError)}
+                  aria-controls={`line-price-field-${line.id}`}
+                  onClick={() => setEditingPrice(editingPrice === line.id ? null : line.id)}
+                  disabled={disabled}
+                >
+                  {product.detail}
+                </button>
+                <div className="mc-caja-line__quantity">
+                  <button
+                    type="button"
+                    className="mc-caja-line__step"
+                    aria-label={`Reducir cantidad de ${line.description || "concepto"}`}
+                    onClick={() => stepQuantity(line, -1)}
+                    disabled={disabled || parseQuantity(line.quantity) <= 1}
+                  >−</button>
                 <label className="mc-caja-field mc-caja-field--qty">
                   <span>Cantidad</span>
                   <input
@@ -192,13 +240,16 @@ export function SaleLineItems({
                     aria-describedby={quantityError ? `line-qty-error-${line.id}` : undefined}
                     disabled={disabled}
                   />
-                  {quantityError ? (
-                    <span id={`line-qty-error-${line.id}`} className="mc-caja-field-error">
-                      {quantityError}
-                    </span>
-                  ) : null}
                 </label>
-                <label className="mc-caja-field mc-caja-field--price">
+                  <button
+                    type="button"
+                    className="mc-caja-line__step"
+                    aria-label={`Aumentar cantidad de ${line.description || "concepto"}`}
+                    onClick={() => stepQuantity(line, 1)}
+                    disabled={disabled || parseQuantity(line.quantity) >= 999}
+                  >+</button>
+                </div>
+                <label id={`line-price-field-${line.id}`} className={`mc-caja-field mc-caja-field--price${editingPrice === line.id || priceError ? " mc-caja-field--price-open" : ""}`}>
                   <span>Precio</span>
                   <input
                     id={`line-price-${line.id}`}
@@ -228,6 +279,11 @@ export function SaleLineItems({
                 >
                   <Trash2 aria-hidden="true" focusable="false" />
                 </button>
+                {quantityError ? (
+                  <p id={`line-qty-error-${line.id}`} className="mc-caja-field-error" role="alert">
+                    {quantityError}
+                  </p>
+                ) : null}
                 {showBaseError ? (
                   <p id={`line-error-${line.id}`} className="mc-caja-field-error" role="alert">
                     {baseError}
