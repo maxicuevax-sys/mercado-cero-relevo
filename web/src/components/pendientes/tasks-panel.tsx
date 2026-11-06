@@ -508,7 +508,7 @@ export function TasksPanel({
             {totalLabel}
           </p>
         </div>
-        {!formOpen ? (
+        {!formOpen && openTasks.length > 0 ? (
           <button
             type="button"
             data-focus="create"

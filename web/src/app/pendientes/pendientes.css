@@ -1194,6 +1194,25 @@
   }
 }
 
+@media (max-width: 479.98px) {
+  .mc-pend-empty {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: start;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .mc-pend-empty__art {
+    width: 44px;
+    margin: 0;
+  }
+
+  .mc-pend-empty__copy .mc-pend-cta {
+    white-space: normal;
+  }
+}
+
 @media (max-width: 767.98px) {
   .mc-pend-hero {
     padding: 20px 18px;
