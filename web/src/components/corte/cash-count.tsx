@@ -681,8 +681,8 @@ export function CashCount({
               : "Realizar corte"}
         </button>
         <p className="mc-corte-hint">
-          El corte no se guarda solo. Gastos, retiros y base se registran cuando
-          tú confirmas.
+          Revisa los importes antes de pulsar «Guardar corte». Gastos, retiros y
+          base se registran al confirmar.
         </p>
       </form>
 
