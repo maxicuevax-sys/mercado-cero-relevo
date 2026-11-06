@@ -131,7 +131,7 @@ export function SaleLineItems({
           />
           <div className="mc-caja-empty__copy">
             <p className="mc-caja-empty__title">Aún no hay conceptos.</p>
-            <p>Agrega uno a mano. No necesitas inventario ni micrófono.</p>
+            <p>Dicta la venta arriba o agrega un concepto a mano.</p>
           </div>
         </div>
       ) : (

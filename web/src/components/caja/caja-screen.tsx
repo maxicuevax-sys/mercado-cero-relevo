@@ -16,6 +16,7 @@ import {
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatLongDate } from "@/lib/format";
 import { SaleLineItems } from "./sale-line-items";
+import { SaleVoice } from "./sale-voice";
 import { SaleSummary } from "./sale-summary";
 import { PaymentPanel } from "./payment-panel";
 import { PendingTray, type PendingEntry } from "./pending-tray";
@@ -922,6 +923,23 @@ export function CajaScreen({
 
       {view === "compose" ? (
         <>
+          <SaleVoice
+            disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated}
+            onAdd={(proposed) => {
+              if (saving || unknownResult || legacyConflict || !hydrated) return false;
+              if (lines.length + proposed.length > 50 || draftTotalCents([...lines, ...proposed]) > 100_000_000) {
+                setError("El ticket excede el límite de conceptos o importe. No se añadió la propuesta.");
+                return false;
+              }
+              setLines((current) => [...current, ...proposed]);
+              setError(null);
+              setAnnouncement("Conceptos dictados añadidos. Revisa el ticket antes de confirmar.");
+              window.requestAnimationFrame(() => {
+                document.getElementById(`line-description-${proposed[0]?.id}`)?.focus();
+              });
+              return true;
+            }}
+          />
           <PendingTray
             entries={pendingEntries}
             onOpen={openPendingEntry}

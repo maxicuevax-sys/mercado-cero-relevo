@@ -1,5 +1,62 @@
 @import "../ui/operational-tokens.css";
 
+/* Captura hablada de la lámina: campo principal + micrófono verde real. */
+.mc-sale-voice {
+  min-width: 0;
+  margin-bottom: 24px;
+  color: var(--color-ink);
+  font-family: Arial, "Segoe UI", sans-serif;
+}
+.mc-sale-voice h2 { margin: 0 0 10px; font-size: 1.125rem; font-weight: 700; }
+.mc-sale-voice__field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--color-separator);
+  border-radius: 22px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+.mc-sale-voice__field input {
+  width: 100%; min-width: 0; min-height: 64px;
+  padding: 12px; border: 1px solid var(--color-separator); border-radius: 16px;
+  background: transparent; color: var(--color-ink); font: inherit; font-size: 1rem;
+}
+.mc-sale-voice__mic {
+  display: grid; place-items: center; width: 64px; min-height: 64px;
+  border: 1px solid var(--color-accent); border-radius: 18px;
+  background: var(--color-accent); color: #fffdf7; cursor: pointer;
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.16);
+}
+.mc-sale-voice__mic svg { width: 34px; height: 34px; stroke-width: 1.8; }
+.mc-sale-voice__mic[aria-pressed="true"] { background: var(--color-attention); border-color: var(--color-attention); color: var(--color-surface); }
+.mc-sale-voice__mic:disabled { cursor: wait; opacity: 0.6; }
+.mc-sale-voice :focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+.mc-sale-voice__phrases { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.mc-sale-voice__phrases button {
+  min-height: 48px; max-width: 100%; padding: 8px 14px;
+  border: 1px solid var(--color-separator); border-radius: 24px;
+  color: var(--color-ink); background: var(--color-surface-2); font: inherit; font-size: 0.8125rem;
+  overflow-wrap: anywhere; cursor: pointer;
+}
+.mc-sale-voice__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-top: 8px; }
+.mc-sale-voice__actions p { flex: 1 1 220px; color: var(--color-ink-2); font-size: 0.8125rem; }
+.mc-sale-voice__notice { margin-top: 8px; font-size: 0.875rem; }
+.mc-sale-voice__notice:empty { display: none; }
+.mc-sale-voice__error { margin-top: 12px; color: var(--color-attention); font-size: 0.875rem; overflow-wrap: anywhere; }
+.mc-sale-voice__proposal { margin-top: 16px; padding: 16px; border: 1px solid var(--color-separator); border-radius: 20px; background: var(--color-surface); }
+.mc-sale-voice__proposal h3 { font-size: 1.125rem; font-weight: 700; }
+.mc-sale-voice__proposal li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--color-separator); }
+.mc-sale-voice__proposal p { margin: 12px 0; font-size: 0.875rem; }
+.mc-sale-voice__proposal .mc-caja-clear { margin-left: 12px; }
+
+@media (max-width: 360px) {
+  .mc-sale-voice__field { grid-template-columns: minmax(0, 1fr) 56px; gap: 6px; padding: 6px; }
+  .mc-sale-voice__mic { width: 56px; min-height: 56px; }
+  .mc-sale-voice__field input { min-height: 56px; padding: 8px; }
+}
+
 /* Caja operativa: misma identidad que Inicio, sin reutilizar el layout legacy. */
 
 .mc-caja {
