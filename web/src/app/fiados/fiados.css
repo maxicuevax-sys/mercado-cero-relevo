@@ -1097,7 +1097,7 @@ html:not([data-contrast="high"]) .mc-fiados-total {
   }
 
   .mc-fiados-total__art {
-    width: min(100%, 60px);
+    width: clamp(48px, 15vw, 60px);
     justify-self: center;
   }
 
@@ -1219,6 +1219,57 @@ html:not([data-contrast="high"]) .mc-fiados-total {
 
   .mc-fiados-dialog__body {
     padding: 14px 14px calc(18px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 359.98px) {
+  .mc-fiados-row {
+    grid-template-columns: 32px minmax(0, 1fr) minmax(0, auto) 44px;
+    row-gap: 2px;
+    padding-inline: 8px;
+  }
+
+  .mc-fiados-row__main,
+  .mc-fiados-row__head {
+    display: contents;
+  }
+
+  .mc-fiados-row__medallion {
+    grid-area: 1 / 1 / 4 / 2;
+    width: 32px;
+    height: 32px;
+  }
+
+  .mc-fiados-row__medallion-img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .mc-fiados-row__name {
+    grid-area: 1 / 2 / 2 / 3;
+  }
+
+  .mc-fiados-row .mc-fiados-stamp {
+    grid-area: 2 / 2 / 3 / 3;
+    justify-self: start;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .mc-fiados-row__meta {
+    grid-area: 3 / 2 / 4 / 4;
+    margin-top: 0;
+  }
+
+  .mc-fiados-row__amount {
+    grid-area: 1 / 3 / 3 / 4;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .mc-fiados-pay-wrap,
+  .mc-fiados-row__settled {
+    grid-area: 1 / 4 / 4 / 5;
   }
 }
 
