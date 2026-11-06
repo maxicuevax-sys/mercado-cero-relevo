@@ -290,6 +290,12 @@ textarea[aria-invalid="true"] {
 /* propia fila. Así ningún control queda geométricamente debajo del chrome.   */
 /* -------------------------------------------------------------------------- */
 @media (max-width: 1023.98px) {
+  /* Legacy uses a nested main scroller. Smooth document scrolling can move
+     a WebKit pointer target between down and up at enlarged text sizes. */
+  html:has(.mc-legacy-ui) {
+    scroll-behavior: auto;
+  }
+
   html,
   body {
     height: 100%;
