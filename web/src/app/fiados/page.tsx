@@ -16,8 +16,10 @@ import tiendaIcon from "@/assets/brand/iconos/transparent/tienda.png";
 import listaIcon from "@/assets/brand/iconos/transparent/lista.png";
 import ahorroArt from "@/assets/brand/ilustraciones/transparent/ahorro.png";
 import papelPicadoArt from "@/assets/inicio/papel-picado.png";
+import { MobileLedger } from "./mobile-ledger";
 import "./fiados.css";
 import "@/components/shell/ledger-parity.css";
+import "./mobile-ledger.css";
 
 export const metadata: Metadata = {
   title: "Fiados · Mercado Cero",
@@ -72,10 +74,11 @@ function stampLabel(status: CreditStatus, settled: boolean): string {
   return "Pendiente";
 }
 
-function pagerHref(page: number, query: string, history = false): string {
+function pagerHref(page: number, query: string, history = false, practice = false): string {
   const params = new URLSearchParams();
   if (query) params.set("q", query);
   if (history) params.set("view", "history");
+  if (practice) params.set("libreta", "practica");
   if (page > 1) params.set("page", String(page));
   const suffix = params.toString();
   return suffix ? `/fiados?${suffix}` : "/fiados";
@@ -136,16 +139,18 @@ function FiadosPager({
   pageCount,
   query,
   history,
+  practice = false,
 }: {
   page: number;
   pageCount: number;
   query: string;
   history: boolean;
+  practice?: boolean;
 }) {
   return (
     <nav className="mc-fiados-pager" aria-label="Páginas de fiados">
       {page > 1 ? (
-        <Link className="mc-fiados-pager__link" href={pagerHref(page - 1, query, history)} rel="prev">
+        <Link className="mc-fiados-pager__link" href={pagerHref(page - 1, query, history, practice)} rel="prev">
           <ChevronLeft aria-hidden="true" />
           Anterior
         </Link>
@@ -159,7 +164,7 @@ function FiadosPager({
         Página {page} de {pageCount}
       </p>
       {page < pageCount ? (
-        <Link className="mc-fiados-pager__link" href={pagerHref(page + 1, query, history)} rel="next">
+        <Link className="mc-fiados-pager__link" href={pagerHref(page + 1, query, history, practice)} rel="next">
           Siguiente
           <ChevronRight aria-hidden="true" />
         </Link>
@@ -174,17 +179,19 @@ function FiadosPager({
 }
 
 export default async function FiadosPage({ searchParams }: {
-  searchParams: Promise<{ page?: string; q?: string; view?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; view?: string; libreta?: string }>;
 }) {
   await connection();
   const params = await searchParams;
   const query = (params.q ?? "").trim();
   const requested = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   const history = params.view === "history";
+  const practice = params.libreta === "practica";
   const needle = normalize(query);
+  const matchesQuery = (name: string) => !needle || normalize(name).includes(needle);
   const matches = listCredits().filter((credit) => {
     const settled = credit.status === "settled" || credit.balanceCents <= 0;
-    return settled === history && (!needle || normalize(credit.customerName ?? "").includes(needle));
+    return settled === history && matchesQuery(credit.customerName ?? "");
   });
   const total = matches.length;
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -197,7 +204,11 @@ export default async function FiadosPage({ searchParams }: {
     <OperationalPage activeHref="/fiados" title="Fiados" titleId="fiados-title"
       actions={<Link className="mc-parity-back" href="/inicio" aria-label="Volver a Inicio"><ArrowLeft aria-hidden="true" /></Link>}
       merchant={MERCHANT.name} address={MERCHANT.address} demo={demo}
-      mainId="fiados-main" contentClassName="mc-fiados-page" focusTargetId="fiados-title">
+      mainId="fiados-main" contentClassName="mc-fiados-page" focusTargetId="fiados-main">
+      <MobileLedger credits={credits} balance={openTotals.balanceCents} demo={demo}
+        history={history} practice={practice} query={query} offset={offset} matchesQuery={matchesQuery}
+        pager={pageCount > 1 ? <FiadosPager page={page} pageCount={pageCount} query={query} history={history} practice={practice} /> : null} />
+      <div className="mc-fiados-desktop">
       <Image src={papelPicadoArt} alt="" aria-hidden="true"
         className="mc-fiados-page__picado" sizes="(max-width: 767px) 80px, 132px" />
       <nav className="mc-fiados-tabs" aria-label="Vista de fiados">
@@ -242,6 +253,7 @@ export default async function FiadosPage({ searchParams }: {
         <summary>Sobre los saldos{demo ? " · Demo" : ""}</summary>
         <p className="mc-fiados-note">{openTotals.customers} clientes · {openTotals.count} fiados abiertos. Lo que te deben no es dinero recibido. Un abono reduce la deuda y no crea una venta nueva. Si fue en efectivo, suma al efectivo de hoy; digital o tarjeta quedan como abono declarado, sin verificación de pey.</p>
       </details>
+      </div>
     </OperationalPage>
   );
 }
