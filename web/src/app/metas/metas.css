@@ -253,8 +253,10 @@
 
 .mc-metas-objective {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
+  min-width: 0;
   color: var(--color-ink-2);
   font-weight: 600;
 }
@@ -269,6 +271,7 @@
   color: var(--color-ink);
   font-weight: 700;
   font-variant-numeric: tabular-nums lining-nums;
+  overflow-wrap: anywhere;
 }
 
 .mc-metas-hero__deadline {
