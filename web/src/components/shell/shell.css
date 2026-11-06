@@ -102,6 +102,11 @@
 }
 
 @media (max-width: 760px) {
+  .inicio-shell {
+    --mc-mobile-nav-height: clamp(60px, 18.46vw, 72px);
+    --mc-mobile-sale-size: clamp(56px, 17.7vw, 69px);
+    --mc-mobile-sale-lift: clamp(12px, 3.59vw, 14px);
+  }
   /* Móvil del tablero maestro confirmado: negocio sobre verde y acción +.
      Solo chrome móvil; el Inicio de escritorio conserva su composición. */
   .inicio-shell .inicio-topbar {
@@ -254,7 +259,7 @@
   .mc-mobile-nav__item {
     display: flex;
     min-width: 0;
-    min-height: 72px;
+    min-height: var(--mc-mobile-nav-height);
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -292,6 +297,7 @@
   }
 
   .mc-mobile-nav__sale {
+    position: relative;
     gap: 0;
     padding-block: 0;
     color: var(--inicio-green);
@@ -299,9 +305,13 @@
   }
 
   .mc-mobile-nav__sale-circle {
+    position: absolute;
+    top: calc(-1 * var(--mc-mobile-sale-lift));
+    left: 50%;
+    transform: translateX(-50%);
     display: grid;
-    width: 48px;
-    height: 48px;
+    width: var(--mc-mobile-sale-size);
+    height: var(--mc-mobile-sale-size);
     flex: 0 0 auto;
     place-items: center;
     border: 2px solid var(--inicio-green);
@@ -401,7 +411,7 @@
   }
 
   .inicio-shell.inicio-shell--compact .mc-mobile-nav__item {
-    min-height: 72px;
+    min-height: var(--mc-mobile-nav-height);
     gap: 4px;
     padding: 4px 2px;
     font-size: 0.75rem;
@@ -422,6 +432,11 @@
 
   .inicio-shell.inicio-shell--compact .mc-mobile-nav__sale[aria-current="page"] {
     background: transparent;
+  }
+
+  /* El cobro fijo queda por encima del círculo que sobresale del chrome. */
+  .inicio-shell .mc-caja-paybar {
+    bottom: calc(var(--mc-mobile-nav-height) + var(--mc-mobile-sale-lift) + 4px + env(safe-area-inset-bottom));
   }
 }
 
