@@ -64,16 +64,28 @@ def reset(page) -> None:
     page.goto(BASE + "/inicio", wait_until="domcontentloaded")
     page.evaluate("localStorage.clear()")
     page.goto(BASE + "/caja", wait_until="domcontentloaded")
-    page.wait_for_timeout(350)
+    empty_demo_ticket(page)
+
+
+def empty_demo_ticket(page) -> None:
+    # Caja abre un ticket de ejemplo en DEMO. Retíralo por la UI para que
+    # cada escenario conserve sus conceptos e importes originales.
+    expect(page.get_by_label("Describe lo que vendiste")).to_be_enabled()
+    for description in ("Tortilla", "Huevo", "Refresco"):
+        page.get_by_role("button", name=f"Quitar {description}", exact=True).click()
+    expect(page.locator(".mc-caja-line")).to_have_count(0)
 
 
 def add_item(page, description: str, quantity: str = "1", price: str = "100") -> None:
-    box = page.locator(".mc-caja-add")
+    # «Más» es la entrada visible para conceptos con cantidad y precio exactos.
+    page.locator(".mc-sale-voice__chip--more").click()
+    box = page.locator("#mc-caja-manual[open]")
     box.get_by_label("Producto o servicio").fill(description)
     box.get_by_label("Cantidad").fill(quantity)
     box.get_by_label("Precio unitario").fill(price)
     box.get_by_role("button", name="Agregar", exact=True).click()
-    page.wait_for_timeout(100)
+    expect(page.locator(".mc-caja-line").last.get_by_label("Concepto")).to_have_value(description)
+    box.locator("summary").click()
 
 
 def add_legacy_item(page, description: str, quantity: str, price: str) -> None:
@@ -145,7 +157,7 @@ def main() -> int:
         )
         add_item(page, "Fiado puro", "1", "100")
         page.get_by_role("button", name="Fiado", exact=True).click()
-        page.get_by_label("Monto a fiado").fill("100")
+        page.locator(".mc-caja-summary").get_by_label("Monto a fiado").fill("100")
         new_customer(page, "Juan")
         page.locator(".mc-caja-confirm").click()
         expect(page.locator(".mc-caja-result")).to_be_visible()
@@ -176,7 +188,7 @@ def main() -> int:
         reset(page)
         add_item(page, "Mixto digital", "1", "100")
         page.get_by_role("button", name="Mixto", exact=True).click()
-        page.get_by_label("Efectivo recibido").fill("60")
+        page.locator(".mc-caja-summary").get_by_label("Efectivo recibido").fill("60")
         page.locator(".mc-caja-confirm").click()
         expect(page.locator(".mc-caja-payment")).to_be_visible()
         panel = page.locator(".mc-caja-payment").inner_text()
@@ -201,8 +213,8 @@ def main() -> int:
         reset(page)
         add_item(page, "Fantasma", "1", "100")
         page.get_by_role("button", name="Mixto", exact=True).click()
-        page.get_by_label("Efectivo recibido").fill("100")
-        page.get_by_label("Monto a fiado").fill("100")
+        page.locator(".mc-caja-summary").get_by_label("Efectivo recibido").fill("100")
+        page.locator(".mc-caja-summary").get_by_label("Monto a fiado").fill("100")
         new_customer(page, "Ana")
         summary = page.locator(".mc-caja-summary").inner_text()
         check("P1-07 sin cambio fantasma", "cambio a devolver" not in summary.lower(), summary)
@@ -215,8 +227,8 @@ def main() -> int:
         reset(page)
         add_item(page, "Split válido", "1", "100")
         page.get_by_role("button", name="Mixto", exact=True).click()
-        page.get_by_label("Efectivo recibido").fill("40")
-        page.get_by_label("Monto a fiado").fill("30")
+        page.locator(".mc-caja-summary").get_by_label("Efectivo recibido").fill("40")
+        page.locator(".mc-caja-summary").get_by_label("Monto a fiado").fill("30")
         new_customer(page, "Ana")
         summary = page.locator(".mc-caja-summary").inner_text()
         check("P1-07 sin aviso falso de total", "el total cambió" not in summary.lower(), summary)
@@ -302,7 +314,7 @@ def main() -> int:
         body = page.locator(".mc-caja").inner_text()
         check(
             "P1-01 importa el draft v1",
-            page.locator(".mc-caja-line input").first.input_value() == "Legacy"
+            page.locator(".mc-caja-line").first.get_by_label("Concepto").input_value() == "Legacy"
             and "$70.00" in body,
         )
         check(
@@ -446,7 +458,7 @@ def main() -> int:
         page.get_by_role("button", name="Nueva venta").click()
         page.wait_for_timeout(250)
         add_item(page, "Pan repetido", "1", "100")
-        page.get_by_label("Efectivo recibido").fill("100")
+        page.locator(".mc-caja-summary").get_by_label("Efectivo recibido").fill("100")
         before_repeat = order_count(page)
         page.locator(".mc-caja-confirm").click()
         expect(page.locator(".mc-caja-result")).to_be_visible()
@@ -454,7 +466,7 @@ def main() -> int:
         page.get_by_role("button", name="Nueva venta").click()
         page.wait_for_timeout(250)
         add_item(page, "Pan repetido", "1", "100")
-        page.get_by_label("Efectivo recibido").fill("100")
+        page.locator(".mc-caja-summary").get_by_label("Efectivo recibido").fill("100")
         page.locator(".mc-caja-confirm").click()
         expect(page.locator(".mc-caja-result")).to_be_visible()
         second_repeat = page.locator(".mc-caja-result").inner_text()
@@ -518,7 +530,7 @@ def main() -> int:
 
         page.route("**/api/orders", fail_first_post)
         add_item(page, "502 post-commit", "1", "100")
-        page.get_by_label("Efectivo recibido").fill("100")
+        page.locator(".mc-caja-summary").get_by_label("Efectivo recibido").fill("100")
         page.locator(".mc-caja-confirm").click()
         expect(page.locator(".mc-caja-unknown")).to_be_visible()
         check(
@@ -526,9 +538,11 @@ def main() -> int:
             "no sabemos si la venta quedó registrada"
             in page.locator(".mc-caja-unknown").inner_text().lower(),
         )
+        locked_line = page.locator(".mc-caja-line").first
         check(
             "P1-12 bloquea edición",
-            page.locator(".mc-caja-line input").first.is_disabled(),
+            locked_line.get_by_label("Concepto").is_disabled()
+            and locked_line.get_by_label("Cantidad", exact=True).is_disabled(),
         )
         check("P1-12 hubo un solo POST", state["posts"] == 1, str(state))
         page.reload(wait_until="domcontentloaded")
@@ -582,7 +596,7 @@ def main() -> int:
             pg.wait_for_timeout(350)
             pg.evaluate("localStorage.clear()")
             pg.reload(wait_until="domcontentloaded")
-            pg.wait_for_timeout(350)
+            empty_demo_ticket(pg)
             add_item(pg, "Uno", "1", "100")
             add_item(pg, "Dos", "2", "50")
             add_item(pg, "Tres", "1", "30")
@@ -602,7 +616,7 @@ def main() -> int:
         pg.wait_for_timeout(350)
         pg.evaluate("localStorage.clear()")
         pg.reload(wait_until="domcontentloaded")
-        pg.wait_for_timeout(350)
+        empty_demo_ticket(pg)
         add_item(pg, "Texto", "1", "100")
         add_item(pg, "Grande", "1", "50")
         add_item(pg, "Dos", "2", "30")
@@ -634,26 +648,30 @@ def main() -> int:
         pg.wait_for_timeout(350)
         pg.evaluate("localStorage.clear()")
         pg.reload(wait_until="domcontentloaded")
-        pg.wait_for_timeout(350)
+        empty_demo_ticket(pg)
         add_item(pg, "Uno", "1", "100")
         add_item(pg, "Dos", "1", "50")
         add_item(pg, "Tres", "1", "30")
         pg.evaluate("document.documentElement.style.fontSize='32px'")
         pg.wait_for_timeout(400)
-        nav_columns = pg.locator(".mc-mobile-nav").evaluate(
-            "el => getComputedStyle(el).gridTemplateColumns"
-        )
-        check(
-            "P1-04 nav móvil 3+2 a 200%",
-            len(nav_columns.split()) == 3,
-            nav_columns,
-        )
-        total = pg.locator(".mc-caja-paybar > div").bounding_box()
-        button = pg.locator(".mc-caja-confirm").bounding_box()
+        # Caja móvil ya no muestra la barra inferior. El mismo shell la
+        # muestra en Inicio, donde se conserva el requisito de reflow 3+2.
+        caja_nav_hidden = not pg.locator(".mc-mobile-nav").is_visible()
+        total = pg.locator(".mc-spec-total").bounding_box()
+        button = pg.locator(".mc-spec-checkout > .mc-spec-register").bounding_box()
         check(
             "P1-04 total y botón no se solapan",
-            bool(total and button and total["x"] + total["width"] <= button["x"]),
+            bool(total and button and total["y"] + total["height"] <= button["y"]),
             f"{total} / {button}",
+        )
+        pg.goto(BASE + "/inicio", wait_until="domcontentloaded")
+        pg.evaluate("document.documentElement.style.fontSize='32px'")
+        nav = pg.locator(".mc-mobile-nav")
+        nav_columns = nav.evaluate("el => getComputedStyle(el).gridTemplateColumns")
+        check(
+            "P1-04 nav móvil 3+2 a 200%",
+            caja_nav_hidden and nav.is_visible() and len(nav_columns.split()) == 3,
+            f"oculta en Caja={caja_nav_hidden}; columnas en Inicio={nav_columns}",
         )
         pg.close()
 
