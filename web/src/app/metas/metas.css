@@ -48,6 +48,10 @@
 }
 
 @media (max-width: 767.98px) {
+  html:has(.mc-metas-main) {
+    scroll-padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+
   .mc-op-main.mc-metas-main {
     padding: 16px 16px calc(96px + env(safe-area-inset-bottom));
   }
@@ -478,6 +482,16 @@
 
   .mc-metas-hero--active .mc-metas-hero__title {
     font-size: clamp(1.375rem, 6vw, 1.5rem);
+  }
+
+  .mc-metas-hero__objective {
+    gap: 4px 12px;
+    margin-top: 8px;
+  }
+
+  .mc-metas-hero__progress {
+    gap: 4px;
+    margin-top: 8px;
   }
 
   .mc-metas-create .mc-metas-cta {
