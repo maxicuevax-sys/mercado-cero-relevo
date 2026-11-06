@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { MoreHorizontal } from "lucide-react";
 import { MaskIcon } from "@/components/ui/icon";
-import type { ShellNavItem } from "./nav";
+import { isNavItemActive, type ShellNavItem } from "./nav";
 import "./shell.css";
 
 export function MobileNav({
@@ -45,25 +45,17 @@ export function MobileNav({
   return (
     <nav className="mc-mobile-nav" aria-label="Principal">
       {primary.map((item) => {
-        const active = item.href === activeHref;
+        const active = isNavItemActive(item, activeHref);
         return (
           <Link
             key={item.id}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            aria-label={item.legacy ? undefined : item.ariaLabel}
+            aria-label={item.ariaLabel}
             className="mc-mobile-nav__item"
           >
             <MaskIcon src={item.icon} className="mc-mobile-nav__icon" />
             <span>{item.label}</span>
-            {item.legacy ? (
-              <>
-                <span className="mc-mobile-nav__legacy">Clásica</span>
-                <span className="sr-only">
-                  {item.ariaLabel ? `${item.ariaLabel}, ` : ""}abre la Caja clásica.
-                </span>
-              </>
-            ) : null}
           </Link>
         );
       })}
@@ -74,25 +66,17 @@ export function MobileNav({
         </summary>
         <div className="mc-mobile-nav__panel">
           {more.map((item) => {
-            const active = item.href === activeHref;
+            const active = isNavItemActive(item, activeHref);
             return (
               <Link
                 key={item.id}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                aria-label={item.legacy ? undefined : item.ariaLabel}
+                aria-label={item.ariaLabel}
                 className="mc-mobile-nav__link"
               >
                 <MaskIcon src={item.icon} className="mc-mobile-nav__link-icon" />
                 <span>{item.label}</span>
-                {item.legacy ? (
-                  <>
-                    <span className="mc-mobile-nav__legacy">Clásica</span>
-                    <span className="sr-only">
-                      {item.ariaLabel ? `${item.ariaLabel}, ` : ""}abre la Caja clásica.
-                    </span>
-                  </>
-                ) : null}
               </Link>
             );
           })}
@@ -101,4 +85,3 @@ export function MobileNav({
     </nav>
   );
 }
-

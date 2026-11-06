@@ -134,22 +134,6 @@
     flex: 0 0 auto;
   }
 
-  .mc-mobile-nav__legacy {
-    color: var(--color-attention);
-    font-size: 0.5625rem;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    line-height: 1;
-  }
-
-  .mc-mobile-nav__link .mc-mobile-nav__legacy {
-    margin-left: auto;
-    padding: 1px 5px;
-    border: 1px solid var(--color-separator);
-    border-radius: 999px;
-    color: var(--color-attention);
-  }
-
   .mc-mobile-nav__more {
     position: relative;
     min-width: 0;
@@ -223,9 +207,5 @@
   .mc-mobile-nav__item {
     min-height: 56px;
     font-size: 0.75rem;
-  }
-
-  .mc-mobile-nav__legacy {
-    font-size: 0.5rem;
   }
 }

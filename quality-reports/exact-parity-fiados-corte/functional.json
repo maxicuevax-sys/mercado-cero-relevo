@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "checks": [
+    "search-empty",
+    "history-excludes-open",
+    "cash-abono-live-balance",
+    "settled-leaves-open",
+    "settled-in-history",
+    "close-server-preview",
+    "close-persisted-version"
+  ],
+  "target": "localhost:3118 isolated temp DB"
+}

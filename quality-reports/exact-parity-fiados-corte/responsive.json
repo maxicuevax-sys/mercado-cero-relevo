@@ -1,0 +1,98 @@
+[
+  {
+    "route": "fiados",
+    "width": 320,
+    "text": 100,
+    "overflow": false
+  },
+  {
+    "route": "corte",
+    "width": 320,
+    "text": 100,
+    "overflow": false
+  },
+  {
+    "route": "fiados",
+    "width": 320,
+    "text": 200,
+    "overflow": false
+  },
+  {
+    "route": "corte",
+    "width": 320,
+    "text": 200,
+    "overflow": false
+  },
+  {
+    "route": "fiados",
+    "width": 390,
+    "text": 100,
+    "overflow": false
+  },
+  {
+    "route": "corte",
+    "width": 390,
+    "text": 100,
+    "overflow": false
+  },
+  {
+    "route": "fiados",
+    "width": 390,
+    "text": 200,
+    "overflow": false
+  },
+  {
+    "route": "corte",
+    "width": 390,
+    "text": 200,
+    "overflow": false
+  },
+  {
+    "route": "fiados",
+    "width": 768,
+    "text": 100,
+    "overflow": false
+  },
+  {
+    "route": "corte",
+    "width": 768,
+    "text": 100,
+    "overflow": false
+  },
+  {
+    "route": "fiados",
+    "width": 768,
+    "text": 200,
+    "overflow": false
+  },
+  {
+    "route": "corte",
+    "width": 768,
+    "text": 200,
+    "overflow": false
+  },
+  {
+    "route": "fiados",
+    "width": 1448,
+    "text": 100,
+    "overflow": false
+  },
+  {
+    "route": "corte",
+    "width": 1448,
+    "text": 100,
+    "overflow": false
+  },
+  {
+    "route": "fiados",
+    "width": 1448,
+    "text": 200,
+    "overflow": false
+  },
+  {
+    "route": "corte",
+    "width": 1448,
+    "text": 200,
+    "overflow": false
+  }
+]

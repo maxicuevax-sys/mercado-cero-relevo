@@ -15,60 +15,48 @@ export type ShellNavItem = {
   href: string;
   icon: StaticImageData;
   ariaLabel?: string;
-  /** Destino que todavía abre la Caja clásica (/?tab=...), no una pantalla nueva. */
-  legacy?: boolean;
 };
 
 /**
- * Navegación operativa única para Inicio y Caja.
- * Solo destinos con pantalla y recorrido. `/productos`, `/proveedores` y
- * `/reportes` no se muestran hasta que existan.
+ * Navegación operativa única para todas las pantallas.
+ * Todos los destinos apuntan a su pantalla nueva: ya no hay alias que abran la
+ * Caja clásica (`/?tab=...`), así que no existe la distinción "clásica" aquí.
+ * Solo se muestran destinos con pantalla y recorrido; `/productos`,
+ * `/proveedores` y `/reportes` no se muestran hasta que existan.
  */
 export const appNav: ShellNavItem[] = [
   { id: "inicio", label: "Inicio", href: "/inicio", icon: iconInicio },
   { id: "caja", label: "Caja", href: "/caja", icon: iconCaja },
   { id: "ventas", label: "Ventas", href: "/ventas", icon: iconVentas },
-  { id: "fiados", label: "Fiados", href: "/fiados", icon: iconFiado, legacy: true },
+  { id: "fiados", label: "Fiados", href: "/fiados", icon: iconFiado },
   {
     id: "corte",
     label: "Corte",
     href: "/corte",
     icon: iconReportes,
     ariaLabel: "Corte de caja",
-    legacy: true,
   },
-  { id: "metas", label: "Metas", href: "/metas", icon: iconMetas, legacy: true },
-  {
-    id: "pendientes",
-    label: "Pendientes",
-    href: "/pendientes",
-    icon: iconPendientes,
-    legacy: true,
-  },
+  { id: "metas", label: "Metas", href: "/metas", icon: iconMetas },
+  { id: "pendientes", label: "Pendientes", href: "/pendientes", icon: iconPendientes },
 ];
 
 export const inicioNav = appNav;
 export const cajaNav = appNav;
+/** Mismo navegador para las pantallas operativas nuevas (Fiados, Corte, Metas, Pendientes). */
+export const operationalNav = appNav;
 
+/**
+ * Pie del shell. Ayuda y Ajustes son pantallas nuevas con el mismo shell; ya
+ * no abren la hoja heredada `/?ayuda=1` de la Caja clásica.
+ */
 export const appFoot: ShellNavItem[] = [
-  {
-    id: "ayuda",
-    label: "Ayuda",
-    href: "/?ayuda=1",
-    icon: iconAyuda,
-    legacy: true,
-  },
-  {
-    id: "ajustes",
-    label: "Ajustes",
-    href: "/?ayuda=1#ajustes",
-    icon: iconAjustes,
-    legacy: true,
-  },
+  { id: "ayuda", label: "Ayuda", href: "/ayuda", icon: iconAyuda },
+  { id: "ajustes", label: "Ajustes", href: "/ajustes", icon: iconAjustes },
 ];
 
 export const inicioFoot = appFoot;
 export const cajaFoot = appFoot;
+export const operationalFoot = appFoot;
 
 export const mobilePrimary: ShellNavItem[] = [
   appNav[0],
@@ -78,6 +66,7 @@ export const mobilePrimary: ShellNavItem[] = [
 ];
 
 export const cajaMobilePrimary = mobilePrimary;
+export const operationalMobilePrimary = mobilePrimary;
 
 export const mobileMore: ShellNavItem[] = [
   appNav[4],
@@ -87,3 +76,15 @@ export const mobileMore: ShellNavItem[] = [
 ];
 
 export const cajaMobileMore = mobileMore;
+export const operationalMobileMore = mobileMore;
+
+/**
+ * Activo por ruta: compara el pathname e ignora query/hash. Un href con query
+ * solo se marca si coincide completo (salvaguarda para enlaces heredados).
+ */
+export function isNavItemActive(item: ShellNavItem, activeHref: string): boolean {
+  if (item.href.includes("?")) return item.href === activeHref;
+  const targetPath = item.href.split(/[?#]/, 1)[0];
+  const activePath = activeHref.split(/[?#]/, 1)[0];
+  return targetPath === activePath;
+}
