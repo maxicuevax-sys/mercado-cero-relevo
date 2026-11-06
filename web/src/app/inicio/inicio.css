@@ -830,8 +830,9 @@
   .inicio-shell--compact .inicio-nav__icon { width: 32px; height: 32px; }
   .inicio-shell--compact .inicio-topbar {
     min-height: 102px;
-    padding: 16px 28px;
+    padding: 16px 35px;
   }
+  .inicio-shell--compact .inicio-topbar__merchant { gap: 21px; }
   .inicio-shell--compact .inicio-topbar__icon,
   .inicio-shell--compact .inicio-topbar__icon img { width: 58px; height: 58px; }
   .inicio-shell--compact .inicio-topbar__name { font-size: 1.875rem; }
@@ -850,7 +851,7 @@
     grid-template-columns: 104px minmax(0, 1fr);
     gap: 26px;
     align-items: start;
-    padding: 8px 0 0;
+    padding: 18px 0 0;
   }
   .inicio-shell--compact .inicio-sun { width: 96px; height: 96px; }
   .inicio-shell--compact .inicio-greeting h1 { font-size: 3rem; }
@@ -1037,6 +1038,7 @@ html[data-contrast="high"] .inicio-goal span {
 }
 
 html[data-contrast="high"] .inicio-picado,
+html[data-contrast="high"] .inicio-greeting__mobile-art,
 html[data-contrast="high"] .inicio-hero__art,
 html[data-contrast="high"] .inicio-suggestion__art,
 html[data-contrast="high"] .inicio-sidebar__art {

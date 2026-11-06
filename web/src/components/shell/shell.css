@@ -366,7 +366,7 @@
     padding: 0 10px;
     border-radius: 10px;
     color: var(--color-ink);
-    font-family: var(--font-alder), "Alder", sans-serif;
+    font-family: Arial, "Segoe UI", sans-serif;
     font-size: 0.9375rem;
     font-weight: 600;
     text-decoration: none;
@@ -416,6 +416,9 @@
    esa altura. El umbral permite mantener las cinco posiciones a 320px
    con texto normal, sin reducir los targets para forzar la composición. */
 @container (max-width: 14em) {
+  .inicio-shell .inicio-topbar { grid-template-columns: minmax(0, 1fr); }
+  .inicio-shell .inicio-topbar__actions { grid-column: 1; grid-row: 2; justify-content: flex-start; flex-wrap: wrap; }
+  .inicio-shell .inicio-topbar__merchant { grid-column: 1; grid-row: 3; }
   .mc-mobile-nav,
   .inicio-shell.inicio-shell--compact .mc-mobile-nav {
     grid-template-columns: repeat(3, minmax(0, 1fr));
