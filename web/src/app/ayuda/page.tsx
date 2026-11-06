@@ -4,13 +4,13 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { HelpFaq } from "@/components/ayuda/help-faq";
+import { OptionalAssistant } from "@/components/ayuda/optional-assistant";
+import { BookOpen, ChevronRight, MessageSquare, Settings, Sparkles } from "lucide-react";
 import { MERCHANT, isDemoMode } from "@/lib/config";
-import botArt from "@/assets/brand/ilustraciones/transparent/bot.png";
 import ajustesIcon from "@/assets/brand/iconos/transparent/ajustes.png";
 import reciboIcon from "@/assets/brand/iconos/transparent/recibo.png";
 import qrTelefonoIcon from "@/assets/brand/iconos/transparent/qr-telefono.png";
 import registradoraIcon from "@/assets/brand/iconos/transparent/registradora.png";
-import microfonoIcon from "@/assets/brand/iconos/transparent/microfono.png";
 import "./ayuda.css";
 
 export const metadata: Metadata = {
@@ -78,24 +78,12 @@ export default async function AyudaPage() {
       demo={isDemoMode()}
     >
       <div className="mc-ayuda-layout">
-        <section className="mc-ayuda-intro" aria-labelledby="mc-ayuda-intro-title">
-          <Image src={botArt} alt="" aria-hidden="true" width={116} height={116} sizes="(max-width: 767px) 80px, 116px" />
-          <div>
-            <p className="mc-ayuda-intro__eyebrow">Asistente · opcional</p>
-            <h2 id="mc-ayuda-intro-title">¿En qué te puedo ayudar?</h2>
-            <p>Consulta la guía o ve a Caja para dictar tu venta.</p>
-            <div className="mc-ayuda-intro__actions">
-              <Link href="/caja" className="mc-ayuda-action mc-ayuda-action--primary">
-                <Image src={microfonoIcon} alt="" aria-hidden="true" width={24} height={24} />
-                Dictar una venta
-              </Link>
-              <Link href="#mc-ayuda-faq-title" className="mc-ayuda-action mc-ayuda-action--secondary">Ver preguntas</Link>
-            </div>
-          </div>
-        </section>
-
-
-
+        <nav className="mc-ayuda-menu" aria-label="Explorar la ayuda">
+          <Link href="#mc-ayuda-first-title"><BookOpen aria-hidden="true" /><span>Guías paso a paso</span><ChevronRight aria-hidden="true" /></Link>
+          <Link href="#mc-ayuda-faq-title"><MessageSquare aria-hidden="true" /><span>Preguntas frecuentes</span><ChevronRight aria-hidden="true" /></Link>
+          <Link href="/ajustes"><Settings aria-hidden="true" /><span>Texto, contraste y voz</span><ChevronRight aria-hidden="true" /></Link>
+          <Link href="#asistente" className="mc-ayuda-menu__assistant"><Sparkles aria-hidden="true" /><span>Pregúntale a Mercado Cero<small>Guía local · asistente opcional</small></span><ChevronRight aria-hidden="true" /></Link>
+        </nav>
         <section className="mc-ayuda-steps" aria-labelledby="mc-ayuda-steps-title">
           <div className="mc-art-head">
             <h2 id="mc-ayuda-steps-title" className="mc-art-section-title">
@@ -174,6 +162,8 @@ export default async function AyudaPage() {
           </p>
         </section>
 
+        <OptionalAssistant />
+
         <section
           className="mc-art-paper mc-ayuda-cta"
           aria-labelledby="mc-ayuda-cta-title"
@@ -189,7 +179,7 @@ export default async function AyudaPage() {
           </span>
           <div className="mc-ayuda-cta__copy">
             <h2 id="mc-ayuda-cta-title" className="mc-art-paper__title">
-              ¿Necesitas otra letra o menos contraste?
+              Lee la app a tu manera
             </h2>
             <p className="mc-art-paper__note">
               En Ajustes cambias el tamaño, el contraste y la velocidad de la

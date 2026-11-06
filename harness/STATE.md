@@ -1,5 +1,19 @@
 # STATE — Mercado Cero
 
+## Continuación local — Ayuda, Ajustes y asistente opcional, 6 nov 2026
+
+- Base: `7543210`; informe: `exact-parity-ayuda-ajustes-report.md`.
+- Ayuda con accesos por filas; asistente de guía local opt-in, compartido con
+  Ajustes y sincronizado entre pestañas. No usa modelo, cifras ni micrófono.
+- UI Chromium **96/0**, nueve auditorías axe del main sin violaciones,
+  1448/390/320, texto 200%, HC, offline y almacenamiento denegado.
+- Evidencia UI local: `harness/evidence/exact-parity/help/`.
+- Validación estática en `../mercado-cero-ayuda-ajustes`: consultar su
+  `latest-static.json` y `verify:evidence -- --static`, ligados al HEAD.
+- Paridad exacta y handoff público: **NO certificados**. Sin canon dedicado
+  de Ajustes ni desktop del asistente; sin full, aceptación visual o deploy.
+- Cambios concurrentes de Inicio y shell preservados fuera del commit del carril.
+
 ## Continuación local — Ventas y Caja, 5 nov 2026
 
 - Rama actual: `codex/visual-session-b`; base `9252f38`.

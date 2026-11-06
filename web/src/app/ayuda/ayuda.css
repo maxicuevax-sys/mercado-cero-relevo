@@ -8,19 +8,28 @@
   grid-template-columns: minmax(0, 1fr);
   gap: 24px;
   min-width: 0;
-  grid-template-areas: "intro" "steps" "first" "faq" "cta";
+  grid-template-areas: "intro" "steps" "first" "faq" "assistant" "cta";
 }
 .mc-ayuda-intro { grid-area: intro; }
 .mc-ayuda-steps { grid-area: steps; }
 .mc-ayuda-first { grid-area: first; }
 .mc-ayuda-faq-panel { grid-area: faq; }
 .mc-ayuda-cta { grid-area: cta; }
+.mc-ayuda-layout > .mc-assistant { grid-area: assistant; }
+.mc-ayuda-menu { grid-area: intro; padding: 4px 16px; border: 1px solid var(--color-separator); border-radius: 20px; background: var(--color-surface); }
+.mc-ayuda-menu a { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 12px 0; border-bottom: 1px solid var(--color-separator); color: var(--color-ink); font-size: 1rem; font-weight: 600; text-decoration: none; }
+.mc-ayuda-menu a:last-child { border-bottom: 0; }
+.mc-ayuda-menu a > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.mc-ayuda-menu svg { width: 22px; height: 22px; flex: none; color: var(--color-accent); }
+.mc-ayuda-menu small { display: block; color: var(--color-ink-2); font-size: .8125rem; font-weight: 400; margin-top: 4px; }
+.mc-ayuda-menu a:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3px; }
+.mc-ayuda-page :is(h2[id], #asistente) { scroll-margin-top: 24px; }
 .mc-ayuda-page.mc-op-main { font-family: Arial, "Segoe UI", sans-serif; }
 
 @media (min-width: 1024px) {
   .mc-ayuda-layout {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-areas: "intro intro" "steps steps" "first faq" "cta cta";
+    grid-template-areas: "intro intro" "steps steps" "first faq" "assistant faq" "cta cta";
   }
 
   .mc-ayuda-intro,
@@ -364,6 +373,8 @@
     flex-direction: column;
     align-items: stretch;
   }
+
+  .mc-ayuda-cta__copy { flex: 0 1 auto; }
 
   .mc-ayuda-cta__actions {
     flex-direction: column;

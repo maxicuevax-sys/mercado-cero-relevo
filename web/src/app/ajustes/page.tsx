@@ -6,6 +6,7 @@ import { ArtBanner } from "@/components/shell/art-banner";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { AccessibilityPanel } from "@/components/ajustes/accessibility-panel";
 import { CompanionPreferences } from "@/components/companion-preferences";
+import { AssistantPreference } from "@/components/ayuda/optional-assistant";
 import { MERCHANT, isDemoMode } from "@/lib/config";
 import lupitaArt from "@/assets/brand/ilustraciones/transparent/lupita.png";
 import microfonoIcon from "@/assets/brand/iconos/transparent/microfono.png";
@@ -83,8 +84,10 @@ export default async function AjustesPage() {
               Sugerencias, recordatorios y explicaciones de Lupita. Tú eliges cuándo usarlo.
             </p>
             <div className="mc-ajustes-companion__body">
+              <AssistantPreference />
               <CompanionPreferences />
             </div>
+            <Link href="/ayuda#asistente" className="mc-ajustes-action">Consultar el asistente</Link>
             <Link href="/caja" className="mc-ajustes-action mc-ajustes-dictate">
               <Image src={microfonoIcon} alt="" aria-hidden="true" width={24} height={24} />
               Ir al dictado de ventas

@@ -206,11 +206,10 @@ export function CompanionPreferences() {
       <div className="mt-3 border-t border-separator pt-3">
         <p className="text-sm font-semibold text-ink">Voz y privacidad</p>
         <p className="mt-1 text-sm leading-relaxed text-ink-2">
-          La voz ya se ajusta arriba: el botón de la barra superior la silencia
-          y “Velocidad de la voz” cambia el ritmo.
+          En Texto, contraste y voz puedes silenciar la lectura y cambiar su velocidad.
         </p>
         <p className="mt-1 text-sm leading-relaxed text-ink-2">
-          El audio que grabas mientras mantienes el micrófono se envía a OpenAI
+          El audio que decides grabar con el micrófono de Caja se envía a OpenAI
           para transcribirlo. La app no guarda el audio. Si prefieres, escribe
           la venta.
         </p>
