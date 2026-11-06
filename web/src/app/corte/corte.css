@@ -879,7 +879,7 @@
 }
 
 html:not([data-contrast="high"]) .mc-corte-receipt__saldo {
-  background: #f0eccc;
+  background: #f1ebcc;
 }
 
 html:not([data-contrast="high"]) .mc-corte-save {
