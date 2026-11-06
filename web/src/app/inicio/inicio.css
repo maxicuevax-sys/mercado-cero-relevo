@@ -949,7 +949,8 @@
   .inicio-shell--compact .inicio-hero__content { padding: 39px 24px 24px 0; }
   .inicio-shell--compact .inicio-hero h2 { font-size: 2.375rem; }
   .inicio-shell--compact .inicio-hero p { display: none; }
-  .inicio-shell--compact .inicio-hero__cta { width: 252px; max-width: calc(100% - 7px); min-height: 62px; margin: 33px 0 0 7px; padding: 12px 32px; border-radius: 30px; font-size: 1.5rem; }
+  .inicio-shell--compact .inicio-hero__cta { width: 252px; max-width: calc(100% - 7px); min-height: 62px; margin: 33px 0 0 7px; padding: 12px 32px; border-radius: 30px; font-size: 1.5rem; flex-wrap: wrap; }
+  .inicio-shell--compact .inicio-hero__desktop-label { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
   .inicio-shell--compact .inicio-hero__cta svg { width: 30px; height: 30px; }
   .inicio-shell--compact .inicio-pending { min-height: 308px; padding: 14px 34px; border-radius: 26px; }
   .inicio-shell--compact .inicio-pending h2 { font-size: 2rem; }
