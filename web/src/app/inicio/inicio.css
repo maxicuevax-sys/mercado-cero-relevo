@@ -914,6 +914,7 @@
     padding: 24px 0 34px;
     gap: 24px 20px;
     grid-template-columns: minmax(0, 0.484fr) minmax(0, 0.516fr);
+    grid-template-areas: "greeting greeting" "kpis kpis" "hero pending" "suggestion suggestion" "assistant assistant";
   }
   .inicio-shell--compact .inicio-greeting {
     position: relative;
@@ -940,7 +941,9 @@
     margin-bottom: 10px;
   }
   .inicio-shell--compact .inicio-kpi { min-height: 202px; padding: 19px 22px; border-radius: 24px; }
-  .inicio-shell--compact .inicio-kpi__top { gap: 16px; font-size: 1.25rem; }
+  .inicio-shell--compact .inicio-kpi__top { gap: 16px; font-size: 1.25rem; flex-wrap: wrap; }
+  .inicio-shell--compact .inicio-kpi__top > span:last-child { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+  .inicio-shell--compact .inicio-kpi__value { overflow-wrap: anywhere; }
   .inicio-shell--compact .inicio-kpi__icon { width: 60px; height: 60px; border-radius: 50%; }
   .inicio-shell--compact .inicio-kpi__glyph { width: 36px; height: 36px; }
   .inicio-shell--compact .inicio-kpi__value { margin-top: 14px; font-size: 2.5rem; }
