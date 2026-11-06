@@ -64,16 +64,30 @@ def reset(page) -> None:
     page.goto(BASE + "/inicio", wait_until="domcontentloaded")
     page.evaluate("localStorage.clear()")
     page.goto(BASE + "/caja", wait_until="domcontentloaded")
-    page.wait_for_timeout(350)
+    clear_demo_ticket(page)
+
+
+def clear_demo_ticket(page) -> None:
+    """Remove the reference's DEMO examples through the real ticket controls.
+
+    Financial fixtures below require only their explicitly added concepts.
+    Never seed lines through React/DOM mutation or bypass form validation.
+    """
+    expect(page.get_by_label("Describe lo que vendiste", exact=True)).to_be_enabled()
+    for name in ("Tortilla", "Huevo", "Refresco"):
+        button = page.get_by_role("button", name=f"Quitar {name}", exact=True)
+        if button.count():
+            button.click()
 
 
 def add_item(page, description: str, quantity: str = "1", price: str = "100") -> None:
-    box = page.locator(".mc-caja-add")
-    box.get_by_label("Producto o servicio").fill(description)
+    page.locator(".mc-sale-voice__chip--more").click()
+    box = page.locator("#mc-caja-manual[open]")
+    box.locator("#mc-caja-new-description").fill(description)
     box.get_by_label("Cantidad").fill(quantity)
     box.get_by_label("Precio unitario").fill(price)
     box.get_by_role("button", name="Agregar", exact=True).click()
-    page.wait_for_timeout(100)
+    expect(page.locator(".mc-caja-line textarea").last).to_have_value(description)
 
 
 def add_legacy_item(page, description: str, quantity: str, price: str) -> None:
@@ -145,7 +159,7 @@ def main() -> int:
         )
         add_item(page, "Fiado puro", "1", "100")
         page.get_by_role("button", name="Fiado", exact=True).click()
-        page.get_by_label("Monto a fiado").fill("100")
+        page.get_by_label("Monto a fiado", exact=True).and_(page.locator(":visible")).fill("100")
         new_customer(page, "Juan")
         page.locator(".mc-caja-confirm").click()
         expect(page.locator(".mc-caja-result")).to_be_visible()
@@ -176,7 +190,7 @@ def main() -> int:
         reset(page)
         add_item(page, "Mixto digital", "1", "100")
         page.get_by_role("button", name="Mixto", exact=True).click()
-        page.get_by_label("Efectivo recibido").fill("60")
+        page.get_by_label("Efectivo recibido", exact=True).and_(page.locator(":visible")).fill("60")
         page.locator(".mc-caja-confirm").click()
         expect(page.locator(".mc-caja-payment")).to_be_visible()
         panel = page.locator(".mc-caja-payment").inner_text()
@@ -201,8 +215,8 @@ def main() -> int:
         reset(page)
         add_item(page, "Fantasma", "1", "100")
         page.get_by_role("button", name="Mixto", exact=True).click()
-        page.get_by_label("Efectivo recibido").fill("100")
-        page.get_by_label("Monto a fiado").fill("100")
+        page.get_by_label("Efectivo recibido", exact=True).and_(page.locator(":visible")).fill("100")
+        page.get_by_label("Monto a fiado", exact=True).and_(page.locator(":visible")).fill("100")
         new_customer(page, "Ana")
         summary = page.locator(".mc-caja-summary").inner_text()
         check("P1-07 sin cambio fantasma", "cambio a devolver" not in summary.lower(), summary)
@@ -215,8 +229,8 @@ def main() -> int:
         reset(page)
         add_item(page, "Split válido", "1", "100")
         page.get_by_role("button", name="Mixto", exact=True).click()
-        page.get_by_label("Efectivo recibido").fill("40")
-        page.get_by_label("Monto a fiado").fill("30")
+        page.get_by_label("Efectivo recibido", exact=True).and_(page.locator(":visible")).fill("40")
+        page.get_by_label("Monto a fiado", exact=True).and_(page.locator(":visible")).fill("30")
         new_customer(page, "Ana")
         summary = page.locator(".mc-caja-summary").inner_text()
         check("P1-07 sin aviso falso de total", "el total cambió" not in summary.lower(), summary)
@@ -302,7 +316,7 @@ def main() -> int:
         body = page.locator(".mc-caja").inner_text()
         check(
             "P1-01 importa el draft v1",
-            page.locator(".mc-caja-line input").first.input_value() == "Legacy"
+            page.locator(".mc-caja-line textarea").first.input_value() == "Legacy"
             and "$70.00" in body,
         )
         check(
@@ -446,7 +460,7 @@ def main() -> int:
         page.get_by_role("button", name="Nueva venta").click()
         page.wait_for_timeout(250)
         add_item(page, "Pan repetido", "1", "100")
-        page.get_by_label("Efectivo recibido").fill("100")
+        page.get_by_label("Efectivo recibido", exact=True).and_(page.locator(":visible")).fill("100")
         before_repeat = order_count(page)
         page.locator(".mc-caja-confirm").click()
         expect(page.locator(".mc-caja-result")).to_be_visible()
@@ -454,7 +468,7 @@ def main() -> int:
         page.get_by_role("button", name="Nueva venta").click()
         page.wait_for_timeout(250)
         add_item(page, "Pan repetido", "1", "100")
-        page.get_by_label("Efectivo recibido").fill("100")
+        page.get_by_label("Efectivo recibido", exact=True).and_(page.locator(":visible")).fill("100")
         page.locator(".mc-caja-confirm").click()
         expect(page.locator(".mc-caja-result")).to_be_visible()
         second_repeat = page.locator(".mc-caja-result").inner_text()
@@ -518,7 +532,7 @@ def main() -> int:
 
         page.route("**/api/orders", fail_first_post)
         add_item(page, "502 post-commit", "1", "100")
-        page.get_by_label("Efectivo recibido").fill("100")
+        page.get_by_label("Efectivo recibido", exact=True).and_(page.locator(":visible")).fill("100")
         page.locator(".mc-caja-confirm").click()
         expect(page.locator(".mc-caja-unknown")).to_be_visible()
         check(
@@ -528,7 +542,7 @@ def main() -> int:
         )
         check(
             "P1-12 bloquea edición",
-            page.locator(".mc-caja-line input").first.is_disabled(),
+            page.locator(".mc-caja-line textarea").first.is_disabled(),
         )
         check("P1-12 hubo un solo POST", state["posts"] == 1, str(state))
         page.reload(wait_until="domcontentloaded")
@@ -582,7 +596,7 @@ def main() -> int:
             pg.wait_for_timeout(350)
             pg.evaluate("localStorage.clear()")
             pg.reload(wait_until="domcontentloaded")
-            pg.wait_for_timeout(350)
+            clear_demo_ticket(pg)
             add_item(pg, "Uno", "1", "100")
             add_item(pg, "Dos", "2", "50")
             add_item(pg, "Tres", "1", "30")
@@ -602,7 +616,7 @@ def main() -> int:
         pg.wait_for_timeout(350)
         pg.evaluate("localStorage.clear()")
         pg.reload(wait_until="domcontentloaded")
-        pg.wait_for_timeout(350)
+        clear_demo_ticket(pg)
         add_item(pg, "Texto", "1", "100")
         add_item(pg, "Grande", "1", "50")
         add_item(pg, "Dos", "2", "30")
@@ -634,26 +648,70 @@ def main() -> int:
         pg.wait_for_timeout(350)
         pg.evaluate("localStorage.clear()")
         pg.reload(wait_until="domcontentloaded")
-        pg.wait_for_timeout(350)
+        clear_demo_ticket(pg)
         add_item(pg, "Uno", "1", "100")
         add_item(pg, "Dos", "1", "50")
         add_item(pg, "Tres", "1", "30")
         pg.evaluate("document.documentElement.style.fontSize='32px'")
         pg.wait_for_timeout(400)
-        nav_columns = pg.locator(".mc-mobile-nav").evaluate(
-            "el => getComputedStyle(el).gridTemplateColumns"
-        )
-        check(
-            "P1-04 nav móvil 3+2 a 200%",
-            len(nav_columns.split()) == 3,
-            nav_columns,
-        )
-        total = pg.locator(".mc-caja-paybar > div").bounding_box()
-        button = pg.locator(".mc-caja-confirm").bounding_box()
+        # The approved mobile composition replaces the sticky paybar with
+        # a total followed by an in-flow Registrar venta button, and hides
+        # bottom navigation in Caja. Check the actual visible replacements.
+        total = pg.locator(".mc-spec-total").bounding_box()
+        register = pg.locator(".mc-spec-checkout > .mc-spec-register")
+        button = register.bounding_box()
         check(
             "P1-04 total y botón no se solapan",
-            bool(total and button and total["x"] + total["width"] <= button["x"]),
+            bool(total and button and total["width"] > 0 and button["width"] > 0
+                 and total["y"] + total["height"] <= button["y"]
+                 and 0 <= total["x"] < total["x"] + total["width"] <= 390
+                 and 0 <= button["x"] < button["x"] + button["width"] <= 390),
             f"{total} / {button}",
+        )
+        check("P1-04 Caja oculta el bottom-nav sustituido", not pg.locator(".mc-mobile-nav").is_visible())
+        mic = pg.get_by_role("button", name="Dictar venta", exact=True)
+        mic_box = mic.bounding_box()
+        pg.locator(".mc-sale-voice__chip--manzana").click()
+        expect(pg.locator("#mc-sale-voice-text")).to_have_value("Manzana")
+        check(
+            "B1 móvil: chip y micrófono principal disponibles",
+            mic.is_visible() and mic.is_enabled()
+            and bool(mic_box and mic_box["width"] >= 56 and mic_box["height"] >= 56),
+            str(mic_box),
+        )
+        register.click()
+        review = pg.get_by_role("dialog", name="Registrar venta", exact=True)
+        expect(review).to_be_visible()
+        review.get_by_role("button", name="Efectivo exacto", exact=True).click()
+        expect(review.get_by_label("Efectivo recibido", exact=True)).to_have_value("180.00")
+        mobile_before = order_count(pg)
+        review.get_by_role("button", name="Registrar venta", exact=True).click()
+        expect(pg.locator(".mc-caja-result")).to_be_visible()
+        mobile_order = pg.request.get(BASE + "/api/orders").json()["orders"][0]
+        check(
+            "B1 móvil: Registrar venta registra efectivo demo una sola vez",
+            order_count(pg) == mobile_before + 1
+            and mobile_order["totalCents"] == 18000
+            and mobile_order["paidCents"] == 18000
+            and mobile_order["status"] == "demo_paid"
+            and mobile_order["lastPaymentDemo"] is True,
+            json.dumps(mobile_order),
+        )
+        pg.screenshot(path=str(OUT / "p1-04-mobile-checkout.png"), full_page=True)
+
+        # Preserve the original 3+2 navigation check on a screen that renders
+        # it, at the same viewport and text scale. Hidden computed styles are
+        # not evidence that navigation is usable.
+        pg.goto(BASE + "/inicio", wait_until="domcontentloaded")
+        pg.evaluate("document.documentElement.style.fontSize='32px'")
+        nav = pg.locator(".mc-mobile-nav")
+        expect(nav).to_be_visible()
+        expect(nav).to_have_css("grid-template-columns", re.compile(r"^\S+ \S+ \S+$"))
+        nav_columns = nav.evaluate("el => getComputedStyle(el).gridTemplateColumns")
+        check(
+            "P1-04 nav móvil 3+2 a 200%",
+            nav.is_visible() and len(nav_columns.split()) == 3,
+            nav_columns,
         )
         pg.close()
 
