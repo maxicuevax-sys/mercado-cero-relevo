@@ -59,7 +59,8 @@
     align-items: center;
     gap: calc(4 * var(--fi-u));
     color: inherit;
-    font: 700 clamp(.77rem, 3.85vw, .94rem)/.91 Georgia, serif;
+    font: 700 clamp(.73rem, 3.59vw, .875rem)/.95 Georgia, serif;
+    letter-spacing: -.02em;
     text-decoration: none;
   }
 
@@ -206,6 +207,8 @@
     margin: 0;
     font: 700 clamp(1.5rem, 7.69vw, 1.875rem)/1.05 Georgia, serif;
     letter-spacing: -.025em;
+    transform: scaleX(.9);
+    transform-origin: left center;
   }
 
   .mc-fiados-mobile__heading img {
@@ -309,12 +312,12 @@
     height: calc(69 * var(--fi-u));
     align-self: end;
     object-fit: cover;
-    object-position: top;
+    object-position: center 20%;
   }
 
   .mc-fiados-mobile__total > div {
     min-width: 0;
-    padding: 3px 4px 3px 0;
+    padding: 2px 4px 5px 0;
   }
 
   .mc-fiados-mobile__total p:first-child {
@@ -325,7 +328,13 @@
 
   .mc-fiados-mobile__total p:last-child {
     font: 700 clamp(1.55rem, 8.2vw, 2rem)/1.03 Georgia, serif;
+    font-variant-numeric: lining-nums tabular-nums;
     overflow-wrap: anywhere;
+  }
+
+  .mc-fiados-mobile__total p:last-child[data-sample] {
+    transform: scaleX(.85);
+    transform-origin: left center;
   }
 
   .mc-fiados-mobile__list {
@@ -367,6 +376,7 @@
   .mc-fiados-mobile__name {
     display: block;
     font: 700 clamp(.875rem, 4.36vw, 1.0625rem)/1.14 Georgia, serif;
+    letter-spacing: -.028em;
   }
 
   .mc-fiados-mobile__status {

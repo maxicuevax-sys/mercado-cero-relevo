@@ -137,7 +137,9 @@ export function MobileLedger({
           <Image src="/assets/spec/fiados-monedas.png" width={320} height={200} alt="" unoptimized />
           <div>
             <p id="fiados-mobile-total">Total por cobrar{showSample ? <span className="sr-only"> · Muestra ilustrativa</span> : null}</p>
-            <CurrencyAmount as="p" cents={showSample ? 112500 : balance} />
+            {showSample
+              ? <p className="tabular-nums" data-sample>{formatMxn(112500)}</p>
+              : <CurrencyAmount as="p" cents={balance} />}
           </div>
         </section>
 
