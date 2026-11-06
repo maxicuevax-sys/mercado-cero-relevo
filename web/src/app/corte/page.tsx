@@ -122,6 +122,17 @@ export default async function CortePage() {
         </dl>
         <div className="mc-corte-summary__balance"><span>Saldo del día</span><CurrencyAmount as="p" cents={status.expectedCents} /></div>
       </section>
+      <div className="mc-corte-start">
+        <p id="mc-corte-start-help" className="mc-corte-start__help">
+          <strong>PASO 1</strong> Cuenta el efectivo. Después de revisar, confirma con «Guardar corte».
+        </p>
+        <details>
+          <summary aria-describedby="mc-corte-start-help">
+            <CheckCircle2 aria-hidden="true" />{saved ? "Corregir corte" : "Realizar corte"}
+          </summary>
+          <CashCount initialStatus={status} titleId="mc-corte-tally-title" />
+        </details>
+      </div>
       <details className="mc-corte-detail">
         <summary>Detalle de movimientos{demo ? " · Demo" : ""}</summary>
         <ReadReceipt text={receiptSpeech} />
@@ -136,10 +147,6 @@ export default async function CortePage() {
         <h2 className="mc-op-panel__title">Cortes de hoy</h2>
         {saved ? <SavedClose close={saved} /> : <p className="mc-corte-history__empty">Sin corte guardado hoy.</p>}
         {history.slice(1).map(item => <div key={item.id}><SavedClose close={item} /></div>)}
-      </details>
-      <details className="mc-corte-start">
-        <summary><CheckCircle2 aria-hidden="true" />{saved ? "Corregir corte" : "Realizar corte"}</summary>
-        <CashCount initialStatus={status} titleId="mc-corte-tally-title" />
       </details>
     </OperationalPage>
   );
