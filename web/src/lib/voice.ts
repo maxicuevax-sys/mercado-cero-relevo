@@ -1,95 +1,36 @@
-import OpenAI from "openai";
-import { zodResponseFormat } from "openai/helpers/zod";
-import { z } from "zod";
 import type { ParsedSale } from "./types";
-import { CATALOG, mockParse } from "./voice-local";
+import { mockParse } from "./voice-local";
 
 export { mockParse };
 
-const saleSchema = z.object({
-  intent: z.enum(["sale", "query", "credit_payment", "unknown"]),
-  items: z
-    .array(
-      z.object({
-        description: z.string(),
-        quantity: z.number().positive(),
-        unitPriceCents: z.number().int().nonnegative(),
-      }),
-    )
-    .default([]),
-  cashCents: z.number().int().nonnegative().default(0),
-  customerName: z.string().nullable().default(null),
-  creditCents: z.number().int().nonnegative().default(0),
-  creditMethod: z.enum(["cash", "codi", "card"]).nullable().default(null),
-  query: z.string().nullable().default(null),
-  confidence: z.number().min(0).max(1).default(0.5),
-  reply: z.string().default(""),
-});
-
-function client(): OpenAI | null {
-  if (!process.env.OPENAI_API_KEY) return null;
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
+/**
+ * STT 100% local (faster-whisper) — sin OpenAI.
+ * El servicio se levanta con scripts/local-stt-server.py (puerto 4097).
+ * Kokoro/Piper siguen siendo la salida TTS; esto es solo entrada de voz.
+ */
 
 export async function transcribeAudio(file: File): Promise<string> {
-  const openai = client();
-  if (!openai) {
-    throw new Error("Falta OPENAI_API_KEY para transcribir audio.");
-  }
-
-  const model = process.env.OPENAI_TRANSCRIBE_MODEL ?? "gpt-4o-mini-transcribe";
-  const result = await openai.audio.transcriptions.create({
-    file,
-    model,
-    language: "es",
-    prompt: "Venta de comida mexicana: quesadillas, aguas, refrescos, atole, tacos, tortillas, fiado.",
+  const endpoint =
+    process.env.LOCAL_STT_URL ?? "http://127.0.0.1:4097/transcribe";
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "content-type": file.type || "application/octet-stream" },
+    body: bytes,
+    signal: AbortSignal.timeout(120_000),
   });
-
-  return result.text.trim();
+  if (!response.ok) {
+    throw new Error(`STT local respondió HTTP ${response.status}.`);
+  }
+  const data = (await response.json()) as { text?: string };
+  const text = (data.text ?? "").trim();
+  if (!text) throw new Error("El STT local no devolvió texto.");
+  return text;
 }
 
+/** Parser local determinista; no hay llamadas a OpenAI. */
 export async function parseSale(transcript: string): Promise<ParsedSale> {
-  const openai = client();
-  if (!openai) return mockParse(transcript);
-
-  const catalogText = CATALOG.map(
-    (item) => `${item.name}: ${(item.priceCents / 100).toFixed(2)} pesos`,
-  ).join("\n");
-
-  const completion = await openai.chat.completions.parse({
-    model: process.env.OPENAI_PARSE_MODEL ?? "gpt-4.1-mini",
-    temperature: 0.1,
-    messages: [
-      {
-        role: "system",
-        content: `Eres el parser de "Mercado Cero", una caja hablada para una comerciante mexicana.
-Convierte la frase en una operación estructurada. No inventes precios.
-
-CATÁLOGO DE APOYO (precios en pesos):
-${catalogText}
-
-REGLAS:
-- Los precios que devuelves están en CENTAVOS. $35.00 = 3500.
-- Si la frase menciona un precio, úsalo. Si no, usa el precio del catálogo. Si no está en el catálogo, usa 0 y baja la confianza.
-- "dos quesadillas de 35 y un agua de 20" => 2 × 3500 + 1 × 2000.
-- Si dice "le di / pagó con / efectivo", llena cashCents.
-- Si dice "fiado / me debe / a deber / apunta", llena creditCents y customerName.
-- Si dice "me pagó / abonó / liquidó / transfirió / depositó" y menciona un cliente, intent="credit_payment", customerName y creditCents.
-- Para credit_payment, llena creditMethod solo si el método es explícito: "efectivo/billetes" => "cash"; "transferencia/transfirió/CoDi/depósito/digital" => "codi"; "tarjeta/débito/crédito" => "card"; si no se dice, null. No inventes el método.
-- Para ventas, consultas y unknown, creditMethod siempre null.
-- Si es una pregunta ("cuánto vendí", "cuánto me debe", "quién me debe", "corte"), intent="query" y query con la pregunta.
-- Si no entiendes, intent="unknown", confidence baja y reply pidiendo repetir.
-- reply debe ser una frase corta para confirmar en voz alta, en español mexicano, sin sonar robótica.
-- No agregues texto fuera del JSON.`,
-      },
-      { role: "user", content: transcript },
-    ],
-    response_format: zodResponseFormat(saleSchema, "sale"),
-  });
-
-  const parsed = completion.choices[0]?.message?.parsed;
-  if (!parsed) return mockParse(transcript);
-  return parsed;
+  return mockParse(transcript);
 }
 
 export { answerDebtQuery } from "./voice-debts";

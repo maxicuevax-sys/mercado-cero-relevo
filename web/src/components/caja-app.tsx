@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import "./legacy-ui.css";
@@ -2997,7 +2997,7 @@ export default function CajaApp({
 
           <footer className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-separator pt-5 text-sm text-ink-2 sm:flex-row sm:flex-wrap sm:items-center">
             <p className="min-w-0">
-              Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + OpenAI ·{" "}
+              Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + voz local open source ·{" "}
               <a href="/credits.txt" className="inline-flex min-h-12 items-center underline underline-offset-2 hover:text-ink">
                 Fotos: créditos
               </a>

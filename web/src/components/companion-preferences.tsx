@@ -209,9 +209,10 @@ export function CompanionPreferences() {
           En Texto, contraste y voz puedes silenciar la lectura y cambiar su velocidad.
         </p>
         <p className="mt-1 text-sm leading-relaxed text-ink-2">
-          El audio que decides grabar con el micrófono de Caja se envía a OpenAI
-          para transcribirlo. La app no guarda el audio. Si prefieres, escribe
-          la venta.
+          El audio que decides grabar con el micrófono de Caja se procesa
+          localmente con faster-whisper; la app no lo envía a OpenAI ni guarda
+          el audio. La salida de voz usa Kokoro/Piper local. Si prefieres,
+          escribe la venta.
         </p>
       </div>
     </section>
