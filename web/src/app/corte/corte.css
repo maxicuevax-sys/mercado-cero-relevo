@@ -1363,6 +1363,7 @@ html:not([data-contrast="high"]) .mc-corte-save:hover:not(:disabled) {
   }
 
   .mc-corte-save {
+    width: min(87vw, calc(100% + 12px));
     min-height: clamp(3.5rem, 18vw, 4.5rem);
     border-radius: 16px;
   }
@@ -1539,6 +1540,11 @@ html:not([data-contrast="high"]) .mc-corte-save:hover:not(:disabled) {
 }
 
 @media (max-width: 359.98px) {
+  .mc-corte-save {
+    width: min(87vw, calc(100% + 20px));
+    margin-inline-start: -6px;
+  }
+
   .mc-corte-receipt {
     padding-inline: 2px;
   }
