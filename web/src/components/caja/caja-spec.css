@@ -19,6 +19,7 @@
   .mc-caja-spec-header__actions a { display: grid; place-items: center; width: 32px; height: 40px; color: inherit; border-radius: 8px; }
   .mc-caja-spec-header__actions svg { width: 24px; height: 24px; stroke-width: 1.8; }
   .mc-caja-spec-header :focus-visible { outline: 3px solid #fffaf0; outline-offset: 2px; }
+  html[data-contrast="high"] .mc-caja-shell .mc-caja-spec-header :focus-visible { outline-color: #fffaf0; }
   .mc-caja-spec-avatar { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #007353; font: 600 16px/1 Arial, sans-serif; }
   .inicio-shell.mc-caja-shell .mc-caja {
     min-height: calc(100svh - 84px); min-width: 0; padding: 11px 13px 17px;

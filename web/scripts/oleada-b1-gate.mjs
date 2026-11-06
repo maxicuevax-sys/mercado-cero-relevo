@@ -18,7 +18,9 @@ const WEB = path.resolve(HERE, "..");
 const ROOT = path.resolve(WEB, "..");
 const NEXT_BIN = path.join(WEB, "node_modules", "next", "dist", "bin", "next");
 const BUILD_SHA_FILE = path.join(WEB, ".next", "BUILD_SHA");
-const OUT_DIR = path.join(ROOT, "quality-reports", "oleada-b-estabilizacion", "evidencia");
+const OUT_DIR = path.resolve(
+  process.env.OLEADA_B1_OUT ?? path.join(ROOT, "quality-reports", "oleada-b-estabilizacion", "evidencia"),
+);
 
 let PORT = Number(process.env.B1_PORT ?? 3390);
 if ([3000, 3100, 3101].includes(PORT)) {

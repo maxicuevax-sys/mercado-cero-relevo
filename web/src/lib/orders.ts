@@ -331,7 +331,7 @@ export function createOrder(input: CreateOrderInput): Order {
       // confirmado y la entrega se decide después, de forma explícita.
       database
         .prepare("UPDATE orders SET status = ?, updated_at = ? WHERE id = ?")
-        .run(creditCents > 0 ? "confirmed" : "paid", nowIso(), id);
+        .run(creditCents > 0 ? "confirmed" : isDemoMode() ? "demo_paid" : "paid", nowIso(), id);
     }
 
     audit("order.created", "order", id, {
