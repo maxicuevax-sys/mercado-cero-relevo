@@ -73,7 +73,7 @@ def clear_demo_ticket(page) -> None:
     Financial fixtures below require only their explicitly added concepts.
     Never seed lines through React/DOM mutation or bypass form validation.
     """
-    expect(page.get_by_label("Describe lo que vendiste", exact=True)).to_be_enabled()
+    expect(page.get_by_label("?Qu? vendiste? Describe los productos", exact=True)).to_be_enabled()
     for name in ("Tortilla", "Huevo", "Refresco"):
         button = page.get_by_role("button", name=f"Quitar {name}", exact=True)
         if button.count():
@@ -680,7 +680,9 @@ def main() -> int:
             str(mic_box),
         )
         register.click()
-        review = pg.get_by_role("dialog", name="Registrar venta", exact=True)
+        expect(pg.get_by_role("heading", name="M?todo de pago", exact=True)).to_be_visible()
+        pg.get_by_role("button", name="Continuar", exact=True).click()
+        review = pg.get_by_role("region", name="Revisar cobro", exact=True)
         expect(review).to_be_visible()
         review.get_by_role("button", name="Efectivo exacto", exact=True).click()
         expect(review.get_by_label("Efectivo recibido", exact=True)).to_have_value("180.00")

@@ -1,6 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
+import { BadgeCheck, Share2, House } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatMxn } from "@/lib/format";
 import { isDemoSale, saleMoney } from "@/lib/sale-truth";
@@ -21,6 +24,7 @@ export function SaleResult({
   demo: boolean;
   onNewSale: () => void;
 }) {
+  const [shareNotice, setShareNotice] = useState("");
   const money = saleMoney(order, creditBalanceCents);
   const {
     paidCents,
@@ -91,11 +95,18 @@ export function SaleResult({
       <h2 id="mc-caja-result-title" tabIndex={-1}>
         {title}
       </h2>
+      {hasDigital ? <div className={`mc-payment-confirmed${isDemo ? " mc-payment-confirmed--demo" : ""}`}>
+        <Image src="/assets/spec/b-confirmed.png" alt="" width={123} height={150} />
+        <div><BadgeCheck aria-hidden="true" /><CurrencyAmount cents={order.totalCents} /><p>{isDemo ? "Pago digital simulado" : "Pago digital recibido"}</p><strong>{isDemo ? "DEMO ? sin dinero real" : "Cobrado"}</strong></div>
+      </div> : null}
       <p className="mc-caja-result__label">Total de la venta</p>
       <CurrencyAmount as="p" cents={order.totalCents} className="mc-caja-result__total" />
       <p className="mc-caja-result__note">{note}</p>
 
+      <h3 className="mc-receipt-title">Comprobante de pago{isDemo ? " ? DEMO" : ""}</h3>
       <dl className="mc-caja-result__facts">
+        <div><dt>M?todo</dt><dd>{hasDigital ? hasCash ? "Mixto / digital" : "Digital / QR" : hasCash ? "Efectivo" : "Fiado"}</dd></div>
+        <div><dt>Hora</dt><dd>{new Date(order.updatedAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}</dd></div>
         <div>
           <dt>Pedido</dt>
           <dd>{order.id.slice(-4).toUpperCase()}</dd>
@@ -186,6 +197,12 @@ export function SaleResult({
         </p>
       ) : null}
 
+      <button type="button" className="mc-caja-button mc-caja-button--secondary mc-receipt-share" onClick={async () => {
+        const text = `${isDemo ? "DEMO SIMULADO - SIN DINERO REAL" : title}\nPedido ${order.id}\nTotal ${formatMxn(order.totalCents)}\nEstado ${statusLabel(order.status)}\n${note}`;
+        try { if (navigator.share) await navigator.share({ title: "Comprobante Mercado Cero", text }); else await navigator.clipboard.writeText(text); setShareNotice("Comprobante compartido o copiado."); } catch { setShareNotice("No se comparti?. Puedes copiar los datos del comprobante en pantalla."); }
+      }}><Share2 aria-hidden="true" />Compartir comprobante</button>
+      <p role="status">{shareNotice}</p>
+      <Link href="/inicio" className="mc-caja-button mc-caja-button--primary"><House aria-hidden="true" />Volver al inicio</Link>
       <div className="mc-caja-result__actions">
         <button type="button" className="mc-caja-button mc-caja-button--primary" onClick={onNewSale}>
           Nueva venta

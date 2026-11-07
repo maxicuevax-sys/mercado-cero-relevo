@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, QrCode, ScanLine, Share2 } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatMxn } from "@/lib/format";
 import { saleMoney } from "@/lib/sale-truth";
@@ -25,6 +25,7 @@ export function PaymentPanel({
 }) {
   const [busy, setBusy] = useState<"link" | "qr" | "refresh" | "demo" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [scanNotice, setScanNotice] = useState(false);
   const [copied, setCopied] = useState(false);
   const actionLockRef = useRef(false);
   const orderRef = useRef(order);
@@ -144,6 +145,8 @@ export function PaymentPanel({
 
   return (
     <section className="mc-caja-card mc-caja-payment" aria-labelledby="mc-caja-payment-title">
+      <div className="mc-qr-tabs" aria-label="Opciones QR"><span><QrCode aria-hidden="true" />Pago QR</span><button type="button" onClick={() => setScanNotice(!scanNotice)} aria-expanded={scanNotice}><ScanLine aria-hidden="true" />Escanear</button></div>
+      {scanNotice ? <p role="status">Escanea este QR con la c?mara o la app de pago del cliente. Esta caja no valida capturas ni tiene lector de c?mara integrado.</p> : null}
       <div className="mc-caja-card__head">
         <div>
           <p className="mc-caja-eyebrow">Cobro digital</p>
@@ -160,6 +163,7 @@ export function PaymentPanel({
         </span>
       </div>
 
+      <div className="mc-payment-total"><span>Total</span><CurrencyAmount cents={order.totalCents} /></div>
       <div className="mc-caja-payment__amount">
         {money.hasReceived ? (
           <>
@@ -201,6 +205,7 @@ export function PaymentPanel({
         </figure>
       ) : null}
 
+      {order.paymentUrl ? <button type="button" className="mc-caja-button mc-caja-button--secondary mc-qr-share" onClick={() => void copyLink()}><Share2 aria-hidden="true" />{copied ? "Compartir QR ? link copiado" : "Compartir QR"}</button> : null}
       {order.paymentUrl ? (
         <div className="mc-caja-link">
           <p>Link de cobro</p>
@@ -221,6 +226,7 @@ export function PaymentPanel({
         </div>
       ) : null}
 
+      <div className="mc-qr-state" role="status">{pending ? "Por cobrar" : statusLabel(order.status)}</div>
       <div className="mc-caja-payment__actions">
         {!order.paymentUrl ? (
           <button
@@ -251,7 +257,7 @@ export function PaymentPanel({
           disabled={busy !== null}
         >
           {busy === "refresh" ? <span className="mc-caja-spinner" aria-hidden="true" /> : null}
-          Actualizar estado
+          Confirmar pago ? consultar estado
         </button>
         <button
           type="button"
