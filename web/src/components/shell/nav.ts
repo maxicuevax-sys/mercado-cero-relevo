@@ -42,12 +42,13 @@ export const appNav: ShellNavItem[] = [
 
 /** Orden del sidebar del Inicio canónico; no altera el navegador operativo
  * ni las posiciones del chrome móvil, que siguen usando appNav directamente. */
-const secondaryNav: ShellNavItem[] = [appNav[3], appNav[4], appNav[6]];
+const secondaryNav: ShellNavItem[] = [appNav[3], appNav[4]];
 
 export const inicioNav: ShellNavItem[] = [
   appNav[0],
   appNav[2],
   appNav[1],
+  appNav[6],
   appNav[5],
 ];
 export const cajaNav = appNav;
@@ -71,6 +72,7 @@ export const mobilePrimary: ShellNavItem[] = [
   appNav[0],
   appNav[2],
   appNav[1],
+  appNav[6],
 ];
 
 export const cajaMobilePrimary = mobilePrimary;
@@ -79,7 +81,6 @@ export const operationalMobilePrimary = mobilePrimary;
 export const mobileMore: ShellNavItem[] = [
   appNav[3],
   appNav[4],
-  appNav[6],
   appNav[5],
   ...appFoot,
 ];

@@ -16,7 +16,7 @@ import {
 
 function contextualMobilePrimary(_activeHref: string): ShellNavItem[] {
   // Principal: Inicio · Ventas · Vender. Fiados/Corte/Pendientes viven en Más.
-  return [appNav[0], appNav[2], appNav[1]];
+  return [appNav[0], appNav[2], appNav[1], appNav[6]];
 }
 
 export function AppShell({

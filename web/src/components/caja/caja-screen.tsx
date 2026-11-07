@@ -202,22 +202,7 @@ export function CajaScreen({
       // Un borrador legacy corrupto no debe bloquear /caja.
     }
 
-    // La spec autoriza este ticket de ejemplo solo en DEMO. Un borrador,
-    // legado o intento sin resolver siempre tiene prioridad sobre el ejemplo.
-    if (demo && !hasV2Draft) {
-      try {
-        if (!window.localStorage.getItem(LEGACY_DRAFT_KEY) && !window.localStorage.getItem(UNKNOWN_KEY) && !window.localStorage.getItem(CONFIRMED_KEY)) {
-          setLines([
-            { id: "spec-demo-tortilla", description: "Tortilla", quantity: "2", price: "35.00" },
-            { id: "spec-demo-huevo", description: "Huevo", quantity: "1", price: "50.00" },
-            { id: "spec-demo-refresco", description: "Refresco", quantity: "1", price: "20.00" },
-          ]);
-        }
-      } catch {
-        // Sin almacenamiento legible no se sustituye ningún estado recuperable.
-      }
-    }
-
+    // Ticket inicial vacío: el comerciante decide qué vender.
     setHydrated(true);
 
     try {
