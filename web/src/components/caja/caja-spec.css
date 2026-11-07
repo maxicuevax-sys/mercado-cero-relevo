@@ -107,7 +107,7 @@
 
 /* B: 24px minimum even at 320px; grow the ticket rather than shrink targets. */
 @media (max-width: 760px) {
-  .mc-caja-shell .mc-caja-line { grid-template-columns: 36px minmax(0, 1fr) 84px 57px 28px; column-gap: 4px; }
+  .mc-caja-shell .mc-caja-line { grid-template-columns: 44px minmax(0, 1fr) 84px 57px 28px; column-gap: 4px; }
   .mc-caja-shell .mc-caja-line .mc-caja-field--description textarea { min-height: 28px; padding-block: 3px; }
   .mc-caja-shell .mc-caja-line__price-toggle { min-height: 28px; min-width: 24px; padding-block: 4px; color: #50584b; }
   .mc-caja-shell .mc-caja-line__quantity { grid-template-columns: 28px minmax(24px, 1fr) 28px; min-height: 44px; }
@@ -116,4 +116,7 @@
   .mc-caja-shell .mc-caja-line .mc-caja-field--description, .mc-caja-shell .mc-caja-line__price-toggle { margin-left: 0; }
   .mc-caja-shell .mc-caja-heading { height: auto; min-height: 44px; gap: 10px; }
   .mc-caja-shell .mc-caja-heading .mc-page-header__title { font-size: 1.7rem; overflow-wrap: anywhere; }
+}
+@media (max-width: 360px) {
+  .mc-caja-shell .mc-caja-line { grid-template-columns: 36px minmax(0, 1fr) 84px 57px 28px; }
 }
