@@ -75,9 +75,13 @@ export function MobileLedger({
   matchesQuery: (name: string) => boolean;
   pager: ReactNode;
 }) {
-  // La lámina ilustrativa solo se usa cuando no hay deudas reales que mostrar.
-  // Con clientes reales, la libreta debe reflejar los saldos verdaderos.
-  const showSample = demo && credits.length === 0 && !practice && !history;
+  // La lámina ilustrativa solo se usa cuando no hay deudas reales que mostrar
+  // (o cuando solo existe la semilla demo inicial intacta y no se abrió la libreta de práctica).
+  const onlyDefaultSeed =
+    credits.length === 1 &&
+    credits[0].id.startsWith("demo_seed_") &&
+    credits[0].balanceCents === credits[0].originalCents;
+  const showSample = demo && (credits.length === 0 || onlyDefaultSeed) && !practice && !history;
   const examples = showSample ? sample.filter(({ name }) => matchesQuery(name)) : [];
   const empty = showSample ? examples.length === 0 : credits.length === 0;
   return (

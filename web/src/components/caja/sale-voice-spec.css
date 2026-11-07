@@ -24,15 +24,22 @@
   .mc-caja-shell .mc-sale-voice__field {
     grid-template-columns: minmax(0, 1fr) 56px;
     align-items: center;
-    gap: 8px;
+    gap: 7px;
     min-height: 64px;
-    padding: 3px;
+    padding: 4px 5px;
     border: 1px solid var(--sale-voice-border);
-    border-radius: 14px;
-    background: var(--sale-voice-paper);
+    border-radius: 15px;
+    background: #f6efe2;
   }
 
-  .mc-caja-shell .mc-sale-voice__entry { min-width: 0; }
+  .mc-caja-shell .mc-sale-voice__entry {
+    min-width: 0;
+    min-height: 48px;
+    padding-inline: 2px 8px;
+    border: 1px solid #e1d6be;
+    border-radius: 11px;
+    background: var(--sale-voice-paper);
+  }
 
   .mc-caja-shell .mc-sale-voice__manual {
     display: grid;
