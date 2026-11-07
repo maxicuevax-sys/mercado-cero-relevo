@@ -1,5 +1,13 @@
-import { getDb, getOrder, getOrderByNumRef, getOrderByPaymentLink } from "./db";
-import { recordPayment } from "./orders";
+import {
+  getCredit,
+  getCreditByNumRef,
+  getCreditByPaymentLink,
+  getDb,
+  getOrder,
+  getOrderByNumRef,
+  getOrderByPaymentLink,
+} from "./db";
+import { recordPayment, recordVerifiedCreditPaymentFromPey } from "./orders";
 import { mapPeyMethod, transactionBaseCents } from "./pey";
 import type { Order } from "./types";
 
@@ -18,7 +26,7 @@ export class PeyWebhookError extends Error {
 }
 
 export type PeyWebhookOutcome =
-  | { result: "processed"; orderId: string; amountCents: number }
+  | { result: "processed"; orderId?: string; creditId?: string; amountCents: number }
   | { result: "ignored"; reason: string };
 
 interface PaymentLinkEvent {
@@ -28,6 +36,7 @@ interface PaymentLinkEvent {
   clientReferenceId?: unknown;
   currency?: unknown;
   transactions?: unknown;
+  metadata?: unknown;
 }
 
 interface CodiQrEvent {
@@ -156,10 +165,80 @@ function assertExactAmount(order: Order, amountCents: number, context: string): 
   }
 }
 
+function findCreditForEvent(input: {
+  creditId?: unknown;
+  clientReferenceId?: unknown;
+  paymentLinkId?: unknown;
+  numRef?: unknown;
+}) {
+  const directId = identifier(input.creditId);
+  if (directId) {
+    const cred = getCredit(directId);
+    if (cred) return cred;
+  }
+  const ref = identifier(input.clientReferenceId);
+  if (ref.startsWith("cred_")) {
+    const cred = getCredit(ref.slice(5).trim());
+    if (cred) return cred;
+  }
+  const paymentLinkId = identifier(input.paymentLinkId);
+  if (paymentLinkId) {
+    const cred = getCreditByPaymentLink(paymentLinkId);
+    if (cred) return cred;
+  }
+  const numRef = identifier(input.numRef);
+  if (numRef) {
+    const cred = getCreditByNumRef(numRef);
+    if (cred) return cred;
+  }
+  return null;
+}
+
 function processPaymentLink(event: PaymentLinkEvent): PeyWebhookOutcome {
   const status = typeof event.status === "string" ? event.status.toLowerCase() : "";
   if (status !== "paid") {
     return { result: "ignored", reason: `estado ${status || "desconocido"}` };
+  }
+
+  const meta = isRecord(event.metadata) ? event.metadata : {};
+  const credit = findCreditForEvent({
+    creditId: meta.creditId,
+    clientReferenceId: event.clientReferenceId,
+    paymentLinkId: event.paymentLinkId,
+  });
+
+  if (credit) {
+    assertCurrency(event.currency, "Evento fiado", true);
+    const rawTransactions = Array.isArray(event.transactions) ? event.transactions : [];
+    if (rawTransactions.length === 0) {
+      throw new PeyWebhookError("El evento pagado no incluye transacciones.", 422);
+    }
+    const transactions = rawTransactions.map((raw) => {
+      if (!isRecord(raw)) throw new PeyWebhookError("Transacción inválida.", 422);
+      const transactionId = identifier(raw.transactionId);
+      if (!transactionId) throw new PeyWebhookError("Transacción sin transactionId.", 422);
+      const amountCents = transactionBaseCents(raw);
+      if (amountCents === null) throw new PeyWebhookError(`Transacción ${transactionId}: monto inválido.`, 422);
+      assertCurrency(raw.currency, `Transacción ${transactionId}`);
+      return {
+        transactionId,
+        amountCents,
+        paymentMethod: typeof raw.paymentMethod === "string" ? raw.paymentMethod : undefined,
+      };
+    });
+
+    for (const transaction of transactions) {
+      recordVerifiedCreditPaymentFromPey({
+        creditId: credit.id,
+        amountCents: transaction.amountCents,
+        method: mapPeyMethod(transaction.paymentMethod),
+        transactionId: transaction.transactionId,
+        rawEvent: JSON.stringify(transaction),
+      });
+    }
+
+    const totalCents = transactions.reduce((sum, tx) => sum + tx.amountCents, 0);
+    return { result: "processed", creditId: credit.id, amountCents: totalCents };
   }
 
   const order = resolvePaymentLinkOrder(event);
@@ -241,6 +320,35 @@ function processPaymentLink(event: PaymentLinkEvent): PeyWebhookOutcome {
 }
 
 function processCodiQr(event: CodiQrEvent): PeyWebhookOutcome {
+  const meta = isRecord(event.metadata) ? event.metadata : {};
+  const extMeta = isRecord(meta.externalMetadata) ? meta.externalMetadata : {};
+  const credit = findCreditForEvent({
+    creditId: meta.creditId || extMeta.creditId,
+    numRef: event.numRef,
+  });
+
+  if (credit) {
+    assertCurrency(event.currency, "Evento QR fiado", true);
+    const amountCents = toCents(event.amount);
+    if (amountCents === null) {
+      throw new PeyWebhookError("El evento QR no incluye un monto válido.", 422);
+    }
+    const transactionId = identifier(event.transactionId);
+    if (!transactionId) {
+      throw new PeyWebhookError("El evento QR no incluye transactionId.", 422);
+    }
+
+    recordVerifiedCreditPaymentFromPey({
+      creditId: credit.id,
+      amountCents,
+      method: "codi",
+      transactionId,
+      rawEvent: JSON.stringify(event),
+    });
+
+    return { result: "processed", creditId: credit.id, amountCents };
+  }
+
   const order = resolveQrOrder(event);
   assertCurrency(event.currency, "Evento QR", true);
 
@@ -290,7 +398,10 @@ export function processPeyEvent(event: unknown): PeyWebhookOutcome {
   if (event.type === "payment_link.status_updated") {
     return processPaymentLink(event as unknown as PaymentLinkEvent);
   }
-  if (event.type === "codi.qr.payment_received") {
+  if (
+    event.type === "codi.qr.payment_received" ||
+    event.type === "codi.pn.payment_received"
+  ) {
     return processCodiQr(event as unknown as CodiQrEvent);
   }
 

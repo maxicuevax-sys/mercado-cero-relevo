@@ -26,7 +26,6 @@ import {
   saleStatusLabel,
   type SaleStampTone,
 } from "@/lib/sale-display";
-import type { Order } from "@/lib/types";
 import tacosArt from "@/assets/brand/ilustraciones/transparent/tacos.png";
 import papelPicadoArt from "@/assets/inicio/papel-picado.png";
 import iconRecibo from "@/assets/brand/iconos/transparent/recibo.png";

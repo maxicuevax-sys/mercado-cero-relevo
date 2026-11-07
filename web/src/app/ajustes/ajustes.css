@@ -466,7 +466,9 @@
 .mc-settings-group strong { display: block; font: 700 1.2rem/1.2 Georgia, serif; }
 .mc-settings-group small { display: block; font-size: .85rem; margin-top: 3px; line-height: 1.25; }
 .mc-settings-group summary > svg:last-child { flex: none; width: 18px; height: 18px; }
-.mc-settings-group details > p { padding: 0 8px 16px; }
+.mc-settings-group details > :is(p, .mc-settings-subpanel) { padding: 0 8px 16px; }
+.mc-settings-subpanel p { margin: 0 0 8px; }
+.mc-settings-meta { font-size: .85rem; line-height: 1.5; border-top: 1px solid var(--color-separator); padding-top: 8px; display: grid; gap: 4px; }
 .mc-settings-switch { display: flex; align-items: center; flex: none; width: 48px; min-height: 44px; padding: 7px 3px; border-radius: 24px; background: #6e7468; border: 2px solid var(--color-control-border); }
 .mc-settings-switch > span { display: block; width: 24px; height: 24px; border-radius: 50%; background: #fff; }
 .mc-settings-switch[aria-checked="true"] { background: #00684c; justify-content: flex-end; }

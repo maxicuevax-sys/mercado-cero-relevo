@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Check, Copy, QrCode, ScanLine, Share2 } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
@@ -9,6 +9,23 @@ import { saleMoney } from "@/lib/sale-truth";
 import type { Order } from "@/lib/types";
 
 const TERMINAL = new Set(["paid", "demo_paid", "fulfilled", "cancelled"]);
+
+function useQrExpired(expiresAt: string | null | undefined): boolean {
+  return useSyncExternalStore(
+    (callback) => {
+      if (!expiresAt) return () => {};
+      const ms = Date.parse(expiresAt) - Date.now();
+      if (ms <= 0) return () => {};
+      const timer = window.setTimeout(callback, ms);
+      return () => window.clearTimeout(timer);
+    },
+    () => {
+      if (!expiresAt) return false;
+      return Date.parse(expiresAt) <= Date.now();
+    },
+    () => false,
+  );
+}
 
 export function PaymentPanel({
   order,
@@ -23,10 +40,12 @@ export function PaymentPanel({
   onOrder: (order: Order, creditBalanceCents?: number | null) => void;
   onNewSale: () => void;
 }) {
-  const [busy, setBusy] = useState<"link" | "qr" | "refresh" | "demo" | null>(null);
+  const [busy, setBusy] = useState<"link" | "qr" | "codi_push" | "refresh" | "demo" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [scanNotice, setScanNotice] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [codiPhone, setCodiPhone] = useState("");
+  const qrExpired = useQrExpired(order.qrExpiresAt);
   const actionLockRef = useRef(false);
   const orderRef = useRef(order);
 
@@ -66,7 +85,7 @@ export function PaymentPanel({
     };
   }, [onOrder, order.id, pending]);
 
-  async function generate(mode: "link" | "qr") {
+  async function generate(mode: "link" | "qr", forceRefresh = false) {
     if (actionLockRef.current) return;
     actionLockRef.current = true;
     setBusy(mode);
@@ -75,7 +94,7 @@ export function PaymentPanel({
       const response = await fetch(`/api/orders/${order.id}/pay`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode }),
+        body: JSON.stringify({ mode, forceRefresh }),
       });
       const data = (await response.json()) as { order?: Order; error?: string };
       if (!response.ok || !data.order) throw new Error(data.error ?? "No se pudo generar el cobro.");
@@ -88,20 +107,60 @@ export function PaymentPanel({
     }
   }
 
+  async function sendCodiPush() {
+    if (actionLockRef.current) return;
+    if (!/^\d{10}$/.test(codiPhone)) {
+      setError("Ingresa un número de celular de 10 dígitos para el cobro CoDi.");
+      return;
+    }
+    actionLockRef.current = true;
+    setBusy("codi_push");
+    setError(null);
+    try {
+      const response = await fetch(`/api/orders/${order.id}/pay`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "codi_push", phone: codiPhone }),
+      });
+      const data = (await response.json()) as { order?: Order; error?: string };
+      if (!response.ok || !data.order) throw new Error(data.error ?? "No se pudo enviar el cobro CoDi.");
+      onOrder(data.order);
+    } catch (caught) {
+      setError(friendlyPaymentError(caught, "No se pudo enviar el cobro CoDi."));
+    } finally {
+      actionLockRef.current = false;
+      setBusy(null);
+    }
+  }
+
   async function refresh() {
     if (actionLockRef.current) return;
     actionLockRef.current = true;
     setBusy("refresh");
     setError(null);
     try {
-      const response = await fetch(`/api/orders/${order.id}`, { cache: "no-store" });
+      const response = await fetch(`/api/orders/${order.id}/sync-pey`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
       const data = (await response.json()) as {
         order?: Order;
         credit?: { balanceCents: number } | null;
         error?: string;
       };
-      if (!response.ok || !data.order) throw new Error(data.error ?? "No se pudo leer el pedido.");
-      onOrder(data.order, data.credit?.balanceCents ?? null);
+      if (response.ok && data.order) {
+        onOrder(data.order, data.credit?.balanceCents ?? null);
+      } else {
+        const fallbackRes = await fetch(`/api/orders/${order.id}`, { cache: "no-store" });
+        const fallbackData = (await fallbackRes.json()) as {
+          order?: Order;
+          credit?: { balanceCents: number } | null;
+          error?: string;
+        };
+        if (!fallbackRes.ok || !fallbackData.order) throw new Error(fallbackData.error ?? "No se pudo leer el pedido.");
+        onOrder(fallbackData.order, fallbackData.credit?.balanceCents ?? null);
+      }
     } catch (caught) {
       setError(friendlyPaymentError(caught, "No se pudo leer el pedido."));
     } finally {
@@ -195,6 +254,12 @@ export function PaymentPanel({
       </div>
 
       <div className="mc-payment-total"><span>Total</span><CurrencyAmount cents={order.totalCents} /></div>
+      {order.numRef ? (
+        <div className="mc-caja-numref" role="status">
+          <span>Referencia CoDi</span>
+          <strong className="mc-caja-numref__digits">#{order.numRef}</strong>
+        </div>
+      ) : null}
       <div className="mc-caja-payment__amount">
         {money.hasReceived ? (
           <>
@@ -236,6 +301,25 @@ export function PaymentPanel({
         </figure>
       ) : null}
 
+      {order.qrImage && order.qrExpiresAt ? (
+        <div className="mc-caja-qr-expiry">
+          <p>
+            {qrExpired
+              ? "El código QR ha expirado. Renueva el QR para continuar."
+              : `QR vigente hasta las ${new Date(order.qrExpiresAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}.`}
+          </p>
+          <button
+            type="button"
+            className="mc-caja-button mc-caja-button--secondary mc-caja-renew-qr"
+            onClick={() => void generate("qr", true)}
+            disabled={busy !== null}
+          >
+            {busy === "qr" ? <span className="mc-caja-spinner" aria-hidden="true" /> : null}
+            Renovar QR
+          </button>
+        </div>
+      ) : null}
+
       {order.qrImage || order.paymentUrl ? <button type="button" className="mc-caja-button mc-caja-button--secondary mc-qr-share" onClick={() => void shareQr()}><Share2 aria-hidden="true" />{copied ? "Compartir QR · código copiado" : "Compartir QR"}</button> : null}
       {order.paymentUrl ? (
         <div className="mc-caja-link">
@@ -256,6 +340,40 @@ export function PaymentPanel({
           <code>{order.paymentUrl}</code>
         </div>
       ) : null}
+
+      <details className="mc-caja-codi-push">
+        <summary>Cobrar a celular CoDi (10 dígitos)</summary>
+        <div className="mc-caja-codi-push__form">
+          <label htmlFor="codi-phone-input">Celular del cliente (10 dígitos)</label>
+          <div className="mc-caja-codi-push__row">
+            <input
+              id="codi-phone-input"
+              type="tel"
+              inputMode="numeric"
+              maxLength={10}
+              placeholder="5512345678"
+              aria-label="Celular para cobro CoDi"
+              value={codiPhone}
+              onChange={(e) => setCodiPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+              disabled={busy !== null}
+            />
+            <button
+              type="button"
+              className="mc-caja-button mc-caja-button--secondary"
+              onClick={() => void sendCodiPush()}
+              disabled={busy !== null || codiPhone.length !== 10}
+            >
+              {busy === "codi_push" ? <span className="mc-caja-spinner" aria-hidden="true" /> : null}
+              Enviar cobro CoDi
+            </button>
+          </div>
+          {order.codiPhoneMasked ? (
+            <p className="mc-caja-codi-push__status" role="status">
+              Notificación enviada al celular {order.codiPhoneMasked}.
+            </p>
+          ) : null}
+        </div>
+      </details>
 
       <div className="mc-qr-state" role="status">{pending ? "Por cobrar" : statusLabel(order.status)}</div>
       <div className="mc-caja-payment__actions">

@@ -12,6 +12,14 @@ export interface PeyQr {
   id: string;
   qrString: string;
   qrImage: string | null;
+  expiresAt: string;
+}
+
+export interface PeyCodiPush {
+  id: string;
+  status: string;
+  expiresAt: string;
+  phoneMasked: string;
 }
 
 export interface PeyTransaction {
@@ -79,11 +87,13 @@ export async function createPaymentLink(input: {
   orderId: string;
   amountCents: number;
   concept: string;
+  creditId?: string;
 }): Promise<PeyPaymentLink> {
   if (isDemoMode()) {
+    const query = input.creditId ? `?demo=1&creditId=${input.creditId}` : "?demo=1";
     return {
-      id: `demo_link_${input.orderId}`,
-      url: `${appUrl()}/pay/${input.orderId}?demo=1`,
+      id: input.creditId ? `demo_link_${input.creditId}` : `demo_link_${input.orderId}`,
+      url: `${appUrl()}/pay/${input.orderId}${query}`,
     };
   }
 
@@ -94,15 +104,21 @@ export async function createPaymentLink(input: {
     );
   }
 
+  const clientReferenceId = input.creditId ? `cred_${input.creditId}` : input.orderId;
+  const metadata: Record<string, unknown> = {
+    orderId: input.orderId,
+    merchant: "mercado-cero",
+  };
+  if (input.creditId) {
+    metadata.creditId = input.creditId;
+  }
+
   const body = {
     amount: Number((input.amountCents / 100).toFixed(2)),
     successUrl: `${base}/pay/${input.orderId}/success`,
     backUrl: `${base}/pay/${input.orderId}`,
-    clientReferenceId: input.orderId,
-    metadata: {
-      orderId: input.orderId,
-      merchant: "mercado-cero",
-    },
+    clientReferenceId,
+    metadata,
   };
 
   const result = await peyFetch<{ id: string; url: string }>("/payment-link/create", {
@@ -118,22 +134,38 @@ export async function createCodiQr(input: {
   amountCents: number;
   concept: string;
   numRef: string;
+  expirationSeconds?: number;
+  creditId?: string;
 }): Promise<PeyQr> {
+  const expiration = Math.min(3600, Math.max(60, input.expirationSeconds ?? 600));
+  const expiresAt = new Date(Date.now() + expiration * 1000).toISOString();
+
   if (isDemoMode()) {
     return {
-      id: `demo_qr_${input.orderId}`,
-      qrString: JSON.stringify({ demo: true, orderId: input.orderId, numRef: input.numRef }),
+      id: input.creditId ? `demo_qr_${input.creditId}` : `demo_qr_${input.orderId}`,
+      qrString: JSON.stringify({
+        demo: true,
+        orderId: input.orderId,
+        numRef: input.numRef,
+        creditId: input.creditId,
+      }),
       qrImage: null,
+      expiresAt,
     };
+  }
+
+  const metadata: Record<string, unknown> = { orderId: input.orderId };
+  if (input.creditId) {
+    metadata.creditId = input.creditId;
   }
 
   const body: Record<string, unknown> = {
     amount: Number((input.amountCents / 100).toFixed(2)),
     concept: input.concept,
-    expiration: 600,
+    expiration,
     numRef: input.numRef,
     generateImage: false,
-    metadata: { orderId: input.orderId },
+    metadata,
   };
 
   if (process.env.PEY_BANK_ACCOUNT_ID) {
@@ -152,6 +184,58 @@ export async function createCodiQr(input: {
     id: result.id,
     qrString: result.qrString,
     qrImage: result.qrImage ?? null,
+    expiresAt,
+  };
+}
+
+export async function createCodiPush(input: {
+  orderId: string;
+  amountCents: number;
+  concept: string;
+  phone: string;
+  numRef: string;
+}): Promise<PeyCodiPush> {
+  const phone = input.phone.trim();
+  if (!/^\d{10}$/.test(phone)) {
+    throw new Error(
+      "El teléfono para cobro CoDi Push debe contener exactamente 10 dígitos numéricos.",
+    );
+  }
+  const expiresAt = new Date(Date.now() + 600 * 1000).toISOString();
+  const phoneMasked = `******${phone.slice(-4)}`;
+
+  if (isDemoMode()) {
+    return {
+      id: `demo_pn_${input.orderId}_${Date.now()}`,
+      status: "PENDING",
+      expiresAt,
+      phoneMasked,
+    };
+  }
+
+  const body: Record<string, unknown> = {
+    amount: Number((input.amountCents / 100).toFixed(2)),
+    concept: input.concept,
+    phoneNumber: phone,
+    expiration: 600,
+    numRef: input.numRef,
+    metadata: { orderId: input.orderId },
+  };
+
+  if (process.env.PEY_BANK_ACCOUNT_ID) {
+    body.bankAccountId = process.env.PEY_BANK_ACCOUNT_ID;
+  }
+
+  const result = await peyFetch<{ id: string; status?: string }>("/codi/pn", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+  return {
+    id: result.id,
+    status: result.status ?? "PENDING",
+    expiresAt,
+    phoneMasked,
   };
 }
 
