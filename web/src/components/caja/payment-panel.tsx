@@ -224,7 +224,7 @@ export function PaymentPanel({
         <figure className="mc-caja-qr">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={order.qrImage} alt={`QR de cobro del pedido ${order.id.slice(-4).toUpperCase()}`} />
-          <figcaption>{demo ? "QR DEMO: abre un pago simulado, sin dinero real." : "QR de cobro. Escanéalo con la app de pago del cliente."}</figcaption>
+          <figcaption>{demo ? "QR de demostración · sin dinero real." : "QR de cobro. Escanéalo con la app de pago del cliente."}</figcaption>
         </figure>
       ) : null}
 
