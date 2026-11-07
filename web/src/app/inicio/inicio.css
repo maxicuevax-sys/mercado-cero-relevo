@@ -1535,3 +1535,94 @@ html[data-contrast="high"] .inicio-nav__item[aria-current="page"]:focus-visible 
     padding: 12px;
   }
 }
+
+/* Fix visual: la referencia 01 usa cabecera verde oscuro con marca blanca.
+   Esta capa gana a la "paridad móvil" previa, que la dejaba crema. */
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar {
+    min-height: calc(96 * var(--mob-u, 1));
+    padding: calc(18 * var(--mob-u, 1)) calc(18 * var(--mob-u, 1)) calc(14 * var(--mob-u, 1));
+    background: var(--inicio-green);
+    color: var(--inicio-paper);
+    border-bottom: 0;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__mobile-brand {
+    color: var(--inicio-paper);
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__mobile-brand img {
+    filter: brightness(0) invert(1);
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__actions {
+    color: var(--inicio-paper);
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-avatar {
+    background: var(--inicio-green-deep);
+    color: var(--inicio-paper);
+    border-color: rgb(255 253 247 / 0.7);
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-demo {
+    display: none;
+  }
+}
+
+/* Tipografía y capas de la referencia 01: Hearth para titulares, Alder para UI. */
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__mobile-brand,
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting p,
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__top,
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__note,
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-task,
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-shortcuts :is(a,button),
+  .inicio-shell.mc-reference-a.inicio-shell--compact .mc-mobile-nav__item {
+    font-family: var(--font-alder), "Segoe UI", Arial, sans-serif;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1,
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-hero h2,
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-pending h2 {
+    font-family: var(--font-hearth), Georgia, serif;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__value {
+    font-family: var(--font-alder), "Segoe UI", Arial, sans-serif;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1 {
+    position: relative;
+    z-index: 2;
+    max-width: 16ch;
+    font-size: clamp(1.35rem, 6.2vw, 1.65rem);
+    line-height: 1.1;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-sun {
+    position: relative;
+    z-index: 2;
+    display: block;
+    visibility: visible;
+    opacity: 1;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-definitive-welcome-art {
+    z-index: 0;
+  }
+}
+
+/* La lámina 01 deja el saludo en una línea y la ilustración al borde derecho. */
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1 {
+    max-width: none;
+    white-space: nowrap;
+    font-size: clamp(1.1rem, 5.2vw, 1.3rem);
+    letter-spacing: -0.035em;
+    z-index: 3;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-definitive-welcome-art {
+    right: calc(-70 * var(--mob-u, 1));
+    width: calc(150 * var(--mob-u, 1));
+    height: calc(94 * var(--mob-u, 1));
+    z-index: 0;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__alerts {
+    display: grid;
+    color: var(--inicio-paper);
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__bell {
+    color: var(--inicio-paper);
+  }
+}

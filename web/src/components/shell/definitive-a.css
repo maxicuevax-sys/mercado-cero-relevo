@@ -82,7 +82,6 @@
   .mc-reference-a .mc-mobile-nav__link-icon { width: 24px; height: 24px; }
 
   /* Inicio: three metrics, full-width sale, shortcuts and pending list. */
-  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar { background: var(--inicio-paper); color: var(--inicio-green); }
   .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-main { background: var(--inicio-paper); }
   .mc-reference-a.inicio-shell--compact .inicio-topbar__mobile-brand img { filter: none; }
   .mc-reference-a.inicio-shell--compact .inicio-content {
