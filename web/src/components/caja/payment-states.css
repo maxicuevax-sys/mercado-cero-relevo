@@ -1,4 +1,5 @@
 .mc-payment-method { max-width: 640px; margin: 0 auto; }
+.mc-payment-method, .mc-caja-payment, .mc-caja-result { container-type: inline-size; min-width: 0; }
 .mc-payment-total { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid #dfd2bc; border-radius: 16px; background: #fff5e6; color: #0c4133; }
 .mc-payment-total > span:last-child { margin-left: auto; font: 700 1.8rem Georgia, serif; }
 .mc-payment-total > svg { flex: none; }
@@ -56,3 +57,14 @@
 }
 html[data-contrast="high"] :is(.mc-payment-method, .mc-caja-payment, .mc-caja-result) :is(button, label, input, p, strong, span, div) { border-color: var(--color-control-border); }
 html[data-contrast="high"] :is(.mc-payment-total, .mc-payment-option, .mc-payment-review, .mc-payment-confirmed, .mc-qr-state, .mc-payment-demo) { background: var(--color-surface); color: var(--color-ink); }
+
+/* The available width relative to text size decides when totals must stack. */
+@container (max-width: 14em) {
+  .mc-payment-total, .mc-qr-tabs { flex-wrap: wrap; }
+  .mc-payment-total > span:last-child { flex-basis: 100%; max-width: 100%; text-align: right; }
+  .mc-qr-tabs > * { min-width: 0; flex: 1 1 100%; flex-wrap: wrap; }
+  .mc-payment-confirmed { grid-template-columns: minmax(0, 1fr); }
+  .mc-payment-confirmed > img { width: 100px; justify-self: center; }
+  .mc-payment-confirmed > div { min-width: 0; }
+  .mc-payment-confirmed .tabular-nums { font-size: 1.5rem; }
+}
