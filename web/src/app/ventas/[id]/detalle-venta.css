@@ -574,7 +574,7 @@
     display: block;
     min-height: 52px;
     margin-bottom: 20px;
-    padding: 0 56px;
+    padding: 0 104px 0 56px;
   }
 
   .mc-dv-page > .mc-op-header .mc-page-header__eyebrow {
@@ -582,8 +582,9 @@
   }
 
   .mc-dv-page > .mc-op-header .mc-page-header__title {
-    font-size: 1.625rem;
+    font-size: 1.375rem;
     text-align: start;
+    white-space: nowrap;
   }
 
   /* Ref. 16: flecha a la izquierda del título y Ticket a la derecha. */
@@ -688,7 +689,7 @@
 
 @media (max-width: 479.98px) {
   .mc-dv-page > .mc-op-header {
-    padding-right: 0;
+    padding-right: 100px;
   }
 
   .mc-dv-hero {
