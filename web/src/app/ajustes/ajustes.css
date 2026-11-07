@@ -479,6 +479,8 @@
 .mc-settings-extra summary { min-height: 48px; cursor: pointer; padding: 8px; }
 .mc-settings-extra > * + * { margin-top: 16px; }
 .mc-settings-home :focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3px; }
+.mc-settings-home { overflow-wrap: anywhere; }
+.mc-settings-home > *, .mc-settings-profile > div { min-width: 0; }
 @media (max-width: 360px) {
  .mc-settings-profile h2 { font-size: 1.2rem; }
  .mc-settings-group { padding-inline: 8px; }

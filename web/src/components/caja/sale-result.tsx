@@ -96,11 +96,11 @@ export function SaleResult({
         {title}
       </h2>
       {hasDigital ? <div className={`mc-payment-confirmed${isDemo ? " mc-payment-confirmed--demo" : ""}`}>
-        <Image src="/assets/spec/b-confirmed.png" alt="" width={123} height={150} />
+        <Image src="/assets/spec/b-confirmed.png" alt="" width={123} height={150} loading="eager" />
         <div><BadgeCheck aria-hidden="true" /><CurrencyAmount cents={order.totalCents} /><p>{isDemo ? "Pago digital simulado" : "Pago digital recibido"}</p><strong>{isDemo ? "DEMO · sin dinero real" : "Cobrado"}</strong></div>
       </div> : null}
-      <p className="mc-caja-result__label">Total de la venta</p>
-      <CurrencyAmount as="p" cents={order.totalCents} className="mc-caja-result__total" />
+      {!hasDigital ? <><p className="mc-caja-result__label">Total de la venta</p>
+      <CurrencyAmount as="p" cents={order.totalCents} className="mc-caja-result__total" /></> : null}
       <p className="mc-caja-result__note">{note}</p>
 
       <h3 className="mc-receipt-title">Comprobante de pago{isDemo ? " · DEMO" : ""}</h3>
@@ -139,7 +139,7 @@ export function SaleResult({
         ) : null}
         {hasDigital ? (
           <div>
-            <dt>Digital confirmado</dt>
+            <dt>{isDemo ? "Digital simulado" : "Digital confirmado"}</dt>
             <dd>
               <CurrencyAmount cents={digitalPaidCents} />
             </dd>

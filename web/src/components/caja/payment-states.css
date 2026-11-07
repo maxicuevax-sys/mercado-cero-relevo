@@ -33,6 +33,7 @@
 .mc-receipt-title { margin-top: 20px; font: 700 1.5rem Georgia, serif; }
 .mc-receipt-share { width: 100%; margin-block: 16px; }
 @media (max-width: 760px) {
+  .mc-caja-payment.mc-payment-only-digital .mc-caja-payment__amount { display: none; }
   .mc-caja-payment { display: flex; flex-direction: column; gap: 14px; padding: 12px; border: 0; background: transparent; }
   .mc-caja-payment > .mc-caja-card__head { order: -4; }
   .mc-caja-payment > .mc-qr-tabs { order: -5; }
@@ -44,7 +45,11 @@
   .mc-payment-total { padding: 12px; gap: 8px; }
   .mc-payment-total > span:last-child { font-size: 1.7rem; }
   .mc-caja-result { padding: 12px; background: transparent; }
-  .mc-caja-result__facts > div { gap: 8px; }
+  .mc-caja-result__facts { display: block; border: 1px solid var(--color-separator); border-radius: 16px; overflow: hidden; }
+  .mc-caja-result__facts > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-radius: 0; border-bottom: 1px solid var(--color-separator); padding: 12px; }
+  .mc-caja-result__facts > div:last-child { border-bottom: 0; }
+  .mc-caja-result__facts dd { text-align: right; }
+  .mc-caja-result__facts dt { text-transform: none; font-size: .9rem; }
   .mc-caja-result__facts dd { overflow-wrap: anywhere; }
 }
 html[data-contrast="high"] :is(.mc-payment-method, .mc-caja-payment, .mc-caja-result) :is(button, label, input, p, strong, span, div) { border-color: var(--color-control-border); }

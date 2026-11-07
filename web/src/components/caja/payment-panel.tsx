@@ -144,12 +144,12 @@ export function PaymentPanel({
   }
 
   return (
-    <section className="mc-caja-card mc-caja-payment" aria-labelledby="mc-caja-payment-title">
+    <section className={`mc-caja-card mc-caja-payment${!money.hasReceived && !money.openCredit ? " mc-payment-only-digital" : ""}`} aria-labelledby="mc-caja-payment-title">
       <div className="mc-qr-tabs" aria-label="Opciones QR"><span><QrCode aria-hidden="true" />Pago QR</span><button type="button" onClick={() => setScanNotice(!scanNotice)} aria-expanded={scanNotice}><ScanLine aria-hidden="true" />Escanear</button></div>
-      {scanNotice ? <p role="status">Escanea este QR con la c?mara o la app de pago del cliente. Esta caja no valida capturas ni tiene lector de c?mara integrado.</p> : null}
+      {scanNotice ? <p role="status">Escanea este QR con la cámara o la app de pago del cliente. Esta caja no valida capturas ni tiene lector de cámara integrado.</p> : null}
       <div className="mc-caja-card__head">
         <div>
-          <p className="mc-caja-eyebrow">Cobro digital</p>
+          <p className="mc-caja-eyebrow">{demo ? "Cobro digital · DEMO" : "Cobro digital"}</p>
           <h2 id="mc-caja-payment-title" tabIndex={-1}>
             Pedido {order.id.slice(-4).toUpperCase()}
           </h2>
@@ -201,7 +201,7 @@ export function PaymentPanel({
         <figure className="mc-caja-qr">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={order.qrImage} alt={`QR de cobro del pedido ${order.id.slice(-4).toUpperCase()}`} />
-          <figcaption>QR de cobro. Escanéalo con la app del banco.</figcaption>
+          <figcaption>{demo ? "QR DEMO: abre un pago simulado, sin dinero real." : "QR de cobro. Escanéalo con la app de pago del cliente."}</figcaption>
         </figure>
       ) : null}
 

@@ -457,6 +457,11 @@
 .mc-help-guide p, .mc-help-answer p { margin-block: 12px; }
 .mc-help-answer a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; }
 .mc-help-home :focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3px; }
+.mc-help-home { overflow-wrap: anywhere; }
+.mc-help-home > *, .mc-help-welcome > *, .mc-help-topics span, .mc-help-support > * { min-width: 0; }
+.mc-help-topics button { flex-wrap: wrap; }
+.mc-help-topics button > span { flex: 1; }
+.mc-help-support > * { flex-wrap: wrap; }
 @media (max-width: 360px) {
  .mc-help-welcome { grid-template-columns: 28% minmax(0, 1fr); gap: 8px; }
  .mc-help-welcome h2 { font-size: 1.15rem; }
