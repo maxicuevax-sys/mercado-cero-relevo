@@ -15,8 +15,8 @@ import iconCompras from "@/assets/inicio/icons/compras.svg";
 import iconMonedas from "@/assets/inicio/icons/monedas.svg";
 import iconPendientes from "@/assets/inicio/icons/pendientes.svg";
 import iconMetas from "@/assets/inicio/icons/metas.svg";
-import pendingPhoneArt from "@/assets/brand/iconos/transparent/qr-telefono.png";
 import { appNav } from "@/components/shell/nav";
+import pendingPhoneArt from "@/assets/brand/iconos/transparent/qr-telefono.png";
 import { AppShell } from "@/components/shell/app-shell";
 import { TopBar } from "@/components/shell/top-bar";
 import { MaskIcon } from "@/components/ui/icon";
@@ -29,7 +29,7 @@ import welcomeNative from "@/assets/definitive-a/welcome.png";
 import registerNative from "@/assets/definitive-a/register.png";
 
 export const metadata: Metadata = {
-  title: "Inicio Â· Mercado Cero",
+  title: "Inicio · Mercado Cero",
 };
 
 export const instant = false;
@@ -37,8 +37,8 @@ export const instant = false;
 const homeMobilePrimary = [
   appNav[0], // Inicio
   appNav[2], // Ventas
-  appNav[1], // Caja â€” el slot central lo convierte en "Vender"
-  { ...appNav[4], id: "gastos", label: "Gastos", href: "/corte", ariaLabel: "Gastos del dÃ­a" },
+  appNav[1], // Caja — el slot central lo convierte en "Vender"
+  { ...appNav[4], id: "gastos", label: "Gastos", href: "/corte", ariaLabel: "Gastos del día" },
 ];
 
 export default async function InicioPage() {
@@ -94,9 +94,9 @@ export default async function InicioPage() {
           sizes="62px"
         />
         <div>
-          <h1 id="inicio-title">Â¡Buen dÃ­a<span className="inicio-greeting__owner">, {owner}</span>!</h1>
+          <h1 id="inicio-title">¡Buen día<span className="inicio-greeting__owner">, {owner}</span>!</h1>
           <p>
-            <span className="inicio-date-copy">{formatLongDate()}. </span><span className="inicio-native-subtitle">AsÃ­ va tu negocio hoy.</span>{" "}
+            <span className="inicio-date-copy">{formatLongDate()}. </span><span className="inicio-native-subtitle">Así va tu negocio hoy.</span>{" "}
             <span className="inicio-greeting__demo">
               {demo ? "Datos demo" : "Datos reales"}
             </span>
@@ -154,13 +154,13 @@ export default async function InicioPage() {
             </span>
             <span><span className="inicio-desktop-only">Meta del mes</span><span className="inicio-phone-only">Meta</span></span>
           </div>
-          <p className="inicio-kpi__value">{goal ? `${goal.progressPct}%` : "â€”"}</p>
+          <p className="inicio-kpi__value">{goal ? `${goal.progressPct}%` : "—"}</p>
           <ProgressIndicator
             value={goal?.progressPct ?? 0}
             label={`Progreso de ${goal?.title ?? "la meta"}`}
             className="inicio-goal"
           />
-          <p className="inicio-kpi__note">{goal ? goal.title : "AÃºn no hay una meta"}</p>
+          <p className="inicio-kpi__note">{goal ? goal.title : "Aún no hay una meta"}</p>
         </article>
       </section>
 
@@ -185,7 +185,7 @@ export default async function InicioPage() {
         </div>
       </section>
 
-      <nav className="inicio-shortcuts" aria-label="Accesos rÃ¡pidos">
+      <nav className="inicio-shortcuts" aria-label="Accesos rápidos">
         <Link href="/caja#mc-caja-payment-summary"><QrCode aria-hidden="true" /><span>Cobrar</span></Link>
         <Link href="/caja"><Package aria-hidden="true" /><span>Producto</span></Link>
         <Link href="/corte"><Receipt aria-hidden="true" /><span>Gasto</span></Link>
@@ -221,7 +221,7 @@ export default async function InicioPage() {
             className="inicio-pending__empty"
             title="No hay pendientes abiertos."
           >
-            Anota uno desde la pestaÃ±a Tareas.
+            Anota uno desde la pestaña Tareas.
           </EmptyState>
         )}
         {taskFixture ? (
@@ -234,4 +234,3 @@ export default async function InicioPage() {
     </AppShell>
   );
 }
-
