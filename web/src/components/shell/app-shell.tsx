@@ -14,23 +14,9 @@ import {
   type ShellNavItem,
 } from "./nav";
 
-const gastosItem: ShellNavItem = {
-  ...appNav[4],
-  id: "gastos",
-  label: "Gastos",
-  href: "/corte",
-  ariaLabel: "Gastos del día",
-};
-
-function contextualMobilePrimary(activeHref: string): ShellNavItem[] {
-  const ctx = activeHref.startsWith("/fiados")
-    ? appNav[3]
-    : activeHref.startsWith("/metas")
-      ? appNav[5]
-      : gastosItem;
-
-  // Inicio · Ventas · Vender(+/Caja) · sección contextual
-  return [appNav[0], appNav[2], appNav[1], ctx];
+function contextualMobilePrimary(_activeHref: string): ShellNavItem[] {
+  // Principal: Inicio · Ventas · Vender. Fiados/Corte/Pendientes viven en Más.
+  return [appNav[0], appNav[2], appNav[1]];
 }
 
 export function AppShell({

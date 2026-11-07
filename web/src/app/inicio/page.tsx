@@ -15,7 +15,6 @@ import iconCompras from "@/assets/inicio/icons/compras.svg";
 import iconMonedas from "@/assets/inicio/icons/monedas.svg";
 import iconPendientes from "@/assets/inicio/icons/pendientes.svg";
 import iconMetas from "@/assets/inicio/icons/metas.svg";
-import { appNav } from "@/components/shell/nav";
 import pendingPhoneArt from "@/assets/brand/iconos/transparent/qr-telefono.png";
 import { AppShell } from "@/components/shell/app-shell";
 import { TopBar } from "@/components/shell/top-bar";
@@ -34,12 +33,6 @@ export const metadata: Metadata = {
 
 export const instant = false;
 
-const homeMobilePrimary = [
-  appNav[0], // Inicio
-  appNav[2], // Ventas
-  appNav[1], // Caja — el slot central lo convierte en "Vender"
-  { ...appNav[4], id: "gastos", label: "Gastos", href: "/corte", ariaLabel: "Gastos del día" },
-];
 
 export default async function InicioPage() {
   await connection();
@@ -75,7 +68,6 @@ export default async function InicioPage() {
       activeHref="/inicio"
       mainId="inicio-main"
       className="inicio-shell--compact"
-      mobilePrimaryItems={homeMobilePrimary}
       topbar={
         <TopBar
           merchant={dashboard.merchant.name}
