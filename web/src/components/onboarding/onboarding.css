@@ -1,0 +1,656 @@
+/* Onboarding 4 pasos · ruta /onboarding.
+   Base de 390 px con la misma composición escalada a 941 px (referencia
+   DEFINITIVE/mobile/onboarding_0*.png). No toca el shell: es una pantalla
+   previa, autocontenida y sin navegación operativa. */
+
+.onb-shell {
+  --onb-scale: 1;
+  --onb-green: #073f35;
+  --onb-green-deep: #052f28;
+  --onb-paper: #fbf3e7;
+  --onb-paper-2: #f6ead8;
+  --onb-surface: #fffaf1;
+  --onb-ink: #1f2622;
+  --onb-ink-2: #4d5851;
+  --onb-border: #d8c7b1;
+  --onb-border-strong: #8a735d;
+  --onb-clay: #c1492e;
+  --onb-maize: #e5a91f;
+  --onb-focus: #0e6f5a;
+
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--onb-paper);
+  color: var(--onb-ink);
+  font-family: var(--font-alder), "Alder", "Segoe UI", sans-serif;
+  font-size: calc(1.0625rem * var(--onb-scale));
+  line-height: 1.45;
+}
+
+.onb-shell *,
+.onb-shell *::before,
+.onb-shell *::after {
+  box-sizing: border-box;
+}
+
+.onb-header {
+  width: 100%;
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  padding: calc(1.35rem * var(--onb-scale)) calc(1rem * var(--onb-scale))
+    calc(3.4rem * var(--onb-scale));
+  background: var(--onb-green);
+}
+
+.onb-brand {
+  display: flex;
+  align-items: center;
+  gap: calc(0.55rem * var(--onb-scale));
+  color: var(--onb-paper);
+}
+
+.onb-brand__mark {
+  width: calc(3.8rem * var(--onb-scale));
+  height: calc(3.8rem * var(--onb-scale));
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.onb-brand__wordmark {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.onb-brand__name {
+  font-family: var(--font-hearth), Georgia, serif;
+  font-size: calc(1.6rem * var(--onb-scale));
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+}
+
+.onb-brand__rays {
+  width: calc(1.35rem * var(--onb-scale));
+  height: calc(1.35rem * var(--onb-scale));
+  margin-top: calc(0.95rem * var(--onb-scale));
+  flex: 0 0 auto;
+  fill: none;
+  stroke: var(--onb-maize);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+
+.onb-card {
+  position: relative;
+  width: calc(100% - 1.25rem);
+  max-width: 34rem;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  margin-top: calc(-1.35rem * var(--onb-scale));
+  padding: calc(1.5rem * var(--onb-scale)) calc(1rem * var(--onb-scale))
+    max(calc(1rem * var(--onb-scale)), env(safe-area-inset-bottom));
+  border-radius: calc(2rem * var(--onb-scale)) calc(2rem * var(--onb-scale)) 0 0;
+  background: var(--onb-paper);
+}
+
+.onb-shell--plain .onb-card {
+  margin-top: 0;
+  max-width: 34rem;
+  border-radius: 0;
+  padding-top: calc(2.4rem * var(--onb-scale));
+}
+
+.onb-back {
+  position: absolute;
+  top: calc(1rem * var(--onb-scale));
+  left: calc(0.9rem * var(--onb-scale));
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(0.35rem * var(--onb-scale));
+  min-height: 3rem;
+  padding: 0 calc(0.6rem * var(--onb-scale));
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--onb-ink-2);
+  font-size: calc(0.9375rem * var(--onb-scale));
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.onb-back svg {
+  width: calc(1.15rem * var(--onb-scale));
+  height: calc(1.15rem * var(--onb-scale));
+}
+
+.onb-back:hover {
+  background: var(--onb-paper-2);
+  color: var(--onb-ink);
+}
+
+.onb-step {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: calc(0.7rem * var(--onb-scale));
+  width: 100%;
+  padding-top: calc(1.5rem * var(--onb-scale));
+  animation: onb-step-in 220ms var(--mc-ease-out) both;
+}
+
+.onb-step--done {
+  gap: calc(0.55rem * var(--onb-scale));
+  padding-top: calc(1.2rem * var(--onb-scale));
+}
+
+@keyframes onb-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.onb-title {
+  margin: 0;
+  color: var(--onb-ink);
+  font-family: var(--font-hearth), Georgia, serif;
+  font-size: calc(2.2rem * var(--onb-scale));
+  font-weight: 600;
+  line-height: 1.03;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.onb-title:focus {
+  outline: none;
+}
+
+.onb-title--center {
+  text-align: center;
+}
+
+.onb-copy {
+  margin: 0;
+  color: var(--onb-ink-2);
+  font-size: calc(1.0625rem * var(--onb-scale));
+  line-height: 1.42;
+}
+
+.onb-copy--center {
+  text-align: center;
+}
+
+.onb-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.onb-art--welcome {
+  width: 82%;
+  max-width: calc(19rem * var(--onb-scale));
+  max-height: calc(12.5rem * var(--onb-scale));
+  margin: 0 auto;
+}
+
+.onb-art-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.onb-art--store {
+  width: 68%;
+  max-width: calc(14rem * var(--onb-scale));
+  max-height: calc(10rem * var(--onb-scale));
+}
+
+.onb-pin {
+  position: absolute;
+  top: 0;
+  right: 12%;
+  width: calc(2.4rem * var(--onb-scale));
+  height: calc(2.4rem * var(--onb-scale));
+  color: var(--onb-clay);
+  fill: var(--onb-paper);
+  stroke-width: 2.4;
+}
+
+.onb-art--sale {
+  width: 72%;
+  max-width: calc(15rem * var(--onb-scale));
+  max-height: calc(10.5rem * var(--onb-scale));
+  margin: 0 auto;
+}
+
+.onb-form {
+  display: flex;
+  flex-direction: column;
+  gap: calc(0.45rem * var(--onb-scale));
+}
+
+.onb-label {
+  margin-top: calc(0.3rem * var(--onb-scale));
+  color: var(--onb-ink);
+  font-size: calc(1.0625rem * var(--onb-scale));
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.onb-input {
+  width: 100%;
+  min-height: calc(3.25rem * var(--onb-scale));
+  padding: 0 calc(0.85rem * var(--onb-scale));
+  border: 1px solid var(--onb-border-strong);
+  border-radius: calc(0.8rem * var(--onb-scale));
+  background: var(--onb-surface);
+  color: var(--onb-ink);
+  font-size: calc(1.0625rem * var(--onb-scale));
+  line-height: 1.3;
+}
+
+.onb-input:focus {
+  border-color: var(--onb-green);
+}
+
+.onb-input[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.onb-select {
+  appearance: none;
+  padding-right: calc(2.8rem * var(--onb-scale));
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231f2622' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right calc(0.85rem * var(--onb-scale)) center;
+  background-size: calc(1.3rem * var(--onb-scale)) calc(1.3rem * var(--onb-scale));
+}
+
+.onb-error {
+  margin: calc(0.2rem * var(--onb-scale)) 0 0;
+  color: var(--color-danger);
+  font-size: calc(0.9375rem * var(--onb-scale));
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.onb-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(0.6rem * var(--onb-scale));
+  width: 100%;
+  min-height: calc(3.25rem * var(--onb-scale));
+  padding: calc(0.6rem * var(--onb-scale)) calc(1rem * var(--onb-scale));
+  border: 0;
+  border-radius: 999px;
+  background: var(--onb-green);
+  color: var(--onb-paper);
+  font-family: var(--font-alder), "Alder", sans-serif;
+  font-size: calc(1.1875rem * var(--onb-scale));
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 140ms var(--mc-ease), transform 140ms var(--mc-ease);
+}
+
+.onb-cta:hover {
+  background: var(--onb-green-deep);
+}
+
+.onb-cta:active {
+  transform: scale(0.99);
+}
+
+.onb-cta svg {
+  width: calc(1.4rem * var(--onb-scale));
+  height: calc(1.4rem * var(--onb-scale));
+  flex: 0 0 auto;
+}
+
+.onb-text-link {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0 0.75rem;
+  color: var(--onb-green);
+  font-size: calc(1.0625rem * var(--onb-scale));
+  font-weight: 600;
+  text-align: center;
+  text-underline-offset: 3px;
+}
+
+.onb-example {
+  padding: calc(0.85rem * var(--onb-scale)) calc(1rem * var(--onb-scale));
+  border: 1px solid #ead9bb;
+  border-radius: calc(1.1rem * var(--onb-scale));
+  background: #fbefd6;
+}
+
+.onb-example__label {
+  margin: 0;
+  color: var(--onb-ink);
+  font-size: calc(0.9375rem * var(--onb-scale));
+  font-weight: 700;
+}
+
+.onb-example__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(0.75rem * var(--onb-scale));
+  margin: calc(0.2rem * var(--onb-scale)) 0 0;
+  color: var(--onb-ink);
+  font-family: var(--font-hearth), Georgia, serif;
+  font-size: calc(1.35rem * var(--onb-scale));
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.onb-example__row strong {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.onb-example__note {
+  margin: calc(0.3rem * var(--onb-scale)) 0 0;
+  color: var(--onb-ink-2);
+  font-size: calc(0.875rem * var(--onb-scale));
+  line-height: 1.35;
+}
+
+.onb-check-burst {
+  display: block;
+  width: calc(9.5rem * var(--onb-scale));
+  height: calc(9.5rem * var(--onb-scale));
+  margin: 0 auto calc(0.1rem * var(--onb-scale));
+}
+
+.onb-saved {
+  margin: 0;
+  padding: calc(0.5rem * var(--onb-scale)) calc(0.7rem * var(--onb-scale));
+  border: 1px solid #c9ddc8;
+  border-radius: calc(0.75rem * var(--onb-scale));
+  background: #e9f2e6;
+  color: #23422f;
+  font-size: calc(0.875rem * var(--onb-scale));
+  line-height: 1.4;
+  text-align: center;
+}
+
+.onb-choices {
+  display: flex;
+  flex-direction: column;
+  gap: calc(0.55rem * var(--onb-scale));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.onb-choices a {
+  display: flex;
+  align-items: center;
+  gap: calc(0.7rem * var(--onb-scale));
+  min-height: calc(3.25rem * var(--onb-scale));
+  padding: calc(0.35rem * var(--onb-scale)) calc(0.85rem * var(--onb-scale))
+    calc(0.35rem * var(--onb-scale)) calc(0.35rem * var(--onb-scale));
+  border: 1px solid var(--onb-border);
+  border-radius: 999px;
+  background: var(--onb-surface);
+  color: var(--onb-ink);
+  font-size: calc(1.0625rem * var(--onb-scale));
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.onb-choices a:hover {
+  border-color: var(--onb-green);
+  background: #f4efe2;
+}
+
+.onb-choice-icon {
+  display: grid;
+  width: calc(2.6rem * var(--onb-scale));
+  height: calc(2.6rem * var(--onb-scale));
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #e6efe0;
+  color: var(--onb-green);
+}
+
+.onb-choice-icon svg {
+  width: calc(1.35rem * var(--onb-scale));
+  height: calc(1.35rem * var(--onb-scale));
+}
+
+.onb-progress-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.onb-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(0.85rem * var(--onb-scale));
+  flex: 0 0 auto;
+  padding-top: calc(0.8rem * var(--onb-scale));
+}
+
+.onb-dot {
+  width: calc(0.58rem * var(--onb-scale));
+  height: calc(0.58rem * var(--onb-scale));
+  border-radius: 50%;
+  background: #c9ddc0;
+}
+
+.onb-dot--current {
+  background: var(--onb-green);
+}
+
+/* 941 × 1672: la misma pantalla de 390 escalada como en las referencias.
+   La escala es unitaria para que `rem * escala` siga siendo válido en CSS. */
+@media (min-width: 761px) and (max-width: 860px) {
+  .onb-shell {
+    --onb-scale: 1.85;
+  }
+
+  .onb-card,
+  .onb-shell--plain .onb-card {
+    max-width: none;
+  }
+}
+
+@media (min-width: 861px) and (max-width: 960px) {
+  .onb-shell {
+    --onb-scale: 2.35;
+  }
+
+  .onb-card,
+  .onb-shell--plain .onb-card {
+    max-width: none;
+  }
+}
+
+@media (min-width: 961px) and (max-width: 1023.98px) {
+  .onb-shell {
+    --onb-scale: 2.55;
+  }
+
+  .onb-card,
+  .onb-shell--plain .onb-card {
+    max-width: none;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1023.98px) {
+  .onb-art--welcome {
+    max-width: calc(20.5rem * var(--onb-scale));
+    max-height: calc(15rem * var(--onb-scale));
+  }
+
+  .onb-art--store {
+    width: 72%;
+    max-width: calc(16.5rem * var(--onb-scale));
+    max-height: calc(11.5rem * var(--onb-scale));
+  }
+
+  .onb-art--sale {
+    width: 76%;
+    max-width: calc(16.5rem * var(--onb-scale));
+    max-height: calc(11.5rem * var(--onb-scale));
+  }
+}
+
+/* Escritorio: la tarjeta se queda legible y centrada; no crece sin control. */
+@media (min-width: 1024px) {
+  .onb-shell {
+    --onb-scale: 1.15;
+  }
+
+  .onb-header {
+    padding-top: 1.4rem;
+    padding-bottom: 2.4rem;
+  }
+
+  .onb-card,
+  .onb-shell--plain .onb-card {
+    max-width: 35rem;
+    margin-bottom: 1.5rem;
+    border-radius: 2rem;
+  }
+
+  .onb-shell--plain .onb-card {
+    margin-top: 1.5rem;
+  }
+}
+
+/* 390 × 693: el recorrido completo cabe sin recortar la acción principal. */
+@media (max-width: 760px) and (max-height: 760px) {
+  .onb-header {
+    padding-top: 1rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .onb-card {
+    padding-top: 1.1rem;
+  }
+
+  .onb-step {
+    gap: 0.5rem;
+    padding-top: 1.1rem;
+  }
+
+  .onb-step--done {
+    gap: 0.35rem;
+    padding-top: 0.9rem;
+  }
+
+  .onb-art--welcome {
+    max-height: 10.4rem;
+  }
+
+  .onb-art--store {
+    max-height: 8.2rem;
+  }
+
+  .onb-art--sale {
+    max-height: 9.2rem;
+  }
+
+  .onb-check-burst {
+    width: 8.4rem;
+    height: 8.4rem;
+  }
+
+  .onb-choices a {
+    min-height: 3rem;
+  }
+
+  .onb-progress {
+    padding-top: 0.55rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .onb-title {
+    font-size: calc(1.95rem * var(--onb-scale));
+  }
+
+  .onb-choices a {
+    font-size: calc(1rem * var(--onb-scale));
+  }
+}
+
+html[data-contrast="high"] .onb-shell {
+  --onb-green: #003326;
+  --onb-green-deep: #00241b;
+  --onb-paper: #ffffff;
+  --onb-paper-2: #f2f2f2;
+  --onb-surface: #ffffff;
+  --onb-ink: #000000;
+  --onb-ink-2: #1a1a1a;
+  --onb-border: #595959;
+  --onb-border-strong: #404040;
+  --onb-clay: #7a2e12;
+}
+
+html[data-contrast="high"] .onb-card {
+  border: 1px solid #000000;
+}
+
+html[data-contrast="high"] .onb-example {
+  border-color: #595959;
+  background: #ffffff;
+}
+
+html[data-contrast="high"] .onb-saved {
+  border-color: #595959;
+  background: #ffffff;
+  color: #000000;
+}
+
+@media (forced-colors: active) {
+  .onb-cta,
+  .onb-choices a,
+  .onb-input {
+    border: 1px solid ButtonText;
+  }
+
+  .onb-dot {
+    background: CanvasText;
+  }
+
+  .onb-dot--current {
+    background: Highlight;
+  }
+}
