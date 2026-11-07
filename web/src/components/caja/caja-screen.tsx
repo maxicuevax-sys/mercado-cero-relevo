@@ -1045,7 +1045,7 @@ export function CajaScreen({
           />
           </div>
           <CajaSpecCheckout totalCents={totalCents} method={method}
-            disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated || !lines.length}
+            disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated}
             onMethod={chooseMethod} onReview={() => setView("method")}
             onClear={requestClearDraft} />
         </>

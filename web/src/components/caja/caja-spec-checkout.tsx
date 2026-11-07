@@ -23,6 +23,7 @@ export function CajaSpecCheckout({ totalCents, method, disabled, onMethod, onRev
         return <button key={id} type="button" aria-pressed={selected} disabled={disabled} onClick={() => select(id)}><Icon aria-hidden="true" /><span>{label}</span></button>;
       })}
     </div></fieldset>
+    {totalCents <= 0 ? <p className="mc-spec-methods-hint" role="status">Agrega un producto para registrar la venta. Ya puedes elegir cómo cobrar.</p> : null}
     <button className="mc-spec-register" type="button" disabled={disabled || totalCents <= 0} onClick={onReview}><ReceiptText aria-hidden="true" /><span>Registrar venta</span></button>
     <button className="mc-spec-clear" type="button" disabled={disabled} onClick={onClear}>Descartar venta</button>
   </section>;
