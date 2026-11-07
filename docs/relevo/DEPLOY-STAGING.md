@@ -42,3 +42,10 @@ ssh zicua-vps 'tail -50 /opt/mercado-cero-staging-v2/server.log'
 - No hay URL pública; acceso por túnel/tailnet autorizado.
 - No se validó Let's Encrypt/dominio; no se cambió DNS.
 - El build del staging es `568e881` (snapshot 53b1f61); no incluye futuros fixes de la flota.
+
+## V3 — fixes (071a2d1)
+- Ruta: `/opt/mercado-cero-staging-v3`, loopback **4603**, build `5240cdabd3e1779a2ad244a49e8a40eb2c1d02c2`.
+- Código: `revision/oc-fixes` HEAD `071a2d1`.
+- **18/18 rutas + Detalle, 0 pageerrors** por túnel.
+- v1 4601 y v2 4602 intactos; 4580/4497 intactos.
+- Acceso: `ssh -N -L 4603:127.0.0.1:4603 zicua-vps` → `http://127.0.0.1:4603`.
