@@ -213,7 +213,7 @@ export function SaleLineItems({
                 <button
                   type="button"
                   className="mc-caja-line__price-toggle"
-                  aria-label={`Editar precio de ${line.description || "concepto"}`}
+                  aria-label={`${product.detail}: editar precio de ${line.description || "concepto"}`}
                   aria-expanded={editingPrice === line.id || Boolean(priceError)}
                   aria-controls={`line-price-field-${line.id}`}
                   onClick={() => setEditingPrice(editingPrice === line.id ? null : line.id)}
@@ -225,7 +225,7 @@ export function SaleLineItems({
                   <button
                     type="button"
                     className="mc-caja-line__step"
-                    aria-label={`Reducir cantidad de ${line.description || "concepto"}`}
+                    aria-label={`− Reducir cantidad de ${line.description || "concepto"}`}
                     onClick={() => stepQuantity(line, -1)}
                     disabled={disabled || parseQuantity(line.quantity) <= 1}
                   >−</button>
@@ -244,7 +244,7 @@ export function SaleLineItems({
                   <button
                     type="button"
                     className="mc-caja-line__step"
-                    aria-label={`Aumentar cantidad de ${line.description || "concepto"}`}
+                    aria-label={`+ Aumentar cantidad de ${line.description || "concepto"}`}
                     onClick={() => stepQuantity(line, 1)}
                     disabled={disabled || parseQuantity(line.quantity) >= 999}
                   >+</button>

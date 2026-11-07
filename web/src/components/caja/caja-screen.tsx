@@ -21,6 +21,8 @@ import { SaleLineItems } from "./sale-line-items";
 import { SaleVoice } from "./sale-voice";
 import { CajaSpecCheckout } from "./caja-spec-checkout";
 import { SaleSummary } from "./sale-summary";
+import { PaymentMethodScreen } from "./payment-method-screen";
+import "./payment-states.css";
 import { PaymentPanel } from "./payment-panel";
 import { PendingTray, type PendingEntry } from "./pending-tray";
 import { SaleResult } from "./sale-result";
@@ -44,7 +46,7 @@ const CONFIRMED_KEY = "mercado-cero:caja-confirmed:v2";
 const LEGACY_DRAFT_KEY = "mercado-cero:draft:v1";
 const LEGACY_REQUEST_KEY = "mercado-cero:sale-request:v1";
 
-type View = "compose" | "payment" | "result";
+type View = "compose" | "method" | "payment" | "result";
 
 type StoredDraft = {
   instanceId: string;
@@ -781,6 +783,14 @@ export function CajaScreen({
     (method !== "credit" || appliedCreditCents >= totalCents) &&
     (method !== "mixed" || appliedCashCents > 0 || appliedCreditCents > 0);
 
+  useEffect(() => {
+    if (view === "compose") return;
+    const heading = document.getElementById("caja-title");
+    heading?.setAttribute("tabindex", "-1");
+    heading?.focus();
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [view]);
+
   const initial = (merchant.owner || "M").trim().charAt(0).toUpperCase() || "M";
   const headerTotalCents = order ? order.totalCents : totalCents;
 
@@ -810,10 +820,10 @@ export function CajaScreen({
       }
     >
       <div className="mc-caja-heading">
-      <Link href="/inicio" className="mc-caja-back" aria-label="Volver a Inicio"><ArrowLeft aria-hidden="true" /></Link>
+      {view === "method" ? <button type="button" className="mc-caja-back" aria-label="Volver a Nueva venta" disabled={saving} onClick={() => { setView("compose"); window.requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(".mc-spec-register")?.focus()); }}><ArrowLeft aria-hidden="true" /></button> : <Link href="/inicio" className="mc-caja-back" aria-label="Volver a Inicio"><ArrowLeft aria-hidden="true" /></Link>}
       <PageHeader
         eyebrow="Caja"
-        title={view === "compose" ? "Nueva venta" : view === "payment" ? "Cobrar venta" : "Venta registrada"}
+        title={view === "compose" ? "Nueva venta" : view === "method" ? "Método de pago" : view === "payment" ? "Pago QR" : order?.status === "demo_paid" ? "Pago demo (simulado)" : order?.status === "paid" ? "Pago confirmado" : "Venta registrada"}
         titleId="caja-title"
         subtitle={
           view === "compose"
@@ -1048,14 +1058,18 @@ export function CajaScreen({
             }}
           />
           </div>
-          <CajaSpecCheckout totalCents={totalCents} changeCents={changeForSale} method={method}
-            cashInput={cashInput} creditInput={creditInput} customerName={customerName} error={error}
-            canConfirm={canConfirm} demo={demo} disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated || !lines.length}
-            onMethod={chooseMethod} onCash={value => { setCashInput(value); setError(null); }}
-            onCredit={value => { setCreditInput(value); setError(null); }}
-            onCustomer={value => { setCustomerName(value); setError(null); }} onConfirm={confirmSale} />
+          <CajaSpecCheckout totalCents={totalCents} method={method}
+            disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated || !lines.length}
+            onMethod={chooseMethod} onReview={() => setView("method")} />
         </>
       ) : null}
+
+      {view === "method" ? <PaymentMethodScreen totalCents={totalCents} changeCents={changeForSale} method={method}
+        cashInput={cashInput} creditInput={creditInput} customerName={customerName} error={error}
+        canConfirm={canConfirm} disabled={saving || Boolean(unknownResult) || legacyConflict} demo={demo}
+        onMethod={chooseMethod} onCash={value => { setCashInput(value); setError(null); }}
+        onCredit={value => { setCreditInput(value); setError(null); }}
+        onCustomer={value => { setCustomerName(value); setError(null); }} onConfirm={confirmSale} /> : null}
 
       {view === "payment" && order ? (
         <PaymentPanel

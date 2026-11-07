@@ -73,7 +73,7 @@ def clear_demo_ticket(page) -> None:
     Financial fixtures below require only their explicitly added concepts.
     Never seed lines through React/DOM mutation or bypass form validation.
     """
-    expect(page.get_by_label("Describe lo que vendiste", exact=True)).to_be_enabled()
+    expect(page.get_by_label("¿Qué vendiste? Describe los productos", exact=True)).to_be_enabled()
     for name in ("Tortilla", "Huevo", "Refresco"):
         button = page.get_by_role("button", name=f"Quitar {name}", exact=True)
         if button.count():
@@ -566,7 +566,8 @@ def main() -> int:
         # ------------------------------------------------------------------
         page.goto(BASE + "/inicio", wait_until="domcontentloaded")
         page.get_by_role("link", name="Caja", exact=True).click()
-        page.wait_for_timeout(500)
+        page.wait_for_url(BASE + "/caja")
+        page.wait_for_function("document.activeElement && ['caja-title', 'caja-main', 'H1'].includes(document.activeElement.id || document.activeElement.tagName)")
         active = page.evaluate(
             "document.activeElement && (document.activeElement.id || document.activeElement.tagName)"
         )
@@ -680,7 +681,9 @@ def main() -> int:
             str(mic_box),
         )
         register.click()
-        review = pg.get_by_role("dialog", name="Registrar venta", exact=True)
+        expect(pg.get_by_role("heading", name="Método de pago", exact=True)).to_be_visible()
+        pg.get_by_role("button", name="Continuar", exact=True).click()
+        review = pg.get_by_role("region", name="Revisar cobro", exact=True)
         expect(review).to_be_visible()
         review.get_by_role("button", name="Efectivo exacto", exact=True).click()
         expect(review.get_by_label("Efectivo recibido", exact=True)).to_have_value("180.00")

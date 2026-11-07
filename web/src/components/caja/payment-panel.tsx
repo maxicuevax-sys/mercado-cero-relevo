@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, QrCode, ScanLine, Share2 } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatMxn } from "@/lib/format";
 import { saleMoney } from "@/lib/sale-truth";
@@ -25,6 +25,7 @@ export function PaymentPanel({
 }) {
   const [busy, setBusy] = useState<"link" | "qr" | "refresh" | "demo" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [scanNotice, setScanNotice] = useState(false);
   const [copied, setCopied] = useState(false);
   const actionLockRef = useRef(false);
   const orderRef = useRef(order);
@@ -142,11 +143,44 @@ export function PaymentPanel({
     }
   }
 
+  async function shareQr() {
+    try {
+      if (order.qrImage && navigator.share && navigator.canShare) {
+        // Decode generated data URLs locally; connect-src 'self' forbids fetching data:.
+        const inline = order.qrImage.match(/^data:(image\/[a-z0-9.+-]+);base64,(.+)$/i);
+        let blob: Blob;
+        if (inline) {
+          const bytes = Uint8Array.from(atob(inline[2]), char => char.charCodeAt(0));
+          blob = new Blob([bytes], { type: inline[1] });
+        } else {
+          const response = await fetch(order.qrImage);
+          if (!response.ok) throw new Error("QR no disponible");
+          blob = await response.blob();
+        }
+        const file = new File([blob], `qr-${demo ? "DEMO-" : ""}${order.id}.png`, { type: blob.type });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], text: demo ? "DEMO · sin dinero real" : "QR de cobro · pendiente hasta confirmación de pey" });
+          return;
+        }
+      }
+      const text = order.qrString || order.paymentUrl;
+      if (!text) throw new Error("Genera el QR antes de compartirlo.");
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch (caught) {
+      if (caught instanceof DOMException && caught.name === "AbortError") return;
+      setError("No se pudo compartir el QR. Puedes mostrarlo en esta pantalla o generar un link de cobro.");
+    }
+  }
+
   return (
-    <section className="mc-caja-card mc-caja-payment" aria-labelledby="mc-caja-payment-title">
+    <section className={`mc-caja-card mc-caja-payment${!money.hasReceived && !money.openCredit ? " mc-payment-only-digital" : ""}`} aria-labelledby="mc-caja-payment-title">
+      <div className="mc-qr-tabs" aria-label="Opciones QR"><span><QrCode aria-hidden="true" />Pago QR</span><button type="button" onClick={() => setScanNotice(!scanNotice)} aria-expanded={scanNotice}><ScanLine aria-hidden="true" />Escanear</button></div>
+      {scanNotice ? <p role="status">Escanea este QR con la cámara o la app de pago del cliente. Esta caja no valida capturas ni tiene lector de cámara integrado.</p> : null}
       <div className="mc-caja-card__head">
         <div>
-          <p className="mc-caja-eyebrow">Cobro digital</p>
+          <p className="mc-caja-eyebrow">{demo ? "Cobro digital · DEMO" : "Cobro digital"}</p>
           <h2 id="mc-caja-payment-title" tabIndex={-1}>
             Pedido {order.id.slice(-4).toUpperCase()}
           </h2>
@@ -160,6 +194,7 @@ export function PaymentPanel({
         </span>
       </div>
 
+      <div className="mc-payment-total"><span>Total</span><CurrencyAmount cents={order.totalCents} /></div>
       <div className="mc-caja-payment__amount">
         {money.hasReceived ? (
           <>
@@ -197,10 +232,11 @@ export function PaymentPanel({
         <figure className="mc-caja-qr">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={order.qrImage} alt={`QR de cobro del pedido ${order.id.slice(-4).toUpperCase()}`} />
-          <figcaption>QR de cobro. Escanéalo con la app del banco.</figcaption>
+          <figcaption>{demo ? "QR de demostración · sin dinero real." : "QR de cobro. Escanéalo con la app de pago del cliente."}</figcaption>
         </figure>
       ) : null}
 
+      {order.qrImage || order.paymentUrl ? <button type="button" className="mc-caja-button mc-caja-button--secondary mc-qr-share" onClick={() => void shareQr()}><Share2 aria-hidden="true" />{copied ? "Compartir QR · código copiado" : "Compartir QR"}</button> : null}
       {order.paymentUrl ? (
         <div className="mc-caja-link">
           <p>Link de cobro</p>
@@ -221,6 +257,7 @@ export function PaymentPanel({
         </div>
       ) : null}
 
+      <div className="mc-qr-state" role="status">{pending ? "Por cobrar" : statusLabel(order.status)}</div>
       <div className="mc-caja-payment__actions">
         {!order.paymentUrl ? (
           <button
@@ -246,12 +283,12 @@ export function PaymentPanel({
         ) : null}
         <button
           type="button"
-          className="mc-caja-button mc-caja-button--secondary"
+          className="mc-caja-button mc-caja-button--primary mc-payment-refresh"
           onClick={() => void refresh()}
           disabled={busy !== null}
         >
           {busy === "refresh" ? <span className="mc-caja-spinner" aria-hidden="true" /> : null}
-          Actualizar estado
+          Confirmar pago · consultar estado
         </button>
         <button
           type="button"
