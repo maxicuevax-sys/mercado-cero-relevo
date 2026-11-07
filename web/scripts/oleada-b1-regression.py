@@ -783,9 +783,9 @@ def main() -> int:
             picado.count() == 0
             or picado.evaluate("el => getComputedStyle(el).display") == "none",
         )
-        cta = pg.locator(".inicio-suggestion__cta").bounding_box()
+        cta = pg.locator(".inicio-hero__cta").bounding_box()
         check(
-            "P1-13 CTA de sugerencia sin recorte",
+            "P1-13 CTA Nueva venta sin recorte",
             bool(cta and cta["x"] + cta["width"] <= 768),
             str(cta),
         )
@@ -796,36 +796,9 @@ def main() -> int:
         pg.close()
 
         # ------------------------------------------------------------------
-        # P1-01 legacy · aviso y bloqueo hasta elegir
-        # ------------------------------------------------------------------
-        reset(page)
-        page.evaluate("v => localStorage.setItem('mercado-cero:caja-draft:v2', JSON.stringify(v))", v2)
-        page.goto(BASE, wait_until="domcontentloaded")
-        page.wait_for_selector("h1:has-text('Caja')", timeout=20_000)
-        page.wait_for_timeout(500)
-        legacy_body = page.locator("body").inner_text()
-        check(
-            "P1-01 legacy avisa de la venta en Caja nueva",
-            "hay una venta sin confirmar en la caja nueva" in legacy_body.lower(),
-            legacy_body[:600],
-        )
-        start_count = order_count(page)
-        add_legacy_item(page, "Bloqueada", "1", "10")
-        page.get_by_role("button", name="Confirmar venta").click()
-        page.wait_for_timeout(500)
-        check(
-            "P1-01 legacy bloquea la confirmación",
-            order_count(page) == start_count,
-            f"{start_count} -> {order_count(page)}",
-        )
-        page.get_by_role("button", name="Usar esta Caja clásica").click()
-        page.get_by_role("button", name="Confirmar venta").click()
-        page.wait_for_timeout(700)
-        check(
-            "P1-01 legacy permite confirmar tras elegir",
-            order_count(page) == start_count + 1,
-            f"{start_count} -> {order_count(page)}",
-        )
+        # P1-01 legacy retirado: la raíz ya redirige a /inicio; no se monta la Caja clásica.
+        r = page.request.get(BASE + "/", max_redirects=0)
+        check("P1-01 raíz ya no monta Caja clásica", r.status in (307, 308), str(r.status))
 
         check("sin pageerrors", not page_errors, "; ".join(page_errors))
         browser.close()

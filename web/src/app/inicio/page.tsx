@@ -2,23 +2,21 @@
 import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
-import { Plus, QrCode, Sparkles, Mic, Store, NotebookPen, ChartNoAxesColumnIncreasing } from "lucide-react";
+import { Plus, QrCode, Mic, Package, Receipt, BarChart3 } from "lucide-react";
 import { getDashboardData } from "@/lib/dashboard";
 import { isDemoMode } from "@/lib/config";
 import { listGoals } from "@/lib/goals";
 import { listTasks } from "@/lib/tasks";
 import { formatActivityDate, formatLongDate } from "@/lib/format";
 import heroArt from "@/assets/inicio/hero-registradora.png";
-import lupitaArt from "@/assets/inicio/sugerencia-lupita.png";
 import picadoArt from "@/assets/inicio/papel-picado.png";
 import sunArt from "@/assets/inicio/icons/sol-bienvenida.svg";
 import iconCompras from "@/assets/inicio/icons/compras.svg";
 import iconMonedas from "@/assets/inicio/icons/monedas.svg";
 import iconPendientes from "@/assets/inicio/icons/pendientes.svg";
 import iconMetas from "@/assets/inicio/icons/metas.svg";
-import botArt from "@/assets/brand/ilustraciones/transparent/bot.png";
-import microphoneArt from "@/assets/brand/iconos/transparent/microfono.png";
 import pendingPhoneArt from "@/assets/brand/iconos/transparent/qr-telefono.png";
+import { appNav } from "@/components/shell/nav";
 import { AppShell } from "@/components/shell/app-shell";
 import { TopBar } from "@/components/shell/top-bar";
 import { MaskIcon } from "@/components/ui/icon";
@@ -31,10 +29,17 @@ import welcomeNative from "@/assets/definitive-a/welcome.png";
 import registerNative from "@/assets/definitive-a/register.png";
 
 export const metadata: Metadata = {
-  title: "Inicio · Mercado Cero",
+  title: "Inicio Â· Mercado Cero",
 };
 
 export const instant = false;
+
+const homeMobilePrimary = [
+  appNav[0], // Inicio
+  appNav[2], // Ventas
+  appNav[1], // Caja â€” el slot central lo convierte en "Vender"
+  { ...appNav[4], id: "gastos", label: "Gastos", href: "/corte", ariaLabel: "Gastos del dÃ­a" },
+];
 
 export default async function InicioPage() {
   await connection();
@@ -70,6 +75,7 @@ export default async function InicioPage() {
       activeHref="/inicio"
       mainId="inicio-main"
       className="inicio-shell--compact"
+      mobilePrimaryItems={homeMobilePrimary}
       topbar={
         <TopBar
           merchant={dashboard.merchant.name}
@@ -88,9 +94,9 @@ export default async function InicioPage() {
           sizes="62px"
         />
         <div>
-          <h1 id="inicio-title">¡Buen día<span className="inicio-greeting__owner">, {owner}</span>!</h1>
+          <h1 id="inicio-title">Â¡Buen dÃ­a<span className="inicio-greeting__owner">, {owner}</span>!</h1>
           <p>
-            <span className="inicio-date-copy">{formatLongDate()}. </span><span className="inicio-native-subtitle">Así va tu negocio hoy.</span>{" "}
+            <span className="inicio-date-copy">{formatLongDate()}. </span><span className="inicio-native-subtitle">AsÃ­ va tu negocio hoy.</span>{" "}
             <span className="inicio-greeting__demo">
               {demo ? "Datos demo" : "Datos reales"}
             </span>
@@ -148,13 +154,13 @@ export default async function InicioPage() {
             </span>
             <span><span className="inicio-desktop-only">Meta del mes</span><span className="inicio-phone-only">Meta</span></span>
           </div>
-          <p className="inicio-kpi__value">{goal ? `${goal.progressPct}%` : "—"}</p>
+          <p className="inicio-kpi__value">{goal ? `${goal.progressPct}%` : "â€”"}</p>
           <ProgressIndicator
             value={goal?.progressPct ?? 0}
             label={`Progreso de ${goal?.title ?? "la meta"}`}
             className="inicio-goal"
           />
-          <p className="inicio-kpi__note">{goal ? goal.title : "Aún no hay una meta"}</p>
+          <p className="inicio-kpi__note">{goal ? goal.title : "AÃºn no hay una meta"}</p>
         </article>
       </section>
 
@@ -179,11 +185,11 @@ export default async function InicioPage() {
         </div>
       </section>
 
-      <nav className="inicio-shortcuts" aria-label="Accesos rápidos">
+      <nav className="inicio-shortcuts" aria-label="Accesos rÃ¡pidos">
         <Link href="/caja#mc-caja-payment-summary"><QrCode aria-hidden="true" /><span>Cobrar</span></Link>
-        <Link href="/ventas"><Store aria-hidden="true" /><span>Ventas</span></Link>
-        <Link href="/fiados"><NotebookPen aria-hidden="true" /><span>Fiados</span></Link>
-        <Link href="/corte"><ChartNoAxesColumnIncreasing aria-hidden="true" /><span>Corte</span></Link>
+        <Link href="/caja"><Package aria-hidden="true" /><span>Producto</span></Link>
+        <Link href="/corte"><Receipt aria-hidden="true" /><span>Gasto</span></Link>
+        <Link href="/ventas"><BarChart3 aria-hidden="true" /><span>Reporte</span></Link>
       </nav>
 
       <section className="inicio-pending" aria-labelledby="inicio-pending-title">
@@ -215,7 +221,7 @@ export default async function InicioPage() {
             className="inicio-pending__empty"
             title="No hay pendientes abiertos."
           >
-            Anota uno desde la pestaña Tareas.
+            Anota uno desde la pestaÃ±a Tareas.
           </EmptyState>
         )}
         {taskFixture ? (
@@ -225,36 +231,7 @@ export default async function InicioPage() {
         ) : null}
       </section>
 
-      <section className="inicio-suggestion" aria-label="Sugerencia">
-        <Image
-          src={lupitaArt}
-          alt=""
-          aria-hidden="true"
-          className="inicio-suggestion__art"
-          sizes="330px"
-        />
-        <div className="inicio-suggestion__content">
-          <div className="inicio-suggestion__mobile-copy">
-            <p className="inicio-suggestion__kicker">Sugerencia</p>
-            <h2>Tu negocio, en orden.</h2>
-            <p>Registra una venta o revisa tus pendientes antes de cerrar el día.</p>
-          </div>
-          <div className="inicio-suggestion__desktop-copy">
-            <h2><Sparkles aria-hidden="true" />Sugerencia</h2>
-            <p>Agrega un producto nuevo.</p>
-          </div>
-        </div>
-        <Link href="/ventas" className="inicio-suggestion__cta">
-          Ir a ventas <Plus aria-hidden="true" />
-        </Link>
-      </section>
-
-      <section className="inicio-assistant" aria-labelledby="inicio-assistant-title">
-        <Image src={botArt} alt="" aria-hidden="true" width={72} height={72} sizes="72px" />
-        <div><h2 id="inicio-assistant-title">Asistente <span>(opcional)</span></h2><p>Consulta la guía o dicta una venta cuando lo necesites.</p></div>
-        <Link href="/ayuda">Ver ayuda</Link>
-        <Link href="/caja"><Image src={microphoneArt} alt="" aria-hidden="true" width={24} height={24} />Dictar venta</Link>
-      </section>
     </AppShell>
   );
 }
+
