@@ -265,7 +265,7 @@ export default async function PendientesPage({
           </div>
         </section>
 
-        <TasksPanel initialTasks={tasks} totalCount={tasksTotal} pendingCents={pendingCents} />
+        <TasksPanel initialTasks={tasks} totalCount={tasksTotal} />
       </div>
 
       <section className="mc-pend-hero" aria-labelledby="mc-pend-hero-title">
