@@ -1,8 +1,5 @@
 ﻿import { redirect } from "next/navigation";
 import { connection } from "next/server";
-import CajaApp from "@/components/caja-app";
-import { isDemoMode } from "@/lib/config";
-import { getDashboardData } from "@/lib/dashboard";
 
 // La caja entera depende de datos vivos: es preferible bloquear el request
 // hasta tener las cifras reales que pintar un shell vacÃ­o y luego rellenarlo.
@@ -36,27 +33,14 @@ export default async function Home({
 }: {
   searchParams: Promise<{ tab?: string; ayuda?: string }>;
 }) {
-  // La caja es dato vivo: se lee en cada request, no en el build.
   await connection();
   const params = await searchParams;
 
-  // Los alias viejos no deben montar el shell clásico: van a su pantalla nueva.
   const destination = tabDestination(params.tab);
   if (destination) redirect(destination);
 
-  // La hoja de ayuda clásica pasa a ser una pantalla nueva. Un bookmark viejo
-  // `/?ayuda=1#ajustes` llega sin el hash al servidor y cae en /ayuda; el enlace
-  // nuevo del pie apunta directo a /ajustes.
   if (params.ayuda === "1") redirect("/ayuda");
 
-  const initialDashboard = getDashboardData({ compactPending: true });
-
-  return (
-    <CajaApp
-      initialDashboard={initialDashboard}
-      initialDemoMode={isDemoMode()}
-      initialTab="caja"
-    />
-  );
+  redirect("/inicio");
 }
 
