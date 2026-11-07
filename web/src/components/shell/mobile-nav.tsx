@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Coins } from "lucide-react";
 import { MaskIcon } from "@/components/ui/icon";
 import { isNavItemActive, type ShellNavItem } from "./nav";
 import reportIcon from "@/assets/inicio/icons/reportes.svg";
@@ -13,10 +13,12 @@ export function MobileNav({
   primary,
   more,
   activeHref,
+  referenceA = false,
 }: {
   primary: ShellNavItem[];
   more: ShellNavItem[];
   activeHref: string;
+  referenceA?: boolean;
 }) {
   const moreRef = useRef<HTMLDetailsElement>(null);
   const sale = primary.find((item) => item.href === "/caja");
@@ -76,7 +78,7 @@ export function MobileNav({
             <span className="sr-only">Vender</span>
           </Link>
       ) : null}
-      {destinations.slice(2).map(destination)}
+      {referenceA ? <button type="button" className="mc-mobile-nav__item" disabled aria-label="Gastos: módulo aún no disponible"><Coins className="mc-mobile-nav__icon" aria-hidden="true" /><span>Gastos</span></button> : destinations.slice(2).map(destination)}
       <details className="mc-mobile-nav__more" ref={moreRef}>
         <summary className="mc-mobile-nav__item" aria-current={more.some((item) => isNavItemActive(item, activeHref)) ? "page" : undefined}>
           <MaskIcon src={reportIcon} className="mc-mobile-nav__icon" />

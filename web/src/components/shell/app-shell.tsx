@@ -5,6 +5,7 @@ import { SkipLink } from "./skip-link";
 import { RouteFocus } from "./route-focus";
 import { PreferencesBoot } from "./preferences-boot";
 import "./definitive-a.css";
+import "./reference-a2.css";
 import {
   inicioFoot,
   inicioNav,
@@ -53,6 +54,7 @@ export function AppShell({
         </main>
       </div>
       <MobileNav
+        referenceA={["/inicio", "/corte", "/metas", "/pendientes"].includes(activeHref)}
         primary={mobilePrimaryItems}
         more={mobileMoreItems}
         activeHref={activeHref}

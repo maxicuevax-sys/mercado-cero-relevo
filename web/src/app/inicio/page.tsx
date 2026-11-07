@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
-import { Plus, QrCode, Sparkles } from "lucide-react";
+import { Plus, QrCode, Sparkles, Mic, Package, Coins, ChartNoAxesColumnIncreasing } from "lucide-react";
 import { getDashboardData } from "@/lib/dashboard";
 import { isDemoMode } from "@/lib/config";
 import { listGoals } from "@/lib/goals";
@@ -16,8 +16,6 @@ import iconCompras from "@/assets/inicio/icons/compras.svg";
 import iconMonedas from "@/assets/inicio/icons/monedas.svg";
 import iconPendientes from "@/assets/inicio/icons/pendientes.svg";
 import iconMetas from "@/assets/inicio/icons/metas.svg";
-import iconFiado from "@/assets/inicio/icons/fiado.svg";
-import iconCaja from "@/assets/inicio/icons/caja.svg";
 import botArt from "@/assets/brand/ilustraciones/transparent/bot.png";
 import microphoneArt from "@/assets/brand/iconos/transparent/microfono.png";
 import pendingPhoneArt from "@/assets/brand/iconos/transparent/qr-telefono.png";
@@ -29,6 +27,8 @@ import { ProgressIndicator } from "@/components/ui/progress-indicator";
 import { SectionHeader } from "@/components/ui/section-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import "./inicio.css";
+import welcomeNative from "@/assets/definitive-a/welcome.png";
+import registerNative from "@/assets/definitive-a/register.png";
 
 export const metadata: Metadata = {
   title: "Inicio · Mercado Cero",
@@ -90,7 +90,7 @@ export default async function InicioPage() {
         <div>
           <h1 id="inicio-title">¡Buen día<span className="inicio-greeting__owner">, {owner}</span>!</h1>
           <p>
-            {formatLongDate()}.{" "}
+            <span className="inicio-date-copy">{formatLongDate()}. </span><span className="inicio-native-subtitle">Así va tu negocio hoy.</span>{" "}
             <span className="inicio-greeting__demo">
               {demo ? "Datos demo" : "Datos reales"}
             </span>
@@ -103,7 +103,7 @@ export default async function InicioPage() {
           className="inicio-picado"
           sizes="250px"
         />
-        <Image src={lupitaArt} alt="" aria-hidden="true" className="inicio-definitive-welcome-art" sizes="400px" />
+        <Image src={welcomeNative} alt="" aria-hidden="true" className="inicio-definitive-welcome-art" sizes="(max-width: 760px) 180px, 400px" />
       </section>
 
       <section className="inicio-kpis" aria-label="Resumen del negocio">
@@ -146,7 +146,7 @@ export default async function InicioPage() {
             <span className="inicio-kpi__icon">
               <MaskIcon src={iconMetas} className="inicio-kpi__glyph" />
             </span>
-            <span>Meta del mes</span>
+            <span><span className="inicio-desktop-only">Meta del mes</span><span className="inicio-phone-only">Meta</span></span>
           </div>
           <p className="inicio-kpi__value">{goal ? `${goal.progressPct}%` : "—"}</p>
           <ProgressIndicator
@@ -166,20 +166,24 @@ export default async function InicioPage() {
           className="inicio-hero__art"
           sizes="269px"
         />
+        <Image src={registerNative} alt="" aria-hidden="true" className="inicio-native-register" sizes="130px" />
         <div className="inicio-hero__content">
           <h2 id="inicio-hero-title">Nueva venta</h2>
-          <p>Registra lo que vendiste y decide cómo cobrar.</p>
+          <p>Registra y cobra en segundos.</p>
+          <div className="inicio-hero__actions">
           <Link href="/caja" className="inicio-hero__cta">
             <Plus aria-hidden="true" /><MaskIcon src={iconCompras} className="inicio-hero__mobile-icon" /><span className="inicio-hero__desktop-label">Registrar</span><span className="inicio-hero__mobile-label">Nueva venta</span>
           </Link>
+          <Link href="/caja" className="inicio-hero__mic" aria-label="Dictar una nueva venta"><Mic aria-hidden="true" /></Link>
+          </div>
         </div>
       </section>
 
       <nav className="inicio-shortcuts" aria-label="Accesos rápidos">
-        <Link href="/caja#mc-caja-payment-summary"><QrCode aria-hidden="true" /><span>Cobro digital</span></Link>
-        <Link href="/fiados"><MaskIcon src={iconFiado} /><span>Fiados</span></Link>
-        <Link href="/corte" aria-label="Caja y corte"><MaskIcon src={iconCaja} /><span>Caja</span></Link>
-        <Link href="/metas"><MaskIcon src={iconMetas} /><span>Metas</span></Link>
+        <Link href="/caja#mc-caja-payment-summary"><QrCode aria-hidden="true" /><span>Cobrar</span></Link>
+        <button type="button" disabled aria-label="Producto: módulo aún no disponible"><Package aria-hidden="true" /><span>Producto</span></button>
+        <button type="button" disabled aria-label="Gasto: módulo aún no disponible"><Coins aria-hidden="true" /><span>Gasto</span></button>
+        <button type="button" disabled aria-label="Reporte: módulo aún no disponible"><ChartNoAxesColumnIncreasing aria-hidden="true" /><span>Reporte</span></button>
       </nav>
 
       <section className="inicio-pending" aria-labelledby="inicio-pending-title">
