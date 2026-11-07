@@ -1,7 +1,7 @@
 {
   "suite": "oleada-b1-regression",
   "baseUrl": "http://127.0.0.1:4580",
-  "generatedAt": "2026-11-07T10:28:02Z",
+  "generatedAt": "2026-11-07T12:37:49Z",
   "summary": {
     "pass": 71,
     "fail": 0,
@@ -21,7 +21,7 @@
     {
       "name": "P0-01 no afirma efectivo recibido",
       "ok": true,
-      "detail": "RESULTADO\n\nVenta demo registrada con fiado\n\nTOTAL DE LA VENTA\n\n$100.00\n\nNo recibiste dinero. El importe de $100.00 quedó como deuda en Fiado. Es una práctica demo: no se movió dinero real.\n\nComprobante de pago · DEMO\nTOTAL\n$100.00\nMÉTODO\nFiado\nHORA\n04:27 a.m.\nPEDIDO\nA1ED\nESTADO\nRegistrado\nCOBRADO\n$0.00\nCOBRADO EN EFECTIVO\n$0.00\nSALDO VIVO FIADO\n$100.00 · Juan\n\nQuedó anotado en Fiado. Solo el fiado es deuda. Estás en modo demo: no se movió dinero real; el saldo es una deuda de práctica.\n\nCompartir comprobante\n\nVolver al inicio\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $100.00. Si el estado no es pagado, no entregues como cobrado."
+      "detail": "RESULTADO\n\nVenta demo registrada con fiado\n\nTOTAL DE LA VENTA\n\n$100.00\n\nNo recibiste dinero. El importe de $100.00 quedó como deuda en Fiado. Es una práctica demo: no se movió dinero real.\n\nComprobante de pago · DEMO\nTOTAL\n$100.00\nMÉTODO\nFiado\nHORA\n06:37 a.m.\nPEDIDO\n8775\nESTADO\nRegistrado\nCOBRADO\n$0.00\nCOBRADO EN EFECTIVO\n$0.00\nSALDO VIVO FIADO\n$100.00 · Juan\n\nQuedó anotado en Fiado. Solo el fiado es deuda. Estás en modo demo: no se movió dinero real; el saldo es una deuda de práctica.\n\nCompartir comprobante\n\nVolver al inicio\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $100.00. Si el estado no es pagado, no entregues como cobrado."
     },
     {
       "name": "P0-01 dice que no recibiste dinero",
@@ -36,7 +36,7 @@
     {
       "name": "B5 fiado demo: estado Registrado sin 'Demo (simulado)' redundante",
       "ok": true,
-      "detail": "RESULTADO\n\nVenta demo registrada con fiado\n\nTOTAL DE LA VENTA\n\n$100.00\n\nNo recibiste dinero. El importe de $100.00 quedó como deuda en Fiado. Es una práctica demo: no se movió dinero real.\n\nComprobante de pago · DEMO\nTOTAL\n$100.00\nMÉTODO\nFiado\nHORA\n04:27 a.m.\nPEDIDO\nA1ED\nESTADO\nRegistrado\nCOBRADO\n$0.00\nCOBRADO EN EFECTIVO\n$0.00\nSALDO VIVO FIADO\n$100.00 · Juan\n\nQuedó anotado en Fiado. Solo el fiado es deuda. Estás en modo demo: no se movió dinero real; el saldo es una deuda de práctica.\n\nCompartir comprobante\n\nVolver al inicio\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $100.00. Si el estado no es pagado, no entregues como cobrado."
+      "detail": "RESULTADO\n\nVenta demo registrada con fiado\n\nTOTAL DE LA VENTA\n\n$100.00\n\nNo recibiste dinero. El importe de $100.00 quedó como deuda en Fiado. Es una práctica demo: no se movió dinero real.\n\nComprobante de pago · DEMO\nTOTAL\n$100.00\nMÉTODO\nFiado\nHORA\n06:37 a.m.\nPEDIDO\n8775\nESTADO\nRegistrado\nCOBRADO\n$0.00\nCOBRADO EN EFECTIVO\n$0.00\nSALDO VIVO FIADO\n$100.00 · Juan\n\nQuedó anotado en Fiado. Solo el fiado es deuda. Estás en modo demo: no se movió dinero real; el saldo es una deuda de práctica.\n\nCompartir comprobante\n\nVolver al inicio\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $100.00. Si el estado no es pagado, no entregues como cobrado."
     },
     {
       "name": "P0-02 API paid=60 y due=40",
@@ -96,17 +96,17 @@
     {
       "name": "P1-08 fila muestra cobrado $60",
       "ok": true,
-      "detail": "Pedido 988C\nDEMO\n\nHoy 4:27 a.m. · Efectivo\n\n1 × B1 b1_pending_1794047247410202500\n\n$100.00\nDemo, no es dinero real\nSimulado: cobrado $60.00\nFalta cobrar $40.00\nVer conceptos\nVer detalle"
+      "detail": "Pedido 8747\nDEMO\n\nHoy 6:37 a.m. · Efectivo\n\n1 × B1 b1_pending_1794055034055622700\n\n$100.00\nDemo, no es dinero real\nSimulado: cobrado $60.00\nFalta cobrar $40.00\nVer conceptos\nVer detalle"
     },
     {
       "name": "P1-08 fila muestra falta $40",
       "ok": true,
-      "detail": "Pedido 988C\nDEMO\n\nHoy 4:27 a.m. · Efectivo\n\n1 × B1 b1_pending_1794047247410202500\n\n$100.00\nDemo, no es dinero real\nSimulado: cobrado $60.00\nFalta cobrar $40.00\nVer conceptos\nVer detalle"
+      "detail": "Pedido 8747\nDEMO\n\nHoy 6:37 a.m. · Efectivo\n\n1 × B1 b1_pending_1794055034055622700\n\n$100.00\nDemo, no es dinero real\nSimulado: cobrado $60.00\nFalta cobrar $40.00\nVer conceptos\nVer detalle"
     },
     {
       "name": "P1-09 abono demo creado",
       "ok": true,
-      "detail": "200 {\"credit\":{\"id\":\"cred_e006660b2f4845b1b454\",\"customerId\":\"cus_f81174b8bac34cec9f6b\",\"customerName\":\"Cliente demo\",\"orderId\":\"ord_87ba903e0f7e4c6abb3b\",\"originalCents\":10000,\"balanceCents\":5000,\"status\":\"partial\",\"dueDate\":null,\"createdAt\":\"2026-11-07T10:27:35.212Z\"},\"appliedCents\":5000,\"balanceCents\":5000,\"overpayCents\":0,\"duplicate\":false}"
+      "detail": "200 {\"credit\":{\"id\":\"cred_20f20d7ddba44ea08ae6\",\"customerId\":\"cus_c244de4cc31342709ee3\",\"customerName\":\"Cliente demo\",\"orderId\":\"ord_d3dc8b0b6e404008b20b\",\"originalCents\":10000,\"balanceCents\":5000,\"status\":\"partial\",\"dueDate\":null,\"createdAt\":\"2026-11-07T12:37:22.947Z\"},\"appliedCents\":5000,\"balanceCents\":5000,\"overpayCents\":0,\"duplicate\":false}"
     },
     {
       "name": "P1-09 cashCents real no cambia; demoCashCents sí",
@@ -176,12 +176,12 @@
     {
       "name": "P1-01 ambas pestañas muestran la misma venta",
       "ok": true,
-      "detail": "first=9DBB second=9DBB"
+      "detail": "first=B3E4 second=B3E4"
     },
     {
       "name": "P1-01 venta idéntica repetida sí se registra",
       "ok": true,
-      "detail": "16 -> 18; A4D1 / 9E08"
+      "detail": "16 -> 18; AA71 / ADC0"
     },
     {
       "name": "P1-06 no secuestra la Caja",
@@ -216,7 +216,7 @@
     {
       "name": "P1-12 hubo un solo POST",
       "ok": true,
-      "detail": "{'posts': 1, 'request_ids': ['sale_246df374-3515-400b-98dd-a8062b8e2175']}"
+      "detail": "{'posts': 1, 'request_ids': ['sale_44ab6165-6aed-4f6f-a9f1-0a37da48106f']}"
     },
     {
       "name": "P1-12 conserva el aviso tras recargar",
@@ -261,7 +261,7 @@
     {
       "name": "P1-02 importe visible a 1366",
       "ok": true,
-      "detail": "{'x': 792.515625, 'y': 413.71875, 'width': 96, 'height': 23.1875}"
+      "detail": "{'x': 792.515625, 'y': 460.71875, 'width': 96, 'height': 23.1875}"
     },
     {
       "name": "P1-03 CTA visible a 1366x768",
@@ -331,7 +331,7 @@
     {
       "name": "B1 móvil: Registrar venta registra efectivo demo una sola vez",
       "ok": true,
-      "detail": "{\"id\": \"ord_aaf0dd6a9c904f09be12\", \"merchantId\": \"lupita\", \"status\": \"demo_paid\", \"totalCents\": 18000, \"paidCents\": 18000, \"digitalPaidCents\": 0, \"paymentMethod\": \"cash\", \"lastPaymentProvider\": \"cash\", \"lastPaymentDemo\": true, \"customerName\": null, \"creditId\": null, \"creditCents\": 0, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-07T10:28:00.465Z\", \"updatedAt\": \"2026-11-07T10:28:00.466Z\", \"items\": [{\"id\": \"itm_2e14adf7022b4769a8af\", \"description\": \"Uno\", \"quantity\": 1, \"unitPriceCents\": 10000, \"totalCents\": 10000}, {\"id\": \"itm_ad2ff6b274ef4ee5ad79\", \"description\": \"Dos\", \"quantity\": 1, \"unitPriceCents\": 5000, \"totalCents\": 5000}, {\"id\": \"itm_78079b2e70ba4a719167\", \"description\": \"Tres\", \"quantity\": 1, \"unitPriceCents\": 3000, \"totalCents\": 3000}]}"
+      "detail": "{\"id\": \"ord_a3fdada0849e4ef08d1f\", \"merchantId\": \"lupita\", \"status\": \"demo_paid\", \"totalCents\": 18000, \"paidCents\": 18000, \"digitalPaidCents\": 0, \"paymentMethod\": \"cash\", \"lastPaymentProvider\": \"cash\", \"lastPaymentDemo\": true, \"customerName\": null, \"creditId\": null, \"creditCents\": 0, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-07T12:37:48.504Z\", \"updatedAt\": \"2026-11-07T12:37:48.504Z\", \"items\": [{\"id\": \"itm_08105b551946414692d4\", \"description\": \"Uno\", \"quantity\": 1, \"unitPriceCents\": 10000, \"totalCents\": 10000}, {\"id\": \"itm_f3301f819b0d42b4ab2f\", \"description\": \"Dos\", \"quantity\": 1, \"unitPriceCents\": 5000, \"totalCents\": 5000}, {\"id\": \"itm_785f134d6fcd42bf8561\", \"description\": \"Tres\", \"quantity\": 1, \"unitPriceCents\": 3000, \"totalCents\": 3000}]}"
     },
     {
       "name": "P1-04 nav móvil 3+2 a 200%",
