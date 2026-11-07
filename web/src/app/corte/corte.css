@@ -1691,3 +1691,658 @@ html:not([data-contrast="high"]) .mc-corte-summary__balance { background: #eeedc
   .mc-corte-summary__rows > div { font-size: .875rem; }
   .mc-corte-page .mc-corte-tally { padding: 16px 12px; }
 }
+
+/* =========================================================================
+   Paridad DEFINITIVE/06 — cabecera, chip de fecha, hero, resumen, métodos,
+   historial y flujo de cierre. Solo clases `.mc-corte-*` de esta pantalla.
+   Los montos usan clamp con vw para reproducir la maqueta a 390 y a 941 sin
+   desbordar. La lógica de guardado sigue viviendo en CashCount + /api/cash.
+   ========================================================================= */
+
+.mc-op-main.mc-corte-page.mc-corte-page > .mc-op-page {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: clamp(12px, 2.55vw, 24px);
+}
+
+/* Cabecera: flecha a la izquierda, H1 alineado al inicio como la lámina. */
+.mc-op-main.mc-corte-page.mc-corte-page > .mc-op-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  margin-bottom: 8px;
+  padding: 0 0 0 56px;
+  padding-right: 0;
+  text-align: start;
+}
+
+.mc-op-main.mc-corte-page.mc-corte-page
+  > .mc-op-header
+  .mc-page-header__title,
+.mc-corte-page #corte-title.mc-page-header__title {
+  padding: 0;
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.mc-op-main.mc-corte-page.mc-corte-page
+  > .mc-op-header
+  .mc-page-header__actions {
+  inset-inline-start: 0;
+  top: 4px;
+}
+
+/* --- Chip de fecha: <details> nativo, sin botón muerto ------------------ */
+.mc-corte-chip {
+  min-width: 0;
+  border: 1px solid var(--color-separator);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--color-green-soft) 52%, var(--color-surface));
+}
+
+.mc-corte-chip__summary {
+  display: flex;
+  min-height: clamp(52px, 8.5vw, 80px);
+  align-items: center;
+  gap: 12px;
+  padding: clamp(10px, 1.7vw, 16px) clamp(14px, 2.55vw, 24px);
+  border-radius: 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.mc-corte-chip__summary::-webkit-details-marker {
+  display: none;
+}
+
+.mc-corte-chip__calendar {
+  width: clamp(20px, 3.4vw, 32px);
+  height: clamp(20px, 3.4vw, 32px);
+  flex: 0 0 auto;
+  color: var(--color-green);
+  stroke-width: 1.9;
+}
+
+.mc-corte-chip__label {
+  min-width: 0;
+  flex: 1 1 auto;
+  color: var(--color-ink);
+  font-size: clamp(0.9375rem, 3.2vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.mc-corte-chip__chevron {
+  width: clamp(18px, 2.8vw, 26px);
+  height: clamp(18px, 2.8vw, 26px);
+  flex: 0 0 auto;
+  color: var(--color-ink);
+  transition: transform 160ms var(--mc-corte-ease);
+}
+
+.mc-corte-chip[open] .mc-corte-chip__chevron {
+  transform: rotate(180deg);
+}
+
+.mc-corte-chip__panel {
+  padding: 0 clamp(14px, 2.55vw, 24px) clamp(14px, 2.1vw, 20px);
+  border-top: 1px dashed var(--color-separator);
+  color: var(--color-ink-2);
+  font-size: clamp(0.8125rem, 2.4vw, 1.125rem);
+  line-height: 1.45;
+}
+
+.mc-corte-chip__panel p {
+  margin-top: 10px;
+}
+
+.mc-corte-chip__panel strong {
+  color: var(--color-ink);
+}
+
+.mc-corte-chip__link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  color: var(--color-accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mc-corte-chip__link svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* --- Hero: ilustración + total vendido ---------------------------------- */
+.mc-corte-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 40%) minmax(0, 1fr);
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-separator);
+  border-radius: clamp(20px, 3vw, 30px);
+  background: var(--color-green-soft);
+  box-shadow: var(--mc-corte-shadow);
+}
+
+html:not([data-contrast="high"]) .mc-corte-hero {
+  background: #e8e9d3;
+}
+
+.mc-corte-hero__art {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: clamp(112px, 24vw, 250px);
+  align-self: end;
+  object-fit: contain;
+  object-position: bottom left;
+}
+
+.mc-corte-hero__copy {
+  min-width: 0;
+  padding: clamp(14px, 2.4vw, 28px) clamp(14px, 2.55vw, 28px)
+    clamp(14px, 2.4vw, 28px) clamp(12px, 2vw, 24px);
+  border-left: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+}
+
+.mc-corte-hero__label {
+  color: var(--color-ink);
+  font-size: clamp(0.9375rem, 3.3vw, 2rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.mc-corte-hero__value {
+  margin-top: 2px;
+  color: var(--color-green);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: clamp(1.9rem, 9.2vw, 5.5rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+  overflow-wrap: anywhere;
+}
+
+/* --- Resumen del corte: tres columnas ----------------------------------- */
+.mc-corte-brief {
+  min-width: 0;
+  padding: clamp(14px, 2.4vw, 28px);
+  border: 1px solid var(--color-separator);
+  border-radius: clamp(18px, 2.6vw, 26px);
+  background: var(--color-surface);
+  box-shadow: var(--mc-corte-shadow);
+}
+
+.mc-corte-brief__title,
+.mc-corte-methods__title {
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: clamp(1rem, 3.6vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.mc-corte-brief__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: clamp(10px, 1.7vw, 16px) 0 0;
+}
+
+.mc-corte-brief__item {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 clamp(6px, 1.4vw, 18px);
+  border-left: 1px solid var(--color-separator);
+  text-align: center;
+}
+
+.mc-corte-brief__item:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.mc-corte-brief__item:last-child {
+  padding-right: 0;
+}
+
+.mc-corte-brief__item dt {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  color: var(--color-ink);
+  font-size: clamp(0.6875rem, 2.75vw, 1.625rem);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.mc-corte-brief__item dt svg {
+  width: clamp(20px, 4.3vw, 48px);
+  height: clamp(20px, 4.3vw, 48px);
+  color: var(--color-green);
+  stroke-width: 1.7;
+}
+
+.mc-corte-brief__item dd {
+  margin-top: clamp(6px, 1.2vw, 12px);
+  color: var(--color-ink);
+  font-size: clamp(1.0625rem, 4.7vw, 2.75rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.mc-corte-brief__note {
+  margin-top: clamp(10px, 1.7vw, 16px);
+  color: var(--color-ink-2);
+  font-size: clamp(0.6875rem, 2.45vw, 1rem);
+  line-height: 1.4;
+}
+
+/* --- Métodos de pago ---------------------------------------------------- */
+.mc-corte-methods {
+  min-width: 0;
+}
+
+.mc-corte-methods__list {
+  display: grid;
+  gap: clamp(6px, 1vw, 12px);
+  margin: clamp(8px, 1.4vw, 12px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mc-corte-method {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: clamp(8px, 1.5vw, 18px);
+  min-width: 0;
+  min-height: clamp(52px, 8.5vw, 80px);
+  padding: clamp(8px, 1.4vw, 14px) clamp(10px, 1.7vw, 20px);
+  border: 1px solid var(--color-separator);
+  border-radius: clamp(12px, 1.8vw, 18px);
+  background: var(--color-surface);
+  box-shadow: var(--mc-corte-shadow);
+}
+
+.mc-corte-method__icon {
+  display: grid;
+  width: clamp(32px, 4.2vw, 48px);
+  height: clamp(32px, 4.2vw, 48px);
+  place-items: center;
+  color: var(--color-green);
+}
+
+.mc-corte-method__icon svg {
+  width: clamp(26px, 3.6vw, 42px);
+  height: clamp(26px, 3.6vw, 42px);
+  stroke-width: 1.8;
+}
+
+.mc-corte-method__label {
+  min-width: 0;
+  color: var(--color-ink);
+  font-size: clamp(0.9375rem, 3.4vw, 2rem);
+  font-weight: 500;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.mc-corte-method__amount {
+  min-width: 0;
+  color: var(--color-ink);
+  font-size: clamp(1.0625rem, 4.3vw, 2.5rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.mc-corte-method__pct {
+  display: inline-flex;
+  min-width: clamp(44px, 7.5vw, 88px);
+  min-height: clamp(28px, 4.2vw, 48px);
+  align-items: center;
+  justify-content: center;
+  padding: 4px clamp(8px, 1.2vw, 14px);
+  border-radius: 999px;
+  background: var(--color-green-soft);
+  color: var(--color-green);
+  font-size: clamp(0.8125rem, 3.1vw, 1.75rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.mc-corte-methods__note {
+  margin-top: 8px;
+  color: var(--color-ink-2);
+  font-size: clamp(0.6875rem, 2.4vw, 1rem);
+  line-height: 1.4;
+}
+
+/* --- Historia: enlace discreto en la cabecera del resumen ---------------- */
+.mc-corte-brief__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.mc-corte-brief__history {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 2px;
+  padding: 0 4px;
+  color: var(--color-accent);
+  font-size: clamp(0.75rem, 2.5vw, 1.25rem);
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mc-corte-brief__history svg {
+  width: clamp(16px, 2.2vw, 24px);
+  height: clamp(16px, 2.2vw, 24px);
+}
+
+/* --- Botón primario: abre el conteo real -------------------------------- */
+.mc-corte-close {
+  min-width: 0;
+}
+
+.mc-corte-close__summary {
+  display: flex;
+  min-height: clamp(56px, 8.5vw, 88px);
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border: 1px solid var(--color-accent);
+  border-radius: clamp(16px, 2.4vw, 26px);
+  background: linear-gradient(
+    135deg,
+    var(--color-accent),
+    var(--color-accent-press)
+  );
+  color: #fffdf7;
+  font-size: clamp(1.0625rem, 4vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  list-style: none;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12);
+  transition: filter 160ms var(--mc-corte-ease);
+}
+
+html:not([data-contrast="high"]) .mc-corte-close__summary {
+  border-color: #034538;
+  background: #034538;
+}
+
+.mc-corte-close__summary::-webkit-details-marker {
+  display: none;
+}
+
+.mc-corte-close__summary:hover {
+  filter: brightness(1.08);
+}
+
+.mc-corte-close__summary svg {
+  width: clamp(20px, 3vw, 32px);
+  height: clamp(20px, 3vw, 32px);
+  flex: 0 0 auto;
+}
+
+.mc-corte-close[open] > .mc-corte-close__summary {
+  margin-bottom: clamp(12px, 2vw, 20px);
+}
+
+.mc-corte-close__help {
+  margin: 0 0 10px;
+  color: var(--color-ink-2);
+  font-size: clamp(0.8125rem, 2.4vw, 1.125rem);
+  line-height: 1.45;
+}
+
+.mc-corte-close__help strong {
+  margin-inline-end: 4px;
+  color: var(--color-accent);
+}
+
+/* El guardado del conteo usa el ancho de su tarjeta, no 87vw. */
+.mc-corte-close .mc-corte-save,
+.mc-corte-close .mc-corte-save:is(:hover, :focus-visible) {
+  width: 100%;
+  margin-inline-start: 0;
+}
+
+/* --- Detalle de movimientos y cortes de hoy ----------------------------- */
+.mc-corte-detail {
+  margin-top: 0;
+}
+
+.mc-corte-detail > summary {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-separator);
+  border-radius: 14px;
+  background: var(--color-surface);
+  color: var(--color-ink-2);
+  font-size: clamp(0.8125rem, 2.4vw, 1.125rem);
+  font-weight: 600;
+  line-height: 1.35;
+  cursor: pointer;
+  list-style: none;
+}
+
+.mc-corte-detail > summary::-webkit-details-marker {
+  display: none;
+}
+
+.mc-corte-detail[open] > summary {
+  margin-bottom: 10px;
+}
+
+.mc-corte-detail__body {
+  min-width: 0;
+  padding: clamp(14px, 2.4vw, 24px);
+  border: 1px solid var(--color-separator);
+  border-radius: 16px;
+  background: var(--color-surface);
+}
+
+.mc-corte-detail__rows {
+  margin: 0;
+}
+
+.mc-corte-detail__rows > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--color-separator);
+}
+
+.mc-corte-detail__rows > div:last-child {
+  border-bottom: 0;
+}
+
+.mc-corte-detail__rows dt {
+  color: var(--color-ink-2);
+  font-size: clamp(0.8125rem, 2.4vw, 1.125rem);
+  line-height: 1.4;
+}
+
+.mc-corte-detail__rows dd {
+  color: var(--color-ink);
+  font-size: clamp(0.875rem, 2.7vw, 1.25rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+  text-align: right;
+}
+
+.mc-corte-detail__title {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--color-separator);
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: clamp(1.125rem, 3.6vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* --- 761–1023: la lámina 941 usa tipografía y ritmo más grandes --------- */
+@media (min-width: 761px) and (max-width: 1023.98px) {
+  .mc-op-main.mc-corte-page.mc-corte-page > .mc-op-page {
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  /* La lámina 941 deja la flecha a 68px y el H1 a 168px del borde. */
+  /* La ref 06 deja 36px de margen a las tarjetas y un topbar de 190px. */
+  .inicio-shell.mc-reference-a.inicio-shell:has(.mc-corte-page)
+    .inicio-topbar {
+    min-height: calc(190 * var(--a-u));
+  }
+
+  .inicio-shell.mc-reference-a .inicio-main > main.mc-corte-page {
+    padding-inline: 36px;
+  }
+
+  .mc-op-main.mc-corte-page.mc-corte-page > .mc-op-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 76px;
+    padding: 0 0 0 132px;
+  }
+
+  .mc-op-main.mc-corte-page.mc-corte-page
+    > .mc-op-header
+    .mc-page-header__actions {
+    position: absolute;
+    inset-inline-start: 22px;
+    top: 14px;
+  }
+
+  .inicio-shell.mc-reference-a
+    .mc-corte-page
+    #corte-title.mc-page-header__title {
+    font-size: 3.5rem;
+  }
+
+  /* Papel picado de la esquina, como la ref 06 (a 390 lo pone la shell). */
+  .mc-op-main.mc-corte-page.mc-corte-page > .mc-op-header::after {
+    content: "";
+    position: absolute;
+    top: -10px;
+    right: 0;
+    width: clamp(220px, 30vw, 320px);
+    height: 80px;
+    pointer-events: none;
+    background: url("../../assets/definitive-a/picado.png") right top / contain
+      no-repeat;
+    mix-blend-mode: multiply;
+  }
+
+  .mc-corte-hero__value {
+    font-size: clamp(4rem, 9.2vw, 5.5rem);
+  }
+
+  .mc-corte-detail__body {
+    padding: 32px;
+  }
+}
+
+/* --- Escritorio: el contenido sigue legible dentro de 760px ------------- */
+@media (min-width: 1024px) {
+  .mc-corte-hero__value {
+    font-size: 3.75rem;
+  }
+}
+
+@media (max-width: 479.98px) {
+  /* La regla heredada `#corte-main > .mc-op-header` gana por ID: se repite
+     aquí con el mismo ID para conservar la flecha y el H1 de la ref 06. */
+  #corte-main > .mc-op-header {
+    padding: 0 0 0 56px;
+  }
+}
+
+@media (max-width: 359.98px) {
+  .mc-corte-method {
+    gap: 6px;
+    padding-inline: 8px;
+  }
+
+  .mc-corte-method__pct {
+    min-width: 40px;
+    padding-inline: 6px;
+  }
+
+  .mc-corte-hero {
+    grid-template-columns: minmax(0, 36%) minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mc-corte-chip__chevron,
+  .mc-corte-close__summary {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .mc-corte-chip,
+  .mc-corte-hero,
+  .mc-corte-brief,
+  .mc-corte-method,
+  .mc-corte-close__summary,
+  .mc-corte-detail > summary,
+  .mc-corte-detail__body {
+    border-color: CanvasText;
+  }
+
+  .mc-corte-method__pct {
+    border: 1px solid CanvasText;
+  }
+}
