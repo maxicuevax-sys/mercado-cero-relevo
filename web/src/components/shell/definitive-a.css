@@ -34,7 +34,7 @@
     height: calc(100 * var(--a-u));
     filter: brightness(0) invert(1);
   }
-  .mc-reference-a .inicio-topbar__brand-rays { width: 32px; height: 32px; stroke: var(--inicio-maize); fill: none; stroke-width: 3; }
+  .mc-reference-a .inicio-topbar__brand-rays { display: inline-block; vertical-align: middle; margin-left: 4px; width: 32px; height: 32px; stroke: var(--inicio-maize); fill: none; stroke-width: 3; }
   .mc-reference-a .inicio-topbar__actions { gap: 24px; }
   .inicio-shell.mc-reference-a .inicio-topbar__alerts { color: inherit; width: 56px; height: 56px; }
   .inicio-shell.mc-reference-a .inicio-topbar__bell { width: 48px; height: 48px; }
@@ -83,6 +83,7 @@
 
   /* Inicio: three metrics, full-width sale, shortcuts and pending list. */
   .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar { background: var(--inicio-paper); color: var(--inicio-green); }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-main { background: var(--inicio-paper); }
   .mc-reference-a.inicio-shell--compact .inicio-topbar__mobile-brand img { filter: none; }
   .mc-reference-a.inicio-shell--compact .inicio-content {
     display: grid; grid-template-columns: minmax(0, 1fr);
@@ -111,7 +112,7 @@
   .mc-reference-a.inicio-shell--compact .inicio-hero { min-height: calc(278 * var(--a-u)); grid-template-columns: 35% minmax(0, 1fr); border-radius: 38px; }
   .mc-reference-a.inicio-shell--compact .inicio-hero__art { width: 108%; max-width: none; }
   .mc-reference-a.inicio-shell--compact .inicio-hero h2 { font: 700 3.75rem/1.1 Georgia, serif; }
-  .mc-reference-a.inicio-shell--compact .inicio-hero p { max-width: none; font: 1.625rem/1.3 Arial, sans-serif; }
+  .mc-reference-a.inicio-shell--compact .inicio-hero p { max-width: none; font: 1.5rem/1.3 Arial, sans-serif; }
   .mc-reference-a.inicio-shell--compact .inicio-hero__cta { min-height: 80px; margin-top: 24px; padding: 12px 54px; border-radius: 42px; font-size: 2rem; }
   .mc-reference-a.inicio-shell--compact .inicio-hero__cta svg { width: 40px; height: 40px; }
   .mc-reference-a.inicio-shell--compact .inicio-shortcuts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
@@ -131,7 +132,7 @@
   /* Operational routes: mobile shell plus existing live controls and balances. */
   .inicio-shell.mc-reference-a .mc-op-main { font-family: Arial, sans-serif; }
   .mc-reference-a .mc-op-main > .mc-op-header { min-height: 120px; margin-bottom: 28px; }
-  .mc-reference-a .mc-op-header .mc-page-header__title { font: 700 4rem/1.1 Georgia, serif; }
+  .inicio-shell.mc-reference-a .mc-op-main > .mc-op-header .mc-page-header__title { font: 700 4rem/1.1 Georgia, serif; }
   .mc-reference-a #corte-title.mc-page-header__title { font: 700 4rem/1.1 Georgia, serif; }
   .mc-reference-a .mc-page-header__eyebrow { font-size: .875rem; }
   .mc-reference-a .mc-page-header__subtitle { font-size: 1.125rem; }
@@ -151,7 +152,10 @@
   .mc-reference-a .mc-corte-start { margin-top: 32px; }
   .mc-reference-a .mc-corte-start > details > summary { min-height: 80px; font-size: 2rem; border-radius: 26px; }
   .mc-reference-a .mc-corte-detail > summary { font-size: 1.5rem; }
-  .mc-reference-a .mc-metas-summary { min-height: 180px; border-radius: 32px; }
+  .mc-reference-a .mc-metas-summary { min-height: 180px; border-radius: 32px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* Remaining amounts are already present on each goal; the native summary
+     follows the two indicators in the definitive reference. */
+  .mc-reference-a .mc-metas-summary__item:nth-child(3) { display: none; }
   .mc-reference-a .mc-metas-summary__value { font: 700 2.75rem/1.15 Georgia, serif; }
   .mc-reference-a .mc-metas-summary__label { font-size: 1.375rem; }
   .mc-reference-a .mc-metas-hero { min-height: 300px; border-radius: 32px; }
