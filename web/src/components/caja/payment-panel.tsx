@@ -146,9 +146,17 @@ export function PaymentPanel({
   async function shareQr() {
     try {
       if (order.qrImage && navigator.share && navigator.canShare) {
-        const response = await fetch(order.qrImage);
-        if (!response.ok) throw new Error("QR no disponible");
-        const blob = await response.blob();
+        // Decode generated data URLs locally; connect-src 'self' forbids fetching data:.
+        const inline = order.qrImage.match(/^data:(image\/[a-z0-9.+-]+);base64,(.+)$/i);
+        let blob: Blob;
+        if (inline) {
+          const bytes = Uint8Array.from(atob(inline[2]), char => char.charCodeAt(0));
+          blob = new Blob([bytes], { type: inline[1] });
+        } else {
+          const response = await fetch(order.qrImage);
+          if (!response.ok) throw new Error("QR no disponible");
+          blob = await response.blob();
+        }
         const file = new File([blob], `qr-${demo ? "DEMO-" : ""}${order.id}.png`, { type: blob.type });
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], text: demo ? "DEMO · sin dinero real" : "QR de cobro · pendiente hasta confirmación de pey" });
