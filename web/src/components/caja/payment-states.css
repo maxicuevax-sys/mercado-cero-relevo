@@ -1,5 +1,6 @@
 .mc-payment-method { max-width: 640px; margin: 0 auto; }
 .mc-payment-method, .mc-caja-payment, .mc-caja-result { container-type: inline-size; min-width: 0; }
+.mc-caja-result { overflow-wrap: anywhere; }
 .mc-payment-total { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid #dfd2bc; border-radius: 16px; background: #fff5e6; color: #0c4133; }
 .mc-payment-total > span:last-child { margin-left: auto; font: 700 1.8rem Georgia, serif; }
 .mc-payment-total > svg { flex: none; }
@@ -67,4 +68,6 @@ html[data-contrast="high"] :is(.mc-payment-total, .mc-payment-option, .mc-paymen
   .mc-payment-confirmed > img { width: 100px; justify-self: center; }
   .mc-payment-confirmed > div { min-width: 0; }
   .mc-payment-confirmed .tabular-nums { font-size: 1.5rem; }
+  .mc-caja-result .mc-caja-result__facts > div { flex-wrap: wrap; }
+  .mc-caja-result .mc-caja-result__facts :is(dt, dd) { flex-basis: 100%; text-align: left; }
 }

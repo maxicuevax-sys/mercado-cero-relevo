@@ -105,6 +105,7 @@ export function SaleResult({
 
       <h3 className="mc-receipt-title">Comprobante de pago{isDemo ? " · DEMO" : ""}</h3>
       <dl className="mc-caja-result__facts">
+        <div><dt>Total</dt><dd><CurrencyAmount cents={order.totalCents} /></dd></div>
         <div><dt>Método</dt><dd>{hasDigital ? hasCash ? "Mixto / digital" : "Digital / QR" : hasCash ? "Efectivo" : "Fiado"}</dd></div>
         <div><dt>Hora</dt><dd>{new Date(order.updatedAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}</dd></div>
         <div>

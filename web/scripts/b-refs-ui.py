@@ -120,6 +120,12 @@ try:
             expect(page.get_by_role('button',name='Confirmar pago · consultar estado',exact=True)).to_be_enabled()
             after = page.request.get(BASE+'/api/orders/'+before['id']).json()['order']
             check(f'{width} confirm only reads pending order', before['status']==after['status']=='payment_pending' and after['paidCents']==0, after)
+            if not page.evaluate('Boolean(navigator.share)'):
+                page.context.grant_permissions(['clipboard-read', 'clipboard-write'], origin=BASE)
+                page.get_by_role('button',name='Compartir QR',exact=True).click()
+                expect(page.get_by_role('button',name='Compartir QR · código copiado',exact=True)).to_be_visible()
+                copied = page.evaluate('navigator.clipboard.readText()')
+                check(f'{width} shares actual QR code', copied == after['qrString'])
             page.get_by_role('button',name='Escanear',exact=True).click()
             expect(page.get_by_text('Esta caja no valida capturas',exact=False)).to_be_visible()
             page.get_by_role('button',name='Escanear',exact=True).click()
@@ -130,6 +136,10 @@ try:
             large_capture(page, f'{width}-M04-result')
             order = page.request.get(BASE+'/api/orders/'+before['id']).json()['order']
             check(f'{width} result stays demo_paid', order['status']=='demo_paid' and order['lastPaymentDemo'] is True)
+            if not page.evaluate('Boolean(navigator.share)'):
+                page.get_by_role('button',name='Compartir comprobante',exact=True).click()
+                copied = page.evaluate('navigator.clipboard.readText()')
+                check(f'{width} receipt includes demo warning and order', 'DEMO SIMULADO - SIN DINERO REAL' in copied and order['id'] in copied)
             verified = page.request.get(BASE+'/api/verify',params={'orderId':order['id'],'transactionId':'demo_ui_probe'}).json()
             check(f'{width} demo verify false', verified.get('verified') is False, verified)
             page.goto(BASE+'/ayuda')
