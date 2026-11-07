@@ -69,3 +69,6 @@ npm run dev -- -p 4600
 
 Cualquier bloqueo: issue https://github.com/maxicuevax-sys/mercado-cero-relevo/issues/2 o ping al Lead.
 
+
+## Computer use
+Sigue docs/relevo/COMPUTER-USE-DIEGO.md. Cua Driver + Hermes computer_use + MCP cua en OpenCode. Verifica cua-driver get_desktop_state y hermes computer-use doctor.

@@ -123,3 +123,20 @@ OPENCODE_PROVIDER=...
 OPENCODE_MODEL=...
 ATTENTION_PLUGIN_TARBALL_SHA=...
 ```
+
+## Computer Use (obligatorio en su PC)
+```powershell
+irm https://cua.ai/driver/install.ps1 | iex
+cua-driver --version
+cua-driver doctor
+cua-driver skills install
+hermes --version
+hermes tools            # activar Computer Use
+hermes computer-use doctor
+cua-driver get_desktop_state "{}"
+```
+Agregar MCP `cua` a `%USERPROFILE%\.config\opencode\opencode.json`:
+```json
+"cua": {"type":"local","command":["C:\\Users\\diego\\AppData\\Local\\Programs\\Cua\\cua-driver\\bin\\cua-driver.exe","mcp"],"enabled":true}
+```
+Verificar: `cua-driver skills status` debe linkear OpenCode/Codex/Hermes. No YOLO; approvals manual/smart; no capturar passwords ni subir screenshots.
