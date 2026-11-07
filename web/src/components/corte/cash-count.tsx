@@ -17,6 +17,8 @@ import {
   CircleAlert,
   Loader2,
   RefreshCw,
+  Minus,
+  Plus,
 } from "lucide-react";
 import { cn, formatMxn } from "@/lib/format";
 import type { CashClose, CashStatus } from "@/lib/types";
@@ -77,7 +79,8 @@ export function CashCount({
     initialStatus.saved ? moneyInput(initialStatus.saved.countedCents) : "",
   );
   const [counts, setCounts] = useState<Record<number, number>>({});
-  const [showCounts, setShowCounts] = useState(false);
+  const [showCounts, setShowCounts] = useState(true);
+  const [denominationTab, setDenominationTab] = useState("notes");
   const [applyPreviousWithdrawal, setApplyPreviousWithdrawal] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -328,7 +331,7 @@ export function CashCount({
           <div className="mc-corte-tally__title">
             <p className="mc-corte-step">Paso 1 · Conteo</p>
             <h2 id={headingId} className="mc-op-panel__title">
-              Cuenta el efectivo de hoy
+              Conteo de efectivo
             </h2>
           </div>
         </div>
@@ -452,11 +455,17 @@ export function CashCount({
                 El conteo por billetes reemplaza el total contado.
               </p>
               <div className="mc-corte-denoms__grid">
-                {DENOMINATIONS.map((denomination) => (
-                  <label key={denomination} className="mc-corte-denom">
+                <div className="mc-corte-denom-tabs" aria-label="Denominaciones">
+                  <button type="button" aria-pressed={denominationTab === "notes"} onClick={() => setDenominationTab("notes")}>Billetes</button>
+                  <button type="button" aria-pressed={denominationTab === "coins"} onClick={() => setDenominationTab("coins")}>Monedas</button>
+                </div>
+                {DENOMINATIONS.filter(value => denominationTab === "notes" ? value >= 2000 : value < 2000).map((denomination) => (
+                  <div key={denomination} className="mc-corte-denom" data-value={denomination}>
                     <span className="mc-corte-denom__label">
                       {denominationLabel(denomination)}
                     </span>
+                    <div className="mc-corte-denom-stepper">
+                    <button type="button" aria-label={`Quitar ${denominationLabel(denomination)}`} disabled={!counts[denomination]} onClick={() => updateCount(denomination, (counts[denomination] ?? 0) - 1)}><Minus aria-hidden="true" /></button>
                     <input
                       className="mc-corte-denom__input"
                       type="number"
@@ -469,7 +478,10 @@ export function CashCount({
                       }
                       aria-label={`Cantidad de ${denominationLabel(denomination)}`}
                     />
-                  </label>
+                    <button type="button" aria-label={`Agregar ${denominationLabel(denomination)}`} onClick={() => updateCount(denomination, (counts[denomination] ?? 0) + 1)}><Plus aria-hidden="true" /></button>
+                    </div>
+                    <output className="mc-corte-denom-total">{formatMxn(denomination * (counts[denomination] ?? 0))}</output>
+                  </div>
                 ))}
               </div>
             </div>

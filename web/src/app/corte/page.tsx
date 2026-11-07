@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import registerNative from "@/assets/definitive-a/register.png";
 import { ArrowLeft, CalendarDays, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { connection } from "next/server";
@@ -125,13 +127,13 @@ export default async function CortePage() {
           </div>
           {status.withdrawalsCents > 0 ? <div><dt>Retiros</dt><dd className="mc-corte-summary__out">-{formatMxn(status.withdrawalsCents)}</dd></div> : null}
         </dl>
-        <div className="mc-corte-summary__balance"><span>Saldo del día</span><CurrencyAmount as="p" cents={status.expectedCents} /></div>
+        <div className="mc-corte-summary__balance"><Image src={registerNative} alt="" aria-hidden="true" className="mc-corte-native-register" sizes="135px" /><div><span>Saldo del día</span><CurrencyAmount as="p" cents={status.expectedCents} /></div></div>
       </section>
       <div className="mc-corte-start">
         <p id="mc-corte-start-help" className="mc-corte-start__help">
           <strong>PASO 1</strong> Cuenta el efectivo. Después de revisar, confirma con «Guardar corte».
         </p>
-        <details>
+        <details open>
           <summary aria-describedby="mc-corte-start-help">
             <CheckCircle2 aria-hidden="true" />{saved ? "Corregir corte" : "Realizar corte"}
           </summary>
@@ -139,7 +141,7 @@ export default async function CortePage() {
         </details>
       </div>
       <details className="mc-corte-detail">
-        <summary>Detalle de movimientos{demo ? " · Demo" : ""}</summary>
+        <summary>Ver historial y movimientos{demo ? " · Demo" : ""}</summary>
         <ReadReceipt text={receiptSpeech} />
         <dl className="mc-corte-summary__rows">
           <div><dt>Efectivo recibido hoy</dt><dd>{formatMxn(cashTodayCents)}</dd></div>

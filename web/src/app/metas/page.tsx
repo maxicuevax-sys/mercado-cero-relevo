@@ -18,6 +18,7 @@ import picadoArt from "@/assets/inicio/papel-picado.png";
 import iconMetas from "@/assets/inicio/icons/metas.svg";
 import iconMonedas from "@/assets/inicio/icons/monedas.svg";
 import "./metas.css";
+import savingsNative from "@/assets/definitive-a/savings.png";
 
 export const metadata: Metadata = {
   title: "Metas · Mercado Cero",
@@ -107,6 +108,30 @@ export default async function MetasPage() {
         className="mc-metas-page__picado"
         sizes="(max-width: 767px) 116px, 260px"
       />
+      <div className="mc-metas-native">
+        <section className="mc-metas-native-summary" aria-label="Resumen de metas">
+          <Image src={savingsNative} alt="" aria-hidden="true" sizes="95px" />
+          <div><p>Ahorrado</p><strong>{formatMxn(savedTotal)}</strong></div>
+          <div><p>Metas activas</p><strong>{activeCount}</strong></div>
+        </section>
+        <div className="mc-metas-native-list">
+          {goals.map(goal => <article key={goal.id} className="mc-metas-native-card">
+            <Image src={savingsNative} alt="" aria-hidden="true" sizes="90px" />
+            <div className="mc-metas-native-copy"><h2>{goal.title}</h2><p>Objetivo {formatMxn(goal.targetCents)}</p>
+              <ProgressIndicator value={goal.progressPct} label={`Avance de ${goal.title}`} className="mc-metas-native-progress" />
+              <p>{formatMxn(goal.savedCents)} / {formatMxn(goal.targetCents)}</p>
+            </div>
+            <div className="mc-metas-native-ring" role="img" aria-label={`${goal.progressPct}% de ${goal.title}`}>
+              <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--inicio-border-soft)" strokeWidth="10" /><circle cx="50" cy="50" r="42" fill="none" stroke="var(--inicio-green)" strokeWidth="10" strokeLinecap="round" strokeDasharray={`${264 * Math.min(100, Math.max(0, goal.progressPct)) / 100} 264`} transform="rotate(-90 50 50)" /></svg>
+              <strong>{goal.progressPct}%</strong>
+            </div>
+            <div className="mc-metas-native-card-action">{goal.remainingCents > 0 ? <ContributeGoalButton goal={{id: goal.id, title: goal.title, remainingCents: goal.remainingCents}} variant="secondary" /> : <p>Meta lograda</p>}</div>
+          </article>)}
+          {goals.length === 0 ? <p>Aún no hay metas. Crea tu primera meta.</p> : null}
+        </div>
+        <CreateGoalButton label="Nueva meta" />
+        <p className="mc-metas-native-note">Apartado declarado; no es una cuenta bancaria. El efectivo sigue en tu caja.</p>
+      </div>
       {goals.length > 0 ? (
         <section className="mc-metas-summary" aria-label="Resumen de metas">
           <article className="mc-metas-summary__item">

@@ -19,10 +19,14 @@ import {
   Loader2,
   Plus,
   RotateCcw,
+  Search,
+  CircleCheck,
+  Coins,
   Trash2,
   X,
 } from "lucide-react";
-import { cn } from "@/lib/format";
+import { cn, formatMxn } from "@/lib/format";
+import nativeTasksArt from "@/assets/definitive-a/tasks.png";
 import {
   addDaysToDateKey,
   MEXICO_TZ,
@@ -191,11 +195,13 @@ function humanError(error: unknown, fallback: string): string {
 export function TasksPanel({
   initialTasks,
   totalCount,
+  pendingCents = 0,
 }: {
   /** Tareas ya leídas en el servidor (`listTasks`). */
   initialTasks: Task[];
   /** Total de tareas registradas (`countTasks`), para el resumen del panel. */
   totalCount: number;
+  pendingCents?: number;
 }) {
   const headingId = useId();
   const formTitleId = useId();
@@ -225,14 +231,17 @@ export function TasksPanel({
   const [pickedDate, setPickedDate] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [doneOpen, setDoneOpen] = useState(false);
+  const [nativeTab, setNativeTab] = useState("today");
+  const [query, setQuery] = useState("");
   const [focusTarget, setFocusTarget] = useState<string | null>(null);
 
   const clock = useClock();
   const now = clock === null ? null : new Date(clock * MINUTE_MS);
   const todayKey = now ? mexicoDateKey(now) : undefined;
 
-  const openTasks = tasks.filter((task) => task.status === "open");
-  const doneTasks = tasks.filter((task) => task.status === "done");
+  const matches = (task: Task) => task.title.toLocaleLowerCase("es-MX").includes(query.trim().toLocaleLowerCase("es-MX"));
+  const openTasks = tasks.filter((task) => task.status === "open" && matches(task));
+  const doneTasks = tasks.filter((task) => task.status === "done" && matches(task));
   const actionsDisabled = busyId !== null || saving;
   const totalLabel =
     totalCount > tasks.length
@@ -254,7 +263,7 @@ export function TasksPanel({
     if (!root) return;
     const element = Array.from(
       root.querySelectorAll<HTMLElement>("[data-focus]"),
-    ).find((node) => node.dataset.focus === focusTarget);
+    ).find((node) => node.dataset.focus === focusTarget && node.getClientRects().length > 0);
     if (element) {
       element.focus();
       setFocusTarget(null);
@@ -485,8 +494,20 @@ export function TasksPanel({
       ref={rootRef}
       id="mc-pend-tareas"
       className="mc-op-panel mc-pend-tasks"
+      data-native-tab={nativeTab}
       aria-labelledby={headingId}
     >
+      <div className="mc-pend-native-toolbar">
+        <div className="mc-pend-native-tabs" aria-label="Estado de tareas">
+          <button type="button" aria-pressed={nativeTab === "today"} onClick={() => setNativeTab("today")}><CalendarDays aria-hidden="true" />Hoy</button>
+          <button type="button" aria-pressed={nativeTab === "done"} onClick={() => { setNativeTab("done"); setDoneOpen(true); }}><CircleCheck aria-hidden="true" />Completados</button>
+        </div>
+        <label className="mc-pend-native-search"><Search aria-hidden="true" /><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Buscar pendiente" aria-label="Buscar pendiente" /></label>
+        <section className="mc-pend-native-summary" aria-label="Resumen de pendientes">
+          <Image src={nativeTasksArt} alt="" aria-hidden="true" sizes="140px" />
+          <div><h2>Pendientes de hoy</h2><div className="mc-pend-native-totals"><p><CircleCheck aria-hidden="true" /><strong>{tasks.filter(task => task.status === "open").length}</strong><span>tareas abiertas</span></p><p><Coins aria-hidden="true" /><strong>{formatMxn(pendingCents)}</strong><span>por cobrar</span></p></div></div>
+        </section>
+      </div>
       <div className="mc-pend-panel-head">
         <span className="mc-pend-medallion mc-pend-medallion--green">
           <Image
@@ -1008,6 +1029,7 @@ export function TasksPanel({
             )}
           </div>
         </section>
+        {!formOpen ? <button type="button" onClick={openForm} className="mc-pend-native-create mc-pend-cta" data-focus="create"><Plus aria-hidden="true" />Nuevo pendiente</button> : null}
       </div>
     </section>
   );
