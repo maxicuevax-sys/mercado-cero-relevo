@@ -39,7 +39,7 @@ Recomendado: **Tailscale** (cliente) + **Headscale** (control server open source
 
 ## 3. Repo y worktrees
 ```powershell
-gh repo clone <ORG>/mercado-cero C:\dev\mercado-cero
+gh repo clone maxicuevax-sys/mercado-cero-relevo C:\dev\mercado-cero
 cd C:\dev\mercado-cero
 git remote -v
 git worktree add ..\mercado-cero-diego\<task> -b diego/<task> origin/main
