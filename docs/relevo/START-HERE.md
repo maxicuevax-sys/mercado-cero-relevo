@@ -1,9 +1,9 @@
-# START HERE — Diego
+﻿# START HERE â€” Diego
 
-Bienvenido a **Mercado Cero / Operación Relevo**. Esto es lo que tienes que instalar y hacer para quedar dentro de la infraestructura, con tu propia identidad y sin tocar producción.
+Bienvenido a **Mercado Cero / OperaciÃ³n Relevo**. Esto es lo que tienes que instalar y hacer para quedar dentro de la infraestructura, con tu propia identidad y sin tocar producciÃ³n.
 
 ## 1. Acepta las invitaciones
-- Código: https://github.com/maxicuevax-sys/mercado-cero-relevo
+- CÃ³digo: https://github.com/maxicuevax-sys/mercado-cero-relevo
 - Refs/evidencia (LFS): https://github.com/maxicuevax-sys/mercado-cero-refs
 
 No compartas tokens; usa tu cuenta `diegoalva99`.
@@ -20,11 +20,11 @@ gh auth login
 ```
 macOS/Linux equivalentes con `brew`/`apt`; el prompt de abajo detecta el OS.
 
-También necesitas:
+TambiÃ©n necesitas:
 - **DSH Desktop** con tu propio perfil/`DSH_HOME`.
 - **OpenCode** con tu propia cuenta/modelo.
 - **Docker** opcional.
-- **No** necesitas la DB de producción, `.env` real, claves de A/B ni el bridge abierto.
+- **No** necesitas la DB de producciÃ³n, `.env` real, claves de A/B ni el bridge abierto.
 
 ## 3. Clona
 ```powershell
@@ -43,21 +43,21 @@ Dile a tu agente:
 > Sigue `docs/relevo/DIEGO-OPENCODE-ONBOARDING.md` al pie de la letra. Instala, conecta y entrega `DIEGO-ONBOARDING-REPORT.md`. No merge/push a main; no toques 4497; no compartas secretos. Pausa y pregunta por UAC/accesos que falten.
 
 ## 5. Red y accesos
-- Tailscale/Headscale: únete a la tailnet con tu dispositivo; el Lead te agrega a la ACL de **solo lectura 4497** y a tu propio 4600.
+- Tailscale/Headscale: Ãºnete a la tailnet con tu dispositivo; el Lead te agrega a la ACL de **solo lectura 4497** y a tu propio 4600.
 - HumanLayer: se conecta en staging cuando el Lead lo levante.
 - GitHub: trabaja en `diego/<tarea>`, abre PR, nunca merge.
 
-## 6. Verificación mínima
+## 6. VerificaciÃ³n mÃ­nima
 ```powershell
 cd C:\dev\mercado-cero-diego\onboarding\web
-# .env.local con valores DEMO, nunca producción
+# .env.local con valores DEMO, nunca producciÃ³n
 npm ci
 npm run build
 npm run dev -- -p 4600
 ```
 - Smoke de las 18 rutas.
-- `relevo-ref verify` → 31/31.
-- `relevo-attention gate` → PASS.
+- `relevo-ref verify` â†’ 31/31.
+- `relevo-attention gate` â†’ PASS.
 - Abre PR; no merge.
 
 ## 7. Reglas duras
@@ -65,6 +65,7 @@ npm run dev -- -p 4600
 - `demo_paid`; nunca `paid` sin webhook firmado.
 - No tocar 4497 ni el bridge abierto.
 - Un writer por worktree.
-- Ref exacta `DEFINITIVE`; sin “parecido”.
+- Ref exacta `DEFINITIVE`; sin â€œparecidoâ€.
 
-Cualquier bloqueo: issue https://github.com/maxicuevax-sys/mercado-cero-relevo/issues/1 o ping al Lead.
+Cualquier bloqueo: issue https://github.com/maxicuevax-sys/mercado-cero-relevo/issues/2 o ping al Lead.
+
