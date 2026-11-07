@@ -302,7 +302,11 @@ textarea[aria-invalid="true"] {
   }
 
   body {
-    overflow: hidden;
+    /* El shell nuevo (.inicio-shell) usa scroll de documento. El shell
+       clásico sigue scrolleando dentro de .app-main. */
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: auto;
   }
 
   .app-shell {
