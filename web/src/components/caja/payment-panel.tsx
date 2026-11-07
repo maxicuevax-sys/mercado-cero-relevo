@@ -143,6 +143,29 @@ export function PaymentPanel({
     }
   }
 
+  async function shareQr() {
+    try {
+      if (order.qrImage && navigator.share && navigator.canShare) {
+        const response = await fetch(order.qrImage);
+        if (!response.ok) throw new Error("QR no disponible");
+        const blob = await response.blob();
+        const file = new File([blob], `qr-${demo ? "DEMO-" : ""}${order.id}.png`, { type: blob.type });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], text: demo ? "DEMO · sin dinero real" : "QR de cobro · pendiente hasta confirmación de pey" });
+          return;
+        }
+      }
+      const text = order.qrString || order.paymentUrl;
+      if (!text) throw new Error("Genera el QR antes de compartirlo.");
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch (caught) {
+      if (caught instanceof DOMException && caught.name === "AbortError") return;
+      setError("No se pudo compartir el QR. Puedes mostrarlo en esta pantalla o generar un link de cobro.");
+    }
+  }
+
   return (
     <section className={`mc-caja-card mc-caja-payment${!money.hasReceived && !money.openCredit ? " mc-payment-only-digital" : ""}`} aria-labelledby="mc-caja-payment-title">
       <div className="mc-qr-tabs" aria-label="Opciones QR"><span><QrCode aria-hidden="true" />Pago QR</span><button type="button" onClick={() => setScanNotice(!scanNotice)} aria-expanded={scanNotice}><ScanLine aria-hidden="true" />Escanear</button></div>
@@ -205,7 +228,7 @@ export function PaymentPanel({
         </figure>
       ) : null}
 
-      {order.paymentUrl ? <button type="button" className="mc-caja-button mc-caja-button--secondary mc-qr-share" onClick={() => void copyLink()}><Share2 aria-hidden="true" />{copied ? "Compartir QR · link copiado" : "Compartir QR"}</button> : null}
+      {order.qrImage || order.paymentUrl ? <button type="button" className="mc-caja-button mc-caja-button--secondary mc-qr-share" onClick={() => void shareQr()}><Share2 aria-hidden="true" />{copied ? "Compartir QR · código copiado" : "Compartir QR"}</button> : null}
       {order.paymentUrl ? (
         <div className="mc-caja-link">
           <p>Link de cobro</p>
@@ -252,7 +275,7 @@ export function PaymentPanel({
         ) : null}
         <button
           type="button"
-          className="mc-caja-button mc-caja-button--secondary"
+          className="mc-caja-button mc-caja-button--primary mc-payment-refresh"
           onClick={() => void refresh()}
           disabled={busy !== null}
         >

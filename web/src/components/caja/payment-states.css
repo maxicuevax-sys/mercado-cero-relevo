@@ -41,11 +41,12 @@
   .mc-caja-payment .mc-caja-qr img { width: min(100%, 250px); height: auto; margin-inline: auto; }
   .mc-caja-payment > .mc-payment-total { order: -2; }
   .mc-caja-payment > .mc-qr-state { order: -1; }
-  .mc-caja-payment__actions { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .mc-caja-shell .mc-caja-payment .mc-caja-payment__actions { display: flex; flex-direction: column; gap: 10px; }
+  .mc-caja-shell .mc-caja-payment .mc-payment-refresh { order: -1; }
   .mc-payment-total { padding: 12px; gap: 8px; }
   .mc-payment-total > span:last-child { font-size: 1.7rem; }
   .mc-caja-result { padding: 12px; background: transparent; }
-  .mc-caja-result__facts { display: block; border: 1px solid var(--color-separator); border-radius: 16px; overflow: hidden; }
+  .mc-caja-shell .mc-caja-result .mc-caja-result__facts { display: block; border: 1px solid var(--color-separator); border-radius: 16px; overflow: hidden; }
   .mc-caja-result__facts > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-radius: 0; border-bottom: 1px solid var(--color-separator); padding: 12px; }
   .mc-caja-result__facts > div:last-child { border-bottom: 0; }
   .mc-caja-result__facts dd { text-align: right; }
