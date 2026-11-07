@@ -3,17 +3,17 @@
 
 .mc-flow {
   --fx-u: clamp(0.76px, 0.2564102564vw, 1px);
-  --fx-green: #0c4133;
-  --fx-green-2: #128a4e;
-  --fx-paper: #fdf5ea;
-  --fx-card: #fff9f0;
-  --fx-line: #e4dac3;
-  --fx-soft: #eaf3e1;
-  --fx-soft-2: #dcebcc;
-  --fx-ink: #1e1f1a;
-  --fx-muted: #6e7468;
+  --fx-green: #0f172a;
+  --fx-green-2: #1e293b;
+  --fx-paper: #f8fafc;
+  --fx-card: #ffffff;
+  --fx-line: #e2e8f0;
+  --fx-soft: #f1f5f9;
+  --fx-soft-2: #e2e8f0;
+  --fx-ink: #0f172a;
+  --fx-muted: #64748b;
   --fx-attention: #bd2c16;
-  --fx-saffron: #f2c768;
+  --fx-saffron: #cbd5e1;
   color: var(--fx-ink);
 }
 
@@ -29,13 +29,13 @@
   }
 
   .inicio-shell:has(.mc-flow) .inicio-main {
-    background: #0c4133;
+    background: #0f172a;
   }
 
   .inicio-shell:has(.mc-flow) .inicio-main > main {
     padding: 0;
     border-radius: 0;
-    background: #0c4133;
+    background: #0f172a;
   }
 
   .mc-flow :is(a, button, input):focus-visible {
@@ -52,8 +52,8 @@
     gap: calc(10 * var(--fx-u, 1px));
     padding: max(env(safe-area-inset-top), calc(20 * var(--fx-u, 1px)))
       calc(20 * var(--fx-u, 1px)) 0;
-    background: var(--fx-green, #0c4133);
-    color: var(--fx-paper, #fdf5ea);
+    background: var(--fx-green, #0f172a);
+    color: var(--fx-paper, #ffffff);
   }
 
   .mc-fiadosbar__brand {
@@ -119,8 +119,8 @@
     aspect-ratio: 1;
     place-items: center;
     border-radius: 50%;
-    background: #dce9d2;
-    color: var(--fx-green, #0c4133);
+    background: #e2e8f0;
+    color: var(--fx-green, #0f172a);
     font-size: clamp(0.72rem, 3.6vw, 0.875rem);
     font-weight: 800;
   }

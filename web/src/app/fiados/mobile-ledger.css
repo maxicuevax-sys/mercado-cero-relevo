@@ -9,7 +9,7 @@
 @media (max-width: 767.98px) {
   #fiados-main.mc-fiados-page {
     padding: 0;
-    background: #0c4133;
+    background: #0f172a;
   }
 
   #fiados-main > .mc-op-header,
@@ -26,12 +26,12 @@
 
   .mc-fiados-mobile {
     --fi-u: clamp(.76px, .2564102564vw, 1px);
-    --fi-green: #0c4133;
-    --fi-paper: #fdf5ea;
-    --fi-card: #fff9f0;
-    --fi-line: #e4dac3;
-    --fi-ink: #1e1f1a;
-    --fi-muted: #6e7468;
+    --fi-green: #0f172a;
+    --fi-paper: #f8fafc;
+    --fi-card: #ffffff;
+    --fi-line: #e2e8f0;
+    --fi-ink: #0f172a;
+    --fi-muted: #64748b;
     --fi-nav-height: calc(55 * var(--fi-u) + env(safe-area-inset-bottom));
     display: flex;
     min-height: 100svh;
@@ -317,7 +317,7 @@
     margin-top: calc(11 * var(--fi-u));
     overflow: hidden;
     border-radius: calc(13 * var(--fi-u));
-    background: #e7ebd6;
+    background: #f1f5f9;
   }
 
   .mc-fiados-mobile__total img {

@@ -1,9 +1,9 @@
 /* Mobile reference surface. Voice requests, review and recording remain in SaleVoice. */
 @media (max-width: 760px) {
   .mc-caja-shell .mc-sale-voice {
-    --sale-voice-green: #0c4133;
-    --sale-voice-paper: #fffaf0;
-    --sale-voice-border: #e4dac3;
+    --sale-voice-green: #0f172a;
+    --sale-voice-paper: #ffffff;
+    --sale-voice-border: #e2e8f0;
     min-width: 0;
     margin-bottom: 0;
   }
@@ -97,7 +97,7 @@
     padding: 7px 10px;
     border: 1px solid var(--sale-voice-border);
     border-radius: 20px;
-    background: #f0efda;
+    background: #f1f5f9;
     color: #1e1f1a;
     font-size: 11px;
     font-weight: 600;
@@ -105,11 +105,11 @@
   }
   .mc-caja-shell .mc-sale-voice__chip img,
   .mc-caja-shell .mc-sale-voice__chip svg { flex: 0 0 20px; width: 20px; height: 20px; object-fit: contain; }
-  .mc-caja-shell .mc-sale-voice__phrases .mc-sale-voice__chip--jitomate { background: #eef0dc; }
-  .mc-caja-shell .mc-sale-voice__phrases .mc-sale-voice__chip--huevo { background: #f3efdc; }
-  .mc-caja-shell .mc-sale-voice__phrases .mc-sale-voice__chip--more { background: #dce9d2; }
+  .mc-caja-shell .mc-sale-voice__phrases .mc-sale-voice__chip--jitomate { background: #f1f5f9; }
+  .mc-caja-shell .mc-sale-voice__phrases .mc-sale-voice__chip--huevo { background: #f1f5f9; }
+  .mc-caja-shell .mc-sale-voice__phrases .mc-sale-voice__chip--more { background: #e2e8f0; }
   .mc-caja-shell .mc-sale-voice__chip--more svg { border-radius: 50%; background: var(--sale-voice-green); color: #fff; padding: 3px; }
-  .mc-caja-shell .mc-sale-voice__phrases button:hover:not(:disabled) { background: #dce9d2; }
+  .mc-caja-shell .mc-sale-voice__phrases button:hover:not(:disabled) { background: #e2e8f0; }
 
   .mc-caja-shell .mc-sale-voice__actions:not(.mc-sale-voice__actions--idle) { margin-top: 8px; }
   .mc-caja-shell .mc-sale-voice__error,

@@ -2,17 +2,17 @@
    No importar tokens globales aquí: el shell de Caja tiene su propio lenguaje. */
 
 .inicio-shell {
-  --inicio-paper: #fbf3e7;
-  --inicio-surface: #fdf3e4;
-  --inicio-green: #004b3c;
-  --inicio-green-deep: #003f31;
-  --inicio-ink: #1d241f;
-  --inicio-ink-2: #4d5851;
-  --inicio-clay: #b33d24;
-  --inicio-maize: #f2c768;
-  --inicio-border: #e5d6c3;
-  --inicio-border-soft: #ede1d1;
-  --inicio-focus: #004b3c;
+  --inicio-paper: #f8fafc;
+  --inicio-surface: #ffffff;
+  --inicio-green: #0f172a;
+  --inicio-green-deep: #1e293b;
+  --inicio-ink: #0f172a;
+  --inicio-ink-2: #475569;
+  --inicio-clay: #b91c1c;
+  --inicio-maize: #cbd5e1;
+  --inicio-border: #e2e8f0;
+  --inicio-border-soft: #f1f5f9;
+  --inicio-focus: #0f172a;
 
   min-height: 100dvh;
   display: grid;
@@ -66,7 +66,7 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgb(255 253 247 / 0.35) transparent;
-  background: linear-gradient(180deg, #064b3e 0%, var(--inicio-green-deep) 100%);
+  background: linear-gradient(180deg, #0f172a 0%, var(--inicio-green-deep) 100%);
   color: #fffdf7;
 }
 
@@ -150,8 +150,8 @@
 }
 
 .inicio-nav__item[aria-current="page"] {
-  background: #fff0d2;
-  color: var(--inicio-green);
+  background: #334155;
+  color: #ffffff;
   font-weight: 700;
 }
 
@@ -173,8 +173,8 @@
 }
 
 .inicio-nav__item[aria-current="page"] .inicio-nav__legacy {
-  border-color: color-mix(in srgb, var(--inicio-green) 35%, transparent);
-  color: var(--inicio-green);
+  border-color: rgb(255 255 255 / 0.5);
+  color: #ffffff;
 }
 
 .inicio-sidebar__foot {
@@ -213,7 +213,7 @@
   justify-content: space-between;
   gap: 20px;
   padding: 0 30px;
-  background: #fbefe2;
+  background: #ffffff;
   border-bottom: 1px solid var(--inicio-border-soft);
 }
 
@@ -270,7 +270,7 @@
   padding: 4px 9px;
   border: 1.5px solid var(--inicio-clay);
   border-radius: 6px;
-  background: #fff3e7;
+  background: #fef2f2;
   color: var(--inicio-clay);
   font-size: 0.6875rem;
   font-weight: 800;
@@ -550,11 +550,11 @@
 }
 .inicio-kpi__top { display: flex; align-items: center; gap: 10px; font-size: 0.9375rem; font-weight: 600; line-height: 1.3; }
 /* Medianas del fondo de los medallones del canon1448 (sin trazo del icono). */
-.inicio-kpi__icon { width: 32px; height: 32px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 10px; background: #e5ebb6; color: #0a5039; }
+.inicio-kpi__icon { width: 32px; height: 32px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 10px; background: #f1f5f9; color: #0f172a; }
 .inicio-kpi__glyph { width: 20px; height: 20px; object-fit: contain; }
-.inicio-kpi:nth-child(2) .inicio-kpi__icon { background: #fde4b1; color: #725012; }
-.inicio-kpi:nth-child(3) .inicio-kpi__icon { background: #fde4b2; color: #725012; }
-.inicio-kpi:nth-child(4) .inicio-kpi__icon { background: #fde1ca; color: #c1492e; }
+.inicio-kpi:nth-child(2) .inicio-kpi__icon { background: #f1f5f9; color: #0f172a; }
+.inicio-kpi:nth-child(3) .inicio-kpi__icon { background: #f1f5f9; color: #0f172a; }
+.inicio-kpi:nth-child(4) .inicio-kpi__icon { background: #fee2e2; color: #991b1b; }
 .inicio-kpi__value {
   margin-top: 14px;
   font-family: var(--font-alder), sans-serif;
@@ -566,7 +566,7 @@
   color: var(--inicio-ink);
 }
 .inicio-kpi__note { margin-top: 7px; font-size: 0.8125rem; line-height: 1.4; color: var(--inicio-ink-2); }
-.inicio-goal { height: 8px; margin-top: 10px; border-radius: 999px; background: #efe4d2; overflow: hidden; }
+.inicio-goal { height: 8px; margin-top: 10px; border-radius: 999px; background: #e2e8f0; overflow: hidden; }
 .inicio-goal span { display: block; height: 100%; border-radius: inherit; background: var(--inicio-green); }
 .inicio-hero {
   grid-area: hero;
@@ -582,7 +582,7 @@
 .inicio-hero__art { display: block; width: 100%; height: auto; align-self: end; object-fit: contain; object-position: left bottom; }
 .inicio-hero__content { min-width: 0; padding: 24px 20px 24px 8px; }
 .inicio-hero h2 { font-family: var(--font-hearth), Georgia, serif; font-size: clamp(1.75rem, 4cqi, 2.375rem); font-weight: 600; line-height: 1.1; letter-spacing: -0.035em; overflow-wrap: anywhere; }
-.inicio-hero p { margin-top: 10px; max-width: 24ch; font-size: 1rem; line-height: 1.4; color: #dce9df; }
+.inicio-hero p { margin-top: 10px; max-width: 24ch; font-size: 1rem; line-height: 1.4; color: #cbd5e1; }
 .inicio-hero__cta {
   display: inline-flex;
   align-items: center;
@@ -593,7 +593,7 @@
   margin-top: 18px;
   padding: 12px 20px;
   border-radius: 12px;
-  background: #fff0d2;
+  background: #f1f5f9;
   color: var(--inicio-green);
   font-size: 1rem;
   font-weight: 700;
@@ -614,7 +614,7 @@
 .inicio-task__check--done { position: relative; border-color: var(--inicio-green); background: var(--inicio-green); }
 .inicio-task__check--done::after { content: "\2713"; position: absolute; inset: 0; display: grid; place-items: center; color: #fffdf7; font-size: 0.875rem; font-weight: 800; line-height: 1; }
 .inicio-task__title { min-width: 0; flex: 1 1 8rem; overflow-wrap: anywhere; }
-.inicio-task__badge { flex: 0 0 auto; padding: 2px 7px; border: 1px solid #d9a98f; border-radius: 999px; background: #fff4e9; color: #8f2d1c; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.02em; line-height: 1.4; }
+.inicio-task__badge { flex: 0 0 auto; padding: 2px 7px; border: 1px solid #fecaca; border-radius: 999px; background: #fef2f2; color: #991b1b; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.02em; line-height: 1.4; }
 .inicio-task__time { flex: 0 0 auto; font-size: 0.8125rem; color: var(--inicio-ink-2); font-variant-numeric: tabular-nums; }
 .inicio-pending__empty { margin-top: 18px; font-size: 1rem; line-height: 1.45; color: var(--inicio-ink-2); }
 .inicio-pending__fixture { margin-top: 8px; font-size: 0.8125rem; line-height: 1.4; color: #8f2d1c; }
@@ -901,7 +901,7 @@
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-brand { padding: 4px 0 17px; border: 0; }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-brand__name { font: 700 min(2.5rem, 40px)/0.94 Georgia, serif; }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item { min-height: 58px; gap: 24px; padding-inline: 22px; border-radius: 20px; font-size: 1.375rem; }
-  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item[aria-current="page"] { background: #ffe8bf; color: var(--inicio-ink); }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item[aria-current="page"] { background: #334155; color: #ffffff; }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item[aria-current="page"] .inicio-nav__icon { color: var(--inicio-green); }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-sidebar__foot { margin-top: 23px; padding-top: 3px; }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-sidebar__foot::before {

@@ -5,18 +5,18 @@
 
 .onb-shell {
   --onb-scale: 1;
-  --onb-green: #073f35;
-  --onb-green-deep: #052f28;
-  --onb-paper: #fbf3e7;
-  --onb-paper-2: #f6ead8;
-  --onb-surface: #fffaf1;
-  --onb-ink: #1f2622;
-  --onb-ink-2: #4d5851;
-  --onb-border: #d8c7b1;
-  --onb-border-strong: #8a735d;
-  --onb-clay: #c1492e;
-  --onb-maize: #e5a91f;
-  --onb-focus: #0e6f5a;
+  --onb-green: #0f172a;
+  --onb-green-deep: #1e293b;
+  --onb-paper: #f8fafc;
+  --onb-paper-2: #f1f5f9;
+  --onb-surface: #ffffff;
+  --onb-ink: #0f172a;
+  --onb-ink-2: #475569;
+  --onb-border: #e2e8f0;
+  --onb-border-strong: #94a3b8;
+  --onb-clay: #b91c1c;
+  --onb-maize: #cbd5e1;
+  --onb-focus: #0f172a;
 
   min-height: 100dvh;
   height: 100dvh;

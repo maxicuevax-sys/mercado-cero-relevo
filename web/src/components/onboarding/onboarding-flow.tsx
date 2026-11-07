@@ -126,7 +126,7 @@ function CheckBurst() {
       <path
         d="M102 131l19 20 39-42"
         fill="none"
-        stroke="#fbf3e7"
+        stroke="#ffffff"
         strokeWidth="15"
         strokeLinecap="round"
         strokeLinejoin="round"

@@ -26,9 +26,9 @@
 @media (max-width: 760px) {
   .mc-caja-shell .mc-caja-items {
     padding: 0 8px;
-    border: 1px solid #e4dac3;
+    border: 1px solid #e2e8f0;
     border-radius: 14px;
-    background: #fff9f0;
+    background: #ffffff;
     box-shadow: none;
   }
 
@@ -62,7 +62,7 @@
     min-height: 60px;
     padding: 8px 0;
     border: 0;
-    border-bottom: 1px solid #e4dac3;
+    border-bottom: 1px solid #e2e8f0;
     border-radius: 0;
     background: transparent;
   }
@@ -125,7 +125,7 @@
     grid-template-columns: 24px minmax(0, 1fr) 24px;
     align-items: center;
     min-height: 32px;
-    border: 1px solid #e4dac3;
+    border: 1px solid #cbd5e1;
     border-radius: 18px;
   }
   .mc-caja-shell .mc-caja-line__step {
@@ -137,7 +137,7 @@
     border: 0;
     border-radius: 16px;
     background: transparent;
-    color: #0c4133;
+    color: #0f172a;
     font-size: 1.25rem;
     line-height: 1;
     cursor: pointer;
@@ -188,7 +188,7 @@
     width: 28px;
     height: 28px;
     padding: 4px;
-    border: 1px solid #e4dac3;
+    border: 1px solid #cbd5e1;
     border-radius: 9px;
     color: #1e1f1a;
   }
@@ -200,7 +200,7 @@
     overflow-wrap: anywhere;
   }
   .mc-caja-shell .mc-caja-line :is(button, input, textarea):focus-visible {
-    outline: 2px solid #0c4133;
+    outline: 2px solid #0f172a;
     outline-offset: 2px;
   }
 }

@@ -1,13 +1,13 @@
 /* Estados A con ruta propia. Geometría nativa 941 y adaptación a 390. */
 .mc-flow {
-  --flow-green: #0c4133;
-  --flow-paper: #fdf5ea;
-  --flow-card: #fff9f0;
-  --flow-line: #e4dac3;
-  --flow-ink: #1e1f1a;
-  --flow-muted: #6e7468;
-  --flow-clay: #b33d24;
-  --flow-soft: #e7ebd6;
+  --flow-green: #0f172a;
+  --flow-paper: #f8fafc;
+  --flow-card: #ffffff;
+  --flow-line: #e2e8f0;
+  --flow-ink: #0f172a;
+  --flow-muted: #64748b;
+  --flow-clay: #b91c1c;
+  --flow-soft: #f1f5f9;
   --flow-nav: 96px;
   min-height: 100dvh;
   background: var(--flow-green);
