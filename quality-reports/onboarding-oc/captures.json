@@ -1,0 +1,274 @@
+{
+  "route": "/onboarding",
+  "baseUrl": "http://localhost:4498",
+  "source": "references/DEFINITIVE/mobile/onboarding_0*.png",
+  "generatedAt": "2026-11-06T21:57:13.390026-06:00",
+  "results": [
+    {
+      "viewport": "390x693",
+      "shots": [
+        {
+          "shot": "quality-reports\\onboarding-oc\\onboarding_01_bienvenida_390x693.png",
+          "title": "Tu negocio,más claro,más libre.",
+          "stepLabel": "Paso 1 de 4: Bienvenida",
+          "viewport": {
+            "width": 390,
+            "height": 693
+          },
+          "horizontalOverflow": false,
+          "shellOverflow": false,
+          "progressBottom": 677,
+          "ctaBottom": 566,
+          "progressVisible": true,
+          "ctaVisible": true,
+          "dots": 4,
+          "heading": "Tu negocio,más claro,más libre."
+        },
+        {
+          "shot": "quality-reports\\onboarding-oc\\onboarding_02_negocio_390x693.png",
+          "title": "Conozcamostu negocio",
+          "stepLabel": "Paso 2 de 4: Conozcamos tu negocio",
+          "viewport": {
+            "width": 390,
+            "height": 693
+          },
+          "horizontalOverflow": false,
+          "shellOverflow": false,
+          "progressBottom": 677,
+          "ctaBottom": 624,
+          "progressVisible": true,
+          "ctaVisible": true,
+          "dots": 4,
+          "heading": "Conozcamostu negocio"
+        },
+        {
+          "shot": "quality-reports\\onboarding-oc\\onboarding_03_primera_venta_390x693.png",
+          "title": "Hagamos tuprimera venta",
+          "stepLabel": "Paso 3 de 4: Primera venta de ejemplo",
+          "viewport": {
+            "width": 390,
+            "height": 693
+          },
+          "horizontalOverflow": false,
+          "shellOverflow": false,
+          "progressBottom": 677,
+          "ctaBottom": 622,
+          "progressVisible": true,
+          "ctaVisible": true,
+          "dots": 4,
+          "heading": "Hagamos tuprimera venta"
+        },
+        {
+          "shot": "quality-reports\\onboarding-oc\\onboarding_04_listo_390x693.png",
+          "title": "¡Listo!",
+          "stepLabel": "Paso 4 de 4: Listo",
+          "viewport": {
+            "width": 390,
+            "height": 693
+          },
+          "horizontalOverflow": false,
+          "shellOverflow": false,
+          "progressBottom": 677,
+          "ctaBottom": 626,
+          "progressVisible": true,
+          "ctaVisible": true,
+          "dots": 4,
+          "heading": "¡Listo!"
+        }
+      ],
+      "profile": {
+        "version": 1,
+        "name": "Antojitos de Lupita",
+        "giro": "Comida / Antojitos",
+        "sampleSale": {
+          "id": "onboarding-demo-1794023821935",
+          "description": "2 quesadillas",
+          "quantity": 2,
+          "unitCents": 3500,
+          "totalCents": 7000,
+          "kind": "onboarding-demo",
+          "demo": true,
+          "createdAt": "2026-11-07T03:57:01.935Z"
+        },
+        "completedAt": "2026-11-07T03:57:01.935Z",
+        "updatedAt": "2026-11-07T03:57:01.935Z"
+      },
+      "profileKey": "mercado-cero:onboarding:v1",
+      "persistedAfterReload": {
+        "name": "Antojitos de Lupita",
+        "giro": "Comida / Antojitos"
+      },
+      "validation": {
+        "stillStep2": true,
+        "alert": "Escribe el nombre de tu negocio para continuar."
+      },
+      "back": {
+        "returnedToStep2": true,
+        "name": "Antojitos de Lupita"
+      },
+      "focusAfterNext": {
+        "tag": "H1",
+        "text": "Conozcamostu negocio"
+      },
+      "touchTargets": [
+        {
+          "label": "Registrar otra venta",
+          "height": 55
+        },
+        {
+          "label": "Revisar mis fiados",
+          "height": 55
+        },
+        {
+          "label": "Ver mi corte del día",
+          "height": 55
+        },
+        {
+          "label": "Ir a mi negocio",
+          "height": 52
+        }
+      ],
+      "finalLinks": [
+        "/caja",
+        "/fiados",
+        "/corte",
+        "/inicio"
+      ],
+      "apiRequests": [],
+      "demoNotPaid": true
+    },
+    {
+      "viewport": "941x1672",
+      "shots": [
+        {
+          "shot": "quality-reports\\onboarding-oc\\onboarding_01_bienvenida_941x1672.png",
+          "title": "Tu negocio,más claro,más libre.",
+          "stepLabel": "Paso 1 de 4: Bienvenida",
+          "viewport": {
+            "width": 941,
+            "height": 1672
+          },
+          "horizontalOverflow": false,
+          "shellOverflow": true,
+          "progressBottom": 1654,
+          "ctaBottom": 1518,
+          "progressVisible": true,
+          "ctaVisible": true,
+          "dots": 4,
+          "heading": "Tu negocio,más claro,más libre."
+        },
+        {
+          "shot": "quality-reports\\onboarding-oc\\onboarding_02_negocio_941x1672.png",
+          "title": "Conozcamostu negocio",
+          "stepLabel": "Paso 2 de 4: Conozcamos tu negocio",
+          "viewport": {
+            "width": 941,
+            "height": 1672
+          },
+          "horizontalOverflow": false,
+          "shellOverflow": true,
+          "progressBottom": 1651,
+          "ctaBottom": 1599,
+          "progressVisible": true,
+          "ctaVisible": true,
+          "dots": 4,
+          "heading": "Conozcamostu negocio"
+        },
+        {
+          "shot": "quality-reports\\onboarding-oc\\onboarding_03_primera_venta_941x1672.png",
+          "title": "Hagamos tuprimera venta",
+          "stepLabel": "Paso 3 de 4: Primera venta de ejemplo",
+          "viewport": {
+            "width": 941,
+            "height": 1672
+          },
+          "horizontalOverflow": false,
+          "shellOverflow": false,
+          "progressBottom": 1634,
+          "ctaBottom": 1575,
+          "progressVisible": true,
+          "ctaVisible": true,
+          "dots": 4,
+          "heading": "Hagamos tuprimera venta"
+        },
+        {
+          "shot": "quality-reports\\onboarding-oc\\onboarding_04_listo_941x1672.png",
+          "title": "¡Listo!",
+          "stepLabel": "Paso 4 de 4: Listo",
+          "viewport": {
+            "width": 941,
+            "height": 1672
+          },
+          "horizontalOverflow": false,
+          "shellOverflow": false,
+          "progressBottom": 1634,
+          "ctaBottom": 1527,
+          "progressVisible": true,
+          "ctaVisible": true,
+          "dots": 4,
+          "heading": "¡Listo!"
+        }
+      ],
+      "profile": {
+        "version": 1,
+        "name": "Antojitos de Lupita",
+        "giro": "Comida / Antojitos",
+        "sampleSale": {
+          "id": "onboarding-demo-1794023831171",
+          "description": "2 quesadillas",
+          "quantity": 2,
+          "unitCents": 3500,
+          "totalCents": 7000,
+          "kind": "onboarding-demo",
+          "demo": true,
+          "createdAt": "2026-11-07T03:57:11.171Z"
+        },
+        "completedAt": "2026-11-07T03:57:11.171Z",
+        "updatedAt": "2026-11-07T03:57:11.171Z"
+      },
+      "profileKey": "mercado-cero:onboarding:v1",
+      "persistedAfterReload": {
+        "name": "Antojitos de Lupita",
+        "giro": "Comida / Antojitos"
+      },
+      "validation": {
+        "stillStep2": true,
+        "alert": "Escribe el nombre de tu negocio para continuar."
+      },
+      "back": {
+        "returnedToStep2": true,
+        "name": "Antojitos de Lupita"
+      },
+      "focusAfterNext": {
+        "tag": "H1",
+        "text": "Conozcamostu negocio"
+      },
+      "touchTargets": [
+        {
+          "label": "Registrar otra venta",
+          "height": 126
+        },
+        {
+          "label": "Revisar mis fiados",
+          "height": 126
+        },
+        {
+          "label": "Ver mi corte del día",
+          "height": 126
+        },
+        {
+          "label": "Ir a mi negocio",
+          "height": 122
+        }
+      ],
+      "finalLinks": [
+        "/caja",
+        "/fiados",
+        "/corte",
+        "/inicio"
+      ],
+      "apiRequests": [],
+      "demoNotPaid": true
+    }
+  ]
+}
