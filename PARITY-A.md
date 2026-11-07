@@ -49,6 +49,7 @@ El build y los tres contratos solicitados se ejecutaron en el worktree aislado l
 - Demo-pay: **66 PASS / 0 FAIL**, en ?rbol limpio.
 - B.1 inicial: **67 PASS / 1 FAIL** (Inicio 768, scrollWidth 774). El offset fijo de la ilustraci?n exced?a en 6.25 px el padding escalado; corregido a la misma unidad relativa.
 - B.1 tras correcci?n: **68 PASS / 0 FAIL** en `00c9698`.
+- Contratos finales sobre `82b69f4`: seguridad **58/58**, demo-pay **66/66**, B.1 **68/68**, todos sin fallos. Build, `verify:static` **5/5** y verificador est?tico **PASS** en ese HEAD limpio. Los cambios siguientes son documentales, sin diferencias de c?digo de producto.
 - Gates finales y build: logs en el worktree aislado; `harness/evidence/latest-static.json` identifica el HEAD exacto validado. Ning?n resultado anterior se presenta como evidencia formal de un SHA posterior.
 
 La primera corrida `verify:fast` tuvo 3/3 puertas verdes pero fue inválida por árbol sucio y cambio de SHA durante la ejecución. Una corrida posterior `verify:static` 5/5 pasó en el worktree limpio sobre `a22271a`; no se usa como certificado del HEAD final. El `verify:static` y `verify:evidence -- --static` del HEAD documental final se conservan en el worktree aislado. No se ejecutó full: no se declara runtime/QR/pey real/iOS verificado.
@@ -77,4 +78,12 @@ Se capturaron las seis dimensiones nativas y los diez casos de tel?fono durante 
 
 Metadatos: [fixture-after.json](quality-reports/definitive-a/evidence/fixture-after.json). Comparaci?n descriptiva: [comparisons-fixture-after.json](quality-reports/definitive-a/evidence/comparisons-fixture-after.json). Cada pantalla nativa tiene `fixture-after-overlay-<ruta>-<ancho>x<alto>.png` y `fixture-after-diff-...png` junto a su captura. El default de comparaci?n de 4497 contin?a marcando after ausente como NO VERIFICADO.
 
-La inspecci?n del primer fixture confirm?: sidebar oculto y nav m?vil en las cuatro rutas A a 941; tres KPI y hero de una columna en Inicio; dos columnas de resumen y saldo verde en Corte. Encontr? cifra de resumen Metas partida y rayos de marca en otra l?nea: corregidos en `fd658df` antes de la verificaci?n final. El resto de faltantes del GAP permanece abierto. La primera imagen Pendientes mostr? header vac?o aunque el texto exist?a en DOM: se debe revisar la captura final; no se da por cerrado por una lectura de estilos.
+La inspecci?n del primer fixture confirm?: sidebar oculto y nav m?vil en las cuatro rutas A a 941; tres KPI y hero de una columna en Inicio; dos columnas de resumen y saldo verde en Corte. Encontr? cifra de resumen Metas partida y rayos de marca en otra l?nea: corregidos en `fd658df` antes de la verificaci?n final. El resto de faltantes del GAP permanece abierto. La lectura inicial del visor sugiri? incorrectamente un header vac?o en Pendientes. Se descart?: el PNG contiene 9,051 p?xeles claros en la regi?n del header, igual que Metas; la captura independiente y el hit-test muestran la marca y acciones. La prueba de posici?n/z-index no corrigi? ning?n fallo real y no se incorpor? al c?digo. Diagn?stico conservado en `pending-header-stack.json` y `diagnostic-pending-before.png`; la captura con CSS inyectado es solo diagn?stico, no evidencia de paridad.
+
+## Balance final de alcance
+
+- Fiados 390?693 antes: igualdad exacta con el canon; no se modific? su implementaci?n.
+- Inicio/Corte/Metas/Pendientes 941: shell m?vil comprobado en fixture Chromium, sin overflow. Inicio desktop: ajustes tipogr?ficos comprobados en fixture. Las seis capturas nativas finales fueron inspeccionadas; hay diferencias sustanciales de assets, copy y composici?n respecto del canon, descritas en GAP-A. No hay paridad total aprobada.
+- Se inspeccionaron las vistas de tel?fono del fixture. La comparaci?n conserva valores exactos de error por caso; los datos cambiantes de los contratos impiden afirmar igualdad general del estado.
+- 4497 sigue detenido por el rechazo de arranque. La validaci?n despu?s con su copia SQLite, y por tanto la paridad del candidato solicitado, contin?a NO VERIFICADA. 4496 se preserv?.
+- Informes y c?digo en commits locales; artefactos regenerables bajo `quality-reports/definitive-a/evidence/` permanecen locales. El manifiesto `ARTIFACTS.json` registra hashes y tama?os para comprobaci?n de archivos entregados.
