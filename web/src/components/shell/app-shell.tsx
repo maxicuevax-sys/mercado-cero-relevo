@@ -7,12 +7,31 @@ import { PreferencesBoot } from "./preferences-boot";
 import "./definitive-a.css";
 import "./reference-a2.css";
 import {
+  appNav,
   inicioFoot,
   inicioNav,
   mobileMore,
-  mobilePrimary,
   type ShellNavItem,
 } from "./nav";
+
+const gastosItem: ShellNavItem = {
+  ...appNav[4],
+  id: "gastos",
+  label: "Gastos",
+  href: "/corte",
+  ariaLabel: "Gastos del día",
+};
+
+function contextualMobilePrimary(activeHref: string): ShellNavItem[] {
+  const ctx = activeHref.startsWith("/fiados")
+    ? appNav[3]
+    : activeHref.startsWith("/metas")
+      ? appNav[5]
+      : gastosItem;
+
+  // Inicio · Ventas · Vender(+/Caja) · sección contextual
+  return [appNav[0], appNav[2], appNav[1], ctx];
+}
 
 export function AppShell({
   children,
@@ -23,7 +42,7 @@ export function AppShell({
   contentClassName = "inicio-content",
   nav = inicioNav,
   foot = inicioFoot,
-  mobilePrimaryItems = mobilePrimary,
+  mobilePrimaryItems,
   mobileMoreItems = mobileMore,
   focusTargetId,
 }: {
@@ -54,7 +73,7 @@ export function AppShell({
         </main>
       </div>
       <MobileNav
-        primary={mobilePrimaryItems}
+        primary={mobilePrimaryItems ?? contextualMobilePrimary(activeHref)}
         more={mobileMoreItems}
         activeHref={activeHref}
       />

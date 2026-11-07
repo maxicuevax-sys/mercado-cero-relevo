@@ -12,7 +12,7 @@ import { BrandLockup } from "@/components/shell/brand-lockup";
 import {
   cajaFoot,
   cajaMobileMore,
-  cajaMobilePrimary,
+  
   cajaNav,
 } from "@/components/shell/nav";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
@@ -806,7 +806,6 @@ export function CajaScreen({
       contentClassName="mc-caja"
       nav={cajaNav}
       foot={cajaFoot}
-      mobilePrimaryItems={cajaMobilePrimary}
       mobileMoreItems={cajaMobileMore}
       topbar={
         <><TopBar

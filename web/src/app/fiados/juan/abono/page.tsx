@@ -5,7 +5,6 @@ import { TopBar } from "@/components/shell/top-bar";
 import {
   operationalFoot,
   operationalMobileMore,
-  operationalMobilePrimary,
   operationalNav,
 } from "@/components/shell/nav";
 import { AbonoEmpty } from "@/components/fiados/abono/abono-empty";
@@ -55,7 +54,6 @@ export default async function AbonoPage({
         focusTargetId="abono-main"
         nav={operationalNav}
         foot={operationalFoot}
-        mobilePrimaryItems={operationalMobilePrimary}
         mobileMoreItems={operationalMobileMore}
         topbar={
           <TopBar
@@ -90,7 +88,6 @@ export default async function AbonoPage({
       focusTargetId="abono-main"
       nav={operationalNav}
       foot={operationalFoot}
-      mobilePrimaryItems={operationalMobilePrimary}
       mobileMoreItems={operationalMobileMore}
       topbar={
         <TopBar

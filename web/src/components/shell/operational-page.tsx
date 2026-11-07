@@ -6,7 +6,6 @@ import { TopBar } from "./top-bar";
 import {
   operationalFoot,
   operationalMobileMore,
-  operationalMobilePrimary,
   operationalNav,
 } from "./nav";
 import "./operational.css";
@@ -74,7 +73,6 @@ export function OperationalPage({
       contentClassName={`mc-op-main ${contentClassName}`.trim()}
       nav={operationalNav}
       foot={operationalFoot}
-      mobilePrimaryItems={operationalMobilePrimary}
       mobileMoreItems={operationalMobileMore}
       topbar={
         <TopBar
