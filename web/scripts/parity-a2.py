@@ -55,6 +55,14 @@ with sync_playwright() as p:
             page.add_style_tag(content="html {font-size:200% !important}")
             row["text200Overflow"] = page.evaluate("document.documentElement.scrollWidth > innerWidth")
             page.screenshot(path=str(OUT / f"{name}-text200.png"), full_page=True)
+        if route in refs and width == 390:
+            page.add_style_tag(content="html {font-size:100% !important}")
+            page.evaluate("document.documentElement.dataset.contrast='high'")
+            row["highContrastOverflow"] = page.evaluate("document.documentElement.scrollWidth > innerWidth")
+            row["highContrastAxe"] = page.evaluate("""async () => (await axe.run(document.querySelector('main'), {
+                runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}
+            })).violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)}))""")
+            page.screenshot(path=str(OUT / f"{name}-high-contrast.png"), full_page=True)
         rows.append(row)
         page.close()
     health = browser.new_page().request.get(BASE + "/api/health").json()
@@ -65,4 +73,4 @@ report = {"phase": PHASE, "head": subprocess.check_output(["git", "rev-parse", "
           "captures": rows}
 (OUT / f"{PHASE}.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
 print(json.dumps(report, ensure_ascii=False, indent=2))
-raise SystemExit(1 if any(r["overflow"] or r.get("text200Overflow") or r["axe"] or r["errors"] for r in rows if r["route"] in refs) else 0)
+raise SystemExit(1 if any(r["overflow"] or r.get("text200Overflow") or r.get("highContrastOverflow") or r.get("highContrastAxe") or r["axe"] or r["errors"] for r in rows if r["route"] in refs) else 0)
