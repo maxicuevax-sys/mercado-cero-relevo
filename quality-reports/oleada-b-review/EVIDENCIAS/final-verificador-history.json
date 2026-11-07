@@ -1,0 +1,15 @@
+{
+  "base": "http://localhost:3107",
+  "demoMode": false,
+  "results": [
+    {
+      "id": "REP-08",
+      "name": "Historial oculta efectivo ya cobrado al pasar a payment_pending",
+      "ok": true,
+      "expected": "La fila debe mostrar 'Cobrado $60.00' y también 'Falta cobrar $40.00'",
+      "observed": "PENDIENTE\nPedido AD6E\n\nHoy 12:30 p.m. · Por cobrar\n\n1 × Mixto efectivo digital\n\n$100.00\nPendiente de cobro\nFalta cobrar $40.00\nVer conceptos",
+      "evidence": "final-ventas-payment-pending.png"
+    }
+  ],
+  "failed": 0
+}

@@ -1,0 +1,461 @@
+{
+  "base": "http://localhost:3100",
+  "mark": "AUD1793812493",
+  "generatedAt": "2026-11-04T11:16:16-0600",
+  "results": [
+    {
+      "name": "A1 /caja abre vacia",
+      "ok": true,
+      "detail": "$0.00",
+      "severity": ""
+    },
+    {
+      "name": "A2 primer concepto 2x35 = 70",
+      "ok": true,
+      "detail": "$70.00",
+      "severity": ""
+    },
+    {
+      "name": "A3 decimal suma 88.50",
+      "ok": true,
+      "detail": "$88.50",
+      "severity": ""
+    },
+    {
+      "name": "A4 cambiar cantidad recalcula 123.50",
+      "ok": true,
+      "detail": "$123.50",
+      "severity": ""
+    },
+    {
+      "name": "A5 eliminar concepto recalcula 105.00",
+      "ok": true,
+      "detail": "$105.00",
+      "severity": ""
+    },
+    {
+      "name": "A6 efectivo exacto se anuncia",
+      "ok": true,
+      "detail": "Efectivo exacto. No hay cambio.",
+      "severity": ""
+    },
+    {
+      "name": "A7 efectivo exacto crea una venta pagada",
+      "ok": true,
+      "detail": "{\"status\": \"paid\", \"totalCents\": 10500, \"paidCents\": 10500, \"paymentMethod\": \"cash\"}",
+      "severity": ""
+    },
+    {
+      "name": "A8 el POST de la UI lleva requestId",
+      "ok": true,
+      "detail": "\"sale_145590c1-4fba-4b4f-b300-f53dca676d23\"",
+      "severity": ""
+    },
+    {
+      "name": "A9 el resultado demo no dice Pagado real",
+      "ok": true,
+      "detail": [
+        "RESULTADO",
+        "",
+        "Venta cobrada en efectivo (demo)",
+        "",
+        "TOTAL DE LA VENTA",
+        "",
+        "$105.00",
+        ""
+      ],
+      "severity": ""
+    },
+    {
+      "name": "A10 DB: 1 pago cash, sin credito",
+      "ok": true,
+      "detail": "{\"order\": {\"status\": \"paid\", \"paid_cents\": 10500, \"credit_cents\": 0}, \"pagos\": 1}",
+      "severity": ""
+    },
+    {
+      "name": "B1 cambio 2.75 visible",
+      "ok": true,
+      "detail": "Cambio a devolver $2.75. Recibiste $50.00; se aplicaron $47.25.",
+      "severity": ""
+    },
+    {
+      "name": "B2 resultado muestra recibido/aplicado/cambio",
+      "ok": false,
+      "detail": "RESULTADO |  | Venta cobrada en efectivo (demo) |  | TOTAL DE LA VENTA |  | $47.25 |  | Efectivo de demostración. No es dinero real ni una confirmación bancaria. |  | PEDIDO | B3FB | ESTADO | Demo (simulado) | RECIBISTE | $50.00 | EFECTIVO APLICADO | $47.25 | CAMBIO | $2.75 | Nueva venta | Ver ventas | Volver a Caja |  | Total registrado $47.25. Si el estado no es pagado, no entregues como cobrado.",
+      "severity": ""
+    },
+    {
+      "name": "B3 DB cobra solo el total, no el efectivo recibido",
+      "ok": true,
+      "detail": "{\"total\": 4725, \"paid\": 4725}",
+      "severity": ""
+    },
+    {
+      "name": "C1 faltante visible",
+      "ok": true,
+      "detail": "Faltan $40.00 para completar el cobro. Escribe más efectivo o elige Digital, Fiado o Mixto.",
+      "severity": ""
+    },
+    {
+      "name": "C2 CTA deshabilitado",
+      "ok": true,
+      "detail": "",
+      "severity": ""
+    },
+    {
+      "name": "C3 click forzado no crea pedido",
+      "ok": true,
+      "detail": "posts=0",
+      "severity": ""
+    },
+    {
+      "name": "D1 doble clic produce un solo POST",
+      "ok": true,
+      "detail": "posts=1",
+      "severity": ""
+    },
+    {
+      "name": "D2 doble clic produce una sola orden",
+      "ok": true,
+      "detail": "sale_b7d7c010-91b0-4668-bcb4-d01be56af5b1",
+      "severity": ""
+    },
+    {
+      "name": "E1 error posterior al commit es visible",
+      "ok": true,
+      "detail": "El banco tardo en responder. Reintenta.",
+      "severity": ""
+    },
+    {
+      "name": "E2 la venta si quedo registrada una vez",
+      "ok": true,
+      "detail": "{\"status\": \"paid\", \"total\": 4000}",
+      "severity": ""
+    },
+    {
+      "name": "E3 el error pide reintentar (aunque el CTA no cambia de etiqueta)",
+      "ok": true,
+      "detail": "alerta='El banco tardo en responder. Reintenta.' cta='Confirmar venta'",
+      "severity": ""
+    },
+    {
+      "name": "E4 reintento reutiliza el mismo requestId",
+      "ok": true,
+      "detail": "[\"sale_9f41685b-fb1b-41f2-8624-e5b094cc188b\", \"sale_9f41685b-fb1b-41f2-8624-e5b094cc188b\"]",
+      "severity": ""
+    },
+    {
+      "name": "E5 reintento no duplica la orden",
+      "ok": true,
+      "detail": "posts_exitosos=2",
+      "severity": ""
+    },
+    {
+      "name": "F1 borrador recuperado tras recarga",
+      "ok": true,
+      "detail": "restore=True total=$50.00",
+      "severity": ""
+    },
+    {
+      "name": "F2 el borrador no crea pedido por si solo",
+      "ok": true,
+      "detail": "{\"n\": 0}",
+      "severity": ""
+    },
+    {
+      "name": "G1 digital queda registrado, no pagado",
+      "ok": true,
+      "detail": "{\"status\": \"confirmed\", \"paid\": 0}",
+      "severity": ""
+    },
+    {
+      "name": "G2 el badge dice Registrado/Pendiente, no Pagado",
+      "ok": true,
+      "detail": "badge=REGISTRADO",
+      "severity": ""
+    },
+    {
+      "name": "G3 link generado y orden sigue pendiente",
+      "ok": true,
+      "detail": "http://localhost:3100/pay/ord_795fb732e80f40cd9332?demo=1",
+      "severity": ""
+    },
+    {
+      "name": "G4 link usa APP_URL del servidor",
+      "ok": true,
+      "detail": "http://localhost:3100/pay/ord_795fb732e80f40cd9332?demo=1",
+      "severity": ""
+    },
+    {
+      "name": "G5 QR generado y orden sigue pendiente",
+      "ok": true,
+      "detail": "qr=data:image/png;base64,iVBORw0KGg status=payment_pending",
+      "severity": ""
+    },
+    {
+      "name": "G6 recarga reanuda el mismo cobro pendiente",
+      "ok": true,
+      "detail": "Pedido 9332",
+      "severity": ""
+    },
+    {
+      "name": "G7 polling viejo no revive estado anterior",
+      "ok": false,
+      "detail": "stale_served=1 panel=['COBRO DIGITAL', '', 'Pedido 9332', 'REGISTRADO', '']",
+      "severity": ""
+    },
+    {
+      "name": "G8 demo deja demo_paid, nunca paid",
+      "ok": true,
+      "detail": "{\"status\": \"demo_paid\", \"paid\": 6000, \"provider\": \"demo\"}",
+      "severity": ""
+    },
+    {
+      "name": "G9 resultado dice Pago demo (simulado)",
+      "ok": true,
+      "detail": [
+        "RESULTADO",
+        "",
+        "Pago demo (simulado)",
+        "",
+        "TOTAL DE LA VENTA",
+        "",
+        "$60.00",
+        ""
+      ],
+      "severity": ""
+    },
+    {
+      "name": "H1 checkout muestra Modo demo y total",
+      "ok": true,
+      "detail": [
+        "0",
+        "",
+        "Mercado Cero",
+        "",
+        "Pago protegido",
+        "",
+        "Seguro",
+        "",
+        "Antojitos de Lupita",
+        ""
+      ],
+      "severity": ""
+    },
+    {
+      "name": "H2 checkout demo termina en demo_paid y lo declara",
+      "ok": true,
+      "detail": "{\"status\": \"demo_paid\", \"texto\": [\"Pago demo\", \"\", \"Simulaci\\u00f3n\", \"\", \"Pago demo (simulado)\", \"\", \"$55.00\", \"\"]}",
+      "severity": ""
+    },
+    {
+      "name": "I1 fiado crea deuda, no efectivo",
+      "ok": true,
+      "detail": "{\"status\": \"confirmed\", \"credit\": 10000}",
+      "severity": ""
+    },
+    {
+      "name": "I2 resultado habla de fiado/saldo vivo",
+      "ok": false,
+      "detail": "RESULTADO |  | Venta registrada con fiado |  | TOTAL DE LA VENTA |  | $100.00 |  | La venta quedó registrada. La parte fiada es deuda; no la cuentes como dinero recibido. |  | PEDIDO | 9D8F | ESTADO | Registrado | SALDO VIVO FIADO | $100.00 · Cliente Auditoria B |  | Quedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja. |  | Nueva venta | Ver ventas | Volver a Caja |  | Total registrado $100.00. Si el estado no es pagado, no entregues como cobrado.",
+      "severity": ""
+    },
+    {
+      "name": "I3 /ventas muestra fiado y saldo vivo",
+      "ok": true,
+      "detail": "DEMO\nPedido 9D8F\n\nHoy 11:15 a.m. · Fiado · Cliente Auditoria B\n\n1 × AUD1793812493 Fiado\n\n$100.00\nDemo, no es dinero real\nSaldo vivo $100.00\nVer conceptos",
+      "severity": ""
+    },
+    {
+      "name": "I4 abono parcial por API",
+      "ok": true,
+      "detail": "200 {\"credit\": {\"id\": \"cred_c8c8c9f828a54851a799\", \"customerId\": \"cus_46fe3254d6f544f99a7d\", \"customerName\": \"Cliente Auditoria B\", \"orderId\": \"ord_e7a77f4d6ca547959d8f\", \"originalCents\": 10000, \"balanceC",
+      "severity": ""
+    },
+    {
+      "name": "I5 /ventas baja el saldo a 60",
+      "ok": true,
+      "detail": "DEMO\nPedido 9D8F\n\nHoy 11:15 a.m. · Fiado · Cliente Auditoria B\n\n1 × AUD1793812493 Fiado\n\n$100.00\nDemo, no es dinero real\nSaldo vivo $60.00\nVer conceptos",
+      "severity": ""
+    },
+    {
+      "name": "I6 liquidacion por API",
+      "ok": true,
+      "detail": "200 {\"credit\": {\"id\": \"cred_c8c8c9f828a54851a799\", \"customerId\": \"cus_46fe3254d6f544f99a7d\", \"customerName\": \"Cliente Auditoria B\", \"orderId\": \"ord_e7a77f4d6ca54795",
+      "severity": ""
+    },
+    {
+      "name": "I7 /ventas muestra fiado saldado, no deuda viva",
+      "ok": true,
+      "detail": "DEMO\nPedido 9D8F\n\nHoy 11:15 a.m. · Fiado · Cliente Auditoria B\n\n1 × AUD1793812493 Fiado\n\n$100.00\nDemo, no es dinero real\nFiado saldado $100.00\nVer conceptos",
+      "severity": ""
+    },
+    {
+      "name": "J1 cambio mixto 40.00",
+      "ok": true,
+      "detail": "Cambio a devolver $40.00. Se aplicaron $60.00 al cobro.",
+      "severity": ""
+    },
+    {
+      "name": "J2 DB: efectivo 60 + fiado 30",
+      "ok": true,
+      "detail": "{\"paid\": 6000, \"credit\": 3000, \"status\": \"confirmed\"}",
+      "severity": ""
+    },
+    {
+      "name": "J3 el titular no oculta el fiado pendiente",
+      "ok": false,
+      "detail": [
+        "RESULTADO",
+        "",
+        "Venta cobrada en efectivo (demo)",
+        "",
+        "TOTAL DE LA VENTA",
+        "",
+        "$90.00",
+        "",
+        "Efectivo de demostración. No es dinero real ni una confirmación bancaria.",
+        ""
+      ],
+      "severity": "P2"
+    },
+    {
+      "name": "K1 el cobro pendiente queda apuntado",
+      "ok": true,
+      "detail": "{\"orderIds\":[\"ord_c3eb8621ba6448f093a5\"]}",
+      "severity": ""
+    },
+    {
+      "name": "K2 recarga de un pendiente ya pagado muestra su resultado",
+      "ok": true,
+      "detail": "Venta registrada",
+      "severity": ""
+    },
+    {
+      "name": "K3 Nueva venta no borra el puntero y la recarga resucita el resultado viejo",
+      "ok": true,
+      "detail": "{\"after_new\": \"Nueva venta\", \"after_reload\": \"Venta registrada\", \"pending\": \"{\\\"orderIds\\\":[\\\"ord_c3eb8621ba6448f093a5\\\"]}\"}",
+      "severity": "P2"
+    },
+    {
+      "name": "L1 dashboard legible",
+      "ok": true,
+      "detail": "200",
+      "severity": ""
+    },
+    {
+      "name": "L2 Ventas hoy coincide con el resumen del servidor",
+      "ok": false,
+      "detail": "esperado=$4,968.97 card=Ventas hoy\n\n$4,898.97\nIncluye ventas demo; no es dinero real",
+      "severity": ""
+    },
+    {
+      "name": "L3 Cobrado confirmado coincide con el resumen del servidor",
+      "ok": true,
+      "detail": "esperado=$340.00 card=Cobrado confirmado\n\n$340.00\nSolo efectivo real y pagos verificados; demo no cuenta",
+      "severity": ""
+    },
+    {
+      "name": "L3b Cobrado confirmado no debe incluir abonos demo",
+      "ok": false,
+      "detail": "abonos_demo=$340.00 card=Cobrado confirmado\n\n$340.00\nSolo efectivo real y pagos verificados; demo no cuenta",
+      "severity": "P2"
+    },
+    {
+      "name": "L4 Por cobrar digital coincide con la deuda viva",
+      "ok": true,
+      "detail": "esperado=$863.00 card=Por cobrar digital\n\n$863.00\nLinks y QR de todos los días. No incluye fiado.",
+      "severity": ""
+    },
+    {
+      "name": "L5 fila efectivo: importe y metodo",
+      "ok": true,
+      "detail": "DEMO\nPedido 9305\n\nHoy 11:14 a.m. · Efectivo\n\n3 × AUD1793812493 Quesadilla\n\n$105.00\nDemo, no es dinero real\nVer conceptos",
+      "severity": ""
+    },
+    {
+      "name": "L6 fila demo: dice Demo, no Pagado real",
+      "ok": true,
+      "detail": "DEMO\nPedido 9332\n\nHoy 11:15 a.m. · Tarjeta\n\n1 × AUD1793812493 Digital\n\n$60.00\nDemo, no es dinero real\nVer conceptos",
+      "severity": ""
+    },
+    {
+      "name": "L7 fila checkout: metodo CoDi y demo",
+      "ok": true,
+      "detail": "DEMO\nPedido 841E\n\nHoy 11:15 a.m. · CoDi\n\n1 × AUD1793812493 Checkout\n\n$55.00\nDemo, no es dinero real\nVer conceptos",
+      "severity": ""
+    },
+    {
+      "name": "L8 fila pendiente: Falta cobrar y no Pagado",
+      "ok": true,
+      "detail": "DEMO\nPedido 82CE\n\nHoy 11:15 a.m. · Digital\n\n1 × AUD1793812493 Pendiente\n\n$45.00\nDemo, no es dinero real\nFalta cobrar $45.00\nVer conceptos",
+      "severity": ""
+    },
+    {
+      "name": "L9 ningun texto afirma pago verificado por pey",
+      "ok": true,
+      "detail": " 11:13 a.m. · Efectivo\n\n1 × Venta con cambio\n\n$70.00\nDemo, no es dinero real\nVer conceptos\nAnterior\nSiguiente\n\nEl historial se lee de la misma base que Caja. Un pedido pendiente o fiado no es dinero recibido; solo se marca pagado con la confirmación válida del proveedor o con el efectivo registrado.",
+      "severity": ""
+    },
+    {
+      "name": "L10 page=99 se acota a la ultima pagina",
+      "ok": true,
+      "detail": "total=98 head=Ventas registradas\n\n98 en total · página 4 de 4",
+      "severity": ""
+    },
+    {
+      "name": "L11 pagina 2 muestra filas",
+      "ok": true,
+      "detail": "25",
+      "severity": ""
+    },
+    {
+      "name": "M1 mismo requestId y payload devuelve el mismo pedido",
+      "ok": true,
+      "detail": "{\"s1\": 201, \"s2\": 201, \"id1\": \"ord_6e4bd643eab8418ba1c9\", \"id2\": \"ord_6e4bd643eab8418ba1c9\"}",
+      "severity": ""
+    },
+    {
+      "name": "M2 una sola fila para el requestId",
+      "ok": true,
+      "detail": "aud_idem_fb301319-736e-43fa-bacd-be188729642a",
+      "severity": ""
+    },
+    {
+      "name": "M3 mismo requestId con otro payload da 409 y no crea",
+      "ok": true,
+      "detail": "409 {\"error\": \"Ese identificador de solicitud ya se us\\u00f3 con otros datos. No se cre\\u00f3 otro pedido.\", \"code\": \"request_id_conflict\"}",
+      "severity": ""
+    },
+    {
+      "name": "M4 doble POST concurrente con misma llave crea una orden",
+      "ok": true,
+      "detail": "{\"status\": [201, 201], \"ids\": [\"ord_2b0945ee457a4b26a1d4\", \"ord_2b0945ee457a4b26a1d4\"]}",
+      "severity": ""
+    },
+    {
+      "name": "N1 sin errores de pagina",
+      "ok": true,
+      "detail": "[]",
+      "severity": ""
+    }
+  ],
+  "screenshots": [
+    "pagos-caja-efectivo-exacto.png",
+    "pagos-caja-cambio.png",
+    "pagos-caja-reintento.png",
+    "pagos-caja-digital-pendiente.png",
+    "pagos-caja-digital-demo-resultado.png",
+    "pagos-checkout-demo.png",
+    "pagos-ventas-fiado-parcial.png",
+    "pagos-caja-mixto-fiado-demo.png",
+    "pagos-caja-puntero-resucitado.png",
+    "pagos-ventas.png",
+    "pagos-ventas-pagina2.png"
+  ],
+  "summary": {
+    "total": 66,
+    "pass": 60,
+    "fail": 6
+  }
+}

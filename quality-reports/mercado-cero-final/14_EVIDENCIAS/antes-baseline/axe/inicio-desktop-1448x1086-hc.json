@@ -1,0 +1,87 @@
+{
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+      "nodes": [
+        {
+          "target": [
+            ".inicio-brand__name"
+          ],
+          "html": "<p class=\"inicio-brand__name\">",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 25.5pt (34px), font weight: normal). Expected contrast ratio of 3:1"
+        },
+        {
+          "target": [
+            ".inicio-nav__item[href=\"/\"]:nth-child(2) > span"
+          ],
+          "html": "<span>Ventas</span>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            "a[href=\"/?tab=fiado\"] > span"
+          ],
+          "html": "<span>Fiados</span>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            ".inicio-nav__item[href=\"/\"]:nth-child(6) > span"
+          ],
+          "html": "<span>Caja</span>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            "a[href=\"/?tab=corte\"] > span"
+          ],
+          "html": "<span>Reportes</span>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            ".inicio-nav__item[href=\"/?ayuda=1\"]:nth-child(1) > span"
+          ],
+          "html": "<span>Ayuda</span>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            ".inicio-nav__item[href=\"/?ayuda=1\"]:nth-child(2) > span"
+          ],
+          "html": "<span>Ajustes</span>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            ".inicio-hero__content > h2"
+          ],
+          "html": "<h2>Nueva venta</h2>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 31.5pt (42px), font weight: normal). Expected contrast ratio of 3:1"
+        },
+        {
+          "target": [
+            ".inicio-hero__content > p"
+          ],
+          "html": "<p>Registra lo que vendiste y decide cómo cobrar.</p>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ]
+    }
+  ],
+  "passes": 33,
+  "incomplete": 1,
+  "inapplicable": 58,
+  "label": "inicio-desktop-1448x1086-hc",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa",
+    "best-practice"
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "mixtoDigital": {
+    "pre": {
+      "confirm": "Generar cobro $40.00",
+      "confirmDisabled": false,
+      "main": "CAJA\n\nNueva venta\n\nmiércoles, 4 de noviembre. Agrega lo que vendiste, revisa el total y elige cómo te pagan.\n\nTOTAL\n$100.00\nVER COBRO\n\nCONCEPTOS\n\nQué estás vendiendo\n1 concepto\nCONCEPTO\nCANTIDAD\nPRECIO\nIMPORTE\nConcepto\nCantidad\nPrecio\nImporte\n$100.00\n×\n\nAgregar concepto\n\nProducto o servicio\nCantidad\nPrecio unitario\n+\nAgregar\n\nCOBRO\n\nTotal de la venta\n\n$100.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\nMonto a fiado\n¿Quién queda a deber?\n\nQuedan $40.00 por cobrar en digital. Se generará un cobro pendiente después de registrar la venta.\n\nGenerar cobro $40.00Descartar venta\n\nConcepto agregado.\n\n1 conceptos en curso. El total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes."
+    },
+    "post": {
+      "url": "http://localhost:3100/caja",
+      "h1": "Cobrar venta",
+      "main": "CAJA\n\nCobrar venta\n\nEl pedido ya está registrado. El pago sigue pendiente hasta que el banco lo confirme.\n\nTOTAL\n$100.00\n\nCOBRO DIGITAL\n\nPedido AEA7\nREGISTRADO\n\nFalta cobrar\n\n$40.00\n\nEl pedido ya está registrado. El dinero aún no se considera recibido.\n\nGenerar link\nGenerar QR\nActualizar estado\n\nModo demo. Simula un pago para probar el recorrido. No es dinero real ni una confirmación de pey.\n\nSimular CoDi\nSimular tarjeta\n\n$40.00 siguen pendientes. No entregues como pagado hasta ver la confirmación válida del proveedor.\n\nVer historial de ventas\n\nConcepto agregado.\n\nEl total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes.",
+      "shot": "onboarding-caja-mixto-efectivo-digital-panel.png"
+    }
+  },
+  "mixtoFiado": {
+    "pre": {
+      "confirm": "Confirmar venta",
+      "split": "Efectivo\n$60.00\nFiado\n$40.00",
+      "main": "CAJA\n\nNueva venta\n\nmiércoles, 4 de noviembre. Agrega lo que vendiste, revisa el total y elige cómo te pagan.\n\nTOTAL\n$100.00\nVER COBRO\n\nCONCEPTOS\n\nQué estás vendiendo\n1 concepto\nCONCEPTO\nCANTIDAD\nPRECIO\nIMPORTE\nConcepto\nCantidad\nPrecio\nImporte\n$100.00\n×\n\nAgregar concepto\n\nProducto o servicio\nCantidad\nPrecio unitario\n+\nAgregar\n\nCOBRO\n\nTotal de la venta\n\n$100.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\n\nEl total cambió. Ajusta el monto a fiado para que coincida con $100.00.\n\nMonto a fiado\n¿Quién queda a deber?\nEfectivo\n$60.00\nFiado\n$40.00\nConfirmar ventaDescartar venta\n\nConcepto agregado.\n\n1 conceptos en curso. El total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes."
+    },
+    "post": {
+      "h1": "Venta registrada",
+      "h2": "Venta cobrada en efectivo (demo)",
+      "main": "CAJA\n\nVenta registrada\n\nRevisa el resultado antes de entregar o iniciar otra venta.\n\nTOTAL\n$100.00\n\nRESULTADO\n\nVenta cobrada en efectivo (demo)\n\nTOTAL DE LA VENTA\n\n$100.00\n\nEfectivo de demostración. No es dinero real ni una confirmación bancaria.\n\nPEDIDO\n9E3D\nESTADO\nDemo (simulado)\nEFECTIVO RECIBIDO\n$60.00\nSALDO VIVO FIADO\n$40.00 · Juan\n\nQuedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.\n\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $100.00. Si el estado no es pagado, no entregues como cobrado.\n\nConcepto agregado.\n\nEl total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes."
+    }
+  },
+  "draft": {
+    "main": "CAJA\n\nNueva venta\n\nmiércoles, 4 de noviembre. Agrega lo que vendiste, revisa el total y elige cómo te pagan.\n\nTOTAL\n$50.00\nVER COBRO\n\nRecuperamos una venta sin confirmar.\n\nSeguir\nEmpezar de nuevo\n\nCONCEPTOS\n\nQué estás vendiendo\n1 concepto\nCONCEPTO\nCANTIDAD\nPRECIO\nIMPORTE\nConcepto\nCantidad\nPrecio\nImporte\n$50.00\n×\n\nAgregar concepto\n\nProducto o servicio\nCantidad\nPrecio unitario\n+\nAgregar\n\nCOBRO\n\nTotal de la venta\n\n$50.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\n\nFaltan $50.00 para completar el cobro. Escribe más efectivo o elige Digital, Fiado o Mixto.\n\nEscribe el efectivo que te dieron o elige otro método.\n\nFaltan $50.00Descartar venta\n\n1 conceptos en curso. El total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes.",
+    "buttons": [
+      "Seguir",
+      "Empezar de nuevo",
+      "×",
+      "+\nAgregar",
+      "Efectivo",
+      "Digital",
+      "Fiado",
+      "Mixto",
+      "Faltan $50.00",
+      "Descartar venta"
+    ],
+    "shot": "onboarding-caja-borrador-recuperado.png",
+    "afterDiscard": {
+      "main": "CAJA\n\nNueva venta\n\nmiércoles, 4 de noviembre. Agrega lo que vendiste, revisa el total y elige cómo te pagan.\n\nTOTAL\n$0.00\nVER COBRO\n\nCONCEPTOS\n\nQué estás vendiendo\n0 conceptos\n\nAún no hay conceptos.\n\nAgrega uno a mano. No necesitas inventario ni micrófono.\n\nAgregar concepto\n\nProducto o servicio\nCantidad\nPrecio unitario\n+\nAgregar\n\nCOBRO\n\nTotal de la venta\n\n$0.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\nConfirmar ventaDescartar venta\n\nEl total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo co",
+      "dialogSeen": []
+    }
+  },
+  "pagination": {
+    "page2": {
+      "url": "http://localhost:3100/ventas?page=2",
+      "main": "HISTORIAL\n\nVentas\n\nConsulta las ventas registradas. Los importes son ventas, no necesariamente dinero cobrado.\n\nNueva venta\n\nVentas hoy\n\n$2,472.00\nIncluye ventas demo; no es dinero real\n\nCobrado confirmado\n\n$0.00\nSolo efectivo real y pagos verificados; demo no cuenta\n\nPor cobrar digital\n\n$678.00\nLinks y QR de todos los días. No incluye fiado.\nVentas registradas\n\n52 en total · página 2 de 3\n\nDEMO\nPedido B2CB\n\nHoy 11:06 a.m. · Efectivo\n\n2 × Quesadilla\n\n$70.00\nDemo, no es dinero real\nVer conceptos\nDEMO · PENDIENTE\nPedido B02A\n\nHoy 11:06 a.m. · Por cobrar\n\n1 × Cobro digital\n\n$50.00\nDemo, no es dinero real\nFalta cobrar $50.00\nVer conceptos\nDEMO\nPedido B0F9\n\nHoy 11:06 a.m. · Fiado · Juan\n\n1 × Pedido fiado\n\n$100.00\nDemo, no es dinero real\nSaldo vivo $100.00\nVer conceptos\nDEMO\nPedido B3DA\n\nHoy 11:06 a.m. · Efectivo\n\n2 × Quesadilla\n\n$70.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido A3FA\n\nHoy 11:05 a.m. · CoDi\n\n1 × Prueba webhook\n\n$7.00\nDemo, no es dinero real\nVer conceptos\nDEMO · PENDIENTE\nPedido BDC9\n\nHoy 11:05 a.m. · Por cobrar\n\n1 × Prueba webhook\n\n$10.00\nDemo, no es dinero real\nFalta cobrar $10.00\nVer conceptos\nDEMO\nPedido BC6F\n\nHoy 11:05 a.m. · CoDi\n\n1 × Prueba webhook\n\n$12.00\nDemo, no es dinero real\nVer conceptos\nDEMO · PENDIENTE\nPedido A050\n\nHoy 11:05 a.m. · Por cobrar\n\n1 × Prueba webhook\n\n$9.00\nDemo, no es dinero real\nFalta cobrar $9.00\nVer conceptos\nDEMO · PENDIENTE\nPedido 8AEE\n\nHoy 11:05 a.m. · Por cobrar\n\n1 × Prueba webhook\n\n$9.00\nDemo, no es dinero real\nFalta cobrar $9.00\nVer conceptos\nDEMO\nPedido A63C\n\nHoy 11:05 a.m. · CoDi\n\n1 × Prueba webhook\n\n$10.00\nDemo, no es dinero real\nVer conceptos\nDEMO · PENDIENTE\nPedido 8B9F\n\nHoy 11:05 a.m. · Por cobrar\n\n1 × Prueba webhook\n\n$10.00\nDemo, no es dinero real\nFalta cobrar $10.00\nVer conceptos\nDEMO\nPedido AD97\n\nHoy 11:05 a.m. · CoDi\n\n1 × Prueba webhook\n\n$10.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido B478\n\nHoy 11:05 a.m. · Efectivo\n\n2 × Quesadilla\n\n$70.00\nDemo, no es dinero real\nVer conceptos\nDEMO · PENDIENTE\nPedido AE9B\n\nHoy 10:55 a.m. · Por cobrar\n\n1 × Pedido para llevar\n\n$120.00\nDemo, no es dinero real\nFalta cobrar $120.00\nVer conceptos\nDEMO\nPedido 9517\n\nAyer 2:20 p.m. · Efectivo\n\n3 × Quesadillas · 2 × Agua de horchata\n\n$155.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido B01D\n\n2 nov 3:20 p.m. · Tarjeta\n\n2 × Tlayuda · 2 × Refresco\n\n$160.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido B561\n\n1 nov 4:20 p.m. · Efectivo\n\n4 × Tacos al pastor · 2 × Agua de jamaica\n\n$160.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido 978C\n\n31 oct 5:20 p.m. · CoDi\n\n2 × Quesadilla · 1 × Café de olla\n\n$95.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido B8F0\n\n30 oct 1:20 p.m. · Efectivo\n\n3 × Tortas · 3 × Refresco\n\n$210.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido 9EE3\n\n29 oct 2:20 p.m. · Tarjeta\n\n2 × Enchiladas · 2 × Agua\n\n$160.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido A8D5\n\n27 oct 4:20 p.m. · Efectivo\n\n6 × Tamales · 4 × Atole\n\n$230.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido 98E7\n\n25 oct 1:20 p.m. · CoDi\n\n2 × Tlayuda · 2 × Agua de horchata\n\n$160.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido 982C\n\n23 oct 3:20 p.m. · Efectivo\n\n4 × Quesadillas · 4 × Refresco\n\n$240.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido A10B\n\n20 oct 1:20 p.m. · Tarjeta\n\n2 × Pozole · 2 × Agua\n\n$190.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido A6AC\n\n17 oct 4:20 p.m. · Efectivo\n\n5 × Tacos dorados · 2 × Agua de jamaica\n\n$190.00\nDemo, no es dinero real\nVer conceptos\nAnterior\nSiguiente\n\nEl historial se lee de la misma base que Caja. Un pedido pendiente o fiado no es dinero recibido; solo se marca pagado con la confirmación válida del proveedor o con el efectivo registrado."
+    },
+    "page99": {
+      "url": "http://localhost:3100/ventas?page=99",
+      "main": "HISTORIAL\n\nVentas\n\nConsulta las ventas registradas. Los importes son ventas, no necesariamente dinero cobrado.\n\nNueva venta\n\nVentas hoy\n\n$2,472.00\nIncluye ventas demo; no es dinero real\n\nCobrado confirmado\n\n$0.00\nSolo efectivo real y pagos verificados; demo no cuenta\n\nPor cobrar digital\n\n$678.00\nLinks y QR de todos los días. No incluye fiado.\nVentas registradas\n\n52 en total · página 3 de 3\n\nDEMO\nPedido 990D\n\n14 oct 2:20 p.m. · CoDi\n\n2 × Tortas · 2 × Café\n\n$130.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido 996C\n\n10 oct 1:20 p.m. · Efectivo\n\n3 × Quesadillas · 3 × Atole\n\n$165.00\nDemo, no es dinero real\nVer conceptos\nAnterior\nSiguiente\n\nEl historial se lee de la misma base que Caja. Un pedido pendiente o fiado no es dinero recibido; solo se marca pagado con la confirmación válida del proveedor o con el efectivo registrado."
+    }
+  },
+  "help": {
+    "url": "http://localhost:3100/?ayuda=1",
+    "title": "Mercado Cero · La caja que habla",
+    "main": "Saltar al contenido\n\nMercado Cero\n\nLa caja que habla\n\nInicio\nCaja\nFiado\nCorte\nMeta\nPendientes\nModo demo\nAyuda\n\nAntojitos de Lupita\n\nCoyoacán, CDMX · miércoles, 4 de noviembre\n\nDEMO\nCaja\nVerificar\n\nVentas registradas hoy $2,472.00 · Cobrado confirmado $0.00 · Por cobrar de hoy $678.00\n\nPor cobrar de hoy $678.00\nVer la tira\n¿Qué vendiste?\n\nHabla, escribe o agrega a mano; tú confirmas.\n\nTU VENTA\nen blanco\n\n$0.00\n\nLa IA interpreta o lo agregas a mano; tú confirmas.\n\nMantén y habla\nEscribe la venta\nEscuchar\nInterpretar\nAgregar a mano\n\nSin IA: escribe producto, cantidad y precio.\n\nSi hay ruido en el mercado, escribe la venta o agrégala a mano.\n\nTOTAL DE LA VENTA\n\n$0.00\n\nSin saldo digital pendiente\n\nFiar\nCobrar\nFiar\nQuesadillas $90\nJuan pagó $50\n¿Cuánto vendí?\nPedido en curso\n\nTodavía no hay productos\n\nLa hoja está en blanco. Habla, escribe arriba o agrega un producto a mano.\n\nAgregar producto\n\nmiércoles, 4 de noviembre\n\n¡Buen día, Lupita!\n\nAsí va tu negocio hoy.\n\nVentas hoy\n\n$2,472.00\n\nRegistradas · demo\n\nCobrado hoy\n\n$0.00\n\nEfectivo + pey\n\nPor cobrar hoy\n\n$678.00\n\nAún no es dinero recibido\n\nFiado pendiente\n\n$930.00\n\n2 personas\n\nNueva venta\nRegistrar\nCobrar\nProducto\nGasto\nReporte\nCuánto "
+  },
+  "redirects": {
+    "Fiados": {
+      "url": "http://localhost:3100/?tab=fiado",
+      "h1": "Caja"
+    },
+    "Corte": {
+      "url": "http://localhost:3100/?tab=corte",
+      "h1": "Caja"
+    },
+    "Metas": {
+      "url": "http://localhost:3100/?tab=meta",
+      "h1": "Caja"
+    },
+    "Pendientes": {
+      "url": "http://localhost:3100/?tab=pendientes",
+      "h1": "Caja"
+    }
+  },
+  "demo": {
+    "h1": "Venta registrada",
+    "main": "CAJA\n\nVenta registrada\n\nRevisa el resultado antes de entregar o iniciar otra venta.\n\nTOTAL\n$50.00\n\nRESULTADO\n\nPago demo (simulado)\n\nTOTAL DE LA VENTA\n\n$50.00\n\nEsta simulación no es dinero real ni una confirmación del banco.\n\nPEDIDO\nA51A\nESTADO\nDemo (simulado)\nDIGITAL\n$50.00\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $50.00. Si el estado no es pagado, no entregues como cobrado.\n\nConcepto agregado.\n\nEl total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes."
+  },
+  "parser": {
+    "mil_coma": {
+      "total": "$1,000.00",
+      "lines": "1 concepto",
+      "error": []
+    },
+    "mil_doscientos_coma": {
+      "total": "$1,234.50",
+      "lines": "1 concepto",
+      "error": []
+    },
+    "dos_coma_cinco": {
+      "total": "$2.50",
+      "lines": "1 concepto",
+      "error": []
+    },
+    "medio_slash": {
+      "total": "$0.00",
+      "lines": "0 conceptos",
+      "error": [
+        "La cantidad debe ser mayor que cero."
+      ]
+    },
+    "cantidad_1000": {
+      "total": "$999.00",
+      "lines": "1 concepto",
+      "error": []
+    }
+  },
+  "ventas390": "HISTORIAL\n\nVentas\n\nConsulta las ventas registradas. Los importes son ventas, no necesariamente dinero cobrado.\n\nNueva venta\n\nVentas hoy\n\n$2,674.25\nIncluye ventas demo; no es dinero real\n\nCobrado confirmado\n\n$0.00\nSolo efectivo real y pagos verificados; demo no cuenta\n\nPor cobrar digital\n\n$678.00\nLinks y QR de todos los días. No incluye fiado.\nVentas registradas\n\n55 en total · página 1 de 3\n\nDEMO\nPedido A12C\n\nHoy 11:09 a.m. · Efectivo\n\n1 × AUD1793812161 Cafe\n\n$47.25\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido B822\n\nHoy 11:09 a.m. · Efectivo\n\n3 × AUD1793812161 Quesadilla\n\n$105.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido A51A\n\nHoy 11:09 a.m. · CoDi\n\n1 × Demo digital\n\n$50.00\nDemo, no es dinero real\nVer conceptos\nDEMO\nPedido 9E3D\n\nHoy 11:08 a.m. · Efectivo + fiado · Juan\n\n1 × Ven"
+}

@@ -1,0 +1,12 @@
+HEAD
+4130e71d668e5e4693a8f5b634d2d2f953d21b02
+BRANCH
+design/oleada-b-caja-ventas
+STATUS_SHORT
+?? quality-reports/oleada-b-review/
+BUILD_SHA
+{
+  "sha": "4130e71d668e5e4693a8f5b634d2d2f953d21b02",
+  "builtAt": "2026-11-04T17:00:05.443Z"
+}
+NOTA: los servidores 3101 (demo) y 3102 (real) usaron DATABASE_PATH en %TEMP%; no se toco la DB del repo.

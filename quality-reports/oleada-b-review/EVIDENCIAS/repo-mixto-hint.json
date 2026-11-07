@@ -1,0 +1,12 @@
+{
+  "hints": [
+    "El total cambió. Ajusta el monto a fiado para que coincida con $100.00.",
+    "Escribe el nombre de quien queda a deber para registrar el fiado."
+  ],
+  "split": "Efectivo\n$40.00\nFiado\n$30.00",
+  "confirm": "Generar cobro $30.00",
+  "digital": [
+    "Quedan $30.00 por cobrar en digital. Se generará un cobro pendiente después de registrar la venta."
+  ],
+  "badHint": true
+}

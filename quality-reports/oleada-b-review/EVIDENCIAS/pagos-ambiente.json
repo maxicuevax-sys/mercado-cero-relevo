@@ -1,0 +1,54 @@
+{
+  "generatedAt": "2026-11-04T11:25:07-0600",
+  "head": "4130e71d668e5e4693a8f5b634d2d2f953d21b02",
+  "branch": "design/oleada-b-caja-ventas",
+  "status": [
+    "?? quality-reports/oleada-b-review/"
+  ],
+  "health3100": {
+    "ok": true,
+    "buildSha": "4130e71d668e5e4693a8f5b634d2d2f953d21b02",
+    "node": "v25.7.0",
+    "uptimeSeconds": 1487
+  },
+  "base": "http://localhost:3100",
+  "demoMode": "true (DEMO_MODE=true en .env.local; health no lo expone)",
+  "nota": "Servidor demo 3100; APP_URL local se comprueba en el link generado (pagos-ui-flow.json G3/G4).",
+  "dataCounts": {
+    "orders": {
+      "n": 120,
+      "demo": 120,
+      "demo_paid": 29,
+      "paid": 44,
+      "pending": 18
+    },
+    "payments": [
+      {
+        "provider": "cash",
+        "demo": 1,
+        "n": 52,
+        "amount": 263158
+      },
+      {
+        "provider": "demo",
+        "demo": 1,
+        "n": 25,
+        "amount": 287500
+      },
+      {
+        "provider": "pey",
+        "demo": 1,
+        "n": 4,
+        "amount": 3900
+      }
+    ],
+    "credit_payments": [
+      {
+        "provider": "cash",
+        "demo": 1,
+        "n": 8,
+        "amount": 35000
+      }
+    ]
+  }
+}

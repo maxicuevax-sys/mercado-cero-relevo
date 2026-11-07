@@ -1,0 +1,61 @@
+{
+  "base": "http://localhost:3210",
+  "db": "C:\\Users\\ELITEB~1\\AppData\\Local\\Temp\\opencode\\mc-audit-pagos\\pagos-copy.db",
+  "mark": "AUDDEMO1793812389",
+  "generatedAt": "2026-11-04T11:13:11-0600",
+  "results": [
+    {
+      "name": "0 servidor copia arriba",
+      "ok": true,
+      "detail": "{\"ok\": true, \"buildSha\": \"4130e71d668e5e4693a8f5b634d2d2f953d21b02\", \"node\": \"v25.7.0\", \"uptimeSeconds\": 58}",
+      "severity": ""
+    },
+    {
+      "name": "1.1 pedido digital pendiente listo",
+      "ok": true,
+      "detail": "{\"id\": \"ord_56be20c737084629ac4f\", \"status\": \"payment_pending\"}",
+      "severity": ""
+    },
+    {
+      "name": "1.2 diez POST concurrentes no duplican el pago demo",
+      "ok": true,
+      "detail": "{\"http\": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200], \"paidCents\": 10000, \"status\": \"demo_paid\", \"pagos\": 1, \"amounts\": [10000]}",
+      "severity": "P1"
+    },
+    {
+      "name": "1.3 la orden queda demo_paid, nunca paid",
+      "ok": true,
+      "detail": "demo_paid",
+      "severity": ""
+    },
+    {
+      "name": "1.4 repeticion secuencial no duplica",
+      "ok": true,
+      "detail": "{\"status\": 200, \"pagos\": 1}",
+      "severity": ""
+    },
+    {
+      "name": "2.1 /api/demo/pay acepta un pedido demo=0",
+      "ok": true,
+      "detail": "{\"http\": 200, \"antes\": {\"demo\": 0, \"status\": \"payment_pending\", \"paid_cents\": 0}, \"despues\": {\"demo\": 0, \"status\": \"demo_paid\", \"paid_cents\": 5000}, \"pagos\": [{\"provider\": \"demo\", \"demo\": 1, \"amount_cents\": 5000}]}",
+      "severity": "P1"
+    },
+    {
+      "name": "2.2 el pago insertado es demo y el pedido conserva demo=0",
+      "ok": true,
+      "detail": "{\"pagos\": [{\"provider\": \"demo\", \"demo\": 1, \"amount_cents\": 5000}], \"order_demo\": 0}",
+      "severity": "P1"
+    },
+    {
+      "name": "3.1 en modo real el pedido quedaria oculto (status demo_paid)",
+      "ok": true,
+      "detail": "{\"coincide_filtro_real\": 0, \"status\": \"demo_paid\"}",
+      "severity": "P1"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "pass": 8,
+    "fail": 0
+  }
+}

@@ -1,0 +1,4786 @@
+{
+  "base": "http://localhost:3100",
+  "axe_tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa",
+    "best-practice"
+  ],
+  "routes": [
+    {
+      "route": "inicio",
+      "path": "/inicio",
+      "viewport": "desktop-1448x1086",
+      "status": 200,
+      "metrics": {
+        "url": "http://localhost:3100/inicio",
+        "title": "Inicio · Mercado Cero",
+        "h1": "¡Buen día, Lupita!",
+        "active": [
+          "Inicio"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 1448,
+        "clientWidth": 1448,
+        "bodyHeight": 1086,
+        "viewport": {
+          "w": 1448,
+          "h": 1086
+        },
+        "buttons": 0,
+        "links": 12,
+        "inputs": 0,
+        "buttonLabels": [],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Mercado Cero",
+          "Inicio",
+          "Ventas",
+          "Fiados",
+          "Caja",
+          "Reportes",
+          "Ayuda",
+          "Ajustes",
+          "Registrar",
+          "Ver todos",
+          "Ir a ventas"
+        ],
+        "kpis": [
+          {
+            "x": 260,
+            "y": 260,
+            "w": 1129,
+            "h": 200
+          },
+          {
+            "x": 260,
+            "y": 260,
+            "w": 269,
+            "h": 200
+          },
+          {
+            "x": 281,
+            "y": 279,
+            "w": 227,
+            "h": 44
+          },
+          {
+            "x": 281,
+            "y": 279,
+            "w": 44,
+            "h": 44
+          },
+          {
+            "x": 291,
+            "y": 289,
+            "w": 24,
+            "h": 24
+          },
+          {
+            "x": 281,
+            "y": 337,
+            "w": 227,
+            "h": 42
+          },
+          {
+            "x": 281,
+            "y": 387,
+            "w": 227,
+            "h": 36
+          },
+          {
+            "x": 547,
+            "y": 260,
+            "w": 269,
+            "h": 200
+          },
+          {
+            "x": 568,
+            "y": 279,
+            "w": 227,
+            "h": 44
+          },
+          {
+            "x": 568,
+            "y": 279,
+            "w": 44,
+            "h": 44
+          },
+          {
+            "x": 578,
+            "y": 289,
+            "w": 24,
+            "h": 24
+          },
+          {
+            "x": 568,
+            "y": 337,
+            "w": 227,
+            "h": 42
+          },
+          {
+            "x": 568,
+            "y": 387,
+            "w": 227,
+            "h": 36
+          },
+          {
+            "x": 834,
+            "y": 260,
+            "w": 269,
+            "h": 200
+          },
+          {
+            "x": 855,
+            "y": 279,
+            "w": 227,
+            "h": 44
+          },
+          {
+            "x": 855,
+            "y": 279,
+            "w": 44,
+            "h": 44
+          },
+          {
+            "x": 865,
+            "y": 289,
+            "w": 24,
+            "h": 24
+          },
+          {
+            "x": 855,
+            "y": 337,
+            "w": 227,
+            "h": 42
+          },
+          {
+            "x": 855,
+            "y": 387,
+            "w": 227,
+            "h": 36
+          },
+          {
+            "x": 1120,
+            "y": 260,
+            "w": 269,
+            "h": 200
+          },
+          {
+            "x": 1141,
+            "y": 279,
+            "w": 227,
+            "h": 44
+          },
+          {
+            "x": 1141,
+            "y": 279,
+            "w": 44,
+            "h": 44
+          },
+          {
+            "x": 1151,
+            "y": 289,
+            "w": 24,
+            "h": 24
+          },
+          {
+            "x": 1141,
+            "y": 337,
+            "w": 227,
+            "h": 42
+          },
+          {
+            "x": 1141,
+            "y": 405,
+            "w": 227,
+            "h": 36
+          }
+        ],
+        "hero": {
+          "x": 260,
+          "y": 492,
+          "w": 538,
+          "h": 304
+        },
+        "pending": {
+          "x": 816,
+          "y": 492,
+          "w": 573,
+          "h": 304
+        },
+        "suggestion": {
+          "x": 260,
+          "y": 816,
+          "w": 1129,
+          "h": 211
+        },
+        "cta": {
+          "x": 535,
+          "y": 646,
+          "w": 220,
+          "h": 60
+        },
+        "main": {
+          "x": 260,
+          "y": 100,
+          "w": 1129,
+          "h": 963
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 236,
+          "h": 1086
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Inicio",
+          "Ventas",
+          "Fiados",
+          "Caja",
+          "Reportes"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 3,
+        "bodyText": "Saltar al contenido Mercado Cero Inicio Ventas Fiados Productos Proveedores Caja Reportes Ayuda Ajustes Antojitos de Lupita Coyoacán, CDMX DEMO L ¡Buen día, Lupita! martes, 3 de noviembre. Datos demo Ventas hoy $290.00 Registradas, no necesariamente cobradas Cobrado hoy $0.00 Efectivo + pagos verificados Por cobrar $180.00 Saldo pendiente, sin sumarlo a la caja Meta del mes 17% Mi primera sombrilla Nueva venta Registra lo que vendiste y decide cómo cobrar. Registrar Pendientes Ver todos Recibir "
+      },
+      "focusOrder": [
+        {
+          "tag": "A",
+          "text": "Saltar al contenido",
+          "role": null,
+          "href": "#inicio-main",
+          "name": null,
+          "rect": {
+            "x": 12,
+            "y": 10,
+            "w": 173,
+            "h": 48
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Mercado Cero",
+          "role": null,
+          "href": "/inicio",
+          "name": null,
+          "rect": {
+            "x": 14,
+            "y": 18,
+            "w": 208,
+            "h": 175
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Inicio",
+          "role": null,
+          "href": "/inicio",
+          "name": null,
+          "rect": {
+            "x": 14,
+            "y": 207,
+            "w": 208,
+            "h": 52
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Ventas",
+          "role": null,
+          "href": "/?tab=caja",
+          "name": null,
+          "rect": {
+            "x": 14,
+            "y": 261,
+            "w": 208,
+            "h": 52
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Fiados",
+          "role": null,
+          "href": "/?tab=fiado",
+          "name": null,
+          "rect": {
+            "x": 14,
+            "y": 315,
+            "w": 208,
+            "h": 52
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Caja",
+          "role": null,
+          "href": "/?tab=corte",
+          "name": null,
+          "rect": {
+            "x": 14,
+            "y": 477,
+            "w": 208,
+            "h": 52
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Reportes",
+          "role": null,
+          "href": "/?tab=corte",
+          "name": null,
+          "rect": {
+            "x": 14,
+            "y": 531,
+            "w": 208,
+            "h": 52
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Ayuda",
+          "role": null,
+          "href": "/?ayuda=1",
+          "name": null,
+          "rect": {
+            "x": 14,
+            "y": 664,
+            "w": 208,
+            "h": 52
+          }
+        }
+      ],
+      "axe": {
+        "violations": [],
+        "passes": 36,
+        "incomplete": 1,
+        "inapplicable": 55,
+        "label": "inicio-desktop-1448x1086",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [
+        {
+          "url": "http://localhost:3100/?tab=caja&_rsc=qPZzjMbbkwVJZ1Df",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://localhost:3100/?tab=fiado&_rsc=qPZzjMbbkwVJZ1Df",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://localhost:3100/?tab=corte&_rsc=qPZzjMbbkwVJZ1Df",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://localhost:3100/?ayuda=1&_rsc=qPZzjMbbkwVJZ1Df",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://localhost:3100/?_rsc=qPZzjMbbkwVJZ1Df",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://localhost:3100/?tab=caja&_rsc=TtHx2Sg_PxRDz5-_",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "axeHighContrast": {
+        "violations": [],
+        "passes": 36,
+        "incomplete": 0,
+        "inapplicable": 55,
+        "label": "inicio-desktop-1448x1086-hc",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "metricsHighContrast": {
+        "url": "http://localhost:3100/inicio",
+        "title": "Inicio · Mercado Cero",
+        "h1": "¡Buen día, Lupita!",
+        "active": [
+          "Inicio"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 1448,
+        "clientWidth": 1448,
+        "bodyHeight": 1086,
+        "viewport": {
+          "w": 1448,
+          "h": 1086
+        },
+        "buttons": 0,
+        "links": 12,
+        "inputs": 0,
+        "buttonLabels": [],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Mercado Cero",
+          "Inicio",
+          "Ventas",
+          "Fiados",
+          "Caja",
+          "Reportes",
+          "Ayuda",
+          "Ajustes",
+          "Registrar",
+          "Ver todos",
+          "Ir a ventas"
+        ],
+        "kpis": [
+          {
+            "x": 260,
+            "y": 260,
+            "w": 1129,
+            "h": 200
+          },
+          {
+            "x": 260,
+            "y": 260,
+            "w": 269,
+            "h": 200
+          },
+          {
+            "x": 281,
+            "y": 279,
+            "w": 227,
+            "h": 44
+          },
+          {
+            "x": 281,
+            "y": 279,
+            "w": 44,
+            "h": 44
+          },
+          {
+            "x": 291,
+            "y": 289,
+            "w": 24,
+            "h": 24
+          },
+          {
+            "x": 281,
+            "y": 337,
+            "w": 227,
+            "h": 42
+          },
+          {
+            "x": 281,
+            "y": 387,
+            "w": 227,
+            "h": 36
+          },
+          {
+            "x": 547,
+            "y": 260,
+            "w": 269,
+            "h": 200
+          },
+          {
+            "x": 568,
+            "y": 279,
+            "w": 227,
+            "h": 44
+          },
+          {
+            "x": 568,
+            "y": 279,
+            "w": 44,
+            "h": 44
+          },
+          {
+            "x": 578,
+            "y": 289,
+            "w": 24,
+            "h": 24
+          },
+          {
+            "x": 568,
+            "y": 337,
+            "w": 227,
+            "h": 42
+          },
+          {
+            "x": 568,
+            "y": 387,
+            "w": 227,
+            "h": 36
+          },
+          {
+            "x": 834,
+            "y": 260,
+            "w": 269,
+            "h": 200
+          },
+          {
+            "x": 855,
+            "y": 279,
+            "w": 227,
+            "h": 44
+          },
+          {
+            "x": 855,
+            "y": 279,
+            "w": 44,
+            "h": 44
+          },
+          {
+            "x": 865,
+            "y": 289,
+            "w": 24,
+            "h": 24
+          },
+          {
+            "x": 855,
+            "y": 337,
+            "w": 227,
+            "h": 42
+          },
+          {
+            "x": 855,
+            "y": 387,
+            "w": 227,
+            "h": 36
+          },
+          {
+            "x": 1120,
+            "y": 260,
+            "w": 269,
+            "h": 200
+          },
+          {
+            "x": 1141,
+            "y": 279,
+            "w": 227,
+            "h": 44
+          },
+          {
+            "x": 1141,
+            "y": 279,
+            "w": 44,
+            "h": 44
+          },
+          {
+            "x": 1151,
+            "y": 289,
+            "w": 24,
+            "h": 24
+          },
+          {
+            "x": 1141,
+            "y": 337,
+            "w": 227,
+            "h": 42
+          },
+          {
+            "x": 1141,
+            "y": 405,
+            "w": 227,
+            "h": 36
+          }
+        ],
+        "hero": {
+          "x": 260,
+          "y": 492,
+          "w": 538,
+          "h": 304
+        },
+        "pending": {
+          "x": 816,
+          "y": 492,
+          "w": 573,
+          "h": 304
+        },
+        "suggestion": {
+          "x": 260,
+          "y": 816,
+          "w": 1129,
+          "h": 211
+        },
+        "cta": {
+          "x": 286,
+          "y": 638,
+          "w": 220,
+          "h": 60
+        },
+        "main": {
+          "x": 260,
+          "y": 100,
+          "w": 1129,
+          "h": 963
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 236,
+          "h": 1086
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Inicio",
+          "Ventas",
+          "Fiados",
+          "Caja",
+          "Reportes"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 3,
+        "bodyText": "Saltar al contenido Mercado Cero Inicio Ventas Fiados Productos Proveedores Caja Reportes Ayuda Ajustes Antojitos de Lupita Coyoacán, CDMX DEMO L ¡Buen día, Lupita! martes, 3 de noviembre. Datos demo Ventas hoy $290.00 Registradas, no necesariamente cobradas Cobrado hoy $0.00 Efectivo + pagos verificados Por cobrar $180.00 Saldo pendiente, sin sumarlo a la caja Meta del mes 17% Mi primera sombrilla Nueva venta Registra lo que vendiste y decide cómo cobrar. Registrar Pendientes Ver todos Recibir "
+      }
+    },
+    {
+      "route": "inicio",
+      "path": "/inicio",
+      "viewport": "mobile-390x844",
+      "status": 200,
+      "metrics": {
+        "url": "http://localhost:3100/inicio",
+        "title": "Inicio · Mercado Cero",
+        "h1": "¡Buen día, Lupita!",
+        "active": [
+          "Inicio"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyHeight": 1283,
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "buttons": 0,
+        "links": 12,
+        "inputs": 0,
+        "buttonLabels": [],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Mercado Cero",
+          "Inicio",
+          "Ventas",
+          "Fiados",
+          "Caja",
+          "Reportes",
+          "Ayuda",
+          "Ajustes",
+          "Registrar",
+          "Ver todos",
+          "Ir a ventas"
+        ],
+        "kpis": [
+          {
+            "x": 12,
+            "y": 342,
+            "w": 366,
+            "h": 246
+          },
+          {
+            "x": 12,
+            "y": 342,
+            "w": 178,
+            "h": 118
+          },
+          {
+            "x": 23,
+            "y": 353,
+            "w": 156,
+            "h": 30
+          },
+          {
+            "x": 23,
+            "y": 353,
+            "w": 30,
+            "h": 30
+          },
+          {
+            "x": 29,
+            "y": 359,
+            "w": 18,
+            "h": 18
+          },
+          {
+            "x": 23,
+            "y": 391,
+            "w": 156,
+            "h": 24
+          },
+          {
+            "x": 23,
+            "y": 420,
+            "w": 156,
+            "h": 29
+          },
+          {
+            "x": 200,
+            "y": 342,
+            "w": 178,
+            "h": 118
+          },
+          {
+            "x": 211,
+            "y": 353,
+            "w": 156,
+            "h": 30
+          },
+          {
+            "x": 211,
+            "y": 353,
+            "w": 30,
+            "h": 30
+          },
+          {
+            "x": 217,
+            "y": 359,
+            "w": 18,
+            "h": 18
+          },
+          {
+            "x": 211,
+            "y": 391,
+            "w": 156,
+            "h": 24
+          },
+          {
+            "x": 211,
+            "y": 420,
+            "w": 156,
+            "h": 29
+          },
+          {
+            "x": 12,
+            "y": 470,
+            "w": 178,
+            "h": 118
+          },
+          {
+            "x": 23,
+            "y": 481,
+            "w": 156,
+            "h": 30
+          },
+          {
+            "x": 23,
+            "y": 481,
+            "w": 30,
+            "h": 30
+          },
+          {
+            "x": 29,
+            "y": 487,
+            "w": 18,
+            "h": 18
+          },
+          {
+            "x": 23,
+            "y": 519,
+            "w": 156,
+            "h": 24
+          },
+          {
+            "x": 23,
+            "y": 548,
+            "w": 156,
+            "h": 29
+          },
+          {
+            "x": 200,
+            "y": 470,
+            "w": 178,
+            "h": 118
+          },
+          {
+            "x": 211,
+            "y": 481,
+            "w": 156,
+            "h": 30
+          },
+          {
+            "x": 211,
+            "y": 481,
+            "w": 30,
+            "h": 30
+          },
+          {
+            "x": 217,
+            "y": 487,
+            "w": 18,
+            "h": 18
+          },
+          {
+            "x": 211,
+            "y": 519,
+            "w": 156,
+            "h": 24
+          },
+          {
+            "x": 211,
+            "y": 562,
+            "w": 156,
+            "h": 14
+          }
+        ],
+        "hero": {
+          "x": 12,
+          "y": 600,
+          "w": 366,
+          "h": 190
+        },
+        "pending": {
+          "x": 12,
+          "y": 802,
+          "w": 366,
+          "h": 260
+        },
+        "suggestion": {
+          "x": 12,
+          "y": 1074,
+          "w": 366,
+          "h": 185
+        },
+        "cta": {
+          "x": 162,
+          "y": 712,
+          "w": 133,
+          "h": 48
+        },
+        "main": {
+          "x": 0,
+          "y": 268,
+          "w": 390,
+          "h": 1015
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 204
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Inicio",
+          "Ventas",
+          "Fiados",
+          "Caja",
+          "Reportes"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 2,
+        "bodyText": "Saltar al contenido Mercado Cero Inicio Ventas Fiados Productos Proveedores Caja Reportes Ayuda Ajustes Antojitos de Lupita Coyoacán, CDMX L ¡Buen día, Lupita! martes, 3 de noviembre. Datos demo Ventas hoy $290.00 Registradas, no necesariamente cobradas Cobrado hoy $0.00 Efectivo + pagos verificados Por cobrar $180.00 Saldo pendiente, sin sumarlo a la caja Meta del mes 17% Mi primera sombrilla Nueva venta Registra lo que vendiste y decide cómo cobrar. Registrar Pendientes Ver todos Recibir pedid"
+      },
+      "focusOrder": [
+        {
+          "tag": "A",
+          "text": "Saltar al contenido",
+          "role": null,
+          "href": "#inicio-main",
+          "name": null,
+          "rect": {
+            "x": 12,
+            "y": 10,
+            "w": 173,
+            "h": 48
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Mercado Cero",
+          "role": null,
+          "href": "/inicio",
+          "name": null,
+          "rect": {
+            "x": 12,
+            "y": 10,
+            "w": 366,
+            "h": 49
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Inicio",
+          "role": null,
+          "href": "/inicio",
+          "name": null,
+          "rect": {
+            "x": 12,
+            "y": 67,
+            "w": 74,
+            "h": 40
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Ventas",
+          "role": null,
+          "href": "/?tab=caja",
+          "name": null,
+          "rect": {
+            "x": 88,
+            "y": 67,
+            "w": 83,
+            "h": 40
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Fiados",
+          "role": null,
+          "href": "/?tab=fiado",
+          "name": null,
+          "rect": {
+            "x": 173,
+            "y": 67,
+            "w": 81,
+            "h": 40
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Caja",
+          "role": null,
+          "href": "/?tab=corte",
+          "name": null,
+          "rect": {
+            "x": 133,
+            "y": 109,
+            "w": 68,
+            "h": 40
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Reportes",
+          "role": null,
+          "href": "/?tab=corte",
+          "name": null,
+          "rect": {
+            "x": 202,
+            "y": 109,
+            "w": 96,
+            "h": 40
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Ayuda",
+          "role": null,
+          "href": "/?ayuda=1",
+          "name": null,
+          "rect": {
+            "x": 12,
+            "y": 156,
+            "w": 79,
+            "h": 40
+          }
+        }
+      ],
+      "axe": {
+        "violations": [],
+        "passes": 36,
+        "incomplete": 1,
+        "inapplicable": 55,
+        "label": "inicio-mobile-390x844",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [
+        {
+          "url": "http://localhost:3100/?tab=fiado&_rsc=qPZzjMbbkwVJZ1Df",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://localhost:3100/?ayuda=1&_rsc=qPZzjMbbkwVJZ1Df",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://localhost:3100/?tab=caja&_rsc=qPZzjMbbkwVJZ1Df",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://localhost:3100/?_rsc=qPZzjMbbkwVJZ1Df",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "axeHighContrast": {
+        "violations": [],
+        "passes": 36,
+        "incomplete": 0,
+        "inapplicable": 55,
+        "label": "inicio-mobile-390x844-hc",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "metricsHighContrast": {
+        "url": "http://localhost:3100/inicio",
+        "title": "Inicio · Mercado Cero",
+        "h1": "¡Buen día, Lupita!",
+        "active": [
+          "Inicio"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyHeight": 1265,
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "buttons": 0,
+        "links": 12,
+        "inputs": 0,
+        "buttonLabels": [],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Mercado Cero",
+          "Inicio",
+          "Ventas",
+          "Fiados",
+          "Caja",
+          "Reportes",
+          "Ayuda",
+          "Ajustes",
+          "Registrar",
+          "Ver todos",
+          "Ir a ventas"
+        ],
+        "kpis": [
+          {
+            "x": 12,
+            "y": 342,
+            "w": 366,
+            "h": 246
+          },
+          {
+            "x": 12,
+            "y": 342,
+            "w": 178,
+            "h": 118
+          },
+          {
+            "x": 23,
+            "y": 353,
+            "w": 156,
+            "h": 30
+          },
+          {
+            "x": 23,
+            "y": 353,
+            "w": 30,
+            "h": 30
+          },
+          {
+            "x": 29,
+            "y": 359,
+            "w": 18,
+            "h": 18
+          },
+          {
+            "x": 23,
+            "y": 391,
+            "w": 156,
+            "h": 24
+          },
+          {
+            "x": 23,
+            "y": 420,
+            "w": 156,
+            "h": 29
+          },
+          {
+            "x": 200,
+            "y": 342,
+            "w": 178,
+            "h": 118
+          },
+          {
+            "x": 211,
+            "y": 353,
+            "w": 156,
+            "h": 30
+          },
+          {
+            "x": 211,
+            "y": 353,
+            "w": 30,
+            "h": 30
+          },
+          {
+            "x": 217,
+            "y": 359,
+            "w": 18,
+            "h": 18
+          },
+          {
+            "x": 211,
+            "y": 391,
+            "w": 156,
+            "h": 24
+          },
+          {
+            "x": 211,
+            "y": 420,
+            "w": 156,
+            "h": 29
+          },
+          {
+            "x": 12,
+            "y": 470,
+            "w": 178,
+            "h": 118
+          },
+          {
+            "x": 23,
+            "y": 481,
+            "w": 156,
+            "h": 30
+          },
+          {
+            "x": 23,
+            "y": 481,
+            "w": 30,
+            "h": 30
+          },
+          {
+            "x": 29,
+            "y": 487,
+            "w": 18,
+            "h": 18
+          },
+          {
+            "x": 23,
+            "y": 519,
+            "w": 156,
+            "h": 24
+          },
+          {
+            "x": 23,
+            "y": 548,
+            "w": 156,
+            "h": 29
+          },
+          {
+            "x": 200,
+            "y": 470,
+            "w": 178,
+            "h": 118
+          },
+          {
+            "x": 211,
+            "y": 481,
+            "w": 156,
+            "h": 30
+          },
+          {
+            "x": 211,
+            "y": 481,
+            "w": 30,
+            "h": 30
+          },
+          {
+            "x": 217,
+            "y": 487,
+            "w": 18,
+            "h": 18
+          },
+          {
+            "x": 211,
+            "y": 519,
+            "w": 156,
+            "h": 24
+          },
+          {
+            "x": 211,
+            "y": 562,
+            "w": 156,
+            "h": 14
+          }
+        ],
+        "hero": {
+          "x": 12,
+          "y": 600,
+          "w": 366,
+          "h": 190
+        },
+        "pending": {
+          "x": 12,
+          "y": 802,
+          "w": 366,
+          "h": 260
+        },
+        "suggestion": {
+          "x": 12,
+          "y": 1074,
+          "w": 366,
+          "h": 167
+        },
+        "cta": {
+          "x": 26,
+          "y": 712,
+          "w": 137,
+          "h": 48
+        },
+        "main": {
+          "x": 0,
+          "y": 268,
+          "w": 390,
+          "h": 997
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 204
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Inicio",
+          "Ventas",
+          "Fiados",
+          "Caja",
+          "Reportes"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 2,
+        "bodyText": "Saltar al contenido Mercado Cero Inicio Ventas Fiados Productos Proveedores Caja Reportes Ayuda Ajustes Antojitos de Lupita Coyoacán, CDMX L ¡Buen día, Lupita! martes, 3 de noviembre. Datos demo Ventas hoy $290.00 Registradas, no necesariamente cobradas Cobrado hoy $0.00 Efectivo + pagos verificados Por cobrar $180.00 Saldo pendiente, sin sumarlo a la caja Meta del mes 17% Mi primera sombrilla Nueva venta Registra lo que vendiste y decide cómo cobrar. Registrar Pendientes Ver todos Recibir pedid"
+      }
+    },
+    {
+      "route": "caja",
+      "path": "/",
+      "viewport": "desktop-1448x1086",
+      "status": 200,
+      "metrics": {
+        "url": "http://localhost:3100/",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Caja",
+        "active": [
+          "Caja",
+          "Caja"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 1448,
+        "clientWidth": 1448,
+        "bodyHeight": 2140,
+        "viewport": {
+          "w": 1448,
+          "h": 1086
+        },
+        "buttons": 37,
+        "links": 3,
+        "inputs": 1,
+        "buttonLabels": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes",
+          "Modo demo",
+          "Ayuda",
+          "DEMO",
+          "Verificar",
+          "Por cobrar de hoy $180.00 Ver la tira",
+          "Escuchar",
+          "Interpretar",
+          "Agregar a mano",
+          "Fiar",
+          "Cobrar",
+          "Fiar",
+          "Quesadillas $90",
+          "Juan pagó $50",
+          "¿Cuánto vendí?",
+          "Agregar producto",
+          "Nueva venta Registrar",
+          "Cobrar",
+          "Producto",
+          "Gasto",
+          "Reporte",
+          "Ver la libreta de fiado",
+          "Ver",
+          "Ver",
+          "1 × Venta pagada Hoy 6:23 p.m. Efectivo recibido $10.00",
+          "1 × Pendiente ajeno Hoy 6:23 p.m. Efectivo recibido $90.00"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Mercado Cero La caja que habla",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 248,
+          "y": 65,
+          "w": 1200,
+          "h": 2075
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 248,
+          "h": 1086
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 8,
+        "bodyText": "Saltar al contenido Mercado Cero La caja que habla Caja Fiado Corte Meta Pendientes Modo demo Ayuda Antojitos de Lupita Coyoacán, CDMX · martes, 3 de noviembre DEMO Caja Verificar Ventas registradas hoy $290.00 · Cobrado confirmado $0.00 · Por cobrar de hoy $180.00 Por cobrar de hoy $180.00 Ver la tira ¿Qué vendiste? Habla, escribe o agrega a mano; tú confirmas. TU VENTA en blanco $0.00 La IA interpreta o lo agregas a mano; tú confirmas. Mantén y habla Escribe la venta Escuchar Interpretar Agreg"
+      },
+      "focusOrder": [
+        {
+          "tag": "A",
+          "text": "Saltar al contenido",
+          "role": null,
+          "href": "#main",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "w": 187,
+            "h": 48
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Mercado Cero La caja que habla",
+          "role": null,
+          "href": "/inicio",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 24,
+            "w": 216,
+            "h": 65
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Caja",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 107,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Fiado",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 159,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Corte",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 211,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Meta",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 263,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Pendientes",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 315,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Modo demo",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 970,
+            "w": 216,
+            "h": 48
+          }
+        }
+      ],
+      "axe": {
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "help": "Elements must have their visible text as part of their accessible name",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-lockup"
+                ],
+                "html": "<a class=\"brand-lockup\" href=\"/inicio\" aria-label=\"Ir a Inicio\">",
+                "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+              }
+            ]
+          }
+        ],
+        "passes": 49,
+        "incomplete": 1,
+        "inapplicable": 42,
+        "label": "caja-desktop-1448x1086",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "axeHighContrast": {
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-name"
+                ],
+                "html": "<p class=\"brand-name\">Mercado Cero</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 14.4pt (19.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".brand-tagline"
+                ],
+                "html": "<p class=\"brand-tagline\">La caja que habla</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.34 (foreground color: #cfe3d4, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"02\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Fiado</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"03\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Corte</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"04\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Meta</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[aria-label=\"Pendientes\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Pendientes</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".min-h-\\[48px\\].text-left.hover\\:text-ink:nth-child(1) > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Modo demo</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".sidebar-label"
+                ],
+                "html": "<span class=\"sidebar-label min-w-0\">Ayuda</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".home-sale__kicker"
+                ],
+                "html": "<span class=\"home-sale__kicker\">Nueva venta</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.59 (foreground color: #f2c768, background color: #ffffff, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".home-sale__title"
+                ],
+                "html": "<span class=\"home-sale__title\">Registrar</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 16.2pt (21.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ]
+          },
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "help": "Elements must have their visible text as part of their accessible name",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-lockup"
+                ],
+                "html": "<a class=\"brand-lockup\" href=\"/inicio\" aria-label=\"Ir a Inicio\">",
+                "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+              }
+            ]
+          }
+        ],
+        "passes": 49,
+        "incomplete": 0,
+        "inapplicable": 42,
+        "label": "caja-desktop-1448x1086-hc",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "metricsHighContrast": {
+        "url": "http://localhost:3100/",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Caja",
+        "active": [
+          "Caja",
+          "Caja"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 1448,
+        "clientWidth": 1448,
+        "bodyHeight": 2140,
+        "viewport": {
+          "w": 1448,
+          "h": 1086
+        },
+        "buttons": 37,
+        "links": 3,
+        "inputs": 1,
+        "buttonLabels": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes",
+          "Modo demo",
+          "Ayuda",
+          "DEMO",
+          "Verificar",
+          "Por cobrar de hoy $180.00 Ver la tira",
+          "Escuchar",
+          "Interpretar",
+          "Agregar a mano",
+          "Fiar",
+          "Cobrar",
+          "Fiar",
+          "Quesadillas $90",
+          "Juan pagó $50",
+          "¿Cuánto vendí?",
+          "Agregar producto",
+          "Nueva venta Registrar",
+          "Cobrar",
+          "Producto",
+          "Gasto",
+          "Reporte",
+          "Ver la libreta de fiado",
+          "Ver",
+          "Ver",
+          "1 × Venta pagada Hoy 6:23 p.m. Efectivo recibido $10.00",
+          "1 × Pendiente ajeno Hoy 6:23 p.m. Efectivo recibido $90.00"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Mercado Cero La caja que habla",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 248,
+          "y": 65,
+          "w": 1200,
+          "h": 2075
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 248,
+          "h": 1086
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 8,
+        "bodyText": "Saltar al contenido Mercado Cero La caja que habla Caja Fiado Corte Meta Pendientes Modo demo Ayuda Antojitos de Lupita Coyoacán, CDMX · martes, 3 de noviembre DEMO Caja Verificar Ventas registradas hoy $290.00 · Cobrado confirmado $0.00 · Por cobrar de hoy $180.00 Por cobrar de hoy $180.00 Ver la tira ¿Qué vendiste? Habla, escribe o agrega a mano; tú confirmas. TU VENTA en blanco $0.00 La IA interpreta o lo agregas a mano; tú confirmas. Mantén y habla Escribe la venta Escuchar Interpretar Agreg"
+      }
+    },
+    {
+      "route": "caja",
+      "path": "/",
+      "viewport": "mobile-390x844",
+      "status": 200,
+      "metrics": {
+        "url": "http://localhost:3100/",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Caja",
+        "active": [
+          "Caja",
+          "Caja"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyHeight": 844,
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "buttons": 35,
+        "links": 3,
+        "inputs": 1,
+        "buttonLabels": [
+          "DEMO",
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas",
+          "Por cobrar de hoy $180.00 Ver la tira",
+          "Interpretar",
+          "Agregar a mano",
+          "Fiar",
+          "Cobrar",
+          "Fiar",
+          "Quesadillas $90",
+          "Juan pagó $50",
+          "¿Cuánto vendí?",
+          "Agregar producto",
+          "Nueva venta Registrar",
+          "Cobrar",
+          "Producto",
+          "Gasto",
+          "Reporte",
+          "Ver la libreta de fiado",
+          "Ver",
+          "Ver",
+          "1 × Venta pagada Hoy 6:23 p.m. Efectivo recibido $10.00",
+          "1 × Pendiente ajeno Hoy 6:23 p.m. Efectivo recibido $90.00",
+          "2 × Quesadilla Hoy 6:23 p.m. Pago demo (simulado) $70.00",
+          "1 × Pedido para llevar Hoy 6:13 p.m. Esperando confirmación $120.00",
+          "3 × Quesadillas · 2 × Agua de horchata Ayer 2:20 p.m. Pago demo (simulado) $155.00",
+          "Ver todo (17)"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 0,
+          "y": 64,
+          "w": 390,
+          "h": 709
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 7,
+        "bodyText": "Saltar al contenido Antojitos de Lupita Coyoacán, CDMX DEMO Caja Fiado Corte Meta Tareas Caja Ventas registradas hoy $290.00 · Cobrado confirmado $0.00 · Por cobrar de hoy $180.00 Por cobrar de hoy $180.00 Ver la tira ¿Qué vendiste? TU VENTA en blanco $0.00 La IA interpreta o lo agregas a mano; tú confirmas. Mantén y habla Escribe la venta Interpretar Agregar a mano Sin IA: escribe producto, cantidad y precio. Si hay ruido en el mercado, escribe la venta o agrégala a mano. TOTAL DE LA VENTA $0.0"
+      },
+      "focusOrder": [
+        {
+          "tag": "A",
+          "text": "Saltar al contenido",
+          "role": null,
+          "href": "#main",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "w": 187,
+            "h": 48
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Ir a Inicio",
+          "role": null,
+          "href": "/inicio",
+          "name": null,
+          "rect": {
+            "x": 14,
+            "y": 18,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "DEMO",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 202,
+            "y": 8,
+            "w": 66,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Silenciar voz",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 274,
+            "y": 8,
+            "w": 48,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Abrir guía",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 328,
+            "y": 8,
+            "w": 48,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Caja",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 7,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Fiado",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 83,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Corte",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 158,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        }
+      ],
+      "axe": {
+        "violations": [],
+        "passes": 49,
+        "incomplete": 1,
+        "inapplicable": 42,
+        "label": "caja-mobile-390x844",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "axeHighContrast": {
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".topbar-merchant"
+                ],
+                "html": "<p class=\"topbar-merchant truncate\" title=\"Antojitos de Lupita\">Antojitos de Lupita</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 12.6pt (16.8px), font weight: bold). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".topbar-address"
+                ],
+                "html": "<p class=\"topbar-address\">Coyoacán, CDMX<span class=\"hidden sm:inline\"> · <!-- -->martes, 3 de noviembre</span></p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.34 (foreground color: #cfe3d4, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ]
+          }
+        ],
+        "passes": 49,
+        "incomplete": 0,
+        "inapplicable": 42,
+        "label": "caja-mobile-390x844-hc",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "metricsHighContrast": {
+        "url": "http://localhost:3100/",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Caja",
+        "active": [
+          "Caja",
+          "Caja"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyHeight": 844,
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "buttons": 35,
+        "links": 3,
+        "inputs": 1,
+        "buttonLabels": [
+          "DEMO",
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas",
+          "Por cobrar de hoy $180.00 Ver la tira",
+          "Interpretar",
+          "Agregar a mano",
+          "Fiar",
+          "Cobrar",
+          "Fiar",
+          "Quesadillas $90",
+          "Juan pagó $50",
+          "¿Cuánto vendí?",
+          "Agregar producto",
+          "Nueva venta Registrar",
+          "Cobrar",
+          "Producto",
+          "Gasto",
+          "Reporte",
+          "Ver la libreta de fiado",
+          "Ver",
+          "Ver",
+          "1 × Venta pagada Hoy 6:23 p.m. Efectivo recibido $10.00",
+          "1 × Pendiente ajeno Hoy 6:23 p.m. Efectivo recibido $90.00",
+          "2 × Quesadilla Hoy 6:23 p.m. Pago demo (simulado) $70.00",
+          "1 × Pedido para llevar Hoy 6:13 p.m. Esperando confirmación $120.00",
+          "3 × Quesadillas · 2 × Agua de horchata Ayer 2:20 p.m. Pago demo (simulado) $155.00",
+          "Ver todo (17)"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 0,
+          "y": 64,
+          "w": 390,
+          "h": 709
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 7,
+        "bodyText": "Saltar al contenido Antojitos de Lupita Coyoacán, CDMX DEMO Caja Fiado Corte Meta Tareas Caja Ventas registradas hoy $290.00 · Cobrado confirmado $0.00 · Por cobrar de hoy $180.00 Por cobrar de hoy $180.00 Ver la tira ¿Qué vendiste? TU VENTA en blanco $0.00 La IA interpreta o lo agregas a mano; tú confirmas. Mantén y habla Escribe la venta Interpretar Agregar a mano Sin IA: escribe producto, cantidad y precio. Si hay ruido en el mercado, escribe la venta o agrégala a mano. TOTAL DE LA VENTA $0.0"
+      }
+    },
+    {
+      "route": "fiado",
+      "path": "/?tab=fiado",
+      "viewport": "desktop-1448x1086",
+      "status": 200,
+      "metrics": {
+        "url": "http://localhost:3100/?tab=fiado",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Fiado",
+        "active": [
+          "Fiado",
+          "Fiado"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 1448,
+        "clientWidth": 1448,
+        "bodyHeight": 1086,
+        "viewport": {
+          "w": 1448,
+          "h": 1086
+        },
+        "buttons": 11,
+        "links": 3,
+        "inputs": 0,
+        "buttonLabels": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes",
+          "Modo demo",
+          "Ayuda",
+          "DEMO",
+          "Registrar abono"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Mercado Cero La caja que habla",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 248,
+          "y": 65,
+          "w": 1200,
+          "h": 552
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 248,
+          "h": 1086
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 2,
+        "bodyText": "Saltar al contenido Mercado Cero La caja que habla Caja Fiado Corte Meta Pendientes Modo demo Ayuda Antojitos de Lupita Coyoacán, CDMX · martes, 3 de noviembre DEMO Fiado Lo que te deben, no dinero recibido. Saldo pendiente $50.00 1 cliente Fiado es una libreta de deudas: no es dinero recibido ni una venta nueva. J Juan Pendiente · desde Hoy 6:23 p.m. · sin pedido $50.00 saldo Registrar abono Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + OpenAI · Fotos: créditos Sin confirmación fir"
+      },
+      "focusOrder": [
+        {
+          "tag": "A",
+          "text": "Saltar al contenido",
+          "role": null,
+          "href": "#main",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "w": 187,
+            "h": 48
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Mercado Cero La caja que habla",
+          "role": null,
+          "href": "/inicio",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 24,
+            "w": 216,
+            "h": 65
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Caja",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 107,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Fiado",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 159,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Corte",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 211,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Meta",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 263,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Pendientes",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 315,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Modo demo",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 970,
+            "w": 216,
+            "h": 48
+          }
+        }
+      ],
+      "axe": {
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "help": "Elements must have their visible text as part of their accessible name",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-lockup"
+                ],
+                "html": "<a class=\"brand-lockup\" href=\"/inicio\" aria-label=\"Ir a Inicio\">",
+                "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+              }
+            ]
+          }
+        ],
+        "passes": 38,
+        "incomplete": 1,
+        "inapplicable": 53,
+        "label": "fiado-desktop-1448x1086",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "axeHighContrast": {
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-name"
+                ],
+                "html": "<p class=\"brand-name\">Mercado Cero</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 14.4pt (19.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".brand-tagline"
+                ],
+                "html": "<p class=\"brand-tagline\">La caja que habla</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.34 (foreground color: #cfe3d4, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"01\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Caja</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"03\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Corte</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"04\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Meta</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[aria-label=\"Pendientes\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Pendientes</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".min-h-\\[48px\\].text-left.hover\\:text-ink:nth-child(1) > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Modo demo</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".sidebar-label"
+                ],
+                "html": "<span class=\"sidebar-label min-w-0\">Ayuda</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ]
+          },
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "help": "Elements must have their visible text as part of their accessible name",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-lockup"
+                ],
+                "html": "<a class=\"brand-lockup\" href=\"/inicio\" aria-label=\"Ir a Inicio\">",
+                "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+              }
+            ]
+          }
+        ],
+        "passes": 38,
+        "incomplete": 0,
+        "inapplicable": 53,
+        "label": "fiado-desktop-1448x1086-hc",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "metricsHighContrast": {
+        "url": "http://localhost:3100/?tab=fiado",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Fiado",
+        "active": [
+          "Fiado",
+          "Fiado"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 1448,
+        "clientWidth": 1448,
+        "bodyHeight": 1086,
+        "viewport": {
+          "w": 1448,
+          "h": 1086
+        },
+        "buttons": 11,
+        "links": 3,
+        "inputs": 0,
+        "buttonLabels": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes",
+          "Modo demo",
+          "Ayuda",
+          "DEMO",
+          "Registrar abono"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Mercado Cero La caja que habla",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 248,
+          "y": 65,
+          "w": 1200,
+          "h": 552
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 248,
+          "h": 1086
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 2,
+        "bodyText": "Saltar al contenido Mercado Cero La caja que habla Caja Fiado Corte Meta Pendientes Modo demo Ayuda Antojitos de Lupita Coyoacán, CDMX · martes, 3 de noviembre DEMO Fiado Lo que te deben, no dinero recibido. Saldo pendiente $50.00 1 cliente Fiado es una libreta de deudas: no es dinero recibido ni una venta nueva. J Juan Pendiente · desde Hoy 6:23 p.m. · sin pedido $50.00 saldo Registrar abono Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + OpenAI · Fotos: créditos Sin confirmación fir"
+      }
+    },
+    {
+      "route": "fiado",
+      "path": "/?tab=fiado",
+      "viewport": "mobile-390x844",
+      "status": 200,
+      "metrics": {
+        "url": "http://localhost:3100/?tab=fiado",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Fiado",
+        "active": [
+          "Fiado",
+          "Fiado"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyHeight": 844,
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "buttons": 9,
+        "links": 3,
+        "inputs": 0,
+        "buttonLabels": [
+          "DEMO",
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas",
+          "Registrar abono"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 0,
+          "y": 64,
+          "w": 390,
+          "h": 709
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 1,
+        "bodyText": "Saltar al contenido Antojitos de Lupita Coyoacán, CDMX DEMO Caja Fiado Corte Meta Tareas Fiado Lo que te deben, no dinero recibido. Saldo pendiente $50.00 1 cliente Fiado es una libreta de deudas: no es dinero recibido ni una venta nueva. J Juan Pendiente · desde Hoy 6:23 p.m. · sin pedido $50.00 saldo Registrar abono Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + OpenAI · Fotos: créditos Sin confirmación firmada no hay pagado."
+      },
+      "focusOrder": [
+        {
+          "tag": "A",
+          "text": "Saltar al contenido",
+          "role": null,
+          "href": "#main",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "w": 187,
+            "h": 48
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Ir a Inicio",
+          "role": null,
+          "href": "/inicio",
+          "name": null,
+          "rect": {
+            "x": 14,
+            "y": 18,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "DEMO",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 202,
+            "y": 8,
+            "w": 66,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Silenciar voz",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 274,
+            "y": 8,
+            "w": 48,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Abrir guía",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 328,
+            "y": 8,
+            "w": 48,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Caja",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 7,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Fiado",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 83,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Corte",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 158,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        }
+      ],
+      "axe": {
+        "violations": [],
+        "passes": 38,
+        "incomplete": 1,
+        "inapplicable": 53,
+        "label": "fiado-mobile-390x844",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "axeHighContrast": {
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".topbar-merchant"
+                ],
+                "html": "<p class=\"topbar-merchant truncate\" title=\"Antojitos de Lupita\">Antojitos de Lupita</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 12.6pt (16.8px), font weight: bold). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".topbar-address"
+                ],
+                "html": "<p class=\"topbar-address\">Coyoacán, CDMX<span class=\"hidden sm:inline\"> · <!-- -->martes, 3 de noviembre</span></p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.34 (foreground color: #cfe3d4, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ]
+          }
+        ],
+        "passes": 38,
+        "incomplete": 0,
+        "inapplicable": 53,
+        "label": "fiado-mobile-390x844-hc",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "metricsHighContrast": {
+        "url": "http://localhost:3100/?tab=fiado",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Fiado",
+        "active": [
+          "Fiado",
+          "Fiado"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyHeight": 844,
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "buttons": 9,
+        "links": 3,
+        "inputs": 0,
+        "buttonLabels": [
+          "DEMO",
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas",
+          "Registrar abono"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 0,
+          "y": 64,
+          "w": 390,
+          "h": 709
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 1,
+        "bodyText": "Saltar al contenido Antojitos de Lupita Coyoacán, CDMX DEMO Caja Fiado Corte Meta Tareas Fiado Lo que te deben, no dinero recibido. Saldo pendiente $50.00 1 cliente Fiado es una libreta de deudas: no es dinero recibido ni una venta nueva. J Juan Pendiente · desde Hoy 6:23 p.m. · sin pedido $50.00 saldo Registrar abono Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + OpenAI · Fotos: créditos Sin confirmación firmada no hay pagado."
+      }
+    },
+    {
+      "route": "corte",
+      "path": "/?tab=corte",
+      "viewport": "desktop-1448x1086",
+      "status": 200,
+      "metrics": {
+        "url": "http://localhost:3100/?tab=corte",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Corte de caja",
+        "active": [
+          "Corte",
+          "Corte"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 1448,
+        "clientWidth": 1448,
+        "bodyHeight": 2747,
+        "viewport": {
+          "w": 1448,
+          "h": 1086
+        },
+        "buttons": 21,
+        "links": 3,
+        "inputs": 5,
+        "buttonLabels": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes",
+          "Modo demo",
+          "Ayuda",
+          "DEMO",
+          "Ahora no",
+          "Ver",
+          "Ver",
+          "Contar por billetes y monedas",
+          "Guardar corte",
+          "Hoy",
+          "Semana",
+          "Mes",
+          "Escuchar",
+          "Conciliar"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Mercado Cero La caja que habla",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 248,
+          "y": 65,
+          "w": 1200,
+          "h": 2682
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 248,
+          "h": 1086
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 7,
+        "bodyText": "Saltar al contenido Mercado Cero La caja que habla Caja Fiado Corte Meta Pendientes Modo demo Ayuda Antojitos de Lupita Coyoacán, CDMX · martes, 3 de noviembre DEMO Corte de caja Compara lo contado con lo esperado. Antes de cerrar Lo que vence hoy, lo vencido y lo de mañana. También los cobros por confirmar. Ahora no COBROS POR CONFIRMAR $120.00 Esperando confirmación Pedido A157 Ver $60.00 Esperando confirmación Pedido A8E5 Ver Cuenta el efectivo de hoy Total contado $ Escribe el total contado "
+      },
+      "focusOrder": [
+        {
+          "tag": "A",
+          "text": "Saltar al contenido",
+          "role": null,
+          "href": "#main",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "w": 187,
+            "h": 48
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Mercado Cero La caja que habla",
+          "role": null,
+          "href": "/inicio",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 24,
+            "w": 216,
+            "h": 65
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Caja",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 107,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Fiado",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 159,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Corte",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 211,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Meta",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 263,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Pendientes",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 315,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Modo demo",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 970,
+            "w": 216,
+            "h": 48
+          }
+        }
+      ],
+      "axe": {
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "help": "Elements must have their visible text as part of their accessible name",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-lockup"
+                ],
+                "html": "<a class=\"brand-lockup\" href=\"/inicio\" aria-label=\"Ir a Inicio\">",
+                "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+              }
+            ]
+          }
+        ],
+        "passes": 46,
+        "incomplete": 0,
+        "inapplicable": 45,
+        "label": "corte-desktop-1448x1086",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "axeHighContrast": {
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-name"
+                ],
+                "html": "<p class=\"brand-name\">Mercado Cero</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 14.4pt (19.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".brand-tagline"
+                ],
+                "html": "<p class=\"brand-tagline\">La caja que habla</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.34 (foreground color: #cfe3d4, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"01\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Caja</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"02\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Fiado</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"04\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Meta</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[aria-label=\"Pendientes\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Pendientes</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".min-h-\\[48px\\].text-left.px-2:nth-child(1) > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Modo demo</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".sidebar-label"
+                ],
+                "html": "<span class=\"sidebar-label min-w-0\">Ayuda</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ]
+          },
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "help": "Elements must have their visible text as part of their accessible name",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-lockup"
+                ],
+                "html": "<a class=\"brand-lockup\" href=\"/inicio\" aria-label=\"Ir a Inicio\">",
+                "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+              }
+            ]
+          }
+        ],
+        "passes": 46,
+        "incomplete": 1,
+        "inapplicable": 45,
+        "label": "corte-desktop-1448x1086-hc",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "metricsHighContrast": {
+        "url": "http://localhost:3100/?tab=corte",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Corte de caja",
+        "active": [
+          "Corte",
+          "Corte"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 1448,
+        "clientWidth": 1448,
+        "bodyHeight": 2747,
+        "viewport": {
+          "w": 1448,
+          "h": 1086
+        },
+        "buttons": 21,
+        "links": 3,
+        "inputs": 5,
+        "buttonLabels": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes",
+          "Modo demo",
+          "Ayuda",
+          "DEMO",
+          "Ahora no",
+          "Ver",
+          "Ver",
+          "Contar por billetes y monedas",
+          "Guardar corte",
+          "Hoy",
+          "Semana",
+          "Mes",
+          "Escuchar",
+          "Conciliar"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Mercado Cero La caja que habla",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 248,
+          "y": 65,
+          "w": 1200,
+          "h": 2682
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 248,
+          "h": 1086
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 7,
+        "bodyText": "Saltar al contenido Mercado Cero La caja que habla Caja Fiado Corte Meta Pendientes Modo demo Ayuda Antojitos de Lupita Coyoacán, CDMX · martes, 3 de noviembre DEMO Corte de caja Compara lo contado con lo esperado. Antes de cerrar Lo que vence hoy, lo vencido y lo de mañana. También los cobros por confirmar. Ahora no COBROS POR CONFIRMAR $120.00 Esperando confirmación Pedido A157 Ver $60.00 Esperando confirmación Pedido A8E5 Ver Cuenta el efectivo de hoy Total contado $ Escribe el total contado "
+      }
+    },
+    {
+      "route": "corte",
+      "path": "/?tab=corte",
+      "viewport": "mobile-390x844",
+      "status": 200,
+      "metrics": {
+        "url": "http://localhost:3100/?tab=corte",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Corte de caja",
+        "active": [
+          "Corte",
+          "Corte"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyHeight": 844,
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "buttons": 19,
+        "links": 3,
+        "inputs": 5,
+        "buttonLabels": [
+          "DEMO",
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas",
+          "Ahora no",
+          "Ver",
+          "Ver",
+          "Contar por billetes y monedas",
+          "Guardar corte",
+          "Hoy",
+          "Semana",
+          "Mes",
+          "Escuchar",
+          "Conciliar"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 0,
+          "y": 64,
+          "w": 390,
+          "h": 709
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 6,
+        "bodyText": "Saltar al contenido Antojitos de Lupita Coyoacán, CDMX DEMO Caja Fiado Corte Meta Tareas Corte de caja Compara lo contado con lo esperado. Antes de cerrar Lo que vence hoy, lo vencido y lo de mañana. También los cobros por confirmar. Ahora no COBROS POR CONFIRMAR $120.00 Esperando confirmación Pedido A157 Ver $60.00 Esperando confirmación Pedido A8E5 Ver Cuenta el efectivo de hoy Total contado $ Escribe el total contado para ver si cuadra. La diferencia exacta se calcula otra vez en el servidor "
+      },
+      "focusOrder": [
+        {
+          "tag": "A",
+          "text": "Saltar al contenido",
+          "role": null,
+          "href": "#main",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "w": 187,
+            "h": 48
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Ir a Inicio",
+          "role": null,
+          "href": "/inicio",
+          "name": null,
+          "rect": {
+            "x": 14,
+            "y": 18,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "DEMO",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 202,
+            "y": 8,
+            "w": 66,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Silenciar voz",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 274,
+            "y": 8,
+            "w": 48,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Abrir guía",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 328,
+            "y": 8,
+            "w": 48,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Caja",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 7,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Fiado",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 83,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Corte",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 158,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        }
+      ],
+      "axe": {
+        "violations": [],
+        "passes": 47,
+        "incomplete": 0,
+        "inapplicable": 44,
+        "label": "corte-mobile-390x844",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "axeHighContrast": {
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".topbar-merchant"
+                ],
+                "html": "<p class=\"topbar-merchant truncate\" title=\"Antojitos de Lupita\">Antojitos de Lupita</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 12.6pt (16.8px), font weight: bold). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".topbar-address"
+                ],
+                "html": "<p class=\"topbar-address\">Coyoacán, CDMX<span class=\"hidden sm:inline\"> · <!-- -->martes, 3 de noviembre</span></p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.34 (foreground color: #cfe3d4, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ]
+          }
+        ],
+        "passes": 47,
+        "incomplete": 0,
+        "inapplicable": 44,
+        "label": "corte-mobile-390x844-hc",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "metricsHighContrast": {
+        "url": "http://localhost:3100/?tab=corte",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Corte de caja",
+        "active": [
+          "Corte",
+          "Corte"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyHeight": 844,
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "buttons": 19,
+        "links": 3,
+        "inputs": 5,
+        "buttonLabels": [
+          "DEMO",
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas",
+          "Ahora no",
+          "Ver",
+          "Ver",
+          "Contar por billetes y monedas",
+          "Guardar corte",
+          "Hoy",
+          "Semana",
+          "Mes",
+          "Escuchar",
+          "Conciliar"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 0,
+          "y": 64,
+          "w": 390,
+          "h": 709
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 6,
+        "bodyText": "Saltar al contenido Antojitos de Lupita Coyoacán, CDMX DEMO Caja Fiado Corte Meta Tareas Corte de caja Compara lo contado con lo esperado. Antes de cerrar Lo que vence hoy, lo vencido y lo de mañana. También los cobros por confirmar. Ahora no COBROS POR CONFIRMAR $120.00 Esperando confirmación Pedido A157 Ver $60.00 Esperando confirmación Pedido A8E5 Ver Cuenta el efectivo de hoy Total contado $ Escribe el total contado para ver si cuadra. La diferencia exacta se calcula otra vez en el servidor "
+      }
+    },
+    {
+      "route": "meta",
+      "path": "/?tab=meta",
+      "viewport": "desktop-1448x1086",
+      "status": 200,
+      "metrics": {
+        "url": "http://localhost:3100/?tab=meta",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Meta",
+        "active": [
+          "Meta",
+          "Meta"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 1448,
+        "clientWidth": 1448,
+        "bodyHeight": 1086,
+        "viewport": {
+          "w": 1448,
+          "h": 1086
+        },
+        "buttons": 11,
+        "links": 3,
+        "inputs": 1,
+        "buttonLabels": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes",
+          "Modo demo",
+          "Ayuda",
+          "DEMO",
+          "Apartar"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Mercado Cero La caja que habla",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 248,
+          "y": 65,
+          "w": 1200,
+          "h": 938
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 248,
+          "h": 1086
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 2,
+        "bodyText": "Saltar al contenido Mercado Cero La caja que habla Caja Fiado Corte Meta Pendientes Modo demo Ayuda Antojitos de Lupita Coyoacán, CDMX · martes, 3 de noviembre DEMO Meta Una meta a la vez. Mi camino Mi primera sombrilla $300.00 de $1,800.00 17% $ Apartar Falta $1,500.00 Por semana $187.50 8 semanas para la meta Apartado declarado: no es una cuenta bancaria ni dinero custodiado, y no genera intereses ni rendimientos. El efectivo sigue en tu resguardo. Lo que estás construyendo · Apartado en tu re"
+      },
+      "focusOrder": [
+        {
+          "tag": "A",
+          "text": "Saltar al contenido",
+          "role": null,
+          "href": "#main",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "w": 187,
+            "h": 48
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Mercado Cero La caja que habla",
+          "role": null,
+          "href": "/inicio",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 24,
+            "w": 216,
+            "h": 65
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Caja",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 107,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Fiado",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 159,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Corte",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 211,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Meta",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 263,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Pendientes",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 315,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Modo demo",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 970,
+            "w": 216,
+            "h": 48
+          }
+        }
+      ],
+      "axe": {
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "help": "Elements must have their visible text as part of their accessible name",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-lockup"
+                ],
+                "html": "<a class=\"brand-lockup\" href=\"/inicio\" aria-label=\"Ir a Inicio\">",
+                "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+              }
+            ]
+          }
+        ],
+        "passes": 45,
+        "incomplete": 0,
+        "inapplicable": 46,
+        "label": "meta-desktop-1448x1086",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "axeHighContrast": {
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-name"
+                ],
+                "html": "<p class=\"brand-name\">Mercado Cero</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 14.4pt (19.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".brand-tagline"
+                ],
+                "html": "<p class=\"brand-tagline\">La caja que habla</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.34 (foreground color: #cfe3d4, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"01\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Caja</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"02\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Fiado</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"03\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Corte</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[aria-label=\"Pendientes\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Pendientes</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".min-h-\\[48px\\].text-left.hover\\:text-ink:nth-child(1) > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Modo demo</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".sidebar-label"
+                ],
+                "html": "<span class=\"sidebar-label min-w-0\">Ayuda</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ]
+          },
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "help": "Elements must have their visible text as part of their accessible name",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-lockup"
+                ],
+                "html": "<a class=\"brand-lockup\" href=\"/inicio\" aria-label=\"Ir a Inicio\">",
+                "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+              }
+            ]
+          }
+        ],
+        "passes": 45,
+        "incomplete": 0,
+        "inapplicable": 46,
+        "label": "meta-desktop-1448x1086-hc",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "metricsHighContrast": {
+        "url": "http://localhost:3100/?tab=meta",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Meta",
+        "active": [
+          "Meta",
+          "Meta"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 1448,
+        "clientWidth": 1448,
+        "bodyHeight": 1086,
+        "viewport": {
+          "w": 1448,
+          "h": 1086
+        },
+        "buttons": 11,
+        "links": 3,
+        "inputs": 1,
+        "buttonLabels": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes",
+          "Modo demo",
+          "Ayuda",
+          "DEMO",
+          "Apartar"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Mercado Cero La caja que habla",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 248,
+          "y": 65,
+          "w": 1200,
+          "h": 938
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 248,
+          "h": 1086
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 2,
+        "bodyText": "Saltar al contenido Mercado Cero La caja que habla Caja Fiado Corte Meta Pendientes Modo demo Ayuda Antojitos de Lupita Coyoacán, CDMX · martes, 3 de noviembre DEMO Meta Una meta a la vez. Mi camino Mi primera sombrilla $300.00 de $1,800.00 17% $ Apartar Falta $1,500.00 Por semana $187.50 8 semanas para la meta Apartado declarado: no es una cuenta bancaria ni dinero custodiado, y no genera intereses ni rendimientos. El efectivo sigue en tu resguardo. Lo que estás construyendo · Apartado en tu re"
+      }
+    },
+    {
+      "route": "meta",
+      "path": "/?tab=meta",
+      "viewport": "mobile-390x844",
+      "status": 200,
+      "metrics": {
+        "url": "http://localhost:3100/?tab=meta",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Meta",
+        "active": [
+          "Meta",
+          "Meta"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyHeight": 844,
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "buttons": 9,
+        "links": 3,
+        "inputs": 1,
+        "buttonLabels": [
+          "DEMO",
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas",
+          "Apartar"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 0,
+          "y": 64,
+          "w": 390,
+          "h": 709
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 1,
+        "bodyText": "Saltar al contenido Antojitos de Lupita Coyoacán, CDMX DEMO Caja Fiado Corte Meta Tareas Meta Una meta a la vez. Mi camino Mi primera sombrilla $300.00 de $1,800.00 17% $ Apartar Falta $1,500.00 Por semana $187.50 8 semanas para la meta Apartado declarado: no es una cuenta bancaria ni dinero custodiado, y no genera intereses ni rendimientos. El efectivo sigue en tu resguardo. Lo que estás construyendo · Apartado en tu registro, no dinero custodiado. Mercado Cero · prototipo DevDay Exchange CDMX "
+      },
+      "focusOrder": [
+        {
+          "tag": "A",
+          "text": "Saltar al contenido",
+          "role": null,
+          "href": "#main",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "w": 187,
+            "h": 48
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Ir a Inicio",
+          "role": null,
+          "href": "/inicio",
+          "name": null,
+          "rect": {
+            "x": 14,
+            "y": 18,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "DEMO",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 202,
+            "y": 8,
+            "w": 66,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Silenciar voz",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 274,
+            "y": 8,
+            "w": 48,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Abrir guía",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 328,
+            "y": 8,
+            "w": 48,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Caja",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 7,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Fiado",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 83,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Corte",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 158,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        }
+      ],
+      "axe": {
+        "violations": [],
+        "passes": 46,
+        "incomplete": 0,
+        "inapplicable": 45,
+        "label": "meta-mobile-390x844",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "axeHighContrast": {
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".topbar-merchant"
+                ],
+                "html": "<p class=\"topbar-merchant truncate\" title=\"Antojitos de Lupita\">Antojitos de Lupita</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 12.6pt (16.8px), font weight: bold). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".topbar-address"
+                ],
+                "html": "<p class=\"topbar-address\">Coyoacán, CDMX<span class=\"hidden sm:inline\"> · <!-- -->martes, 3 de noviembre</span></p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.34 (foreground color: #cfe3d4, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ]
+          }
+        ],
+        "passes": 46,
+        "incomplete": 0,
+        "inapplicable": 45,
+        "label": "meta-mobile-390x844-hc",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "metricsHighContrast": {
+        "url": "http://localhost:3100/?tab=meta",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Meta",
+        "active": [
+          "Meta",
+          "Meta"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyHeight": 844,
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "buttons": 9,
+        "links": 3,
+        "inputs": 1,
+        "buttonLabels": [
+          "DEMO",
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas",
+          "Apartar"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 0,
+          "y": 64,
+          "w": 390,
+          "h": 709
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 1,
+        "bodyText": "Saltar al contenido Antojitos de Lupita Coyoacán, CDMX DEMO Caja Fiado Corte Meta Tareas Meta Una meta a la vez. Mi camino Mi primera sombrilla $300.00 de $1,800.00 17% $ Apartar Falta $1,500.00 Por semana $187.50 8 semanas para la meta Apartado declarado: no es una cuenta bancaria ni dinero custodiado, y no genera intereses ni rendimientos. El efectivo sigue en tu resguardo. Lo que estás construyendo · Apartado en tu registro, no dinero custodiado. Mercado Cero · prototipo DevDay Exchange CDMX "
+      }
+    },
+    {
+      "route": "pendientes",
+      "path": "/?tab=pendientes",
+      "viewport": "desktop-1448x1086",
+      "status": 200,
+      "metrics": {
+        "url": "http://localhost:3100/?tab=pendientes",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Pendientes",
+        "active": [
+          "Pendientes",
+          "Tareas"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 1448,
+        "clientWidth": 1448,
+        "bodyHeight": 1086,
+        "viewport": {
+          "w": 1448,
+          "h": 1086
+        },
+        "buttons": 12,
+        "links": 3,
+        "inputs": 0,
+        "buttonLabels": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes",
+          "Modo demo",
+          "Ayuda",
+          "DEMO",
+          "Anotar pendiente",
+          "Hechas (0)"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Mercado Cero La caja que habla",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 248,
+          "y": 65,
+          "w": 1200,
+          "h": 570
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 248,
+          "h": 1086
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 2,
+        "bodyText": "Saltar al contenido Mercado Cero La caja que habla Caja Fiado Corte Meta Pendientes Modo demo Ayuda Antojitos de Lupita Coyoacán, CDMX · martes, 3 de noviembre DEMO Pendientes Anotar pendiente Lo que queda para después. Aún no hay pendientes. Aquí van los recordatorios del puesto: pagar al proveedor, recoger un pedido, llamar a un cliente. Usa “Anotar pendiente” para crear el primero. Hechas (0) Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + OpenAI · Fotos: créditos Sin confirmación "
+      },
+      "focusOrder": [
+        {
+          "tag": "A",
+          "text": "Saltar al contenido",
+          "role": null,
+          "href": "#main",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "w": 187,
+            "h": 48
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Mercado Cero La caja que habla",
+          "role": null,
+          "href": "/inicio",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 24,
+            "w": 216,
+            "h": 65
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Caja",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 107,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Fiado",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 159,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Corte",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 211,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Meta",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 263,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Pendientes",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 315,
+            "w": 216,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Modo demo",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 970,
+            "w": 216,
+            "h": 48
+          }
+        }
+      ],
+      "axe": {
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "help": "Elements must have their visible text as part of their accessible name",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-lockup"
+                ],
+                "html": "<a class=\"brand-lockup\" href=\"/inicio\" aria-label=\"Ir a Inicio\">",
+                "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+              }
+            ]
+          }
+        ],
+        "passes": 38,
+        "incomplete": 0,
+        "inapplicable": 53,
+        "label": "pendientes-desktop-1448x1086",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "axeHighContrast": {
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-name"
+                ],
+                "html": "<p class=\"brand-name\">Mercado Cero</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 14.4pt (19.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".brand-tagline"
+                ],
+                "html": "<p class=\"brand-tagline\">La caja que habla</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.34 (foreground color: #cfe3d4, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"01\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Caja</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"02\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Fiado</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"03\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Corte</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  "button[data-index=\"04\"] > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Meta</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".min-h-\\[48px\\].hover\\:text-ink.text-left:nth-child(1) > .min-w-0"
+                ],
+                "html": "<span class=\"min-w-0\">Modo demo</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".sidebar-label"
+                ],
+                "html": "<span class=\"sidebar-label min-w-0\">Ayuda</span>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ]
+          },
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "help": "Elements must have their visible text as part of their accessible name",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".brand-lockup"
+                ],
+                "html": "<a class=\"brand-lockup\" href=\"/inicio\" aria-label=\"Ir a Inicio\">",
+                "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+              }
+            ]
+          }
+        ],
+        "passes": 38,
+        "incomplete": 1,
+        "inapplicable": 53,
+        "label": "pendientes-desktop-1448x1086-hc",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "metricsHighContrast": {
+        "url": "http://localhost:3100/?tab=pendientes",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Pendientes",
+        "active": [
+          "Pendientes",
+          "Tareas"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 1448,
+        "clientWidth": 1448,
+        "bodyHeight": 1086,
+        "viewport": {
+          "w": 1448,
+          "h": 1086
+        },
+        "buttons": 12,
+        "links": 3,
+        "inputs": 0,
+        "buttonLabels": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes",
+          "Modo demo",
+          "Ayuda",
+          "DEMO",
+          "Anotar pendiente",
+          "Hechas (0)"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Mercado Cero La caja que habla",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 248,
+          "y": 65,
+          "w": 1200,
+          "h": 570
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 248,
+          "h": 1086
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Pendientes"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 2,
+        "bodyText": "Saltar al contenido Mercado Cero La caja que habla Caja Fiado Corte Meta Pendientes Modo demo Ayuda Antojitos de Lupita Coyoacán, CDMX · martes, 3 de noviembre DEMO Pendientes Anotar pendiente Lo que queda para después. Aún no hay pendientes. Aquí van los recordatorios del puesto: pagar al proveedor, recoger un pedido, llamar a un cliente. Usa “Anotar pendiente” para crear el primero. Hechas (0) Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + OpenAI · Fotos: créditos Sin confirmación "
+      }
+    },
+    {
+      "route": "pendientes",
+      "path": "/?tab=pendientes",
+      "viewport": "mobile-390x844",
+      "status": 200,
+      "metrics": {
+        "url": "http://localhost:3100/?tab=pendientes",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Pendientes",
+        "active": [
+          "Pendientes",
+          "Tareas"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyHeight": 844,
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "buttons": 10,
+        "links": 3,
+        "inputs": 0,
+        "buttonLabels": [
+          "DEMO",
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas",
+          "Anotar pendiente",
+          "Hechas (0)"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 0,
+          "y": 64,
+          "w": 390,
+          "h": 709
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 1,
+        "bodyText": "Saltar al contenido Antojitos de Lupita Coyoacán, CDMX DEMO Caja Fiado Corte Meta Tareas Pendientes Anotar pendiente Lo que queda para después. Aún no hay pendientes. Aquí van los recordatorios del puesto: pagar al proveedor, recoger un pedido, llamar a un cliente. Usa “Anotar pendiente” para crear el primero. Hechas (0) Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + OpenAI · Fotos: créditos Sin confirmación firmada no hay pagado."
+      },
+      "focusOrder": [
+        {
+          "tag": "A",
+          "text": "Saltar al contenido",
+          "role": null,
+          "href": "#main",
+          "name": null,
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "w": 187,
+            "h": 48
+          }
+        },
+        {
+          "tag": "A",
+          "text": "Ir a Inicio",
+          "role": null,
+          "href": "/inicio",
+          "name": null,
+          "rect": {
+            "x": 14,
+            "y": 18,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "DEMO",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 202,
+            "y": 8,
+            "w": 66,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Silenciar voz",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 274,
+            "y": 8,
+            "w": 48,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Abrir guía",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 328,
+            "y": 8,
+            "w": 48,
+            "h": 48
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Caja",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 7,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Fiado",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 83,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Corte",
+          "role": null,
+          "href": null,
+          "name": null,
+          "rect": {
+            "x": 158,
+            "y": 778,
+            "w": 74,
+            "h": 60
+          }
+        }
+      ],
+      "axe": {
+        "violations": [],
+        "passes": 38,
+        "incomplete": 0,
+        "inapplicable": 53,
+        "label": "pendientes-mobile-390x844",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "axeHighContrast": {
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+            "nodes": [
+              {
+                "target": [
+                  ".topbar-merchant"
+                ],
+                "html": "<p class=\"topbar-merchant truncate\" title=\"Antojitos de Lupita\">Antojitos de Lupita</p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 12.6pt (16.8px), font weight: bold). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".topbar-address"
+                ],
+                "html": "<p class=\"topbar-address\">Coyoacán, CDMX<span class=\"hidden sm:inline\"> · <!-- -->martes, 3 de noviembre</span></p>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.34 (foreground color: #cfe3d4, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ]
+          }
+        ],
+        "passes": 38,
+        "incomplete": 1,
+        "inapplicable": 53,
+        "label": "pendientes-mobile-390x844-hc",
+        "tags": [
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22aa",
+          "best-practice"
+        ]
+      },
+      "metricsHighContrast": {
+        "url": "http://localhost:3100/?tab=pendientes",
+        "title": "Mercado Cero · La caja que habla",
+        "h1": "Pendientes",
+        "active": [
+          "Pendientes",
+          "Tareas"
+        ],
+        "skipLinks": [
+          "Saltar al contenido"
+        ],
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "bodyHeight": 844,
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "buttons": 10,
+        "links": 3,
+        "inputs": 0,
+        "buttonLabels": [
+          "DEMO",
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas",
+          "Anotar pendiente",
+          "Hechas (0)"
+        ],
+        "linkLabels": [
+          "Saltar al contenido",
+          "Fotos: créditos"
+        ],
+        "kpis": [],
+        "hero": null,
+        "pending": null,
+        "suggestion": null,
+        "cta": null,
+        "main": {
+          "x": 0,
+          "y": 64,
+          "w": 390,
+          "h": 709
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "fontStatus": "loaded",
+        "navItems": [
+          "Caja",
+          "Fiado",
+          "Corte",
+          "Meta",
+          "Tareas"
+        ],
+        "hasForm": 0,
+        "hasQR": 0,
+        "demoText": 1,
+        "bodyText": "Saltar al contenido Antojitos de Lupita Coyoacán, CDMX DEMO Caja Fiado Corte Meta Tareas Pendientes Anotar pendiente Lo que queda para después. Aún no hay pendientes. Aquí van los recordatorios del puesto: pagar al proveedor, recoger un pedido, llamar a un cliente. Usa “Anotar pendiente” para crear el primero. Hechas (0) Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + OpenAI · Fotos: créditos Sin confirmación firmada no hay pagado."
+      }
+    }
+  ]
+}

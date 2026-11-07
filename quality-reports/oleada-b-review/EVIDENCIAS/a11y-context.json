@@ -1,0 +1,29 @@
+{
+  "audit": "08_accesibilidad - Oleada B - /caja y /ventas",
+  "date": "2026-11-04T11:26:05.942851-06:00",
+  "repo": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero",
+  "head": "4130e71d668e5e4693a8f5b634d2d2f953d21b02",
+  "git_status_short": "?? quality-reports/oleada-b-review/",
+  "server": "http://127.0.0.1:3100",
+  "health": {
+    "ok": true,
+    "buildSha": "4130e71d668e5e4693a8f5b634d2d2f953d21b02",
+    "node": "v25.7.0",
+    "uptimeSeconds": 1543
+  },
+  "tools": {
+    "playwright": "1.64.0",
+    "chromium": "156.0.8078.4",
+    "axe-core": "4.14.0",
+    "mode": "headless Chromium; teclado Playwright; emulacion forced-colors/reduced-motion; sin lector real"
+  },
+  "viewports": [
+    "1280x800",
+    "360x740",
+    "320x640",
+    "640x400 (zoom 200% equivalente)",
+    "512x320"
+  ],
+  "data_caveat": "El servidor :3100 es compartido y los datos cambiaron durante la auditoria (15 -> 70 -> 125 ordenes). Los conteos de paginacion y los IDs citados son de la ventana de prueba; los hallazgos de layout/forma/foco no dependen de esos datos.",
+  "server_sha_matches_head": true
+}

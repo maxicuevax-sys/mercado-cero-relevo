@@ -1,0 +1,921 @@
+/* Ventas · historial de consulta con el ritmo visual de Inicio.
+   Solo clases `.mc-ventas-*`; el shell, el layout base y los tokens vienen del
+   wrapper `.mc-op-*` y de `components/ui/operational-tokens.css`. Sigue el
+   contrato v2 de `reports/RELEVO/VISUAL-DIRECTION.md`: base 4, página 24,
+   tarjetas 16-22, gaps 16, sombra única 0 2px 8px rgb(31 38 34 / 5%). */
+
+.mc-ventas-page {
+  --mc-ventas-border: var(--color-separator);
+  --mc-ventas-shadow: 0 2px 8px rgb(31 38 34 / 0.05);
+  --mc-ventas-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  position: relative;
+}
+
+/* Padding de página del contrato: 24 desktop / 20-16 móvil. */
+.mc-ventas-page.mc-op-main {
+  padding: 24px;
+  padding-bottom: 72px;
+}
+
+@media (max-width: 1023.98px) {
+  .mc-ventas-page.mc-op-main {
+    padding: 20px 16px 72px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .mc-ventas-page.mc-op-main {
+    padding: 20px 16px calc(96px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Cabecera editorial */
+.mc-ventas-page > .mc-op-header {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 24px;
+}
+
+.mc-ventas-page > .mc-op-header .mc-page-header__title {
+  font-size: clamp(2rem, 3vw, 2.5rem);
+}
+
+.mc-ventas-page > .mc-op-page {
+  gap: 24px;
+}
+
+.mc-ventas-page__picado {
+  position: absolute;
+  top: 4px;
+  right: clamp(12px, 2vw, 24px);
+  width: clamp(120px, 14vw, 200px);
+  height: auto;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* CTA primario (único de la pantalla). */
+.mc-ventas-cta {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid var(--color-accent);
+  border-radius: 12px;
+  background: var(--color-accent);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 253 247 / 0.16),
+    0 6px 14px -10px rgb(0 63 49 / 0.5);
+  color: #fffdf7;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 180ms var(--mc-ventas-ease);
+}
+
+.mc-ventas-cta:hover {
+  background: var(--color-accent-press);
+}
+
+.mc-ventas-cta svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+/* -------------------------------------------------------------------------
+   Momento ilustrado: una sola ilustración grande por pantalla. Cuando hay
+   ventas vive aquí; cuando no hay, el empty state toma la posta.
+   ------------------------------------------------------------------------- */
+.mc-ventas-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 300px);
+  align-items: center;
+  gap: 12px 20px;
+  min-width: 0;
+  padding: 20px 24px;
+  border: 1px solid var(--mc-ventas-border);
+  border-radius: 22px;
+  background: var(--color-surface);
+  box-shadow: var(--mc-ventas-shadow);
+}
+
+.mc-ventas-hero__copy {
+  min-width: 0;
+}
+
+.mc-ventas-hero__kicker {
+  color: var(--color-attention);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.mc-ventas-hero__lead {
+  margin-top: 4px;
+  max-width: 24ch;
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: clamp(1.25rem, 1.7vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.mc-ventas-hero__note {
+  margin-top: 6px;
+  max-width: 48ch;
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.mc-ventas-hero__art {
+  width: 100%;
+  height: auto;
+  max-width: 300px;
+  justify-self: end;
+  object-fit: contain;
+}
+
+/* -------------------------------------------------------------------------
+   Resumen: 3 tarjetas con medallón de marca e importe tabular.
+   ------------------------------------------------------------------------- */
+.mc-ventas-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  min-width: 0;
+}
+
+.mc-ventas-kpi {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--mc-ventas-border);
+  border-radius: 22px;
+  background: var(--color-surface);
+  box-shadow: var(--mc-ventas-shadow);
+}
+
+.mc-ventas-kpi__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mc-ventas-kpi__medallion {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  background: var(--color-green-soft);
+}
+
+.mc-ventas-kpi__medallion--saffron {
+  background: var(--color-saffron-soft);
+}
+
+.mc-ventas-kpi__medallion--terracotta {
+  background: var(--color-terracotta-soft);
+}
+
+.mc-ventas-kpi__medallion img {
+  width: 23px;
+  height: 23px;
+  object-fit: contain;
+}
+
+.mc-ventas-kpi__label {
+  flex: 1 1 5rem;
+  min-width: 0;
+  color: var(--color-ink-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.mc-ventas-kpi__value {
+  margin-top: 8px;
+  color: var(--color-ink);
+  font-family: var(--font-alder), "Alder", "Segoe UI", sans-serif;
+  font-size: clamp(1.0625rem, 2.6vw, 1.875rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.mc-ventas-kpi__note {
+  margin-top: 4px;
+  color: var(--color-ink-2);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+/* -------------------------------------------------------------------------
+   Empty state ilustrado (misma tarjeta papel).
+   ------------------------------------------------------------------------- */
+.mc-ventas-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 28px 24px;
+  border: 1px dashed var(--mc-ventas-border);
+  border-radius: 22px;
+  background: var(--color-surface);
+  box-shadow: var(--mc-ventas-shadow);
+  text-align: center;
+}
+
+.mc-ventas-empty__art {
+  width: clamp(180px, 44vw, 260px);
+  height: auto;
+  margin-bottom: 8px;
+}
+
+.mc-ventas-empty__title {
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.mc-ventas-empty__body {
+  max-width: 46ch;
+  margin-top: 4px;
+  color: var(--color-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.mc-ventas-empty__link {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  padding: 10px 18px;
+  border: 1.5px solid var(--color-accent);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mc-ventas-empty__link:hover {
+  background: var(--color-green-soft);
+  color: var(--color-accent-press);
+}
+
+/* -------------------------------------------------------------------------
+   Lista de ventas: filas tarjeta con medallón, sello y conceptos.
+   ------------------------------------------------------------------------- */
+.mc-ventas-list {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.mc-ventas-list__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 0 2px;
+}
+
+.mc-ventas-list__title {
+  min-width: 0;
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.mc-ventas-list__meta {
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.mc-ventas-items {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mc-ventas-item {
+  min-width: 0;
+}
+
+.mc-ventas-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px 16px;
+  min-width: 0;
+  padding: 16px 20px;
+  border: 1px solid var(--mc-ventas-border);
+  border-radius: 22px;
+  background: var(--color-surface);
+  box-shadow: var(--mc-ventas-shadow);
+  transition: border-color 180ms var(--mc-ventas-ease);
+}
+
+.mc-ventas-row:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 30%, var(--mc-ventas-border));
+}
+
+.mc-ventas-row__medallion {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  background: var(--color-green-soft);
+}
+
+.mc-ventas-row__medallion--saffron {
+  background: var(--color-saffron-soft);
+}
+
+.mc-ventas-row__medallion--terracotta {
+  background: var(--color-terracotta-soft);
+}
+
+.mc-ventas-row__medallion-img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.mc-ventas-row__main {
+  min-width: 0;
+}
+
+.mc-ventas-row__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  min-width: 0;
+}
+
+.mc-ventas-row__title h3 {
+  min-width: 0;
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+/* Sello de estado: texto + borde, nunca solo color. */
+.mc-ventas-stamp {
+  display: inline-flex;
+  flex: 0 1 auto;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  align-items: center;
+  padding: 2px 8px;
+  border: 1.5px solid currentColor;
+  border-radius: 6px;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  transform: rotate(-2deg);
+}
+
+.mc-ventas-stamp--demo {
+  background: color-mix(in srgb, var(--color-saffron-soft) 75%, transparent);
+  color: var(--color-attention);
+}
+
+.mc-ventas-stamp--pendiente {
+  background: var(--color-blue-soft);
+  color: var(--color-info);
+  transform: rotate(1.5deg);
+}
+
+.mc-ventas-stamp--fiado {
+  background: var(--color-terracotta-soft);
+  color: var(--color-attention);
+}
+
+.mc-ventas-stamp--ok {
+  background: var(--color-green-soft);
+  color: var(--color-accent);
+  transform: rotate(1.5deg);
+}
+
+.mc-ventas-stamp--neutral {
+  background: var(--color-surface);
+  color: var(--color-ink-2);
+  transform: none;
+}
+
+.mc-ventas-row__meta,
+.mc-ventas-row__items {
+  margin-top: 4px;
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.mc-ventas-row__amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  min-width: 0;
+  text-align: right;
+}
+
+.mc-ventas-row__total {
+  color: var(--color-ink);
+  font-family: var(--font-alder), "Alder", "Segoe UI", sans-serif;
+  font-size: clamp(1.25rem, 1.7vw, 1.5rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.mc-ventas-row__amount-note,
+.mc-ventas-row__demo-paid,
+.mc-ventas-row__split,
+.mc-ventas-row__due,
+.mc-ventas-row__credit {
+  color: var(--color-ink-2);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.mc-ventas-row__demo-paid {
+  color: var(--color-attention);
+  font-weight: 700;
+}
+
+.mc-ventas-row__split {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.mc-ventas-row__due {
+  color: var(--color-info);
+  font-weight: 700;
+}
+
+.mc-ventas-row__credit {
+  color: var(--color-attention);
+  font-weight: 700;
+}
+
+/* "Ver conceptos": acción secundaria clara, sin cambiar el render. */
+.mc-ventas-row__footer {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px 8px;
+  min-width: 0;
+  margin-top: 2px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--mc-ventas-border);
+}
+
+.mc-ventas-row__footer > .mc-ventas-row__details {
+  grid-column: auto;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.mc-ventas-row__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.mc-ventas-row__link:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mc-ventas-row__open {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 4px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.mc-ventas-row__open:hover {
+  background: var(--color-green-soft);
+}
+
+.mc-ventas-row__open svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.mc-ventas-row__details {
+  grid-column: 1 / -1;
+  min-width: 0;
+  margin-top: 2px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--mc-ventas-border);
+}
+
+.mc-ventas-row__details summary {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  border: 1px solid var(--mc-ventas-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.3;
+  cursor: pointer;
+  list-style: none;
+}
+
+.mc-ventas-row__details summary::-webkit-details-marker {
+  display: none;
+}
+
+.mc-ventas-row__details summary::marker {
+  content: "";
+}
+
+.mc-ventas-row__details summary:hover {
+  background: var(--color-green-soft);
+}
+
+.mc-ventas-row__details summary svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  transition: transform 180ms var(--mc-ventas-ease);
+}
+
+.mc-ventas-row__details[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.mc-ventas-row__details ul {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0 4px;
+  padding: 0;
+  list-style: none;
+}
+
+.mc-ventas-row__details li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  padding: 6px 0;
+  border-top: 1px dashed var(--mc-ventas-border);
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* -------------------------------------------------------------------------
+   Paginación y nota
+   ------------------------------------------------------------------------- */
+.mc-ventas-pager {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.mc-ventas-pager a,
+.mc-ventas-pager span {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border: 1px solid var(--color-control-border, var(--mc-ventas-border));
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mc-ventas-pager a:hover {
+  background: var(--color-green-soft);
+}
+
+.mc-ventas-pager span[aria-disabled="true"] {
+  border-color: var(--mc-ventas-border);
+  color: var(--color-ink-2);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.mc-ventas-pager svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.mc-ventas-note {
+  max-width: 78ch;
+  padding: 0 2px;
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------------------------------
+   Responsive
+   ------------------------------------------------------------------------- */
+@media (min-width: 768px) {
+  .mc-ventas-page > .mc-op-header {
+    padding-right: clamp(96px, 12vw, 180px);
+  }
+
+  .mc-ventas-summary {
+    gap: 16px;
+  }
+
+  .mc-ventas-kpi {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .mc-ventas-kpi__medallion {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+  }
+
+  .mc-ventas-kpi__medallion img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .mc-ventas-kpi__label {
+    font-size: 0.875rem;
+  }
+
+  .mc-ventas-kpi__note {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 899.98px) {
+  .mc-ventas-page > .mc-op-page {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .mc-ventas-page > .mc-op-header {
+    margin-bottom: 20px;
+  }
+
+  .mc-ventas-page > .mc-op-page {
+    gap: 16px;
+  }
+
+  .mc-ventas-page__picado {
+    top: 2px;
+    width: 116px;
+  }
+
+  .mc-ventas-hero {
+    grid-template-columns: minmax(0, 1fr) 128px;
+    gap: 8px 14px;
+    padding: 16px;
+  }
+
+  .mc-ventas-hero__lead {
+    font-size: 1.125rem;
+  }
+
+  .mc-ventas-hero__note {
+    font-size: 0.8125rem;
+  }
+
+  .mc-ventas-hero__art {
+    max-width: 128px;
+  }
+
+  .mc-ventas-summary {
+    gap: 8px;
+  }
+
+  .mc-ventas-kpi {
+    padding: 12px;
+  }
+
+  .mc-ventas-kpi__value {
+    font-size: clamp(1.0625rem, 3.4vw, 1.25rem);
+  }
+
+  .mc-ventas-row {
+    gap: 10px 12px;
+    padding: 14px 16px;
+  }
+
+  .mc-ventas-row__medallion {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+
+  .mc-ventas-row__medallion-img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .mc-ventas-row__title h3 {
+    font-size: 1.0625rem;
+  }
+
+  .mc-ventas-empty {
+    padding: 22px 16px;
+  }
+
+  .mc-ventas-empty__title {
+    font-size: 1.3125rem;
+  }
+}
+
+@media (max-width: 479.98px) {
+  .mc-ventas-page > .mc-op-header {
+    padding-right: 0;
+  }
+
+  .mc-ventas-hero {
+    grid-template-columns: minmax(0, 1fr) 104px;
+    padding: 14px;
+  }
+
+  .mc-ventas-hero__art {
+    max-width: 104px;
+  }
+
+  .mc-ventas-row {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 12px 14px;
+  }
+
+  .mc-ventas-row__amount {
+    grid-column: 2;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .mc-ventas-row__details {
+    padding-top: 8px;
+  }
+
+  .mc-ventas-row__details li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+
+  .mc-ventas-empty__title {
+    font-size: 1.25rem;
+  }
+
+  .mc-ventas-empty__art {
+    width: 190px;
+  }
+}
+
+@media (max-width: 359.98px) {
+  .mc-ventas-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mc-ventas-kpi {
+    padding: 14px;
+  }
+
+  .mc-ventas-kpi__value {
+    font-size: 1.5rem;
+  }
+
+  .mc-ventas-kpi__note {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Historial en una libreta continua: medallón, concepto/estado e importe.
+   Conserva todos los estados financieros y la paginación existentes. */
+.mc-ventas-page.mc-op-main { font-family: Arial, "Segoe UI", sans-serif; }
+.mc-ventas-items {
+  gap: 0;
+  border: 1px solid var(--mc-ventas-border);
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+.mc-ventas-items .mc-ventas-row {
+  border: 0;
+  border-bottom: 1px solid var(--mc-ventas-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+.mc-ventas-item:last-child .mc-ventas-row { border-bottom: 0; }
+.mc-ventas-row__title h3 { font-family: Arial, "Segoe UI", sans-serif; font-weight: 700; }
+.mc-ventas-row__total { font-family: Arial, "Segoe UI", sans-serif; overflow-wrap: anywhere; white-space: normal; }
+.mc-ventas-row__medallion { border-radius: 50%; }
+.mc-ventas-kpi__value { font-family: var(--font-hearth), Georgia, serif; }
+
+@media (max-width: 479.98px) {
+  .mc-ventas-summary { gap: 8px; }
+  .mc-ventas-kpi { padding: 12px 10px; border-radius: 20px; }
+  .mc-ventas-kpi__top { gap: 6px; }
+  .mc-ventas-kpi__note { font-size: 0.6875rem; }
+  .mc-ventas-items .mc-ventas-row {
+    grid-template-columns: 36px minmax(0, 1fr) minmax(68px, 0.8fr);
+    gap: 8px;
+    padding: 14px 12px;
+  }
+  .mc-ventas-row__medallion { width: 36px; height: 36px; }
+  .mc-ventas-row__medallion-img { width: 26px; height: 26px; }
+  .mc-ventas-row__title h3 { font-size: 0.9375rem; }
+  .mc-ventas-row__meta, .mc-ventas-row__items { font-size: 0.75rem; }
+  .mc-ventas-items .mc-ventas-row__amount { grid-column: 3; grid-row: 1; align-items: flex-end; text-align: right; }
+  .mc-ventas-row__total { font-size: 1.125rem; }
+  .mc-ventas-row__amount-note, .mc-ventas-row__demo-paid { font-size: 0.6875rem; }
+  .mc-ventas-row__details { border-top: 0; padding-top: 0; margin-top: 0; }
+}
+
+/* Una columna de información al ampliar texto: el estado nunca se recorta. */
+@container mc-op-main (max-width: 14em) {
+  .mc-ventas-items .mc-ventas-row { grid-template-columns: 36px minmax(0, 1fr); }
+  .mc-ventas-items .mc-ventas-row__amount { grid-column: 2; grid-row: auto; align-items: flex-start; text-align: left; }
+}
+
+@media (forced-colors: active) {
+  .mc-ventas-cta,
+  .mc-ventas-cta:hover,
+  .mc-ventas-empty__link,
+  .mc-ventas-kpi,
+  .mc-ventas-row,
+  .mc-ventas-row__medallion,
+  .mc-ventas-row__details summary,
+  .mc-ventas-pager a,
+  .mc-ventas-pager span {
+    border-color: CanvasText;
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "before": {
+    "tag": "BUTTON",
+    "name": "Empezar de nuevo"
+  },
+  "after": {
+    "tag": "BODY",
+    "id": "",
+    "name": "Saltar al contenido\nMercado\nCero\nInicio\n",
+    "focusVisible": false,
+    "restore": false,
+    "lines": 0
+  },
+  "finding": "El boton 'Empezar de nuevo' se desmonta y el foco cae a BODY; no hay anuncio ni destino de foco."
+}

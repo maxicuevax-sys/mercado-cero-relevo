@@ -1,0 +1,33 @@
+componente,pantallas,uso,criterio_a11y_o_dato
+AppShell,desktop/mobile,"sidebar, topbar, bottom nav","keyboard, responsive, role-based"
+Sidebar,desktop,navigation and current route,"labels, focus, no color-only"
+BottomNav,mobile,4-5 key destinations,"44px targets, visible labels"
+MoneyAmount,all,"integer minor units, MXN, privacy","tabular numerals, aria readable"
+KpiTile,dashboard,"amount period, confidence",no figures without coverage
+SaleEntry,sales,free text or catalog,"keyboard, input label, offline draft"
+SaleLineItem,sales,name qty price remove,reorder not needed
+PaymentMethod,payment,cash digital fiado split,radio semantics
+PaymentStatus,digital,pending verified failed expired,never fake success
+QrPayment,digital,real provider QR + reference,"text alternative, demo label"
+CashReceived,sales,"amount paid, change",no negative surprise
+DebtPersonRow,fiado,client balance last movement,privacy and no name-only ambiguity
+DebtEntry,fiado,"new debt, partial payment",auditable corrections
+CashDenomination,close,coin/bill quantities,accessible count inputs
+CashVariance,close,expected minus actual,clear sign + cause unknown
+GoalCard,goals,target and virtual progress,explicit not bank custody
+ProductRow,inventory,price availability unit,"search, optional catalog"
+VendorRow,providers,"name, next order",privacy consent
+PendingItem,tasks,complete snooze edit,not push-spam
+PeriodFilter,reports,month week date,period in visible label
+ReportGraph,reports,data chart table,textual alternative
+GuidedStep,onboarding,practice sale actions,skip and back
+HelpHint,all,contextual helper,does not obscure action
+AssistantPrompt,assistant,explicit user query,"opt-out, no data by default"
+Icon,all,single local custom library,decorative aria-hidden
+StatusBadge,all,text+symbol+color,AA contrast
+EmptyState,all,state + action,not imply zero historical sales
+OfflineBanner,all,scope of offline capability,no digital verification offline
+ActionButton,all,one per flow,48px and visible focus
+AccessibleDialog,all,confirmation/irreversible changes,focus trap and restore
+BusinessSwitch,shell,change business,role constraints
+ReceiptPreview,sales,ticket editable before record,large amounts

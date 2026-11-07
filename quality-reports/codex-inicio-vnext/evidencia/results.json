@@ -1,0 +1,733 @@
+{
+  "base": "http://localhost:3340",
+  "buildSha": "5ea2d853841e8f324c63486eafd4c2f033d407a4",
+  "gitSha": "5ea2d853841e8f324c63486eafd4c2f033d407a4",
+  "generatedAt": "2026-11-05T02:01:01.588100+00:00",
+  "demoMode": true,
+  "expected": [
+    "$190.00",
+    "$0.00",
+    "$120.00"
+  ],
+  "checks": [
+    {
+      "name": "1448: sin scroll horizontal",
+      "ok": true,
+      "detail": "1448/1448"
+    },
+    {
+      "name": "1448: cuatro KPI",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "1448: importes desde la API real",
+      "ok": true,
+      "detail": "['$190.00', '$0.00', '$120.00'] esperado ['$190.00', '$0.00', '$120.00']"
+    },
+    {
+      "name": "1448: meta en porcentaje",
+      "ok": true,
+      "detail": "17%"
+    },
+    {
+      "name": "1448: Pendientes visible",
+      "ok": true,
+      "detail": "Pendientes"
+    },
+    {
+      "name": "1448: sugerencia y su CTA dentro del documento",
+      "ok": true,
+      "detail": {
+        "x": 1236,
+        "y": 754,
+        "w": 146,
+        "h": 48,
+        "right": 1382,
+        "bottom": 802,
+        "sw": 144,
+        "cw": 144
+      }
+    },
+    {
+      "name": "1448: CTA Nueva venta en la primera pantalla",
+      "ok": true,
+      "detail": {
+        "x": 548,
+        "y": 557,
+        "w": 137,
+        "h": 48,
+        "right": 685,
+        "bottom": 605,
+        "sw": 137,
+        "cw": 137
+      }
+    },
+    {
+      "name": "1448: KPI en 1 fila(s)",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "1448: KPI compactos (≤175 px)",
+      "ok": true,
+      "detail": "165 px"
+    },
+    {
+      "name": "1448: sidebar visible y mobile nav oculto",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1448: papel picado no invade el saludo",
+      "ok": true,
+      "detail": "h1={'x': 340, 'y': 108, 'w': 803, 'h': 49, 'right': 1143, 'bottom': 157, 'sw': 803, 'cw': 803} picado={'x': 1157, 'y': 108, 'w': 250, 'h': 53, 'right': 1407, 'bottom': 161, 'sw': 250, 'cw': 250}"
+    },
+    {
+      "name": "1448: axe 0 violaciones",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "1448: fuentes Hearth/Alder cargadas",
+      "ok": true,
+      "detail": [
+        "hearth",
+        "hearth Fallback",
+        "alder",
+        "alder Fallback"
+      ]
+    },
+    {
+      "name": "1366: sin scroll horizontal",
+      "ok": true,
+      "detail": "1366/1366"
+    },
+    {
+      "name": "1366: cuatro KPI",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "1366: importes desde la API real",
+      "ok": true,
+      "detail": "['$190.00', '$0.00', '$120.00'] esperado ['$190.00', '$0.00', '$120.00']"
+    },
+    {
+      "name": "1366: meta en porcentaje",
+      "ok": true,
+      "detail": "17%"
+    },
+    {
+      "name": "1366: Pendientes visible",
+      "ok": true,
+      "detail": "Pendientes"
+    },
+    {
+      "name": "1366: sugerencia y su CTA dentro del documento",
+      "ok": true,
+      "detail": {
+        "x": 1171,
+        "y": 754,
+        "w": 146,
+        "h": 48,
+        "right": 1317,
+        "bottom": 802,
+        "sw": 144,
+        "cw": 144
+      }
+    },
+    {
+      "name": "1366: CTA Nueva venta en la primera pantalla",
+      "ok": true,
+      "detail": {
+        "x": 520,
+        "y": 575,
+        "w": 137,
+        "h": 48,
+        "right": 657,
+        "bottom": 623,
+        "sw": 137,
+        "cw": 137
+      }
+    },
+    {
+      "name": "1366: KPI en 1 fila(s)",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "1366: KPI compactos (≤175 px)",
+      "ok": true,
+      "detail": "165 px"
+    },
+    {
+      "name": "1366: sidebar visible y mobile nav oculto",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1366: papel picado no invade el saludo",
+      "ok": true,
+      "detail": "h1={'x': 322, 'y': 108, 'w': 756, 'h': 49, 'right': 1078, 'bottom': 157, 'sw': 756, 'cw': 756} picado={'x': 1092, 'y': 108, 'w': 250, 'h': 53, 'right': 1342, 'bottom': 161, 'sw': 250, 'cw': 250}"
+    },
+    {
+      "name": "1366: axe 0 violaciones",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "1366: fuentes Hearth/Alder cargadas",
+      "ok": true,
+      "detail": [
+        "hearth",
+        "hearth Fallback",
+        "alder",
+        "alder Fallback"
+      ]
+    },
+    {
+      "name": "1280: sin scroll horizontal",
+      "ok": true,
+      "detail": "1280/1280"
+    },
+    {
+      "name": "1280: cuatro KPI",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "1280: importes desde la API real",
+      "ok": true,
+      "detail": "['$190.00', '$0.00', '$120.00'] esperado ['$190.00', '$0.00', '$120.00']"
+    },
+    {
+      "name": "1280: meta en porcentaje",
+      "ok": true,
+      "detail": "17%"
+    },
+    {
+      "name": "1280: Pendientes visible",
+      "ok": true,
+      "detail": "Pendientes"
+    },
+    {
+      "name": "1280: sugerencia y su CTA dentro del documento",
+      "ok": true,
+      "detail": {
+        "x": 1085,
+        "y": 753,
+        "w": 146,
+        "h": 48,
+        "right": 1231,
+        "bottom": 801,
+        "sw": 144,
+        "cw": 144
+      }
+    },
+    {
+      "name": "1280: CTA Nueva venta en la primera pantalla",
+      "ok": true,
+      "detail": {
+        "x": 479,
+        "y": 574,
+        "w": 137,
+        "h": 48,
+        "right": 616,
+        "bottom": 622,
+        "sw": 137,
+        "cw": 137
+      }
+    },
+    {
+      "name": "1280: KPI en 1 fila(s)",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "1280: KPI compactos (≤175 px)",
+      "ok": true,
+      "detail": "165 px"
+    },
+    {
+      "name": "1280: sidebar visible y mobile nav oculto",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1280: papel picado no invade el saludo",
+      "ok": true,
+      "detail": "h1={'x': 296, 'y': 108, 'w': 696, 'h': 48, 'right': 992, 'bottom': 156, 'sw': 696, 'cw': 696} picado={'x': 1006, 'y': 108, 'w': 250, 'h': 53, 'right': 1256, 'bottom': 161, 'sw': 250, 'cw': 250}"
+    },
+    {
+      "name": "1280: axe 0 violaciones",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "1280: fuentes Hearth/Alder cargadas",
+      "ok": true,
+      "detail": [
+        "hearth",
+        "hearth Fallback",
+        "alder",
+        "alder Fallback"
+      ]
+    },
+    {
+      "name": "768: sin scroll horizontal",
+      "ok": true,
+      "detail": "768/768"
+    },
+    {
+      "name": "768: cuatro KPI",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "768: importes desde la API real",
+      "ok": true,
+      "detail": "['$190.00', '$0.00', '$120.00'] esperado ['$190.00', '$0.00', '$120.00']"
+    },
+    {
+      "name": "768: meta en porcentaje",
+      "ok": true,
+      "detail": "17%"
+    },
+    {
+      "name": "768: Pendientes visible",
+      "ok": true,
+      "detail": "Pendientes"
+    },
+    {
+      "name": "768: sugerencia y su CTA dentro del documento",
+      "ok": true,
+      "detail": {
+        "x": 573,
+        "y": 1279,
+        "w": 146,
+        "h": 48,
+        "right": 719,
+        "bottom": 1327,
+        "sw": 144,
+        "cw": 144
+      }
+    },
+    {
+      "name": "768: CTA Nueva venta en la primera pantalla",
+      "ok": true,
+      "detail": {
+        "x": 373,
+        "y": 739,
+        "w": 137,
+        "h": 48,
+        "right": 510,
+        "bottom": 787,
+        "sw": 137,
+        "cw": 137
+      }
+    },
+    {
+      "name": "768: KPI en 2 fila(s)",
+      "ok": true,
+      "detail": 2
+    },
+    {
+      "name": "768: KPI compactos (≤175 px)",
+      "ok": true,
+      "detail": "165 px"
+    },
+    {
+      "name": "768: mobile nav visible y sidebar oculto",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "768: papel picado oculto sin invadir",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "768: axe 0 violaciones",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "768: fuentes Hearth/Alder cargadas",
+      "ok": true,
+      "detail": [
+        "hearth",
+        "hearth Fallback",
+        "alder",
+        "alder Fallback"
+      ]
+    },
+    {
+      "name": "768: sugerencia no queda bajo la barra inferior",
+      "ok": true,
+      "detail": "sugerencia={'x': 24, 'y': 682, 'w': 720, 'h': 182, 'right': 744, 'bottom': 864, 'sw': 718, 'cw': 718} nav={'x': 0, 'y': 954, 'w': 768, 'h': 70, 'right': 768, 'bottom': 1024, 'sw': 768, 'cw': 768}"
+    },
+    {
+      "name": "390: sin scroll horizontal",
+      "ok": true,
+      "detail": "390/390"
+    },
+    {
+      "name": "390: cuatro KPI",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "390: importes desde la API real",
+      "ok": true,
+      "detail": "['$190.00', '$0.00', '$120.00'] esperado ['$190.00', '$0.00', '$120.00']"
+    },
+    {
+      "name": "390: meta en porcentaje",
+      "ok": true,
+      "detail": "17%"
+    },
+    {
+      "name": "390: Pendientes visible",
+      "ok": true,
+      "detail": "Pendientes"
+    },
+    {
+      "name": "390: sugerencia y su CTA dentro del documento",
+      "ok": true,
+      "detail": {
+        "x": 35,
+        "y": 1202,
+        "w": 320,
+        "h": 48,
+        "right": 355,
+        "bottom": 1250,
+        "sw": 318,
+        "cw": 318
+      }
+    },
+    {
+      "name": "390: CTA Nueva venta en la primera pantalla",
+      "ok": true,
+      "detail": {
+        "x": 169,
+        "y": 634,
+        "w": 121,
+        "h": 48,
+        "right": 290,
+        "bottom": 682,
+        "sw": 121,
+        "cw": 121
+      }
+    },
+    {
+      "name": "390: KPI en 2 fila(s)",
+      "ok": true,
+      "detail": 2
+    },
+    {
+      "name": "390: KPI compactos (≤160 px)",
+      "ok": true,
+      "detail": "136 px"
+    },
+    {
+      "name": "390: mobile nav visible y sidebar oculto",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390: papel picado oculto sin invadir",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390: axe 0 violaciones",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "390: fuentes Hearth/Alder cargadas",
+      "ok": true,
+      "detail": [
+        "hearth",
+        "hearth Fallback",
+        "alder",
+        "alder Fallback"
+      ]
+    },
+    {
+      "name": "390: sugerencia no queda bajo la barra inferior",
+      "ok": true,
+      "detail": "sugerencia={'x': 16, 'y': 463, 'w': 358, 'h': 221, 'right': 374, 'bottom': 684, 'sw': 356, 'cw': 356} nav={'x': 0, 'y': 774, 'w': 390, 'h': 70, 'right': 390, 'bottom': 844, 'sw': 390, 'cw': 390}"
+    },
+    {
+      "name": "320: sin scroll horizontal",
+      "ok": true,
+      "detail": "320/320"
+    },
+    {
+      "name": "320: cuatro KPI",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "320: importes desde la API real",
+      "ok": true,
+      "detail": "['$190.00', '$0.00', '$120.00'] esperado ['$190.00', '$0.00', '$120.00']"
+    },
+    {
+      "name": "320: meta en porcentaje",
+      "ok": true,
+      "detail": "17%"
+    },
+    {
+      "name": "320: Pendientes visible",
+      "ok": true,
+      "detail": "Pendientes"
+    },
+    {
+      "name": "320: sugerencia y su CTA dentro del documento",
+      "ok": true,
+      "detail": {
+        "x": 35,
+        "y": 1368,
+        "w": 250,
+        "h": 48,
+        "right": 285,
+        "bottom": 1416,
+        "sw": 248,
+        "cw": 248
+      }
+    },
+    {
+      "name": "320: CTA Nueva venta en la primera pantalla",
+      "ok": true,
+      "detail": {
+        "x": 141,
+        "y": 395,
+        "w": 121,
+        "h": 48,
+        "right": 262,
+        "bottom": 443,
+        "sw": 121,
+        "cw": 121
+      }
+    },
+    {
+      "name": "320: KPI en 2 fila(s)",
+      "ok": true,
+      "detail": 2
+    },
+    {
+      "name": "320: KPI compactos (≤160 px)",
+      "ok": true,
+      "detail": "146 px"
+    },
+    {
+      "name": "320: mobile nav visible y sidebar oculto",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "320: papel picado oculto sin invadir",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "320: axe 0 violaciones",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "320: fuentes Hearth/Alder cargadas",
+      "ok": true,
+      "detail": [
+        "hearth",
+        "hearth Fallback",
+        "alder",
+        "alder Fallback"
+      ]
+    },
+    {
+      "name": "320: sugerencia no queda bajo la barra inferior",
+      "ok": true,
+      "detail": "sugerencia={'x': 16, 'y': 212, 'w': 288, 'h': 268, 'right': 304, 'bottom': 480, 'sw': 286, 'cw': 286} nav={'x': 0, 'y': 514, 'w': 320, 'h': 126, 'right': 320, 'bottom': 640, 'sw': 320, 'cw': 320}"
+    },
+    {
+      "name": "Foco: primer Tab llega al skip link",
+      "ok": true,
+      "detail": "Saltar al contenido"
+    },
+    {
+      "name": "Foco: skip link enfoca el main",
+      "ok": true,
+      "detail": "inicio-main"
+    },
+    {
+      "name": "Foco: al volver a Inicio enfoca el h1",
+      "ok": true,
+      "detail": {
+        "id": "inicio-title",
+        "tag": "H1",
+        "text": "¡Buen día, Lupita!"
+      }
+    },
+    {
+      "name": "Foco: el siguiente Tab entra al CTA Registrar",
+      "ok": true,
+      "detail": "Registrar"
+    },
+    {
+      "name": "200% 1280: sin scroll horizontal",
+      "ok": true,
+      "detail": "1280/1280"
+    },
+    {
+      "name": "200% 1280: cuatro KPI",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "200% 1280: importes sin recorte interno",
+      "ok": true,
+      "detail": [
+        "512/512",
+        "512/512",
+        "512/512",
+        "512/512"
+      ]
+    },
+    {
+      "name": "200% 1280: axe 0 violaciones",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "200% 1280: CTA Nueva venta accesible",
+      "ok": true,
+      "detail": "cta={'x': 659.40625, 'y': 369.46875, 'width': 188.0625, 'height': 61.59375} navTop=None"
+    },
+    {
+      "name": "200% 1280: CTA de sugerencia accesible",
+      "ok": true,
+      "detail": "cta={'x': 245, 'y': 681.28125, 'width': 1000, 'height': 63.59375} navTop=None"
+    },
+    {
+      "name": "200% 768: sin scroll horizontal",
+      "ok": true,
+      "detail": "768/768"
+    },
+    {
+      "name": "200% 768: cuatro KPI",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "200% 768: importes sin recorte interno",
+      "ok": true,
+      "detail": [
+        "361/361",
+        "361/361",
+        "361/361",
+        "361/361"
+      ]
+    },
+    {
+      "name": "200% 768: axe 0 violaciones",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "200% 768: CTA Nueva venta accesible",
+      "ok": true,
+      "detail": "cta={'x': 325.046875, 'y': 480.75, 'width': 188.0625, 'height': 61.59375} navTop=929.8125"
+    },
+    {
+      "name": "200% 768: CTA de sugerencia accesible",
+      "ok": true,
+      "detail": "cta={'x': 35, 'y': 621.796875, 'width': 698, 'height': 63.59375} navTop=929.8125"
+    },
+    {
+      "name": "200% 390: sin scroll horizontal",
+      "ok": true,
+      "detail": "390/390"
+    },
+    {
+      "name": "200% 390: cuatro KPI",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "200% 390: importes sin recorte interno",
+      "ok": true,
+      "detail": [
+        "356/356",
+        "356/356",
+        "356/356",
+        "356/356"
+      ]
+    },
+    {
+      "name": "200% 390: axe 0 violaciones",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "200% 390: CTA Nueva venta accesible",
+      "ok": true,
+      "detail": "cta={'x': 36, 'y': 390.75, 'width': 188.0625, 'height': 61.59375} navTop=677.625"
+    },
+    {
+      "name": "200% 390: CTA de sugerencia accesible",
+      "ok": true,
+      "detail": "cta={'x': 35, 'y': 441.578125, 'width': 320, 'height': 63.59375} navTop=677.625"
+    },
+    {
+      "name": "200% 320: sin scroll horizontal",
+      "ok": true,
+      "detail": "320/320"
+    },
+    {
+      "name": "200% 320: cuatro KPI",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "200% 320: importes sin recorte interno",
+      "ok": true,
+      "detail": [
+        "286/286",
+        "286/286",
+        "286/286",
+        "286/286"
+      ]
+    },
+    {
+      "name": "200% 320: axe 0 violaciones",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "200% 320: CTA Nueva venta accesible",
+      "ok": true,
+      "detail": "cta={'x': 36, 'y': 289.34375, 'width': 188.0625, 'height': 61.59375} navTop=473.625"
+    },
+    {
+      "name": "200% 320: CTA de sugerencia accesible",
+      "ok": true,
+      "detail": "cta={'x': 35, 'y': 288.109375, 'width': 250, 'height': 63.59375} navTop=473.625"
+    },
+    {
+      "name": "Sin errores de página",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "Sin POST a /api durante el gate",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "pass": 111,
+  "fail": 0
+}

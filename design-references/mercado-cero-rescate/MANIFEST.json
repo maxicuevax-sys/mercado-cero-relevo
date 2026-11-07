@@ -1,0 +1,12 @@
+{
+  "title": "Mercado Cero: rescate visual de Inicio",
+  "created": "2026-11-03",
+  "purpose": "Corregir comparación Inicio vs Caja, estructurar paridad por ruta y proteger lógica financiera",
+  "canonical_reference": "00_REFERENCIA_CANONICA_INICIO_1448x1086.png",
+  "blockers": [
+    "wrong_page",
+    "different_viewport",
+    "wrong_layout_hierarchy",
+    "assets_not_production_ready"
+  ]
+}

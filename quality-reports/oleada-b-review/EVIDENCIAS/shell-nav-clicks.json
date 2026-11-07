@@ -1,0 +1,90 @@
+{
+  "desktop": [
+    {
+      "href": "/inicio",
+      "clicked": true,
+      "url": "http://localhost:3100/inicio",
+      "h1": "¡Buen día, Lupita!",
+      "legacy": false
+    },
+    {
+      "href": "/caja",
+      "clicked": true,
+      "url": "http://localhost:3100/caja",
+      "h1": "Nueva venta",
+      "legacy": false
+    },
+    {
+      "href": "/ventas",
+      "clicked": true,
+      "url": "http://localhost:3100/ventas",
+      "h1": "Ventas",
+      "legacy": false
+    },
+    {
+      "href": "/fiados",
+      "clicked": true,
+      "url": "http://localhost:3100/?tab=fiado",
+      "h1": "Fiado",
+      "legacy": true
+    },
+    {
+      "href": "/corte",
+      "clicked": true,
+      "url": "http://localhost:3100/?tab=corte",
+      "h1": "Corte de caja",
+      "legacy": true
+    },
+    {
+      "href": "/metas",
+      "clicked": true,
+      "url": "http://localhost:3100/?tab=meta",
+      "h1": "Meta",
+      "legacy": true
+    },
+    {
+      "href": "/pendientes",
+      "clicked": true,
+      "url": "http://localhost:3100/?tab=pendientes",
+      "h1": "Pendientes",
+      "legacy": true
+    }
+  ],
+  "mobileMore": [
+    {
+      "href": "/corte",
+      "clicked": true,
+      "url": "http://localhost:3100/?tab=corte",
+      "h1": "Corte de caja",
+      "dialog": false
+    },
+    {
+      "href": "/metas",
+      "clicked": true,
+      "url": "http://localhost:3100/?tab=meta",
+      "h1": "Meta",
+      "dialog": false
+    },
+    {
+      "href": "/pendientes",
+      "clicked": true,
+      "url": "http://localhost:3100/?tab=pendientes",
+      "h1": "Pendientes",
+      "dialog": false
+    },
+    {
+      "href": "/?ayuda=1",
+      "clicked": true,
+      "url": "http://localhost:3100/?ayuda=1",
+      "h1": "Caja",
+      "dialog": true
+    },
+    {
+      "href": "/?ayuda=1#ajustes",
+      "clicked": true,
+      "url": "http://localhost:3100/?ayuda=1#ajustes",
+      "h1": "Caja",
+      "dialog": true
+    }
+  ]
+}

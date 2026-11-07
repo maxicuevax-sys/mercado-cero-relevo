@@ -1,0 +1,65 @@
+id,screen_id,pantalla,prioridad,responsable,categoria,verificacion,estado,evidencia
+01_inicio_escritorio-VIS,01_inicio_escritorio,Resumen del negocio (escritorio),P1,mc-shell-responsive,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+01_inicio_escritorio-A11Y,01_inicio_escritorio,Resumen del negocio (escritorio),P1,mc-shell-responsive,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+01_inicio_escritorio-STATE,01_inicio_escritorio,Resumen del negocio (escritorio),P1,mc-shell-responsive,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+01_inicio_escritorio-DATA,01_inicio_escritorio,Resumen del negocio (escritorio),P1,mc-shell-responsive,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+02_inicio_movil-VIS,02_inicio_movil,Inicio móvil,P0,mc-shell-responsive,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+02_inicio_movil-A11Y,02_inicio_movil,Inicio móvil,P0,mc-shell-responsive,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+02_inicio_movil-STATE,02_inicio_movil,Inicio móvil,P0,mc-shell-responsive,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+02_inicio_movil-DATA,02_inicio_movil,Inicio móvil,P0,mc-shell-responsive,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+03_nueva_venta-VIS,03_nueva_venta,Nueva venta / composición de ticket,P0,mc-ventas-pagos,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+03_nueva_venta-A11Y,03_nueva_venta,Nueva venta / composición de ticket,P0,mc-ventas-pagos,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+03_nueva_venta-STATE,03_nueva_venta,Nueva venta / composición de ticket,P0,mc-ventas-pagos,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+03_nueva_venta-DATA,03_nueva_venta,Nueva venta / composición de ticket,P0,mc-ventas-pagos,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+04_seleccion_pago-VIS,04_seleccion_pago,Seleccionar forma de pago,P0,mc-ventas-pagos,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+04_seleccion_pago-A11Y,04_seleccion_pago,Seleccionar forma de pago,P0,mc-ventas-pagos,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+04_seleccion_pago-STATE,04_seleccion_pago,Seleccionar forma de pago,P0,mc-ventas-pagos,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+04_seleccion_pago-DATA,04_seleccion_pago,Seleccionar forma de pago,P0,mc-ventas-pagos,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+05_cobro_qr-VIS,05_cobro_qr,Solicitud de cobro digital / QR,P0,mc-ventas-pagos,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+05_cobro_qr-A11Y,05_cobro_qr,Solicitud de cobro digital / QR,P0,mc-ventas-pagos,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+05_cobro_qr-STATE,05_cobro_qr,Solicitud de cobro digital / QR,P0,mc-ventas-pagos,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+05_cobro_qr-DATA,05_cobro_qr,Solicitud de cobro digital / QR,P0,mc-ventas-pagos,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+06_fiado-VIS,06_fiado,Fiado / clientes / abonos,P0,mc-fiado-corte,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+06_fiado-A11Y,06_fiado,Fiado / clientes / abonos,P0,mc-fiado-corte,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+06_fiado-STATE,06_fiado,Fiado / clientes / abonos,P0,mc-fiado-corte,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+06_fiado-DATA,06_fiado,Fiado / clientes / abonos,P0,mc-fiado-corte,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+07_corte_caja-VIS,07_corte_caja,Corte de caja,P0,mc-fiado-corte,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+07_corte_caja-A11Y,07_corte_caja,Corte de caja,P0,mc-fiado-corte,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+07_corte_caja-STATE,07_corte_caja,Corte de caja,P0,mc-fiado-corte,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+07_corte_caja-DATA,07_corte_caja,Corte de caja,P0,mc-fiado-corte,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+08_metas-VIS,08_metas,Metas y apartados virtuales,P1,mc-modulos-negocio,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+08_metas-A11Y,08_metas,Metas y apartados virtuales,P1,mc-modulos-negocio,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+08_metas-STATE,08_metas,Metas y apartados virtuales,P1,mc-modulos-negocio,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+08_metas-DATA,08_metas,Metas y apartados virtuales,P1,mc-modulos-negocio,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+09_inventario-VIS,09_inventario,Productos e inventario,P1,mc-modulos-negocio,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+09_inventario-A11Y,09_inventario,Productos e inventario,P1,mc-modulos-negocio,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+09_inventario-STATE,09_inventario,Productos e inventario,P1,mc-modulos-negocio,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+09_inventario-DATA,09_inventario,Productos e inventario,P1,mc-modulos-negocio,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+10_proveedores-VIS,10_proveedores,Directorio de proveedores,P2,mc-modulos-negocio,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+10_proveedores-A11Y,10_proveedores,Directorio de proveedores,P2,mc-modulos-negocio,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+10_proveedores-STATE,10_proveedores,Directorio de proveedores,P2,mc-modulos-negocio,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+10_proveedores-DATA,10_proveedores,Directorio de proveedores,P2,mc-modulos-negocio,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+11_pendientes-VIS,11_pendientes,Pendientes y recordatorios,P1,mc-modulos-negocio,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+11_pendientes-A11Y,11_pendientes,Pendientes y recordatorios,P1,mc-modulos-negocio,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+11_pendientes-STATE,11_pendientes,Pendientes y recordatorios,P1,mc-modulos-negocio,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+11_pendientes-DATA,11_pendientes,Pendientes y recordatorios,P1,mc-modulos-negocio,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+12_reportes-VIS,12_reportes,Reportes simples,P2,mc-modulos-negocio,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+12_reportes-A11Y,12_reportes,Reportes simples,P2,mc-modulos-negocio,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+12_reportes-STATE,12_reportes,Reportes simples,P2,mc-modulos-negocio,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+12_reportes-DATA,12_reportes,Reportes simples,P2,mc-modulos-negocio,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+13_onboarding-VIS,13_onboarding,Onboarding de primera venta práctica,P1,mc-onboarding-ayuda,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+13_onboarding-A11Y,13_onboarding,Onboarding de primera venta práctica,P1,mc-onboarding-ayuda,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+13_onboarding-STATE,13_onboarding,Onboarding de primera venta práctica,P1,mc-onboarding-ayuda,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+13_onboarding-DATA,13_onboarding,Onboarding de primera venta práctica,P1,mc-onboarding-ayuda,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+14_asistente-VIS,14_asistente,Asistente opcional,P2,mc-onboarding-ayuda,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+14_asistente-A11Y,14_asistente,Asistente opcional,P2,mc-onboarding-ayuda,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+14_asistente-STATE,14_asistente,Asistente opcional,P2,mc-onboarding-ayuda,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+14_asistente-DATA,14_asistente,Asistente opcional,P2,mc-onboarding-ayuda,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+15_accesibilidad-VIS,15_accesibilidad,Preferencias de accesibilidad,P1,mc-accesibilidad,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+15_accesibilidad-A11Y,15_accesibilidad,Preferencias de accesibilidad,P1,mc-accesibilidad,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+15_accesibilidad-STATE,15_accesibilidad,Preferencias de accesibilidad,P1,mc-accesibilidad,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+15_accesibilidad-DATA,15_accesibilidad,Preferencias de accesibilidad,P1,mc-accesibilidad,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test
+16_navegacion_y_shell-VIS,16_navegacion_y_shell,Shell de navegación escritorio y responsive,P0,mc-shell-responsive,visual,Layout y jerarquía comparados con referencia sin copiar datos ficticios,PENDIENTE,Evidencia/URL de screenshot o test
+16_navegacion_y_shell-A11Y,16_navegacion_y_shell,Shell de navegación escritorio y responsive,P0,mc-shell-responsive,accessibility,"Teclado, labels, zoom 200%, contraste, foco",PENDIENTE,Evidencia/URL de screenshot o test
+16_navegacion_y_shell-STATE,16_navegacion_y_shell,Shell de navegación escritorio y responsive,P0,mc-shell-responsive,state,"Estados vacío, error, offline y recuperación",PENDIENTE,Evidencia/URL de screenshot o test
+16_navegacion_y_shell-DATA,16_navegacion_y_shell,Shell de navegación escritorio y responsive,P0,mc-shell-responsive,financial,Invariantes de datos y roles preservadas,PENDIENTE,Evidencia/URL de screenshot o test

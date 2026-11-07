@@ -1,0 +1,38 @@
+{
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+      "nodes": [
+        {
+          "target": [
+            ".topbar-merchant"
+          ],
+          "html": "<p class=\"topbar-merchant truncate\" title=\"Antojitos de Lupita\">Antojitos de Lupita</p>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 12.6pt (16.8px), font weight: bold). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            ".topbar-address"
+          ],
+          "html": "<p class=\"topbar-address\">Coyoacán, CDMX<span class=\"hidden sm:inline\"> · <!-- -->martes, 3 de noviembre</span></p>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.34 (foreground color: #cfe3d4, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ]
+    }
+  ],
+  "passes": 38,
+  "incomplete": 1,
+  "inapplicable": 53,
+  "label": "pendientes-mobile-390x844-hc",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa",
+    "best-practice"
+  ]
+}

@@ -1,0 +1,298 @@
+{
+  "route": "pendientes",
+  "path": "/?tab=pendientes",
+  "viewport": "mobile-390x844",
+  "status": 200,
+  "metrics": {
+    "url": "http://localhost:3100/?tab=pendientes",
+    "title": "Mercado Cero · La caja que habla",
+    "h1": "Pendientes",
+    "active": [
+      "Pendientes",
+      "Tareas"
+    ],
+    "skipLinks": [
+      "Saltar al contenido"
+    ],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyHeight": 844,
+    "viewport": {
+      "w": 390,
+      "h": 844
+    },
+    "buttons": 10,
+    "links": 3,
+    "inputs": 0,
+    "buttonLabels": [
+      "DEMO",
+      "Caja",
+      "Fiado",
+      "Corte",
+      "Meta",
+      "Tareas",
+      "Anotar pendiente",
+      "Hechas (0)"
+    ],
+    "linkLabels": [
+      "Saltar al contenido",
+      "Fotos: créditos"
+    ],
+    "kpis": [],
+    "hero": null,
+    "pending": null,
+    "suggestion": null,
+    "cta": null,
+    "main": {
+      "x": 0,
+      "y": 64,
+      "w": 390,
+      "h": 709
+    },
+    "sidebar": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    },
+    "fontStatus": "loaded",
+    "navItems": [
+      "Caja",
+      "Fiado",
+      "Corte",
+      "Meta",
+      "Tareas"
+    ],
+    "hasForm": 0,
+    "hasQR": 0,
+    "demoText": 1,
+    "bodyText": "Saltar al contenido Antojitos de Lupita Coyoacán, CDMX DEMO Caja Fiado Corte Meta Tareas Pendientes Anotar pendiente Lo que queda para después. Aún no hay pendientes. Aquí van los recordatorios del puesto: pagar al proveedor, recoger un pedido, llamar a un cliente. Usa “Anotar pendiente” para crear el primero. Hechas (0) Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + OpenAI · Fotos: créditos Sin confirmación firmada no hay pagado."
+  },
+  "focusOrder": [
+    {
+      "tag": "A",
+      "text": "Saltar al contenido",
+      "role": null,
+      "href": "#main",
+      "name": null,
+      "rect": {
+        "x": 16,
+        "y": 16,
+        "w": 187,
+        "h": 48
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Ir a Inicio",
+      "role": null,
+      "href": "/inicio",
+      "name": null,
+      "rect": {
+        "x": 14,
+        "y": 18,
+        "w": 28,
+        "h": 28
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "text": "DEMO",
+      "role": null,
+      "href": null,
+      "name": null,
+      "rect": {
+        "x": 202,
+        "y": 8,
+        "w": 66,
+        "h": 48
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Silenciar voz",
+      "role": null,
+      "href": null,
+      "name": null,
+      "rect": {
+        "x": 274,
+        "y": 8,
+        "w": 48,
+        "h": 48
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Abrir guía",
+      "role": null,
+      "href": null,
+      "name": null,
+      "rect": {
+        "x": 328,
+        "y": 8,
+        "w": 48,
+        "h": 48
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Caja",
+      "role": null,
+      "href": null,
+      "name": null,
+      "rect": {
+        "x": 7,
+        "y": 778,
+        "w": 74,
+        "h": 60
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Fiado",
+      "role": null,
+      "href": null,
+      "name": null,
+      "rect": {
+        "x": 83,
+        "y": 778,
+        "w": 74,
+        "h": 60
+      }
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Corte",
+      "role": null,
+      "href": null,
+      "name": null,
+      "rect": {
+        "x": 158,
+        "y": 778,
+        "w": 74,
+        "h": 60
+      }
+    }
+  ],
+  "axe": {
+    "violations": [],
+    "passes": 38,
+    "incomplete": 0,
+    "inapplicable": 53,
+    "label": "pendientes-mobile-390x844",
+    "tags": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa",
+      "wcag22aa",
+      "best-practice"
+    ]
+  },
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failedRequests": [],
+  "axeHighContrast": {
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "target": [
+              ".topbar-merchant"
+            ],
+            "html": "<p class=\"topbar-merchant truncate\" title=\"Antojitos de Lupita\">Antojitos de Lupita</p>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 12.6pt (16.8px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".topbar-address"
+            ],
+            "html": "<p class=\"topbar-address\">Coyoacán, CDMX<span class=\"hidden sm:inline\"> · <!-- -->martes, 3 de noviembre</span></p>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.34 (foreground color: #cfe3d4, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "passes": 38,
+    "incomplete": 1,
+    "inapplicable": 53,
+    "label": "pendientes-mobile-390x844-hc",
+    "tags": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa",
+      "wcag22aa",
+      "best-practice"
+    ]
+  },
+  "metricsHighContrast": {
+    "url": "http://localhost:3100/?tab=pendientes",
+    "title": "Mercado Cero · La caja que habla",
+    "h1": "Pendientes",
+    "active": [
+      "Pendientes",
+      "Tareas"
+    ],
+    "skipLinks": [
+      "Saltar al contenido"
+    ],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyHeight": 844,
+    "viewport": {
+      "w": 390,
+      "h": 844
+    },
+    "buttons": 10,
+    "links": 3,
+    "inputs": 0,
+    "buttonLabels": [
+      "DEMO",
+      "Caja",
+      "Fiado",
+      "Corte",
+      "Meta",
+      "Tareas",
+      "Anotar pendiente",
+      "Hechas (0)"
+    ],
+    "linkLabels": [
+      "Saltar al contenido",
+      "Fotos: créditos"
+    ],
+    "kpis": [],
+    "hero": null,
+    "pending": null,
+    "suggestion": null,
+    "cta": null,
+    "main": {
+      "x": 0,
+      "y": 64,
+      "w": 390,
+      "h": 709
+    },
+    "sidebar": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    },
+    "fontStatus": "loaded",
+    "navItems": [
+      "Caja",
+      "Fiado",
+      "Corte",
+      "Meta",
+      "Tareas"
+    ],
+    "hasForm": 0,
+    "hasQR": 0,
+    "demoText": 1,
+    "bodyText": "Saltar al contenido Antojitos de Lupita Coyoacán, CDMX DEMO Caja Fiado Corte Meta Tareas Pendientes Anotar pendiente Lo que queda para después. Aún no hay pendientes. Aquí van los recordatorios del puesto: pagar al proveedor, recoger un pedido, llamar a un cliente. Usa “Anotar pendiente” para crear el primero. Hechas (0) Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + OpenAI · Fotos: créditos Sin confirmación firmada no hay pagado."
+  }
+}

@@ -1,0 +1,462 @@
+[
+  {
+    "case": "1448",
+    "viewport": [
+      1448,
+      1086
+    ],
+    "textSize": "normal",
+    "kpis": [
+      {
+        "text": "$1,245.00",
+        "w": 227,
+        "h": 42,
+        "cardW": 269,
+        "overflow": false,
+        "scrollWidth": 227,
+        "clientWidth": 227
+      },
+      {
+        "text": "$1,245.00",
+        "w": 227,
+        "h": 42,
+        "cardW": 269,
+        "overflow": false,
+        "scrollWidth": 227,
+        "clientWidth": 227
+      },
+      {
+        "text": "$1,245.00",
+        "w": 227,
+        "h": 42,
+        "cardW": 269,
+        "overflow": false,
+        "scrollWidth": 227,
+        "clientWidth": 227
+      },
+      {
+        "text": "100%",
+        "w": 227,
+        "h": 42,
+        "cardW": 269,
+        "overflow": false,
+        "scrollWidth": 227,
+        "clientWidth": 227
+      }
+    ]
+  },
+  {
+    "case": "1366",
+    "viewport": [
+      1366,
+      768
+    ],
+    "textSize": "normal",
+    "kpis": [
+      {
+        "text": "$1,245.00",
+        "w": 215,
+        "h": 42,
+        "cardW": 257,
+        "overflow": false,
+        "scrollWidth": 215,
+        "clientWidth": 215
+      },
+      {
+        "text": "$1,245.00",
+        "w": 215,
+        "h": 42,
+        "cardW": 257,
+        "overflow": false,
+        "scrollWidth": 215,
+        "clientWidth": 215
+      },
+      {
+        "text": "$1,245.00",
+        "w": 215,
+        "h": 42,
+        "cardW": 257,
+        "overflow": false,
+        "scrollWidth": 215,
+        "clientWidth": 215
+      },
+      {
+        "text": "100%",
+        "w": 215,
+        "h": 42,
+        "cardW": 257,
+        "overflow": false,
+        "scrollWidth": 215,
+        "clientWidth": 215
+      }
+    ]
+  },
+  {
+    "case": "1281",
+    "viewport": [
+      1281,
+      900
+    ],
+    "textSize": "normal",
+    "kpis": [
+      {
+        "text": "$1,245.00",
+        "w": 461,
+        "h": 41,
+        "cardW": 503,
+        "overflow": false,
+        "scrollWidth": 461,
+        "clientWidth": 461
+      },
+      {
+        "text": "$1,245.00",
+        "w": 461,
+        "h": 41,
+        "cardW": 503,
+        "overflow": false,
+        "scrollWidth": 461,
+        "clientWidth": 461
+      },
+      {
+        "text": "$1,245.00",
+        "w": 461,
+        "h": 41,
+        "cardW": 503,
+        "overflow": false,
+        "scrollWidth": 461,
+        "clientWidth": 461
+      },
+      {
+        "text": "100%",
+        "w": 461,
+        "h": 41,
+        "cardW": 503,
+        "overflow": false,
+        "scrollWidth": 461,
+        "clientWidth": 461
+      }
+    ]
+  },
+  {
+    "case": "1280",
+    "viewport": [
+      1280,
+      900
+    ],
+    "textSize": "normal",
+    "kpis": [
+      {
+        "text": "$1,245.00",
+        "w": 460,
+        "h": 41,
+        "cardW": 502,
+        "overflow": false,
+        "scrollWidth": 460,
+        "clientWidth": 460
+      },
+      {
+        "text": "$1,245.00",
+        "w": 460,
+        "h": 41,
+        "cardW": 502,
+        "overflow": false,
+        "scrollWidth": 460,
+        "clientWidth": 460
+      },
+      {
+        "text": "$1,245.00",
+        "w": 460,
+        "h": 41,
+        "cardW": 502,
+        "overflow": false,
+        "scrollWidth": 460,
+        "clientWidth": 460
+      },
+      {
+        "text": "100%",
+        "w": 460,
+        "h": 41,
+        "cardW": 502,
+        "overflow": false,
+        "scrollWidth": 460,
+        "clientWidth": 460
+      }
+    ]
+  },
+  {
+    "case": "1200",
+    "viewport": [
+      1200,
+      900
+    ],
+    "textSize": "normal",
+    "kpis": [
+      {
+        "text": "$1,245.00",
+        "w": 420,
+        "h": 39,
+        "cardW": 462,
+        "overflow": false,
+        "scrollWidth": 420,
+        "clientWidth": 420
+      },
+      {
+        "text": "$1,245.00",
+        "w": 420,
+        "h": 39,
+        "cardW": 462,
+        "overflow": false,
+        "scrollWidth": 420,
+        "clientWidth": 420
+      },
+      {
+        "text": "$1,245.00",
+        "w": 420,
+        "h": 39,
+        "cardW": 462,
+        "overflow": false,
+        "scrollWidth": 420,
+        "clientWidth": 420
+      },
+      {
+        "text": "100%",
+        "w": 420,
+        "h": 39,
+        "cardW": 462,
+        "overflow": false,
+        "scrollWidth": 420,
+        "clientWidth": 420
+      }
+    ]
+  },
+  {
+    "case": "1101",
+    "viewport": [
+      1101,
+      900
+    ],
+    "textSize": "normal",
+    "kpis": [
+      {
+        "text": "$1,245.00",
+        "w": 371,
+        "h": 37,
+        "cardW": 413,
+        "overflow": false,
+        "scrollWidth": 371,
+        "clientWidth": 371
+      },
+      {
+        "text": "$1,245.00",
+        "w": 371,
+        "h": 37,
+        "cardW": 413,
+        "overflow": false,
+        "scrollWidth": 371,
+        "clientWidth": 371
+      },
+      {
+        "text": "$1,245.00",
+        "w": 371,
+        "h": 37,
+        "cardW": 413,
+        "overflow": false,
+        "scrollWidth": 371,
+        "clientWidth": 371
+      },
+      {
+        "text": "100%",
+        "w": 371,
+        "h": 37,
+        "cardW": 413,
+        "overflow": false,
+        "scrollWidth": 371,
+        "clientWidth": 371
+      }
+    ]
+  },
+  {
+    "case": "390",
+    "viewport": [
+      390,
+      844
+    ],
+    "textSize": "normal",
+    "kpis": [
+      {
+        "text": "$1,245.00",
+        "w": 156,
+        "h": 24,
+        "cardW": 178,
+        "overflow": false,
+        "scrollWidth": 156,
+        "clientWidth": 156
+      },
+      {
+        "text": "$1,245.00",
+        "w": 156,
+        "h": 24,
+        "cardW": 178,
+        "overflow": false,
+        "scrollWidth": 156,
+        "clientWidth": 156
+      },
+      {
+        "text": "$1,245.00",
+        "w": 156,
+        "h": 24,
+        "cardW": 178,
+        "overflow": false,
+        "scrollWidth": 156,
+        "clientWidth": 156
+      },
+      {
+        "text": "100%",
+        "w": 156,
+        "h": 24,
+        "cardW": 178,
+        "overflow": false,
+        "scrollWidth": 156,
+        "clientWidth": 156
+      }
+    ]
+  },
+  {
+    "case": "320",
+    "viewport": [
+      320,
+      640
+    ],
+    "textSize": "normal",
+    "kpis": [
+      {
+        "text": "$1,245.00",
+        "w": 126,
+        "h": 20,
+        "cardW": 144,
+        "overflow": false,
+        "scrollWidth": 126,
+        "clientWidth": 126
+      },
+      {
+        "text": "$1,245.00",
+        "w": 126,
+        "h": 20,
+        "cardW": 144,
+        "overflow": false,
+        "scrollWidth": 126,
+        "clientWidth": 126
+      },
+      {
+        "text": "$1,245.00",
+        "w": 126,
+        "h": 20,
+        "cardW": 144,
+        "overflow": false,
+        "scrollWidth": 126,
+        "clientWidth": 126
+      },
+      {
+        "text": "100%",
+        "w": 126,
+        "h": 20,
+        "cardW": 144,
+        "overflow": false,
+        "scrollWidth": 126,
+        "clientWidth": 126
+      }
+    ]
+  },
+  {
+    "case": "390-xlarge",
+    "viewport": [
+      390,
+      844
+    ],
+    "textSize": "xlarge",
+    "kpis": [
+      {
+        "text": "$1,245.00",
+        "w": 156,
+        "h": 30,
+        "cardW": 178,
+        "overflow": false,
+        "scrollWidth": 156,
+        "clientWidth": 156
+      },
+      {
+        "text": "$1,245.00",
+        "w": 156,
+        "h": 30,
+        "cardW": 178,
+        "overflow": false,
+        "scrollWidth": 156,
+        "clientWidth": 156
+      },
+      {
+        "text": "$1,245.00",
+        "w": 156,
+        "h": 30,
+        "cardW": 178,
+        "overflow": false,
+        "scrollWidth": 156,
+        "clientWidth": 156
+      },
+      {
+        "text": "100%",
+        "w": 156,
+        "h": 30,
+        "cardW": 178,
+        "overflow": false,
+        "scrollWidth": 156,
+        "clientWidth": 156
+      }
+    ]
+  },
+  {
+    "case": "1448-xlarge",
+    "viewport": [
+      1448,
+      1086
+    ],
+    "textSize": "xlarge",
+    "kpis": [
+      {
+        "text": "$1,245.00",
+        "w": 227,
+        "h": 47,
+        "cardW": 269,
+        "overflow": false,
+        "scrollWidth": 227,
+        "clientWidth": 227
+      },
+      {
+        "text": "$1,245.00",
+        "w": 227,
+        "h": 47,
+        "cardW": 269,
+        "overflow": false,
+        "scrollWidth": 227,
+        "clientWidth": 227
+      },
+      {
+        "text": "$1,245.00",
+        "w": 227,
+        "h": 47,
+        "cardW": 269,
+        "overflow": false,
+        "scrollWidth": 227,
+        "clientWidth": 227
+      },
+      {
+        "text": "100%",
+        "w": 227,
+        "h": 47,
+        "cardW": 269,
+        "overflow": false,
+        "scrollWidth": 227,
+        "clientWidth": 227
+      }
+    ]
+  }
+]

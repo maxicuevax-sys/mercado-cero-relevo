@@ -1,0 +1,332 @@
+{
+  "empty_description": {
+    "active": {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "+\nAgregar",
+      "box": {
+        "x": 776.46875,
+        "y": 534.890625,
+        "width": 104.515625,
+        "height": 48,
+        "top": 534.890625,
+        "right": 880.984375,
+        "bottom": 582.890625,
+        "left": 776.46875
+      }
+    },
+    "addError": {
+      "text": "Escribe qué vendiste.",
+      "role": "alert",
+      "id": "mc-caja-add-error"
+    },
+    "addFields": [
+      {
+        "label": "Producto o servicio",
+        "value": "",
+        "invalid": "true",
+        "describedby": "mc-caja-add-error"
+      },
+      {
+        "label": "Cantidad",
+        "value": "1",
+        "invalid": null,
+        "describedby": null
+      },
+      {
+        "label": "Precio unitario",
+        "value": "",
+        "invalid": null,
+        "describedby": null
+      }
+    ],
+    "lineFields": [],
+    "live": [
+      {
+        "tag": "SPAN",
+        "role": null,
+        "live": "polite",
+        "text": "0 conceptos"
+      },
+      {
+        "tag": "P",
+        "role": "alert",
+        "live": null,
+        "text": "Escribe qué vendiste."
+      }
+    ]
+  },
+  "zero_quantity": {
+    "active": {
+      "tag": "BUTTON",
+      "id": "",
+      "name": "+\nAgregar",
+      "box": {
+        "x": 776.46875,
+        "y": 534.890625,
+        "width": 104.515625,
+        "height": 48,
+        "top": 534.890625,
+        "right": 880.984375,
+        "bottom": 582.890625,
+        "left": 776.46875
+      }
+    },
+    "addError": {
+      "text": "La cantidad debe ser mayor que cero.",
+      "role": "alert",
+      "id": "mc-caja-add-error"
+    },
+    "addFields": [
+      {
+        "label": "Producto o servicio",
+        "value": "Quesadilla",
+        "invalid": "true",
+        "describedby": "mc-caja-add-error"
+      },
+      {
+        "label": "Cantidad",
+        "value": "0",
+        "invalid": null,
+        "describedby": null
+      },
+      {
+        "label": "Precio unitario",
+        "value": "35",
+        "invalid": null,
+        "describedby": null
+      }
+    ],
+    "lineFields": [],
+    "live": [
+      {
+        "tag": "SPAN",
+        "role": null,
+        "live": "polite",
+        "text": "0 conceptos"
+      },
+      {
+        "tag": "P",
+        "role": "alert",
+        "live": null,
+        "text": "La cantidad debe ser mayor que cero."
+      }
+    ]
+  },
+  "after_add": {
+    "active": {
+      "tag": "INPUT",
+      "id": "line-description-line_23a12020-2c02-475e-af88-2ebb79ce2761",
+      "name": "",
+      "box": {
+        "x": 278.71875,
+        "y": 382.84375,
+        "width": 223.265625,
+        "height": 48,
+        "top": 382.84375,
+        "right": 501.984375,
+        "bottom": 430.84375,
+        "left": 278.71875
+      }
+    },
+    "addError": null,
+    "addFields": [
+      {
+        "label": "Producto o servicio",
+        "value": "",
+        "invalid": null,
+        "describedby": null
+      },
+      {
+        "label": "Cantidad",
+        "value": "1",
+        "invalid": null,
+        "describedby": null
+      },
+      {
+        "label": "Precio unitario",
+        "value": "",
+        "invalid": null,
+        "describedby": null
+      }
+    ],
+    "lineFields": [
+      {
+        "label": "Concepto",
+        "value": "Quesadilla",
+        "invalid": null,
+        "describedby": null,
+        "description": null
+      },
+      {
+        "label": "Cantidad",
+        "value": "2",
+        "invalid": null,
+        "describedby": null,
+        "description": null
+      },
+      {
+        "label": "Precio",
+        "value": "35",
+        "invalid": null,
+        "describedby": null,
+        "description": null
+      }
+    ],
+    "live": [
+      {
+        "tag": "SPAN",
+        "role": null,
+        "live": "polite",
+        "text": "1 concepto"
+      },
+      {
+        "tag": "DIV",
+        "role": null,
+        "live": "polite",
+        "text": "Faltan $70.00 para completar el cobro. Escribe más efectivo o elige Digital, Fiado o Mixto"
+      },
+      {
+        "tag": "P",
+        "role": "status",
+        "live": "polite",
+        "text": "Concepto agregado."
+      }
+    ]
+  },
+  "inline_zero_quantity": {
+    "active": {
+      "tag": "INPUT",
+      "id": "line-price-line_23a12020-2c02-475e-af88-2ebb79ce2761",
+      "name": "",
+      "box": {
+        "x": 599.984375,
+        "y": 382.84375,
+        "width": 110,
+        "height": 48,
+        "top": 382.84375,
+        "right": 709.984375,
+        "bottom": 430.84375,
+        "left": 599.984375
+      }
+    },
+    "addError": null,
+    "addFields": [
+      {
+        "label": "Producto o servicio",
+        "value": "",
+        "invalid": null,
+        "describedby": null
+      },
+      {
+        "label": "Cantidad",
+        "value": "1",
+        "invalid": null,
+        "describedby": null
+      },
+      {
+        "label": "Precio unitario",
+        "value": "",
+        "invalid": null,
+        "describedby": null
+      }
+    ],
+    "lineFields": [
+      {
+        "label": "Concepto",
+        "value": "Quesadilla",
+        "invalid": null,
+        "describedby": null,
+        "description": null
+      },
+      {
+        "label": "Cantidad",
+        "value": "0",
+        "invalid": "true",
+        "describedby": "line-qty-error-line_23a12020-2c02-475e-af88-2ebb79ce2761",
+        "description": "La cantidad debe ser mayor que cero."
+      },
+      {
+        "label": "Precio",
+        "value": "35",
+        "invalid": null,
+        "describedby": null,
+        "description": null
+      }
+    ],
+    "live": [
+      {
+        "tag": "SPAN",
+        "role": null,
+        "live": "polite",
+        "text": "1 concepto"
+      },
+      {
+        "tag": "P",
+        "role": "status",
+        "live": "polite",
+        "text": "Concepto agregado."
+      }
+    ]
+  },
+  "after_remove": {
+    "active": {
+      "tag": "INPUT",
+      "id": "mc-caja-new-description",
+      "name": "Ej. Quesadilla",
+      "box": {
+        "x": 267.71875,
+        "y": 534.890625,
+        "width": 290.75,
+        "height": 48,
+        "top": 534.890625,
+        "right": 558.46875,
+        "bottom": 582.890625,
+        "left": 267.71875
+      }
+    },
+    "addError": null,
+    "addFields": [
+      {
+        "label": "Producto o servicio",
+        "value": "",
+        "invalid": null,
+        "describedby": null
+      },
+      {
+        "label": "Cantidad",
+        "value": "1",
+        "invalid": null,
+        "describedby": null
+      },
+      {
+        "label": "Precio unitario",
+        "value": "",
+        "invalid": null,
+        "describedby": null
+      }
+    ],
+    "lineFields": [],
+    "live": [
+      {
+        "tag": "SPAN",
+        "role": null,
+        "live": "polite",
+        "text": "0 conceptos"
+      },
+      {
+        "tag": "P",
+        "role": "status",
+        "live": "polite",
+        "text": "Concepto eliminado."
+      }
+    ]
+  },
+  "summary": {
+    "empty_description": "aria-invalid y aria-describedby correctos en Producto; foco se queda en Agregar.",
+    "zero_quantity": "BUG: aria-invalid/aria-describedby se aplican a Producto, no a Cantidad; foco se queda en Agregar.",
+    "inline_zero_quantity": "Correcto: Cantidad recibe aria-invalid y aria-describedby; error visible.",
+    "after_add": "Foco en el input Concepto de la linea nueva.",
+    "after_remove": "Foco en Producto o en la linea vecina; no se pierde."
+  }
+}

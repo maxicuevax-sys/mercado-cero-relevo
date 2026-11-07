@@ -1,0 +1,15 @@
+{
+  "violations": [],
+  "passes": 33,
+  "incomplete": 1,
+  "inapplicable": 58,
+  "label": "inicio-mobile-390x844",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa",
+    "best-practice"
+  ]
+}

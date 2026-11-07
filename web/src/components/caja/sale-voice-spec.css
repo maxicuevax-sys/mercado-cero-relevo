@@ -1,0 +1,123 @@
+/* Mobile reference surface. Voice requests, review and recording remain in SaleVoice. */
+@media (max-width: 760px) {
+  .mc-caja-shell .mc-sale-voice {
+    --sale-voice-green: #0c4133;
+    --sale-voice-paper: #fffaf0;
+    --sale-voice-border: #e4dac3;
+    min-width: 0;
+    margin-bottom: 0;
+  }
+
+  .mc-caja-shell .mc-sale-voice h2,
+  .mc-caja-shell .mc-sale-voice__actions--idle {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .mc-caja-shell .mc-sale-voice__field {
+    grid-template-columns: minmax(0, 1fr) 56px;
+    align-items: center;
+    gap: 8px;
+    min-height: 64px;
+    padding: 3px;
+    border: 1px solid var(--sale-voice-border);
+    border-radius: 14px;
+    background: var(--sale-voice-paper);
+  }
+
+  .mc-caja-shell .mc-sale-voice__entry { min-width: 0; }
+
+  .mc-caja-shell .mc-sale-voice__manual {
+    display: grid;
+    flex: 0 0 44px;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--sale-voice-green);
+    cursor: pointer;
+  }
+
+  .mc-caja-shell .mc-sale-voice__manual svg { width: 24px; height: 24px; stroke-width: 1.7; }
+  .mc-caja-shell .mc-sale-voice__manual:disabled { opacity: .6; cursor: not-allowed; }
+
+  .mc-caja-shell .mc-sale-voice__field input {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    min-height: 28px;
+    padding: 4px 10px 4px 12px;
+    border: 0;
+    border-left: 1px solid var(--sale-voice-border);
+    border-radius: 0;
+    background: transparent;
+    color: #1e1f1a;
+    font-size: 17px;
+    line-height: 1.2;
+  }
+  .mc-caja-shell .mc-sale-voice__field input::placeholder { color: #6e7468; opacity: 1; }
+
+  .mc-caja-shell .mc-sale-voice__mic {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    min-height: 56px;
+    padding: 0;
+    border: 1px solid var(--sale-voice-green);
+    border-radius: 12px;
+    background: var(--sale-voice-green);
+    color: #fff;
+    box-shadow: none;
+  }
+  .mc-caja-shell .mc-sale-voice__mic svg { width: 26px; height: 26px; }
+  .mc-caja-shell .mc-sale-voice__mic[aria-pressed="true"] {
+    background: var(--color-attention);
+    border-color: var(--color-attention);
+  }
+
+  .mc-caja-shell .mc-sale-voice__phrases { gap: 6px; margin-top: 12px; }
+  .mc-caja-shell .mc-sale-voice__phrases .mc-sale-voice__chip {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 40px;
+    max-width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--sale-voice-border);
+    border-radius: 20px;
+    background: #f0efda;
+    color: #1e1f1a;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .mc-caja-shell .mc-sale-voice__chip img,
+  .mc-caja-shell .mc-sale-voice__chip svg { flex: 0 0 20px; width: 20px; height: 20px; object-fit: contain; }
+  .mc-caja-shell .mc-sale-voice__phrases .mc-sale-voice__chip--jitomate { background: #eef0dc; }
+  .mc-caja-shell .mc-sale-voice__phrases .mc-sale-voice__chip--huevo { background: #f3efdc; }
+  .mc-caja-shell .mc-sale-voice__phrases .mc-sale-voice__chip--more { background: #dce9d2; }
+  .mc-caja-shell .mc-sale-voice__chip--more svg { border-radius: 50%; background: var(--sale-voice-green); color: #fff; padding: 3px; }
+  .mc-caja-shell .mc-sale-voice__phrases button:hover:not(:disabled) { background: #dce9d2; }
+
+  .mc-caja-shell .mc-sale-voice__actions:not(.mc-sale-voice__actions--idle) { margin-top: 8px; }
+  .mc-caja-shell .mc-sale-voice__error,
+  .mc-caja-shell .mc-sale-voice__notice,
+  .mc-caja-shell .mc-sale-voice__proposal { overflow-wrap: anywhere; }
+
+  @media (max-width: 360px) {
+    .mc-caja-shell .mc-sale-voice__phrases { gap: 4px; }
+    .mc-caja-shell .mc-sale-voice__phrases .mc-sale-voice__chip { padding-inline: 4px; gap: 4px; font-size: 10px; }
+  }
+}

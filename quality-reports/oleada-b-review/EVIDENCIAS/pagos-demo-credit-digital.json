@@ -1,0 +1,18 @@
+{
+  "generatedAt": "2026-11-04T11:22:51-0600",
+  "orderId": "ord_8d8c15e43a8b47d9a44f",
+  "creditId": "cred_dac69a54bc134829b172",
+  "payStatus": 200,
+  "before": {
+    "cashCents": 10000,
+    "declaredDigitalCents": 0,
+    "demoCashCents": 146736,
+    "demoDigitalCents": 70122
+  },
+  "after": {
+    "cashCents": 10000,
+    "declaredDigitalCents": 5000,
+    "demoCashCents": 146736,
+    "demoDigitalCents": 70122
+  }
+}

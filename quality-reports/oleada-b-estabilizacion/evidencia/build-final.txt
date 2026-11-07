@@ -1,0 +1,8 @@
+OPERACION B.1 — IDENTIDAD DE ENTREGA
+
+Producto (fix): bdfbe8b
+Pruebas: 8101849
+Entrega documental: HEAD que contiene esta carpeta
+Build de entrega: ver web/.next/BUILD_SHA (sellado al HEAD de entrega)
+Health esperado: /api/health devuelve el mismo buildSha
+Verificacion independiente: 65/65 en 8101849; GO local con residuales P2/P3

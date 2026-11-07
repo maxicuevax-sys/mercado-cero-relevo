@@ -1,0 +1,22 @@
+{
+  "viewports": {
+    "760x900": {
+      "sidebarVisible": false,
+      "mobileNavVisible": true,
+      "paybarDisplay": null,
+      "ctaY": 1159.4,
+      "ctaBottom": 1215.4,
+      "horizontalOverflow": false
+    },
+    "761x900": {
+      "sidebarVisible": true,
+      "sidebarWidth": 210,
+      "mobileNavVisible": false,
+      "paybarDisplay": null,
+      "ctaY": 1121.8,
+      "ctaBottom": 1177.8,
+      "horizontalOverflow": false
+    }
+  },
+  "note": "Caja vacía, sin conceptos. El paybar solo se renderiza con líneas; además su CSS solo existe a <=760. A 761 no hay mobile nav y la Caja sigue en una columna hasta 980: el CTA queda ~1122 px abajo."
+}

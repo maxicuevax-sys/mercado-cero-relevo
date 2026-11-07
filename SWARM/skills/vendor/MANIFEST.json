@@ -1,0 +1,90 @@
+[
+ {
+  "dest": "_shared/verification-before-completion.md",
+  "repo": "obra/superpowers",
+  "path": "skills/verification-before-completion/SKILL.md",
+  "license": "MIT",
+  "kb": 3,
+  "sha": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+ },
+ {
+  "dest": "_shared/api-and-interface-design.md",
+  "repo": "addyosmani/agent-skills",
+  "path": "skills/api-and-interface-design/SKILL.md",
+  "license": "MIT",
+  "kb": 14,
+  "sha": "8bfcc1f9916f2eea55494d8c1fa7f4bde867dd9e"
+ },
+ {
+  "dest": "_shared/security-and-hardening.md",
+  "repo": "addyosmani/agent-skills",
+  "path": "skills/security-and-hardening/SKILL.md",
+  "license": "MIT",
+  "kb": 17,
+  "sha": "8bfcc1f9916f2eea55494d8c1fa7f4bde867dd9e"
+ },
+ {
+  "dest": "vendor/ui-ux-pro-max.md",
+  "repo": "nextlevelbuilder/ui-ux-pro-max-skill",
+  "path": ".claude/skills/ui-ux-pro-max/SKILL.md",
+  "license": "MIT",
+  "kb": 15,
+  "sha": "3a13158ff1f32156cbe144108de48eda2ecaed9a"
+ },
+ {
+  "dest": "vendor/ui-styling.md",
+  "repo": "nextlevelbuilder/ui-ux-pro-max-skill",
+  "path": ".claude/skills/ui-styling/SKILL.md",
+  "license": "MIT",
+  "kb": 10,
+  "sha": "3a13158ff1f32156cbe144108de48eda2ecaed9a"
+ },
+ {
+  "dest": "vendor/impeccable.md",
+  "repo": "pbakaus/impeccable",
+  "path": ".claude/skills/impeccable/SKILL.md",
+  "license": "Apache-2.0",
+  "kb": 11,
+  "sha": "e89e3ada3e875a89ac2c5d33d11e65ebef6fe285"
+ },
+ {
+  "dest": "vendor/frontend-ui-engineering.md",
+  "repo": "addyosmani/agent-skills",
+  "path": "skills/frontend-ui-engineering/SKILL.md",
+  "license": "MIT",
+  "kb": 11,
+  "sha": "8bfcc1f9916f2eea55494d8c1fa7f4bde867dd9e"
+ },
+ {
+  "dest": "vendor/test-driven-development.md",
+  "repo": "obra/superpowers",
+  "path": "skills/test-driven-development/SKILL.md",
+  "license": "MIT",
+  "kb": 9,
+  "sha": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+ },
+ {
+  "dest": "vendor/systematic-debugging.md",
+  "repo": "obra/superpowers",
+  "path": "skills/systematic-debugging/SKILL.md",
+  "license": "MIT",
+  "kb": 9,
+  "sha": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+ },
+ {
+  "dest": "vendor/ponytail-review.md",
+  "repo": "DietrichGebert/ponytail",
+  "path": "skills/ponytail-review/SKILL.md",
+  "license": "MIT",
+  "kb": 5,
+  "sha": "96608e078b2d5ea607c5c3b8b5a54d1c1fba6846"
+ },
+ {
+  "dest": "vendor/caveman-evidence-review.md",
+  "repo": "JuliusBrussee/caveman",
+  "path": "skills/caveman-evidence-review/SKILL.md",
+  "license": "Apache-2.0",
+  "kb": 3,
+  "sha": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4"
+ }
+]

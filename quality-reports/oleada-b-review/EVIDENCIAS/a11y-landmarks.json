@@ -1,0 +1,61 @@
+{
+  "caja_desktop_1280": {
+    "main": 1,
+    "main_id": "caja-main",
+    "nav_visible": [
+      "Principal"
+    ],
+    "nav_hidden": [
+      "Principal (mobile, display:none)"
+    ],
+    "skip_links": 1,
+    "aria_current_visible": 1,
+    "banner": 1,
+    "double_shell": false
+  },
+  "caja_mobile_360": {
+    "main": 1,
+    "main_id": "caja-main",
+    "nav_visible": [
+      "Principal (mobile)"
+    ],
+    "nav_hidden": [
+      "Principal (sidebar, display:none)"
+    ],
+    "skip_links": 1,
+    "aria_current_visible": 1,
+    "banner": 1,
+    "double_shell": false
+  },
+  "ventas_desktop_1280": {
+    "main": 1,
+    "main_id": "ventas-main",
+    "nav_visible": [
+      "Principal",
+      "Paginas de ventas"
+    ],
+    "nav_hidden": [
+      "Principal (mobile, display:none)"
+    ],
+    "skip_links": 1,
+    "aria_current_visible": 1,
+    "banner": 1,
+    "double_shell": false
+  },
+  "ventas_mobile_360": {
+    "main": 1,
+    "main_id": "ventas-main",
+    "nav_visible": [
+      "Principal (mobile)",
+      "Paginas de ventas"
+    ],
+    "nav_hidden": [
+      "Principal (sidebar, display:none)"
+    ],
+    "skip_links": 1,
+    "aria_current_visible": 1,
+    "banner": 1,
+    "double_shell": false
+  },
+  "note": "En /ventas hay 2 landmarks nav visibles: la principal y la paginacion, ambas con nombre accesible. No hay doble shell visible."
+}

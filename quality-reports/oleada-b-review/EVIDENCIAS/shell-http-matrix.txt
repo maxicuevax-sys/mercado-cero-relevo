@@ -1,0 +1,33 @@
+BASE http://localhost:3100
+buildSha 4130e71d668e5e4693a8f5b634d2d2f953d21b02
+
+200  /inicio                                loc=-  cache=private, no-cache, no-store, max-age=0, must-revalidate
+200  /caja                                  loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /caja?ayuda=1                          loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /caja?ayuda=1#ajustes                  loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /ventas                                loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /ventas?page=1                         loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /ventas?page=2                         loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /ventas?page=999                       loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /ventas?page=abc                       loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /ventas?page=0                         loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /ventas?ayuda=1                        loc=-  cache=private, no-store, max-age=0, must-revalidate
+307  /fiados                                loc=http://localhost:3100/?tab=fiado  cache=-
+307  /corte                                 loc=http://localhost:3100/?tab=corte  cache=-
+307  /metas                                 loc=http://localhost:3100/?tab=meta  cache=-
+307  /pendientes                            loc=http://localhost:3100/?tab=pendientes  cache=-
+307  /fiados?ayuda=1                        loc=http://localhost:3100/?tab=fiado&ayuda=1  cache=-
+307  /corte?ayuda=1#ajustes                 loc=http://localhost:3100/?tab=corte&ayuda=1  cache=-
+307  /metas?ayuda=1                         loc=http://localhost:3100/?tab=meta&ayuda=1  cache=-
+307  /pendientes?ayuda=1                    loc=http://localhost:3100/?tab=pendientes&ayuda=1  cache=-
+200  /                                      loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /?tab=caja                             loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /?tab=fiado                            loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /?tab=corte                            loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /?tab=meta                             loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /?tab=pendientes                       loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /?tab=inventado                        loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /?ayuda=1                              loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /?ayuda=1#ajustes                      loc=-  cache=private, no-store, max-age=0, must-revalidate
+200  /pay/inexistente                       loc=-  cache=private, no-store, max-age=0, must-revalidate
+404  /ruta-inexistente                      loc=-  cache=private, no-cache, no-store, max-age=0, must-revalidate

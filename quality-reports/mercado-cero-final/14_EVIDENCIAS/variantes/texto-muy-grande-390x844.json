@@ -1,0 +1,107 @@
+{
+  "name": "texto-muy-grande-390x844",
+  "viewport": [
+    390,
+    844
+  ],
+  "dpr": 1,
+  "textSize": "xlarge",
+  "contrast": null,
+  "metrics": {
+    "url": "http://localhost:3100/inicio",
+    "h1": "¡Buen día, Lupita!",
+    "h1Size": "37.5px",
+    "h2Size": "40px",
+    "navSize": "16.25px",
+    "kpiValueSize": "30px",
+    "ctaSize": "20px",
+    "rootSize": "20px",
+    "contrast": "normal",
+    "textSize": "xlarge",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyHeight": 1457,
+    "viewport": {
+      "w": 390,
+      "h": 844
+    },
+    "hero": {
+      "x": 12,
+      "y": 396,
+      "w": 366,
+      "h": 211
+    },
+    "pending": {
+      "x": 12,
+      "y": 921,
+      "w": 366,
+      "h": 269
+    },
+    "suggestion": {
+      "x": 12,
+      "y": 1201,
+      "w": 366,
+      "h": 232
+    },
+    "cta": {
+      "x": 162,
+      "y": 547,
+      "w": 151,
+      "h": 48
+    },
+    "sidebar": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 246
+    },
+    "topbar": {
+      "x": 0,
+      "y": 246,
+      "w": 390,
+      "h": 64
+    },
+    "kpis": [
+      {
+        "x": 12,
+        "y": 619,
+        "w": 178,
+        "h": 149
+      },
+      {
+        "x": 200,
+        "y": 619,
+        "w": 178,
+        "h": 149
+      },
+      {
+        "x": 12,
+        "y": 778,
+        "w": 178,
+        "h": 131
+      },
+      {
+        "x": 200,
+        "y": 778,
+        "w": 178,
+        "h": 131
+      }
+    ],
+    "skip": {
+      "x": 12,
+      "y": -76,
+      "w": 207,
+      "h": 48
+    },
+    "sidebarColor": "rgba(0, 0, 0, 0)",
+    "sidebarText": "rgb(0, 75, 60)",
+    "activeBg": "rgb(255, 240, 210)",
+    "activeText": "rgb(0, 75, 60)",
+    "heroBg": "rgb(0, 75, 60)",
+    "heroText": "rgb(255, 253, 247)"
+  },
+  "axe": {
+    "violations": []
+  },
+  "pageErrors": []
+}

@@ -1,0 +1,10 @@
+rol,propiedad_permitida_ejemplo,dependencia,bloqueo_requerido
+mc-auditoria-repo,SOLO LECTURA,ninguna,no
+mc-sistema-diseno,styles/tokens/* + components/ui/*,W0,exclusividad CSS global
+mc-shell-responsive,components/layout/* + routes nav,W1,evitar editar componentes ui base
+mc-ventas-pagos,features/sales/* + features/payments/UI/*,W1,prohibido editar PSP sin aprobación
+mc-fiado-corte,features/debt/* + features/cash/*,W1/ventas,contratos contables compartidos no editables
+mc-modulos-negocio,features/inventory/* + goals/* + tasks/* + providers/*,W2,evitar CSS global
+mc-onboarding-ayuda,features/onboarding/* + help/*,W2,separar tenant práctica
+mc-accesibilidad,tests/a11y/* + informes,W3,solo parches autorizados
+mc-verificador-final,SOLO LECTURA y pruebas,W4,go/no-go sin edición

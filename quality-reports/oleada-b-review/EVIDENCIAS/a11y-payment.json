@@ -1,0 +1,55 @@
+{
+  "h1": "Cobrar venta",
+  "h2": "Pedido AE9B",
+  "active": {
+    "tag": "H2",
+    "id": "mc-caja-payment-title",
+    "text": "Pedido AE9B"
+  },
+  "status": {
+    "text": "PENDIENTE",
+    "role": null,
+    "live": null,
+    "cls": "mc-caja-status mc-caja-status--payment_pending"
+  },
+  "live": [],
+  "buttons": [
+    {
+      "tag": "A",
+      "name": "Abrir link (abre en una pestaña nueva)",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "name": "⧉ Copiar link",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "name": "Generar QR",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "name": "Actualizar estado",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "name": "Simular CoDi",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "name": "Simular tarjeta",
+      "disabled": false
+    },
+    {
+      "tag": "A",
+      "name": "Ver historial de ventas",
+      "disabled": false
+    }
+  ],
+  "amount": "$120.00",
+  "demo": "Modo demo. Simula un pago para probar el recorrido. No es dinero real ni una confirmación de pey.\n\nSimular CoDi\nSimular tarjeta"
+}

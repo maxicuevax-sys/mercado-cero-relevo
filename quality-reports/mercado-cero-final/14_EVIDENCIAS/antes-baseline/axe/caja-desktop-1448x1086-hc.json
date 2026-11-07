@@ -1,0 +1,109 @@
+{
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+      "nodes": [
+        {
+          "target": [
+            ".brand-name"
+          ],
+          "html": "<p class=\"brand-name\">Mercado Cero</p>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 14.4pt (19.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            ".brand-tagline"
+          ],
+          "html": "<p class=\"brand-tagline\">La caja que habla</p>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.34 (foreground color: #cfe3d4, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            "button[data-index=\"02\"] > .min-w-0"
+          ],
+          "html": "<span class=\"min-w-0\">Fiado</span>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            "button[data-index=\"03\"] > .min-w-0"
+          ],
+          "html": "<span class=\"min-w-0\">Corte</span>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            "button[data-index=\"04\"] > .min-w-0"
+          ],
+          "html": "<span class=\"min-w-0\">Meta</span>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            "button[aria-label=\"Pendientes\"] > .min-w-0"
+          ],
+          "html": "<span class=\"min-w-0\">Pendientes</span>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            ".min-h-\\[48px\\].text-left.hover\\:text-ink:nth-child(1) > .min-w-0"
+          ],
+          "html": "<span class=\"min-w-0\">Modo demo</span>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            ".sidebar-label"
+          ],
+          "html": "<span class=\"sidebar-label min-w-0\">Ayuda</span>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            ".home-sale__kicker"
+          ],
+          "html": "<span class=\"home-sale__kicker\">Nueva venta</span>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.59 (foreground color: #f2c768, background color: #ffffff, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": [
+            ".home-sale__title"
+          ],
+          "html": "<span class=\"home-sale__title\">Registrar</span>",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 16.2pt (21.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ]
+    },
+    {
+      "id": "label-content-name-mismatch",
+      "impact": "serious",
+      "help": "Elements must have their visible text as part of their accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+      "nodes": [
+        {
+          "target": [
+            ".brand-lockup"
+          ],
+          "html": "<a class=\"brand-lockup\" href=\"/inicio\" aria-label=\"Ir a Inicio\">",
+          "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+        }
+      ]
+    }
+  ],
+  "passes": 49,
+  "incomplete": 0,
+  "inapplicable": 42,
+  "label": "caja-desktop-1448x1086-hc",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa",
+    "best-practice"
+  ]
+}

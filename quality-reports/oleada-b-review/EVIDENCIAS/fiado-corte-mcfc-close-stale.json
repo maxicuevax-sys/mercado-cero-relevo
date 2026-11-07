@@ -1,0 +1,50 @@
+{
+  "cashBefore": {
+    "cashSalesCents": 11000,
+    "cashCreditCents": 10000,
+    "expectedCents": 71000,
+    "saved": {
+      "id": "cash_cdfaefe5b0b54a51b9fe",
+      "date": "2026-11-04",
+      "version": 1,
+      "openingCents": 50000,
+      "cashSalesCents": 11000,
+      "cashCreditCents": 10000,
+      "expensesCents": 0,
+      "withdrawalsCents": 0,
+      "expectedCents": 71000,
+      "countedCents": 71000,
+      "differenceCents": 0,
+      "baseNextCents": 50000,
+      "withdrawalNextCents": 21000,
+      "snapshotCashCents": 21000,
+      "snapshotCreditCents": 8000,
+      "snapshotPendingDigitalCents": 20000,
+      "snapshotKnown": true,
+      "reason": null,
+      "requestId": "close-AUD-FC-111553",
+      "createdAt": "2026-11-04T17:20:51.022Z"
+    }
+  },
+  "oldFingerprint": "bb71aac223ac1e30",
+  "saleStatus": 201,
+  "saleOrderId": "ord_9d8318bb1cf6466f9b15",
+  "cashAfterSale": {
+    "cashSalesCents": 11100,
+    "cashCreditCents": 10000,
+    "expectedCents": 71100
+  },
+  "staleCloseStatus": 409,
+  "staleCloseBody": {
+    "error": "Entraron ventas o abonos después del preview. Vuelve a revisar la diferencia antes de guardar; no se guardó nada.",
+    "code": "totals_changed",
+    "currentVersion": 1,
+    "currentFingerprint": "224cf29e5c61f152"
+  },
+  "cashAfterStale": {
+    "cashSalesCents": 11100,
+    "cashCreditCents": 10000,
+    "expectedCents": 71100
+  },
+  "savedVersion": 1
+}

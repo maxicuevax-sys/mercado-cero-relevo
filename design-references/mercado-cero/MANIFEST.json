@@ -1,0 +1,1224 @@
+{
+  "version": "1.0.0",
+  "source_image": "user-provided image(7).png (flattened PNG)",
+  "canvas": [
+    1536,
+    1024
+  ],
+  "created_for": "Mercado Cero / OpenCode / DeepSeek provider selected in user environment",
+  "caveat": "no access to user codebase, no live payment integration or production test performed",
+  "counts": {
+    "screen_specs": 16,
+    "recortes": 26,
+    "icons_svg": 40,
+    "illustraciones_svg": 8,
+    "asset_prompt_files": 12,
+    "agents_primary": 1,
+    "agents_subagent": 9,
+    "contrast_pairs_tested": 8,
+    "qa_matrix_cases": 64
+  },
+  "files": [
+    {
+      "path": "00_INICIO/COMO_USAR_CON_9_SUBAGENTES.md",
+      "bytes": 3689,
+      "sha256": "ba5e40d14f10414df976afc03d0f6c6f4f6f56484d285d2a02f5232174b02bfd"
+    },
+    {
+      "path": "00_INICIO/INSTALACION_POWERSHELL.md",
+      "bytes": 1651,
+      "sha256": "cb771c7348e6fc5d4c82fce1f7247c41e2a495adb2f7d13b045650e391c39bc3"
+    },
+    {
+      "path": "00_INICIO/LEEME_PRIMERO.md",
+      "bytes": 3745,
+      "sha256": "72ffa8d4777a2dd4ae4a0c7d07bdc0b307fb1c2f1d7959116327a73a8eb7c0f8"
+    },
+    {
+      "path": "00_INICIO/LIMITACIONES_Y_PROCEDENCIA.md",
+      "bytes": 1849,
+      "sha256": "d47ca395af7a4a3ff2c0f5455e28eb338057027efe8c928b09d6eca54b1e4993"
+    },
+    {
+      "path": "00_INICIO/ORDEN_REAL_DE_ENTREGA.md",
+      "bytes": 1376,
+      "sha256": "19674033612c9516c65ce90236d2a84e82e98f6a9e93e2d9232db40a2c890faf"
+    },
+    {
+      "path": "01_REFERENCIAS/00_ATLAS_PANTALLAS.png",
+      "bytes": 662375,
+      "sha256": "f3c81364b35a0c5cfd6c2556f8f05ced9150a462136f969aae023794aaff62ad"
+    },
+    {
+      "path": "01_REFERENCIAS/00_MASTER_1536x1024.png",
+      "bytes": 1846604,
+      "sha256": "44f1b5c7322bb326dfd8d070398e2d977a0b69e921b42b5745390ccbfaa7670d"
+    },
+    {
+      "path": "01_REFERENCIAS/COORDENADAS_RECORTES.json",
+      "bytes": 10870,
+      "sha256": "86812c542deeab7e8c308236fce4c57fc3f879f291d99ac316401d2179c3c195"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/01_Brand_Story.png",
+      "bytes": 226705,
+      "sha256": "7786948c0ae3ed2de8debaaa6ff11523d05733c526a70d83a9bab5fbac53bc64"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/02_Dashboard_Desktop.png",
+      "bytes": 449993,
+      "sha256": "629ed02359f044bd1635a395262fbb7e72057e57a86f26a436b03f5545f3f4c2"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/03_Sistema_Diseno.png",
+      "bytes": 205728,
+      "sha256": "d8414720914137b6b5860cdb9491d8ff9ffa9b5db3fd25082575eb51d6b79562"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/04_Logo_y_Mensaje.png",
+      "bytes": 62576,
+      "sha256": "aa1f30a39ff222b6d52b42f0696f8c75762edd5c28efbaa5e5379f02337d94fd"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/05_Nota_Fundacional.png",
+      "bytes": 92620,
+      "sha256": "439250ca292c8d90b1cb8fee7933b725ef5c4b76d2fa5db8cec02681e384ec45"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/06_Desktop_Navegacion.png",
+      "bytes": 83449,
+      "sha256": "8fcc7ac3ba356e2af26c97f28c7e4293b6b0331deddea4dd49b66c86d8fccfe7"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/07_Desktop_Indicadores.png",
+      "bytes": 69097,
+      "sha256": "56cacce06ed280a24f14828663005fa505b2e4c2d526941e576976a8f044b153"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/08_Desktop_Acciones.png",
+      "bytes": 80849,
+      "sha256": "4b602df952db813071a5780ca6a15062a14146d8b1292f180f50b137fb70ae1f"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/09_Desktop_Pendientes.png",
+      "bytes": 49231,
+      "sha256": "f3491b30fe179ef0e7d04176f8defeaec8d431bad7430fc9013be29c92a4c71e"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/10_Desktop_Sugerencia.png",
+      "bytes": 64327,
+      "sha256": "adeebe9e081abf952c9820907d573be7ae00f44798a9f3cef0c5dff222ecc172"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/11_Paleta_y_Tipografia.png",
+      "bytes": 108039,
+      "sha256": "b2154b8d4405923c7ceb7f8bf45556d1777ec06ec0e7e2dba4bdfe641a724673"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/12_Iconos_y_Estados.png",
+      "bytes": 100299,
+      "sha256": "dc6f76e29e51ff84a3674b7433bb8c4e3073a36b9511a435dad08f3f74f5a808"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/13_Onboarding_Bienvenida.png",
+      "bytes": 91093,
+      "sha256": "f5ff51a0e188e965252973d8e977f2aef3c2103d917006fa251a445080f4a562"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/14_Onboarding_Pagos.png",
+      "bytes": 78934,
+      "sha256": "6653e9e8af7988446ed1b7ac2237ee1f19f2aea3f67a6979de4c7e5fb55addf5"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/15_Onboarding_Metas.png",
+      "bytes": 77350,
+      "sha256": "8f50db79aefc078533ab646f4d72f5332fd78ed58711b9d60229e4784c6187ae"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/16_Onboarding_Configuracion.png",
+      "bytes": 74103,
+      "sha256": "09dd841349ad860e97e0c313299e216b46c48cd31e5a9921e5ff63a77b13f6f7"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/17_Inicio_Movil.png",
+      "bytes": 84237,
+      "sha256": "c4f857b8f8e646b7bf9aaa84de03c5d51f74d2324dcdec25e1ef83672258962a"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/18_Nueva_Venta_Movil.png",
+      "bytes": 76935,
+      "sha256": "7fdf1f9161b1d4e7b5b29d5e681cb0b17de614f96ef09923d95b9835e00bfaa8"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/19_Libreta_Fiados_Movil.png",
+      "bytes": 68847,
+      "sha256": "21e1e812af0660e2800c46391c4b6264f1bdf5ad451fd7ba0b43f640ebd76827"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/20_Corte_Caja_Movil.png",
+      "bytes": 78989,
+      "sha256": "b31ee395dda9a9cc8afa7abe830c96a5e7bcacc7aa28889888c6506a249e8658"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/21_Asistente_Opcional.png",
+      "bytes": 53060,
+      "sha256": "f52685c7c9de1f8b07691fdfca6bda490391ba558a14be67683b7e21bb7247e0"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/22_Metas_y_Apartados.png",
+      "bytes": 53342,
+      "sha256": "d38520af9f8e1f234778df08a5d596d148afe402e7e4ab0ff9856850359e0232"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/23_Reportes_Simples.png",
+      "bytes": 61242,
+      "sha256": "a54e16cc8d916d6056e78dd4f6b38487fc147f28d7503a2801a633d4cc9893ce"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/24_Multidispositivo_Independencia.png",
+      "bytes": 116506,
+      "sha256": "f078e0f23b089342832df79299f03e4ce26a4b09af29ad84eee4a11e673869be"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/25_Isotipo_Marca.png",
+      "bytes": 6685,
+      "sha256": "98752fd8113fdff9f2f6628af806a1c9eea8a068c8a6cd0e425119e2a271aeb9"
+    },
+    {
+      "path": "01_REFERENCIAS/recortes/26_Ilustracion_Mercado.png",
+      "bytes": 62345,
+      "sha256": "5746d4361aee25d5550c1db9cd270cb85d9b5287f1d32222bce48765822d2dbb"
+    },
+    {
+      "path": "02_ASSETS/00_CONTACT_SHEET_ICONOS.png",
+      "bytes": 101810,
+      "sha256": "1dd0220150a56155a839441167801bdbfce959a5ea818b9d213d816061e0f076"
+    },
+    {
+      "path": "02_ASSETS/00_CONTACT_SHEET_ILUSTRACIONES.png",
+      "bytes": 86401,
+      "sha256": "ce01ce77020482e7e84daf2381fbac4778c0026b4aa065bd694b8900f2dd3da0"
+    },
+    {
+      "path": "02_ASSETS/brand/logo-horizontal.svg",
+      "bytes": 858,
+      "sha256": "2f2c5dea5c88d8f624c5e34029dc793e9eebc651c2768b5aa7f862bcb26bdc0b"
+    },
+    {
+      "path": "02_ASSETS/brand/logo-lockup-dark.svg",
+      "bytes": 938,
+      "sha256": "6e90801438948d442a3bc042e5f5d98d6b9be77a30e0a6083432f46421a764b3"
+    },
+    {
+      "path": "02_ASSETS/brand/logo-simbolo-claro.svg",
+      "bytes": 591,
+      "sha256": "ca84be77ea521c24be15ee8ea6cf3af81c1ba36761f75d25ea4456edcff3f0cd"
+    },
+    {
+      "path": "02_ASSETS/brand/logo-simbolo.svg",
+      "bytes": 619,
+      "sha256": "1caa5b1544f88b3cb169a16501358f0a3902fa3fb0f71dd429c86459dd33d671"
+    },
+    {
+      "path": "02_ASSETS/icons/ahorro.svg",
+      "bytes": 313,
+      "sha256": "bc7623d509169b62a4cd8d0a2109b863a76c9d01f105e4c2526e5696c61abda4"
+    },
+    {
+      "path": "02_ASSETS/icons/ajustes.svg",
+      "bytes": 358,
+      "sha256": "5f76111b539bef8a1328bcf4decb15429bd06dbe82953e1484273b81072e7edc"
+    },
+    {
+      "path": "02_ASSETS/icons/alimentos.svg",
+      "bytes": 313,
+      "sha256": "3008fe8b15baa821106ad847302e1690ec0eee08af25af0c3c854f307ad61df6"
+    },
+    {
+      "path": "02_ASSETS/icons/ayuda.svg",
+      "bytes": 319,
+      "sha256": "6dd96237870bd0b1adbc09dc47387a6a0d3ddb5fea3b2251a6a12f175e1b838a"
+    },
+    {
+      "path": "02_ASSETS/icons/borrador.svg",
+      "bytes": 317,
+      "sha256": "2b1663ff49badf238e5b978b0f96cef4edc8a1a93aee6630d05db20b1e7f61be"
+    },
+    {
+      "path": "02_ASSETS/icons/caja.svg",
+      "bytes": 338,
+      "sha256": "f75779c3474a4199eaa9ced445d3bb1d237e90bf92c56becb33a7738c4429834"
+    },
+    {
+      "path": "02_ASSETS/icons/calendario.svg",
+      "bytes": 329,
+      "sha256": "c01d6325ba36074d3c64d9ba860e5a2db6f1f789ebfe855c844573a50a81a82b"
+    },
+    {
+      "path": "02_ASSETS/icons/cambiar-cuenta.svg",
+      "bytes": 366,
+      "sha256": "07e937e3c5dd108c8d9256129665a914d99f1275f129f220823fa429b3a4775c"
+    },
+    {
+      "path": "02_ASSETS/icons/campana.svg",
+      "bytes": 294,
+      "sha256": "93815ae2682db92425193724d5955f4cca090a095b76343b02d622f32f97794e"
+    },
+    {
+      "path": "02_ASSETS/icons/compras.svg",
+      "bytes": 292,
+      "sha256": "800500193f84acd9c27aae012d3833322b0725eea6975e3dc6cc0237f3be6a3f"
+    },
+    {
+      "path": "02_ASSETS/icons/contraste.svg",
+      "bytes": 309,
+      "sha256": "013826ea6e1dc928b66b581e732c5c6632fdb9b66ce5257f2b99aa9d5d19eda9"
+    },
+    {
+      "path": "02_ASSETS/icons/corte.svg",
+      "bytes": 332,
+      "sha256": "f1346898301bbab3842cb2789dfcbded799cb7e419175124736401df9661067b"
+    },
+    {
+      "path": "02_ASSETS/icons/digital.svg",
+      "bytes": 316,
+      "sha256": "3e930233643708e18a0fb4f105a8f8a0501d24cb3bac8237a3a4f40a1afc04da"
+    },
+    {
+      "path": "02_ASSETS/icons/editar.svg",
+      "bytes": 296,
+      "sha256": "8d4b4b1176ad7e7b4fbd7a52bff72d5dfd1b58dc8e7ebd51ef882265173ff523"
+    },
+    {
+      "path": "02_ASSETS/icons/efectivo.svg",
+      "bytes": 349,
+      "sha256": "54111ae3b71fd1c93faee176ac65f719a87933cc8e1e8ecea4f1b529d4b2450e"
+    },
+    {
+      "path": "02_ASSETS/icons/error.svg",
+      "bytes": 298,
+      "sha256": "bea200b76258ff8599e5c40958ecd5c185ac9113dc348159deac06caa986b119"
+    },
+    {
+      "path": "02_ASSETS/icons/exportar.svg",
+      "bytes": 289,
+      "sha256": "bfba3ad84f7bc868dfe289b2a76b90422ded02b930c1f16e528d560e94e9f140"
+    },
+    {
+      "path": "02_ASSETS/icons/fiado.svg",
+      "bytes": 338,
+      "sha256": "d9f17b265ca596922548aaeaa3cd4b65a52b074bc8bd0e56485287b672598ccf"
+    },
+    {
+      "path": "02_ASSETS/icons/flecha.svg",
+      "bytes": 274,
+      "sha256": "a179e1dd09951956be356ca66aa88a30d8d7d0a8b36ef5490ef66262a155974b"
+    },
+    {
+      "path": "02_ASSETS/icons/grupo.svg",
+      "bytes": 353,
+      "sha256": "a9526cbc85cf4943181512417472213cecbc4d693e7e4a28a0a7accecb349834"
+    },
+    {
+      "path": "02_ASSETS/icons/guardar.svg",
+      "bytes": 294,
+      "sha256": "cb5539312204ee1d4b48a5c4b718481a0eb416fe915df3c5abb20432e28f9ced"
+    },
+    {
+      "path": "02_ASSETS/icons/inicio.svg",
+      "bytes": 294,
+      "sha256": "8b2803ea888470529e9ce89913f81ca32e334385162076fa6fac8e500a7cca1c"
+    },
+    {
+      "path": "02_ASSETS/icons/inventario.svg",
+      "bytes": 304,
+      "sha256": "2f6fe0dad23418be49916e36096b4cb951976df74f8d5e457052c4483248ebcc"
+    },
+    {
+      "path": "02_ASSETS/icons/mas.svg",
+      "bytes": 292,
+      "sha256": "4cd6a654a50ba26ebe90a1bf3c5c83caa10bc486e831f4f9197dc3890fb7cbc5"
+    },
+    {
+      "path": "02_ASSETS/icons/metas.svg",
+      "bytes": 361,
+      "sha256": "9d1d026f270e53793172519a21aa7eb4211459cdcfed857f5f1ba17a9dcdec6d"
+    },
+    {
+      "path": "02_ASSETS/icons/microfono.svg",
+      "bytes": 340,
+      "sha256": "2e4fd8a76c9c67d2cefc81279f35e26ec84fbd53339387d626de2e0f423b3830"
+    },
+    {
+      "path": "02_ASSETS/icons/monedas.svg",
+      "bytes": 380,
+      "sha256": "49c277cfa891b5fe02b68a216c76a327f6ff0c492f2317634fee5c674f130895"
+    },
+    {
+      "path": "02_ASSETS/icons/pendiente.svg",
+      "bytes": 299,
+      "sha256": "d5e75d95696d6a789062b0562e18ae8e236901d15d5046bd471498ff245efe8d"
+    },
+    {
+      "path": "02_ASSETS/icons/pendientes.svg",
+      "bytes": 323,
+      "sha256": "d3c5f1637102cd45fddd417b07637aa6649ca11366e7986d11a000fe6ff5e215"
+    },
+    {
+      "path": "02_ASSETS/icons/persona.svg",
+      "bytes": 309,
+      "sha256": "d1e3c424c39a356013fccb1eda07b36439c53c0d236463c484ae377d037a3db0"
+    },
+    {
+      "path": "02_ASSETS/icons/proveedores.svg",
+      "bytes": 353,
+      "sha256": "f5f0d7aa00f0c318176c6d607b314c6b593c98688d0e782046168fde52214a06"
+    },
+    {
+      "path": "02_ASSETS/icons/qr.svg",
+      "bytes": 416,
+      "sha256": "5ccd33eede346513f249e8a920ed9122f9613c7bc7587b137e09569160db3138"
+    },
+    {
+      "path": "02_ASSETS/icons/reloj.svg",
+      "bytes": 291,
+      "sha256": "7e64d0dc540374e1ce4e16587c5e8696f8fc2287b26e074f5e7feca90e9368c2"
+    },
+    {
+      "path": "02_ASSETS/icons/reportes.svg",
+      "bytes": 296,
+      "sha256": "8135e3502a38ee7413e2d8b532d6591f42a059b232f4288bb25ecbb5c2a8bafd"
+    },
+    {
+      "path": "02_ASSETS/icons/seguridad.svg",
+      "bytes": 323,
+      "sha256": "269113e193b0f60e645f68522d0ec6deb7865153becd721167cee4956c6040bd"
+    },
+    {
+      "path": "02_ASSETS/icons/sin-conexion.svg",
+      "bytes": 337,
+      "sha256": "0d1d515f9825bf1ca6794565c754087a75456b80efae6a5e4d8f55396fad5a1c"
+    },
+    {
+      "path": "02_ASSETS/icons/sol.svg",
+      "bytes": 344,
+      "sha256": "b63374d4e1622a65cf0d2978daf27e0b25d0e5f1735edde412782ff173cf46f9"
+    },
+    {
+      "path": "02_ASSETS/icons/tickets.svg",
+      "bytes": 294,
+      "sha256": "c966f84c26db7ee19ce5c7b7789830d41751f2488c84d031aeb6d1a30d257f91"
+    },
+    {
+      "path": "02_ASSETS/icons/ventas.svg",
+      "bytes": 333,
+      "sha256": "ef5a3932b0142d5060d3b1f0da8f9bf5cdb8ae803992d70468c5b3784dd178a7"
+    },
+    {
+      "path": "02_ASSETS/icons/verificado.svg",
+      "bytes": 303,
+      "sha256": "15504f68fba8249b291e46e3ba5eaedefd665f744d5334639d4d7b4b5b9c289f"
+    },
+    {
+      "path": "02_ASSETS/illustraciones/ahorro-frasco.svg",
+      "bytes": 844,
+      "sha256": "aa07332cd6495986905ec9a8af79f64d8250e6e2acb2e73b79f0468dcf1af716"
+    },
+    {
+      "path": "02_ASSETS/illustraciones/caja-registradora.svg",
+      "bytes": 665,
+      "sha256": "288883a63bdc4bb096bd0705a46cc177a79c7fe278eaad51e0f9c1088be70600"
+    },
+    {
+      "path": "02_ASSETS/illustraciones/libreta.svg",
+      "bytes": 642,
+      "sha256": "86b182909e469e3c7c191915dbbcca4766776577dc3847eb03b9d7c7cdefb884"
+    },
+    {
+      "path": "02_ASSETS/illustraciones/mano-herramienta.svg",
+      "bytes": 520,
+      "sha256": "45343ea1504d0c865fb6c76fec0fac186a9b81740d60e0e32f3ef715818b83c0"
+    },
+    {
+      "path": "02_ASSETS/illustraciones/puesto-mercado.svg",
+      "bytes": 1003,
+      "sha256": "946f42a91df90a284a83ecb175669b74775caee570b55d63689473fc81bc0cf9"
+    },
+    {
+      "path": "02_ASSETS/illustraciones/quesadilla.svg",
+      "bytes": 828,
+      "sha256": "8ab98ef52c86a99b7bdb9c12a87c70d1eeef29d799307b2c2b9f30e5a9d6c4ad"
+    },
+    {
+      "path": "02_ASSETS/illustraciones/sol-bienvenida.svg",
+      "bytes": 584,
+      "sha256": "63103d5631260b964608a07f07a5b55ff63d1ebc6dab977605903fa29c46d69b"
+    },
+    {
+      "path": "02_ASSETS/illustraciones/telefono-qr.svg",
+      "bytes": 960,
+      "sha256": "61f803f43ab0cf253e5276a794cb5ff962915af64c6a9075aee9390ac9c7063d"
+    },
+    {
+      "path": "02_ASSETS/patrones/borde-ticket.svg",
+      "bytes": 387,
+      "sha256": "10910d7ce3c2039b71cfa94aaf6f2a340a54767959bc890d81f7ffd2fc7fffdc"
+    },
+    {
+      "path": "02_ASSETS/patrones/papel-picado.svg",
+      "bytes": 604,
+      "sha256": "2d169fa6719920526b0ee9fa176877e1ee204df5c6556f969b4b3edaaa03c6e5"
+    },
+    {
+      "path": "02_ASSETS/patrones/separador-editorial.svg",
+      "bytes": 259,
+      "sha256": "7a94dee48fa6b152c3a3e38da0ec0c46c986be3eca5e385fed211ebcd03cba69"
+    },
+    {
+      "path": "02_ASSETS/patrones/toldo-mercado.svg",
+      "bytes": 581,
+      "sha256": "656a6c91b2fb9ff40184fa98fa8e2618c8d002724ad851f9436642388552d787"
+    },
+    {
+      "path": "02_ASSETS/raster_png/brand/logo-horizontal.png",
+      "bytes": 19871,
+      "sha256": "859ed4b9a8dad0928b1f16d7ca624afdb7abaeae6fc6e9a7f8f5cedf0c61b72d"
+    },
+    {
+      "path": "02_ASSETS/raster_png/brand/logo-lockup-dark.png",
+      "bytes": 20647,
+      "sha256": "a6ad80cd8c259a5c3468c1977fc561360103590026dd0a22c8e57bbd950d3a64"
+    },
+    {
+      "path": "02_ASSETS/raster_png/brand/logo-simbolo-claro.png",
+      "bytes": 14762,
+      "sha256": "4555fc1de11d134858ea4f0ff0299f0a705d7d55b32eb017d1b915476d75fd4e"
+    },
+    {
+      "path": "02_ASSETS/raster_png/brand/logo-simbolo.png",
+      "bytes": 15074,
+      "sha256": "080a157513e4287b8c0d3b4f5afe9b8afc3cbcec8b265e7f8d1834e37ea5231a"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/ahorro.png",
+      "bytes": 1390,
+      "sha256": "f4370c7c6c1a49a344f977f9ea588aca8cf4f6231051f678b6967538d6acccba"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/ajustes.png",
+      "bytes": 3634,
+      "sha256": "803f6f59079e8f83a76ac992e0c62010d1715e0c49c1042ad44b8d9f2467b118"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/alimentos.png",
+      "bytes": 2346,
+      "sha256": "c69dca0c0f6403180606cccb34596f140e2a6d96bebd49cbe69855b8e8083fd1"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/ayuda.png",
+      "bytes": 3974,
+      "sha256": "b5196af83d13ad066dffca327aaa45fdfe23ac6b9f64793718fc92cfc121210e"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/borrador.png",
+      "bytes": 1602,
+      "sha256": "52aed42d8d3543bceb5b35fdf4086036dde59d3db9b4ff25cfe8e7a08687719b"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/caja.png",
+      "bytes": 1472,
+      "sha256": "e015fa67a48f9f856aeb9e998259b087dae69534fba1df1640d590eb774e4e07"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/calendario.png",
+      "bytes": 1373,
+      "sha256": "d00a50a653d027f09dc46e720575424a3c27eef8d9b0ec7367d859e1b30061d0"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/cambiar-cuenta.png",
+      "bytes": 2996,
+      "sha256": "46e62d597a8f0a434c1f842f16da466462c5b15be2e9879a7c98e83c4413e166"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/campana.png",
+      "bytes": 1566,
+      "sha256": "17fa46a8323e280777b11e078b4e63345a3d6411eca31a9cc93b3b016f147906"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/compras.png",
+      "bytes": 1804,
+      "sha256": "c55fcfd83e897e6b0c938aee2548eb7f42ca8a72a4bdad7237366cac7147fd40"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/contraste.png",
+      "bytes": 3062,
+      "sha256": "448c7812755a9f3e3454311e94276b377e64d5761f580b448ea54db5ea1216ed"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/corte.png",
+      "bytes": 1326,
+      "sha256": "624e5ccfdbc7db76dce243928b98162d2db9de266692c5c6296045ecc2863e5f"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/digital.png",
+      "bytes": 1326,
+      "sha256": "0e384feaaf2937bf6da6f09a5b29da87be55a7deb7ead45a80c9e828594b26ff"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/editar.png",
+      "bytes": 1434,
+      "sha256": "24a26c7386e8d5488f86114815200fc196f5d21277e429ea8ccc8269c0bbf687"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/efectivo.png",
+      "bytes": 2572,
+      "sha256": "902ca891222a9de7b99f568007ab04a9c69ae04d6aa4646d6a70dda5d5e5558d"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/error.png",
+      "bytes": 3579,
+      "sha256": "bc2987ba85146c8faaaf12434d6c8d6f5ad260848552b94c817cf76e3765980d"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/exportar.png",
+      "bytes": 1005,
+      "sha256": "48a1eae39dd58b0e87601e107cc2f2e5911b01f5dc5efb1f521eba750d7b6fc1"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/fiado.png",
+      "bytes": 1452,
+      "sha256": "0d6cc23bab184f4cad483bc742a7fdb14bb6bdb60ec9921f45bebad6b2e1432a"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/flecha.png",
+      "bytes": 740,
+      "sha256": "8c59beab97bd9cfd69cefe2ac27587a14e451c762477252e105d7839b73d2586"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/grupo.png",
+      "bytes": 3300,
+      "sha256": "affc858214f0d59b8b79c917700f3b66ea4704f52bd8461beb29b43412eef783"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/guardar.png",
+      "bytes": 843,
+      "sha256": "f69a0e1e3b4d304601948de98ea5e06cc2f45c4ef001488dfa71fba1c0881bbf"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/inicio.png",
+      "bytes": 1398,
+      "sha256": "d605308ac70519a482238f700731509b013d5ac77aabb04a2549a0596395cf4d"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/inventario.png",
+      "bytes": 1885,
+      "sha256": "1c819bb2ab1115befe7a554c34d18f87c6264cbbaf2b8bfa1c66bcf0ac40d278"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/mas.png",
+      "bytes": 3283,
+      "sha256": "2ab39d369263b03e8ff03db87229864bed710d5cb262da615c173198eb45b63f"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/metas.png",
+      "bytes": 4734,
+      "sha256": "018dab84186ec40b5db440845d9dd25a511b5f7f4fac2d8a3889395262419eef"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/microfono.png",
+      "bytes": 2464,
+      "sha256": "33cd0ee6e30ad3e59825618c40332ae7779a18b4a86a51d614f5871e00d26f8e"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/monedas.png",
+      "bytes": 3463,
+      "sha256": "9e43bb909365e0ccd3ba6ea11c6aff09c6774d2d95f3773aad5a01dc18a57266"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/pendiente.png",
+      "bytes": 3270,
+      "sha256": "ae9258c295c11e102fcef3df951b33ee3c11b7ce8f3260dccaef2aa9a1a32370"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/pendientes.png",
+      "bytes": 923,
+      "sha256": "87b00a6729fdf223bbcc5d53654f726e8ba974f78798d407f149db345399d6a5"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/persona.png",
+      "bytes": 2600,
+      "sha256": "1c50f684dfe816ebb4e94142f459f6fa2818fb6f895f028700691e716d512c26"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/proveedores.png",
+      "bytes": 1356,
+      "sha256": "42ab078b9d9d9281b9180fb53d66cce3a80033e29b97eff7be13728eba299182"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/qr.png",
+      "bytes": 1190,
+      "sha256": "11d89ed29b20fb4950d62940d811dc0efd769618e5b5eb1854bc551bbfe5f393"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/reloj.png",
+      "bytes": 3418,
+      "sha256": "2a3f6f6c68c9cb90822700a39fa9b439105dc0d235b0c703cff55e76c8733c5e"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/reportes.png",
+      "bytes": 592,
+      "sha256": "a55eb6184c25c71670e1d3190d97535d9055c3a6273fd470eca16fa9efb80294"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/seguridad.png",
+      "bytes": 2729,
+      "sha256": "37a0aff78e840a5c554f3cde099fb60cb18f65f67e7fd949d0c107bd64adcd74"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/sin-conexion.png",
+      "bytes": 2648,
+      "sha256": "7849c356841a7c66b2044588da2f1fc30c923eac01c919f755b63a1aa8b8f0ff"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/sol.png",
+      "bytes": 2552,
+      "sha256": "2e8604caaa3a9ccc1fb2ed45244498e4bd994ba4d23dfa170ccb898176322292"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/tickets.png",
+      "bytes": 1196,
+      "sha256": "116cb973f0403d02d1fbb44779ec37f7b78e2dd2bfa3db6509988189774a9a9a"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/ventas.png",
+      "bytes": 1270,
+      "sha256": "7f66d946996eb06b8bdff6bbed171a4086891fa59331e7c7761eb7ad6d2a2d53"
+    },
+    {
+      "path": "02_ASSETS/raster_png/icons/verificado.png",
+      "bytes": 3532,
+      "sha256": "de52f89c6f860dda3b33850adc85595cb832444217cbe01eec5b301971362aec"
+    },
+    {
+      "path": "02_ASSETS/raster_png/illustraciones/ahorro-frasco.png",
+      "bytes": 19470,
+      "sha256": "de573b33722e4b8e61fab261d88a6d97ae612dcd7c79142967d201c6574b8c76"
+    },
+    {
+      "path": "02_ASSETS/raster_png/illustraciones/caja-registradora.png",
+      "bytes": 6357,
+      "sha256": "5dd8654b83af1811eb7a3a7361d6163f5af3495a18bab9544e426f67a89d80a2"
+    },
+    {
+      "path": "02_ASSETS/raster_png/illustraciones/libreta.png",
+      "bytes": 10468,
+      "sha256": "3a92e85c8e589ba8147434b2c65b93d65befaca3885e83c5100b7edaf7d5cd8b"
+    },
+    {
+      "path": "02_ASSETS/raster_png/illustraciones/mano-herramienta.png",
+      "bytes": 21776,
+      "sha256": "570a0bce608b1af37bfff396f4a3fc35e96483ac7131663a593002eea2705fd9"
+    },
+    {
+      "path": "02_ASSETS/raster_png/illustraciones/puesto-mercado.png",
+      "bytes": 15498,
+      "sha256": "ff76a6db3b16af6b3d4b14d51fe9f96b1bafeb796267f31f4016d7c52606ed87"
+    },
+    {
+      "path": "02_ASSETS/raster_png/illustraciones/quesadilla.png",
+      "bytes": 25833,
+      "sha256": "676c56ba63cab2d1e6bae0990a9b9657e60d6e97d07b9288848fa7a8a96b241f"
+    },
+    {
+      "path": "02_ASSETS/raster_png/illustraciones/sol-bienvenida.png",
+      "bytes": 16849,
+      "sha256": "4c436a94a7323f2494edc1b02f5ccbcd0c9e8b32c28f231ec27afc96743fdace"
+    },
+    {
+      "path": "02_ASSETS/raster_png/illustraciones/telefono-qr.png",
+      "bytes": 6919,
+      "sha256": "151555582c3fbd42594d969cf8a43c4b19b2a21e3734ef02306638fca2186461"
+    },
+    {
+      "path": "02_ASSETS/raster_png/patrones/borde-ticket.png",
+      "bytes": 4408,
+      "sha256": "c1c31cdd3ce042993eef7c4e6feca01207788c48b68c978e1903bb07fe863e3f"
+    },
+    {
+      "path": "02_ASSETS/raster_png/patrones/papel-picado.png",
+      "bytes": 9085,
+      "sha256": "1990130f3a90e5376720c82ec743b24957c7a39c4273a4aee515430e53c00553"
+    },
+    {
+      "path": "02_ASSETS/raster_png/patrones/separador-editorial.png",
+      "bytes": 793,
+      "sha256": "35f151dabf87851c4681b8cd3a923b9207ddec29f2ff372cb291116ba7563334"
+    },
+    {
+      "path": "02_ASSETS/raster_png/patrones/toldo-mercado.png",
+      "bytes": 6472,
+      "sha256": "d4dc13e502360be3b00b09d184dfbf85f4fb756c1a7b500a5af8d5bccaa61acc"
+    },
+    {
+      "path": "03_SISTEMA_DISENO/01_BRAND_GUIDE.md",
+      "bytes": 5700,
+      "sha256": "6672ae4a40fd2c6d3fadd8bfbcff39cc76a686bdc6081ca82593dd0cf4171cb7"
+    },
+    {
+      "path": "03_SISTEMA_DISENO/02_CONTENIDO_ES_MX.md",
+      "bytes": 2035,
+      "sha256": "3d51d0151bc5a85898478cc428fbcde3d844300a0ef7f59c3bb4af144b52ea52"
+    },
+    {
+      "path": "03_SISTEMA_DISENO/03_CONTRATOS_COMPONENTES.md",
+      "bytes": 3220,
+      "sha256": "ac47a5371263460a2f1360ba985f82c87b793255dd7cdc6e5a94e3d40fda4aac"
+    },
+    {
+      "path": "03_SISTEMA_DISENO/04_ICONOGRAFIA_Y_ILLUSTRACION.md",
+      "bytes": 1745,
+      "sha256": "ce0c2bd589317d4b7ffeba91dc6e063cf53bdf3970b17cb36069b9fd91f7bee4"
+    },
+    {
+      "path": "03_SISTEMA_DISENO/MATRIZ_COMPONENTES.csv",
+      "bytes": 2223,
+      "sha256": "5f6ef227b7c5e00f81378c5faa6ef507171d7210849d0171c936562a1202d12c"
+    },
+    {
+      "path": "03_SISTEMA_DISENO/tokens/CONTRASTE_MEDIDO.csv",
+      "bytes": 530,
+      "sha256": "03d97944f5e9c1805a61a244dcbac9e0b2f54ddde489362b04625f6a26a4c5a6"
+    },
+    {
+      "path": "03_SISTEMA_DISENO/tokens/mercado-theme-dark.css",
+      "bytes": 371,
+      "sha256": "13403ba1edf00edef53c82287e4a6db293ae3e0bdbb3df1408754079d37c9034"
+    },
+    {
+      "path": "03_SISTEMA_DISENO/tokens/mercado-tokens.css",
+      "bytes": 4054,
+      "sha256": "bf8a4f990abf2889b3896e8ebb3c2f2452647127bbf0bc490609d20f8f9dc200"
+    },
+    {
+      "path": "03_SISTEMA_DISENO/tokens/mercado-tokens.json",
+      "bytes": 2695,
+      "sha256": "c51d38b4cac7049d2234a3314a2b108559366ff142d5291f7267f3940030050a"
+    },
+    {
+      "path": "04_PANTALLAS/00_MAPA_DE_PANTALLAS.md",
+      "bytes": 799,
+      "sha256": "6ed4b7a8e374adf85ee9a3f536bf019477d8fd0d862a22dfd8171d67d0cb1a2b"
+    },
+    {
+      "path": "04_PANTALLAS/01_inicio_escritorio.md",
+      "bytes": 1914,
+      "sha256": "f477a0ae7b8e5cf40ea2655cd16cb71ad75e11e9c02d8e46a73e92859b997b61"
+    },
+    {
+      "path": "04_PANTALLAS/02_inicio_movil.md",
+      "bytes": 1460,
+      "sha256": "630eb84313afd013cf5868a18fe0f7c00e9d9a05bb81cba1959ce22b1076b38a"
+    },
+    {
+      "path": "04_PANTALLAS/03_nueva_venta.md",
+      "bytes": 1748,
+      "sha256": "ba1fcccc57d634ce44bd38ab7982f5d5b8674f00bf2b89e0a1e3273681a4f02e"
+    },
+    {
+      "path": "04_PANTALLAS/04_seleccion_pago.md",
+      "bytes": 1604,
+      "sha256": "b2220a31aaec6d3414bf8d407f0953e78789dfceb641a51a29c9d7dbe534eee8"
+    },
+    {
+      "path": "04_PANTALLAS/05_cobro_qr.md",
+      "bytes": 1665,
+      "sha256": "c3973f06dea743f17d80bf8d5068d4ef5aac07e294aa99b9e3ba998de122b786"
+    },
+    {
+      "path": "04_PANTALLAS/06_fiado.md",
+      "bytes": 1609,
+      "sha256": "131aa2e84cbbe30cb8d3a916a541533da9f11ce60f43894933c6a85dac6e8de3"
+    },
+    {
+      "path": "04_PANTALLAS/07_corte_caja.md",
+      "bytes": 1665,
+      "sha256": "00f400b9af5bda145af26041cd167d5ad3ad9f844c158da51924c19e33d2ac3a"
+    },
+    {
+      "path": "04_PANTALLAS/08_metas.md",
+      "bytes": 1541,
+      "sha256": "51bfe3d574d16131365504ddbd862b0c6c423c9e752ca5b22abf660177370bb7"
+    },
+    {
+      "path": "04_PANTALLAS/09_inventario.md",
+      "bytes": 1484,
+      "sha256": "e0316f9eb46ca5a4f6dce22ed57d81f7413131ff9d9c0d59ee00d545668c5cda"
+    },
+    {
+      "path": "04_PANTALLAS/10_proveedores.md",
+      "bytes": 1346,
+      "sha256": "e1b8b88a9efec5e92aea6863eb14ec6cf3e493fd74d2121bf7d8eca4ec4d68c0"
+    },
+    {
+      "path": "04_PANTALLAS/11_pendientes.md",
+      "bytes": 1436,
+      "sha256": "774b3667f1c8af6d39e55d61b8d56147f087c4ab522d4d794ef3aa4df93a7067"
+    },
+    {
+      "path": "04_PANTALLAS/12_reportes.md",
+      "bytes": 1406,
+      "sha256": "c647b35ff0aa43acfdffe5bd0b33f06374ae3819bd135f14eb5a5b0edf2c8bf0"
+    },
+    {
+      "path": "04_PANTALLAS/13_onboarding.md",
+      "bytes": 1489,
+      "sha256": "32ea24f5876af3e8d554240e59ae7e57a9e9bc8d185b3288e975c47ba5d53e16"
+    },
+    {
+      "path": "04_PANTALLAS/14_asistente.md",
+      "bytes": 1498,
+      "sha256": "58a9f6697fe7b19ec1f8004fa4efd0f68015ec3108874ff9f3ea9f7d8086f2fd"
+    },
+    {
+      "path": "04_PANTALLAS/15_accesibilidad.md",
+      "bytes": 1457,
+      "sha256": "37f147c700153c424d284f0a12970192cb089235f9383cfe63b218fc933fa7b0"
+    },
+    {
+      "path": "04_PANTALLAS/16_navegacion_y_shell.md",
+      "bytes": 1441,
+      "sha256": "acfa945a9d86d5e8b8a2ac8f6d06e06fddb67bab6269b69f8744b7e51392be1f"
+    },
+    {
+      "path": "04_PANTALLAS/MATRIZ_PANTALLAS.csv",
+      "bytes": 14136,
+      "sha256": "e1b4b710a03454438750c047c3ac4e9bbbbb7d39b6bc1262903e24bd222ab786"
+    },
+    {
+      "path": "05_PROMPTS/00_INICIO_ORQUESTADOR.md",
+      "bytes": 3008,
+      "sha256": "054d573a4930bfa204ba6526c64045038ba21198d9f95ca55ca684000f82711d"
+    },
+    {
+      "path": "05_PROMPTS/98_PROMPT_REVISION_VISUAL.md",
+      "bytes": 821,
+      "sha256": "29c11fac729699173f72dd325c0d4925a073b9a58ef6e5834fb62302b201afad"
+    },
+    {
+      "path": "05_PROMPTS/99_PROMPT_VERIFICACION_FINAL.md",
+      "bytes": 1328,
+      "sha256": "68acf171612087e461f5018e580c0b35edb4d3edc06acc80e834d0f2bbc250e5"
+    },
+    {
+      "path": "05_PROMPTS/INDICE_PROMPTS.json",
+      "bytes": 5106,
+      "sha256": "63aeb67077b9fd64e18d6319908604b7c7a2c918998e2d2f5dc5d6356787857d"
+    },
+    {
+      "path": "05_PROMPTS/para_generar_nuevos_assets/01_logo_y_sistema.md",
+      "bytes": 849,
+      "sha256": "30f55fe3a1231724202f8c05085d9d3091202a8a8b4680078a228be63066eca0"
+    },
+    {
+      "path": "05_PROMPTS/para_generar_nuevos_assets/02_ilustracion_puesto.md",
+      "bytes": 794,
+      "sha256": "2553cf2d6bec192aa5880bff7267095cb66576bff32419e0194151e9ddf3f53c"
+    },
+    {
+      "path": "05_PROMPTS/para_generar_nuevos_assets/03_onboarding_bienvenida.md",
+      "bytes": 790,
+      "sha256": "e70451aa9071a61c207ec8930a563e8896f7249c8858952437e8a6f3e5a1dd6c"
+    },
+    {
+      "path": "05_PROMPTS/para_generar_nuevos_assets/04_onboarding_venta.md",
+      "bytes": 686,
+      "sha256": "2077512fd8d9568439256a09183fc9c4a67ee8798c0ae78faf8431ea3e743d61"
+    },
+    {
+      "path": "05_PROMPTS/para_generar_nuevos_assets/05_onboarding_qr.md",
+      "bytes": 672,
+      "sha256": "2573cfab2bcd21db04ad5063e724b8dafa18228b060ac7a347059e3c8a094f49"
+    },
+    {
+      "path": "05_PROMPTS/para_generar_nuevos_assets/06_ahorro.md",
+      "bytes": 649,
+      "sha256": "a0c73f34e00d232e01134cc0b520076a97e27729975495472c0a25b4f6034f0c"
+    },
+    {
+      "path": "05_PROMPTS/para_generar_nuevos_assets/07_fiado.md",
+      "bytes": 631,
+      "sha256": "372b2498a5d594d5c4979d2e1ab4b0d389ce0532e88026237b3479afab8702f4"
+    },
+    {
+      "path": "05_PROMPTS/para_generar_nuevos_assets/08_corte.md",
+      "bytes": 631,
+      "sha256": "b4224d328b06506b249e7202be40d2cf9e590a4fad9ab7b28e1cee669e713b33"
+    },
+    {
+      "path": "05_PROMPTS/para_generar_nuevos_assets/09_iconos.md",
+      "bytes": 810,
+      "sha256": "df7cfc1b044aebdda295544fbaf87bb5c1aa52abe665d9d44e5d6c897538fbd0"
+    },
+    {
+      "path": "05_PROMPTS/para_generar_nuevos_assets/10_patrones.md",
+      "bytes": 678,
+      "sha256": "72b174a9cfe825800339e304ac4b34d15286027a2e32faa1ca859f91eb0ed53f"
+    },
+    {
+      "path": "05_PROMPTS/para_generar_nuevos_assets/11_estados_sin_datos.md",
+      "bytes": 647,
+      "sha256": "2f93e0a9cf9791d5a8e1b0baf005c381ab7346383efdb69a7a77e90aa98ce63d"
+    },
+    {
+      "path": "05_PROMPTS/para_generar_nuevos_assets/12_sistema_diseno.md",
+      "bytes": 756,
+      "sha256": "a671dbabe1f45d591fdc659c21383b1213ea94ca035329fe5411857c925b89bd"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/01_inicio_escritorio_PROMPT.md",
+      "bytes": 2066,
+      "sha256": "7437dbb472c9901226c50d85adaa3095543031a60eb3032b26f3fdf2c7a9bbc9"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/02_inicio_movil_PROMPT.md",
+      "bytes": 1607,
+      "sha256": "99dddea2962634d81d90081bbff2f4ac8b57584600234661a217109d1e6ad464"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/03_nueva_venta_PROMPT.md",
+      "bytes": 1894,
+      "sha256": "fa4a4e72e5f26128a2021d14b6010be2086b86e1ad01f55fb528c838769fb9c1"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/04_seleccion_pago_PROMPT.md",
+      "bytes": 1753,
+      "sha256": "d10e5fd4e036a632cda86b7e55736baef3677fa8d0faad30c6df560adbb33987"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/05_cobro_qr_PROMPT.md",
+      "bytes": 1808,
+      "sha256": "fc6087c288508e5e4430d5d091d38bb0e86ae167c3b039d47bf694c3100e7d9c"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/06_fiado_PROMPT.md",
+      "bytes": 1749,
+      "sha256": "902371abd31e8cf19a6f4b07180aa802c9885f62ab4b3702586e0fa4f7596a6d"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/07_corte_caja_PROMPT.md",
+      "bytes": 1810,
+      "sha256": "019c5e0ab2c6b4b969e593183fe90a40d21ef2634669b5c65496c63c51f88de8"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/08_metas_PROMPT.md",
+      "bytes": 1681,
+      "sha256": "b4da459a97f6c94e6d295a0b42aff2e3b5abad90c109a3aa6e78e5c895794081"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/09_inventario_PROMPT.md",
+      "bytes": 1629,
+      "sha256": "053f3699e28fec101a3c49140d41c6cb0d17cca8e2f2ef10a27b17fa6de8f985"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/10_proveedores_PROMPT.md",
+      "bytes": 1492,
+      "sha256": "02aa555d11a66ff23e4d2fa380c22b0306ca1fffedf51d2b253773c16f826bad"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/11_pendientes_PROMPT.md",
+      "bytes": 1581,
+      "sha256": "7af43952c6087dbe335eff98e5061c25c8df0e148fdd831d7fa237e7667956b6"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/12_reportes_PROMPT.md",
+      "bytes": 1549,
+      "sha256": "aa4cdd913ee64a93b97e923596e0b527c657f06eb49bf1b6fa672c88d0bcbae9"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/13_onboarding_PROMPT.md",
+      "bytes": 1634,
+      "sha256": "222182478207ee8495d31936b196cc1243a75eda70612f4b332c5cbfd1b07fe3"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/14_asistente_PROMPT.md",
+      "bytes": 1642,
+      "sha256": "6faa55824575eb5fb884f0b80f65fa44030a2d2ba9a3077dad0e8cd94d014d11"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/15_accesibilidad_PROMPT.md",
+      "bytes": 1605,
+      "sha256": "86ec107ed83ece428fd8e72b66987da23238f1447adc2153aa61e29031622ad7"
+    },
+    {
+      "path": "05_PROMPTS/por_pantalla/16_navegacion_y_shell_PROMPT.md",
+      "bytes": 1594,
+      "sha256": "bbcbb289c60e2c78f9adfa6874628bf857fa17eab137e94900ff7dfbcce58d9f"
+    },
+    {
+      "path": "06_OPENCODE_COPIAR_AL_REPO/.opencode/agents/mc-accesibilidad.md",
+      "bytes": 2222,
+      "sha256": "9666109ca875c3b41a6062c7a7727744f5047488fe0d58d736d165a675e7eaa1"
+    },
+    {
+      "path": "06_OPENCODE_COPIAR_AL_REPO/.opencode/agents/mc-auditoria-repo.md",
+      "bytes": 2199,
+      "sha256": "3f1db0ce671427eab7539da4d04e761ff880ac09b5a9687313b5747d1ae9f0a4"
+    },
+    {
+      "path": "06_OPENCODE_COPIAR_AL_REPO/.opencode/agents/mc-fiado-corte.md",
+      "bytes": 2178,
+      "sha256": "b8597bbf2386c0b67bbf5a8e1d821929ca6f462ae9f74bac7be301d993bc39b0"
+    },
+    {
+      "path": "06_OPENCODE_COPIAR_AL_REPO/.opencode/agents/mc-modulos-negocio.md",
+      "bytes": 2183,
+      "sha256": "4bdb8b401eeddd2e18e6bd9966acdfbc4013900f7150bab96fb115be56465b98"
+    },
+    {
+      "path": "06_OPENCODE_COPIAR_AL_REPO/.opencode/agents/mc-onboarding-ayuda.md",
+      "bytes": 2173,
+      "sha256": "7c2887ab98dfe64f33fb08cad7e3dec890c350f74d7f51284e3acf7d0f6fccd6"
+    },
+    {
+      "path": "06_OPENCODE_COPIAR_AL_REPO/.opencode/agents/mc-orquestador.md",
+      "bytes": 3771,
+      "sha256": "4e682b91e001c79258a0931dce0b8bbf56bc70c155d6368efb04404c7a0d5da6"
+    },
+    {
+      "path": "06_OPENCODE_COPIAR_AL_REPO/.opencode/agents/mc-shell-responsive.md",
+      "bytes": 2180,
+      "sha256": "4ffc347392ae3d206bbf52cb2cc7a2bbc18fed15fe081e7dd3dca4d98c23f64f"
+    },
+    {
+      "path": "06_OPENCODE_COPIAR_AL_REPO/.opencode/agents/mc-sistema-diseno.md",
+      "bytes": 2253,
+      "sha256": "83aba609018d0b7ae5b13a3bfe672d02e414a26ea3a2e11f0a5d9c51a09c6285"
+    },
+    {
+      "path": "06_OPENCODE_COPIAR_AL_REPO/.opencode/agents/mc-ventas-pagos.md",
+      "bytes": 2260,
+      "sha256": "de3dab10ef23487ad635baf6940970fa9d790a493829afd6bd7b53c9ed363f47"
+    },
+    {
+      "path": "06_OPENCODE_COPIAR_AL_REPO/.opencode/agents/mc-verificador-final.md",
+      "bytes": 2224,
+      "sha256": "a4859cc9707739d936aecbec3ac1a493257f7f7b7dce87de37b81979bb6c75e3"
+    },
+    {
+      "path": "06_OPENCODE_COPIAR_AL_REPO/.opencode/skills/mercado-cero-design/SKILL.md",
+      "bytes": 1478,
+      "sha256": "4801b660db017637e452ed180923ae17a505afad3c3b874caa7663c028f0cef6"
+    },
+    {
+      "path": "06_OPENCODE_COPIAR_AL_REPO/AVISO_NO_SOBREESCRIBIR.md",
+      "bytes": 994,
+      "sha256": "7a5c24f24a88877f11400d9af32ecb2abc9893981b455e8a6e885a29e4edb363"
+    },
+    {
+      "path": "06_OPENCODE_COPIAR_AL_REPO/FILE_OWNERSHIP_PLANTILLA.csv",
+      "bytes": 787,
+      "sha256": "61979342995024b205881a5f40f512c1833dc9b700d4219a81254a66f88d220d"
+    },
+    {
+      "path": "06_OPENCODE_COPIAR_AL_REPO/opencode.config.EJEMPLO.json",
+      "bytes": 237,
+      "sha256": "b4e2386b1cc3ae18f0b7f243a651f09d62775b34c88b2073c4eab746a9a8066c"
+    },
+    {
+      "path": "07_QA/00_PLAN_QA.md",
+      "bytes": 1754,
+      "sha256": "96d8b7e4b117aa129004899d925beebadf14f7275b901ddfafdd19b84b07d0d6"
+    },
+    {
+      "path": "07_QA/GUIA_PRUEBAS_MANUALES.md",
+      "bytes": 1701,
+      "sha256": "8b430d2f9070a92f10353a11e4a5025ee9629e41ed6de27256da1d9e3d3844bd"
+    },
+    {
+      "path": "07_QA/MATRIZ_QA.csv",
+      "bytes": 12257,
+      "sha256": "9da478116245f4f956451d310f589b25ea3c642ac91a1210c74839c9b7c6ba8a"
+    },
+    {
+      "path": "07_QA/escenarios_financieros.json",
+      "bytes": 3902,
+      "sha256": "e072c1fde34529e177e4882d70a973e398c638a13bcce9d17f09888b65d788eb"
+    },
+    {
+      "path": "07_QA/plantillas_playwright/README.md",
+      "bytes": 632,
+      "sha256": "47d4634d70b9c9b5483b12d0ef58e1d076f07777ebe631eaef365b04d668e842"
+    },
+    {
+      "path": "07_QA/plantillas_playwright/axe.ejemplo.spec.ts",
+      "bytes": 467,
+      "sha256": "2b8a52a689c96e862f88d7e955d250edee57e8f756750a433b2a82eb2fa48dab"
+    },
+    {
+      "path": "07_QA/plantillas_playwright/playwright.config.example.ts",
+      "bytes": 496,
+      "sha256": "155cc3d6436768df83e6977de4d67b6511e9b9206bb4cb8ad66618b396dc867b"
+    },
+    {
+      "path": "07_QA/plantillas_playwright/ux.ejemplo.spec.ts",
+      "bytes": 1095,
+      "sha256": "36e47d269c7ad35e29e4de4f581cf86238cc3116fc380a94a3f67fbc84cf7aa1"
+    },
+    {
+      "path": "07_QA/scripts/contraste.py",
+      "bytes": 512,
+      "sha256": "0c1317a0057aa34993c0f3d1bb64241267fa39b74e8f2646a80a5f6e48285462"
+    },
+    {
+      "path": "07_QA/scripts/verificar_kit.py",
+      "bytes": 1643,
+      "sha256": "c307a0e2d9d677435f2353de65ed4d6ca0a78472bff57f36d12508cbc5e0c716"
+    },
+    {
+      "path": "08_PREVIEW/README.md",
+      "bytes": 280,
+      "sha256": "42b531d099dafbc061f056ced1d4ae970af42b5bfbe4ac903d4c450876a2cb78"
+    },
+    {
+      "path": "08_PREVIEW/index.html",
+      "bytes": 19601,
+      "sha256": "af71e4e58d51fb0bbce29293a9f4859c550c8e5fb254df4fd503fe45a65b8536"
+    },
+    {
+      "path": "09_GOBERNANZA/00_PRINCIPIOS.md",
+      "bytes": 1325,
+      "sha256": "f073d75bb1755251be3d5d6d50fe79a794b4584e3e5df5bbc4119fb725493a85"
+    },
+    {
+      "path": "09_GOBERNANZA/01_REFERENCIAS_OFICIALES.md",
+      "bytes": 1382,
+      "sha256": "a6c520960541ff577b094b50dea2126a162e251309ad1963f7d607145a690440"
+    },
+    {
+      "path": "09_GOBERNANZA/02_ASSETS_Y_LICENCIAS.md",
+      "bytes": 1201,
+      "sha256": "e653c5d897b972c40f56c1d7fc239edbd08eae6bbd0b685879919a2bbad8789d"
+    },
+    {
+      "path": "10_PROTOTIPO_NAVEGABLE/README.md",
+      "bytes": 766,
+      "sha256": "0218b1c4d251483bf77267b0db09c9b27fee8ccb2d30b5b07b121faeaaf5c8d6"
+    },
+    {
+      "path": "10_PROTOTIPO_NAVEGABLE/app.css",
+      "bytes": 8279,
+      "sha256": "a7d120b07da49806fcec1a0cd6b5f23dc6e7074e6c132d5787ef8ec3310bc1b4"
+    },
+    {
+      "path": "10_PROTOTIPO_NAVEGABLE/app.js",
+      "bytes": 13966,
+      "sha256": "d25f4c703b82055fd7e80de30ab5d7c49e751c3db8bed47349be28f3c40a6368"
+    },
+    {
+      "path": "10_PROTOTIPO_NAVEGABLE/index.html",
+      "bytes": 1307,
+      "sha256": "fa9028f3723197ca75437646630240f2ff75cc6607792e5bfc98978bc792c7a1"
+    }
+  ],
+  "scope": "SHA-256 calculated for files preceding MANIFEST.json and RESUMEN_ENTREGA.md (these two files excluded to avoid circularity)"
+}

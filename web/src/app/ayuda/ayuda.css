@@ -1,0 +1,475 @@
+/* Ayuda · composición ilustrada con el ritmo del canon de Inicio.
+   Utilidades de arte: `.mc-art-*` (`components/shell/operational.css`).
+   Ritmo 24px entre secciones, tarjetas con padding 20–24, radios 20–22,
+   una ilustración grande (bot) + papel picado, medallones en filas. */
+
+.mc-ayuda-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  min-width: 0;
+  grid-template-areas: "intro" "steps" "first" "faq" "assistant" "cta";
+}
+.mc-ayuda-intro { grid-area: intro; }
+.mc-ayuda-steps { grid-area: steps; }
+.mc-ayuda-first { grid-area: first; }
+.mc-ayuda-faq-panel { grid-area: faq; }
+.mc-ayuda-cta { grid-area: cta; }
+.mc-ayuda-layout > .mc-assistant { grid-area: assistant; }
+.mc-ayuda-menu { grid-area: intro; padding: 4px 16px; border: 1px solid var(--color-separator); border-radius: 20px; background: var(--color-surface); }
+.mc-ayuda-menu a { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 12px 0; border-bottom: 1px solid var(--color-separator); color: var(--color-ink); font-size: 1rem; font-weight: 600; text-decoration: none; }
+.mc-ayuda-menu a:last-child { border-bottom: 0; }
+.mc-ayuda-menu a > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.mc-ayuda-menu svg { width: 22px; height: 22px; flex: none; color: var(--color-accent); }
+.mc-ayuda-menu small { display: block; color: var(--color-ink-2); font-size: .8125rem; font-weight: 400; margin-top: 4px; }
+.mc-ayuda-menu a:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3px; }
+.mc-ayuda-page :is(h2[id], #asistente) { scroll-margin-top: 24px; }
+.mc-ayuda-page.mc-op-main { font-family: Arial, "Segoe UI", sans-serif; }
+
+@media (min-width: 1024px) {
+  .mc-ayuda-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "intro intro" "steps steps" "first faq" "assistant faq" "cta cta";
+  }
+
+  .mc-ayuda-intro,
+  .mc-ayuda-cta {
+    grid-column: 1 / -1;
+  }
+
+}
+
+/* Lámina opencode/15_Asistente_Movil: saludo compacto y respuestas en filas.
+   El acordeón real sustituye al chat ausente; no se dibuja un input ficticio. */
+.mc-ayuda-intro {
+  display: grid;
+  grid-template-columns: 116px minmax(0, 1fr);
+  align-items: center;
+  gap: 20px;
+  padding: 20px 24px;
+  border: 1px solid var(--color-separator);
+  border-radius: 22px;
+  background: var(--color-surface);
+  box-shadow: 0 2px 8px rgb(31 38 34 / 5%);
+}
+
+.mc-ayuda-intro > img {
+  width: 116px;
+  height: 116px;
+  object-fit: contain;
+}
+
+.mc-ayuda-intro > div {
+  min-width: 0;
+  padding: 0;
+}
+
+.mc-ayuda-intro h2 {
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.mc-ayuda-intro p {
+  margin-top: 4px;
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.mc-ayuda-intro p.mc-ayuda-intro__eyebrow { margin: 0 0 4px; color: var(--color-accent); font-size: 0.75rem; font-weight: 700; }
+.mc-ayuda-intro__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.mc-ayuda-intro__actions .mc-ayuda-action { min-height: 48px; gap: 8px; }
+.mc-ayuda-intro__actions img { width: 24px; height: 24px; flex: 0 0 auto; }
+
+/* -------------------------------------------------------------------------
+   Tres pasos: fila de tarjetas de papel con medallón de marca
+   ------------------------------------------------------------------------- */
+.mc-ayuda-steps__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 16px;
+}
+
+.mc-ayuda-step {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  transition: transform 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.mc-ayuda-step:hover {
+  transform: translateY(-2px);
+}
+
+.mc-ayuda-step .mc-art-medallion {
+  margin-bottom: 4px;
+}
+
+.mc-ayuda-step__eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.mc-ayuda-step__eyebrow--attention {
+  color: var(--color-attention);
+}
+
+.mc-ayuda-step__eyebrow--green {
+  color: var(--color-green);
+}
+
+.mc-ayuda-step__title {
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.mc-ayuda-step__note {
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+/* -------------------------------------------------------------------------
+   Primeros pasos: lista numerada sobre tarjeta de papel
+   ------------------------------------------------------------------------- */
+.mc-ayuda-first__list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 8px 24px;
+  list-style: none;
+}
+
+.mc-ayuda-first__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-separator);
+  color: var(--color-ink);
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.mc-ayuda-first__item:last-child {
+  border-bottom: 0;
+}
+
+.mc-ayuda-first__number {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--color-green-soft);
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------------
+   Preguntas frecuentes: panel papel a lo ancho (7 preguntas, acordeón)
+   ------------------------------------------------------------------------- */
+.mc-ayuda-faq {
+  margin-top: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.mc-ayuda-faq-panel > .mc-art-paper__head .mc-art-paper__title {
+  font-size: 1.125rem;
+}
+
+.mc-ayuda-faq__item {
+  min-width: 0;
+}
+
+.mc-ayuda-faq__item:last-child {
+  border-bottom: 0;
+}
+
+.mc-ayuda-faq__heading {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.mc-ayuda-faq__button {
+  display: flex;
+  width: 100%;
+  min-height: 52px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-separator);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition: color 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.mc-ayuda-faq__button:hover,
+.mc-ayuda-faq__button[aria-expanded="true"] {
+  color: var(--color-accent);
+}
+
+.mc-ayuda-faq__question {
+  min-width: 0;
+  max-width: 68ch;
+  overflow-wrap: anywhere;
+}
+
+.mc-ayuda-faq__icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--color-ink-2);
+  transition: transform 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.mc-ayuda-faq__icon--open {
+  transform: rotate(180deg);
+}
+
+.mc-ayuda-faq__panel {
+  padding: 12px 16px 4px;
+}
+
+.mc-ayuda-faq__panel p {
+  margin: 0;
+  max-width: 76ch;
+  color: var(--color-ink-2);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.mc-ayuda-note {
+  min-width: 0;
+  margin: 16px 0 0;
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------------------------------
+   CTA única de la pantalla: Ajustes (primaria) / Caja (secundaria)
+   ------------------------------------------------------------------------- */
+.mc-ayuda-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.mc-ayuda-cta__copy {
+  min-width: 0;
+  flex: 1 1 20rem;
+}
+
+.mc-ayuda-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mc-ayuda-action {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.mc-ayuda-action--primary {
+  background: var(--color-accent);
+  color: #fffdf7;
+  box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.18);
+}
+
+.mc-ayuda-action--primary:hover {
+  background: var(--color-accent-press);
+}
+
+.mc-ayuda-action--secondary {
+  border: 1.5px solid var(--color-control-border);
+  background: var(--color-surface);
+  color: var(--color-accent);
+}
+
+.mc-ayuda-action--secondary:hover {
+  background: var(--color-surface-2);
+}
+
+/* -------------------------------------------------------------------------
+   Responsive (1023.98 / 767.98 / 479.98)
+   ------------------------------------------------------------------------- */
+@media (max-width: 767.98px) {
+  .mc-ayuda-intro { grid-template-columns: 80px minmax(0, 1fr); gap: 12px; padding: 20px 16px; }
+  .mc-ayuda-intro > img { width: 80px; height: 80px; align-self: start; }
+  .mc-ayuda-intro h2 { font-size: 1.25rem; }
+  .mc-ayuda-intro__actions { margin-left: -92px; padding-top: 8px; }
+  .mc-ayuda-intro__actions .mc-ayuda-action { width: auto; flex: 1 1 140px; }
+  .mc-ayuda-steps__grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .mc-ayuda-step { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 4px 12px; }
+  .mc-ayuda-step .mc-art-medallion { grid-column: 1; grid-row: 1 / span 3; margin: 0; }
+  .mc-ayuda-step__eyebrow, .mc-ayuda-step__title, .mc-ayuda-step__note { grid-column: 2; }
+  .mc-ayuda-step__title { font-size: 1rem; }
+  .mc-ayuda-layout {
+    gap: 20px;
+  }
+
+  .mc-ayuda-first__list {
+    padding: 4px 20px;
+  }
+
+  .mc-ayuda-hero__chip {
+    padding: 8px 12px 8px 8px;
+  }
+}
+
+@container mc-op-main (max-width: 16em) {
+  .mc-ayuda-intro { grid-template-columns: minmax(0, 1fr); }
+  .mc-ayuda-intro__actions { margin-left: 0; }
+  .mc-ayuda-intro > img { width: 64px; height: 64px; }
+}
+
+@media (max-width: 479.98px) {
+  .mc-ayuda-hero__qr {
+    width: 48px;
+  }
+
+  .mc-ayuda-cta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mc-ayuda-cta__copy { flex: 0 1 auto; }
+
+  .mc-ayuda-cta__actions {
+    flex-direction: column;
+  }
+
+  .mc-ayuda-action {
+    width: 100%;
+  }
+
+  .mc-ayuda-first__list {
+    padding: 4px 16px;
+  }
+
+  .mc-ayuda-first__item {
+    font-size: 0.9375rem;
+  }
+}
+
+/* La navegación fija también ocupa espacio al hacer zoom del navegador.
+   Reservarlo al desplazar un control enfocado, sin cambiar sus handlers. */
+@media (max-width: 1023.98px) {
+  .mc-ayuda-faq__button {
+    scroll-margin-block: 16px calc(max(72px, var(--mc-chrome-bottom, 0px)) + 16px);
+  }
+}
+
+@container mc-op-main (max-width: 14em) {
+  .mc-ayuda-faq__button { scroll-margin-bottom: 160px; }
+}
+
+@media (forced-colors: active) {
+  .mc-ayuda-action,
+  .mc-ayuda-faq__item,
+  .mc-ayuda-hero__chip,
+  .mc-ayuda-first__number {
+    border: 1px solid CanvasText;
+  }
+
+  .mc-ayuda-action--primary {
+    background: ButtonFace;
+    color: ButtonText;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mc-ayuda-step:hover {
+    transform: none;
+  }
+
+  .mc-ayuda-faq__icon,
+  .mc-ayuda-faq__button {
+    transition: none;
+  }
+}
+
+/* DEFINITIVE 09: search, assistant, topic grid and support actions. */
+.mc-help-home { display: grid; gap: 16px; max-width: 900px; margin: 0 auto; min-width: 0; }
+.mc-help-home h2 { font: 700 1.5rem/1.15 Georgia, serif; }
+.mc-help-search { display: flex; align-items: center; gap: 12px; padding: 8px 14px; border: 1px solid var(--color-control-border); border-radius: 14px; background: var(--color-surface); }
+.mc-help-search input { min-width: 0; width: 100%; min-height: 32px; background: transparent; outline-offset: 3px; }
+.mc-help-welcome { display: grid; grid-template-columns: 35% minmax(0, 1fr); align-items: center; gap: 12px; border-radius: 20px; background: #e9edd9; padding: 12px; text-decoration: none; color: #163b2a; }
+.mc-help-welcome img { width: 100%; height: auto; border-radius: 10px; }
+.mc-help-welcome h2 { font-size: 1.35rem; }
+.mc-help-welcome p { font-size: .95rem; margin-top: 8px; }
+.mc-help-welcome small { display: block; margin-top: 8px; }
+.mc-help-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.mc-help-section-head button { min-height: 44px; padding: 8px; color: var(--color-accent); font-weight: 700; }
+.mc-help-topics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.mc-help-topics button { display: flex; align-items: center; gap: 10px; min-height: 76px; padding: 12px; border: 1px solid var(--color-separator); border-radius: 14px; background: var(--color-surface); text-align: left; }
+.mc-help-topics button:last-child { grid-column: 1 / -1; }
+.mc-help-topics svg { width: 30px; height: 30px; flex: none; color: var(--color-accent); }
+.mc-help-topics svg:last-child { width: 18px; height: 18px; margin-left: auto; }
+.mc-help-topics span { font: 700 1.1rem/1.2 Georgia, serif; overflow-wrap: anywhere; }
+.mc-help-support { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.mc-help-support > * { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 64px; padding: 10px 8px; border: 1px solid var(--color-separator); border-radius: 14px; background: var(--color-surface); color: var(--color-ink); text-decoration: none; font-size: .9rem; text-align: center; font-weight: 700; }
+.mc-help-support svg { flex: none; width: 24px; height: 24px; }
+.mc-help-support button:nth-child(2) { background: #00684c; color: #fffaf0; }
+.mc-help-guide, .mc-help-answer { border: 1px solid var(--color-separator); padding: 16px; border-radius: 16px; background: var(--color-surface); }
+.mc-help-guide summary { cursor: pointer; min-height: 48px; padding: 8px; font: 700 1.2rem Georgia, serif; }
+.mc-help-guide p, .mc-help-answer p { margin-block: 12px; }
+.mc-help-answer a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; }
+.mc-help-home :focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3px; }
+.mc-help-home { overflow-wrap: anywhere; }
+.mc-help-home > *, .mc-help-welcome > *, .mc-help-topics span, .mc-help-support > * { min-width: 0; }
+.mc-help-topics button { flex-wrap: wrap; }
+.mc-help-topics button { padding: 10px; gap: 6px; }
+.mc-help-topics button > svg:first-child { width: 26px; height: 26px; }
+.mc-help-topics button > span { flex: 1; }
+.mc-help-support > * { flex-wrap: wrap; }
+@media (max-width: 360px) {
+ .mc-help-topics { grid-template-columns: minmax(0, 1fr); }
+ .mc-help-welcome { grid-template-columns: 28% minmax(0, 1fr); gap: 8px; }
+ .mc-help-welcome h2 { font-size: 1.15rem; }
+ .mc-help-topics button { padding: 8px; gap: 6px; }
+ .mc-help-topics svg { width: 24px; }
+ .mc-help-support > * { flex-direction: column; }
+}
+html[data-contrast="high"] .mc-help-welcome { background: var(--color-surface); color: var(--color-ink); }

@@ -1,0 +1,6 @@
+﻿STATUS 201
+REQUEST_paymentMethod card
+ORDER_paymentMethod None
+ORDER_status confirmed
+ORDER_paidCents 0
+ORDER_creditCents 0

@@ -1,0 +1,21 @@
+{
+  "marker": "AUD-FC-111553",
+  "orderId": "ord_e01763cdf1a44b1bb5b5",
+  "linkStatus": 200,
+  "linkOrderStatus": "payment_pending",
+  "paymentUrl": "https://timing-brought-lamp-aberdeen.trycloudflare.com/pay/ord_e01763cdf1a44b1bb5b5?demo=1",
+  "cashBefore": {
+    "cashSalesCents": 11000,
+    "cashCreditCents": 10000,
+    "expectedCents": 71000
+  },
+  "cashAfter": {
+    "cashSalesCents": 11000,
+    "cashCreditCents": 10000,
+    "expectedCents": 71000
+  },
+  "detailStatus": "payment_pending",
+  "payments": [],
+  "ventasRow": "DEMO · PENDIENTE\nPedido B5B5\n\nHoy 11:16 a.m. · Por cobrar\n\n1 × Venta digital AUD-FC-111553\n\n$80.00\nDemo, no es dinero real\nFalta cobrar $80.00\nVer conceptos",
+  "screenshot": "quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-ventas-digital-pendiente.png"
+}

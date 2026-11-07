@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Mercado Cero">
+  <rect width="512" height="512" fill="#0a5b42"/>
+  <path
+    d="M156 250c0-55 45-100 100-100h0c55 0 100 45 100 100"
+    fill="none"
+    stroke="#fffdf8"
+    stroke-width="30"
+    stroke-linecap="round"
+  />
+  <rect x="92" y="238" width="328" height="182" rx="42" fill="#fffdf8"/>
+  <rect x="150" y="300" width="212" height="24" rx="12" fill="#0a5b42"/>
+  <circle cx="256" cy="376" r="14" fill="#a94e2d"/>
+</svg>

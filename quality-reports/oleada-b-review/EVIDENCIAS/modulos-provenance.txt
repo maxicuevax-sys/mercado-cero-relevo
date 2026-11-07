@@ -1,0 +1,10 @@
+﻿POST1_STATUS 201
+POST1_ITEM {"id": "itm_a8a9ae28ec69413bbde4", "description": "Producto con provenance", "quantity": 1, "unitPriceCents": 1000, "totalCents": 1000}
+POST1_PAYMENT_METHOD cash
+POST1_ORDER_ID ord_fa566ec69b9842b29fee
+POST2_STATUS 201
+POST2_SAME_ORDER True
+POST2_ITEM {"id": "itm_a8a9ae28ec69413bbde4", "description": "Producto con provenance", "quantity": 1, "unitPriceCents": 1000, "totalCents": 1000}
+GET_STATUS 200
+GET_ITEM {"id": "itm_a8a9ae28ec69413bbde4", "description": "Producto con provenance", "quantity": 1, "unitPriceCents": 1000, "totalCents": 1000}
+GET_ITEM_KEYS ['description', 'id', 'quantity', 'totalCents', 'unitPriceCents']

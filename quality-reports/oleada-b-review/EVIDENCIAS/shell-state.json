@@ -1,0 +1,90 @@
+{
+  "legacyBefore": {
+    "url": "http://localhost:3100/?tab=fiado",
+    "h1": "Fiado"
+  },
+  "legacyAfterTabClick": {
+    "url": "http://localhost:3100/?tab=fiado",
+    "h1": "Corte de caja"
+  },
+  "legacyAfterReload": {
+    "url": "http://localhost:3100/?tab=fiado",
+    "h1": "Fiado"
+  },
+  "legacyDefaultToFiado": {
+    "url": "http://localhost:3100/",
+    "h1": "Fiado"
+  },
+  "legacyDefaultAfterReload": {
+    "url": "http://localhost:3100/",
+    "h1": "Caja"
+  },
+  "ventasPage2BeforeReload": {
+    "url": "http://localhost:3100/ventas?page=2",
+    "head": "Ventas registradas\n\n107 en total · página 2 de 5",
+    "rows": 25
+  },
+  "ventasPage2AfterReload": {
+    "url": "http://localhost:3100/ventas?page=2",
+    "head": "Ventas registradas\n\n107 en total · página 2 de 5",
+    "rows": 25
+  },
+  "cajaDraftAfterVentasBack": {
+    "url": "http://localhost:3100/caja",
+    "restore": 1,
+    "total": "$8.00"
+  },
+  "current/inicio": {
+    "url": "http://localhost:3100/inicio",
+    "current": [
+      {
+        "t": "Inicio",
+        "tag": "A"
+      }
+    ]
+  },
+  "current/caja": {
+    "url": "http://localhost:3100/caja",
+    "current": [
+      {
+        "t": "Caja",
+        "tag": "A"
+      }
+    ]
+  },
+  "current/ventas": {
+    "url": "http://localhost:3100/ventas",
+    "current": [
+      {
+        "t": "Ventas",
+        "tag": "A"
+      }
+    ]
+  },
+  "current/ventas?page=2": {
+    "url": "http://localhost:3100/ventas?page=2",
+    "current": [
+      {
+        "t": "Ventas",
+        "tag": "A"
+      }
+    ]
+  },
+  "current/pay/inexistente": {
+    "url": "http://localhost:3100/pay/inexistente",
+    "current": []
+  },
+  "current/?tab=fiado": {
+    "url": "http://localhost:3100/?tab=fiado",
+    "current": [
+      {
+        "t": "Fiado",
+        "tag": "BUTTON"
+      }
+    ]
+  },
+  "current/ruta-inexistente": {
+    "url": "http://localhost:3100/ruta-inexistente",
+    "current": []
+  }
+}

@@ -1,0 +1,259 @@
+{
+  "more320normal": {
+    "open": true,
+    "panel": {
+      "x": 8,
+      "y": 302,
+      "w": 304,
+      "h": 266,
+      "bottom": 568,
+      "right": 312
+    },
+    "summaryH": 64,
+    "overflow": false,
+    "links": [
+      {
+        "t": "Corte",
+        "h": 48
+      },
+      {
+        "t": "Metas",
+        "h": 48
+      },
+      {
+        "t": "Pendientes",
+        "h": 48
+      },
+      {
+        "t": "Ayuda",
+        "h": 48
+      },
+      {
+        "t": "Ajustes",
+        "h": 48
+      }
+    ]
+  },
+  "more320text200": {
+    "open": true,
+    "panel": {
+      "x": 8,
+      "y": 302,
+      "w": 304,
+      "h": 266,
+      "bottom": 568,
+      "right": 312
+    },
+    "vh": 640,
+    "vw": 320,
+    "overflow": false,
+    "links": [
+      {
+        "t": "Corte",
+        "h": 48
+      },
+      {
+        "t": "Metas",
+        "h": 48
+      },
+      {
+        "t": "Pendientes",
+        "h": 48
+      },
+      {
+        "t": "Ayuda",
+        "h": 48
+      },
+      {
+        "t": "Ajustes",
+        "h": 48
+      }
+    ]
+  },
+  "backToCajaDuplicateIds": {
+    "url": "http://localhost:3100/caja",
+    "shells": 2,
+    "cajas": 1,
+    "duplicateIds": [],
+    "visiblePaySummary": [
+      {
+        "visible": true,
+        "h": 535.078125
+      }
+    ],
+    "ariaCurrentVisible": 1
+  },
+  "state/inicio": {
+    "url": "http://localhost:3100/inicio",
+    "title": "Inicio · Mercado Cero",
+    "h1": [
+      "¡Buen día, Lupita!"
+    ],
+    "current": [
+      {
+        "text": "Inicio",
+        "tag": "A",
+        "cls": "inicio-nav__item"
+      }
+    ],
+    "newShell": 1,
+    "legacyShell": 0,
+    "visibleMains": 1
+  },
+  "state/caja": {
+    "url": "http://localhost:3100/caja",
+    "title": "Caja · Mercado Cero",
+    "h1": [
+      "Nueva venta"
+    ],
+    "current": [
+      {
+        "text": "Caja",
+        "tag": "A",
+        "cls": "inicio-nav__item"
+      }
+    ],
+    "newShell": 1,
+    "legacyShell": 0,
+    "visibleMains": 1
+  },
+  "state/ventas": {
+    "url": "http://localhost:3100/ventas",
+    "title": "Ventas · Mercado Cero",
+    "h1": [
+      "Ventas"
+    ],
+    "current": [
+      {
+        "text": "Ventas",
+        "tag": "A",
+        "cls": "inicio-nav__item"
+      }
+    ],
+    "newShell": 1,
+    "legacyShell": 0,
+    "visibleMains": 1
+  },
+  "state/ventas?page=2": {
+    "url": "http://localhost:3100/ventas?page=2",
+    "title": "Ventas · Mercado Cero",
+    "h1": [
+      "Ventas"
+    ],
+    "current": [
+      {
+        "text": "Ventas",
+        "tag": "A",
+        "cls": "inicio-nav__item"
+      }
+    ],
+    "newShell": 1,
+    "legacyShell": 0,
+    "visibleMains": 1
+  },
+  "state/?tab=inventado": {
+    "url": "http://localhost:3100/?tab=inventado",
+    "title": "Mercado Cero · La caja que habla",
+    "h1": [
+      "Caja"
+    ],
+    "current": [
+      {
+        "text": "Caja",
+        "tag": "BUTTON",
+        "cls": "index-tab"
+      }
+    ],
+    "newShell": 0,
+    "legacyShell": 1,
+    "visibleMains": 1
+  },
+  "state/?tab=corte": {
+    "url": "http://localhost:3100/?tab=corte",
+    "title": "Mercado Cero · La caja que habla",
+    "h1": [
+      "Corte de caja"
+    ],
+    "current": [
+      {
+        "text": "Corte",
+        "tag": "BUTTON",
+        "cls": "index-tab"
+      }
+    ],
+    "newShell": 0,
+    "legacyShell": 1,
+    "visibleMains": 1
+  },
+  "inicioVerTodos": [
+    {
+      "text": "Ver todos",
+      "href": "/?tab=pendientes"
+    }
+  ],
+  "sidebarContract": [
+    {
+      "text": "Inicio",
+      "href": "/inicio",
+      "aria": null,
+      "h": 52,
+      "current": "page"
+    },
+    {
+      "text": "Caja",
+      "href": "/caja",
+      "aria": null,
+      "h": 52,
+      "current": null
+    },
+    {
+      "text": "Ventas",
+      "href": "/ventas",
+      "aria": null,
+      "h": 52,
+      "current": null
+    },
+    {
+      "text": "Fiados",
+      "href": "/fiados",
+      "aria": null,
+      "h": 52,
+      "current": null
+    },
+    {
+      "text": "Corte",
+      "href": "/corte",
+      "aria": "Corte de caja",
+      "h": 52,
+      "current": null
+    },
+    {
+      "text": "Metas",
+      "href": "/metas",
+      "aria": null,
+      "h": 52,
+      "current": null
+    },
+    {
+      "text": "Pendientes",
+      "href": "/pendientes",
+      "aria": null,
+      "h": 52,
+      "current": null
+    },
+    {
+      "text": "Ayuda",
+      "href": "/?ayuda=1",
+      "aria": null,
+      "h": 52,
+      "current": null
+    },
+    {
+      "text": "Ajustes",
+      "href": "/?ayuda=1#ajustes",
+      "aria": null,
+      "h": 52,
+      "current": null
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "before": {
+    "active": "INPUT ",
+    "h1": "Nueva venta",
+    "confirmText": "Confirmar venta",
+    "confirmDisabled": false,
+    "change": "Cambio a devolver $30.00. Recibiste $100.00; se aplicaron $70.00.",
+    "live": [
+      "1 concepto",
+      "Cambio a devolver $30.00. Recibiste $100.00; se aplicaron $70.00.",
+      "Concepto agregado."
+    ]
+  },
+  "after": {
+    "active": {
+      "tag": "H2",
+      "id": "mc-caja-result-title",
+      "text": "Venta cobrada en efectivo (demo)"
+    },
+    "h1": "Venta registrada",
+    "h2": "Venta cobrada en efectivo (demo)",
+    "viewport": {
+      "w": 1280,
+      "h": 800
+    },
+    "rect": {
+      "x": 392,
+      "y": 239.859375,
+      "w": 706,
+      "h": 30.40625,
+      "bottom": 270.265625
+    },
+    "live": [
+      {
+        "tag": "P",
+        "role": "status",
+        "live": "polite",
+        "text": "Concepto agregado."
+      }
+    ],
+    "hash": "",
+    "posted": [
+      "{\"items\":[{\"description\":\"Quesadilla\",\"quantity\":2,\"unitPriceCents\":3500}],\"cashCents\":7000,\"creditCents\":0,\"customerName\":null,\"requestId\":\"sale_422929ff-50c0-4eaa-a911-f51cd39a4713\"}"
+    ]
+  }
+}

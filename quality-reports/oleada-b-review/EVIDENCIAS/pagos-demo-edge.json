@@ -1,0 +1,39 @@
+{
+  "base": "http://localhost:3210",
+  "generatedAt": "2026-11-04T11:18:47-0600",
+  "results": [
+    {
+      "case": "cash_rechazado",
+      "status": 400,
+      "body": {
+        "error": "Método demo inválido. Usa codi, card o wallet; el efectivo no se simula."
+      }
+    },
+    {
+      "case": "orden_inexistente",
+      "status": 404,
+      "body": {
+        "error": "Pedido no encontrado."
+      }
+    },
+    {
+      "case": "qr_generado",
+      "status": 200,
+      "orderStatus": "payment_pending",
+      "numRef": "618346",
+      "qrPrefix": "{\"demo\":true,\"orderId\":\"ord_cffecd80beb844f98545\",\"numRef\":\"618346\"}"
+    },
+    {
+      "case": "demo_valido",
+      "status": 200,
+      "orderStatus": "demo_paid",
+      "paidCents": 2222
+    },
+    {
+      "case": "demo_repetido_secuencial",
+      "status": 200,
+      "orderStatus": "demo_paid",
+      "paidCents": 2222
+    }
+  ]
+}

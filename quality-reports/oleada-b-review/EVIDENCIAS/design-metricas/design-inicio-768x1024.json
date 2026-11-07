@@ -1,0 +1,185 @@
+{
+  "url": "/inicio",
+  "viewport": {
+    "w": 768,
+    "h": 1024,
+    "dpr": 1
+  },
+  "doc": {
+    "scrollWidth": 768,
+    "clientWidth": 768,
+    "scrollHeight": 1825
+  },
+  "body": {
+    "background-color": "rgb(249, 246, 238)",
+    "font-family": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Alder, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+    "font-size": "17px",
+    "color": "rgb(31, 38, 34)"
+  },
+  "shell": {
+    "background-color": "rgb(251, 243, 231)",
+    "background-image": "none",
+    "font-family": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Inter, \"Segoe UI\", sans-serif"
+  },
+  "main": {
+    "background-color": "rgba(0, 0, 0, 0)",
+    "padding": "28px 0px 36px",
+    "font-family": "alder, \"alder Fallback\", \"Segoe UI\", Arial, sans-serif, Inter, \"Segoe UI\", sans-serif",
+    "color": "rgb(29, 36, 31)"
+  },
+  "topbar": {
+    "background-color": "rgb(251, 239, 226)",
+    "min-height": "100px",
+    "height": "100px",
+    "padding": "0px 30px"
+  },
+  "sidebar": {
+    "x": 0,
+    "y": 0,
+    "w": 210,
+    "h": 1024,
+    "bottom": 1024,
+    "right": 210
+  },
+  "header": null,
+  "h1": {
+    "x": 314,
+    "y": 143.5,
+    "w": 426.4,
+    "h": 49,
+    "bottom": 192.5,
+    "right": 740.4
+  },
+  "h1style": {
+    "font-family": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Georgia, serif",
+    "font-size": "48px",
+    "font-weight": "600",
+    "line-height": "48.96px",
+    "letter-spacing": "-1.68px"
+  },
+  "pageActions": null,
+  "totalChip": null,
+  "total": null,
+  "totalStyle": null,
+  "card": null,
+  "summary": null,
+  "confirm": null,
+  "paybar": null,
+  "ventasStats": null,
+  "ventasListHead": null,
+  "ventasFirstRow": null,
+  "mobileNav": {
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "bottom": 0,
+    "right": 0
+  },
+  "headings": [
+    {
+      "text": "¡Buen día, Lupita!",
+      "fs": "48px",
+      "ff": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Georgia, serif",
+      "rect": {
+        "x": 314,
+        "y": 143.5,
+        "w": 426.4,
+        "h": 49
+      }
+    },
+    {
+      "text": "Nueva venta",
+      "fs": "36px",
+      "ff": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Georgia, serif",
+      "rect": {
+        "x": 509,
+        "y": 724,
+        "w": 225,
+        "h": 72
+      }
+    },
+    {
+      "text": "Pendientes",
+      "fs": "34px",
+      "ff": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Georgia, serif",
+      "rect": {
+        "x": 297,
+        "y": 1011,
+        "w": 202.9,
+        "h": 35.7
+      }
+    },
+    {
+      "text": "Tu negocio, en orden.",
+      "fs": "34px",
+      "ff": "hearth, \"hearth Fallback\", Georgia, \"Times New Roman\", serif, Georgia, serif",
+      "rect": {
+        "x": 607,
+        "y": 1343.2,
+        "w": 0,
+        "h": 146.9
+      }
+    }
+  ],
+  "fixed": [
+    {
+      "cls": "inicio-skip",
+      "tag": "A",
+      "rect": {
+        "x": 12,
+        "y": -76.4,
+        "w": 166,
+        "h": 48
+      }
+    }
+  ],
+  "over": [
+    {
+      "tag": "A",
+      "cls": "inicio-suggestion__cta",
+      "text": "Ir a ventas"
+    },
+    {
+      "tag": "svg",
+      "cls": "[object SVGAnimatedString]",
+      "text": ""
+    }
+  ],
+  "smallTexts": [
+    {
+      "tag": "SPAN",
+      "cls": "inicio-task__badge",
+      "fs": "11px",
+      "text": "Ejemplo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "inicio-task__badge",
+      "fs": "11px",
+      "text": "Ejemplo"
+    },
+    {
+      "tag": "SPAN",
+      "cls": "inicio-task__badge",
+      "fs": "11px",
+      "text": "Ejemplo"
+    }
+  ],
+  "statCards": [],
+  "cajaCards": [],
+  "methods": [],
+  "activeNav": [
+    {
+      "text": "Inicio",
+      "aria": "page"
+    },
+    {
+      "text": "Inicio",
+      "aria": "page"
+    }
+  ],
+  "scrollY": 0,
+  "title": "Inicio · Mercado Cero",
+  "bodyText": "Saltar al contenido\nMercado\nCero\nInicio\nInicio\nCaja\nVentas\nFiados\nCorte\nMetas\nPendientes\nAyuda\nAjustes\n\nAntojitos de Lupita\n\nCoyoacán, CDMX\n\nDEMO\nL\n¡Buen día, Lupita!\n\nmiércoles, 4 de noviembre. Datos demo\n\nVentas hoy\n\n$927.00\n\nRegistradas, no necesariamente cobradas\n\nCobrado hoy\n\n$0.00\n\nEfectivo + pagos verificados\n\nPor cobrar\n\n$308.00\n\nSaldo pendiente, sin sumarlo a la caja\n\nMeta del mes\n\n17%\n\nMi primera sombrilla\n\nNueva venta\n\nRegistra lo que vendiste y decide cómo cobrar.\n\nRegistrar\nPendientes\nVer todos\nRecibir pedido\nEjemplo\n11:00 a.m.\nHecho:\nCobrar a Juan\nEjemplo\n$50.00\nRevisar inventario\nEjemplo\n\nEjemplos demo; no son tareas reales. Se administran en Tareas.\n\nSugerencia\n\nTu negocio, en orden.\n\nRegistra una venta o revisa tus pendientes antes de cerrar el día.\n\nIr a ventas"
+}

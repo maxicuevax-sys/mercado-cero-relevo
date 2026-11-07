@@ -1,0 +1,288 @@
+{
+  "schemaVersion": 1,
+  "suite": "p0-fiado-e2e",
+  "baseUrl": "http://localhost:3101",
+  "command": "python web/scripts/p0-fiado-e2e.py",
+  "artifacts": [
+    "harness/evidence/p0-fiado-360.png"
+  ],
+  "requires": [
+    "pip install playwright",
+    "python -m playwright install chromium",
+    "npm run build"
+  ],
+  "code": {
+    "commit": "b8f127d85985fd519a0010128a1f42bf5346e24e",
+    "branch": "design/mercado-cero-v2",
+    "dirty": true
+  },
+  "build": {
+    "next": "16.4.3",
+    "command": "npm run build"
+  },
+  "startedAt": "2026-11-04T02:31:16.295976+00:00",
+  "finishedAt": "2026-11-04T02:31:48.412254+00:00",
+  "summary": {
+    "pass": 51,
+    "fail": 0,
+    "known": 0,
+    "total": 51
+  },
+  "results": [
+    {
+      "name": "la hoja muestra saldo vivo de Juan",
+      "ok": true,
+      "detail": "Registrar abono ·  · Juan ·  · Saldo vivo: $50.00 ·  · original $50.00 ·  · Monto del abono · $ ·  · Se aplican $50.00 al saldo vivo. ·  · ¿Cómo lo recibiste? ·  · Elige un método "
+    },
+    {
+      "name": "el monto interpretado prellena $50",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el chip no modifica el saldo hasta confirmar",
+      "ok": true,
+      "detail": "saldo 5000 · abonos 0"
+    },
+    {
+      "name": "cerrar con cambios pide confirmación",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "descartar deja el saldo intacto",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el método elegido se ve con check y estado",
+      "ok": true,
+      "detail": "Digital · ELEGIDO"
+    },
+    {
+      "name": "confirmar registra exactamente un abono",
+      "ok": true,
+      "detail": "[{\"amountCents\": 5000, \"method\": \"codi\"}]"
+    },
+    {
+      "name": "el abono conserva el método elegido",
+      "ok": true,
+      "detail": "[{\"amountCents\": 5000, \"method\": \"codi\"}]"
+    },
+    {
+      "name": "la confirmación deja el saldo en cero",
+      "ok": true,
+      "detail": "0"
+    },
+    {
+      "name": "el aviso dice que Juan debe $0.00",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el sobrepago muestra aplicado y devuelto",
+      "ok": true,
+      "detail": "Registrar abono ·  · Juan ·  · Saldo vivo: $50.00 ·  · original $50.00 ·  · Monto del abono · $ ·  · Se aplican $50.00 al saldo vivo. ·  · Recibiste $100.00: devuelve $50.00. El saldo no queda negativo. ·  · ¿Cómo lo rec"
+    },
+    {
+      "name": "la API del sobrepago reporta aplicado y devuelto",
+      "ok": true,
+      "detail": "{\"credit\": {\"id\": \"demo_seed_cred_7eeac6347bdb4fcaaf88\", \"customerId\": \"demo_seed_cus_d0cbecf43de24ed88ad3\", \"customerName\": \"Juan\", \"orderId\": null, \"originalCents\": 5000, \"balanceCents\": 0, \"status\": \"settled\", \"dueDate\": null, \"createdAt\": \"2026-11-04T02:31"
+    },
+    {
+      "name": "el sobrepago no registra más que el saldo",
+      "ok": true,
+      "detail": "[{\"amountCents\": 5000, \"method\": \"cash\"}]"
+    },
+    {
+      "name": "ningún saldo queda negativo",
+      "ok": true,
+      "detail": "saldo 0"
+    },
+    {
+      "name": "el doble clic no duplica el abono",
+      "ok": true,
+      "detail": "[{\"amountCents\": 5000, \"method\": \"cash\"}]"
+    },
+    {
+      "name": "el doble clic no manda dos POST",
+      "ok": true,
+      "detail": "1 POST · ['http://localhost:3101/api/credits/demo_seed_cred_551695e2bc8e4afdbb0c/pay']"
+    },
+    {
+      "name": "un fiado ya saldado responde 409 credit_settled",
+      "ok": true,
+      "detail": "409 · {\"error\":\"Ese fiado ya está saldado. No se registró nada.\",\"code\":\"credit_settled\",\"credit\":{\"id\":\"demo_seed_cred_3a7290c6cc9e41eba762\",\"customerId\":\"demo_seed_cus_7e00e9c59d944bc2"
+    },
+    {
+      "name": "un saldo liquidado en otra pestaña no duplica el abono",
+      "ok": true,
+      "detail": "[{\"amountCents\": 5000, \"method\": \"cash\"}]"
+    },
+    {
+      "name": "un saldo liquidado en otra pestaña no anuncia falso éxito",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "un saldo cambiado responde 409 balance_changed",
+      "ok": true,
+      "detail": "409 · {\"error\":\"El saldo cambió a $30.00. Revisa el monto y confirma de nuevo.\",\"code\":\"balance_changed\",\"credit\":{\"id\":\"demo_seed_cred_c5fece9d54b546be88b9\",\"customerId\":\"demo_seed_cus_"
+    },
+    {
+      "name": "un saldo cambiado entre apertura y POST responde explícito",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "un saldo cambiado entre apertura y POST no duplica el abono",
+      "ok": true,
+      "detail": "[{\"amountCents\": 2000, \"method\": \"cash\"}]"
+    },
+    {
+      "name": "mockParse devuelve customerName exacto",
+      "ok": true,
+      "detail": "intent=credit_payment · cliente=Juana"
+    },
+    {
+      "name": "la rama de nombre exacto abre la deuda de Juana, no la de Ana",
+      "ok": true,
+      "detail": "Registrar abono ·  · Juana ·  · Saldo vivo: $200.00 ·  · original $200.00 ·  · Monto del abono · $ ·  · Se aplican $50.00 al saldo vivo. ·  · ¿Cómo lo recibiste? ·  · Elige un método para registrar el abono. ·  · Efectiv"
+    },
+    {
+      "name": "la voz prellena $50 sobre un saldo de $200",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "cerrar sin editar el monto prellenado no pide confirmación",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "editar a $60 sí pide confirmación",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "descartar el borrador editado no escribe el abono",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dos deudas de Juan no ejecutan un abono",
+      "ok": true,
+      "detail": "POST 0"
+    },
+    {
+      "name": "la actividad muestra el saldo vivo",
+      "ok": true,
+      "detail": "1 × Prueba fiado ·  · Hoy 8:31 p.m. · Fiado · saldo $100.00 ·  · $100.00"
+    },
+    {
+      "name": "el detalle muestra saldo vivo y original",
+      "ok": true,
+      "detail": "Quedó anotado ·  · Quedó anotado ·  · $100.00 ·  · Pedido A9AF · fiado con Cliente Detalle · original $100.00 ·  · Saldo vivo: $100.00 · original $100.00. Aparece en Fiado; no es dinero recibido. ·  · Entendido · Nuevo c"
+    },
+    {
+      "name": "la hoja de abono muestra el saldo vivo antes del parcial",
+      "ok": true,
+      "detail": "Registrar abono ·  · Cliente Detalle ·  · Saldo vivo: $100.00 ·  · original $100.00 ·  · Monto del abono · $ ·  · Se aplican $100.00 al saldo vivo. ·  · ¿Cómo lo recibiste? ·  · Elige un método para registrar el abono. ·"
+    },
+    {
+      "name": "confirmar desde la hoja registra un abono parcial",
+      "ok": true,
+      "detail": "[{\"amountCents\": 4000, \"method\": \"cash\"}]"
+    },
+    {
+      "name": "el POST de la hoja lleva requestId y saldo esperado",
+      "ok": true,
+      "detail": "[{\"amountCents\": 4000, \"method\": \"cash\", \"requestId\": \"cp_7ec812c6-29ee-45f3-95ae-2d07f772583a\", \"expectedBalanceCents\": 10000}]"
+    },
+    {
+      "name": "la actividad sigue el saldo después del parcial",
+      "ok": true,
+      "detail": "1 × Prueba fiado ·  · Hoy 8:31 p.m. · Fiado · saldo $60.00 ·  · $100.00"
+    },
+    {
+      "name": "el detalle muestra el saldo vivo después del parcial",
+      "ok": true,
+      "detail": "Quedó anotado ·  · Quedó anotado ·  · $100.00 ·  · Pedido A9AF · fiado con Cliente Detalle · original $100.00 ·  · Saldo vivo: $60.00 · original $100.00. Aparece en Fiado; no es dinero recibido. ·  · Entendido · Nuevo co"
+    },
+    {
+      "name": "la hoja de abono muestra saldo vivo, original y abonado",
+      "ok": true,
+      "detail": "Registrar abono ·  · Cliente Detalle ·  · Saldo vivo: $60.00 ·  · original $100.00 · abonado $40.00 ·  · Monto del abono · $ ·  · Se aplican $60.00 al saldo vivo. ·  · ¿Cómo lo recibiste? ·  · Elige un método para regist"
+    },
+    {
+      "name": "liquidar desde la hoja registra el abono final",
+      "ok": true,
+      "detail": "[{\"amountCents\": 4000, \"method\": \"cash\"}, {\"amountCents\": 6000, \"method\": \"cash\"}]"
+    },
+    {
+      "name": "orders.credit_cents sigue siendo el original tras liquidar",
+      "ok": true,
+      "detail": "credit_cents=10000"
+    },
+    {
+      "name": "la actividad dice Saldado al liquidar",
+      "ok": true,
+      "detail": "1 × Prueba fiado ·  · Hoy 8:31 p.m. · Fiado · Saldado ·  · $100.00"
+    },
+    {
+      "name": "el detalle dice Saldado y conserva el original",
+      "ok": true,
+      "detail": "Quedó anotado ·  · Quedó anotado ·  · $100.00 ·  · Pedido A9AF · fiado con Cliente Detalle · original $100.00 ·  · Fiado Saldado · original $100.00. Ya no es dinero pendiente. ·  · Listo para entregar · Nuevo cobro"
+    },
+    {
+      "name": "el primer abono con requestId se aplica una vez",
+      "ok": true,
+      "detail": "{\"credit\": {\"id\": \"demo_seed_cred_d2e60b6b8fae4626812c\", \"customerId\": \"demo_seed_cus_08c448e211bc48f8a955\", \"customerName\": \"Juan\", \"orderId\": null, \"originalCents\": 5000, \"balanceCents\": 3000, \"status\": \"partial\", \"dueDate\": null, \"createdAt\": \"2026-11-04T02"
+    },
+    {
+      "name": "reintentar el mismo payload devuelve duplicate=true sin duplicar",
+      "ok": true,
+      "detail": "{\"rows\": [{\"amountCents\": 2000, \"method\": \"cash\"}], \"second\": {\"credit\": {\"id\": \"demo_seed_cred_d2e60b6b8fae4626812c\", \"customerId\": \"demo_seed_cus_08c448e211bc48f8a955\", \"customerName\": \"Juan\", \"orderId\": null, \"originalCents\": 5000, \"balanceCents\": 3000, \"status\": \"partial\", \"dueDate\": null, \"createdAt\": \"2026-11-04T02:31:44.029Z\"}, \"ap"
+    },
+    {
+      "name": "otro monto con el mismo requestId responde request_id_conflict",
+      "ok": true,
+      "detail": "409 · {\"error\": \"Ese requestId ya se us\\u00f3 con otro monto o m\\u00e9todo. No se registr\\u00f3 nada.\", \"code\": \"request_id_conflict\", \"credit\": null, \"appliedCents\": 0, \"balanceCents\": 0, \"overpayCents\": 0, \"duplicate\": false}"
+    },
+    {
+      "name": "la misma requestId en otro fiado responde request_id_conflict",
+      "ok": true,
+      "detail": "409 · {\"error\": \"Ese requestId ya se us\\u00f3 en otro fiado. No se registr\\u00f3 nada.\", \"code\": \"request_id_conflict\", \"credit\": null, \"appliedCents\": 0, \"balanceCents\": 0, \"overpayCents\": 0, \"duplicate\": false}"
+    },
+    {
+      "name": "una respuesta perdida deja un solo abono y conserva el requestId",
+      "ok": true,
+      "detail": "requestId=cp_62496063-e3db-403f-a450-fb142f947f88 · rows=[{\"amountCents\": 5000, \"method\": \"cash\"}]"
+    },
+    {
+      "name": "el reintento dice Abono ya registrado sin devuelve",
+      "ok": true,
+      "detail": "Abono ya registrado. Se aplicaron $50.00. No se duplicó. Juan debe $0.00."
+    },
+    {
+      "name": "la hoja a 360 px no desborda horizontalmente",
+      "ok": true,
+      "detail": "{\"innerWidth\": 360, \"documentScrollWidth\": 360, \"dialogScrollWidth\": 358}"
+    },
+    {
+      "name": "la hoja a 360 px muestra el método con estado",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "el navegador no habló con :3000",
+      "ok": true,
+      "detail": "0 peticiones"
+    },
+    {
+      "name": "el carril corre en un puerto aislado, no en :3000",
+      "ok": true,
+      "detail": "http://localhost:3101"
+    }
+  ]
+}

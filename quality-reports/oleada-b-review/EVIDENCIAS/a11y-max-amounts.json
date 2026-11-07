@@ -1,0 +1,23 @@
+{
+  "viewport": "360x740",
+  "input": {
+    "description": "Quesadilla",
+    "quantity": "999",
+    "price": "9999999.99",
+    "total": "$9,989,999,990.01"
+  },
+  "paybar": {
+    "total_span_right": 228,
+    "total_div_right": 206,
+    "cta_left": 218,
+    "cta_right": 346,
+    "overlap_px": 10,
+    "note": "El CTA tapa el ultimo digito del importe en la paybar."
+  },
+  "summary_total": {
+    "clientWidth": 302,
+    "scrollWidth": 319,
+    "note": "El importe excede el ancho del contenido de la tarjeta; no genera scroll de documento a 360."
+  },
+  "screenshot": "a11y-caja-max-360.png"
+}

@@ -1,0 +1,40 @@
+{
+  "skip_first": "Saltar al contenido",
+  "skip_target": "caja-main",
+  "landmarks_caja": {
+    "main": 1,
+    "skip": 1,
+    "nav": 1,
+    "current": 1
+  },
+  "focus_after_add": {
+    "tag": "INPUT",
+    "id": "line-description-line_14e850fe-7b97-4700-b67b-af0ba9ef19b5"
+  },
+  "focus_after_remove": {
+    "tag": "INPUT",
+    "id": "mc-caja-new-description"
+  },
+  "focus_after_result": {
+    "tag": "H2",
+    "id": "mc-caja-result-title",
+    "text": "Venta cobrada en efectivo (demo)"
+  },
+  "landmarks_ventas": {
+    "main": 1,
+    "skip": 1,
+    "nav": 2,
+    "current": 1
+  },
+  "pager": [
+    "Anterior",
+    "Siguiente"
+  ],
+  "details_open": 25,
+  "paybar_focus": {
+    "top": 213.625,
+    "bottom": 261.625,
+    "hit": "SPAN",
+    "paybar": 715
+  }
+}

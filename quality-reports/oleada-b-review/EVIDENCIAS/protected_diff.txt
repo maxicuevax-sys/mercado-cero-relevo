@@ -1,0 +1,56 @@
+﻿protected_diff
+M	web/src/components/caja-app.tsx
+caja_app_diff
+diff --git a/web/src/components/caja-app.tsx b/web/src/components/caja-app.tsx
+index 7537fde..5ef39ed 100644
+--- a/web/src/components/caja-app.tsx
++++ b/web/src/components/caja-app.tsx
+@@ -1,6 +1,7 @@
+ ´╗┐"use client";
+ 
+ import Image from "next/image";
++import dynamic from "next/dynamic";
+ import { useCallback, useEffect, useId, useMemo, useRef, useState, memo, type ReactNode } from "react";
+ import { createPortal } from "react-dom";
+ import ahorroArt from "@/assets/brand/ilustraciones/transparent/ahorro.png";
+@@ -17,11 +18,15 @@ import iconRegistradora from "@/assets/brand/iconos/transparent/registradora.png
+ import iconReporte from "@/assets/brand/iconos/transparent/reporte.png";
+ import iconTienda from "@/assets/brand/iconos/transparent/tienda.png";
+ import { AnimatedAmount } from "@/components/animated-amount";
+-import { ClosingChecklist } from "@/components/closing-checklist";
+ import { CompanionPreferences } from "@/components/companion-preferences";
+ import { PendingPayments } from "@/components/pending-payments";
+ import { PendingTasksPanel } from "@/components/pending-tasks";
+ import { ScreenHeading } from "@/components/screen-heading";
++
++const ClosingChecklist = dynamic(
++  () => import("@/components/closing-checklist").then((module) => module.ClosingChecklist),
++  { ssr: false },
++);
+ import {
+   ArrowUpRight,
+   Banknote,
+next_config_diff
+diff --git a/web/next.config.ts b/web/next.config.ts
+index 58b30f4..38b767d 100644
+--- a/web/next.config.ts
++++ b/web/next.config.ts
+@@ -191,6 +191,8 @@ const nextConfig: NextConfig = {
+         source: "/",
+         headers: privateHeaders,
+       },
++      { source: "/caja", headers: privateHeaders },
++      { source: "/ventas", headers: privateHeaders },
+     ];
+   },
+ };
+health
+{"ok":true,"buildSha":"4130e71d668e5e4693a8f5b634d2d2f953d21b02","node":"v25.7.0","uptimeSeconds":136}
+processes
+
+LocalAddress LocalPort OwningProcess
+------------ --------- -------------
+::                3100         45672
+
+
+

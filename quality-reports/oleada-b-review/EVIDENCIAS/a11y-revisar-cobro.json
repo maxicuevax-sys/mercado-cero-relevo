@@ -1,0 +1,36 @@
+{
+  "mobileAfterRevisar": {
+    "tag": "BUTTON",
+    "id": "",
+    "cls": "mc-caja-method mc-caja-method--active",
+    "name": "Efectivo",
+    "rect": {
+      "x": 29,
+      "y": 194,
+      "w": 148,
+      "h": 48,
+      "bottom": 242
+    },
+    "covered": null,
+    "scrollY": 986,
+    "mainScroll": 0,
+    "hash": ""
+  },
+  "desktopAfterTotalChip": {
+    "tag": "ASIDE",
+    "id": "mc-caja-payment-summary",
+    "cls": "mc-caja-card mc-caja-summary",
+    "name": "COBRO\n\nTotal de la venta\n\n$70.00\n\nLo que el client",
+    "rect": {
+      "x": 928,
+      "y": 12,
+      "w": 321,
+      "h": 690,
+      "bottom": 702
+    },
+    "covered": null,
+    "scrollY": 236,
+    "mainScroll": 0,
+    "hash": "#mc-caja-payment-summary"
+  }
+}

@@ -1,0 +1,642 @@
+{
+  "route": "inicio",
+  "path": "/inicio",
+  "viewport": "desktop-1448x1086",
+  "status": 200,
+  "metrics": {
+    "url": "http://localhost:3100/inicio",
+    "title": "Inicio · Mercado Cero",
+    "h1": "¡Buen día, Lupita!",
+    "active": [
+      "Inicio"
+    ],
+    "skipLinks": [
+      "Saltar al contenido"
+    ],
+    "scrollWidth": 1448,
+    "clientWidth": 1448,
+    "bodyHeight": 1086,
+    "viewport": {
+      "w": 1448,
+      "h": 1086
+    },
+    "buttons": 0,
+    "links": 12,
+    "inputs": 0,
+    "buttonLabels": [],
+    "linkLabels": [
+      "Saltar al contenido",
+      "Mercado Cero",
+      "Inicio",
+      "Ventas",
+      "Fiados",
+      "Caja",
+      "Reportes",
+      "Ayuda",
+      "Ajustes",
+      "Registrar",
+      "Ver todos",
+      "Ir a ventas"
+    ],
+    "kpis": [
+      {
+        "x": 260,
+        "y": 260,
+        "w": 1129,
+        "h": 200
+      },
+      {
+        "x": 260,
+        "y": 260,
+        "w": 269,
+        "h": 200
+      },
+      {
+        "x": 281,
+        "y": 279,
+        "w": 227,
+        "h": 44
+      },
+      {
+        "x": 281,
+        "y": 279,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "x": 291,
+        "y": 289,
+        "w": 24,
+        "h": 24
+      },
+      {
+        "x": 281,
+        "y": 337,
+        "w": 227,
+        "h": 42
+      },
+      {
+        "x": 281,
+        "y": 387,
+        "w": 227,
+        "h": 36
+      },
+      {
+        "x": 547,
+        "y": 260,
+        "w": 269,
+        "h": 200
+      },
+      {
+        "x": 568,
+        "y": 279,
+        "w": 227,
+        "h": 44
+      },
+      {
+        "x": 568,
+        "y": 279,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "x": 578,
+        "y": 289,
+        "w": 24,
+        "h": 24
+      },
+      {
+        "x": 568,
+        "y": 337,
+        "w": 227,
+        "h": 42
+      },
+      {
+        "x": 568,
+        "y": 387,
+        "w": 227,
+        "h": 36
+      },
+      {
+        "x": 834,
+        "y": 260,
+        "w": 269,
+        "h": 200
+      },
+      {
+        "x": 855,
+        "y": 279,
+        "w": 227,
+        "h": 44
+      },
+      {
+        "x": 855,
+        "y": 279,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "x": 865,
+        "y": 289,
+        "w": 24,
+        "h": 24
+      },
+      {
+        "x": 855,
+        "y": 337,
+        "w": 227,
+        "h": 42
+      },
+      {
+        "x": 855,
+        "y": 387,
+        "w": 227,
+        "h": 36
+      },
+      {
+        "x": 1120,
+        "y": 260,
+        "w": 269,
+        "h": 200
+      },
+      {
+        "x": 1141,
+        "y": 279,
+        "w": 227,
+        "h": 44
+      },
+      {
+        "x": 1141,
+        "y": 279,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "x": 1151,
+        "y": 289,
+        "w": 24,
+        "h": 24
+      },
+      {
+        "x": 1141,
+        "y": 337,
+        "w": 227,
+        "h": 42
+      },
+      {
+        "x": 1141,
+        "y": 405,
+        "w": 227,
+        "h": 36
+      }
+    ],
+    "hero": {
+      "x": 260,
+      "y": 492,
+      "w": 538,
+      "h": 304
+    },
+    "pending": {
+      "x": 816,
+      "y": 492,
+      "w": 573,
+      "h": 304
+    },
+    "suggestion": {
+      "x": 260,
+      "y": 816,
+      "w": 1129,
+      "h": 211
+    },
+    "cta": {
+      "x": 535,
+      "y": 646,
+      "w": 220,
+      "h": 60
+    },
+    "main": {
+      "x": 260,
+      "y": 100,
+      "w": 1129,
+      "h": 963
+    },
+    "sidebar": {
+      "x": 0,
+      "y": 0,
+      "w": 236,
+      "h": 1086
+    },
+    "fontStatus": "loaded",
+    "navItems": [
+      "Inicio",
+      "Ventas",
+      "Fiados",
+      "Caja",
+      "Reportes"
+    ],
+    "hasForm": 0,
+    "hasQR": 0,
+    "demoText": 3,
+    "bodyText": "Saltar al contenido Mercado Cero Inicio Ventas Fiados Productos Proveedores Caja Reportes Ayuda Ajustes Antojitos de Lupita Coyoacán, CDMX DEMO L ¡Buen día, Lupita! martes, 3 de noviembre. Datos demo Ventas hoy $290.00 Registradas, no necesariamente cobradas Cobrado hoy $0.00 Efectivo + pagos verificados Por cobrar $180.00 Saldo pendiente, sin sumarlo a la caja Meta del mes 17% Mi primera sombrilla Nueva venta Registra lo que vendiste y decide cómo cobrar. Registrar Pendientes Ver todos Recibir "
+  },
+  "focusOrder": [
+    {
+      "tag": "A",
+      "text": "Saltar al contenido",
+      "role": null,
+      "href": "#inicio-main",
+      "name": null,
+      "rect": {
+        "x": 12,
+        "y": 10,
+        "w": 173,
+        "h": 48
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Mercado Cero",
+      "role": null,
+      "href": "/inicio",
+      "name": null,
+      "rect": {
+        "x": 14,
+        "y": 18,
+        "w": 208,
+        "h": 175
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Inicio",
+      "role": null,
+      "href": "/inicio",
+      "name": null,
+      "rect": {
+        "x": 14,
+        "y": 207,
+        "w": 208,
+        "h": 52
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Ventas",
+      "role": null,
+      "href": "/?tab=caja",
+      "name": null,
+      "rect": {
+        "x": 14,
+        "y": 261,
+        "w": 208,
+        "h": 52
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Fiados",
+      "role": null,
+      "href": "/?tab=fiado",
+      "name": null,
+      "rect": {
+        "x": 14,
+        "y": 315,
+        "w": 208,
+        "h": 52
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Caja",
+      "role": null,
+      "href": "/?tab=corte",
+      "name": null,
+      "rect": {
+        "x": 14,
+        "y": 477,
+        "w": 208,
+        "h": 52
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Reportes",
+      "role": null,
+      "href": "/?tab=corte",
+      "name": null,
+      "rect": {
+        "x": 14,
+        "y": 531,
+        "w": 208,
+        "h": 52
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Ayuda",
+      "role": null,
+      "href": "/?ayuda=1",
+      "name": null,
+      "rect": {
+        "x": 14,
+        "y": 664,
+        "w": 208,
+        "h": 52
+      }
+    }
+  ],
+  "axe": {
+    "violations": [],
+    "passes": 36,
+    "incomplete": 1,
+    "inapplicable": 55,
+    "label": "inicio-desktop-1448x1086",
+    "tags": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa",
+      "wcag22aa",
+      "best-practice"
+    ]
+  },
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failedRequests": [
+    {
+      "url": "http://localhost:3100/?tab=caja&_rsc=qPZzjMbbkwVJZ1Df",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3100/?tab=fiado&_rsc=qPZzjMbbkwVJZ1Df",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3100/?tab=corte&_rsc=qPZzjMbbkwVJZ1Df",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3100/?ayuda=1&_rsc=qPZzjMbbkwVJZ1Df",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3100/?_rsc=qPZzjMbbkwVJZ1Df",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3100/?tab=caja&_rsc=TtHx2Sg_PxRDz5-_",
+      "failure": "net::ERR_ABORTED"
+    }
+  ],
+  "axeHighContrast": {
+    "violations": [],
+    "passes": 36,
+    "incomplete": 0,
+    "inapplicable": 55,
+    "label": "inicio-desktop-1448x1086-hc",
+    "tags": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa",
+      "wcag22aa",
+      "best-practice"
+    ]
+  },
+  "metricsHighContrast": {
+    "url": "http://localhost:3100/inicio",
+    "title": "Inicio · Mercado Cero",
+    "h1": "¡Buen día, Lupita!",
+    "active": [
+      "Inicio"
+    ],
+    "skipLinks": [
+      "Saltar al contenido"
+    ],
+    "scrollWidth": 1448,
+    "clientWidth": 1448,
+    "bodyHeight": 1086,
+    "viewport": {
+      "w": 1448,
+      "h": 1086
+    },
+    "buttons": 0,
+    "links": 12,
+    "inputs": 0,
+    "buttonLabels": [],
+    "linkLabels": [
+      "Saltar al contenido",
+      "Mercado Cero",
+      "Inicio",
+      "Ventas",
+      "Fiados",
+      "Caja",
+      "Reportes",
+      "Ayuda",
+      "Ajustes",
+      "Registrar",
+      "Ver todos",
+      "Ir a ventas"
+    ],
+    "kpis": [
+      {
+        "x": 260,
+        "y": 260,
+        "w": 1129,
+        "h": 200
+      },
+      {
+        "x": 260,
+        "y": 260,
+        "w": 269,
+        "h": 200
+      },
+      {
+        "x": 281,
+        "y": 279,
+        "w": 227,
+        "h": 44
+      },
+      {
+        "x": 281,
+        "y": 279,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "x": 291,
+        "y": 289,
+        "w": 24,
+        "h": 24
+      },
+      {
+        "x": 281,
+        "y": 337,
+        "w": 227,
+        "h": 42
+      },
+      {
+        "x": 281,
+        "y": 387,
+        "w": 227,
+        "h": 36
+      },
+      {
+        "x": 547,
+        "y": 260,
+        "w": 269,
+        "h": 200
+      },
+      {
+        "x": 568,
+        "y": 279,
+        "w": 227,
+        "h": 44
+      },
+      {
+        "x": 568,
+        "y": 279,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "x": 578,
+        "y": 289,
+        "w": 24,
+        "h": 24
+      },
+      {
+        "x": 568,
+        "y": 337,
+        "w": 227,
+        "h": 42
+      },
+      {
+        "x": 568,
+        "y": 387,
+        "w": 227,
+        "h": 36
+      },
+      {
+        "x": 834,
+        "y": 260,
+        "w": 269,
+        "h": 200
+      },
+      {
+        "x": 855,
+        "y": 279,
+        "w": 227,
+        "h": 44
+      },
+      {
+        "x": 855,
+        "y": 279,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "x": 865,
+        "y": 289,
+        "w": 24,
+        "h": 24
+      },
+      {
+        "x": 855,
+        "y": 337,
+        "w": 227,
+        "h": 42
+      },
+      {
+        "x": 855,
+        "y": 387,
+        "w": 227,
+        "h": 36
+      },
+      {
+        "x": 1120,
+        "y": 260,
+        "w": 269,
+        "h": 200
+      },
+      {
+        "x": 1141,
+        "y": 279,
+        "w": 227,
+        "h": 44
+      },
+      {
+        "x": 1141,
+        "y": 279,
+        "w": 44,
+        "h": 44
+      },
+      {
+        "x": 1151,
+        "y": 289,
+        "w": 24,
+        "h": 24
+      },
+      {
+        "x": 1141,
+        "y": 337,
+        "w": 227,
+        "h": 42
+      },
+      {
+        "x": 1141,
+        "y": 405,
+        "w": 227,
+        "h": 36
+      }
+    ],
+    "hero": {
+      "x": 260,
+      "y": 492,
+      "w": 538,
+      "h": 304
+    },
+    "pending": {
+      "x": 816,
+      "y": 492,
+      "w": 573,
+      "h": 304
+    },
+    "suggestion": {
+      "x": 260,
+      "y": 816,
+      "w": 1129,
+      "h": 211
+    },
+    "cta": {
+      "x": 286,
+      "y": 638,
+      "w": 220,
+      "h": 60
+    },
+    "main": {
+      "x": 260,
+      "y": 100,
+      "w": 1129,
+      "h": 963
+    },
+    "sidebar": {
+      "x": 0,
+      "y": 0,
+      "w": 236,
+      "h": 1086
+    },
+    "fontStatus": "loaded",
+    "navItems": [
+      "Inicio",
+      "Ventas",
+      "Fiados",
+      "Caja",
+      "Reportes"
+    ],
+    "hasForm": 0,
+    "hasQR": 0,
+    "demoText": 3,
+    "bodyText": "Saltar al contenido Mercado Cero Inicio Ventas Fiados Productos Proveedores Caja Reportes Ayuda Ajustes Antojitos de Lupita Coyoacán, CDMX DEMO L ¡Buen día, Lupita! martes, 3 de noviembre. Datos demo Ventas hoy $290.00 Registradas, no necesariamente cobradas Cobrado hoy $0.00 Efectivo + pagos verificados Por cobrar $180.00 Saldo pendiente, sin sumarlo a la caja Meta del mes 17% Mi primera sombrilla Nueva venta Registra lo que vendiste y decide cómo cobrar. Registrar Pendientes Ver todos Recibir "
+  }
+}

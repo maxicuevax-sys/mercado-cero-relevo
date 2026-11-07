@@ -1,0 +1,26 @@
+{
+  "order": "ord_da74e58817a54b49aea7",
+  "results": [
+    {
+      "name": "mixed cash+digital opens payment panel",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "panel shows the $40 due",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "panel does NOT show received $60",
+      "ok": true,
+      "detail": "COBRO DIGITAL\n\nPedido AEA7\nREGISTRADO\n\nFalta cobrar\n\n$40.00\n\nEl pedido ya está registrado. El dinero aún no se considera recibido.\n\nGenerar link\nGenerar QR\nActualizar estado\n\nModo demo. Simula un pago para probar el recorrido. No es dinero real ni una confirmación de pey.\n\nSimular CoDi\nSimular tarjeta\n\n$40.00 siguen pendientes. No entregues como pagado hasta ver la confirmación válida del proveedo"
+    },
+    {
+      "name": "panel says no money received yet",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "failed": 0
+}

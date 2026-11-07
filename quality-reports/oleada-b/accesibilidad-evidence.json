@@ -1,0 +1,1886 @@
+{
+  "agent": "mc-accesibilidad",
+  "date": "2026-11-04T09:26:00-06:00",
+  "server": {
+    "url": "http://localhost:3100",
+    "buildSha": "26c7741433f18e4f4d0e78b1913df76ed09dae7e",
+    "buildId": "JBGQbx6F2zXGxreG2_XtW",
+    "tree": "dirty (untracked caja/ventas, componentes caja)",
+    "buildTime": "2026-11-04T09:24:21-06:00",
+    "note": "Build JBGQ compilado a las 09:24. La fuente cambió a las 09:26, después del build; no se auditó ese cambio posterior. Los P1 se re-confirmaron en JBGQ."
+  },
+  "dataset": {
+    "orders": 16,
+    "statuses": [
+      "demo_paid",
+      "paid",
+      "payment_pending"
+    ],
+    "note": "dataset compartido; 14 demo + 1 pending + 1 paid de prueba al cierre; cambió durante la auditoría"
+  },
+  "landmarks": {
+    "caja": {
+      "title": "Caja · Mercado Cero",
+      "lang": "es-MX",
+      "mains": 1,
+      "h1s": [
+        "Nueva venta"
+      ],
+      "skipLinks": [
+        {
+          "text": "Saltar al contenido",
+          "visible": true
+        }
+      ],
+      "navs": [
+        {
+          "label": "Principal",
+          "visible": true
+        },
+        {
+          "label": "Principal",
+          "visible": false
+        }
+      ],
+      "currentTotal": 2,
+      "currentVisible": [
+        "Caja"
+      ],
+      "liveRegions": [],
+      "viewport": [
+        1280,
+        900
+      ],
+      "scroll": [
+        1280,
+        1280
+      ]
+    },
+    "ventas": {
+      "title": "Ventas · Mercado Cero",
+      "lang": "es-MX",
+      "mains": 1,
+      "h1s": [
+        "Historial"
+      ],
+      "skipLinks": [
+        {
+          "text": "Saltar al contenido",
+          "visible": true
+        }
+      ],
+      "navs": [
+        {
+          "label": "Principal",
+          "visible": true
+        },
+        {
+          "label": "Principal",
+          "visible": false
+        }
+      ],
+      "currentTotal": 2,
+      "currentVisible": [
+        "Ventas"
+      ],
+      "liveRegions": [],
+      "viewport": [
+        1280,
+        900
+      ],
+      "scroll": [
+        1280,
+        1280
+      ]
+    }
+  },
+  "focus": {
+    "skip_first": {
+      "tag": "A",
+      "name": "Saltar al contenido",
+      "id": "",
+      "cls": "inicio-skip",
+      "outline": "solid 3px rgb(0, 75, 60)",
+      "outlineOffset": "2px",
+      "boxShadow": "rgba(0, 0, 0, 0.18) 0px 6px 18px 0px",
+      "ariaInvalid": null,
+      "describedby": null,
+      "tabIndex": 0
+    },
+    "skip_enter": {
+      "activeId": "caja-main",
+      "activeTag": "MAIN",
+      "hash": "",
+      "scrollY": 69
+    },
+    "after_add": {
+      "tag": "BUTTON",
+      "name": "Agregar",
+      "id": "",
+      "cls": "mc-caja-button mc-caja-button--secondary",
+      "outline": "none 3px rgb(31, 38, 34)",
+      "outlineOffset": "0px",
+      "boxShadow": "none",
+      "ariaInvalid": null,
+      "describedby": null,
+      "tabIndex": 0
+    },
+    "after_remove": {
+      "tag": "BODY",
+      "name": "",
+      "id": "",
+      "cls": ""
+    },
+    "after_remove_state": {
+      "lines": 1,
+      "total": "$20.00",
+      "live": []
+    },
+    "invalid_price": {
+      "tag": "INPUT",
+      "name": "Precio",
+      "id": "line-price-line_4c73c5e0-ddc2-45d2-91c2-3b86e57d4e3c",
+      "cls": "",
+      "outline": "solid 3px rgb(0, 75, 60)",
+      "outlineOffset": "2px",
+      "boxShadow": "none",
+      "ariaInvalid": "true",
+      "describedby": null,
+      "tabIndex": 0
+    },
+    "invalid_price_state": {
+      "alerts": [
+        "El precio debe ser mayor que cero.",
+        "Revisa los conceptos marcados."
+      ],
+      "invalid": [
+        {
+          "label": "Concepto",
+          "id": "line-description-line_4c73c5e0-ddc2-45d2-91c2-3b86e57d4e3c",
+          "describedby": "line-error-line_4c73c5e0-ddc2-45d2-91c2-3b86e57d4e3c"
+        },
+        {
+          "label": "Cantidad",
+          "id": "line-quantity-line_4c73c5e0-ddc2-45d2-91c2-3b86e57d4e3c",
+          "describedby": null
+        },
+        {
+          "label": "Precio",
+          "id": "line-price-line_4c73c5e0-ddc2-45d2-91c2-3b86e57d4e3c",
+          "describedby": null
+        }
+      ],
+      "errorText": [
+        "El precio debe ser mayor que cero."
+      ]
+    },
+    "after_confirm_result": {
+      "tag": "H2",
+      "name": "Venta cobrada en efectivo",
+      "id": "mc-caja-result-title",
+      "cls": "",
+      "outline": "none 3px rgb(31, 38, 34)",
+      "outlineOffset": "0px",
+      "boxShadow": "none",
+      "ariaInvalid": null,
+      "describedby": null,
+      "tabIndex": -1
+    },
+    "after_confirm_payment": {
+      "tag": "H2",
+      "name": "Pedido 0001",
+      "id": "mc-caja-payment-title",
+      "cls": "",
+      "outline": "none 3px rgb(31, 38, 34)",
+      "outlineOffset": "0px",
+      "boxShadow": "none",
+      "ariaInvalid": null,
+      "describedby": null,
+      "tabIndex": -1
+    },
+    "after_demo_result": {
+      "tag": "H2",
+      "name": "Pago demo (simulado)",
+      "id": "mc-caja-result-title",
+      "cls": "",
+      "outline": "none 3px rgb(31, 38, 34)",
+      "outlineOffset": "0px",
+      "boxShadow": "none",
+      "ariaInvalid": null,
+      "describedby": null,
+      "tabIndex": -1
+    },
+    "route_focus": {
+      "url": "/caja",
+      "active": {
+        "tag": "BODY",
+        "id": "",
+        "text": "Saltar al contenido\nMercado\nCero\nInicio\nInicio\nCaj"
+      },
+      "h1": "Nueva venta"
+    },
+    "overlay_390": [
+      {
+        "name": "Agregar",
+        "tag": "BUTTON",
+        "top": 386,
+        "bottom": 434,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Agregar",
+        "scrollY": 418,
+        "disabled": false
+      },
+      {
+        "name": "Efectivo",
+        "tag": "BUTTON",
+        "top": 656,
+        "bottom": 704,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "Efectivo",
+        "scrollY": 418,
+        "disabled": false
+      },
+      {
+        "name": "Digital",
+        "tag": "BUTTON",
+        "top": 656,
+        "bottom": 704,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "Digital",
+        "scrollY": 418,
+        "disabled": false
+      },
+      {
+        "name": "Fiado",
+        "tag": "BUTTON",
+        "top": 710,
+        "bottom": 758,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": true,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "$1,234.50",
+        "scrollY": 418,
+        "disabled": false
+      },
+      {
+        "name": "Mixto",
+        "tag": "BUTTON",
+        "top": 710,
+        "bottom": 758,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": true,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Cobrar",
+        "scrollY": 418,
+        "disabled": false
+      },
+      {
+        "name": "Efectivo recibido",
+        "tag": "INPUT",
+        "top": 784,
+        "bottom": 832,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": true,
+        "hitTag": "SPAN",
+        "hitText": "",
+        "scrollY": 432,
+        "disabled": false
+      },
+      {
+        "name": "Confirmar venta",
+        "tag": "BUTTON",
+        "top": 457,
+        "bottom": 513,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Confirmar venta",
+        "scrollY": 853,
+        "disabled": false
+      },
+      {
+        "name": "Limpiar venta",
+        "tag": "BUTTON",
+        "top": 517,
+        "bottom": 561,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Limpiar venta",
+        "scrollY": 853,
+        "disabled": false
+      },
+      {
+        "name": "Cobrar",
+        "tag": "BUTTON",
+        "top": 724,
+        "bottom": 772,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Cobrar",
+        "scrollY": 853,
+        "disabled": false
+      },
+      {
+        "name": "la vista anterior",
+        "tag": "A",
+        "top": 640,
+        "bottom": 674,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "P",
+        "hitText": "¿Necesitas dictar? La Caja clá",
+        "scrollY": 853,
+        "disabled": false
+      },
+      {
+        "name": "Inicio",
+        "tag": "A",
+        "top": 780,
+        "bottom": 844,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "",
+        "scrollY": 853,
+        "disabled": false
+      },
+      {
+        "name": "Caja",
+        "tag": "A",
+        "top": 780,
+        "bottom": 844,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "",
+        "scrollY": 853,
+        "disabled": false
+      }
+    ],
+    "overlay_320": [
+      {
+        "name": "Agregar",
+        "tag": "BUTTON",
+        "top": 162,
+        "bottom": 210,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Agregar",
+        "scrollY": 749,
+        "disabled": false
+      },
+      {
+        "name": "Efectivo",
+        "tag": "BUTTON",
+        "top": 452,
+        "bottom": 500,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "Efectivo",
+        "scrollY": 749,
+        "disabled": false
+      },
+      {
+        "name": "Digital",
+        "tag": "BUTTON",
+        "top": 452,
+        "bottom": 500,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "Digital",
+        "scrollY": 749,
+        "disabled": false
+      },
+      {
+        "name": "Fiado",
+        "tag": "BUTTON",
+        "top": 506,
+        "bottom": 554,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": true,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "$1,234.50",
+        "scrollY": 749,
+        "disabled": false
+      },
+      {
+        "name": "Mixto",
+        "tag": "BUTTON",
+        "top": 506,
+        "bottom": 554,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": true,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Cobrar",
+        "scrollY": 749,
+        "disabled": false
+      },
+      {
+        "name": "Efectivo recibido",
+        "tag": "INPUT",
+        "top": 580,
+        "bottom": 628,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": false,
+        "navOverlap": true,
+        "hitTag": "SPAN",
+        "hitText": "",
+        "scrollY": 763,
+        "disabled": false
+      },
+      {
+        "name": "Confirmar venta",
+        "tag": "BUTTON",
+        "top": 292,
+        "bottom": 348,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Confirmar venta",
+        "scrollY": 1145,
+        "disabled": false
+      },
+      {
+        "name": "Limpiar venta",
+        "tag": "BUTTON",
+        "top": 352,
+        "bottom": 396,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Limpiar venta",
+        "scrollY": 1145,
+        "disabled": false
+      },
+      {
+        "name": "Cobrar",
+        "tag": "BUTTON",
+        "top": 520,
+        "bottom": 568,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Cobrar",
+        "scrollY": 1145,
+        "disabled": false
+      },
+      {
+        "name": "la vista anterior",
+        "tag": "A",
+        "top": 494,
+        "bottom": 528,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": true,
+        "navOverlap": false,
+        "hitTag": "DIV",
+        "hitText": "TOTAL\n$1,234.50\nCobrar",
+        "scrollY": 1145,
+        "disabled": false
+      },
+      {
+        "name": "Inicio",
+        "tag": "A",
+        "top": 576,
+        "bottom": 640,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "",
+        "scrollY": 1145,
+        "disabled": false
+      },
+      {
+        "name": "Caja",
+        "tag": "A",
+        "top": 576,
+        "bottom": 640,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "",
+        "scrollY": 1145,
+        "disabled": false
+      }
+    ]
+  },
+  "overflow": {
+    "caja_zoom": {
+      "1448x1086": {
+        "doc": [
+          1448,
+          1448
+        ],
+        "body": [
+          1448,
+          1448
+        ],
+        "main": [
+          1212,
+          1212
+        ],
+        "total": {
+          "x": 1076,
+          "y": 642,
+          "w": 311,
+          "h": 83,
+          "top": 642,
+          "bottom": 725
+        },
+        "chip": {
+          "x": 270,
+          "y": 360,
+          "w": 441,
+          "h": 86,
+          "top": 360,
+          "bottom": 446
+        },
+        "confirm": {
+          "x": 1076,
+          "y": 1136,
+          "w": 311,
+          "h": 72,
+          "top": 1136,
+          "bottom": 1209
+        },
+        "paybar": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "top": 0,
+          "bottom": 0
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "top": 0,
+          "bottom": 0
+        },
+        "summary": {
+          "x": 1049,
+          "y": 466,
+          "w": 365,
+          "h": 817,
+          "top": 466,
+          "bottom": 1284
+        },
+        "last": {
+          "text": "la vista anterior",
+          "top": 1382,
+          "bottom": 1414
+        },
+        "clipped": [
+          {
+            "sel": "",
+            "text": "Concepto",
+            "sw": 105,
+            "cw": 1
+          },
+          {
+            "sel": "",
+            "text": "Producto con nombre largo para probar reflujo",
+            "sw": 677,
+            "cw": 313
+          },
+          {
+            "sel": "",
+            "text": "Cantidad",
+            "sw": 100,
+            "cw": 1
+          },
+          {
+            "sel": "",
+            "text": "Precio",
+            "sw": 69,
+            "cw": 1
+          },
+          {
+            "sel": "",
+            "text": "1234.50",
+            "sw": 144,
+            "cw": 108
+          },
+          {
+            "sel": "tabular-nums mc-caja-total",
+            "text": "$2,469.00",
+            "sw": 359,
+            "cw": 311
+          }
+        ],
+        "fontSize": "32px",
+        "visualViewport": {
+          "height": 1086,
+          "offsetTop": 0
+        },
+        "viewport": [
+          1448,
+          1086
+        ],
+        "mode": "root32"
+      },
+      "1366x768": {
+        "doc": [
+          1380,
+          1366
+        ],
+        "body": [
+          1380,
+          1366
+        ],
+        "main": [
+          1144,
+          1130
+        ],
+        "total": {
+          "x": 1021,
+          "y": 641,
+          "w": 285,
+          "h": 83,
+          "top": 641,
+          "bottom": 724
+        },
+        "chip": {
+          "x": 269,
+          "y": 359,
+          "w": 441,
+          "h": 86,
+          "top": 359,
+          "bottom": 445
+        },
+        "confirm": {
+          "x": 1021,
+          "y": 1135,
+          "w": 285,
+          "h": 72,
+          "top": 1135,
+          "bottom": 1207
+        },
+        "paybar": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "top": 0,
+          "bottom": 0
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "top": 0,
+          "bottom": 0
+        },
+        "summary": {
+          "x": 994,
+          "y": 465,
+          "w": 339,
+          "h": 817,
+          "top": 465,
+          "bottom": 1283
+        },
+        "last": {
+          "text": "la vista anterior",
+          "top": 1381,
+          "bottom": 1413
+        },
+        "clipped": [
+          {
+            "sel": "",
+            "text": "Concepto",
+            "sw": 105,
+            "cw": 1
+          },
+          {
+            "sel": "",
+            "text": "Producto con nombre largo para probar reflujo",
+            "sw": 677,
+            "cw": 259
+          },
+          {
+            "sel": "",
+            "text": "Cantidad",
+            "sw": 100,
+            "cw": 1
+          },
+          {
+            "sel": "",
+            "text": "Precio",
+            "sw": 69,
+            "cw": 1
+          },
+          {
+            "sel": "",
+            "text": "1234.50",
+            "sw": 144,
+            "cw": 108
+          },
+          {
+            "sel": "tabular-nums mc-caja-total",
+            "text": "$2,469.00",
+            "sw": 359,
+            "cw": 285
+          }
+        ],
+        "fontSize": "32px",
+        "visualViewport": {
+          "height": 768,
+          "offsetTop": 0
+        },
+        "viewport": [
+          1366,
+          768
+        ],
+        "mode": "root32"
+      },
+      "390x844": {
+        "doc": [
+          392,
+          390
+        ],
+        "body": [
+          392,
+          390
+        ],
+        "main": [
+          392,
+          390
+        ],
+        "total": {
+          "x": 33,
+          "y": 1797,
+          "w": 324,
+          "h": 83,
+          "top": 1797,
+          "bottom": 1880
+        },
+        "chip": {
+          "x": 14,
+          "y": 552,
+          "w": 362,
+          "h": 131,
+          "top": 552,
+          "bottom": 682
+        },
+        "confirm": {
+          "x": 33,
+          "y": 2252,
+          "w": 324,
+          "h": 72,
+          "top": 2252,
+          "bottom": 2325
+        },
+        "paybar": {
+          "x": 0,
+          "y": 705,
+          "w": 390,
+          "h": 75,
+          "top": 705,
+          "bottom": 780
+        },
+        "nav": {
+          "x": 0,
+          "y": 779,
+          "w": 390,
+          "h": 65,
+          "top": 779,
+          "bottom": 844
+        },
+        "summary": {
+          "x": 14,
+          "y": 1629,
+          "w": 362,
+          "h": 762,
+          "top": 1629,
+          "bottom": 2392
+        },
+        "last": {
+          "text": "la vista anterior",
+          "top": 2603,
+          "bottom": 2673
+        },
+        "clipped": [
+          {
+            "sel": "",
+            "text": "Producto con nombre largo para probar reflujo",
+            "sw": 677,
+            "cw": 300
+          },
+          {
+            "sel": "",
+            "text": "1234.50",
+            "sw": 144,
+            "cw": 74
+          },
+          {
+            "sel": "tabular-nums mc-caja-total",
+            "text": "$2,469.00",
+            "sw": 359,
+            "cw": 324
+          }
+        ],
+        "fontSize": "32px",
+        "visualViewport": {
+          "height": 844,
+          "offsetTop": 0
+        },
+        "viewport": [
+          390,
+          844
+        ],
+        "mode": "root32"
+      },
+      "320x640": {
+        "doc": [
+          388,
+          320
+        ],
+        "body": [
+          388,
+          320
+        ],
+        "main": [
+          388,
+          320
+        ],
+        "total": {
+          "x": 29,
+          "y": 705,
+          "w": 262,
+          "h": 83,
+          "top": 705,
+          "bottom": 788
+        },
+        "chip": {
+          "x": 10,
+          "y": -687,
+          "w": 300,
+          "h": 178,
+          "top": -687,
+          "bottom": -509
+        },
+        "confirm": {
+          "x": 29,
+          "y": 1200,
+          "w": 262,
+          "h": 72,
+          "top": 1200,
+          "bottom": 1272
+        },
+        "paybar": {
+          "x": 0,
+          "y": 501,
+          "w": 320,
+          "h": 75,
+          "top": 501,
+          "bottom": 576
+        },
+        "nav": {
+          "x": 0,
+          "y": 575,
+          "w": 320,
+          "h": 65,
+          "top": 575,
+          "bottom": 640
+        },
+        "summary": {
+          "x": 10,
+          "y": 538,
+          "w": 300,
+          "h": 801,
+          "top": 538,
+          "bottom": 1339
+        },
+        "last": {
+          "text": "la vista anterior",
+          "top": 1626,
+          "bottom": 1658
+        },
+        "clipped": [
+          {
+            "sel": "",
+            "text": "Producto con nombre largo para probar reflujo",
+            "sw": 677,
+            "cw": 238
+          },
+          {
+            "sel": "",
+            "text": "1234.50",
+            "sw": 144,
+            "cw": 114
+          },
+          {
+            "sel": "tabular-nums mc-caja-total",
+            "text": "$2,469.00",
+            "sw": 359,
+            "cw": 262
+          }
+        ],
+        "fontSize": "32px",
+        "visualViewport": {
+          "height": 640,
+          "offsetTop": 0
+        },
+        "viewport": [
+          320,
+          640
+        ],
+        "mode": "root32"
+      },
+      "724x543_zoom200approx": {
+        "doc": [
+          724,
+          724
+        ],
+        "body": [
+          724,
+          724
+        ],
+        "main": [
+          724,
+          724
+        ],
+        "total": {
+          "x": 33,
+          "y": 407,
+          "w": 658,
+          "h": 42,
+          "top": 407,
+          "bottom": 449
+        },
+        "chip": {
+          "x": 14,
+          "y": -315,
+          "w": 696,
+          "h": 54,
+          "top": -315,
+          "bottom": -261
+        },
+        "confirm": {
+          "x": 33,
+          "y": 724,
+          "w": 658,
+          "h": 56,
+          "top": 724,
+          "bottom": 780
+        },
+        "paybar": {
+          "x": 0,
+          "y": 414,
+          "w": 724,
+          "h": 65,
+          "top": 414,
+          "bottom": 479
+        },
+        "nav": {
+          "x": 0,
+          "y": 478,
+          "w": 724,
+          "h": 65,
+          "top": 478,
+          "bottom": 543
+        },
+        "summary": {
+          "x": 14,
+          "y": 335,
+          "w": 696,
+          "h": 512,
+          "top": 335,
+          "bottom": 847
+        },
+        "last": {
+          "text": "la vista anterior",
+          "top": 888,
+          "bottom": 903
+        },
+        "clipped": [
+          {
+            "sel": "",
+            "text": "1234.50",
+            "sw": 84,
+            "cw": 74
+          }
+        ],
+        "fontSize": "16px",
+        "visualViewport": {
+          "height": 543,
+          "offsetTop": 0
+        },
+        "viewport": [
+          724,
+          543
+        ],
+        "mode": "viewport200approx"
+      }
+    },
+    "ventas_zoom": {
+      "1448x1086": {
+        "doc": [
+          1448,
+          1448
+        ],
+        "body": [
+          1448,
+          1448
+        ],
+        "main": [
+          1212,
+          1212
+        ],
+        "total": null,
+        "chip": null,
+        "confirm": null,
+        "paybar": null,
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "top": 0,
+          "bottom": 0
+        },
+        "summary": null,
+        "last": {
+          "text": "Nueva venta",
+          "top": 360,
+          "bottom": 408
+        },
+        "clipped": [],
+        "fontSize": "32px",
+        "visualViewport": {
+          "height": 1086,
+          "offsetTop": 0
+        },
+        "viewport": [
+          1448,
+          1086
+        ]
+      },
+      "390x844": {
+        "doc": [
+          390,
+          390
+        ],
+        "body": [
+          390,
+          390
+        ],
+        "main": [
+          390,
+          390
+        ],
+        "total": null,
+        "chip": null,
+        "confirm": null,
+        "paybar": null,
+        "nav": {
+          "x": 0,
+          "y": 779,
+          "w": 390,
+          "h": 65,
+          "top": 779,
+          "bottom": 844
+        },
+        "summary": null,
+        "last": {
+          "text": "Nueva venta",
+          "top": 533,
+          "bottom": 581
+        },
+        "clipped": [],
+        "fontSize": "32px",
+        "visualViewport": {
+          "height": 844,
+          "offsetTop": 0
+        },
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "320x640": {
+        "doc": [
+          320,
+          320
+        ],
+        "body": [
+          320,
+          320
+        ],
+        "main": [
+          320,
+          320
+        ],
+        "total": null,
+        "chip": null,
+        "confirm": null,
+        "paybar": null,
+        "nav": {
+          "x": 0,
+          "y": 575,
+          "w": 320,
+          "h": 65,
+          "top": 575,
+          "bottom": 640
+        },
+        "summary": null,
+        "last": {
+          "text": "Nueva venta",
+          "top": 609,
+          "bottom": 657
+        },
+        "clipped": [],
+        "fontSize": "32px",
+        "visualViewport": {
+          "height": 640,
+          "offsetTop": 0
+        },
+        "viewport": [
+          320,
+          640
+        ]
+      },
+      "724x543_zoom200approx": {
+        "doc": [
+          724,
+          724
+        ],
+        "body": [
+          724,
+          724
+        ],
+        "main": [
+          724,
+          724
+        ],
+        "total": null,
+        "chip": null,
+        "confirm": null,
+        "paybar": null,
+        "nav": {
+          "x": 0,
+          "y": 478,
+          "w": 724,
+          "h": 65,
+          "top": 478,
+          "bottom": 543
+        },
+        "summary": null,
+        "last": {
+          "text": "Nueva venta",
+          "top": 138,
+          "bottom": 186
+        },
+        "clipped": [],
+        "fontSize": "16px",
+        "visualViewport": {
+          "height": 543,
+          "offsetTop": 0
+        },
+        "viewport": [
+          724,
+          543
+        ]
+      }
+    },
+    "keyboard_approx": {
+      "active": {
+        "tag": "INPUT",
+        "label": "Efectivo recibido",
+        "top": 176,
+        "bottom": 224
+      },
+      "viewport": [
+        390,
+        400
+      ],
+      "visual": {
+        "h": 400,
+        "top": 0
+      },
+      "paybar": {
+        "top": 271,
+        "bottom": 336
+      },
+      "nav": {
+        "top": 335,
+        "bottom": 400
+      },
+      "meta": "width=device-width, initial-scale=1, viewport-fit=cover",
+      "doc": [
+        390,
+        390
+      ]
+    },
+    "max_total": {
+      "1448_normal": {
+        "totalText": "$1,000,000.00",
+        "font": "64px",
+        "totalRect": {
+          "left": 1076,
+          "right": 1387,
+          "w": 311
+        },
+        "textRect": {
+          "left": 1076,
+          "right": 1471,
+          "w": 396
+        },
+        "scrollWidth": 396,
+        "clientWidth": 311,
+        "doc": [
+          1471,
+          1448
+        ],
+        "summary": {
+          "left": 1049,
+          "right": 1414
+        },
+        "overflow": "visible",
+        "white": "normal"
+      },
+      "1366_normal": {
+        "totalText": "$1,000,000.00",
+        "font": "64px",
+        "totalRect": {
+          "left": 1021,
+          "right": 1306,
+          "w": 285
+        },
+        "textRect": {
+          "left": 1021,
+          "right": 1416,
+          "w": 396
+        },
+        "scrollWidth": 396,
+        "clientWidth": 285,
+        "doc": [
+          1416,
+          1366
+        ],
+        "summary": {
+          "left": 994,
+          "right": 1333
+        },
+        "overflow": "visible",
+        "white": "normal"
+      },
+      "390_normal": {
+        "totalText": "$1,000,000.00",
+        "font": "41.6px",
+        "totalRect": {
+          "left": 33,
+          "right": 357,
+          "w": 324
+        },
+        "textRect": {
+          "left": 33,
+          "right": 290,
+          "w": 257
+        },
+        "scrollWidth": 324,
+        "clientWidth": 324,
+        "doc": [
+          390,
+          390
+        ],
+        "summary": {
+          "left": 14,
+          "right": 376
+        },
+        "overflow": "visible",
+        "white": "normal"
+      },
+      "320_normal": {
+        "totalText": "$1,000,000.00",
+        "font": "41.6px",
+        "totalRect": {
+          "left": 29,
+          "right": 291,
+          "w": 262
+        },
+        "textRect": {
+          "left": 29,
+          "right": 286,
+          "w": 257
+        },
+        "scrollWidth": 262,
+        "clientWidth": 262,
+        "doc": [
+          320,
+          320
+        ],
+        "summary": {
+          "left": 10,
+          "right": 310
+        },
+        "overflow": "visible",
+        "white": "normal"
+      },
+      "1448_root32": {
+        "totalText": "$1,000,000.00",
+        "font": "83.2px",
+        "totalRect": {
+          "left": 1076,
+          "right": 1387,
+          "w": 311
+        },
+        "textRect": {
+          "left": 1076,
+          "right": 1590,
+          "w": 514
+        },
+        "scrollWidth": 514,
+        "clientWidth": 311,
+        "doc": [
+          1590,
+          1448
+        ],
+        "summary": {
+          "left": 1049,
+          "right": 1414
+        },
+        "overflow": "visible",
+        "white": "normal"
+      },
+      "320_root32": {
+        "totalText": "$1,000,000.00",
+        "font": "83.2px",
+        "totalRect": {
+          "left": 29,
+          "right": 291,
+          "w": 262
+        },
+        "textRect": {
+          "left": 29,
+          "right": 543,
+          "w": 514
+        },
+        "scrollWidth": 514,
+        "clientWidth": 262,
+        "doc": [
+          543,
+          320
+        ],
+        "summary": {
+          "left": 10,
+          "right": 310
+        },
+        "overflow": "visible",
+        "white": "normal"
+      },
+      "tab_after_confirm_390": [
+        {
+          "name": "Efectivo",
+          "tag": "BUTTON",
+          "top": 398,
+          "bottom": 446,
+          "navTop": 779,
+          "paybarTop": 715,
+          "hitTag": "SPAN",
+          "hitCls": "",
+          "hitText": "Efectivo",
+          "scrollY": 676
+        },
+        {
+          "name": "Digital",
+          "tag": "BUTTON",
+          "top": 398,
+          "bottom": 446,
+          "navTop": 779,
+          "paybarTop": 715,
+          "hitTag": "SPAN",
+          "hitCls": "",
+          "hitText": "Digital",
+          "scrollY": 676
+        },
+        {
+          "name": "Fiado",
+          "tag": "BUTTON",
+          "top": 452,
+          "bottom": 500,
+          "navTop": 779,
+          "paybarTop": 715,
+          "hitTag": "SPAN",
+          "hitCls": "",
+          "hitText": "Fiado",
+          "scrollY": 676
+        },
+        {
+          "name": "Mixto",
+          "tag": "BUTTON",
+          "top": 452,
+          "bottom": 500,
+          "navTop": 779,
+          "paybarTop": 715,
+          "hitTag": "SPAN",
+          "hitCls": "",
+          "hitText": "Mixto",
+          "scrollY": 676
+        }
+      ],
+      "tab_after_confirm_320": [
+        {
+          "name": "Efectivo",
+          "tag": "BUTTON",
+          "top": 580,
+          "bottom": 628,
+          "navTop": 575,
+          "paybarTop": 511,
+          "hitTag": "SPAN",
+          "hitCls": "inicio-icon mc-mobile-nav__icon",
+          "hitText": "",
+          "scrollY": 621
+        },
+        {
+          "name": "Digital",
+          "tag": "BUTTON",
+          "top": 580,
+          "bottom": 628,
+          "navTop": 575,
+          "paybarTop": 511,
+          "hitTag": "SPAN",
+          "hitCls": "inicio-icon mc-mobile-nav__icon",
+          "hitText": "",
+          "scrollY": 621
+        },
+        {
+          "name": "Fiado",
+          "tag": "BUTTON",
+          "top": 296,
+          "bottom": 344,
+          "navTop": 575,
+          "paybarTop": 511,
+          "hitTag": "SPAN",
+          "hitCls": "",
+          "hitText": "Fiado",
+          "scrollY": 959
+        },
+        {
+          "name": "Mixto",
+          "tag": "BUTTON",
+          "top": 296,
+          "bottom": 344,
+          "navTop": 575,
+          "paybarTop": 511,
+          "hitTag": "SPAN",
+          "hitCls": "",
+          "hitText": "Mixto",
+          "scrollY": 959
+        }
+      ]
+    }
+  },
+  "axe": {
+    "normal_caja_empty": [],
+    "normal_caja_line": [],
+    "normal_caja_cash": [],
+    "normal_caja_fiado": [],
+    "normal_caja_digital": [],
+    "normal_ventas_mobile": [],
+    "high_contrast_caja": [],
+    "pager_injected": []
+  },
+  "snapshots": {
+    "ventas_first_row": "- article:\n  - text: Demo\n  - heading \"Pedido A58F\" [level=3]\n  - paragraph: Hoy 9:14 a.m. · Efectivo\n  - paragraph: 2 × Quesadilla\n  - text: $70.00 Demo, no es dinero real\n  - group:\n    - text: Ver conceptos\n    - list:\n      - listitem: Quesadilla 2 × $35.00 $70.00",
+    "caja_result": "- region \"Venta cobrada en efectivo\":\n  - paragraph: Resultado\n  - heading \"Venta cobrada en efectivo\" [level=2]\n  - paragraph: $105.00\n  - paragraph: El efectivo se registró en la caja. No pasó por pey ni es una confirmación bancaria.\n  - term: Pedido\n  - definition: \"0001\"\n  - term: Estado\n  - definition: Pagado\n  - term: Efectivo recibido\n  - definition: $105.00\n  - button \"Nueva venta\"\n  - link \"Ver ventas\":\n    - /url: /ventas\n  - link \"Volver a Caja\":\n    - /url: /caja\n  - paragraph: Total registrado $105.00. Si el estado no es pagado, no entregues como cobrado.",
+    "caja_payment": "- region \"Pedido 9D14\":\n  - paragraph: Cobro digital\n  - heading \"Pedido 9D14\" [level=2]\n  - text: Pendiente\n  - paragraph: Falta cobrar\n  - paragraph: $120.00\n  - paragraph: El pedido ya está registrado. El dinero aún no se considera recibido.\n  - paragraph: Link de cobro\n  - link \"Abrir link\":\n    - /url: http://localhost:3100/pay/demo_hist_pending_ord_ae5969512ffe4ca19d14?demo=1\n  - button \"Copiar link\"\n  - code: http://localhost:3100/pay/demo_hist_pending_ord_ae5969512ffe4ca19d14?demo=1\n  - button \"Generar QR\"\n  - button \"Actualizar estado\"\n  - paragraph:\n    - strong: Modo demo.\n    - text: Simula un pago para probar el recorrido. No es dinero real ni una confirmación de pey.\n  - button \"Simular CoDi\"\n  - button \"Simular tarjeta\"\n  - paragraph: $120.00 siguen pendientes. No entregues como pagado hasta ver la confirmación válida del proveedor.\n  - link \"Ver historial de ventas\":\n    - /url: /ventas",
+    "mobile_paybar": "- text: Total $2,469.00\n- button \"Cobrar\""
+  },
+  "reduced_motion": {
+    "args": [
+      {
+        "behavior": "smooth",
+        "block": "start"
+      }
+    ],
+    "reduce": true,
+    "spin": {
+      "animation": "none",
+      "duration": "1e-05s"
+    }
+  },
+  "not_tested": [
+    "lector de pantalla real (NVDA/TalkBack/VoiceOver)",
+    "iOS/Safari y teclado virtual real",
+    "Windows HCM real",
+    "paginación con >25 ventas",
+    "QR real generado",
+    "Firefox/WebKit",
+    "smoke 33/33 no re-ejecutado"
+  ],
+  "latest_recheck": {
+    "landmarks": {
+      "main": 1,
+      "skip": 1,
+      "navVisible": 1,
+      "currentVisible": 1,
+      "scroll": [
+        390,
+        390
+      ]
+    },
+    "add_focus": {
+      "name": "Agregar",
+      "tag": "BUTTON",
+      "top": 580,
+      "bottom": 628,
+      "navTop": 779,
+      "paybarTop": 715,
+      "paybarOverlap": false,
+      "navOverlap": false,
+      "hitTag": "BUTTON",
+      "hitText": "Agregar"
+    },
+    "remove_focus": {
+      "name": "Saltar al contenido Antojitos de Lupita Coyoacán, ",
+      "tag": "BODY",
+      "top": -224,
+      "bottom": 620,
+      "navTop": 779,
+      "paybarTop": 715,
+      "paybarOverlap": false,
+      "navOverlap": false,
+      "hitTag": "LABEL",
+      "hitText": "Concepto"
+    },
+    "overlay_390": [
+      {
+        "name": "Agregar",
+        "tag": "BUTTON",
+        "top": 386,
+        "bottom": 434,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Agregar"
+      },
+      {
+        "name": "Efectivo",
+        "tag": "BUTTON",
+        "top": 656,
+        "bottom": 704,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "Efectivo"
+      },
+      {
+        "name": "Digital",
+        "tag": "BUTTON",
+        "top": 656,
+        "bottom": 704,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "Digital"
+      },
+      {
+        "name": "Fiado",
+        "tag": "BUTTON",
+        "top": 710,
+        "bottom": 758,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": true,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "$2,469.00"
+      },
+      {
+        "name": "Mixto",
+        "tag": "BUTTON",
+        "top": 710,
+        "bottom": 758,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": true,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Cobrar"
+      },
+      {
+        "name": "Efectivo recibido",
+        "tag": "INPUT",
+        "top": 784,
+        "bottom": 832,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": true,
+        "hitTag": "SPAN",
+        "hitText": ""
+      },
+      {
+        "name": "Confirmar venta",
+        "tag": "BUTTON",
+        "top": 456,
+        "bottom": 512,
+        "navTop": 779,
+        "paybarTop": 715,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Confirmar venta"
+      }
+    ],
+    "overlay_320": [
+      {
+        "name": "Agregar",
+        "tag": "BUTTON",
+        "top": 162,
+        "bottom": 210,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Agregar"
+      },
+      {
+        "name": "Efectivo",
+        "tag": "BUTTON",
+        "top": 452,
+        "bottom": 500,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "Efectivo"
+      },
+      {
+        "name": "Digital",
+        "tag": "BUTTON",
+        "top": 452,
+        "bottom": 500,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "Digital"
+      },
+      {
+        "name": "Fiado",
+        "tag": "BUTTON",
+        "top": 506,
+        "bottom": 554,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": true,
+        "navOverlap": false,
+        "hitTag": "SPAN",
+        "hitText": "$1,234.50"
+      },
+      {
+        "name": "Mixto",
+        "tag": "BUTTON",
+        "top": 506,
+        "bottom": 554,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": true,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Cobrar"
+      },
+      {
+        "name": "Efectivo recibido",
+        "tag": "INPUT",
+        "top": 580,
+        "bottom": 628,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": false,
+        "navOverlap": true,
+        "hitTag": "SPAN",
+        "hitText": ""
+      },
+      {
+        "name": "Confirmar venta",
+        "tag": "BUTTON",
+        "top": 292,
+        "bottom": 348,
+        "navTop": 575,
+        "paybarTop": 511,
+        "paybarOverlap": false,
+        "navOverlap": false,
+        "hitTag": "BUTTON",
+        "hitText": "Confirmar venta"
+      }
+    ],
+    "total_1448_max": {
+      "text": "$1,000,000.00",
+      "font": "64px",
+      "box": [
+        1076,
+        1387,
+        311
+      ],
+      "textRect": [
+        1076,
+        1471,
+        396
+      ],
+      "sw": 396,
+      "cw": 311,
+      "doc": [
+        1471,
+        1448
+      ]
+    },
+    "total_1366_max": {
+      "text": "$1,000,000.00",
+      "font": "64px",
+      "box": [
+        1021,
+        1306,
+        285
+      ],
+      "textRect": [
+        1021,
+        1416,
+        396
+      ],
+      "sw": 396,
+      "cw": 285,
+      "doc": [
+        1416,
+        1366
+      ]
+    },
+    "total_1366_text200": {
+      "text": "$1,234.50",
+      "font": "83.2px",
+      "box": [
+        1021,
+        1306,
+        285
+      ],
+      "textRect": [
+        1021,
+        1380,
+        359
+      ],
+      "sw": 359,
+      "cw": 285,
+      "doc": [
+        1380,
+        1366
+      ]
+    },
+    "total_320_text200": {
+      "text": "$1,234.50",
+      "font": "83.2px",
+      "box": [
+        29,
+        291,
+        262
+      ],
+      "textRect": [
+        29,
+        388,
+        359
+      ],
+      "sw": 359,
+      "cw": 262,
+      "doc": [
+        388,
+        320
+      ]
+    },
+    "total_320_text200_max": {
+      "text": "$1,000,000.00",
+      "font": "83.2px",
+      "box": [
+        29,
+        291,
+        262
+      ],
+      "textRect": [
+        29,
+        543,
+        514
+      ],
+      "sw": 514,
+      "cw": 262,
+      "doc": [
+        543,
+        320
+      ]
+    },
+    "axe_caja_empty": [],
+    "axe_caja_line": [],
+    "axe_ventas": [],
+    "ventas_text": [
+      "DEMO Pedido AE03 Hoy 9:26 a.m. · Efectivo 1 × Demo cash $50.00 Demo, no es dinero real Ver conceptos",
+      "DEMO Pedido 9473 Hoy 9:25 a.m. · Efectivo 2 × Quesadilla $70.00 Demo, no es dinero real Ver conceptos"
+    ]
+  }
+}

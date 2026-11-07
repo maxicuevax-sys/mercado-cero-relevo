@@ -1,0 +1,31 @@
+{
+  "violations": [
+    {
+      "id": "label-content-name-mismatch",
+      "impact": "serious",
+      "help": "Elements must have their visible text as part of their accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+      "nodes": [
+        {
+          "target": [
+            ".brand-lockup"
+          ],
+          "html": "<a class=\"brand-lockup\" href=\"/inicio\" aria-label=\"Ir a Inicio\">",
+          "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+        }
+      ]
+    }
+  ],
+  "passes": 46,
+  "incomplete": 0,
+  "inapplicable": 45,
+  "label": "corte-desktop-1448x1086",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa",
+    "best-practice"
+  ]
+}

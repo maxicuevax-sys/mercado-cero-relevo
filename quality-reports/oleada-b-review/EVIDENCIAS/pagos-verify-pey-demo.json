@@ -1,0 +1,17 @@
+{
+  "generatedAt": "2026-11-04T11:21:07-0600",
+  "transactionId": "txn_cf327b0e-ddb9-41dd-b8d7-f2ca6855e8fd",
+  "orderId": "ord_cc01ec58cced4adfa3fa",
+  "http": 200,
+  "body": {
+    "verified": false,
+    "source": "demo",
+    "reason": "demo_payment",
+    "message": "Pago demo (simulado): no es dinero real. No lo presentes como verificado ni entregues el pedido.",
+    "transactionId": "txn_cf327b0e-ddb9-41dd-b8d7-f2ca6855e8fd",
+    "orderId": "ord_cc01ec58cced4adfa3fa",
+    "method": "codi",
+    "amountCents": 700,
+    "createdAt": "2026-11-04T17:05:44.721Z"
+  }
+}

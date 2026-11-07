@@ -1,0 +1,46 @@
+﻿TABLES
+audit_log
+cash_closes
+credit_payments
+credits
+customers
+goal_contributions
+goals
+order_items
+orders
+payment_events
+payments
+tasks
+
+ORDER_ITEMS_COLUMNS
+id TEXT
+order_id TEXT
+description TEXT
+quantity REAL
+unit_price_cents INTEGER
+total_cents INTEGER
+
+ORDERS_COLUMNS
+id TEXT
+merchant_id TEXT
+status TEXT
+total_cents INTEGER
+paid_cents INTEGER
+payment_method TEXT
+customer_name TEXT
+credit_id TEXT
+credit_cents INTEGER
+payment_link_id TEXT
+payment_url TEXT
+qr_id TEXT
+qr_string TEXT
+qr_image TEXT
+num_ref TEXT
+request_id TEXT
+request_hash TEXT
+demo INTEGER
+created_at TEXT
+updated_at TEXT
+
+PRODUCT_LIKE_TABLES
+(none)

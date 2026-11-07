@@ -1,0 +1,282 @@
+{
+  "base": "http://localhost:3100",
+  "generatedAt": "2026-11-04",
+  "results": [
+    {
+      "id": "REP-01",
+      "name": "Fiado puro afirma que se registró efectivo",
+      "ok": true,
+      "expected": "Fiado 100% con paidCents=0 NO debe decir que se registró efectivo",
+      "observed": "RESULTADO\n\nVenta registrada con fiado\n\nTOTAL DE LA VENTA\n\n$100.00\n\nLa venta quedó registrada. La parte fiada es deuda; no la cuentes como dinero recibido.\n\nPEDIDO\n9CEB\nESTADO\nRegistrado\nSALDO VIVO FIADO\n$100.00 · Cliente B\n\nQuedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.\n\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $100.00. Si el estado no es pagado, no entregues como cobrado.",
+      "evidence": "final-fiado-puro.png"
+    },
+    {
+      "id": "REP-02",
+      "name": "Panel mixto efectivo+digital oculta el efectivo recibido",
+      "ok": true,
+      "expected": "Con paidCents=6000 debe mostrar 'Ya recibiste $60.00' y no decir que no se recibió dinero",
+      "observed": "COBRO DIGITAL\n\nPedido AD6E\nREGISTRADO\n\nFalta cobrar\n\n$40.00\n\nEl pedido ya está registrado. El dinero aún no se considera recibido.\n\nGenerar link\nGenerar QR\nActualizar estado\n\nModo demo. Simula un pago para probar el recorrido. No es dinero real ni una confirmación de pey.\n\nSimular CoDi\nSimular tarjeta\n\n$40.00 siguen pendientes. No entregues como pagado hasta ver la confirmación válida del proveedor.\n\nVer historial de ventas",
+      "evidence": "final-mixto-panel.png"
+    },
+    {
+      "id": "REP-03-1448",
+      "name": "Importe de línea visible a 1448x1086",
+      "ok": false,
+      "expected": "El importe por línea debe verse (ancho/alto > 4px)",
+      "observed": {
+        "x": 840.6875,
+        "y": 501.25,
+        "width": 1,
+        "height": 1
+      },
+      "evidence": "final-line-1448.png"
+    },
+    {
+      "id": "REP-04-1448",
+      "name": "CTA en primer viewport a 1448x1086",
+      "ok": true,
+      "expected": "El botón Confirmar venta debe estar en el viewport; en móvil se acepta paybar visible como acción",
+      "observed": {
+        "cta": {
+          "x": 1075.6875,
+          "y": 839.640625,
+          "width": 311.3125,
+          "height": 56
+        },
+        "paybar": null,
+        "cta_in": true,
+        "paybar_in": false
+      },
+      "evidence": "final-cta-1448.png"
+    },
+    {
+      "id": "REP-03-1366",
+      "name": "Importe de línea visible a 1366x768",
+      "ok": false,
+      "expected": "El importe por línea debe verse (ancho/alto > 4px)",
+      "observed": {
+        "x": 785.765625,
+        "y": 479.5625,
+        "width": 1,
+        "height": 1
+      },
+      "evidence": "final-line-1366.png"
+    },
+    {
+      "id": "REP-04-1366",
+      "name": "CTA en primer viewport a 1366x768",
+      "ok": false,
+      "expected": "El botón Confirmar venta debe estar en el viewport; en móvil se acepta paybar visible como acción",
+      "observed": {
+        "cta": {
+          "x": 1020.765625,
+          "y": 817.953125,
+          "width": 285.4375,
+          "height": 56
+        },
+        "paybar": null,
+        "cta_in": false,
+        "paybar_in": false
+      },
+      "evidence": "final-cta-1366.png"
+    },
+    {
+      "id": "REP-03-1280",
+      "name": "Importe de línea visible a 1280x800",
+      "ok": false,
+      "expected": "El importe por línea debe verse (ancho/alto > 4px)",
+      "observed": {
+        "x": 719.984375,
+        "y": 472.84375,
+        "width": 1,
+        "height": 1
+      },
+      "evidence": "final-line-1280.png"
+    },
+    {
+      "id": "REP-04-1280",
+      "name": "CTA en primer viewport a 1280x800",
+      "ok": false,
+      "expected": "El botón Confirmar venta debe estar en el viewport; en móvil se acepta paybar visible como acción",
+      "observed": {
+        "cta": {
+          "x": 954.984375,
+          "y": 852.578125,
+          "width": 267.296875,
+          "height": 56
+        },
+        "paybar": null,
+        "cta_in": false,
+        "paybar_in": false
+      },
+      "evidence": "final-cta-1280.png"
+    },
+    {
+      "id": "REP-03-768",
+      "name": "Importe de línea visible a 768x1024",
+      "ok": false,
+      "expected": "El importe por línea debe verse (ancho/alto > 4px)",
+      "observed": {
+        "x": 569.578125,
+        "y": 527.390625,
+        "width": 1,
+        "height": 1
+      },
+      "evidence": "final-line-768.png"
+    },
+    {
+      "id": "REP-04-768",
+      "name": "CTA en primer viewport a 768x1024",
+      "ok": false,
+      "expected": "El botón Confirmar venta debe estar en el viewport; en móvil se acepta paybar visible como acción",
+      "observed": {
+        "cta": {
+          "x": 247.421875,
+          "y": 1447.40625,
+          "width": 483.15625,
+          "height": 56
+        },
+        "paybar": null,
+        "cta_in": false,
+        "paybar_in": false
+      },
+      "evidence": "final-cta-768.png"
+    },
+    {
+      "id": "REP-03-390",
+      "name": "Importe de línea visible a 390x844",
+      "ok": true,
+      "expected": "El importe por línea debe verse (ancho/alto > 4px)",
+      "observed": {
+        "x": 198,
+        "y": 653.25,
+        "width": 96,
+        "height": 22.609375
+      },
+      "evidence": "final-line-390.png"
+    },
+    {
+      "id": "REP-04-390",
+      "name": "CTA en primer viewport a 390x844",
+      "ok": true,
+      "expected": "El botón Confirmar venta debe estar en el viewport; en móvil se acepta paybar visible como acción",
+      "observed": {
+        "cta": {
+          "x": 33,
+          "y": 1837.09375,
+          "width": 324,
+          "height": 56
+        },
+        "paybar": {
+          "x": 0,
+          "y": 715,
+          "width": 390,
+          "height": 65
+        },
+        "cta_in": false,
+        "paybar_in": true
+      },
+      "evidence": "final-cta-390.png"
+    },
+    {
+      "id": "REP-05a",
+      "name": "Texto 200%: CTA fuera de pantalla con 3 conceptos (1366x768)",
+      "ok": true,
+      "expected": "El CTA debe seguir visible o alcanzable sin perderse; el test de overflow solo no basta",
+      "observed": {
+        "cta": {
+          "x": 1020.765625,
+          "y": 1359.71875,
+          "width": 285.4375,
+          "height": 56
+        },
+        "geom": {
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "bodyScroll": 1366,
+          "cta": {
+            "y": 1359.71875,
+            "bottom": 1415.71875
+          }
+        }
+      },
+      "evidence": "final-text200-1366.png"
+    },
+    {
+      "id": "REP-05b",
+      "name": "Texto 200% en /ventas 320: scroll horizontal",
+      "ok": true,
+      "expected": "Sin scroll horizontal (scrollWidth == clientWidth)",
+      "observed": {
+        "scrollWidth": 337,
+        "clientWidth": 320,
+        "bodyScroll": 337
+      },
+      "evidence": "final-text200-ventas-320.png"
+    },
+    {
+      "id": "REP-06a",
+      "name": "Dos borradores: /caja solo ve v2 y conserva v1",
+      "ok": true,
+      "expected": "/caja restaura v2; el v1 sigue existiendo pero no se avisa",
+      "observed": {
+        "v2_value": "Cafe nuevo",
+        "keys": {
+          "v1": true,
+          "v2": true
+        },
+        "legacy_in_text": false
+      },
+      "evidence": "final-two-drafts-caja.png"
+    },
+    {
+      "id": "REP-06b",
+      "name": "Nav nueva lleva a legacy y su Caja no vuelve a /caja",
+      "ok": true,
+      "expected": "Desde /caja -> Fiados -> Caja legacy la URL debe seguir en legacy y el draft v2 quedar oculto",
+      "observed": {
+        "url": "http://localhost:3100/?tab=fiado",
+        "legacy_composer": true,
+        "new_composer": false
+      },
+      "evidence": "final-two-cajas-nav.png"
+    },
+    {
+      "id": "REP-06c",
+      "name": "Dos borradores: / legacy solo ve v1 y conserva v2",
+      "ok": true,
+      "expected": "/ restaura v1; el v2 sigue existiendo pero no se avisa",
+      "observed": {
+        "keys": {
+          "v1": true,
+          "v2": true
+        },
+        "inputs": [
+          "",
+          "Quesadilla legacy",
+          "2",
+          "35.00",
+          "",
+          ""
+        ],
+        "v1_in_inputs": true,
+        "v2_in_inputs": false
+      },
+      "evidence": "final-two-drafts-legacy.png"
+    },
+    {
+      "id": "REP-07",
+      "name": "Abono demo contado como Cobrado confirmado",
+      "ok": true,
+      "expected": "Cobrado confirmado no debe incluir abonos demo; el subtítulo dice 'demo no cuenta'",
+      "observed": {
+        "card": "Cobrado confirmado\n\n$450.00\nSolo efectivo real y pagos verificados; demo no cuenta",
+        "credit_payments_demo_sum": 45000,
+        "dashboard_cashCents": 45000
+      },
+      "evidence": "final-abono-demo-cobrado.png"
+    }
+  ],
+  "failed": 7,
+  "passed": 11
+}

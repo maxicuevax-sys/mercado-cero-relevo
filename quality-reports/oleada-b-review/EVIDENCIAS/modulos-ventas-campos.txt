@@ -1,0 +1,237 @@
+FUENTE: web/src/app/ventas/page.tsx
+
+== Consultas de servidor (lineas 34-53) ==
+export default async function VentasPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  await connection();
+  const params = await searchParams;
+  const limit = 25;
+  const requestedPage = Number.parseInt(params.page ?? "1", 10);
+  const requested = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const summary = getDailySummary();
+  const pendingCentsTotal = sumPendingOrderBalances();
+  const total = countOrders();
+  const pageCount = Math.max(1, Math.ceil(total / limit));
+  const page = Math.min(requested, pageCount);
+  const offset = (page - 1) * limit;
+  const orders = listOrders(limit, offset);
+  const merchant = MERCHANT;
+  const initial = (merchant.owner || "M").trim().charAt(0).toUpperCase() || "M";
+  const demo = isDemoMode();
+
+== Resumen visible (lineas 85-110) ==
+      <section className="mc-ventas-stats" aria-label="Resumen de ventas">
+        <article>
+          <p>Ventas hoy</p>
+          <CurrencyAmount cents={summary.salesCents} />
+          <span>
+            {demo
+              ? "Incluye ventas demo; no es dinero real"
+              : "Registradas, no necesariamente cobradas"}
+          </span>
+        </article>
+        <article>
+          <p>Cobrado confirmado</p>
+          <CurrencyAmount
+            cents={summary.cashCents + summary.verifiedDigitalCents}
+          />
+          <span>
+            {demo
+              ? "Solo efectivo real y pagos verificados; demo no cuenta"
+              : "Efectivo + pagos verificados por pey"}
+          </span>
+        </article>
+        <article>
+          <p>Por cobrar digital</p>
+          <CurrencyAmount cents={pendingCentsTotal} />
+          <span>Links y QR de todos los dÃ­as. No incluye fiado.</span>
+        </article>
+
+== Fila y campos (lineas 126-215) ==
+            {orders.map((order) => {
+              const credit = order.creditId ? getCredit(order.creditId) : null;
+              const isDemoOrder =
+                demo || order.status === "demo_paid" || order.lastPaymentDemo;
+              const creditKnown = credit !== null;
+              const creditBalanceCents =
+                credit?.balanceCents ?? (order.creditCents > 0 ? order.creditCents : 0);
+              const digitalDueCents = Math.max(
+                0,
+                order.totalCents - order.paidCents - order.creditCents,
+              );
+              return (
+              <li key={order.id}>
+                <article className="mc-ventas-row">
+                  <div className="mc-ventas-row__main">
+                    <div className="mc-ventas-row__title">
+                      <span
+                        className={`mc-ventas-status mc-ventas-status--${
+                          isDemoOrder ? "demo_paid" : creditBalanceCents > 0 ? "credit" : order.status
+                        }`}
+                      >
+                        {statusLabel(order, creditBalanceCents, creditKnown, isDemoOrder)}
+                      </span>
+                      <h3>Pedido {shortOrder(order.id)}</h3>
+                    </div>
+                    <p className="mc-ventas-row__meta">
+                      {formatActivityDate(order.createdAt)} Â· {methodLabel(order)}
+                      {order.customerName ? ` Â· ${order.customerName}` : ""}
+                    </p>
+                    <p className="mc-ventas-row__items">
+                      {order.items
+                        .map((item) => `${item.quantity} Ã— ${item.description}`)
+                        .join(" Â· ")}
+                    </p>
+                  </div>
+                  <div className="mc-ventas-row__amount">
+                    <CurrencyAmount cents={order.totalCents} />
+                    <span>
+                      {isDemoOrder ? (
+                        "Demo, no es dinero real"
+                      ) : order.status === "payment_pending" ? (
+                        "Pendiente de cobro"
+                      ) : order.paidCents > 0 ? (
+                        <>
+                          Cobrado <CurrencyAmount cents={order.paidCents} />
+                        </>
+                      ) : order.creditCents > 0 ? (
+                        creditKnown && creditBalanceCents === 0
+                          ? "Fiado saldado"
+                          : "Fiado, no cobrado"
+                      ) : (
+                        "Sin cobro confirmado"
+                      )}
+                    </span>
+                    {digitalDueCents > 0 ? (
+                      <span className="mc-ventas-row__due">
+                        Falta cobrar <CurrencyAmount cents={digitalDueCents} />
+                      </span>
+                    ) : null}
+                    {order.creditCents > 0 ? (
+                      <span className="mc-ventas-row__credit">
+                        {creditKnown
+                          ? creditBalanceCents > 0
+                            ? "Saldo vivo"
+                            : "Fiado saldado"
+                          : "Fiado original (saldo no disponible)"}{" "}
+                        <CurrencyAmount
+                          cents={
+                            creditKnown && creditBalanceCents > 0
+                              ? creditBalanceCents
+                              : order.creditCents
+                          }
+                        />
+                      </span>
+                    ) : null}
+                  </div>
+                  <details className="mc-ventas-row__details">
+                    <summary>Ver conceptos</summary>
+                    <ul>
+                      {order.items.map((item) => (
+                        <li key={item.id}>
+                          <span>{item.description}</span>
+                          <span>
+                            {item.quantity} Ã— <CurrencyAmount cents={item.unitPriceCents} />
+                          </span>
+                          <CurrencyAmount cents={item.totalCents} />
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+
+== Etiquetas locales (lineas 251-298) ==
+function statusLabel(
+  order: Order,
+  creditBalanceCents: number,
+  creditKnown: boolean,
+  isDemoOrder: boolean,
+): string {
+  if (isDemoOrder) {
+    return order.status === "payment_pending" ? "Demo Â· pendiente" : "Demo";
+  }
+  if (order.status === "payment_pending") return "Pendiente";
+  if (creditKnown && order.creditCents > 0 && creditBalanceCents === 0) {
+    return "Saldado";
+  }
+  if (creditBalanceCents > 0) {
+    return order.paidCents > 0 || order.digitalPaidCents > 0
+      ? "Fiado + cobro"
+      : "Fiado";
+  }
+  if (order.status === "paid") return "Pagado";
+  if (order.status === "partially_paid") return "Parcial";
+  if (order.status === "fulfilled") return "Entregado";
+  if (order.status === "cancelled") return "Cancelado";
+  return "Registrado";
+}
+
+function methodLabel(order: Order): string {
+  if (order.status === "payment_pending") return "Por cobrar";
+  if (order.creditCents > 0 && order.paymentMethod === "cash") return "Efectivo + fiado";
+  if (order.creditCents > 0 && !order.paymentMethod) return "Fiado";
+  if (!order.paymentMethod && order.creditCents === 0) return "Digital";
+  if (order.paymentMethod === "cash" && order.digitalPaidCents > 0) {
+    return "Efectivo + digital";
+  }
+  switch (order.paymentMethod) {
+    case "cash":
+      return "Efectivo";
+    case "codi":
+      return "CoDi";
+    case "card":
+      return "Tarjeta";
+    case "wallet":
+      return "Wallet";
+    case "mixed":
+      return "Mixto";
+    default:
+      return "Sin mÃ©todo";
+  }
+}
+
+== Verdad central existente: payment-labels.orderStatusCopy ==
+export function orderStatusCopy(status: OrderStatusLike): PaymentCopy {
+  switch (status) {
+    case "draft":
+      return { label: "Borrador", detail: "Todavía no es una venta cobrada." };
+    case "confirmed":
+      return PAYMENT_STATES.pending;
+    case "payment_pending":
+      return {
+        label: "Esperando confirmación",
+        detail: "La confirmación firmada de pey todavía no llega.",
+      };
+    case "partially_paid":
+      return PAYMENT_STATES.partial;
+    case "paid":
+      return {
+        label: "Pagado",
+        detail: "El pedido quedó cubierto. Revisa la fuente del dinero.",
+      };
+    case "demo_paid":
+      return PAYMENT_STATES.demo;
+    case "fulfilled":
+      return { label: "Entregado", detail: "La entrega ya se registró." };
+    case "cancelled":
+      return { label: "Cancelado", detail: "Esta venta no cuenta." };
+  }
+
+== Rutas de /ventas (no hay detalle) ==
+web\src\app\ventas\page.tsx
+web\src\app\ventas\ventas.css
+== No hay tablas products/inventory/suppliers ==
+CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE IF NOT EXISTS order_items (
+CREATE TABLE IF NOT EXISTS payments (
+CREATE TABLE IF NOT EXISTS payment_events (
+CREATE TABLE IF NOT EXISTS customers (
+CREATE TABLE IF NOT EXISTS credits (
+CREATE TABLE IF NOT EXISTS credit_payments (
+CREATE TABLE IF NOT EXISTS audit_log (
+CREATE TABLE IF NOT EXISTS cash_closes (
+CREATE TABLE IF NOT EXISTS goals (
+CREATE TABLE IF NOT EXISTS goal_contributions (
+CREATE TABLE IF NOT EXISTS tasks (

@@ -1,0 +1,119 @@
+
+== Formula de la UI (caja-screen.tsx 77-90) ==
+  const totalCents = useMemo(() => draftTotalCents(lines), [lines]);
+  const creditCents = parseMoneyCents(creditInput);
+  const cashCents = parseMoneyCents(cashInput);
+  const appliedCreditCents = Math.min(Math.max(0, creditCents), totalCents);
+  const appliedCashCents = Math.min(
+    Math.max(0, cashCents),
+    Math.max(0, totalCents - appliedCreditCents),
+  );
+  const changeForSale = Math.max(0, cashCents - appliedCashCents);
+  const digitalDueCents = Math.max(
+    0,
+    totalCents - appliedCashCents - appliedCreditCents,
+  );
+  const overpay = creditCents > totalCents;
+
+
+== Formula y copy de cambio (sale-summary.tsx 53-63, 143-150) ==
+  const cashShortfall = method === "cash" ? Math.max(0, totalCents - appliedCashCents) : 0;
+  const creditEnteredCents = parseMoneyCents(creditInput);
+  const creditOverpay = creditEnteredCents > totalCents;
+  const creditShortfall =
+    method === "credit" ? Math.max(0, totalCents - appliedCreditCents) : 0;
+  const needsCustomer = appliedCreditCents > 0 && customerName.trim().length === 0;
+  const creditChanged =
+    (method === "credit" || method === "mixed") &&
+    creditEnteredCents > 0 &&
+    creditEnteredCents !== totalCents &&
+    !creditOverpay;
+  const retry = Boolean(error?.startsWith("No sabemos"));
+      {method === "mixed" && changeCents > 0 ? (
+        <div className="mc-caja-change" aria-live="polite">
+          <p className="mc-caja-change__ok">
+            Cambio a devolver <CurrencyAmount cents={changeCents} />. Se aplicaron{" "}
+            <CurrencyAmount cents={appliedCashCents} /> al cobro.
+          </p>
+        </div>
+      ) : null}
+
+
+== Copy incondicional del resultado (sale-result.tsx 123-137) ==
+        {changeCents > 0 ? (
+          <div>
+            <dt>Cambio</dt>
+            <dd>
+              <CurrencyAmount cents={changeCents} />
+            </dd>
+          </div>
+        ) : null}
+      </dl>
+
+      {openCredit ? (
+        <p className="mc-caja-result__banner">
+          Quedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.
+        </p>
+      ) : null}
+
+== Reproduccion runtime (ver modulos-runtime.txt) ==
+PASS  fiado puro: la orden no registra efectivo - {"paidCents": 0, "creditCents": 10000, "totalCents": 10000}
+PASS  fiado puro: el resultado afirma que el efectivo sí se registró en la caja - RESULTADO
+
+Venta registrada con fiado
+
+TOTAL DE LA VENTA
+
+$100.00
+
+La venta quedó registrada. La parte fiada es deuda; no la cuentes como dinero recibido.
+
+PEDIDO
+A070
+ESTADO
+Registrado
+SALDO VIVO FIADO
+$100.00 · Cliente Fiado
+
+Quedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.
+
+Nueva venta
+Ver ventas
+Volver a Caja
+
+Total registrado $100.00. Si el estado no es pagado, no entregues como cobrado.
+PASS  cambio fantasma: Mixto con efectivo 100 y fiado 100 sobre total 100 muestra cambio - Cambio a devolver $100.00. Se aplicaron $0.00 al cobro.
+PASS  cambio fantasma: confirmar sigue habilitado - disabled=False
+PASS  cambio fantasma: la orden queda 100% fiada - {"paidCents": 0, "creditCents": 10000, "totalCents": 10000}
+PASS  cambio fantasma: el resultado muestra 'Recibiste', 'Cambio' y 'Saldo vivo fiado' - RESULTADO
+
+Venta registrada con fiado
+
+TOTAL DE LA VENTA
+
+$100.00
+
+La venta quedó registrada. La parte fiada es deuda; no la cuentes como dinero recibido.
+
+PEDIDO
+A314
+ESTADO
+Registrado
+RECIBISTE
+$100.00
+SALDO VIVO FIADO
+$100.00 · Cliente Fantasma
+CAMBIO
+$100.00
+
+Quedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.
+
+Nueva venta
+Ver ventas
+Volver a Caja
+
+Total registrado $100.00. Si el estado no es pagado, no entregues como cobrado.
+PASS  cambio fantasma: el resultado también afirma que el efectivo sí se registró - RESULTADO
+
+Venta registrada con fiado
+

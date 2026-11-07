@@ -1,0 +1,138 @@
+{
+  "cashBefore": {
+    "date": "2026-11-04",
+    "openingCents": 50000,
+    "cashSalesCents": 11000,
+    "cashCreditCents": 10000,
+    "expensesCents": 0,
+    "withdrawalsCents": 0,
+    "expectedCents": 71000,
+    "saved": null,
+    "history": []
+  },
+  "preview": {
+    "status": {
+      "date": "2026-11-04",
+      "openingCents": 50000,
+      "cashSalesCents": 11000,
+      "cashCreditCents": 10000,
+      "expensesCents": 0,
+      "withdrawalsCents": 0,
+      "expectedCents": 71000,
+      "saved": null,
+      "history": []
+    },
+    "preview": {
+      "openingCents": 50000,
+      "expensesCents": 0,
+      "withdrawalsCents": 0,
+      "countedCents": 71000,
+      "baseNextCents": 50000,
+      "cashSalesCents": 11000,
+      "cashCreditCents": 10000,
+      "expectedCents": 71000,
+      "differenceCents": 0,
+      "withdrawalNextCents": 21000,
+      "fingerprint": "bb71aac223ac1e30"
+    },
+    "issues": []
+  },
+  "countedCents": 71000,
+  "closeStatus": 200,
+  "close": {
+    "close": {
+      "id": "cash_cdfaefe5b0b54a51b9fe",
+      "date": "2026-11-04",
+      "version": 1,
+      "openingCents": 50000,
+      "cashSalesCents": 11000,
+      "cashCreditCents": 10000,
+      "expensesCents": 0,
+      "withdrawalsCents": 0,
+      "expectedCents": 71000,
+      "countedCents": 71000,
+      "differenceCents": 0,
+      "baseNextCents": 50000,
+      "withdrawalNextCents": 21000,
+      "snapshotCashCents": 21000,
+      "snapshotCreditCents": 8000,
+      "snapshotPendingDigitalCents": 20000,
+      "snapshotKnown": true,
+      "reason": null,
+      "requestId": "close-AUD-FC-111553",
+      "createdAt": "2026-11-04T17:20:51.022Z"
+    },
+    "status": {
+      "date": "2026-11-04",
+      "openingCents": 50000,
+      "cashSalesCents": 11000,
+      "cashCreditCents": 10000,
+      "expensesCents": 0,
+      "withdrawalsCents": 0,
+      "expectedCents": 71000,
+      "saved": {
+        "id": "cash_cdfaefe5b0b54a51b9fe",
+        "date": "2026-11-04",
+        "version": 1,
+        "openingCents": 50000,
+        "cashSalesCents": 11000,
+        "cashCreditCents": 10000,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 71000,
+        "countedCents": 71000,
+        "differenceCents": 0,
+        "baseNextCents": 50000,
+        "withdrawalNextCents": 21000,
+        "snapshotCashCents": 21000,
+        "snapshotCreditCents": 8000,
+        "snapshotPendingDigitalCents": 20000,
+        "snapshotKnown": true,
+        "reason": null,
+        "requestId": "close-AUD-FC-111553",
+        "createdAt": "2026-11-04T17:20:51.022Z"
+      },
+      "history": [
+        {
+          "id": "cash_cdfaefe5b0b54a51b9fe",
+          "date": "2026-11-04",
+          "version": 1,
+          "openingCents": 50000,
+          "cashSalesCents": 11000,
+          "cashCreditCents": 10000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "expectedCents": 71000,
+          "countedCents": 71000,
+          "differenceCents": 0,
+          "baseNextCents": 50000,
+          "withdrawalNextCents": 21000,
+          "snapshotCashCents": 21000,
+          "snapshotCreditCents": 8000,
+          "snapshotPendingDigitalCents": 20000,
+          "snapshotKnown": true,
+          "reason": null,
+          "requestId": "close-AUD-FC-111553",
+          "createdAt": "2026-11-04T17:20:51.022Z"
+        }
+      ]
+    }
+  },
+  "summaryAfterClose": {
+    "date": "2026-11-04",
+    "salesCents": 51000,
+    "verifiedDigitalCents": 0,
+    "declaredDigitalCents": 0,
+    "demoDigitalCents": 0,
+    "demoCashCents": 18000,
+    "cashCents": 10000,
+    "pendingCents": 20000,
+    "creditCents": 8000,
+    "demoCreditCents": 8000,
+    "orderCount": 6,
+    "paidOrderCount": 2,
+    "methods": {
+      "cash": 10000
+    }
+  }
+}

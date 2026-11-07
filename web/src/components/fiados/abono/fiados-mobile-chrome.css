@@ -1,0 +1,137 @@
+/* Franja de marca móvil de las pantallas de flujo de fiados (18 y 20).
+   Solo aplica en móvil; en escritorio el shell ya muestra su topbar. */
+
+.mc-flow {
+  --fx-u: clamp(0.76px, 0.2564102564vw, 1px);
+  --fx-green: #0c4133;
+  --fx-green-2: #128a4e;
+  --fx-paper: #fdf5ea;
+  --fx-card: #fff9f0;
+  --fx-line: #e4dac3;
+  --fx-soft: #eaf3e1;
+  --fx-soft-2: #dcebcc;
+  --fx-ink: #1e1f1a;
+  --fx-muted: #6e7468;
+  --fx-attention: #bd2c16;
+  --fx-saffron: #f2c768;
+  color: var(--fx-ink);
+}
+
+.mc-fiadosbar {
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  /* El flujo usa su propia franja de marca: se retira el chrome del shell. */
+  .inicio-shell:has(.mc-flow) .inicio-topbar,
+  .inicio-shell:has(.mc-flow) > .mc-mobile-nav {
+    display: none;
+  }
+
+  .inicio-shell:has(.mc-flow) .inicio-main {
+    background: #0c4133;
+  }
+
+  .inicio-shell:has(.mc-flow) .inicio-main > main {
+    padding: 0;
+    border-radius: 0;
+    background: #0c4133;
+  }
+
+  .mc-flow :is(a, button, input):focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .mc-fiadosbar {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    min-height: calc(66 * var(--fx-u, 1px));
+    align-items: center;
+    gap: calc(10 * var(--fx-u, 1px));
+    padding: max(env(safe-area-inset-top), calc(20 * var(--fx-u, 1px)))
+      calc(20 * var(--fx-u, 1px)) 0;
+    background: var(--fx-green, #0c4133);
+    color: var(--fx-paper, #fdf5ea);
+  }
+
+  .mc-fiadosbar__brand {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: calc(4 * var(--fx-u, 1px));
+    color: inherit;
+    font: 700 clamp(0.73rem, 3.59vw, 0.875rem) / 0.95 Georgia, serif;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+
+  .mc-fiadosbar__brand img {
+    width: calc(33 * var(--fx-u, 1px));
+    height: auto;
+  }
+
+  .mc-fiadosbar__rays {
+    display: inline-block;
+    width: calc(18 * var(--fx-u, 1px));
+    height: calc(22 * var(--fx-u, 1px));
+    margin-left: 1px;
+    color: var(--fx-saffron, #f2c768);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    vertical-align: middle;
+  }
+
+  .mc-fiadosbar__bell {
+    position: relative;
+    display: grid;
+    min-width: 48px;
+    min-height: 48px;
+    flex: 0 0 48px;
+    margin-left: auto;
+    place-items: center;
+    color: inherit;
+  }
+
+  .mc-fiadosbar__bell::after {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: calc(7 * var(--fx-u, 1px));
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #e95b30;
+    content: "";
+  }
+
+  .mc-fiadosbar__bell svg {
+    width: calc(23 * var(--fx-u, 1px));
+    height: auto;
+  }
+
+  .mc-fiadosbar__avatar {
+    display: grid;
+    flex: 0 0 auto;
+    width: calc(30 * var(--fx-u, 1px));
+    aspect-ratio: 1;
+    place-items: center;
+    border-radius: 50%;
+    background: #dce9d2;
+    color: var(--fx-green, #0c4133);
+    font-size: clamp(0.72rem, 3.6vw, 0.875rem);
+    font-weight: 800;
+  }
+}
+
+@media (max-width: 767.98px) and (forced-colors: active) {
+  .mc-fiadosbar {
+    border-bottom: 1px solid CanvasText;
+  }
+
+  .mc-fiadosbar__bell::after {
+    background: CanvasText;
+  }
+}

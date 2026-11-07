@@ -1,0 +1,2594 @@
+{
+  "run": "111553",
+  "marker": "AUD-FC-111553",
+  "base": "http://127.0.0.1:3105",
+  "startedAt": "2026-11-04T11:15:53.338522",
+  "steps": [
+    {
+      "id": "T1-fiado",
+      "summaryBeforeConfirm": "COBRO\n\nTotal de la venta\n\n$100.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nMonto a fiado\n¿Quién queda a deber?\nRegistrar fiado $100.00Descartar venta",
+      "payload": {
+        "items": [
+          {
+            "description": "Venta fiado AUD-FC-111553",
+            "quantity": 1,
+            "unitPriceCents": 10000
+          }
+        ],
+        "cashCents": 0,
+        "creditCents": 10000,
+        "customerName": "Cliente Fiado AUD-FC-111553",
+        "requestId": "sale_03cd0aa6-66dc-4c49-a336-872dffc85890"
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "order": {
+            "id": "ord_81cc6e31a1eb480189c9",
+            "merchantId": "lupita",
+            "status": "confirmed",
+            "totalCents": 10000,
+            "paidCents": 0,
+            "digitalPaidCents": 0,
+            "paymentMethod": null,
+            "lastPaymentProvider": null,
+            "lastPaymentDemo": false,
+            "customerName": "Cliente Fiado AUD-FC-111553",
+            "creditId": "cred_e20b00d76d6d44adac2f",
+            "creditCents": 10000,
+            "paymentLinkId": null,
+            "paymentUrl": null,
+            "qrId": null,
+            "qrString": null,
+            "qrImage": null,
+            "numRef": null,
+            "createdAt": "2026-11-04T17:16:05.151Z",
+            "updatedAt": "2026-11-04T17:16:05.157Z",
+            "items": [
+              {
+                "id": "itm_f006101249144ce199e1",
+                "description": "Venta fiado AUD-FC-111553",
+                "quantity": 1,
+                "unitPriceCents": 10000,
+                "totalCents": 10000
+              }
+            ]
+          }
+        }
+      },
+      "ui": {
+        "title": "Venta registrada con fiado",
+        "facts": "PEDIDO\n89C9\nESTADO\nRegistrado\nSALDO VIVO FIADO\n$100.00 · Cliente Fiado AUD-FC-111553",
+        "note": "La venta quedó registrada. La parte fiada es deuda; no la cuentes como dinero recibido.",
+        "banner": "Quedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.",
+        "summary": null,
+        "paymentTitle": null,
+        "paymentAmount": null,
+        "main": "CAJA\n\nVenta registrada\n\nRevisa el resultado antes de entregar o iniciar otra venta.\n\nTOTAL\n$100.00\n\nRESULTADO\n\nVenta registrada con fiado\n\nTOTAL DE LA VENTA\n\n$100.00\n\nLa venta quedó registrada. La parte fiada es deuda; no la cuentes como dinero recibido.\n\nPEDIDO\n89C9\nESTADO\nRegistrado\nSALDO VIVO FIADO\n$100.00 · Cliente Fiado AUD-FC-111553\n\nQuedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.\n\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $100.00. Si el estado no es pagado, no entregues como cobrado.\n\nConcepto agregado.\n\nEl total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes."
+      },
+      "screenshot": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-t1-fiado-resultado.png",
+      "orderId": "ord_81cc6e31a1eb480189c9",
+      "creditId": "cred_e20b00d76d6d44adac2f",
+      "cashAfter": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 0,
+        "cashCreditCents": 0,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 50000,
+        "saved": null,
+        "history": []
+      },
+      "previewAfter": {
+        "status": 200,
+        "body": {
+          "status": {
+            "date": "2026-11-04",
+            "openingCents": 50000,
+            "cashSalesCents": 0,
+            "cashCreditCents": 0,
+            "expensesCents": 0,
+            "withdrawalsCents": 0,
+            "expectedCents": 50000,
+            "saved": null,
+            "history": []
+          },
+          "preview": {
+            "openingCents": 50000,
+            "expensesCents": 0,
+            "withdrawalsCents": 0,
+            "countedCents": 50000,
+            "baseNextCents": 50000,
+            "cashSalesCents": 0,
+            "cashCreditCents": 0,
+            "expectedCents": 50000,
+            "differenceCents": 0,
+            "withdrawalNextCents": 0,
+            "fingerprint": "7cfc08e9d4a576e5"
+          },
+          "issues": []
+        }
+      },
+      "summaryAfter": {
+        "date": "2026-11-04",
+        "salesCents": 29000,
+        "verifiedDigitalCents": 0,
+        "declaredDigitalCents": 0,
+        "demoDigitalCents": 0,
+        "demoCashCents": 7000,
+        "cashCents": 0,
+        "pendingCents": 12000,
+        "creditCents": 15000,
+        "demoCreditCents": 15000,
+        "orderCount": 3,
+        "paidOrderCount": 1,
+        "methods": {}
+      },
+      "capture": {
+        "cash": {
+          "opening": 50000,
+          "cashSales": 0,
+          "cashCredit": 0,
+          "expected": 50000
+        },
+        "preview": {
+          "openingCents": 50000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "countedCents": 50000,
+          "baseNextCents": 50000,
+          "cashSalesCents": 0,
+          "cashCreditCents": 0,
+          "expectedCents": 50000,
+          "differenceCents": 0,
+          "withdrawalNextCents": 0,
+          "fingerprint": "7cfc08e9d4a576e5"
+        },
+        "summary": {
+          "date": "2026-11-04",
+          "salesCents": 29000,
+          "verifiedDigitalCents": 0,
+          "declaredDigitalCents": 0,
+          "demoDigitalCents": 0,
+          "demoCashCents": 7000,
+          "cashCents": 0,
+          "pendingCents": 12000,
+          "creditCents": 15000,
+          "demoCreditCents": 15000,
+          "orderCount": 3,
+          "paidOrderCount": 1,
+          "methods": {}
+        },
+        "counts": {
+          "orders": {
+            "n": 16
+          },
+          "payments": {
+            "n": 14
+          },
+          "credits": {
+            "n": 2
+          },
+          "creditPayments": {
+            "n": 0
+          },
+          "cashCloses": {
+            "n": 1
+          },
+          "sums": {
+            "cash_sales_all": 0,
+            "cash_credit_all": 0
+          }
+        },
+        "markerOrders": [
+          {
+            "id": "ord_81cc6e31a1eb480189c9",
+            "status": "confirmed",
+            "total": 10000,
+            "paid": 0,
+            "credit": 10000,
+            "customer": "Cliente Fiado AUD-FC-111553"
+          }
+        ],
+        "payments": [],
+        "credits": [
+          {
+            "id": "cred_e20b00d76d6d44adac2f",
+            "order_id": "ord_81cc6e31a1eb480189c9",
+            "original_cents": 10000,
+            "balance_cents": 10000,
+            "status": "open",
+            "customer": "Cliente Fiado AUD-FC-111553"
+          }
+        ],
+        "creditPayments": [],
+        "file": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-t1-fiado.json"
+      }
+    },
+    {
+      "id": "T2-mixto",
+      "summaryBeforeConfirm": "COBRO\n\nTotal de la venta\n\n$90.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\n\nCambio a devolver $40.00. Se aplicaron $60.00 al cobro.\n\nEl total cambió. Ajusta el monto a fiado para que coincida con $90.00.\n\nMonto a fiado\n¿Quién queda a deber?\nEfectivo\n$60.00\nFiado\n$30.00\nConfirmar ventaDescartar venta",
+      "payload": {
+        "items": [
+          {
+            "description": "Venta mixta AUD-FC-111553",
+            "quantity": 1,
+            "unitPriceCents": 9000
+          }
+        ],
+        "cashCents": 6000,
+        "creditCents": 3000,
+        "customerName": "Cliente Mixto AUD-FC-111553",
+        "requestId": "sale_c4fcc7a6-94c0-4a36-bd9f-6da26418160a"
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "order": {
+            "id": "ord_91e5bd49c3d24d6d83b0",
+            "merchantId": "lupita",
+            "status": "confirmed",
+            "totalCents": 9000,
+            "paidCents": 6000,
+            "digitalPaidCents": 0,
+            "paymentMethod": "cash",
+            "lastPaymentProvider": "cash",
+            "lastPaymentDemo": false,
+            "customerName": "Cliente Mixto AUD-FC-111553",
+            "creditId": "cred_5af8176ecf8b450e8aa8",
+            "creditCents": 3000,
+            "paymentLinkId": null,
+            "paymentUrl": null,
+            "qrId": null,
+            "qrString": null,
+            "qrImage": null,
+            "numRef": null,
+            "createdAt": "2026-11-04T17:16:09.310Z",
+            "updatedAt": "2026-11-04T17:16:09.320Z",
+            "items": [
+              {
+                "id": "itm_ae14ad72710a48d49db2",
+                "description": "Venta mixta AUD-FC-111553",
+                "quantity": 1,
+                "unitPriceCents": 9000,
+                "totalCents": 9000
+              }
+            ]
+          }
+        }
+      },
+      "ui": {
+        "title": "Venta cobrada en efectivo (demo)",
+        "facts": "PEDIDO\n83B0\nESTADO\nDemo (simulado)\nRECIBISTE\n$100.00\nEFECTIVO APLICADO\n$60.00\nSALDO VIVO FIADO\n$30.00 · Cliente Mixto AUD-FC-111553\nCAMBIO\n$40.00",
+        "note": "Efectivo de demostración. No es dinero real ni una confirmación bancaria.",
+        "banner": "Quedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.",
+        "summary": null,
+        "paymentTitle": null,
+        "paymentAmount": null,
+        "main": "CAJA\n\nVenta registrada\n\nRevisa el resultado antes de entregar o iniciar otra venta.\n\nTOTAL\n$90.00\n\nRESULTADO\n\nVenta cobrada en efectivo (demo)\n\nTOTAL DE LA VENTA\n\n$90.00\n\nEfectivo de demostración. No es dinero real ni una confirmación bancaria.\n\nPEDIDO\n83B0\nESTADO\nDemo (simulado)\nRECIBISTE\n$100.00\nEFECTIVO APLICADO\n$60.00\nSALDO VIVO FIADO\n$30.00 · Cliente Mixto AUD-FC-111553\nCAMBIO\n$40.00\n\nQuedó anotado en Fiado. Solo el fiado es deuda; el efectivo sí se registró en la caja.\n\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $90.00. Si el estado no es pagado, no entregues como cobrado.\n\nConcepto agregado.\n\nEl total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes."
+      },
+      "screenshot": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-t2-mixto-resultado.png",
+      "orderId": "ord_91e5bd49c3d24d6d83b0",
+      "creditId": "cred_5af8176ecf8b450e8aa8",
+      "cashAfter": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 6000,
+        "cashCreditCents": 0,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 56000,
+        "saved": null,
+        "history": []
+      },
+      "previewAfter": {
+        "status": 200,
+        "body": {
+          "status": {
+            "date": "2026-11-04",
+            "openingCents": 50000,
+            "cashSalesCents": 6000,
+            "cashCreditCents": 0,
+            "expensesCents": 0,
+            "withdrawalsCents": 0,
+            "expectedCents": 56000,
+            "saved": null,
+            "history": []
+          },
+          "preview": {
+            "openingCents": 50000,
+            "expensesCents": 0,
+            "withdrawalsCents": 0,
+            "countedCents": 50000,
+            "baseNextCents": 50000,
+            "cashSalesCents": 6000,
+            "cashCreditCents": 0,
+            "expectedCents": 56000,
+            "differenceCents": -6000,
+            "withdrawalNextCents": 0,
+            "fingerprint": "66f21154fa6ae52a"
+          },
+          "issues": []
+        }
+      },
+      "summaryAfter": {
+        "date": "2026-11-04",
+        "salesCents": 38000,
+        "verifiedDigitalCents": 0,
+        "declaredDigitalCents": 0,
+        "demoDigitalCents": 0,
+        "demoCashCents": 13000,
+        "cashCents": 0,
+        "pendingCents": 12000,
+        "creditCents": 18000,
+        "demoCreditCents": 18000,
+        "orderCount": 4,
+        "paidOrderCount": 1,
+        "methods": {}
+      },
+      "capture": {
+        "cash": {
+          "opening": 50000,
+          "cashSales": 6000,
+          "cashCredit": 0,
+          "expected": 56000
+        },
+        "preview": {
+          "openingCents": 50000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "countedCents": 50000,
+          "baseNextCents": 50000,
+          "cashSalesCents": 6000,
+          "cashCreditCents": 0,
+          "expectedCents": 56000,
+          "differenceCents": -6000,
+          "withdrawalNextCents": 0,
+          "fingerprint": "66f21154fa6ae52a"
+        },
+        "summary": {
+          "date": "2026-11-04",
+          "salesCents": 38000,
+          "verifiedDigitalCents": 0,
+          "declaredDigitalCents": 0,
+          "demoDigitalCents": 0,
+          "demoCashCents": 13000,
+          "cashCents": 0,
+          "pendingCents": 12000,
+          "creditCents": 18000,
+          "demoCreditCents": 18000,
+          "orderCount": 4,
+          "paidOrderCount": 1,
+          "methods": {}
+        },
+        "counts": {
+          "orders": {
+            "n": 17
+          },
+          "payments": {
+            "n": 15
+          },
+          "credits": {
+            "n": 3
+          },
+          "creditPayments": {
+            "n": 0
+          },
+          "cashCloses": {
+            "n": 1
+          },
+          "sums": {
+            "cash_sales_all": 6000,
+            "cash_credit_all": 0
+          }
+        },
+        "markerOrders": [
+          {
+            "id": "ord_91e5bd49c3d24d6d83b0",
+            "status": "confirmed",
+            "total": 9000,
+            "paid": 6000,
+            "credit": 3000,
+            "customer": "Cliente Mixto AUD-FC-111553"
+          },
+          {
+            "id": "ord_81cc6e31a1eb480189c9",
+            "status": "confirmed",
+            "total": 10000,
+            "paid": 0,
+            "credit": 10000,
+            "customer": "Cliente Fiado AUD-FC-111553"
+          }
+        ],
+        "payments": [
+          {
+            "id": "pay_78f0de8ea47a49f89985",
+            "order_id": "ord_91e5bd49c3d24d6d83b0",
+            "provider": "cash",
+            "method": "cash",
+            "amount_cents": 6000,
+            "status": "paid",
+            "transaction_id": null,
+            "demo": 1,
+            "created_at": "2026-11-04T17:16:09.310Z"
+          }
+        ],
+        "credits": [
+          {
+            "id": "cred_e20b00d76d6d44adac2f",
+            "order_id": "ord_81cc6e31a1eb480189c9",
+            "original_cents": 10000,
+            "balance_cents": 10000,
+            "status": "open",
+            "customer": "Cliente Fiado AUD-FC-111553"
+          },
+          {
+            "id": "cred_5af8176ecf8b450e8aa8",
+            "order_id": "ord_91e5bd49c3d24d6d83b0",
+            "original_cents": 3000,
+            "balance_cents": 3000,
+            "status": "open",
+            "customer": "Cliente Mixto AUD-FC-111553"
+          }
+        ],
+        "creditPayments": [],
+        "file": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-t2-mixto.json"
+      }
+    },
+    {
+      "id": "T4-efectivo",
+      "payload": {
+        "items": [
+          {
+            "description": "Venta efectivo AUD-FC-111553",
+            "quantity": 1,
+            "unitPriceCents": 5000
+          }
+        ],
+        "cashCents": 5000,
+        "creditCents": 0,
+        "customerName": null,
+        "requestId": "sale_eba98dd3-e6c4-4f6d-8990-05218e37c6a6"
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "order": {
+            "id": "ord_3264a2c3afeb47478f11",
+            "merchantId": "lupita",
+            "status": "paid",
+            "totalCents": 5000,
+            "paidCents": 5000,
+            "digitalPaidCents": 0,
+            "paymentMethod": "cash",
+            "lastPaymentProvider": "cash",
+            "lastPaymentDemo": false,
+            "customerName": null,
+            "creditId": null,
+            "creditCents": 0,
+            "paymentLinkId": null,
+            "paymentUrl": null,
+            "qrId": null,
+            "qrString": null,
+            "qrImage": null,
+            "numRef": null,
+            "createdAt": "2026-11-04T17:16:13.042Z",
+            "updatedAt": "2026-11-04T17:16:13.044Z",
+            "items": [
+              {
+                "id": "itm_8f113c9e7913487eb0d6",
+                "description": "Venta efectivo AUD-FC-111553",
+                "quantity": 1,
+                "unitPriceCents": 5000,
+                "totalCents": 5000
+              }
+            ]
+          }
+        }
+      },
+      "ui": {
+        "title": "Venta cobrada en efectivo (demo)",
+        "facts": "PEDIDO\n8F11\nESTADO\nDemo (simulado)\nEFECTIVO RECIBIDO\n$50.00",
+        "note": "Efectivo de demostración. No es dinero real ni una confirmación bancaria.",
+        "banner": null,
+        "summary": null,
+        "paymentTitle": null,
+        "paymentAmount": null,
+        "main": "CAJA\n\nVenta registrada\n\nRevisa el resultado antes de entregar o iniciar otra venta.\n\nTOTAL\n$50.00\n\nRESULTADO\n\nVenta cobrada en efectivo (demo)\n\nTOTAL DE LA VENTA\n\n$50.00\n\nEfectivo de demostración. No es dinero real ni una confirmación bancaria.\n\nPEDIDO\n8F11\nESTADO\nDemo (simulado)\nEFECTIVO RECIBIDO\n$50.00\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $50.00. Si el estado no es pagado, no entregues como cobrado.\n\nConcepto agregado.\n\nEl total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes."
+      },
+      "screenshot": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-t4-efectivo-resultado.png",
+      "orderId": "ord_3264a2c3afeb47478f11",
+      "cashAfter": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 11000,
+        "cashCreditCents": 0,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 61000,
+        "saved": null,
+        "history": []
+      },
+      "previewAfter": {
+        "status": 200,
+        "body": {
+          "status": {
+            "date": "2026-11-04",
+            "openingCents": 50000,
+            "cashSalesCents": 11000,
+            "cashCreditCents": 0,
+            "expensesCents": 0,
+            "withdrawalsCents": 0,
+            "expectedCents": 61000,
+            "saved": null,
+            "history": []
+          },
+          "preview": {
+            "openingCents": 50000,
+            "expensesCents": 0,
+            "withdrawalsCents": 0,
+            "countedCents": 50000,
+            "baseNextCents": 50000,
+            "cashSalesCents": 11000,
+            "cashCreditCents": 0,
+            "expectedCents": 61000,
+            "differenceCents": -11000,
+            "withdrawalNextCents": 0,
+            "fingerprint": "0625dcf0006dc996"
+          },
+          "issues": []
+        }
+      },
+      "summaryAfter": {
+        "date": "2026-11-04",
+        "salesCents": 43000,
+        "verifiedDigitalCents": 0,
+        "declaredDigitalCents": 0,
+        "demoDigitalCents": 0,
+        "demoCashCents": 18000,
+        "cashCents": 0,
+        "pendingCents": 12000,
+        "creditCents": 18000,
+        "demoCreditCents": 18000,
+        "orderCount": 5,
+        "paidOrderCount": 2,
+        "methods": {}
+      },
+      "capture": {
+        "cash": {
+          "opening": 50000,
+          "cashSales": 11000,
+          "cashCredit": 0,
+          "expected": 61000
+        },
+        "preview": {
+          "openingCents": 50000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "countedCents": 50000,
+          "baseNextCents": 50000,
+          "cashSalesCents": 11000,
+          "cashCreditCents": 0,
+          "expectedCents": 61000,
+          "differenceCents": -11000,
+          "withdrawalNextCents": 0,
+          "fingerprint": "0625dcf0006dc996"
+        },
+        "summary": {
+          "date": "2026-11-04",
+          "salesCents": 43000,
+          "verifiedDigitalCents": 0,
+          "declaredDigitalCents": 0,
+          "demoDigitalCents": 0,
+          "demoCashCents": 18000,
+          "cashCents": 0,
+          "pendingCents": 12000,
+          "creditCents": 18000,
+          "demoCreditCents": 18000,
+          "orderCount": 5,
+          "paidOrderCount": 2,
+          "methods": {}
+        },
+        "counts": {
+          "orders": {
+            "n": 18
+          },
+          "payments": {
+            "n": 16
+          },
+          "credits": {
+            "n": 3
+          },
+          "creditPayments": {
+            "n": 0
+          },
+          "cashCloses": {
+            "n": 1
+          },
+          "sums": {
+            "cash_sales_all": 11000,
+            "cash_credit_all": 0
+          }
+        },
+        "markerOrders": [
+          {
+            "id": "ord_3264a2c3afeb47478f11",
+            "status": "paid",
+            "total": 5000,
+            "paid": 5000,
+            "credit": 0,
+            "customer": null
+          },
+          {
+            "id": "ord_91e5bd49c3d24d6d83b0",
+            "status": "confirmed",
+            "total": 9000,
+            "paid": 6000,
+            "credit": 3000,
+            "customer": "Cliente Mixto AUD-FC-111553"
+          },
+          {
+            "id": "ord_81cc6e31a1eb480189c9",
+            "status": "confirmed",
+            "total": 10000,
+            "paid": 0,
+            "credit": 10000,
+            "customer": "Cliente Fiado AUD-FC-111553"
+          }
+        ],
+        "payments": [
+          {
+            "id": "pay_78f0de8ea47a49f89985",
+            "order_id": "ord_91e5bd49c3d24d6d83b0",
+            "provider": "cash",
+            "method": "cash",
+            "amount_cents": 6000,
+            "status": "paid",
+            "transaction_id": null,
+            "demo": 1,
+            "created_at": "2026-11-04T17:16:09.310Z"
+          },
+          {
+            "id": "pay_e018fc7a654245ad89fd",
+            "order_id": "ord_3264a2c3afeb47478f11",
+            "provider": "cash",
+            "method": "cash",
+            "amount_cents": 5000,
+            "status": "paid",
+            "transaction_id": null,
+            "demo": 1,
+            "created_at": "2026-11-04T17:16:13.042Z"
+          }
+        ],
+        "credits": [
+          {
+            "id": "cred_e20b00d76d6d44adac2f",
+            "order_id": "ord_81cc6e31a1eb480189c9",
+            "original_cents": 10000,
+            "balance_cents": 10000,
+            "status": "open",
+            "customer": "Cliente Fiado AUD-FC-111553"
+          },
+          {
+            "id": "cred_5af8176ecf8b450e8aa8",
+            "order_id": "ord_91e5bd49c3d24d6d83b0",
+            "original_cents": 3000,
+            "balance_cents": 3000,
+            "status": "open",
+            "customer": "Cliente Mixto AUD-FC-111553"
+          }
+        ],
+        "creditPayments": [],
+        "file": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-t4-efectivo.json"
+      }
+    },
+    {
+      "id": "T4-digital",
+      "payload": {
+        "items": [
+          {
+            "description": "Venta digital AUD-FC-111553",
+            "quantity": 1,
+            "unitPriceCents": 8000
+          }
+        ],
+        "cashCents": 0,
+        "creditCents": 0,
+        "customerName": null,
+        "requestId": "sale_d1ba06cc-4f97-4ed1-bfd3-edaa5a8a6199"
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "order": {
+            "id": "ord_e01763cdf1a44b1bb5b5",
+            "merchantId": "lupita",
+            "status": "confirmed",
+            "totalCents": 8000,
+            "paidCents": 0,
+            "digitalPaidCents": 0,
+            "paymentMethod": null,
+            "lastPaymentProvider": null,
+            "lastPaymentDemo": false,
+            "customerName": null,
+            "creditId": null,
+            "creditCents": 0,
+            "paymentLinkId": null,
+            "paymentUrl": null,
+            "qrId": null,
+            "qrString": null,
+            "qrImage": null,
+            "numRef": null,
+            "createdAt": "2026-11-04T17:16:16.346Z",
+            "updatedAt": "2026-11-04T17:16:16.346Z",
+            "items": [
+              {
+                "id": "itm_558338a7cf0d4e53afeb",
+                "description": "Venta digital AUD-FC-111553",
+                "quantity": 1,
+                "unitPriceCents": 8000,
+                "totalCents": 8000
+              }
+            ]
+          }
+        }
+      },
+      "ui": {
+        "title": null,
+        "facts": null,
+        "note": null,
+        "banner": null,
+        "summary": null,
+        "paymentTitle": "Pedido B5B5",
+        "paymentAmount": "Falta cobrar\n\n$80.00\n\nEl pedido ya está registrado. El dinero aún no se considera recibido.",
+        "main": "CAJA\n\nCobrar venta\n\nEl pedido ya está registrado. El pago sigue pendiente hasta que el banco lo confirme.\n\nTOTAL\n$80.00\n\nCOBRO DIGITAL\n\nPedido B5B5\nREGISTRADO\n\nFalta cobrar\n\n$80.00\n\nEl pedido ya está registrado. El dinero aún no se considera recibido.\n\nGenerar link\nGenerar QR\nActualizar estado\n\nModo demo. Simula un pago para probar el recorrido. No es dinero real ni una confirmación de pey.\n\nSimular CoDi\nSimular tarjeta\n\n$80.00 siguen pendientes. No entregues como pagado hasta ver la confirmación válida del proveedor.\n\nVer historial de ventas\n\nConcepto agregado.\n\nEl total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica; los borradores de cada pantalla son independientes."
+      },
+      "screenshot": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-t4-digital-pendiente.png",
+      "orderId": "ord_e01763cdf1a44b1bb5b5",
+      "cashAfter": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 11000,
+        "cashCreditCents": 0,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 61000,
+        "saved": null,
+        "history": []
+      },
+      "previewAfter": {
+        "status": 200,
+        "body": {
+          "status": {
+            "date": "2026-11-04",
+            "openingCents": 50000,
+            "cashSalesCents": 11000,
+            "cashCreditCents": 0,
+            "expensesCents": 0,
+            "withdrawalsCents": 0,
+            "expectedCents": 61000,
+            "saved": null,
+            "history": []
+          },
+          "preview": {
+            "openingCents": 50000,
+            "expensesCents": 0,
+            "withdrawalsCents": 0,
+            "countedCents": 50000,
+            "baseNextCents": 50000,
+            "cashSalesCents": 11000,
+            "cashCreditCents": 0,
+            "expectedCents": 61000,
+            "differenceCents": -11000,
+            "withdrawalNextCents": 0,
+            "fingerprint": "0625dcf0006dc996"
+          },
+          "issues": []
+        }
+      },
+      "summaryAfter": {
+        "date": "2026-11-04",
+        "salesCents": 51000,
+        "verifiedDigitalCents": 0,
+        "declaredDigitalCents": 0,
+        "demoDigitalCents": 0,
+        "demoCashCents": 18000,
+        "cashCents": 0,
+        "pendingCents": 20000,
+        "creditCents": 18000,
+        "demoCreditCents": 18000,
+        "orderCount": 6,
+        "paidOrderCount": 2,
+        "methods": {}
+      },
+      "capture": {
+        "cash": {
+          "opening": 50000,
+          "cashSales": 11000,
+          "cashCredit": 0,
+          "expected": 61000
+        },
+        "preview": {
+          "openingCents": 50000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "countedCents": 50000,
+          "baseNextCents": 50000,
+          "cashSalesCents": 11000,
+          "cashCreditCents": 0,
+          "expectedCents": 61000,
+          "differenceCents": -11000,
+          "withdrawalNextCents": 0,
+          "fingerprint": "0625dcf0006dc996"
+        },
+        "summary": {
+          "date": "2026-11-04",
+          "salesCents": 51000,
+          "verifiedDigitalCents": 0,
+          "declaredDigitalCents": 0,
+          "demoDigitalCents": 0,
+          "demoCashCents": 18000,
+          "cashCents": 0,
+          "pendingCents": 20000,
+          "creditCents": 18000,
+          "demoCreditCents": 18000,
+          "orderCount": 6,
+          "paidOrderCount": 2,
+          "methods": {}
+        },
+        "counts": {
+          "orders": {
+            "n": 19
+          },
+          "payments": {
+            "n": 16
+          },
+          "credits": {
+            "n": 3
+          },
+          "creditPayments": {
+            "n": 0
+          },
+          "cashCloses": {
+            "n": 1
+          },
+          "sums": {
+            "cash_sales_all": 11000,
+            "cash_credit_all": 0
+          }
+        },
+        "markerOrders": [
+          {
+            "id": "ord_e01763cdf1a44b1bb5b5",
+            "status": "confirmed",
+            "total": 8000,
+            "paid": 0,
+            "credit": 0,
+            "customer": null
+          },
+          {
+            "id": "ord_3264a2c3afeb47478f11",
+            "status": "paid",
+            "total": 5000,
+            "paid": 5000,
+            "credit": 0,
+            "customer": null
+          },
+          {
+            "id": "ord_91e5bd49c3d24d6d83b0",
+            "status": "confirmed",
+            "total": 9000,
+            "paid": 6000,
+            "credit": 3000,
+            "customer": "Cliente Mixto AUD-FC-111553"
+          },
+          {
+            "id": "ord_81cc6e31a1eb480189c9",
+            "status": "confirmed",
+            "total": 10000,
+            "paid": 0,
+            "credit": 10000,
+            "customer": "Cliente Fiado AUD-FC-111553"
+          }
+        ],
+        "payments": [
+          {
+            "id": "pay_78f0de8ea47a49f89985",
+            "order_id": "ord_91e5bd49c3d24d6d83b0",
+            "provider": "cash",
+            "method": "cash",
+            "amount_cents": 6000,
+            "status": "paid",
+            "transaction_id": null,
+            "demo": 1,
+            "created_at": "2026-11-04T17:16:09.310Z"
+          },
+          {
+            "id": "pay_e018fc7a654245ad89fd",
+            "order_id": "ord_3264a2c3afeb47478f11",
+            "provider": "cash",
+            "method": "cash",
+            "amount_cents": 5000,
+            "status": "paid",
+            "transaction_id": null,
+            "demo": 1,
+            "created_at": "2026-11-04T17:16:13.042Z"
+          }
+        ],
+        "credits": [
+          {
+            "id": "cred_e20b00d76d6d44adac2f",
+            "order_id": "ord_81cc6e31a1eb480189c9",
+            "original_cents": 10000,
+            "balance_cents": 10000,
+            "status": "open",
+            "customer": "Cliente Fiado AUD-FC-111553"
+          },
+          {
+            "id": "cred_5af8176ecf8b450e8aa8",
+            "order_id": "ord_91e5bd49c3d24d6d83b0",
+            "original_cents": 3000,
+            "balance_cents": 3000,
+            "status": "open",
+            "customer": "Cliente Mixto AUD-FC-111553"
+          }
+        ],
+        "creditPayments": [],
+        "file": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-t4-digital.json"
+      }
+    },
+    {
+      "id": "T3-abono-parcial",
+      "response": {
+        "status": 200,
+        "body": {
+          "credit": {
+            "id": "cred_e20b00d76d6d44adac2f",
+            "customerId": "cus_d59beace135248cfadac",
+            "customerName": "Cliente Fiado AUD-FC-111553",
+            "orderId": "ord_81cc6e31a1eb480189c9",
+            "originalCents": 10000,
+            "balanceCents": 6000,
+            "status": "partial",
+            "dueDate": null,
+            "createdAt": "2026-11-04T17:16:05.151Z"
+          },
+          "appliedCents": 4000,
+          "balanceCents": 6000,
+          "overpayCents": 0,
+          "duplicate": false
+        }
+      },
+      "cashAfter": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 11000,
+        "cashCreditCents": 4000,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 65000,
+        "saved": null,
+        "history": []
+      },
+      "previewAfter": {
+        "status": 200,
+        "body": {
+          "status": {
+            "date": "2026-11-04",
+            "openingCents": 50000,
+            "cashSalesCents": 11000,
+            "cashCreditCents": 4000,
+            "expensesCents": 0,
+            "withdrawalsCents": 0,
+            "expectedCents": 65000,
+            "saved": null,
+            "history": []
+          },
+          "preview": {
+            "openingCents": 50000,
+            "expensesCents": 0,
+            "withdrawalsCents": 0,
+            "countedCents": 50000,
+            "baseNextCents": 50000,
+            "cashSalesCents": 11000,
+            "cashCreditCents": 4000,
+            "expectedCents": 65000,
+            "differenceCents": -15000,
+            "withdrawalNextCents": 0,
+            "fingerprint": "2b2c618ca52fbd7d"
+          },
+          "issues": []
+        }
+      },
+      "summaryAfter": {
+        "date": "2026-11-04",
+        "salesCents": 51000,
+        "verifiedDigitalCents": 0,
+        "declaredDigitalCents": 0,
+        "demoDigitalCents": 0,
+        "demoCashCents": 18000,
+        "cashCents": 4000,
+        "pendingCents": 20000,
+        "creditCents": 14000,
+        "demoCreditCents": 14000,
+        "orderCount": 6,
+        "paidOrderCount": 2,
+        "methods": {
+          "cash": 4000
+        }
+      },
+      "capture": {
+        "cash": {
+          "opening": 50000,
+          "cashSales": 11000,
+          "cashCredit": 4000,
+          "expected": 65000
+        },
+        "preview": {
+          "openingCents": 50000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "countedCents": 50000,
+          "baseNextCents": 50000,
+          "cashSalesCents": 11000,
+          "cashCreditCents": 4000,
+          "expectedCents": 65000,
+          "differenceCents": -15000,
+          "withdrawalNextCents": 0,
+          "fingerprint": "2b2c618ca52fbd7d"
+        },
+        "summary": {
+          "date": "2026-11-04",
+          "salesCents": 51000,
+          "verifiedDigitalCents": 0,
+          "declaredDigitalCents": 0,
+          "demoDigitalCents": 0,
+          "demoCashCents": 18000,
+          "cashCents": 4000,
+          "pendingCents": 20000,
+          "creditCents": 14000,
+          "demoCreditCents": 14000,
+          "orderCount": 6,
+          "paidOrderCount": 2,
+          "methods": {
+            "cash": 4000
+          }
+        },
+        "counts": {
+          "orders": {
+            "n": 19
+          },
+          "payments": {
+            "n": 16
+          },
+          "credits": {
+            "n": 3
+          },
+          "creditPayments": {
+            "n": 1
+          },
+          "cashCloses": {
+            "n": 1
+          },
+          "sums": {
+            "cash_sales_all": 11000,
+            "cash_credit_all": 4000
+          }
+        },
+        "markerOrders": [
+          {
+            "id": "ord_e01763cdf1a44b1bb5b5",
+            "status": "confirmed",
+            "total": 8000,
+            "paid": 0,
+            "credit": 0,
+            "customer": null
+          },
+          {
+            "id": "ord_3264a2c3afeb47478f11",
+            "status": "paid",
+            "total": 5000,
+            "paid": 5000,
+            "credit": 0,
+            "customer": null
+          },
+          {
+            "id": "ord_91e5bd49c3d24d6d83b0",
+            "status": "confirmed",
+            "total": 9000,
+            "paid": 6000,
+            "credit": 3000,
+            "customer": "Cliente Mixto AUD-FC-111553"
+          },
+          {
+            "id": "ord_81cc6e31a1eb480189c9",
+            "status": "confirmed",
+            "total": 10000,
+            "paid": 0,
+            "credit": 10000,
+            "customer": "Cliente Fiado AUD-FC-111553"
+          }
+        ],
+        "payments": [
+          {
+            "id": "pay_78f0de8ea47a49f89985",
+            "order_id": "ord_91e5bd49c3d24d6d83b0",
+            "provider": "cash",
+            "method": "cash",
+            "amount_cents": 6000,
+            "status": "paid",
+            "transaction_id": null,
+            "demo": 1,
+            "created_at": "2026-11-04T17:16:09.310Z"
+          },
+          {
+            "id": "pay_e018fc7a654245ad89fd",
+            "order_id": "ord_3264a2c3afeb47478f11",
+            "provider": "cash",
+            "method": "cash",
+            "amount_cents": 5000,
+            "status": "paid",
+            "transaction_id": null,
+            "demo": 1,
+            "created_at": "2026-11-04T17:16:13.042Z"
+          }
+        ],
+        "credits": [
+          {
+            "id": "cred_e20b00d76d6d44adac2f",
+            "order_id": "ord_81cc6e31a1eb480189c9",
+            "original_cents": 10000,
+            "balance_cents": 6000,
+            "status": "partial",
+            "customer": "Cliente Fiado AUD-FC-111553"
+          },
+          {
+            "id": "cred_5af8176ecf8b450e8aa8",
+            "order_id": "ord_91e5bd49c3d24d6d83b0",
+            "original_cents": 3000,
+            "balance_cents": 3000,
+            "status": "open",
+            "customer": "Cliente Mixto AUD-FC-111553"
+          }
+        ],
+        "creditPayments": [
+          {
+            "id": "cp_244f9623bf9e4cfc9627",
+            "credit_id": "cred_e20b00d76d6d44adac2f",
+            "amount_cents": 4000,
+            "method": "cash",
+            "request_id": "cp-AUD-FC-111553-1"
+          }
+        ],
+        "file": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-t3-abono-parcial.json"
+      },
+      "ventas": {
+        "rowText": "DEMO\nPedido 89C9\n\nHoy 11:16 a.m. · Fiado · Cliente Fiado AUD-FC-111553\n\n1 × Venta fiado AUD-FC-111553\n\n$100.00\nDemo, no es dinero real\nSaldo vivo $60.00\nVer conceptos",
+        "stats": "Ventas hoy\n\n$510.00\nIncluye ventas demo; no es dinero real\n\nCobrado confirmado\n\n$40.00\nSolo efectivo real y pagos verificados; demo no cuenta\n\nPor cobrar digital\n\n$200.00\nLinks y QR de todos los días. No incluye fiado.",
+        "pageNote": "El historial se lee de la misma base que Caja. Un pedido pendiente o fiado no es dinero recibido; solo se marca pagado con la confirmación válida del proveedor o con el efectivo registrado.",
+        "url": "http://127.0.0.1:3105/ventas",
+        "screenshot": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-ventas-Cliente_Fiado_AUD-FC-111553-1793812578.png"
+      },
+      "screenshot": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-ventas-Cliente_Fiado_AUD-FC-111553-1793812578.png",
+      "ordersTotalBefore": 19,
+      "ordersTotalAfter": 19
+    },
+    {
+      "id": "T3-abono-replay",
+      "response": {
+        "status": 200,
+        "body": {
+          "credit": {
+            "id": "cred_e20b00d76d6d44adac2f",
+            "customerId": "cus_d59beace135248cfadac",
+            "customerName": "Cliente Fiado AUD-FC-111553",
+            "orderId": "ord_81cc6e31a1eb480189c9",
+            "originalCents": 10000,
+            "balanceCents": 6000,
+            "status": "partial",
+            "dueDate": null,
+            "createdAt": "2026-11-04T17:16:05.151Z"
+          },
+          "appliedCents": 4000,
+          "balanceCents": 6000,
+          "overpayCents": 0,
+          "duplicate": true
+        }
+      },
+      "cashAfter": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 11000,
+        "cashCreditCents": 4000,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 65000,
+        "saved": null,
+        "history": []
+      },
+      "capture": {
+        "cash": {
+          "opening": 50000,
+          "cashSales": 11000,
+          "cashCredit": 4000,
+          "expected": 65000
+        },
+        "preview": {
+          "openingCents": 50000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "countedCents": 50000,
+          "baseNextCents": 50000,
+          "cashSalesCents": 11000,
+          "cashCreditCents": 4000,
+          "expectedCents": 65000,
+          "differenceCents": -15000,
+          "withdrawalNextCents": 0,
+          "fingerprint": "2b2c618ca52fbd7d"
+        },
+        "summary": {
+          "date": "2026-11-04",
+          "salesCents": 51000,
+          "verifiedDigitalCents": 0,
+          "declaredDigitalCents": 0,
+          "demoDigitalCents": 0,
+          "demoCashCents": 18000,
+          "cashCents": 4000,
+          "pendingCents": 20000,
+          "creditCents": 14000,
+          "demoCreditCents": 14000,
+          "orderCount": 6,
+          "paidOrderCount": 2,
+          "methods": {
+            "cash": 4000
+          }
+        },
+        "counts": {
+          "orders": {
+            "n": 19
+          },
+          "payments": {
+            "n": 16
+          },
+          "credits": {
+            "n": 3
+          },
+          "creditPayments": {
+            "n": 1
+          },
+          "cashCloses": {
+            "n": 1
+          },
+          "sums": {
+            "cash_sales_all": 11000,
+            "cash_credit_all": 4000
+          }
+        },
+        "markerOrders": [
+          {
+            "id": "ord_e01763cdf1a44b1bb5b5",
+            "status": "confirmed",
+            "total": 8000,
+            "paid": 0,
+            "credit": 0,
+            "customer": null
+          },
+          {
+            "id": "ord_3264a2c3afeb47478f11",
+            "status": "paid",
+            "total": 5000,
+            "paid": 5000,
+            "credit": 0,
+            "customer": null
+          },
+          {
+            "id": "ord_91e5bd49c3d24d6d83b0",
+            "status": "confirmed",
+            "total": 9000,
+            "paid": 6000,
+            "credit": 3000,
+            "customer": "Cliente Mixto AUD-FC-111553"
+          },
+          {
+            "id": "ord_81cc6e31a1eb480189c9",
+            "status": "confirmed",
+            "total": 10000,
+            "paid": 0,
+            "credit": 10000,
+            "customer": "Cliente Fiado AUD-FC-111553"
+          }
+        ],
+        "payments": [
+          {
+            "id": "pay_78f0de8ea47a49f89985",
+            "order_id": "ord_91e5bd49c3d24d6d83b0",
+            "provider": "cash",
+            "method": "cash",
+            "amount_cents": 6000,
+            "status": "paid",
+            "transaction_id": null,
+            "demo": 1,
+            "created_at": "2026-11-04T17:16:09.310Z"
+          },
+          {
+            "id": "pay_e018fc7a654245ad89fd",
+            "order_id": "ord_3264a2c3afeb47478f11",
+            "provider": "cash",
+            "method": "cash",
+            "amount_cents": 5000,
+            "status": "paid",
+            "transaction_id": null,
+            "demo": 1,
+            "created_at": "2026-11-04T17:16:13.042Z"
+          }
+        ],
+        "credits": [
+          {
+            "id": "cred_e20b00d76d6d44adac2f",
+            "order_id": "ord_81cc6e31a1eb480189c9",
+            "original_cents": 10000,
+            "balance_cents": 6000,
+            "status": "partial",
+            "customer": "Cliente Fiado AUD-FC-111553"
+          },
+          {
+            "id": "cred_5af8176ecf8b450e8aa8",
+            "order_id": "ord_91e5bd49c3d24d6d83b0",
+            "original_cents": 3000,
+            "balance_cents": 3000,
+            "status": "open",
+            "customer": "Cliente Mixto AUD-FC-111553"
+          }
+        ],
+        "creditPayments": [
+          {
+            "id": "cp_244f9623bf9e4cfc9627",
+            "credit_id": "cred_e20b00d76d6d44adac2f",
+            "amount_cents": 4000,
+            "method": "cash",
+            "request_id": "cp-AUD-FC-111553-1"
+          }
+        ],
+        "file": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-t3-abono-replay.json"
+      }
+    },
+    {
+      "id": "T3-abono-total",
+      "response": {
+        "status": 200,
+        "body": {
+          "credit": {
+            "id": "cred_e20b00d76d6d44adac2f",
+            "customerId": "cus_d59beace135248cfadac",
+            "customerName": "Cliente Fiado AUD-FC-111553",
+            "orderId": "ord_81cc6e31a1eb480189c9",
+            "originalCents": 10000,
+            "balanceCents": 0,
+            "status": "settled",
+            "dueDate": null,
+            "createdAt": "2026-11-04T17:16:05.151Z"
+          },
+          "appliedCents": 6000,
+          "balanceCents": 0,
+          "overpayCents": 0,
+          "duplicate": false
+        }
+      },
+      "cashAfter": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 11000,
+        "cashCreditCents": 10000,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 71000,
+        "saved": null,
+        "history": []
+      },
+      "previewAfter": {
+        "status": 200,
+        "body": {
+          "status": {
+            "date": "2026-11-04",
+            "openingCents": 50000,
+            "cashSalesCents": 11000,
+            "cashCreditCents": 10000,
+            "expensesCents": 0,
+            "withdrawalsCents": 0,
+            "expectedCents": 71000,
+            "saved": null,
+            "history": []
+          },
+          "preview": {
+            "openingCents": 50000,
+            "expensesCents": 0,
+            "withdrawalsCents": 0,
+            "countedCents": 50000,
+            "baseNextCents": 50000,
+            "cashSalesCents": 11000,
+            "cashCreditCents": 10000,
+            "expectedCents": 71000,
+            "differenceCents": -21000,
+            "withdrawalNextCents": 0,
+            "fingerprint": "bb71aac223ac1e30"
+          },
+          "issues": []
+        }
+      },
+      "capture": {
+        "cash": {
+          "opening": 50000,
+          "cashSales": 11000,
+          "cashCredit": 10000,
+          "expected": 71000
+        },
+        "preview": {
+          "openingCents": 50000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "countedCents": 50000,
+          "baseNextCents": 50000,
+          "cashSalesCents": 11000,
+          "cashCreditCents": 10000,
+          "expectedCents": 71000,
+          "differenceCents": -21000,
+          "withdrawalNextCents": 0,
+          "fingerprint": "bb71aac223ac1e30"
+        },
+        "summary": {
+          "date": "2026-11-04",
+          "salesCents": 51000,
+          "verifiedDigitalCents": 0,
+          "declaredDigitalCents": 0,
+          "demoDigitalCents": 0,
+          "demoCashCents": 18000,
+          "cashCents": 10000,
+          "pendingCents": 20000,
+          "creditCents": 8000,
+          "demoCreditCents": 8000,
+          "orderCount": 6,
+          "paidOrderCount": 2,
+          "methods": {
+            "cash": 10000
+          }
+        },
+        "counts": {
+          "orders": {
+            "n": 19
+          },
+          "payments": {
+            "n": 16
+          },
+          "credits": {
+            "n": 3
+          },
+          "creditPayments": {
+            "n": 2
+          },
+          "cashCloses": {
+            "n": 1
+          },
+          "sums": {
+            "cash_sales_all": 11000,
+            "cash_credit_all": 10000
+          }
+        },
+        "markerOrders": [
+          {
+            "id": "ord_e01763cdf1a44b1bb5b5",
+            "status": "confirmed",
+            "total": 8000,
+            "paid": 0,
+            "credit": 0,
+            "customer": null
+          },
+          {
+            "id": "ord_3264a2c3afeb47478f11",
+            "status": "paid",
+            "total": 5000,
+            "paid": 5000,
+            "credit": 0,
+            "customer": null
+          },
+          {
+            "id": "ord_91e5bd49c3d24d6d83b0",
+            "status": "confirmed",
+            "total": 9000,
+            "paid": 6000,
+            "credit": 3000,
+            "customer": "Cliente Mixto AUD-FC-111553"
+          },
+          {
+            "id": "ord_81cc6e31a1eb480189c9",
+            "status": "confirmed",
+            "total": 10000,
+            "paid": 0,
+            "credit": 10000,
+            "customer": "Cliente Fiado AUD-FC-111553"
+          }
+        ],
+        "payments": [
+          {
+            "id": "pay_78f0de8ea47a49f89985",
+            "order_id": "ord_91e5bd49c3d24d6d83b0",
+            "provider": "cash",
+            "method": "cash",
+            "amount_cents": 6000,
+            "status": "paid",
+            "transaction_id": null,
+            "demo": 1,
+            "created_at": "2026-11-04T17:16:09.310Z"
+          },
+          {
+            "id": "pay_e018fc7a654245ad89fd",
+            "order_id": "ord_3264a2c3afeb47478f11",
+            "provider": "cash",
+            "method": "cash",
+            "amount_cents": 5000,
+            "status": "paid",
+            "transaction_id": null,
+            "demo": 1,
+            "created_at": "2026-11-04T17:16:13.042Z"
+          }
+        ],
+        "credits": [
+          {
+            "id": "cred_e20b00d76d6d44adac2f",
+            "order_id": "ord_81cc6e31a1eb480189c9",
+            "original_cents": 10000,
+            "balance_cents": 0,
+            "status": "settled",
+            "customer": "Cliente Fiado AUD-FC-111553"
+          },
+          {
+            "id": "cred_5af8176ecf8b450e8aa8",
+            "order_id": "ord_91e5bd49c3d24d6d83b0",
+            "original_cents": 3000,
+            "balance_cents": 3000,
+            "status": "open",
+            "customer": "Cliente Mixto AUD-FC-111553"
+          }
+        ],
+        "creditPayments": [
+          {
+            "id": "cp_244f9623bf9e4cfc9627",
+            "credit_id": "cred_e20b00d76d6d44adac2f",
+            "amount_cents": 4000,
+            "method": "cash",
+            "request_id": "cp-AUD-FC-111553-1"
+          },
+          {
+            "id": "cp_64e5a018d4f347d7957b",
+            "credit_id": "cred_e20b00d76d6d44adac2f",
+            "amount_cents": 6000,
+            "method": "cash",
+            "request_id": "cp-AUD-FC-111553-2"
+          }
+        ],
+        "file": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-t3-abono-total.json"
+      },
+      "ventas": {
+        "rowText": "DEMO\nPedido 89C9\n\nHoy 11:16 a.m. · Fiado · Cliente Fiado AUD-FC-111553\n\n1 × Venta fiado AUD-FC-111553\n\n$100.00\nDemo, no es dinero real\nFiado saldado $100.00\nVer conceptos",
+        "stats": "Ventas hoy\n\n$510.00\nIncluye ventas demo; no es dinero real\n\nCobrado confirmado\n\n$100.00\nSolo efectivo real y pagos verificados; demo no cuenta\n\nPor cobrar digital\n\n$200.00\nLinks y QR de todos los días. No incluye fiado.",
+        "pageNote": "El historial se lee de la misma base que Caja. Un pedido pendiente o fiado no es dinero recibido; solo se marca pagado con la confirmación válida del proveedor o con el efectivo registrado.",
+        "url": "http://127.0.0.1:3105/ventas",
+        "screenshot": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-ventas-Cliente_Fiado_AUD-FC-111553-1793812579.png"
+      },
+      "screenshot": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-ventas-Cliente_Fiado_AUD-FC-111553-1793812579.png",
+      "ordersTotalBefore": 19,
+      "ordersTotalAfter": 19
+    }
+  ],
+  "checks": [
+    {
+      "name": "T1 payload fiado: cashCents=0",
+      "ok": true,
+      "detail": {
+        "items": [
+          {
+            "description": "Venta fiado AUD-FC-111553",
+            "quantity": 1,
+            "unitPriceCents": 10000
+          }
+        ],
+        "cashCents": 0,
+        "creditCents": 10000,
+        "customerName": "Cliente Fiado AUD-FC-111553",
+        "requestId": "sale_03cd0aa6-66dc-4c49-a336-872dffc85890"
+      }
+    },
+    {
+      "name": "T1 payload fiado: creditCents=10000",
+      "ok": true,
+      "detail": {
+        "items": [
+          {
+            "description": "Venta fiado AUD-FC-111553",
+            "quantity": 1,
+            "unitPriceCents": 10000
+          }
+        ],
+        "cashCents": 0,
+        "creditCents": 10000,
+        "customerName": "Cliente Fiado AUD-FC-111553",
+        "requestId": "sale_03cd0aa6-66dc-4c49-a336-872dffc85890"
+      }
+    },
+    {
+      "name": "T1 order paidCents=0",
+      "ok": true,
+      "detail": {
+        "id": "ord_81cc6e31a1eb480189c9",
+        "merchantId": "lupita",
+        "status": "confirmed",
+        "totalCents": 10000,
+        "paidCents": 0,
+        "digitalPaidCents": 0,
+        "paymentMethod": null,
+        "lastPaymentProvider": null,
+        "lastPaymentDemo": false,
+        "customerName": "Cliente Fiado AUD-FC-111553",
+        "creditId": "cred_e20b00d76d6d44adac2f",
+        "creditCents": 10000,
+        "paymentLinkId": null,
+        "paymentUrl": null,
+        "qrId": null,
+        "qrString": null,
+        "qrImage": null,
+        "numRef": null,
+        "createdAt": "2026-11-04T17:16:05.151Z",
+        "updatedAt": "2026-11-04T17:16:05.157Z",
+        "items": [
+          {
+            "id": "itm_f006101249144ce199e1",
+            "description": "Venta fiado AUD-FC-111553",
+            "quantity": 1,
+            "unitPriceCents": 10000,
+            "totalCents": 10000
+          }
+        ]
+      }
+    },
+    {
+      "name": "T1 order creditCents=10000",
+      "ok": true,
+      "detail": {
+        "id": "ord_81cc6e31a1eb480189c9",
+        "merchantId": "lupita",
+        "status": "confirmed",
+        "totalCents": 10000,
+        "paidCents": 0,
+        "digitalPaidCents": 0,
+        "paymentMethod": null,
+        "lastPaymentProvider": null,
+        "lastPaymentDemo": false,
+        "customerName": "Cliente Fiado AUD-FC-111553",
+        "creditId": "cred_e20b00d76d6d44adac2f",
+        "creditCents": 10000,
+        "paymentLinkId": null,
+        "paymentUrl": null,
+        "qrId": null,
+        "qrString": null,
+        "qrImage": null,
+        "numRef": null,
+        "createdAt": "2026-11-04T17:16:05.151Z",
+        "updatedAt": "2026-11-04T17:16:05.157Z",
+        "items": [
+          {
+            "id": "itm_f006101249144ce199e1",
+            "description": "Venta fiado AUD-FC-111553",
+            "quantity": 1,
+            "unitPriceCents": 10000,
+            "totalCents": 10000
+          }
+        ]
+      }
+    },
+    {
+      "name": "T1 order status=confirmed",
+      "ok": true,
+      "detail": {
+        "id": "ord_81cc6e31a1eb480189c9",
+        "merchantId": "lupita",
+        "status": "confirmed",
+        "totalCents": 10000,
+        "paidCents": 0,
+        "digitalPaidCents": 0,
+        "paymentMethod": null,
+        "lastPaymentProvider": null,
+        "lastPaymentDemo": false,
+        "customerName": "Cliente Fiado AUD-FC-111553",
+        "creditId": "cred_e20b00d76d6d44adac2f",
+        "creditCents": 10000,
+        "paymentLinkId": null,
+        "paymentUrl": null,
+        "qrId": null,
+        "qrString": null,
+        "qrImage": null,
+        "numRef": null,
+        "createdAt": "2026-11-04T17:16:05.151Z",
+        "updatedAt": "2026-11-04T17:16:05.157Z",
+        "items": [
+          {
+            "id": "itm_f006101249144ce199e1",
+            "description": "Venta fiado AUD-FC-111553",
+            "quantity": 1,
+            "unitPriceCents": 10000,
+            "totalCents": 10000
+          }
+        ]
+      }
+    },
+    {
+      "name": "T1 corte cashSales sin cambio",
+      "ok": true,
+      "detail": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 0,
+        "cashCreditCents": 0,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 50000,
+        "saved": null,
+        "history": []
+      }
+    },
+    {
+      "name": "T1 corte cashCredit sin cambio",
+      "ok": true,
+      "detail": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 0,
+        "cashCreditCents": 0,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 50000,
+        "saved": null,
+        "history": []
+      }
+    },
+    {
+      "name": "T1 preview cashSales/cashCredit iguales a /api/cash",
+      "ok": true,
+      "detail": {
+        "status": {
+          "date": "2026-11-04",
+          "openingCents": 50000,
+          "cashSalesCents": 0,
+          "cashCreditCents": 0,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "expectedCents": 50000,
+          "saved": null,
+          "history": []
+        },
+        "preview": {
+          "openingCents": 50000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "countedCents": 50000,
+          "baseNextCents": 50000,
+          "cashSalesCents": 0,
+          "cashCreditCents": 0,
+          "expectedCents": 50000,
+          "differenceCents": 0,
+          "withdrawalNextCents": 0,
+          "fingerprint": "7cfc08e9d4a576e5"
+        },
+        "issues": []
+      }
+    },
+    {
+      "name": "T1 DB: 0 payments de la venta fiado",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "T1 DB: crÃ©dito original=balance=10000",
+      "ok": true,
+      "detail": [
+        {
+          "id": "cred_e20b00d76d6d44adac2f",
+          "order_id": "ord_81cc6e31a1eb480189c9",
+          "original_cents": 10000,
+          "balance_cents": 10000,
+          "status": "open",
+          "customer": "Cliente Fiado AUD-FC-111553"
+        }
+      ]
+    },
+    {
+      "name": "T1 UI resultado no dice cobrado",
+      "ok": true,
+      "detail": "Venta registrada con fiado"
+    },
+    {
+      "name": "T1 UI muestra saldo vivo fiado 100.00",
+      "ok": true,
+      "detail": "PEDIDO\n89C9\nESTADO\nRegistrado\nSALDO VIVO FIADO\n$100.00 · Cliente Fiado AUD-FC-111553"
+    },
+    {
+      "name": "T2 payload mixto: cashCents=6000 (no 10000)",
+      "ok": true,
+      "detail": {
+        "items": [
+          {
+            "description": "Venta mixta AUD-FC-111553",
+            "quantity": 1,
+            "unitPriceCents": 9000
+          }
+        ],
+        "cashCents": 6000,
+        "creditCents": 3000,
+        "customerName": "Cliente Mixto AUD-FC-111553",
+        "requestId": "sale_c4fcc7a6-94c0-4a36-bd9f-6da26418160a"
+      }
+    },
+    {
+      "name": "T2 payload mixto: creditCents=3000",
+      "ok": true,
+      "detail": {
+        "items": [
+          {
+            "description": "Venta mixta AUD-FC-111553",
+            "quantity": 1,
+            "unitPriceCents": 9000
+          }
+        ],
+        "cashCents": 6000,
+        "creditCents": 3000,
+        "customerName": "Cliente Mixto AUD-FC-111553",
+        "requestId": "sale_c4fcc7a6-94c0-4a36-bd9f-6da26418160a"
+      }
+    },
+    {
+      "name": "T2 order paidCents=6000 y creditCents=3000",
+      "ok": true,
+      "detail": {
+        "id": "ord_91e5bd49c3d24d6d83b0",
+        "merchantId": "lupita",
+        "status": "confirmed",
+        "totalCents": 9000,
+        "paidCents": 6000,
+        "digitalPaidCents": 0,
+        "paymentMethod": "cash",
+        "lastPaymentProvider": "cash",
+        "lastPaymentDemo": false,
+        "customerName": "Cliente Mixto AUD-FC-111553",
+        "creditId": "cred_5af8176ecf8b450e8aa8",
+        "creditCents": 3000,
+        "paymentLinkId": null,
+        "paymentUrl": null,
+        "qrId": null,
+        "qrString": null,
+        "qrImage": null,
+        "numRef": null,
+        "createdAt": "2026-11-04T17:16:09.310Z",
+        "updatedAt": "2026-11-04T17:16:09.320Z",
+        "items": [
+          {
+            "id": "itm_ae14ad72710a48d49db2",
+            "description": "Venta mixta AUD-FC-111553",
+            "quantity": 1,
+            "unitPriceCents": 9000,
+            "totalCents": 9000
+          }
+        ]
+      }
+    },
+    {
+      "name": "T2 UI muestra cambio 40.00",
+      "ok": true,
+      "detail": "PEDIDO\n83B0\nESTADO\nDemo (simulado)\nRECIBISTE\n$100.00\nEFECTIVO APLICADO\n$60.00\nSALDO VIVO FIADO\n$30.00 · Cliente Mixto AUD-FC-111553\nCAMBIO\n$40.00"
+    },
+    {
+      "name": "T2 UI separa recibido 100.00 y efectivo aplicado 60.00",
+      "ok": true,
+      "detail": "PEDIDO\n83B0\nESTADO\nDemo (simulado)\nRECIBISTE\n$100.00\nEFECTIVO APLICADO\n$60.00\nSALDO VIVO FIADO\n$30.00 · Cliente Mixto AUD-FC-111553\nCAMBIO\n$40.00"
+    },
+    {
+      "name": "T2 UI saldo vivo fiado 30.00",
+      "ok": true,
+      "detail": "PEDIDO\n83B0\nESTADO\nDemo (simulado)\nRECIBISTE\n$100.00\nEFECTIVO APLICADO\n$60.00\nSALDO VIVO FIADO\n$30.00 · Cliente Mixto AUD-FC-111553\nCAMBIO\n$40.00"
+    },
+    {
+      "name": "T2 DB: exactamente 1 payment cash de 6000 para la venta mixta",
+      "ok": true,
+      "detail": [
+        {
+          "id": "pay_78f0de8ea47a49f89985",
+          "order_id": "ord_91e5bd49c3d24d6d83b0",
+          "provider": "cash",
+          "method": "cash",
+          "amount_cents": 6000,
+          "status": "paid",
+          "transaction_id": null,
+          "demo": 1,
+          "created_at": "2026-11-04T17:16:09.310Z"
+        }
+      ]
+    },
+    {
+      "name": "T2 DB: ningÃºn asiento por el cambio 4000",
+      "ok": true,
+      "detail": [
+        {
+          "id": "pay_78f0de8ea47a49f89985",
+          "order_id": "ord_91e5bd49c3d24d6d83b0",
+          "provider": "cash",
+          "method": "cash",
+          "amount_cents": 6000,
+          "status": "paid",
+          "transaction_id": null,
+          "demo": 1,
+          "created_at": "2026-11-04T17:16:09.310Z"
+        }
+      ]
+    },
+    {
+      "name": "T2 DB: crÃ©dito 3000 open",
+      "ok": true,
+      "detail": [
+        {
+          "id": "cred_e20b00d76d6d44adac2f",
+          "order_id": "ord_81cc6e31a1eb480189c9",
+          "original_cents": 10000,
+          "balance_cents": 10000,
+          "status": "open",
+          "customer": "Cliente Fiado AUD-FC-111553"
+        },
+        {
+          "id": "cred_5af8176ecf8b450e8aa8",
+          "order_id": "ord_91e5bd49c3d24d6d83b0",
+          "original_cents": 3000,
+          "balance_cents": 3000,
+          "status": "open",
+          "customer": "Cliente Mixto AUD-FC-111553"
+        }
+      ]
+    },
+    {
+      "name": "T2 corte cashSales +6000",
+      "ok": true,
+      "detail": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 6000,
+        "cashCreditCents": 0,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 56000,
+        "saved": null,
+        "history": []
+      }
+    },
+    {
+      "name": "T2 corte cashCredit sin cambio",
+      "ok": true,
+      "detail": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 6000,
+        "cashCreditCents": 0,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 56000,
+        "saved": null,
+        "history": []
+      }
+    },
+    {
+      "name": "T4 efectivo: corte cashSales +5000 sobre el paso anterior",
+      "ok": true,
+      "detail": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 11000,
+        "cashCreditCents": 0,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 61000,
+        "saved": null,
+        "history": []
+      }
+    },
+    {
+      "name": "T4 efectivo: cashCredit sin cambio",
+      "ok": true,
+      "detail": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 11000,
+        "cashCreditCents": 0,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 61000,
+        "saved": null,
+        "history": []
+      }
+    },
+    {
+      "name": "T4 efectivo: preview coincide con /api/cash",
+      "ok": true,
+      "detail": {
+        "status": {
+          "date": "2026-11-04",
+          "openingCents": 50000,
+          "cashSalesCents": 11000,
+          "cashCreditCents": 0,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "expectedCents": 61000,
+          "saved": null,
+          "history": []
+        },
+        "preview": {
+          "openingCents": 50000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "countedCents": 50000,
+          "baseNextCents": 50000,
+          "cashSalesCents": 11000,
+          "cashCreditCents": 0,
+          "expectedCents": 61000,
+          "differenceCents": -11000,
+          "withdrawalNextCents": 0,
+          "fingerprint": "0625dcf0006dc996"
+        },
+        "issues": []
+      }
+    },
+    {
+      "name": "T4 digital: no crea payments",
+      "ok": true,
+      "detail": [
+        {
+          "id": "pay_78f0de8ea47a49f89985",
+          "order_id": "ord_91e5bd49c3d24d6d83b0",
+          "provider": "cash",
+          "method": "cash",
+          "amount_cents": 6000,
+          "status": "paid",
+          "transaction_id": null,
+          "demo": 1,
+          "created_at": "2026-11-04T17:16:09.310Z"
+        },
+        {
+          "id": "pay_e018fc7a654245ad89fd",
+          "order_id": "ord_3264a2c3afeb47478f11",
+          "provider": "cash",
+          "method": "cash",
+          "amount_cents": 5000,
+          "status": "paid",
+          "transaction_id": null,
+          "demo": 1,
+          "created_at": "2026-11-04T17:16:13.042Z"
+        }
+      ]
+    },
+    {
+      "name": "T4 digital: corte sin cambio",
+      "ok": true,
+      "detail": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 11000,
+        "cashCreditCents": 0,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 61000,
+        "saved": null,
+        "history": []
+      }
+    },
+    {
+      "name": "T4 digital: pendiente del resumen +8000",
+      "ok": true,
+      "detail": {
+        "before": 12000,
+        "after": 20000
+      }
+    },
+    {
+      "name": "T3 abono parcial HTTP 200",
+      "ok": true,
+      "detail": {
+        "status": 200,
+        "body": {
+          "credit": {
+            "id": "cred_e20b00d76d6d44adac2f",
+            "customerId": "cus_d59beace135248cfadac",
+            "customerName": "Cliente Fiado AUD-FC-111553",
+            "orderId": "ord_81cc6e31a1eb480189c9",
+            "originalCents": 10000,
+            "balanceCents": 6000,
+            "status": "partial",
+            "dueDate": null,
+            "createdAt": "2026-11-04T17:16:05.151Z"
+          },
+          "appliedCents": 4000,
+          "balanceCents": 6000,
+          "overpayCents": 0,
+          "duplicate": false
+        }
+      }
+    },
+    {
+      "name": "T3 abono aplicado 4000 y saldo 6000",
+      "ok": true,
+      "detail": {
+        "credit": {
+          "id": "cred_e20b00d76d6d44adac2f",
+          "customerId": "cus_d59beace135248cfadac",
+          "customerName": "Cliente Fiado AUD-FC-111553",
+          "orderId": "ord_81cc6e31a1eb480189c9",
+          "originalCents": 10000,
+          "balanceCents": 6000,
+          "status": "partial",
+          "dueDate": null,
+          "createdAt": "2026-11-04T17:16:05.151Z"
+        },
+        "appliedCents": 4000,
+        "balanceCents": 6000,
+        "overpayCents": 0,
+        "duplicate": false
+      }
+    },
+    {
+      "name": "T3 abono no crea venta nueva",
+      "ok": true,
+      "detail": {
+        "before": 19,
+        "after": 19
+      }
+    },
+    {
+      "name": "T3 DB: balance 6000 y status partial; order.credit_cents sigue 10000",
+      "ok": true,
+      "detail": {
+        "credit": [
+          {
+            "id": "cred_e20b00d76d6d44adac2f",
+            "order_id": "ord_81cc6e31a1eb480189c9",
+            "original_cents": 10000,
+            "balance_cents": 6000,
+            "status": "partial",
+            "customer": "Cliente Fiado AUD-FC-111553"
+          }
+        ],
+        "orderCreditCents": 10000
+      }
+    },
+    {
+      "name": "T3 corte cashCredit +4000 y cashSales sin cambio",
+      "ok": true,
+      "detail": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 11000,
+        "cashCreditCents": 4000,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 65000,
+        "saved": null,
+        "history": []
+      }
+    },
+    {
+      "name": "T3 preview cashCredit coincide con /api/cash",
+      "ok": true,
+      "detail": {
+        "status": {
+          "date": "2026-11-04",
+          "openingCents": 50000,
+          "cashSalesCents": 11000,
+          "cashCreditCents": 4000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "expectedCents": 65000,
+          "saved": null,
+          "history": []
+        },
+        "preview": {
+          "openingCents": 50000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "countedCents": 50000,
+          "baseNextCents": 50000,
+          "cashSalesCents": 11000,
+          "cashCreditCents": 4000,
+          "expectedCents": 65000,
+          "differenceCents": -15000,
+          "withdrawalNextCents": 0,
+          "fingerprint": "2b2c618ca52fbd7d"
+        },
+        "issues": []
+      }
+    },
+    {
+      "name": "T3 /ventas muestra Saldo vivo 60.00",
+      "ok": true,
+      "detail": "DEMO\nPedido 89C9\n\nHoy 11:16 a.m. · Fiado · Cliente Fiado AUD-FC-111553\n\n1 × Venta fiado AUD-FC-111553\n\n$100.00\nDemo, no es dinero real\nSaldo vivo $60.00\nVer conceptos"
+    },
+    {
+      "name": "T3 replay: duplicate=true, applied=4000, saldo=6000",
+      "ok": true,
+      "detail": {
+        "credit": {
+          "id": "cred_e20b00d76d6d44adac2f",
+          "customerId": "cus_d59beace135248cfadac",
+          "customerName": "Cliente Fiado AUD-FC-111553",
+          "orderId": "ord_81cc6e31a1eb480189c9",
+          "originalCents": 10000,
+          "balanceCents": 6000,
+          "status": "partial",
+          "dueDate": null,
+          "createdAt": "2026-11-04T17:16:05.151Z"
+        },
+        "appliedCents": 4000,
+        "balanceCents": 6000,
+        "overpayCents": 0,
+        "duplicate": true
+      }
+    },
+    {
+      "name": "T3 replay: no inserta segundo credit_payment",
+      "ok": true,
+      "detail": [
+        {
+          "id": "cp_244f9623bf9e4cfc9627",
+          "credit_id": "cred_e20b00d76d6d44adac2f",
+          "amount_cents": 4000,
+          "method": "cash",
+          "request_id": "cp-AUD-FC-111553-1"
+        }
+      ]
+    },
+    {
+      "name": "T3 replay: corte sin cambio",
+      "ok": true,
+      "detail": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 11000,
+        "cashCreditCents": 4000,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 65000,
+        "saved": null,
+        "history": []
+      }
+    },
+    {
+      "name": "T3 abono total: aplicado 6000 y saldo 0",
+      "ok": true,
+      "detail": {
+        "credit": {
+          "id": "cred_e20b00d76d6d44adac2f",
+          "customerId": "cus_d59beace135248cfadac",
+          "customerName": "Cliente Fiado AUD-FC-111553",
+          "orderId": "ord_81cc6e31a1eb480189c9",
+          "originalCents": 10000,
+          "balanceCents": 0,
+          "status": "settled",
+          "dueDate": null,
+          "createdAt": "2026-11-04T17:16:05.151Z"
+        },
+        "appliedCents": 6000,
+        "balanceCents": 0,
+        "overpayCents": 0,
+        "duplicate": false
+      }
+    },
+    {
+      "name": "T3 abono total no crea venta nueva",
+      "ok": true,
+      "detail": {
+        "before": 19,
+        "after": 19
+      }
+    },
+    {
+      "name": "T3 DB: crÃ©dito settled, balance 0; order.credit_cents sigue 10000",
+      "ok": true,
+      "detail": {
+        "credit": [
+          {
+            "id": "cred_e20b00d76d6d44adac2f",
+            "order_id": "ord_81cc6e31a1eb480189c9",
+            "original_cents": 10000,
+            "balance_cents": 0,
+            "status": "settled",
+            "customer": "Cliente Fiado AUD-FC-111553"
+          }
+        ],
+        "orderCreditCents": 10000
+      }
+    },
+    {
+      "name": "T3 corte cashCredit +6000 sobre parcial",
+      "ok": true,
+      "detail": {
+        "date": "2026-11-04",
+        "openingCents": 50000,
+        "cashSalesCents": 11000,
+        "cashCreditCents": 10000,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "expectedCents": 71000,
+        "saved": null,
+        "history": []
+      }
+    },
+    {
+      "name": "T3 preview coincide con /api/cash tras liquidar",
+      "ok": true,
+      "detail": {
+        "status": {
+          "date": "2026-11-04",
+          "openingCents": 50000,
+          "cashSalesCents": 11000,
+          "cashCreditCents": 10000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "expectedCents": 71000,
+          "saved": null,
+          "history": []
+        },
+        "preview": {
+          "openingCents": 50000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "countedCents": 50000,
+          "baseNextCents": 50000,
+          "cashSalesCents": 11000,
+          "cashCreditCents": 10000,
+          "expectedCents": 71000,
+          "differenceCents": -21000,
+          "withdrawalNextCents": 0,
+          "fingerprint": "bb71aac223ac1e30"
+        },
+        "issues": []
+      }
+    },
+    {
+      "name": "T3 /ventas muestra Fiado saldado y ya no Saldo vivo",
+      "ok": true,
+      "detail": "DEMO\nPedido 89C9\n\nHoy 11:16 a.m. · Fiado · Cliente Fiado AUD-FC-111553\n\n1 × Venta fiado AUD-FC-111553\n\n$100.00\nDemo, no es dinero real\nFiado saldado $100.00\nVer conceptos"
+    },
+    {
+      "name": "Ventas mixto: Saldo vivo 30.00 visible",
+      "ok": true,
+      "detail": "DEMO\nPedido 83B0\n\nHoy 11:16 a.m. · Efectivo + fiado · Cliente Mixto AUD-FC-111553\n\n1 × Venta mixta AUD-FC-111553\n\n$90.00\nDemo, no es dinero real\nSaldo vivo $30.00\nVer conceptos"
+    },
+    {
+      "name": "Ventas digital: Falta cobrar 80.00 visible",
+      "ok": true,
+      "detail": "DEMO\nPedido B5B5\n\nHoy 11:16 a.m. · Digital\n\n1 × Venta digital AUD-FC-111553\n\n$80.00\nDemo, no es dinero real\nFalta cobrar $80.00\nVer conceptos"
+    },
+    {
+      "name": "Ventas fiado final: Fiado saldado y sin Saldo vivo",
+      "ok": true,
+      "detail": "DEMO\nPedido 89C9\n\nHoy 11:16 a.m. · Fiado · Cliente Fiado AUD-FC-111553\n\n1 × Venta fiado AUD-FC-111553\n\n$100.00\nDemo, no es dinero real\nFiado saldado $100.00\nVer conceptos"
+    },
+    {
+      "name": "Consola sin pageerror",
+      "ok": true,
+      "detail": [
+        "error: Connecting to 'http://localhost:3105/?tab=fiado' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=corte' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=meta' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=pendientes' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "warning: The resource http://127.0.0.1:3105/_next/static/chunks/22p6etjwk27op.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+        "warning: The resource http://127.0.0.1:3105/_next/static/chunks/22p6etjwk27op.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+        "warning: The resource http://127.0.0.1:3105/_next/static/chunks/22p6etjwk27op.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+        "error: Connecting to 'http://localhost:3105/?tab=fiado' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=corte' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=meta' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=pendientes' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=fiado' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=corte' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=meta' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=pendientes' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=fiado' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=corte' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=meta' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=pendientes' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=fiado' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=corte' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=meta' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=pendientes' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=fiado' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=corte' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=meta' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+        "error: Connecting to 'http://localhost:3105/?tab=pendientes' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked."
+      ]
+    }
+  ],
+  "baseline": {
+    "cash": {
+      "date": "2026-11-04",
+      "openingCents": 50000,
+      "cashSalesCents": 0,
+      "cashCreditCents": 0,
+      "expensesCents": 0,
+      "withdrawalsCents": 0,
+      "expectedCents": 50000,
+      "saved": null,
+      "history": []
+    },
+    "preview": {
+      "status": 200,
+      "body": {
+        "status": {
+          "date": "2026-11-04",
+          "openingCents": 50000,
+          "cashSalesCents": 0,
+          "cashCreditCents": 0,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "expectedCents": 50000,
+          "saved": null,
+          "history": []
+        },
+        "preview": {
+          "openingCents": 50000,
+          "expensesCents": 0,
+          "withdrawalsCents": 0,
+          "countedCents": 50000,
+          "baseNextCents": 50000,
+          "cashSalesCents": 0,
+          "cashCreditCents": 0,
+          "expectedCents": 50000,
+          "differenceCents": 0,
+          "withdrawalNextCents": 0,
+          "fingerprint": "7cfc08e9d4a576e5"
+        },
+        "issues": []
+      }
+    },
+    "summary": {
+      "date": "2026-11-04",
+      "salesCents": 19000,
+      "verifiedDigitalCents": 0,
+      "declaredDigitalCents": 0,
+      "demoDigitalCents": 0,
+      "demoCashCents": 7000,
+      "cashCents": 0,
+      "pendingCents": 12000,
+      "creditCents": 5000,
+      "demoCreditCents": 5000,
+      "orderCount": 2,
+      "paidOrderCount": 1,
+      "methods": {}
+    },
+    "capture": {
+      "cash": {
+        "opening": 50000,
+        "cashSales": 0,
+        "cashCredit": 0,
+        "expected": 50000
+      },
+      "preview": {
+        "openingCents": 50000,
+        "expensesCents": 0,
+        "withdrawalsCents": 0,
+        "countedCents": 50000,
+        "baseNextCents": 50000,
+        "cashSalesCents": 0,
+        "cashCreditCents": 0,
+        "expectedCents": 50000,
+        "differenceCents": 0,
+        "withdrawalNextCents": 0,
+        "fingerprint": "7cfc08e9d4a576e5"
+      },
+      "summary": {
+        "date": "2026-11-04",
+        "salesCents": 19000,
+        "verifiedDigitalCents": 0,
+        "declaredDigitalCents": 0,
+        "demoDigitalCents": 0,
+        "demoCashCents": 7000,
+        "cashCents": 0,
+        "pendingCents": 12000,
+        "creditCents": 5000,
+        "demoCreditCents": 5000,
+        "orderCount": 2,
+        "paidOrderCount": 1,
+        "methods": {}
+      },
+      "counts": {
+        "orders": {
+          "n": 15
+        },
+        "payments": {
+          "n": 14
+        },
+        "credits": {
+          "n": 1
+        },
+        "creditPayments": {
+          "n": 0
+        },
+        "cashCloses": {
+          "n": 1
+        },
+        "sums": {
+          "cash_sales_all": 0,
+          "cash_credit_all": 0
+        }
+      },
+      "markerOrders": [],
+      "payments": [],
+      "credits": [],
+      "creditPayments": [],
+      "file": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-baseline.json"
+    }
+  },
+  "ventasFinal": {
+    "mixto": {
+      "rowText": "DEMO\nPedido 83B0\n\nHoy 11:16 a.m. · Efectivo + fiado · Cliente Mixto AUD-FC-111553\n\n1 × Venta mixta AUD-FC-111553\n\n$90.00\nDemo, no es dinero real\nSaldo vivo $30.00\nVer conceptos",
+      "stats": "Ventas hoy\n\n$510.00\nIncluye ventas demo; no es dinero real\n\nCobrado confirmado\n\n$100.00\nSolo efectivo real y pagos verificados; demo no cuenta\n\nPor cobrar digital\n\n$200.00\nLinks y QR de todos los días. No incluye fiado.",
+      "pageNote": "El historial se lee de la misma base que Caja. Un pedido pendiente o fiado no es dinero recibido; solo se marca pagado con la confirmación válida del proveedor o con el efectivo registrado.",
+      "url": "http://127.0.0.1:3105/ventas",
+      "screenshot": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-ventas-Cliente_Mixto_AUD-FC-111553-1793812580.png"
+    },
+    "digital": {
+      "rowText": "DEMO\nPedido B5B5\n\nHoy 11:16 a.m. · Digital\n\n1 × Venta digital AUD-FC-111553\n\n$80.00\nDemo, no es dinero real\nFalta cobrar $80.00\nVer conceptos",
+      "stats": "Ventas hoy\n\n$510.00\nIncluye ventas demo; no es dinero real\n\nCobrado confirmado\n\n$100.00\nSolo efectivo real y pagos verificados; demo no cuenta\n\nPor cobrar digital\n\n$200.00\nLinks y QR de todos los días. No incluye fiado.",
+      "pageNote": "El historial se lee de la misma base que Caja. Un pedido pendiente o fiado no es dinero recibido; solo se marca pagado con la confirmación válida del proveedor o con el efectivo registrado.",
+      "url": "http://127.0.0.1:3105/ventas",
+      "screenshot": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-ventas-Venta_digital_AUD-FC-111553-1793812580.png"
+    },
+    "fiadoFinal": {
+      "rowText": "DEMO\nPedido 89C9\n\nHoy 11:16 a.m. · Fiado · Cliente Fiado AUD-FC-111553\n\n1 × Venta fiado AUD-FC-111553\n\n$100.00\nDemo, no es dinero real\nFiado saldado $100.00\nVer conceptos",
+      "stats": "Ventas hoy\n\n$510.00\nIncluye ventas demo; no es dinero real\n\nCobrado confirmado\n\n$100.00\nSolo efectivo real y pagos verificados; demo no cuenta\n\nPor cobrar digital\n\n$200.00\nLinks y QR de todos los días. No incluye fiado.",
+      "pageNote": "El historial se lee de la misma base que Caja. Un pedido pendiente o fiado no es dinero recibido; solo se marca pagado con la confirmación válida del proveedor o con el efectivo registrado.",
+      "url": "http://127.0.0.1:3105/ventas",
+      "screenshot": "C:/Users/Elitebook 840 G8/Documents/Default Project/mercado-cero/quality-reports/oleada-b-review/EVIDENCIAS/fiado-corte-mcfc-ventas-Cliente_Fiado_AUD-FC-111553-1793812581.png"
+    }
+  },
+  "ventasDemoMasking": {
+    "mixedHasCobrado": false,
+    "digitalHasPendiente": false,
+    "fiadoHasSaldadoBadge": false
+  },
+  "console": [
+    "error: Connecting to 'http://localhost:3105/?tab=fiado' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=corte' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=meta' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=pendientes' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "warning: The resource http://127.0.0.1:3105/_next/static/chunks/22p6etjwk27op.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+    "warning: The resource http://127.0.0.1:3105/_next/static/chunks/22p6etjwk27op.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+    "warning: The resource http://127.0.0.1:3105/_next/static/chunks/22p6etjwk27op.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
+    "error: Connecting to 'http://localhost:3105/?tab=fiado' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=corte' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=meta' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=pendientes' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=fiado' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=corte' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=meta' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=pendientes' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=fiado' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=corte' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=meta' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=pendientes' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=fiado' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=corte' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=meta' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=pendientes' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=fiado' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=corte' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=meta' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Connecting to 'http://localhost:3105/?tab=pendientes' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked."
+  ],
+  "finishedAt": "2026-11-04T11:16:21.822498",
+  "checksSummary": {
+    "total": 49,
+    "pass": 49,
+    "fail": 0
+  }
+}

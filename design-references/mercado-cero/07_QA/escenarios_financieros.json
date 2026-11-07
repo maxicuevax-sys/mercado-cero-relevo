@@ -1,0 +1,174 @@
+{
+  "notice": "Casos de diseño; deben implementarse en tests del repositorio real, no prueba automática de backend.",
+  "cases": [
+    {
+      "id": "FIN-01",
+      "name": "Venta efectivo y cambio",
+      "given": {
+        "venta_minor": 7000,
+        "entregado_minor": 10000
+      },
+      "expected": {
+        "venta_nueva_minor": 7000,
+        "efectivo_neto_minor": 7000,
+        "cambio_minor": 3000,
+        "por_cobrar_minor": 0
+      }
+    },
+    {
+      "id": "FIN-02",
+      "name": "Venta a fiado",
+      "given": {
+        "venta_minor": 12000,
+        "metodo": "fiado"
+      },
+      "expected": {
+        "venta_nueva_minor": 12000,
+        "cobrado_minor": 0,
+        "fiado_aumenta_minor": 12000
+      }
+    },
+    {
+      "id": "FIN-03",
+      "name": "Abono de fiado histórico",
+      "given": {
+        "saldo_anterior_minor": 12000,
+        "abono_efectivo_minor": 5000
+      },
+      "expected": {
+        "venta_nueva_minor": 0,
+        "cobro_efectivo_minor": 5000,
+        "saldo_restante_minor": 7000
+      }
+    },
+    {
+      "id": "FIN-04",
+      "name": "QR generado sin banco confirmado",
+      "given": {
+        "venta_minor": 9000,
+        "estado": "payment_requested"
+      },
+      "expected": {
+        "digital_verificado_minor": 0,
+        "estado_visible": "Pendiente de confirmación"
+      }
+    },
+    {
+      "id": "FIN-05",
+      "name": "Webhook duplicado",
+      "given": {
+        "evento_id": "test_abc",
+        "repeticiones": 2,
+        "importe_minor": 9000
+      },
+      "expected": {
+        "efectos_registro": 1,
+        "digital_verificado_minor": 9000
+      }
+    },
+    {
+      "id": "FIN-06",
+      "name": "QR expirado",
+      "given": {
+        "estado": "expired",
+        "importe_minor": 9000
+      },
+      "expected": {
+        "digital_verificado_minor": 0,
+        "estado_visible": "Expirado"
+      }
+    },
+    {
+      "id": "FIN-07",
+      "name": "Sin internet QR",
+      "given": {
+        "network": "offline",
+        "metodo": "digital"
+      },
+      "expected": {
+        "verificacion_bancaria": false,
+        "texto_estado": "Sin verificación bancaria"
+      }
+    },
+    {
+      "id": "FIN-08",
+      "name": "Cierre con contado menor",
+      "given": {
+        "esperado_minor": 200000,
+        "contado_minor": 196000
+      },
+      "expected": {
+        "diferencia_minor": -4000,
+        "texto": "Faltan $40.00"
+      }
+    },
+    {
+      "id": "FIN-09",
+      "name": "Efectivo inicial + ventas - retiros",
+      "given": {
+        "apertura_minor": 50000,
+        "ventas_efectivo_minor": 90000,
+        "retiro_minor": 20000
+      },
+      "expected": {
+        "efectivo_esperado_minor": 120000
+      }
+    },
+    {
+      "id": "FIN-10",
+      "name": "Meta virtual",
+      "given": {
+        "ahorro_virtual_minor": 100000
+      },
+      "expected": {
+        "saldo_banco_implicito_minor": 0,
+        "texto": "Apartado en tu registro"
+      }
+    },
+    {
+      "id": "FIN-11",
+      "name": "Venta de práctica",
+      "given": {
+        "modo": "practice",
+        "venta_minor": 20000
+      },
+      "expected": {
+        "impacto_libro_real_minor": 0
+      }
+    },
+    {
+      "id": "FIN-12",
+      "name": "Reintento al guardar una venta",
+      "given": {
+        "request_id": "test_idempotency",
+        "repeticiones": 3,
+        "venta_minor": 15000
+      },
+      "expected": {
+        "ventas_creadas": 1,
+        "total_minor": 15000
+      }
+    },
+    {
+      "id": "A11Y-01",
+      "name": "Modo sin IA",
+      "given": {
+        "assistant_enabled": false,
+        "microphone_allowed": false
+      },
+      "expected": {
+        "venta_manual_posible": true
+      }
+    },
+    {
+      "id": "A11Y-02",
+      "name": "Escala de fuente",
+      "given": {
+        "zoom_percent": 200
+      },
+      "expected": {
+        "horizontal_scroll_critical_flow": false
+      }
+    }
+  ]
+}

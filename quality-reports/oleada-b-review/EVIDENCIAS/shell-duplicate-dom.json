@@ -1,0 +1,104 @@
+{
+  "shells": [
+    {
+      "idx": 0,
+      "id": "caja-main",
+      "chain": [
+        {
+          "tag": "DIV",
+          "cls": "inicio-shell",
+          "display": "grid",
+          "visibility": "visible",
+          "opacity": "1",
+          "hidden": false,
+          "inert": false,
+          "ariaHidden": null,
+          "rect": [
+            0,
+            0,
+            1448,
+            1086
+          ]
+        },
+        {
+          "tag": "BODY",
+          "cls": "min-h-full",
+          "display": "block",
+          "visibility": "visible",
+          "opacity": "1",
+          "hidden": false,
+          "inert": false,
+          "ariaHidden": null,
+          "rect": [
+            0,
+            0,
+            1448,
+            1086
+          ]
+        }
+      ]
+    },
+    {
+      "idx": 1,
+      "id": "inicio-main",
+      "chain": [
+        {
+          "tag": "DIV",
+          "cls": "inicio-shell",
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "hidden": false,
+          "inert": false,
+          "ariaHidden": null,
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "BODY",
+          "cls": "min-h-full",
+          "display": "block",
+          "visibility": "visible",
+          "opacity": "1",
+          "hidden": false,
+          "inert": false,
+          "ariaHidden": null,
+          "rect": [
+            0,
+            0,
+            1448,
+            1086
+          ]
+        }
+      ]
+    }
+  ],
+  "sidebars": [
+    {
+      "i": 0,
+      "w": 236,
+      "h": 1086,
+      "x": 0,
+      "links": [
+        "Mercado\nCero\nInicio",
+        "Inicio",
+        "Caja"
+      ]
+    },
+    {
+      "i": 1,
+      "w": 0,
+      "h": 0,
+      "x": 0,
+      "links": [
+        "Mercado CeroInicio",
+        "Inicio",
+        "Caja"
+      ]
+    }
+  ]
+}

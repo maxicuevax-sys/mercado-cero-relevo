@@ -1,0 +1,32 @@
+{
+  "payload": {
+    "items": [
+      {
+        "description": "Venta mixta AUD-FC-111553",
+        "quantity": 1,
+        "unitPriceCents": 9000
+      }
+    ],
+    "cashCents": 6000,
+    "creditCents": 3000,
+    "customerName": "Cliente Mixto AUD-FC-111553",
+    "requestId": "sale_c4fcc7a6-94c0-4a36-bd9f-6da26418160a"
+  },
+  "status": 201,
+  "returnedOrderId": "ord_91e5bd49c3d24d6d83b0",
+  "expectedOrderId": "ord_91e5bd49c3d24d6d83b0",
+  "sameOrder": true,
+  "countsBefore": {
+    "orders": 19,
+    "payments": 16,
+    "credits": 3,
+    "credit_payments": 2
+  },
+  "countsAfter": {
+    "orders": 19,
+    "payments": 16,
+    "credits": 3,
+    "credit_payments": 2
+  },
+  "noNewRows": true
+}

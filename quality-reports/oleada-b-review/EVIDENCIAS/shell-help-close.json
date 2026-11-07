@@ -1,0 +1,16 @@
+{
+  "from": "/ventas",
+  "afterAyudaClick": {
+    "url": "http://localhost:3100/?ayuda=1",
+    "dialogOpen": true,
+    "visibleH1": "Caja",
+    "shell": "legacy"
+  },
+  "afterClose": {
+    "url": "http://localhost:3100/?ayuda=1",
+    "dialogOpen": false,
+    "visibleH1": "Caja",
+    "shell": "legacy"
+  },
+  "note": "Cerrar el sheet de Ayuda no vuelve a /ventas: deja al usuario en la Caja legacy. Atrás sí restaura /ventas."
+}

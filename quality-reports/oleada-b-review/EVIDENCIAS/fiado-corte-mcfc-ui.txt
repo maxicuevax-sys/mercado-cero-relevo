@@ -1,0 +1,61 @@
+RUN 111553 Â· MARKER AUD-FC-111553 Â· BASE http://127.0.0.1:3105
+49/49 PASS
+
+PASS T1 payload fiado: cashCents=0
+PASS T1 payload fiado: creditCents=10000
+PASS T1 order paidCents=0
+PASS T1 order creditCents=10000
+PASS T1 order status=confirmed
+PASS T1 corte cashSales sin cambio
+PASS T1 corte cashCredit sin cambio
+PASS T1 preview cashSales/cashCredit iguales a /api/cash
+PASS T1 DB: 0 payments de la venta fiado
+PASS T1 DB: crÃ©dito original=balance=10000
+PASS T1 UI resultado no dice cobrado
+PASS T1 UI muestra saldo vivo fiado 100.00
+PASS T2 payload mixto: cashCents=6000 (no 10000)
+PASS T2 payload mixto: creditCents=3000
+PASS T2 order paidCents=6000 y creditCents=3000
+PASS T2 UI muestra cambio 40.00
+PASS T2 UI separa recibido 100.00 y efectivo aplicado 60.00
+PASS T2 UI saldo vivo fiado 30.00
+PASS T2 DB: exactamente 1 payment cash de 6000 para la venta mixta
+PASS T2 DB: ningÃºn asiento por el cambio 4000
+PASS T2 DB: crÃ©dito 3000 open
+PASS T2 corte cashSales +6000
+PASS T2 corte cashCredit sin cambio
+PASS T4 efectivo: corte cashSales +5000 sobre el paso anterior
+PASS T4 efectivo: cashCredit sin cambio
+PASS T4 efectivo: preview coincide con /api/cash
+PASS T4 digital: no crea payments
+PASS T4 digital: corte sin cambio
+PASS T4 digital: pendiente del resumen +8000
+PASS T3 abono parcial HTTP 200
+PASS T3 abono aplicado 4000 y saldo 6000
+PASS T3 abono no crea venta nueva
+PASS T3 DB: balance 6000 y status partial; order.credit_cents sigue 10000
+PASS T3 corte cashCredit +4000 y cashSales sin cambio
+PASS T3 preview cashCredit coincide con /api/cash
+PASS T3 /ventas muestra Saldo vivo 60.00
+PASS T3 replay: duplicate=true, applied=4000, saldo=6000
+PASS T3 replay: no inserta segundo credit_payment
+PASS T3 replay: corte sin cambio
+PASS T3 abono total: aplicado 6000 y saldo 0
+PASS T3 abono total no crea venta nueva
+PASS T3 DB: crÃ©dito settled, balance 0; order.credit_cents sigue 10000
+PASS T3 corte cashCredit +6000 sobre parcial
+PASS T3 preview coincide con /api/cash tras liquidar
+PASS T3 /ventas muestra Fiado saldado y ya no Saldo vivo
+PASS Ventas mixto: Saldo vivo 30.00 visible
+PASS Ventas digital: Falta cobrar 80.00 visible
+PASS Ventas fiado final: Fiado saldado y sin Saldo vivo
+PASS Consola sin pageerror
+
+CASH BASE: {"date": "2026-11-04", "openingCents": 50000, "cashSalesCents": 0, "cashCreditCents": 0, "expensesCents": 0, "withdrawalsCents": 0, "expectedCents": 50000, "saved": null, "history": []}
+CASH T1-fiado: {"date": "2026-11-04", "openingCents": 50000, "cashSalesCents": 0, "cashCreditCents": 0, "expensesCents": 0, "withdrawalsCents": 0, "expectedCents": 50000, "saved": null, "history": []}
+CASH T2-mixto: {"date": "2026-11-04", "openingCents": 50000, "cashSalesCents": 6000, "cashCreditCents": 0, "expensesCents": 0, "withdrawalsCents": 0, "expectedCents": 56000, "saved": null, "history": []}
+CASH T4-efectivo: {"date": "2026-11-04", "openingCents": 50000, "cashSalesCents": 11000, "cashCreditCents": 0, "expensesCents": 0, "withdrawalsCents": 0, "expectedCents": 61000, "saved": null, "history": []}
+CASH T4-digital: {"date": "2026-11-04", "openingCents": 50000, "cashSalesCents": 11000, "cashCreditCents": 0, "expensesCents": 0, "withdrawalsCents": 0, "expectedCents": 61000, "saved": null, "history": []}
+CASH T3-abono-parcial: {"date": "2026-11-04", "openingCents": 50000, "cashSalesCents": 11000, "cashCreditCents": 4000, "expensesCents": 0, "withdrawalsCents": 0, "expectedCents": 65000, "saved": null, "history": []}
+CASH T3-abono-replay: {"date": "2026-11-04", "openingCents": 50000, "cashSalesCents": 11000, "cashCreditCents": 4000, "expensesCents": 0, "withdrawalsCents": 0, "expectedCents": 65000, "saved": null, "history": []}
+CASH T3-abono-total: {"date": "2026-11-04", "openingCents": 50000, "cashSalesCents": 11000, "cashCreditCents": 10000, "expensesCents": 0, "withdrawalsCents": 0, "expectedCents": 71000, "saved": null, "history": []}

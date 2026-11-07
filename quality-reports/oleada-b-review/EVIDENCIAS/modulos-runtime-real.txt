@@ -1,0 +1,100 @@
+PASS  ventas real: mixta muestra efectivo cobrado - FIADO + COBRO
+Pedido BFA8
+
+Hoy 11:08 a.m. · Efectivo + fiado · Cliente Parcial
+
+1 × Mixto real
+
+$100.00
+Cobrado $60.00
+Falta cobrar $30.00
+Saldo vivo $10.00
+Ver conceptos
+PASS  ventas real: mixta muestra digital pendiente - FIADO + COBRO
+Pedido BFA8
+
+Hoy 11:08 a.m. · Efectivo + fiado · Cliente Parcial
+
+1 × Mixto real
+
+$100.00
+Cobrado $60.00
+Falta cobrar $30.00
+Saldo vivo $10.00
+Ver conceptos
+PASS  ventas real: mixta muestra saldo fiado - FIADO + COBRO
+Pedido BFA8
+
+Hoy 11:08 a.m. · Efectivo + fiado · Cliente Parcial
+
+1 × Mixto real
+
+$100.00
+Cobrado $60.00
+Falta cobrar $30.00
+Saldo vivo $10.00
+Ver conceptos
+PASS  ventas real: digital sin link no dice 'Por cobrar' como estado - REGISTRADO
+Pedido 86F7
+
+Hoy 11:08 a.m. · Digital
+
+1 × Digital real sin link
+
+$50.00
+Sin cobro confirmado
+Falta cobrar $50.00
+Ver conceptos
+PASS  ventas real: digital sin link muestra pendiente - REGISTRADO
+Pedido 86F7
+
+Hoy 11:08 a.m. · Digital
+
+1 × Digital real sin link
+
+$50.00
+Sin cobro confirmado
+Falta cobrar $50.00
+Ver conceptos
+PASS  ventas real: payment_pending mixta conserva 'Falta cobrar $30.00' - PENDIENTE
+Pedido BFA8
+
+Hoy 11:08 a.m. · Por cobrar · Cliente Parcial
+
+1 × Mixto real
+
+$100.00
+Pendiente de cobro
+Falta cobrar $30.00
+Saldo vivo $10.00
+Ver conceptos
+PASS  ventas real: payment_pending mixta oculta 'Cobrado $60.00' - PENDIENTE
+Pedido BFA8
+
+Hoy 11:08 a.m. · Por cobrar · Cliente Parcial
+
+1 × Mixto real
+
+$100.00
+Pendiente de cobro
+Falta cobrar $30.00
+Saldo vivo $10.00
+Ver conceptos
+PASS  ventas real: payment_pending mixta conserva saldo fiado - PENDIENTE
+Pedido BFA8
+
+Hoy 11:08 a.m. · Por cobrar · Cliente Parcial
+
+1 × Mixto real
+
+$100.00
+Pendiente de cobro
+Falta cobrar $30.00
+Saldo vivo $10.00
+Ver conceptos
+PASS  caja: no serializa el pedido de ventas - order id absent
+PASS  caja: no serializa nombre del cliente de fiado - customer absent
+PASS  caja: no serializa conceptos de ventas - items absent
+PASS  caja real: no llama voz/catálogo/inventario/proveedores - []
+
+12 PASS · 0 FAIL

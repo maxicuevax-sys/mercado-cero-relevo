@@ -1,0 +1,939 @@
+@import "tailwindcss";
+
+@theme {
+  /* Mercado Cero · dirección "Mercado de papel" (kit DesignOps). */
+  --color-canvas: #f9f6ee;
+  --color-surface: #fffdf7;
+  --color-surface-2: #f2ebdf;
+  --color-ink: #1f2622;
+  --color-ink-2: #515b54;
+  /* Texto de placeholder: 4.6:1 sobre surface-2 y 5.4:1 sobre surface. */
+  --color-placeholder: #6b6256;
+  /* Borde de controles: 4.0:1 sobre surface y 3.6:1 sobre surface-2. */
+  --color-control-border: #687369;
+  --color-separator: #e0d6c7;
+  --color-accent: #0f3d36;
+  --color-accent-press: #0a332c;
+  --color-success: #0a5039;
+  --color-attention: #8f2d1c;
+  --color-danger: #8a281b;
+  --color-info: #293b68;
+  --color-focus: #0e6f5a;
+
+  /* Compatibilidad mientras migramos componentes */
+  --color-line: #e0d6c7;
+  --color-green: #0f3d36;
+  --color-green-deep: #0a332c;
+  --color-green-soft: #e2f3e7;
+  --color-terracotta: #c1492e;
+  --color-terracotta-deep: #8f2d1c;
+  --color-terracotta-soft: #fbe9e6;
+  --color-saffron: #f2c768;
+  --color-saffron-soft: #fff0d2;
+  --color-blue-soft: #e9ecf3;
+
+  --font-sans: var(--font-alder), "Alder", "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-hearth), "Hearth", Georgia, serif;
+
+  /* HIG: body 17/24, footnote 13/18. */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.125rem;
+  --text-sm: 1.0625rem;
+  --text-sm--line-height: 1.5rem;
+
+  --shadow-card: 0 1px 2px rgba(31, 38, 34, 0.04),
+    0 8px 24px -20px rgba(31, 38, 34, 0.35);
+  --shadow-lift: 0 20px 46px -28px rgba(31, 38, 34, 0.45),
+    0 2px 6px rgba(31, 38, 34, 0.06);
+}
+
+:root {
+  --background: var(--color-canvas);
+  --foreground: var(--color-ink);
+  /* Compatibilidad temporal con las rutas que aún nombran las familias anteriores. */
+  --font-fraunces: var(--font-hearth);
+  --font-inter: var(--font-alder);
+  /* Alto real del chrome fijo; lo mide CajaApp con ResizeObserver. */
+  --mc-chrome-top: 0px;
+  --mc-chrome-bottom: 0px;
+  --mc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --mc-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* El header es sticky y la tab bar fija: ningún ancla ni foco queda debajo. */
+  scroll-padding-top: calc(var(--mc-chrome-top, 0px) + 12px);
+  scroll-padding-bottom: calc(var(--mc-chrome-bottom, 0px) + 12px);
+}
+
+/* El foco programático de #main y de los encabezados conserva el chrome fijo. */
+main#main {
+  scroll-margin-top: calc(var(--mc-chrome-top, 0px) + 12px);
+  scroll-margin-bottom: calc(var(--mc-chrome-bottom, 0px) + 12px);
+}
+
+main#main:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 4px;
+}
+
+.screen-heading-block,
+.screen-heading__title,
+[data-sheet-fallback] {
+  scroll-margin-top: calc(var(--mc-chrome-top, 0px) + 16px);
+  scroll-margin-bottom: calc(var(--mc-chrome-bottom, 0px) + 16px);
+}
+
+body {
+  background-color: var(--color-canvas);
+  background-image:
+    radial-gradient(
+      1100px 560px at 8% -12%,
+      rgba(255, 252, 244, 0.95) 0%,
+      rgba(255, 252, 244, 0) 62%
+    ),
+    radial-gradient(
+      900px 620px at 106% 6%,
+      rgba(230, 217, 197, 0.7) 0%,
+      rgba(230, 217, 197, 0) 58%
+    );
+  background-attachment: fixed;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.45;
+  /* Las palabras cortas (Caja, Fiado, Corte) nunca se parten. El contenido
+     que sí puede necesitar un corte explícito lo declara en su componente. */
+  overflow-wrap: normal;
+  font-feature-settings: "ss01" on, "cv11" on;
+}
+
+/* Grano de papel: fijo y decorativo; no toca contraste ni interacción. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+}
+
+.app-shell {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  background: transparent;
+}
+
+h1,
+h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.sheet-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+html[data-contrast="high"] body {
+  background-image: none;
+  background-color: #ffffff;
+}
+
+html[data-contrast="high"] body::before {
+  display: none;
+}
+
+
+html[data-text-size="large"] {
+  font-size: 18.5px;
+}
+
+html[data-text-size="xlarge"] {
+  font-size: 20px;
+}
+
+html[data-contrast="high"] {
+  --color-canvas: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-2: #f2f2f2;
+  --color-ink: #000000;
+  --color-ink-2: #1a1a1a;
+  --color-placeholder: #404040;
+  --color-control-border: #595959;
+  --color-separator: #5c5c5c;
+  --color-accent: #004d38;
+  --color-accent-press: #003326;
+  --color-success: #004d38;
+  --color-attention: #7a2e12;
+  --color-danger: #8a0000;
+  --color-info: #1f3f5c;
+  --color-focus: #000000;
+  --color-green: #004d38;
+  --color-green-soft: #e6f5ee;
+  --color-terracotta: #7a2e12;
+  --color-terracotta-deep: #5c220d;
+  --color-terracotta-soft: #f7e8e2;
+  --color-saffron: #7a4f00;
+  --color-saffron-soft: #f7eed6;
+  --color-blue-soft: #e6eef7;
+}
+
+html[data-contrast="high"] *:focus-visible {
+  outline-color: #000000;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.on-accent :focus-visible {
+  outline-color: #ffffff;
+}
+
+::selection {
+  background: var(--color-green-soft);
+  color: var(--color-ink);
+}
+
+/* Solo la familia se hereda: `font: inherit` borraba tamaño, peso y
+   line-height que las utilidades de Tailwind ya habían fijado. */
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+/* Placeholders con token sólido: 4.5:1 o más en normal y alto contraste.
+   Sin opacidad, porque la opacidad vuelve a bajar el contraste. */
+::placeholder {
+  color: var(--color-placeholder);
+  opacity: 1;
+}
+
+/* Los controles que nacen con `border-separator` suben a 3:1; `separator`
+   queda para hairlines. Los estados danger/attention/accent no se pisan. */
+button[class*="border-separator"],
+input[class*="border-separator"],
+select[class*="border-separator"],
+textarea[class*="border-separator"] {
+  border-color: var(--color-control-border);
+}
+
+label:has(input[type="radio"]),
+label:has(input[type="checkbox"]) {
+  border-color: var(--color-control-border);
+}
+
+label:has(input[type="radio"]:checked),
+label:has(input[type="checkbox"]:checked) {
+  border-color: var(--color-accent);
+}
+
+/* Wrappers que dibujan el borde visible de un campo (Total contado, Base,
+   Gastos, Retiros, Meta, Abono) y labels de efectivo/fiado. */
+.control-frame {
+  border-color: var(--color-control-border);
+}
+
+.control-frame:focus-within {
+  border-color: var(--color-accent);
+}
+
+.control-frame:has(input[aria-invalid="true"]),
+.control-frame:has([aria-invalid="true"]) {
+  border-color: var(--color-danger);
+}
+
+/* El radio real es sr-only: el anillo de foco se dibuja en la tarjeta. */
+.checkout-method:focus-within {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.radio-dot[data-selected="false"] {
+  border-color: var(--color-control-border);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-accent);
+}
+
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+/* La tab bar y el barrido no deben robar el foco al contenido. */
+.mobile-tabs {
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+/* -------------------------------------------------------------------------- */
+/* Shell móvil: el contenido scrollea dentro de main y la tab bar ocupa su    */
+/* propia fila. Así ningún control queda geométricamente debajo del chrome.   */
+/* -------------------------------------------------------------------------- */
+@media (max-width: 1023.98px) {
+  /* Legacy uses a nested main scroller. Smooth document scrolling can move
+     a WebKit pointer target between down and up at enlarged text sizes. */
+  html:has(.mc-legacy-ui) {
+    scroll-behavior: auto;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    overflow: hidden;
+  }
+
+  .app-shell {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-main {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-main > .topbar {
+    order: 1;
+    flex: 0 0 auto;
+    position: static;
+  }
+
+  .app-main > main.main-container {
+    order: 2;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-top: 12px;
+    scroll-padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+
+  /* Los CTA que la persona necesita al final de una lista (por ejemplo
+     “Registrar abono” en Fiado) conservan aire al recibir foco. */
+  .main-container [data-chrome-critical] {
+    scroll-margin-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+
+  .app-main > .mobile-tabs {
+    order: 3;
+    flex: 0 0 auto;
+    position: relative;
+    inset: auto;
+    z-index: 40;
+  }
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes mic-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+.mic-ring {
+  animation: mic-ring 1.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.sheet-in {
+  animation: sheet-in 220ms var(--mc-ease-out) both;
+  will-change: transform, opacity;
+}
+
+@keyframes sheet-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sheet-backdrop {
+  animation: sheet-backdrop-in 140ms linear both;
+}
+
+@keyframes draft-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.draft-item {
+  animation: draft-in 180ms var(--mc-ease-out) both;
+}
+
+.main-container {
+  container-type: inline-size;
+}
+
+.sidebar-label {
+  font-size: min(0.9375rem, 15px);
+  white-space: nowrap;
+}
+
+.screen-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  gap: 0.75rem;
+}
+
+.screen-heading__title {
+  flex: 1 1 10rem;
+  min-width: 0;
+  overflow-wrap: normal;
+  text-wrap: balance;
+}
+
+.screen-heading__action {
+  flex: 0 0 auto;
+}
+
+.screen-heading__subtitle {
+  margin-top: 0.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: var(--color-green-soft);
+  color: var(--color-ink);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-separator) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-separator) 88%, var(--color-ink-2));
+}
+
+input,
+textarea,
+select {
+  caret-color: var(--color-accent);
+}
+
+.topbar {
+  container-type: inline-size;
+}
+
+/* Cinco destinos en la tab bar: el label corto se mantiene completo. A 200 %
+   la raíz crece y el contenedor relativo a rem entra en el umbral; el label
+   baja un escalón para no partirse ni empujar scroll horizontal. */
+.mobile-tabs {
+  container-type: inline-size;
+}
+
+@container (max-width: 20rem) {
+  .mobile-tab-label {
+    font-size: clamp(12px, 0.8125rem, 13px);
+    line-height: 1.15;
+  }
+
+  /* A 200 % el topbar se compacta para dejar la venta en el primer viewport. */
+  .topbar > div {
+    min-height: 56px;
+    flex-wrap: nowrap;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+
+  .topbar > div > div:first-child {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .topbar-merchant {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+}
+
+/* A 200 % el resumen baja un escalón para que la venta siga en el primer
+   viewport; a tamaño normal no aplica. */
+@container (max-width: 15em) {
+  .screen-heading__subtitle {
+    font-size: 0.875rem;
+    line-height: 1.25;
+  }
+}
+
+.sheet-panel {
+  container-type: inline-size;
+}
+
+/* El título de una hoja no necesita 40 px a 320/200 %. Con tope, “Verificar
+   comprobante” cabe sin recortarse y conserva su jerarquía. */
+.sheet-title {
+  font-size: min(1.25rem, 26px);
+  overflow-wrap: anywhere;
+}
+
+/* Controles de la guía: 3 columnas con texto normal, 1–2 al ampliar. */
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 6rem), 1fr));
+  gap: 0.5rem;
+}
+
+/* En tablet (768–1023) la tab bar inferior comparte el primer viewport. El
+   campo de texto sube para no quedar debajo de ella cuando el texto crece. */
+@media (min-width: 640px) and (max-width: 1023.98px) {
+  .caja-text-entry {
+    order: -1;
+  }
+}
+
+/* A 200 % el contenedor mide ~10 em: el campo de texto sube antes de la voz
+   para que siga apareciendo en el primer viewport sin reducir el texto. */
+@container (max-width: 15em) {
+  .screen-heading {
+    gap: 0.25rem;
+    margin-bottom: 4px;
+  }
+
+  .screen-heading__action .verify-label {
+    display: none;
+  }
+
+  .main-container h2 {
+    font-size: min(1.25rem, 28px);
+  }
+
+  .goal-card-header {
+    display: none;
+  }
+
+  .goal-card {
+    padding: 12px;
+  }
+
+  .goal-card-title {
+    font-size: min(1.25rem, 24px);
+  }
+
+  .goal-body {
+    margin-top: 8px;
+  }
+
+  .goal-action-row {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .goal-action-row > div,
+  .goal-action-row > button,
+  .goal-action-row input {
+    min-height: 48px;
+  }
+
+  .goal-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .goal-stats .text-xs {
+    font-size: min(0.8125rem, 14px);
+  }
+
+  .goal-stats .tabular {
+    font-size: min(1rem, 16px);
+  }
+
+  .goal-action-row > button {
+    width: auto;
+    flex: 0 0 auto;
+    padding-left: 12px;
+    padding-right: 12px;
+    gap: 6px;
+  }
+
+  .corte-note {
+    font-size: 0.875rem;
+  }
+
+  .reconcile-note {
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 0.875rem;
+  }
+
+  .reconcile-title {
+    font-size: 1.25rem;
+  }
+
+  .reconcile-eyebrow {
+    font-size: 0.875rem;
+  }
+
+  .topbar-address {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .sheet-title {
+    font-size: min(1.125rem, 26px);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Texto grande: compactación de espacio cuando la raíz tipográfica crece.    */
+/* La detecta CajaApp (data-text-zoom) para no tocar el diseño a 360 normal   */
+/* ni el tamaño de la tipografía.                                             */
+/* -------------------------------------------------------------------------- */
+
+html[data-text-zoom="large"] .main-container {
+  padding-top: 8px;
+}
+
+html[data-text-zoom="large"] .screen-heading-block {
+  margin-bottom: 8px;
+}
+
+html[data-text-zoom="large"] .screen-heading__subtitle {
+  margin-top: 4px;
+  line-height: 1.25;
+}
+
+html[data-text-zoom="large"] .goal-card {
+  padding: 8px;
+}
+
+html[data-text-zoom="large"] .goal-action-row > div,
+html[data-text-zoom="large"] .goal-action-row > button,
+html[data-text-zoom="large"] .goal-action-row input {
+  min-height: 48px;
+}
+
+html[data-text-zoom="large"] .credit-list-card {
+  padding-top: 8px;
+}
+
+/* Los botones de acción no crecen a 96 px con la raíz: el target táctil
+   mínimo sigue siendo 48 px y el texto manda el alto por línea. */
+html[data-text-zoom="large"] button {
+  min-height: 48px;
+}
+
+@keyframes shimmer {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.shimmer {
+  background: var(--color-surface-2);
+  animation: shimmer 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.blink {
+  animation: blink 1.4s ease-in-out infinite;
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.bar-grow {
+  transform-origin: bottom;
+  animation: bar-grow 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Movimiento de mostrador: rápido, con causa y sin bloquear la tarea.         */
+/* -------------------------------------------------------------------------- */
+
+/* El cambio de tab se siente como una hoja que se asienta: opacidad corta;
+   el encabezado y la lista hacen el resto del gesto en cascada. */
+@keyframes tab-panel-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.tab-panel {
+  animation: tab-panel-in 160ms linear both;
+}
+
+/* Barrido de papel entre destinos: cubre el contenido, nunca la navegación.
+   Mientras existe intercepta clics (pointer-events: auto) para que un toque
+   durante los 300 ms no active un control que todavía no se ve. La tab bar
+   (z-40) queda por encima. */
+@keyframes tab-wipe {
+  from {
+    transform: translateX(-104%);
+  }
+  to {
+    transform: translateX(104%);
+  }
+}
+
+.tab-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: auto;
+  cursor: progress;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 253, 248, 0) 0%,
+    rgba(255, 253, 248, 0.97) 9%,
+    rgba(255, 253, 248, 0.97) 91%,
+    rgba(255, 253, 248, 0) 100%
+  );
+  border-right: 2px solid rgba(156, 78, 43, 0.28);
+  animation: tab-wipe 300ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-wipe {
+    display: none;
+  }
+}
+
+@keyframes heading-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    clip-path: inset(0 0 92% 0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    /* Deja aire fuera del box para que el outline de foco (3 px + offset) no
+       quede recortado por el clip del reveal. */
+    clip-path: inset(-12px);
+  }
+}
+
+.heading-in {
+  animation: heading-in 240ms var(--mc-ease-out) both;
+}
+
+@keyframes tab-marker-in {
+  from {
+    opacity: 0.4;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+.tab-marker {
+  transform-origin: 50% 50%;
+  animation: tab-marker-in 180ms var(--mc-ease-out) both;
+}
+
+/* La lista aparece como lista: stagger corto y acotado, no una coreografía. */
+@keyframes list-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.motion-list > * {
+  animation: list-item-in 180ms var(--mc-ease-out) both;
+}
+
+.motion-list > :nth-child(2) {
+  animation-delay: 12ms;
+}
+
+.motion-list > :nth-child(3) {
+  animation-delay: 24ms;
+}
+
+.motion-list > :nth-child(4) {
+  animation-delay: 36ms;
+}
+
+.motion-list > :nth-child(5) {
+  animation-delay: 48ms;
+}
+
+.motion-list > :nth-child(6) {
+  animation-delay: 60ms;
+}
+
+.motion-list > :nth-child(7) {
+  animation-delay: 72ms;
+}
+
+.motion-list > :nth-child(n + 8) {
+  animation-delay: 84ms;
+}
+
+/* Scroll trigger nativo: una veta de papel que avanza con la lectura.
+   Sin soporte, no se pinta; nunca estorba. */
+.scroll-progress {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 70;
+  height: 2px;
+  pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-terracotta)
+  );
+  opacity: 0.9;
+}
+
+@keyframes scroll-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@supports (animation-timeline: scroll(root block)) {
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-progress {
+      animation: scroll-progress linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
+}
+
+/* En móvil el scroll vive en main: la veta usa un timeline con nombre. */
+@media (max-width: 1023.98px) {
+  main.main-container {
+    scroll-timeline: --mc-main block;
+  }
+}
+
+@media (max-width: 1023.98px) and (prefers-reduced-motion: no-preference) {
+  .scroll-progress {
+    animation-timeline: --mc-main;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Variante ligera para gama baja / movimiento reducido: sin grano fijo ni
+     blur de composición. El contraste y la jerarquía se mantienen. */
+  body::before {
+    display: none;
+  }
+
+  .topbar {
+    backdrop-filter: none;
+    background: var(--color-surface);
+  }
+
+  .mobile-tabs {
+    backdrop-filter: none;
+    background: var(--color-surface);
+  }
+}

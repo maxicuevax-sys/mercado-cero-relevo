@@ -1,0 +1,632 @@
+{
+  "route": "inicio",
+  "path": "/inicio",
+  "viewport": "mobile-390x844",
+  "status": 200,
+  "metrics": {
+    "url": "http://localhost:3100/inicio",
+    "title": "Inicio · Mercado Cero",
+    "h1": "¡Buen día, Lupita!",
+    "active": [
+      "Inicio"
+    ],
+    "skipLinks": [],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyHeight": 1696,
+    "viewport": {
+      "w": 390,
+      "h": 844
+    },
+    "buttons": 0,
+    "links": 10,
+    "inputs": 0,
+    "buttonLabels": [],
+    "linkLabels": [
+      "Inicio",
+      "Ventas",
+      "Fiados",
+      "Caja",
+      "Reportes",
+      "Ayuda",
+      "Ajustes",
+      "Registrar",
+      "Ver todos",
+      "Ir a ventas"
+    ],
+    "kpis": [
+      {
+        "x": 16,
+        "y": 501,
+        "w": 358,
+        "h": 337
+      },
+      {
+        "x": 16,
+        "y": 501,
+        "w": 174,
+        "h": 159
+      },
+      {
+        "x": 30,
+        "y": 515,
+        "w": 146,
+        "h": 34
+      },
+      {
+        "x": 30,
+        "y": 515,
+        "w": 34,
+        "h": 34
+      },
+      {
+        "x": 30,
+        "y": 563,
+        "w": 146,
+        "h": 28
+      },
+      {
+        "x": 30,
+        "y": 599,
+        "w": 146,
+        "h": 47
+      },
+      {
+        "x": 200,
+        "y": 501,
+        "w": 174,
+        "h": 159
+      },
+      {
+        "x": 214,
+        "y": 515,
+        "w": 146,
+        "h": 34
+      },
+      {
+        "x": 214,
+        "y": 515,
+        "w": 34,
+        "h": 34
+      },
+      {
+        "x": 214,
+        "y": 563,
+        "w": 146,
+        "h": 28
+      },
+      {
+        "x": 214,
+        "y": 599,
+        "w": 146,
+        "h": 38
+      },
+      {
+        "x": 16,
+        "y": 670,
+        "w": 174,
+        "h": 168
+      },
+      {
+        "x": 30,
+        "y": 684,
+        "w": 146,
+        "h": 34
+      },
+      {
+        "x": 30,
+        "y": 684,
+        "w": 34,
+        "h": 34
+      },
+      {
+        "x": 30,
+        "y": 732,
+        "w": 146,
+        "h": 28
+      },
+      {
+        "x": 30,
+        "y": 768,
+        "w": 146,
+        "h": 38
+      },
+      {
+        "x": 200,
+        "y": 670,
+        "w": 174,
+        "h": 168
+      },
+      {
+        "x": 214,
+        "y": 684,
+        "w": 146,
+        "h": 34
+      },
+      {
+        "x": 214,
+        "y": 684,
+        "w": 34,
+        "h": 34
+      },
+      {
+        "x": 214,
+        "y": 732,
+        "w": 146,
+        "h": 28
+      },
+      {
+        "x": 214,
+        "y": 786,
+        "w": 146,
+        "h": 38
+      }
+    ],
+    "hero": {
+      "x": 16,
+      "y": 852,
+      "w": 358,
+      "h": 220
+    },
+    "pending": {
+      "x": 16,
+      "y": 1084,
+      "w": 358,
+      "h": 275
+    },
+    "suggestion": {
+      "x": 16,
+      "y": 1372,
+      "w": 358,
+      "h": 295
+    },
+    "cta": {
+      "x": 164,
+      "y": 986,
+      "w": 133,
+      "h": 48
+    },
+    "main": {
+      "x": 0,
+      "y": 377,
+      "w": 390,
+      "h": 1319
+    },
+    "sidebar": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 284
+    },
+    "fontStatus": "loaded",
+    "navItems": [
+      "Inicio",
+      "Ventas",
+      "Fiados",
+      "Caja",
+      "Reportes"
+    ],
+    "hasForm": 0,
+    "hasQR": 0,
+    "demoText": 3,
+    "bodyText": "Mercado Cero Inicio Ventas Fiados Productos Proveedores Caja Reportes Ayuda Ajustes Antojitos de Lupita Coyoacán, CDMX DEMO L ¡Buen día, Lupita! martes, 3 de noviembre. Datos demo Ventas hoy $190.00 Registradas, no necesariamente cobradas Cobrado hoy $0.00 Efectivo + pagos verificados Por cobrar $120.00 Saldo pendiente, sin sumarlo a la caja Meta del mes 17% Mi primera sombrilla Nueva venta Registra lo que vendiste y decide cómo cobrar. Registrar Pendientes Ver todos Recibir pedido 11:00 a.m. Co"
+  },
+  "focusOrder": [
+    {
+      "tag": "A",
+      "text": "Inicio",
+      "role": null,
+      "href": "/inicio",
+      "name": null,
+      "rect": {
+        "x": 16,
+        "y": 75,
+        "w": 99,
+        "h": 44
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Ventas",
+      "role": null,
+      "href": "/",
+      "name": null,
+      "rect": {
+        "x": 119,
+        "y": 75,
+        "w": 108,
+        "h": 44
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Fiados",
+      "role": null,
+      "href": "/?tab=fiado",
+      "name": null,
+      "rect": {
+        "x": 231,
+        "y": 75,
+        "w": 107,
+        "h": 44
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Caja",
+      "role": null,
+      "href": "/",
+      "name": null,
+      "rect": {
+        "x": 16,
+        "y": 171,
+        "w": 91,
+        "h": 44
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Reportes",
+      "role": null,
+      "href": "/?tab=corte",
+      "name": null,
+      "rect": {
+        "x": 111,
+        "y": 171,
+        "w": 124,
+        "h": 44
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Ayuda",
+      "role": null,
+      "href": "/?ayuda=1",
+      "name": null,
+      "rect": {
+        "x": 16,
+        "y": 226,
+        "w": 104,
+        "h": 44
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Ajustes",
+      "role": null,
+      "href": "/?ayuda=1",
+      "name": null,
+      "rect": {
+        "x": 124,
+        "y": 226,
+        "w": 112,
+        "h": 44
+      }
+    },
+    {
+      "tag": "A",
+      "text": "Registrar",
+      "role": null,
+      "href": "/",
+      "name": null,
+      "rect": {
+        "x": 164,
+        "y": 398,
+        "w": 133,
+        "h": 48
+      }
+    }
+  ],
+  "axe": {
+    "violations": [],
+    "passes": 33,
+    "incomplete": 1,
+    "inapplicable": 58,
+    "label": "inicio-mobile-390x844",
+    "tags": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa",
+      "wcag22aa",
+      "best-practice"
+    ]
+  },
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failedRequests": [
+    {
+      "url": "http://localhost:3100/?_rsc=qPZzjMbbkwVJZ1Df",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3100/?tab=fiado&_rsc=qPZzjMbbkwVJZ1Df",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3100/?tab=corte&_rsc=qPZzjMbbkwVJZ1Df",
+      "failure": "net::ERR_ABORTED"
+    }
+  ],
+  "axeHighContrast": {
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "target": [
+              ".inicio-brand__name"
+            ],
+            "html": "<p class=\"inicio-brand__name\">",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.01 (foreground color: #fffdf7, background color: #ffffff, font size: 25.5pt (34px), font weight: normal). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".inicio-nav__item[href=\"/\"]:nth-child(2) > span"
+            ],
+            "html": "<span>Ventas</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "a[href=\"/?tab=fiado\"] > span"
+            ],
+            "html": "<span>Fiados</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".inicio-nav__item[href=\"/\"]:nth-child(6) > span"
+            ],
+            "html": "<span>Caja</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "a[href=\"/?tab=corte\"] > span"
+            ],
+            "html": "<span>Reportes</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".inicio-nav__item[href=\"/?ayuda=1\"]:nth-child(1) > span"
+            ],
+            "html": "<span>Ayuda</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".inicio-nav__item[href=\"/?ayuda=1\"]:nth-child(2) > span"
+            ],
+            "html": "<span>Ajustes</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.25 (foreground color: #dce9df, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "passes": 33,
+    "incomplete": 1,
+    "inapplicable": 58,
+    "label": "inicio-mobile-390x844-hc",
+    "tags": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa",
+      "wcag22aa",
+      "best-practice"
+    ]
+  },
+  "metricsHighContrast": {
+    "url": "http://localhost:3100/inicio",
+    "title": "Inicio · Mercado Cero",
+    "h1": "¡Buen día, Lupita!",
+    "active": [
+      "Inicio"
+    ],
+    "skipLinks": [],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyHeight": 1696,
+    "viewport": {
+      "w": 390,
+      "h": 844
+    },
+    "buttons": 0,
+    "links": 10,
+    "inputs": 0,
+    "buttonLabels": [],
+    "linkLabels": [
+      "Inicio",
+      "Ventas",
+      "Fiados",
+      "Caja",
+      "Reportes",
+      "Ayuda",
+      "Ajustes",
+      "Registrar",
+      "Ver todos",
+      "Ir a ventas"
+    ],
+    "kpis": [
+      {
+        "x": 16,
+        "y": -87,
+        "w": 358,
+        "h": 337
+      },
+      {
+        "x": 16,
+        "y": -87,
+        "w": 174,
+        "h": 159
+      },
+      {
+        "x": 30,
+        "y": -73,
+        "w": 146,
+        "h": 34
+      },
+      {
+        "x": 30,
+        "y": -73,
+        "w": 34,
+        "h": 34
+      },
+      {
+        "x": 30,
+        "y": -25,
+        "w": 146,
+        "h": 28
+      },
+      {
+        "x": 30,
+        "y": 11,
+        "w": 146,
+        "h": 47
+      },
+      {
+        "x": 200,
+        "y": -87,
+        "w": 174,
+        "h": 159
+      },
+      {
+        "x": 214,
+        "y": -73,
+        "w": 146,
+        "h": 34
+      },
+      {
+        "x": 214,
+        "y": -73,
+        "w": 34,
+        "h": 34
+      },
+      {
+        "x": 214,
+        "y": -25,
+        "w": 146,
+        "h": 28
+      },
+      {
+        "x": 214,
+        "y": 11,
+        "w": 146,
+        "h": 38
+      },
+      {
+        "x": 16,
+        "y": 82,
+        "w": 174,
+        "h": 168
+      },
+      {
+        "x": 30,
+        "y": 96,
+        "w": 146,
+        "h": 34
+      },
+      {
+        "x": 30,
+        "y": 96,
+        "w": 34,
+        "h": 34
+      },
+      {
+        "x": 30,
+        "y": 144,
+        "w": 146,
+        "h": 28
+      },
+      {
+        "x": 30,
+        "y": 180,
+        "w": 146,
+        "h": 38
+      },
+      {
+        "x": 200,
+        "y": 82,
+        "w": 174,
+        "h": 168
+      },
+      {
+        "x": 214,
+        "y": 96,
+        "w": 146,
+        "h": 34
+      },
+      {
+        "x": 214,
+        "y": 96,
+        "w": 34,
+        "h": 34
+      },
+      {
+        "x": 214,
+        "y": 144,
+        "w": 146,
+        "h": 28
+      },
+      {
+        "x": 214,
+        "y": 198,
+        "w": 146,
+        "h": 38
+      }
+    ],
+    "hero": {
+      "x": 16,
+      "y": 264,
+      "w": 358,
+      "h": 220
+    },
+    "pending": {
+      "x": 16,
+      "y": 496,
+      "w": 358,
+      "h": 275
+    },
+    "suggestion": {
+      "x": 16,
+      "y": 784,
+      "w": 358,
+      "h": 295
+    },
+    "cta": {
+      "x": 164,
+      "y": 398,
+      "w": 133,
+      "h": 48
+    },
+    "main": {
+      "x": 0,
+      "y": -211,
+      "w": 390,
+      "h": 1319
+    },
+    "sidebar": {
+      "x": 0,
+      "y": -588,
+      "w": 390,
+      "h": 284
+    },
+    "fontStatus": "loaded",
+    "navItems": [
+      "Inicio",
+      "Ventas",
+      "Fiados",
+      "Caja",
+      "Reportes"
+    ],
+    "hasForm": 0,
+    "hasQR": 0,
+    "demoText": 3,
+    "bodyText": "Mercado Cero Inicio Ventas Fiados Productos Proveedores Caja Reportes Ayuda Ajustes Antojitos de Lupita Coyoacán, CDMX DEMO L ¡Buen día, Lupita! martes, 3 de noviembre. Datos demo Ventas hoy $190.00 Registradas, no necesariamente cobradas Cobrado hoy $0.00 Efectivo + pagos verificados Por cobrar $120.00 Saldo pendiente, sin sumarlo a la caja Meta del mes 17% Mi primera sombrilla Nueva venta Registra lo que vendiste y decide cómo cobrar. Registrar Pendientes Ver todos Recibir pedido 11:00 a.m. Co"
+  }
+}

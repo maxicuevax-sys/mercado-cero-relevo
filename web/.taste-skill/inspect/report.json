@@ -1,0 +1,1610 @@
+{
+ "url": "http://localhost:3000",
+ "at": "2026-10-31T04:00:43.154Z",
+ "allow": [],
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "load": "load",
+   "screens": 4,
+   "filled": [
+    0.58,
+    0.69,
+    0.68,
+    0.25
+   ],
+   "motion": {
+    "elements": 38,
+    "css": 17,
+    "transitions": 20,
+    "scripted": 1,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "page": {
+     "height": 3546,
+     "screens": 3.9,
+     "words": 694,
+     "img": 3,
+     "video": 0,
+     "canvas": 0,
+     "svg": 57,
+     "sections": 9,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 3,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "image?url=%2Ftianguis-metepequense.jpg&w=640&q=7",
+      "image?url=%2Fpuesto-flores.jpg&w=640&q=75",
+      "image?url=%2Ftianguis-zitacuaro.jpg&w=1920&q=75"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": []
+    },
+    "hero": {
+     "text": "Cobra hablando. El banco confirma.",
+     "words": 5,
+     "chars": 34,
+     "lines": 2,
+     "size": 52.8,
+     "vw": 3.7,
+     "font": "Fraunces",
+     "weight": 400,
+     "tracking": -0.03,
+     "leading": 0.98,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "left",
+     "widthRatio": 0.47,
+     "top": 115,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Cobra hablando. El banco confirma.",
+     "words": 5,
+     "lines": 2,
+     "size": 52.8,
+     "font": "Fraunces"
+    },
+    "headings": [
+     {
+      "text": "Cobra hablando. El banco confirma.",
+      "words": 5,
+      "chars": 34,
+      "lines": 2,
+      "size": 52.8,
+      "vw": 3.7,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.03,
+      "leading": 0.98,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.47,
+      "top": 115,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "0",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 48,
+      "vw": 3.3,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.06,
+      "top": 281,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "¿Qué vendiste?",
+      "words": 2,
+      "chars": 14,
+      "lines": 1,
+      "size": 28.8,
+      "vw": 2,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1.25,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.33,
+      "top": 442,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "$0.00",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 34.4,
+      "vw": 2.4,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.12,
+      "top": 1014,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "$190.00",
+      "words": 1,
+      "chars": 7,
+      "lines": 1,
+      "size": 54.4,
+      "vw": 3.8,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.03,
+      "leading": 0.9,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.14,
+      "top": 1701,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "El mercado no necesita más apps. Necesita certeza.",
+      "words": 8,
+      "chars": 50,
+      "lines": 2,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1.25,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.4,
+      "top": 3174,
+      "tag": "p",
+      "kind": "statement"
+     }
+    ],
+    "headingSummary": {
+     "count": 6,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 3,
+     "centered": 0,
+     "medianWords": 1,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "DM Sans",
+       "share": 0.92,
+       "mono": false
+      },
+      {
+       "family": "Fraunces",
+       "share": 0.08,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      13,
+      14,
+      16,
+      20,
+      24,
+      26,
+      29,
+      30,
+      34,
+      48,
+      53,
+      54
+     ],
+     "sizeCount": 12,
+     "notLoaded": [],
+     "body": {
+      "font": "DM Sans",
+      "size": 14,
+      "leading": 1.43,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 4.8
+     },
+     "measureChars": 68,
+     "max": {
+      "size": 54.4,
+      "vw": 3.8,
+      "font": "Fraunces",
+      "text": "$190.00"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 1,
+     "microLabelShare": 0.003,
+     "microSamples": [
+      "Mercado Cero"
+     ],
+     "upperShare": 0,
+     "centerShare": 0.07,
+     "smallText": 3
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#f3eee5",
+     "bodyBgHsl": {
+      "h": 39,
+      "s": 0.37,
+      "l": 0.93
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#fbf8f1",
+       "top": 410,
+       "hsl": {
+        "h": 42,
+        "s": 0.56,
+        "l": 0.96
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#5f6b63",
+       "share": 0.58
+      },
+      {
+       "color": "#1b241f",
+       "share": 0.22
+      },
+      {
+       "color": "#f3eee6",
+       "share": 0.06
+      },
+      {
+       "color": "#3d4a43",
+       "share": 0.05
+      },
+      {
+       "color": "#f3eee5",
+       "share": 0.03
+      }
+     ],
+     "button": {
+      "bg": "#fbf8f1",
+      "hsl": {
+       "h": 42,
+       "s": 0.56,
+       "l": 0.96
+      },
+      "fg": "#f3eee5"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 10,
+     "inHero": 3,
+     "radius": 3,
+     "height": 40,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Guía",
+      "Cobrar ahora",
+      "Escribir venta"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 1,
+     "scrims": 0,
+     "gradientSamples": [
+      "div.pointer-events-none.absolute → linear-gradient(to top, oklab(0.249695 -0.0150027 0.0052689 / 0.65) 0%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)"
+     ],
+     "gradientText": 0,
+     "hairlines": 31,
+     "hairlineSamples": [
+      "header.mx-auto.flex 1280px",
+      "button.border-b.border-paper/30 286px",
+      "div.mt-4.flex 622px",
+      "button.group.flex 618px",
+      "button.group.flex 618px"
+     ],
+     "outlinedBoxes": 1,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 1,
+     "boxRadius": 99,
+     "squareMedia": 0,
+     "roundedMedia": 2,
+     "mediaRadius": 4,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.1
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": false,
+     "height": 91,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "dm sans",
+     "fraunces",
+     "__nextjs-geist"
+    ]
+   },
+   "consoleErrors": []
+  },
+  {
+   "width": 768,
+   "height": 1024,
+   "load": "load",
+   "screens": 6,
+   "filled": [
+    0.66,
+    0.84,
+    0.86,
+    0.89,
+    0.88,
+    0.62
+   ],
+   "motion": {
+    "elements": 38,
+    "css": 17,
+    "transitions": 20,
+    "scripted": 1,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "page": {
+     "height": 5634,
+     "screens": 5.5,
+     "words": 698,
+     "img": 3,
+     "video": 0,
+     "canvas": 0,
+     "svg": 57,
+     "sections": 9,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 3,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "image?url=%2Ftianguis-metepequense.jpg&w=828&q=7",
+      "image?url=%2Fpuesto-flores.jpg&w=828&q=75",
+      "image?url=%2Ftianguis-zitacuaro.jpg&w=828&q=75"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": []
+    },
+    "hero": {
+     "text": "Cobra hablando. El banco confirma.",
+     "words": 5,
+     "chars": 34,
+     "lines": 2,
+     "size": 52.8,
+     "vw": 6.9,
+     "font": "Fraunces",
+     "weight": 400,
+     "tracking": -0.03,
+     "leading": 0.98,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "center",
+     "widthRatio": 0.88,
+     "top": 181,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Cobra hablando. El banco confirma.",
+     "words": 5,
+     "lines": 2,
+     "size": 52.8,
+     "font": "Fraunces"
+    },
+    "headings": [
+     {
+      "text": "Mercado Cero",
+      "words": 2,
+      "chars": 12,
+      "lines": 1,
+      "size": 26.4,
+      "vw": 3.4,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.25,
+      "top": 20,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "Cobra hablando. El banco confirma.",
+      "words": 5,
+      "chars": 34,
+      "lines": 2,
+      "size": 52.8,
+      "vw": 6.9,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.03,
+      "leading": 0.98,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 181,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "0",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 48,
+      "vw": 6.3,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.12,
+      "top": 652,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "¿Qué vendiste?",
+      "words": 2,
+      "chars": 14,
+      "lines": 1,
+      "size": 28.8,
+      "vw": 3.8,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1.25,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.68,
+      "top": 813,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "$0.00",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 34.4,
+      "vw": 4.5,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.22,
+      "top": 1385,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "$190.00",
+      "words": 1,
+      "chars": 7,
+      "lines": 1,
+      "size": 54.4,
+      "vw": 7.1,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.03,
+      "leading": 0.9,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.26,
+      "top": 2981,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "El mercado no necesita más apps. Necesita certeza.",
+      "words": 8,
+      "chars": 50,
+      "lines": 2,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1.25,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.75,
+      "top": 5242,
+      "tag": "p",
+      "kind": "statement"
+     }
+    ],
+    "headingSummary": {
+     "count": 7,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 4,
+     "centered": 0,
+     "medianWords": 2,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "DM Sans",
+       "share": 0.92,
+       "mono": false
+      },
+      {
+       "family": "Fraunces",
+       "share": 0.08,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      13,
+      14,
+      16,
+      20,
+      24,
+      26,
+      29,
+      30,
+      34,
+      48,
+      53,
+      54
+     ],
+     "sizeCount": 12,
+     "notLoaded": [],
+     "body": {
+      "font": "DM Sans",
+      "size": 14,
+      "leading": 1.43,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 4.8
+     },
+     "measureChars": 96,
+     "max": {
+      "size": 54.4,
+      "vw": 7.1,
+      "font": "Fraunces",
+      "text": "$190.00"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 1,
+     "microLabelShare": 0.003,
+     "microSamples": [
+      "Mercado Cero"
+     ],
+     "upperShare": 0,
+     "centerShare": 0.07,
+     "smallText": 3
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#f3eee5",
+     "bodyBgHsl": {
+      "h": 39,
+      "s": 0.37,
+      "l": 0.93
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#fbf8f1",
+       "top": 781,
+       "hsl": {
+        "h": 42,
+        "s": 0.56,
+        "l": 0.96
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#5f6b63",
+       "share": 0.58
+      },
+      {
+       "color": "#1b241f",
+       "share": 0.22
+      },
+      {
+       "color": "#f3eee6",
+       "share": 0.06
+      },
+      {
+       "color": "#3d4a43",
+       "share": 0.05
+      },
+      {
+       "color": "#f3eee5",
+       "share": 0.03
+      }
+     ],
+     "button": {
+      "bg": "#fbf8f1",
+      "hsl": {
+       "h": 42,
+       "s": 0.56,
+       "l": 0.96
+      },
+      "fg": "#f3eee5"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 10,
+     "inHero": 2,
+     "radius": 3,
+     "height": 40,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Guía",
+      "Cobrar ahora"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 1,
+     "scrims": 0,
+     "gradientSamples": [
+      "div.pointer-events-none.absolute → linear-gradient(to top, oklab(0.249695 -0.0150027 0.0052689 / 0.65) 0%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)"
+     ],
+     "gradientText": 0,
+     "hairlines": 31,
+     "hairlineSamples": [
+      "header.mx-auto.flex 768px",
+      "button.border-b.border-paper/30 286px",
+      "div.mt-4.flex 672px",
+      "button.group.flex 668px",
+      "button.group.flex 668px"
+     ],
+     "outlinedBoxes": 1,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 1,
+     "boxRadius": 99,
+     "squareMedia": 0,
+     "roundedMedia": 2,
+     "mediaRadius": 4,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.26
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": false,
+     "height": 157,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "dm sans",
+     "fraunces",
+     "__nextjs-geist"
+    ]
+   },
+   "consoleErrors": []
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "load": "load",
+   "screens": 8,
+   "filled": [
+    0.57,
+    0.92,
+    0.95,
+    0.93,
+    0.9,
+    0.83,
+    0.85,
+    0.61
+   ],
+   "motion": {
+    "elements": 38,
+    "css": 17,
+    "transitions": 20,
+    "scripted": 1,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "page": {
+     "height": 6286,
+     "screens": 7.4,
+     "words": 697,
+     "img": 3,
+     "video": 0,
+     "canvas": 0,
+     "svg": 57,
+     "sections": 9,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 3,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "image?url=%2Ftianguis-metepequense.jpg&w=640&q=7",
+      "image?url=%2Fpuesto-flores.jpg&w=640&q=75",
+      "image?url=%2Ftianguis-zitacuaro.jpg&w=640&q=75"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": []
+    },
+    "hero": {
+     "text": "0",
+     "words": 1,
+     "chars": 1,
+     "lines": 1,
+     "size": 48,
+     "vw": 12.3,
+     "font": "Fraunces",
+     "weight": 400,
+     "tracking": 0,
+     "leading": 1,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "right",
+     "widthRatio": 0.23,
+     "top": 636,
+     "tag": "div",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Cobra hablando. El banco confirma.",
+     "words": 5,
+     "lines": 2,
+     "size": 34.4,
+     "font": "Fraunces"
+    },
+    "headings": [
+     {
+      "text": "Mercado Cero",
+      "words": 2,
+      "chars": 12,
+      "lines": 1,
+      "size": 26.4,
+      "vw": 6.8,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.49,
+      "top": 20,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "Cobra hablando. El banco confirma.",
+      "words": 5,
+      "chars": 34,
+      "lines": 2,
+      "size": 34.4,
+      "vw": 8.8,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.03,
+      "leading": 0.98,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.92,
+      "top": 181,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "0",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 48,
+      "vw": 12.3,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.23,
+      "top": 636,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "¿Qué vendiste?",
+      "words": 2,
+      "chars": 14,
+      "lines": 1,
+      "size": 24.8,
+      "vw": 6.4,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1.25,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "center",
+      "widthRatio": 0.94,
+      "top": 945,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "$0.00",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 34.4,
+      "vw": 8.8,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.94,
+      "top": 1586,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "Últimos movimientos",
+      "words": 2,
+      "chars": 19,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.59,
+      "top": 1788,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Un link. Cualquier forma de pagar.",
+      "words": 6,
+      "chars": 34,
+      "lines": 2,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.8,
+      "top": 2244,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Fiado",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.15,
+      "top": 2754,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Verificar comprobante",
+      "words": 2,
+      "chars": 21,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.62,
+      "top": 2998,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Así va la caja",
+      "words": 4,
+      "chars": 14,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.46,
+      "top": 3263,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "$190.00",
+      "words": 1,
+      "chars": 7,
+      "lines": 1,
+      "size": 54.4,
+      "vw": 13.9,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.03,
+      "leading": 0.9,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.5,
+      "top": 3381,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "Cuenta el efectivo de hoy",
+      "words": 5,
+      "chars": 25,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.68,
+      "top": 4207,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "$570.00",
+      "words": 1,
+      "chars": 7,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Fraunces",
+      "weight": 700,
+      "tracking": 0,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.26,
+      "top": 4394,
+      "tag": "span",
+      "kind": "heading"
+     },
+     {
+      "text": "Una meta a la vez",
+      "words": 5,
+      "chars": 17,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.47,
+      "top": 4985,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "17%",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "DM Sans",
+      "weight": 700,
+      "tracking": 0,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.11,
+      "top": 5238,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "¿Cuadra con pey?",
+      "words": 3,
+      "chars": 16,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.48,
+      "top": 5621,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "El mercado no necesita más apps. Necesita certeza.",
+      "words": 8,
+      "chars": 50,
+      "lines": 2,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Fraunces",
+      "weight": 400,
+      "tracking": -0.025,
+      "leading": 1.25,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.79,
+      "top": 5863,
+      "tag": "p",
+      "kind": "statement"
+     }
+    ],
+    "headingSummary": {
+     "count": 17,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 5,
+     "centered": 1,
+     "medianWords": 2,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "DM Sans",
+       "share": 0.92,
+       "mono": false
+      },
+      {
+       "family": "Fraunces",
+       "share": 0.08,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      13,
+      14,
+      16,
+      20,
+      24,
+      25,
+      26,
+      34,
+      48,
+      54
+     ],
+     "sizeCount": 10,
+     "notLoaded": [],
+     "body": {
+      "font": "DM Sans",
+      "size": 14,
+      "leading": 1.43,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 4.8
+     },
+     "measureChars": 51,
+     "max": {
+      "size": 54.4,
+      "vw": 13.9,
+      "font": "Fraunces",
+      "text": "$190.00"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 1,
+     "microLabelShare": 0.003,
+     "microSamples": [
+      "Mercado Cero"
+     ],
+     "upperShare": 0,
+     "centerShare": 0.09,
+     "smallText": 3
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#f3eee5",
+     "bodyBgHsl": {
+      "h": 39,
+      "s": 0.37,
+      "l": 0.93
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#0b5a43",
+       "top": 457,
+       "hsl": {
+        "h": 163,
+        "s": 0.78,
+        "l": 0.2
+       }
+      },
+      {
+       "color": "#fbf8f1",
+       "top": 765,
+       "hsl": {
+        "h": 42,
+        "s": 0.56,
+        "l": 0.96
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#5f6b63",
+       "share": 0.58
+      },
+      {
+       "color": "#1b241f",
+       "share": 0.22
+      },
+      {
+       "color": "#f3eee6",
+       "share": 0.06
+      },
+      {
+       "color": "#3d4a43",
+       "share": 0.05
+      },
+      {
+       "color": "#f3eee5",
+       "share": 0.03
+      }
+     ],
+     "button": {
+      "bg": "#fbf8f1",
+      "hsl": {
+       "h": 42,
+       "s": 0.56,
+       "l": 0.96
+      },
+      "fg": "#f3eee5"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 9,
+     "inHero": 1,
+     "radius": 3,
+     "height": 36,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Cobrar ahora"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 1,
+     "scrims": 0,
+     "gradientSamples": [
+      "div.pointer-events-none.absolute → linear-gradient(to top, oklab(0.249695 -0.0150027 0.0052689 / 0.65) 0%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)"
+     ],
+     "gradientText": 0,
+     "hairlines": 26,
+     "hairlineSamples": [
+      "header.mx-auto.flex 390px",
+      "button.border-b.border-paper/30 286px",
+      "div.mt-4.flex 365px",
+      "button.group.flex 361px",
+      "button.group.flex 361px"
+     ],
+     "outlinedBoxes": 1,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 1,
+     "boxRadius": 99,
+     "squareMedia": 0,
+     "roundedMedia": 2,
+     "mediaRadius": 4,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.3
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": false,
+     "height": 157,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "dm sans",
+     "fraunces",
+     "__nextjs-geist"
+    ]
+   },
+   "consoleErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "level": "WARN",
+   "id": "micro-label",
+   "width": 1440,
+   "message": "1 tiny uppercase letter-spaced label(s): \"Mercado Cero\"",
+   "fix": "Prefer sentence case at body size.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "gradient",
+   "width": 1440,
+   "message": "1 gradient fill(s): div.pointer-events-none.absolute → linear-gradient(to top, oklab(0.249695 -0.0150027 0.0052689 / 0.65) 0%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0)",
+   "fix": "Use a flat colour or a real image. The only gradient allowed by default is a neutral scrim over a photo for legibility.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "hairline",
+   "width": 1440,
+   "message": "31 thin rule(s)/divider line(s): header.mx-auto.flex 1280px | button.border-b.border-paper/30 286px | div.mt-4.flex 622px | button.group.flex 618px",
+   "fix": "Delete. Separate with space, a tone change, or scale. Lines are only for real tables and form fields.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "outlined-box",
+   "width": 1440,
+   "message": "1 box(es) drawn with a 1px outline.",
+   "fix": "Prefer a filled surface or no box.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "palette-cream",
+   "width": 1440,
+   "message": "Yellow-cream background (page background #f3eee5, section #fbf8f1, button #fbf8f1).",
+   "fix": "Use the drawn palette. If you want warmth, take a low-chroma stone or bone, not a yellow cream.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "size-count",
+   "width": 1440,
+   "message": "12 different font sizes (13, 14, 16, 20, 24, 26, 29, 30, 34, 48, 53, 54).",
+   "fix": "A page needs about five: display, heading, lead, body, small.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "body-size",
+   "width": 1440,
+   "message": "Body text is 14px (the size most of the running text is set in).",
+   "fix": "Body copy 16–20px. Map small sizes from blueprints onto your body step.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "grey-body",
+   "width": 1440,
+   "message": "The running text is a soft grey on its ground (4.8:1).",
+   "fix": "Set body copy in the full ink (7:1 or more). Keep the muted ink for secondary notes; pages read thin and unfinished when everything is grey.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "few-pictures",
+   "width": 1440,
+   "message": "Only 3 picture(s) on the page (3 photographs, footage or raster images, 0 interface fragments). Drawings in SVG do not count.",
+   "fix": "Find real pictures of the subject's world with scripts/assets.mjs (photographs, archival images, maps, engravings, footage), download them to assets/ and give them room: a hero picture, one per section that has a subject, a full-width band. At least four, usually six to twelve."
+  },
+  {
+   "level": "WARN",
+   "id": "no-footage",
+   "width": 1440,
+   "message": "No video anywhere on the page.",
+   "fix": "Look for one honest clip with scripts/assets.mjs --video (the place, the material, the process) and use it as a muted loop with a poster frame. Defend its absence only if no clip fits the subject."
+  },
+  {
+   "level": "WARN",
+   "id": "small-text",
+   "width": 1440,
+   "message": "3 text block(s) under 13px.",
+   "fix": "Nothing meant to be read goes below 13px.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "focal-point",
+   "width": 1440,
+   "message": "The first screen has no dominant element: the largest type is 52.8px (3.7vw) and no single picture holds a third of the viewport.",
+   "fix": "Make one thing lead: the headline at display size, or one large picture. A grid of many small pictures is not one thing; in blind tests jurors marked a first screen without a headline down every time. On the strongest studied sites the largest type has a median of 8.4vw."
+  },
+  {
+   "level": "WARN",
+   "id": "measure",
+   "width": 768,
+   "message": "Longest paragraph runs about 96 characters per line.",
+   "fix": "Cap paragraphs at 45–75 characters (max-width: 60ch)."
+  },
+  {
+   "level": "FAIL",
+   "id": "covered-text",
+   "width": 768,
+   "message": "Large text lies under another element at some scroll position: \"Un link. Cualquier forma de pagar.\" (screen 2, 100% hidden); \"$190.00\" (screen 3, 50% hidden)",
+   "fix": "Nothing may sit on top of a headline or statement. Move the picture, shorten the pinned run, or raise the text above it (z-index) and give it a ground.",
+   "alsoAt": [
+    390
+   ]
+  }
+ ],
+ "images": [
+  {
+   "viewport": "desktop",
+   "width": 1440,
+   "fold": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero\\web\\.taste-skill\\inspect\\desktop-fold.jpg",
+   "pages": [
+    "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero\\web\\.taste-skill\\inspect\\desktop-page-01.jpg"
+   ]
+  },
+  {
+   "viewport": "tablet",
+   "width": 768,
+   "fold": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero\\web\\.taste-skill\\inspect\\tablet-fold.jpg",
+   "pages": [
+    "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero\\web\\.taste-skill\\inspect\\tablet-page-01.jpg"
+   ]
+  },
+  {
+   "viewport": "mobile",
+   "width": 390,
+   "fold": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero\\web\\.taste-skill\\inspect\\mobile-fold.jpg",
+   "pages": [
+    "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero\\web\\.taste-skill\\inspect\\mobile-page-01.jpg"
+   ]
+  }
+ ]
+}

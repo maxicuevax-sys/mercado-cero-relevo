@@ -1,0 +1,159 @@
+{
+  "base": "http://localhost:3100",
+  "rows": [
+    {
+      "path": "/",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "title": "Mercado Cero · La caja que habla"
+    },
+    {
+      "path": "/inicio",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "title": "Inicio · Mercado Cero"
+    },
+    {
+      "path": "/caja",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "title": "Caja · Mercado Cero"
+    },
+    {
+      "path": "/ventas",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "title": "Ventas · Mercado Cero"
+    },
+    {
+      "path": "/ventas?page=2",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "title": "Ventas · Mercado Cero"
+    },
+    {
+      "path": "/ventas?page=999",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "title": "Ventas · Mercado Cero"
+    },
+    {
+      "path": "/ventas?page=abc",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "title": "Ventas · Mercado Cero"
+    },
+    {
+      "path": "/ventas?ayuda=1",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "title": "Ventas · Mercado Cero"
+    },
+    {
+      "path": "/caja?tab=fiado",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "title": "Caja · Mercado Cero"
+    },
+    {
+      "path": "/caja/",
+      "status": 308,
+      "location": "/caja",
+      "cacheControl": null,
+      "title": ""
+    },
+    {
+      "path": "/ventas/",
+      "status": 308,
+      "location": "/ventas",
+      "cacheControl": null,
+      "title": ""
+    },
+    {
+      "path": "/fiados",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=fiado",
+      "cacheControl": null,
+      "title": ""
+    },
+    {
+      "path": "/fiados?ayuda=1",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=fiado&ayuda=1",
+      "cacheControl": null,
+      "title": ""
+    },
+    {
+      "path": "/corte",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=corte",
+      "cacheControl": null,
+      "title": ""
+    },
+    {
+      "path": "/metas",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=meta",
+      "cacheControl": null,
+      "title": ""
+    },
+    {
+      "path": "/pendientes",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=pendientes",
+      "cacheControl": null,
+      "title": ""
+    },
+    {
+      "path": "/?tab=corte",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "title": "Mercado Cero · La caja que habla"
+    },
+    {
+      "path": "/?tab=ventas",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "title": "Mercado Cero · La caja que habla"
+    },
+    {
+      "path": "/?ayuda=1",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "title": "Mercado Cero · La caja que habla"
+    },
+    {
+      "path": "/pay/ord_nope",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "title": "Cobro no encontrado · Mercado Cero"
+    },
+    {
+      "path": "/pay/ord_nope/success",
+      "status": 200,
+      "location": null,
+      "cacheControl": "private, no-store, max-age=0, must-revalidate",
+      "title": "Confirmando pago · Mercado Cero"
+    },
+    {
+      "path": "/nope",
+      "status": 404,
+      "location": null,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "title": "404: This page could not be found."
+    }
+  ]
+}

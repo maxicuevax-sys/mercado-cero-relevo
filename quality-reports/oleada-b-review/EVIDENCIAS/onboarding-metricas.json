@@ -1,0 +1,119 @@
+{
+  "auditoria": "07_onboarding",
+  "head": "4130e71",
+  "fecha": "2026-11-04",
+  "servidor": "http://localhost:3100",
+  "buildSha": "4130e71d668e5e4693a8f5b634d2d2f953d21b02",
+  "modo": "demo",
+  "viewports": ["1448x1086", "390x844", "320x640"],
+  "caja_vacia": {
+    "controles_visibles": 25,
+    "links": 14,
+    "buttons": 7,
+    "inputs": 4,
+    "paradas_de_teclado_antes_del_primer_campo": 13,
+    "campos": ["Producto o servicio", "Cantidad (1 por defecto)", "Precio unitario", "Efectivo recibido"],
+    "metodos": ["Efectivo (activo)", "Digital", "Fiado", "Mixto"],
+    "acciones": ["+ Agregar", "Confirmar venta (deshabilitado)", "Descartar venta"],
+    "primer_campo_320_top_px": 627,
+    "primer_campo_320_visible_completo": false,
+    "alta_320_top_px": 549,
+    "alta_390_boton_agregar_top_px": 745,
+    "alta_390_boton_agregar_bottom_px": 793,
+    "alta_390_viewport_px": 844
+  },
+  "flujo_efectivo_exacto": {
+    "datos_obligatorios": ["producto", "precio unitario", "efectivo recibido"],
+    "campos_precargados": ["cantidad = 1"],
+    "decisiones": ["método de pago (Efectivo por defecto)"],
+    "acciones_despues_de_entrar": ["Agregar", "Confirmar venta", "Nueva venta o Ver ventas"],
+    "interacciones_minimas": 6,
+    "resultado": "PASS con reservas; el cambio y el efectivo se muestran bien"
+  },
+  "flujo_efectivo_con_cambio": {
+    "resultado": "PASS; Recibiste $100, Efectivo aplicado $70, Cambio $30",
+    "deuda": "el cambio no se persiste; al recargar desaparece"
+  },
+  "flujo_fiado": {
+    "decisiones_extra": ["método Fiado", "nombre de quien debe"],
+    "resultado": "P1; banner dice que el efectivo sí se registró aunque no hubo efectivo"
+  },
+  "flujo_digital": {
+    "decisiones_extra": ["método Digital", "link o QR", "copiar o abrir"],
+    "resultado": "P1; callejón sin salida y copiar link oculto"
+  },
+  "flujo_mixto_efectivo_digital": {
+    "ejemplo": "total $100, efectivo $60, digital $40",
+    "resultado": "P0; el panel dice que el dinero aún no se recibió y no muestra los $60",
+    "ventas": "fila AEA7: método Efectivo, Falta cobrar $40, sin Recibido $60; status confirmed"
+  },
+  "flujo_mixto_efectivo_fiado": {
+    "ejemplo": "total $100, efectivo $60, fiado $40, Juan",
+    "resultado": "P1 en demo; título Venta cobrada en efectivo (demo) aunque $40 son deuda"
+  },
+  "verdad_dinero": {
+    "efectivo_exacto": "correcto",
+    "efectivo_con_cambio": "correcto en pantalla; no persistente",
+    "mixto_efectivo_digital": "P0",
+    "mixto_efectivo_fiado": "P1 en demo; correcto en modo real",
+    "fiado_puro": "P1 por banner falso",
+    "digital_pendiente": "P1 por estado Registrado y callejón",
+    "demo": "correcto en resultado; /ventas tapa subestado con badge DEMO",
+    "verificado": "correcto; lenguaje proveedor/pey"
+  },
+  "ventas": {
+    "total_demo_observado": 55,
+    "nota": "snapshot de probe2; la base demo cambia con cada corrida y no es representativa",
+    "paginas": 3,
+    "page99": "clampeada a página 3; no muestra vacío falso",
+    "primer_fila_320_top_px": 688,
+    "primer_fila_320_visible": false,
+    "fila_parcial_AEA7": "DEMO · Efectivo · Falta cobrar $40 · sin Recibido $60",
+    "fila_mixto_fiado_9E3D": "DEMO · Efectivo + fiado · Juan · Saldo vivo $40"
+  },
+  "modulos_no_migrados": {
+    "Fiados": "/?tab=fiado (H1 Caja)",
+    "Corte": "/?tab=corte (H1 Caja)",
+    "Metas": "/?tab=meta (H1 Caja)",
+    "Pendientes": "/?tab=pendientes (H1 Caja)",
+    "Ayuda": "/?ayuda=1 (Caja legacy con voz/IA)",
+    "Ajustes": "/?ayuda=1#ajustes"
+  },
+  "evidencia": [
+    "onboarding-probe.json",
+    "onboarding-probe2.json",
+    "onboarding-probe3.json",
+    "onboarding-probe4.json",
+    "onboarding-probe5.json",
+    "onboarding-tab-order.json",
+    "onboarding-caja-vacia-1448.png",
+    "onboarding-caja-tras-agregar.png",
+    "onboarding-caja-efectivo-insuficiente.png",
+    "onboarding-caja-efectivo-cambio.png",
+    "onboarding-caja-resultado-efectivo.png",
+    "onboarding-caja-resultado-fiado.png",
+    "onboarding-caja-digital-pendiente-sin-link.png",
+    "onboarding-caja-digital-pendiente-con-link.png",
+    "onboarding-caja-regreso-con-pendiente.png",
+    "onboarding-caja-mixto-efectivo-digital-panel.png",
+    "onboarding-caja-mixto-efectivo-fiado-resultado.png",
+    "onboarding-caja-resultado-demo.png",
+    "onboarding-caja-error-red.png",
+    "onboarding-caja-cambio-antes-recarga.png",
+    "onboarding-caja-cambio-despues-recarga.png",
+    "onboarding-caja-vacia-320.png",
+    "onboarding-caja-320-primer-viewport.png",
+    "onboarding-caja-320-scroll-alta.png",
+    "onboarding-caja-390-primer-viewport.png",
+    "onboarding-caja-390-alta-oculta.png",
+    "onboarding-ventas-1448.png",
+    "onboarding-ventas-390.png",
+    "onboarding-ventas-320.png",
+    "onboarding-ventas-pagina-2.png",
+    "onboarding-ventas-fila-AEA7.png",
+    "onboarding-ventas-fila-9E3D.png",
+    "onboarding-inicio-1448.png",
+    "onboarding-inicio-320.png",
+    "onboarding-ayuda-desde-caja.png"
+  ]
+}

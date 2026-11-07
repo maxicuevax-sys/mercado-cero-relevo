@@ -1,0 +1,746 @@
+/* Detalle de venta · composición del ticket (referencia DEFINITIVE 16).
+   Solo clases `.mc-dv-*`. El shell, el header y los tokens vienen del wrapper
+   operativo; la página usa base 4, tarjetas 22 y una sola sombra de papel. */
+
+.mc-dv-page {
+  --mc-dv-border: var(--color-separator);
+  --mc-dv-shadow: 0 2px 8px rgb(31 38 34 / 0.05);
+  position: relative;
+}
+
+.mc-dv-page.mc-op-main {
+  padding: 24px;
+  padding-bottom: 72px;
+}
+
+.mc-dv-page > .mc-op-header,
+.mc-dv-page > .mc-op-page {
+  width: 100%;
+  max-width: 920px;
+  margin-inline: auto;
+}
+
+.mc-dv-page > .mc-op-page {
+  gap: 16px;
+}
+
+.mc-dv-page > .mc-op-header {
+  margin-bottom: 24px;
+}
+
+/* Acciones del encabezado: volver + ticket. */
+.mc-dv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.mc-dv-back,
+.mc-dv-ticket {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--color-accent);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mc-dv-ticket {
+  background: var(--color-accent);
+  color: #fffdf7;
+}
+
+.mc-dv-back:hover {
+  background: var(--color-green-soft);
+}
+
+.mc-dv-ticket:hover {
+  background: var(--color-accent-press);
+}
+
+.mc-dv-back svg,
+.mc-dv-ticket svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+/* -------------------------------------------------------------------------
+   Hero: registro, folio, total, estado y fecha.
+   ------------------------------------------------------------------------- */
+.mc-dv-hero {
+  display: grid;
+  grid-template-columns: minmax(120px, 190px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
+  padding: 20px 24px;
+  border-radius: 24px;
+  background: var(--color-accent);
+  color: #fffdf7;
+  box-shadow: var(--mc-dv-shadow);
+}
+
+.mc-dv-hero__art {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 0;
+}
+
+.mc-dv-hero__art img {
+  width: 100%;
+  max-width: 190px;
+  height: auto;
+  object-fit: contain;
+}
+
+.mc-dv-hero__body {
+  min-width: 0;
+}
+
+.mc-dv-hero__folio {
+  color: #fffdf7;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.mc-dv-hero__total {
+  margin-top: 2px;
+  color: #fffdf7;
+  font-family: var(--font-alder), "Alder", "Segoe UI", sans-serif;
+  font-size: clamp(2rem, 4.6vw, 3rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.mc-dv-status {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  margin-top: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--color-green-soft);
+  color: var(--color-accent);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.mc-dv-status--demo {
+  background: var(--color-saffron-soft);
+  color: #7a2e12;
+}
+
+.mc-dv-status--pendiente {
+  background: var(--color-blue-soft);
+  color: #1f3f5c;
+}
+
+.mc-dv-status--fiado {
+  background: var(--color-terracotta-soft);
+  color: #7a2e12;
+}
+
+.mc-dv-status--neutral {
+  background: rgb(255 253 247 / 0.14);
+  border: 1px solid rgb(255 253 247 / 0.6);
+  color: #fffdf7;
+}
+
+.mc-dv-hero__when {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  padding-left: 18px;
+  border-left: 1px solid rgb(255 253 247 / 0.28);
+}
+
+.mc-dv-hero__when svg {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 2px;
+}
+
+.mc-dv-hero__date {
+  color: #fffdf7;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.mc-dv-hero__time {
+  color: #fffdf7;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.mc-dv-demo {
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, var(--color-attention) 34%, transparent);
+  border-radius: 12px;
+  background: var(--color-saffron-soft);
+  color: var(--color-attention);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+/* -------------------------------------------------------------------------
+   Productos y total.
+   ------------------------------------------------------------------------- */
+.mc-dv-card {
+  min-width: 0;
+  padding: 18px 20px 8px;
+  border: 1px solid var(--mc-dv-border);
+  border-radius: 22px;
+  background: var(--color-surface);
+  box-shadow: var(--mc-dv-shadow);
+}
+
+.mc-dv-card__title {
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.mc-dv-card__empty {
+  padding: 12px 0;
+  color: var(--color-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.mc-dv-items {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mc-dv-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--mc-dv-border);
+}
+
+.mc-dv-item:first-child {
+  border-top: 0;
+}
+
+.mc-dv-item__badge {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  background: var(--color-green-soft);
+}
+
+.mc-dv-item__badge--saffron {
+  background: var(--color-saffron-soft);
+}
+
+.mc-dv-item__badge--terracotta {
+  background: var(--color-terracotta-soft);
+}
+
+.mc-dv-item__badge img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.mc-dv-item__main {
+  min-width: 0;
+}
+
+.mc-dv-item__name {
+  color: var(--color-ink);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.mc-dv-item__unit {
+  margin-top: 2px;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.mc-dv-item__total {
+  color: var(--color-ink);
+  font-family: var(--font-alder), "Alder", "Segoe UI", sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: 1.2;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.mc-dv-total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  min-width: 0;
+  padding: 14px 20px;
+  border-radius: 18px;
+  background: var(--color-green-soft);
+}
+
+.mc-dv-total > span {
+  color: var(--color-accent);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.mc-dv-total__value {
+  color: var(--color-accent);
+  font-family: var(--font-alder), "Alder", "Segoe UI", sans-serif;
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+/* -------------------------------------------------------------------------
+   Método, cliente y estado.
+   ------------------------------------------------------------------------- */
+.mc-dv-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  min-width: 0;
+  padding: 14px 6px;
+  border: 1px solid var(--mc-dv-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+  box-shadow: var(--mc-dv-shadow);
+}
+
+.mc-dv-meta__cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  padding: 0 14px;
+  border-left: 1px solid var(--mc-dv-border);
+}
+
+.mc-dv-meta__cell:first-child {
+  border-left: 0;
+}
+
+.mc-dv-meta__cell > svg {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  color: var(--color-accent);
+}
+
+.mc-dv-meta__cell > div {
+  min-width: 0;
+}
+
+.mc-dv-meta__label {
+  color: var(--color-ink-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.mc-dv-meta__value {
+  margin-top: 2px;
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.mc-dv-truth {
+  margin: 0;
+  padding: 0 4px;
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------------------------------
+   Notas y devolución.
+   ------------------------------------------------------------------------- */
+.mc-dv-notes {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px 18px;
+  border: 1px solid var(--mc-dv-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+  box-shadow: var(--mc-dv-shadow);
+}
+
+.mc-dv-notes > svg {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  color: var(--color-accent);
+}
+
+.mc-dv-notes > div {
+  min-width: 0;
+}
+
+.mc-dv-notes__title {
+  color: var(--color-ink-2);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.mc-dv-notes__body {
+  color: var(--color-ink);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.mc-dv-notes__hint {
+  margin-top: 2px;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.mc-dv-refund {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mc-dv-refund__title {
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.mc-dv-refund__button {
+  display: inline-flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border: 1px solid var(--color-accent);
+  border-radius: 14px;
+  background: var(--color-accent);
+  color: #fffdf7;
+  font: inherit;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  line-height: 1.3;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mc-dv-refund__button svg {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+}
+
+.mc-dv-refund__note {
+  max-width: 72ch;
+  padding: 0 2px;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.mc-dv-foot {
+  max-width: 72ch;
+  padding: 0 2px;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.mc-dv-notfound {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  max-width: 560px;
+  padding: 24px;
+  border: 1px dashed var(--mc-dv-border);
+  border-radius: 22px;
+  background: var(--color-surface);
+  box-shadow: var(--mc-dv-shadow);
+}
+
+.mc-dv-notfound > svg {
+  width: 32px;
+  height: 32px;
+  color: var(--color-accent);
+}
+
+.mc-dv-notfound__title {
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.mc-dv-notfound__body {
+  max-width: 52ch;
+  color: var(--color-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.mc-dv-notfound .mc-dv-back {
+  margin-top: 8px;
+}
+
+/* -------------------------------------------------------------------------
+   Responsive: 941 escritorio, 390 y 320 móvil.
+   ------------------------------------------------------------------------- */
+@media (max-width: 1023.98px) {
+  .mc-dv-page.mc-op-main {
+    padding: 20px 16px 72px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .mc-dv-page.mc-op-main {
+    padding: 20px 16px calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .mc-dv-page > .mc-op-header {
+    margin-bottom: 20px;
+  }
+
+  .mc-dv-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .mc-dv-hero {
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 12px 16px;
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .mc-dv-hero__art {
+    grid-row: 1 / span 2;
+  }
+
+  .mc-dv-hero__art img {
+    max-width: 112px;
+  }
+
+  .mc-dv-hero__when {
+    grid-column: 2;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    padding: 8px 0 0;
+    border-top: 1px solid rgb(255 253 247 / 0.28);
+    border-left: 0;
+  }
+
+  .mc-dv-hero__when svg {
+    width: 18px;
+    height: 18px;
+    margin-bottom: 0;
+  }
+
+  .mc-dv-hero__date,
+  .mc-dv-hero__time {
+    font-size: 0.875rem;
+  }
+
+  .mc-dv-card {
+    padding: 16px 16px 6px;
+  }
+
+  .mc-dv-total {
+    padding: 12px 16px;
+  }
+
+  .mc-dv-meta {
+    padding: 12px 2px;
+  }
+
+  .mc-dv-meta__cell {
+    gap: 6px;
+    padding: 0 8px;
+  }
+
+  .mc-dv-meta__cell > svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .mc-dv-meta__value {
+    font-size: 0.875rem;
+  }
+
+  .mc-dv-refund__button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 479.98px) {
+  .mc-dv-page > .mc-op-header {
+    padding-right: 0;
+  }
+
+  .mc-dv-hero {
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 10px 12px;
+    padding: 14px;
+  }
+
+  .mc-dv-hero__art img {
+    max-width: 92px;
+  }
+
+  .mc-dv-hero__total {
+    font-size: clamp(1.625rem, 8vw, 2rem);
+  }
+
+  .mc-dv-hero__folio {
+    font-size: 0.8125rem;
+  }
+
+  .mc-dv-status {
+    margin-top: 6px;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+  }
+
+  .mc-dv-card__title {
+    font-size: 1.25rem;
+  }
+
+  .mc-dv-total > span {
+    font-size: 1.0625rem;
+  }
+
+  .mc-dv-total__value {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 359.98px) {
+  .mc-dv-hero {
+    grid-template-columns: 76px minmax(0, 1fr);
+    padding: 12px;
+  }
+
+  .mc-dv-hero__art img {
+    max-width: 76px;
+  }
+
+  .mc-dv-hero__total {
+    font-size: 1.5rem;
+  }
+
+  .mc-dv-item {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .mc-dv-item__total {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .mc-dv-meta {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 4px 12px;
+  }
+
+  .mc-dv-meta__cell {
+    padding: 10px 0;
+    border-top: 1px solid var(--mc-dv-border);
+    border-left: 0;
+  }
+
+  .mc-dv-meta__cell:first-child {
+    border-top: 0;
+  }
+
+  .mc-dv-total {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (forced-colors: active) {
+  .mc-dv-hero,
+  .mc-dv-card,
+  .mc-dv-total,
+  .mc-dv-meta,
+  .mc-dv-notes,
+  .mc-dv-back,
+  .mc-dv-ticket,
+  .mc-dv-refund__button {
+    border: 1px solid CanvasText;
+  }
+}

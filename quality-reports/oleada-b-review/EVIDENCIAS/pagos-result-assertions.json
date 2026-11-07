@@ -1,0 +1,19 @@
+{
+  "base": "http://localhost:3100",
+  "mark": "AUDRES1793812828",
+  "generatedAt": "2026-11-04T11:20:34-0600",
+  "results": [
+    {
+      "name": "B2 resultado: recibido/aplicado/cambio",
+      "ok": true,
+      "detail": "resultado venta cobrada en efectivo (demo) total de la venta $47.25 efectivo de demostración. no es dinero real ni una confirmación bancaria. pedido b421 estado demo (simulado) recibiste $50.00 efectivo aplicado $47.25 cambio $2.75 nueva venta ver ventas volver a caja total registrado $47.25. si el estado no es pagado, no entregues como cobrado."
+    },
+    {
+      "name": "I2 resultado: fiado y saldo vivo",
+      "ok": true,
+      "detail": "resultado venta registrada con fiado total de la venta $100.00 la venta quedó registrada. la parte fiada es deuda; no la cuentes como dinero recibido. pedido a505 estado registrado saldo vivo fiado $100.00 · cliente recheck quedó anotado en fiado. solo el fiado es deuda; el efectivo sí se registró en la caja. nueva venta ver ventas volver a caja total registrado $100.00. si el estado no es pagado, no entregues como cobrado."
+    }
+  ],
+  "pass": 2,
+  "fail": 0
+}

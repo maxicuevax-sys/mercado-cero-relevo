@@ -1,0 +1,415 @@
+{
+  "schema": "mercado-cero-relevo/1",
+  "generatedAt": "2026-11-02T22:40:00-06:00",
+  "worktree": "C:\\Users\\Elitebook 840 G8\\Documents\\Default Project\\mercado-cero-consolidacion",
+  "branch": "p0/consolidacion",
+  "baseSha": "fabe7cc09bca0031233ac893a4d3d9c330c921c5",
+  "masterSha": "a85d903936af607e3c209fedceb2a40d8410a66e",
+  "finalSha": "fabe7cc09bca0031233ac893a4d3d9c330c921c5",
+  "buildKnown": "2a1f166ba5b11990b6ddd0319caba01fcf2d1990",
+  "method": [
+    "git rev-parse, merge-base --is-ancestor, rev-list --left-right --count, log, show, diff, status",
+    "lectura de codigo en web/src y web/next.config.ts",
+    "lectura de asserts en web/scripts/*.py y *.mjs",
+    "lectura de artefactos JSON y capturas en harness/evidence y %TEMP%\\opencode",
+    "GET de solo lectura a /api/health, / y /pay/no-existe en :3000, :3230, :3302 y tuneles"
+  ],
+  "claims": [
+    {
+      "id": "GIT-01",
+      "area": "git",
+      "claim": "master es a85d903936af607e3c209fedceb2a40d8410a66e.",
+      "status": "VERIFICADO",
+      "evidence": "git rev-parse master"
+    },
+    {
+      "id": "GIT-02",
+      "area": "git",
+      "claim": "p0/final-cognitive apunta a fabe7cc09bca0031233ac893a4d3d9c330c921c5.",
+      "status": "VERIFICADO",
+      "evidence": "git rev-parse p0/final-cognitive"
+    },
+    {
+      "id": "GIT-03",
+      "area": "git",
+      "claim": "master es ancestro de p0/final-cognitive y hay 28 commits de diferencia (master..final=28, final..master=0).",
+      "status": "VERIFICADO",
+      "evidence": "git merge-base --is-ancestor master p0/final-cognitive -> 0; git rev-list --left-right --count master...p0/final-cognitive -> 0 28"
+    },
+    {
+      "id": "GIT-02b",
+      "area": "git",
+      "claim": "p0/consolidacion es fabe7cc mas un commit de docs; su SHA no es auto-referenciable.",
+      "status": "VERIFICADO",
+      "evidence": "git log -1 en p0/consolidacion; base fabe7cc"
+    },
+    {
+      "id": "GIT-03b",
+      "area": "git",
+      "claim": "master..p0/consolidacion es 29 (28 de la final + 1 commit de docs).",
+      "status": "VERIFICADO",
+      "evidence": "git rev-list --left-right --count master...p0/consolidacion -> 0 29, si el commit de docs es unico"
+    },
+    {
+      "id": "GIT-04",
+      "area": "git",
+      "claim": "El fast-forward de master a la final es posible y no se ejecuto.",
+      "status": "VERIFICADO",
+      "evidence": "master es ancestro; no se corrio merge en este worktree"
+    },
+    {
+      "id": "GIT-05",
+      "area": "git",
+      "claim": "master ya contiene la final.",
+      "status": "FALSO",
+      "evidence": "git merge-base --is-ancestor HEAD master -> exit 1; 28 commits de diferencia"
+    },
+    {
+      "id": "GIT-06",
+      "area": "git",
+      "claim": "El worktree de consolidacion esta limpio antes de los docs.",
+      "status": "VERIFICADO",
+      "evidence": "git status --short vacio al inicio de la sesion"
+    },
+    {
+      "id": "BUILD-01",
+      "area": "build",
+      "claim": "El build conocido es 2a1f166 y se hizo el 2026-11-03T04:21:10Z.",
+      "status": "VERIFICADO",
+      "evidence": "mercado-cero-rehearsal/web/.next/BUILD_SHA; GET :3302/api/health -> buildSha=2a1f166"
+    },
+    {
+      "id": "BUILD-02",
+      "area": "build",
+      "claim": "El build conocido es el build del HEAD fabe7cc.",
+      "status": "FALSO",
+      "evidence": "buildSha=2a1f166; HEAD=fabe7cc; 2a1f166 es el padre"
+    },
+    {
+      "id": "BUILD-03",
+      "area": "build",
+      "claim": "Entre 2a1f166 y fabe7cc solo cambian payment-truth-e2e.py y companion-preferences-e2e.json; el codigo de app es identico.",
+      "status": "VERIFICADO",
+      "evidence": "git diff --name-only 2a1f166..fabe7cc -- web/src web/next.config.ts web/package.json vacio"
+    },
+    {
+      "id": "BUILD-04",
+      "area": "build",
+      "claim": "Hay un servidor :3000 construido desde el HEAD.",
+      "status": "FALSO",
+      "evidence": "GET http://127.0.0.1:3000/api/health -> conexion rechazada"
+    },
+    {
+      "id": "BUILD-05",
+      "area": "build",
+      "claim": "Existe latest.json full atado al HEAD.",
+      "status": "FALSO",
+      "evidence": "harness/evidence no contiene latest.json ni latest-static.json; git ls-files solo muestra README y companion-preferences-e2e.json"
+    },
+    {
+      "id": "BUILD-06",
+      "area": "build",
+      "claim": "verify:full 23/23 fue ejecutado y esta verde sobre fabe7cc.",
+      "status": "NO VERIFICADO",
+      "evidence": "No hay latest.json ni corrida full; no se ejecuto en este carril"
+    },
+    {
+      "id": "PREVIEW-01",
+      "area": "preview",
+      "claim": "La preview :3230 y el tunel publico sirven 397039d.",
+      "status": "VERIFICADO",
+      "evidence": "GET :3230/api/health y https://involve-picking-wellness-retreat.trycloudflare.com/api/health -> buildSha=397039d"
+    },
+    {
+      "id": "PREVIEW-02",
+      "area": "preview",
+      "claim": "La preview es el build final.",
+      "status": "FALSO",
+      "evidence": "preview=397039d; HEAD=fabe7cc; :3302=2a1f166"
+    },
+    {
+      "id": "PREVIEW-03",
+      "area": "preview",
+      "claim": "El tunel timing-brought-lamp-aberdeen sigue vivo.",
+      "status": "FALSO",
+      "evidence": "GET https://timing-brought-lamp-aberdeen.trycloudflare.com/api/health -> DNS no resuelve"
+    },
+    {
+      "id": "PREVIEW-04",
+      "area": "preview",
+      "claim": "El QR demo apunta al tunel timing muerto.",
+      "status": "VERIFICADO",
+      "evidence": "demo/qr-demo.html contiene https://timing-brought-lamp-aberdeen.trycloudflare.com"
+    },
+    {
+      "id": "P0-1",
+      "area": "fix",
+      "claim": "El reset de demo bloquea con 409 si hay un pago pey firmado (aunque demo=1) y no borra pedido ni pago.",
+      "status": "VERIFICADO",
+      "evidence": "web/src/lib/db.ts:1997-2011; DELETE conserva pey paid en :2017-2049; web/src/app/api/demo/reset/route.ts; E2E P0-1 checks 409 y filas sobreviven"
+    },
+    {
+      "id": "P0-1-FORCE",
+      "area": "fix",
+      "claim": "FORCE_DEMO_RESET=1 responde 200 y conserva el pago pey firmado y su pedido.",
+      "status": "VERIFICADO",
+      "evidence": "E2E P0-1 FORCE 200, preservedRealPayments=1, filas presentes; db.ts:2017-2049"
+    },
+    {
+      "id": "P0-1-COUNT",
+      "area": "fix",
+      "claim": "preservedRealPayments cuenta filas de pago preservadas.",
+      "status": "FALSO",
+      "evidence": "db.ts:2053-2058 usa new Set(payments.map(order_id)).size: cuenta pedidos distintos. Las filas se reportan en realPayments/realPaymentCount. El E2E compara contra SELECT DISTINCT order_id por eso pasa."
+    },
+    {
+      "id": "P0-2",
+      "area": "fix",
+      "claim": "/ se sirve con Cache-Control private, no-store, sin public ni s-maxage.",
+      "status": "VERIFICADO",
+      "evidence": "web/next.config.ts:187-193; GET :3302/ -> private, no-store, max-age=0, must-revalidate; E2E P0-2 28/28"
+    },
+    {
+      "id": "P0-2-PREVIEW",
+      "area": "fix",
+      "claim": "La preview 397039d tambien sirve / con Cache-Control privado.",
+      "status": "FALSO",
+      "evidence": "GET https://involve.../ -> public, max-age=0, s-maxage=60, stale-while-revalidate=300"
+    },
+    {
+      "id": "P1-1",
+      "area": "fix",
+      "claim": "Un webhook firmado en demo deja demo_paid, no suma a verifiedDigitalCents y fulfill responde 409 demo_not_deliverable.",
+      "status": "VERIFICADO",
+      "evidence": "web/src/lib/orders.ts:669-687,967-977; web/src/lib/db.ts:1794-1808; E2E P1-1 checks demo_paid, verified 0->0, demo 0->1000, fulfill 409"
+    },
+    {
+      "id": "P1-2",
+      "area": "security",
+      "claim": "Existe autenticacion de sesion en la app.",
+      "status": "FALSO",
+      "evidence": "No hay middleware/sesion; web/SECURITY.md declara que CSRF no es auth; la unica barrera externa es Cloudflare Access"
+    },
+    {
+      "id": "P1-3",
+      "area": "fix",
+      "claim": "/api/verify rechaza una transaccion PAID sin metadata.orderId, clientReferenceId ni payableId.",
+      "status": "VERIFICADO",
+      "evidence": "web/src/app/api/verify/route.ts:212-248; E2E txn_no_refs -> verified:false/reference_mismatch; txn_with_order_ref -> verified:true"
+    },
+    {
+      "id": "P1-4",
+      "area": "fix",
+      "claim": "El checkout y success inexistentes devuelven HTTP 404.",
+      "status": "FALSO",
+      "evidence": "GET :3302/pay/no-existe -> 200; GET :3302/pay/no-existe/success -> 200; GET :3230 igual -> 200"
+    },
+    {
+      "id": "P1-5",
+      "area": "fix",
+      "claim": "Los totales de cobros y fiado salen del servidor y la UI declara el truncamiento (50 de 52, 100 de 102).",
+      "status": "VERIFICADO",
+      "evidence": "web/src/lib/dashboard.ts:49-64,111-144; db.ts:1437-1465,1670-1713; UI pending-payments.tsx:104-150,231-234 y caja-app.tsx:3001-3008,6562-6565; E2E 52/102"
+    },
+    {
+      "id": "P1-5-PAGINATION",
+      "area": "fix",
+      "claim": "P1-5 agrego paginacion completa para cargar pendientes 51+ y fiados 101+.",
+      "status": "FALSO",
+      "evidence": "No hay boton de carga; la UI solo declara el truncamiento y muestra el total del servidor"
+    },
+    {
+      "id": "E2E-01",
+      "area": "evidence",
+      "claim": "p0-adversarial-e2e.py paso 28/28 contra build 2a1f166.",
+      "status": "VERIFICADO",
+      "evidence": "mercado-cero-rehearsal/harness/evidence/p0-adversarial-e2e.json: ok=true, 28 checks, buildSha=2a1f166"
+    },
+    {
+      "id": "E2E-02",
+      "area": "evidence",
+      "claim": "La evidencia adversarial 28/28 esta atada al HEAD fabe7cc y a un arbol limpio.",
+      "status": "FALSO",
+      "evidence": "JSON no tiene gitAtStart ni dirty; buildSha=2a1f166; HEAD=fabe7cc"
+    },
+    {
+      "id": "E2E-03",
+      "area": "evidence",
+      "claim": "payment-truth-e2e.py paso 35/35 con artefacto JSON y SHA.",
+      "status": "NO VERIFICADO",
+      "evidence": "Solo capturas en %TEMP%\\opencode\\verdad-pago a las 22:23; no hay JSON ni buildSha; el script cambio en fabe7cc (22:25) despues del build 2a1f166"
+    },
+    {
+      "id": "E2E-04",
+      "area": "evidence",
+      "claim": "closing-checklist-e2e.py paso 18/18.",
+      "status": "VERIFICADO",
+      "evidence": "%TEMP%\\opencode\\cierre-cognitivo\\closing-checklist-e2e.json: 18 results, todos ok; base :3302; un result declara build 2a1f166"
+    },
+    {
+      "id": "E2E-05",
+      "area": "evidence",
+      "claim": "sin-ia-e2e.py paso 21/21 + 1 NOTE.",
+      "status": "VERIFICADO",
+      "evidence": "%TEMP%\\opencode\\sin-ia\\sin-ia-e2e.json: ok=true, passed=21, failed=0, notes=1, generatedAt=2026-11-03T04:24:25Z"
+    },
+    {
+      "id": "E2E-06",
+      "area": "evidence",
+      "claim": "companion-preferences-e2e.py paso 26/26.",
+      "status": "VERIFICADO",
+      "evidence": "harness/evidence/companion-preferences-e2e.json: pass=26, fail=0",
+      "caveat": "El JSON declara gitAtStart.sha=2a1f166 y dirty=true; no es valido para cierre."
+    },
+    {
+      "id": "E2E-07",
+      "area": "evidence",
+      "claim": "Los cuatro E2E cognitivos estan incluidos en verify:full 23/23.",
+      "status": "FALSO",
+      "evidence": "web/scripts/harness-gate.mjs: 25 gates, full 23; no incluye payment-truth, sin-ia, closing ni companion"
+    },
+    {
+      "id": "PREFLIGHT-01",
+      "area": "commands",
+      "claim": "El preflight puede dar 18/18 hoy con $env:APP_URL y el reset.",
+      "status": "FALSO",
+      "evidence": "web/scripts/preflight.mjs:40 lee APP_URL solo de .env.local; exige mobile-audit.json, checkout-audit.json y tunnel-smoke.json; no existen en el worktree"
+    },
+    {
+      "id": "PREFLIGHT-02",
+      "area": "commands",
+      "claim": "El preflight lee APP_URL de $env:APP_URL.",
+      "status": "FALSO",
+      "evidence": "preflight.mjs:39-40: const env = loadEnv(ENV_PATH); const appUrl = env.APP_URL ?? LOCAL"
+    },
+    {
+      "id": "DOCS-01",
+      "area": "docs",
+      "claim": "GOAL-CIERRE-DEMO parte de master 71bc4ed y dice que falta integrar p0/design-structure.",
+      "status": "OBSOLETO",
+      "evidence": "GOAL-CIERRE-DEMO.md actualizado a a85d903/fabe7cc; p0/design-structure es ancestro de HEAD"
+    },
+    {
+      "id": "DOCS-02",
+      "area": "docs",
+      "claim": "El gate data son 123 checks.",
+      "status": "FALSO",
+      "evidence": "HARNESS.md:97 y harness-gate.mjs: 85 checks (58+20+7)"
+    },
+    {
+      "id": "DOCS-03",
+      "area": "docs",
+      "claim": "demo/STATUS parte de 3fe1cc9 y el servidor :3000 es 665d72e.",
+      "status": "OBSOLETO",
+      "evidence": "STATUS actualizado a fabe7cc/2a1f166; :3000 no responde"
+    },
+    {
+      "id": "DOCS-04",
+      "area": "docs",
+      "claim": "RUNBOOK/STATUS/STATE usan el tunel timing-brought-lamp-aberdeen como vigente.",
+      "status": "OBSOLETO",
+      "evidence": "Actualizados a involve-picking-wellness-retreat (preview 397039d); timing no resuelve"
+    },
+    {
+      "id": "DOCS-05",
+      "area": "docs",
+      "claim": "README dice que F3 esta desplegado en produccion y hay evidencia de deploy.",
+      "status": "NO VERIFICADO",
+      "evidence": "README.md:8; la unica URL viva es un quick tunnel de preview (397039d); no hay deploy de produccion"
+    },
+    {
+      "id": "VIDEO-01",
+      "area": "video",
+      "claim": "El MP4 versionado es historico, muestra $570 y no es el video final.",
+      "status": "VERIFICADO",
+      "evidence": "context/05-EVIDENCIA.md O14/O15; supervisor D6; ffprobe 39.76 s, 1,704,744 B, 1280x800; frame $570; no se regrabo",
+      "caveat": "Verificado con context/05-EVIDENCIA.md y supervisor D6; no se re-ejecuto ffprobe en este carril."
+    },
+    {
+      "id": "VIDEO-02",
+      "area": "video",
+      "claim": "Los scripts de p0/fix-video estan integrados en HEAD y permiten grabar con DEMO_BASE_URL.",
+      "status": "FALSO",
+      "evidence": "git merge-base --is-ancestor p0/fix-video HEAD -> exit 1; web/scripts/demo_ui.py no existe; record-demo.py:25 hardcodea http://localhost:3000"
+    },
+    {
+      "id": "A11Y-01",
+      "area": "a11y",
+      "claim": "Existe una regla @media (forced-colors: active).",
+      "status": "FALSO",
+      "evidence": "0 coincidencias en web/src (*.css, *.tsx)"
+    },
+    {
+      "id": "A11Y-02",
+      "area": "a11y",
+      "claim": "A 320 px/200 % Fiar/Cobrar quedan bajo el pliegue.",
+      "status": "NO VERIFICADO",
+      "evidence": "El audit adversarial lo midio en b7154ca; no se ejecuto navegador/computer use en este carril"
+    },
+    {
+      "id": "PAY-01",
+      "area": "payment",
+      "claim": "Hubo un pago real de $0.01 con pey/BBVA/CoDi.",
+      "status": "NO VERIFICADO",
+      "evidence": "No hay transactionId, comprobante ni evidencia; los docs dicen que no ocurrio y que el riel esta bloqueado"
+    },
+    {
+      "id": "HUMAN-01",
+      "area": "human",
+      "claim": "Hay pruebas con TalkBack/VoiceOver, telefono fisico y 6-8 comerciantes.",
+      "status": "NO VERIFICADO",
+      "evidence": "demo/feedback.md vacio; docs declaran 0/6-8 y pendientes de lector/telefono"
+    },
+    {
+      "id": "FIX-VIDEO-01",
+      "area": "git",
+      "claim": "p0/cognitive-integration es la rama buena para mergear.",
+      "status": "FALSO",
+      "evidence": "No es ancestro de HEAD; la rama buena es p0/final-cognitive/fabe7cc"
+    },
+    {
+      "id": "P2-1",
+      "area": "product",
+      "claim": "Las preferencias Recordatorios y Explicaciones tienen efecto en la UI.",
+      "status": "FALSO",
+      "evidence": "Solo suggestions se consume en closing-checklist.tsx; no hay consumidor de reminders/explanations fuera de companion-preferences.tsx"
+    },
+    {
+      "id": "P2-2",
+      "area": "product",
+      "claim": "Antes de cerrar distingue Sin link de Esperando confirmacion.",
+      "status": "FALSO",
+      "evidence": "closing-checklist.tsx:606 pinta Esperando confirmacion sin mirar paymentUrl/qrString"
+    },
+    {
+      "id": "P2-3",
+      "area": "product",
+      "claim": "El success de un fiado ya saldado muestra que la deuda esta saldada.",
+      "status": "FALSO",
+      "evidence": "success-client.tsx:104-110,268 usa creditCents/amountDue y sigue mostrando Quedo a fiado; no consulta el saldo del credito"
+    },
+    {
+      "id": "P2-4",
+      "area": "product",
+      "claim": "El conteo de personas en Caja usa clientes distintos, no creditos.",
+      "status": "VERIFICADO",
+      "evidence": "caja-app.tsx:3001 usa creditsCustomersTotal; db.ts getOpenCreditTotals COUNT(DISTINCT customer_id)"
+    },
+    {
+      "id": "DOCS-06",
+      "area": "docs",
+      "claim": "El contrato de seguridad actual tiene 52 checks (48 del audit + 4 del fix).",
+      "status": "VERIFICADO",
+      "evidence": "52 llamadas check() en web/scripts/security-contract.mjs; el audit de b7154ca reporto 48"
+    }
+  ],
+  "limits": [
+    "No se ejecuto build, npm ci, verify:full ni E2E propios.",
+    "No se arrancaron ni detuvieron servidores; solo GET de lectura.",
+    "No se toco la app, :3000, :3230, :3302, la preview ni otros worktrees.",
+    "No se probaron 320/200% con navegador real, TalkBack/VoiceOver, telefono fisico ni estudio humano.",
+    "No se probo pago real, BBVA/CoDi, payload real de pey ni Cloudflare Access.",
+    "La evidencia E2E existente es del build 2a1f166, no del HEAD fabe7cc.",
+    "El hash del commit de este informe se reporta en la entrega final; no es auto-referenciable."
+  ]
+}

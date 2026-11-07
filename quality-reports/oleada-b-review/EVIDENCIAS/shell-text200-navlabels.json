@@ -1,0 +1,156 @@
+{
+  "390": [
+    {
+      "text": "Inicio",
+      "cell": {
+        "x": 0,
+        "w": 78,
+        "right": 78
+      },
+      "label": {
+        "x": 10.4,
+        "w": 57.3,
+        "right": 67.6,
+        "h": 28.6
+      },
+      "overflow": false
+    },
+    {
+      "text": "Caja",
+      "cell": {
+        "x": 78,
+        "w": 78,
+        "right": 156
+      },
+      "label": {
+        "x": 92.7,
+        "w": 48.7,
+        "right": 141.3,
+        "h": 28.6
+      },
+      "overflow": false
+    },
+    {
+      "text": "Ventas",
+      "cell": {
+        "x": 156,
+        "w": 78,
+        "right": 234
+      },
+      "label": {
+        "x": 155,
+        "w": 80,
+        "right": 235,
+        "h": 28.6
+      },
+      "overflow": true
+    },
+    {
+      "text": "Fiados",
+      "cell": {
+        "x": 234,
+        "w": 78,
+        "right": 312
+      },
+      "label": {
+        "x": 236,
+        "w": 73.9,
+        "right": 309.9,
+        "h": 28.6
+      },
+      "overflow": false
+    },
+    {
+      "text": "Más",
+      "cell": {
+        "x": 312,
+        "w": 78,
+        "right": 390
+      },
+      "label": {
+        "x": 327.2,
+        "w": 47.6,
+        "right": 374.8,
+        "h": 28.6
+      },
+      "overflow": false
+    }
+  ],
+  "320": [
+    {
+      "text": "Inicio",
+      "cell": {
+        "x": 0,
+        "w": 64,
+        "right": 64
+      },
+      "label": {
+        "x": 3.4,
+        "w": 57.3,
+        "right": 60.6,
+        "h": 28.6
+      },
+      "overflow": false
+    },
+    {
+      "text": "Caja",
+      "cell": {
+        "x": 64,
+        "w": 64,
+        "right": 128
+      },
+      "label": {
+        "x": 71.7,
+        "w": 48.7,
+        "right": 120.3,
+        "h": 28.6
+      },
+      "overflow": false
+    },
+    {
+      "text": "Ventas",
+      "cell": {
+        "x": 128,
+        "w": 64,
+        "right": 192
+      },
+      "label": {
+        "x": 120,
+        "w": 80,
+        "right": 200,
+        "h": 28.6
+      },
+      "overflow": true
+    },
+    {
+      "text": "Fiados",
+      "cell": {
+        "x": 192,
+        "w": 64,
+        "right": 256
+      },
+      "label": {
+        "x": 187.1,
+        "w": 73.9,
+        "right": 261,
+        "h": 28.6
+      },
+      "overflow": true
+    },
+    {
+      "text": "Más",
+      "cell": {
+        "x": 256,
+        "w": 64,
+        "right": 320
+      },
+      "label": {
+        "x": 264.2,
+        "w": 47.6,
+        "right": 311.8,
+        "h": 28.6
+      },
+      "overflow": false
+    }
+  ]
+}

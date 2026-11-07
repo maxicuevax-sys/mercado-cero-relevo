@@ -1,0 +1,10 @@
+{
+  "change": "Cambio a devolver $100.00. Se aplicaron $0.00 al cobro.",
+  "split": "",
+  "confirm": "Registrar fiado $100.00",
+  "disabled": true,
+  "alert": [],
+  "hints": [
+    "Escribe el nombre de quien queda a deber para registrar el fiado."
+  ]
+}

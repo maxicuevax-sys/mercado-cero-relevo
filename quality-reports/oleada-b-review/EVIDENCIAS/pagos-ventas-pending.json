@@ -1,0 +1,12 @@
+{
+  "generatedAt": "2026-11-04T11:23:29-0600",
+  "orderId": "ord_758d60683a8c49c3a7fb",
+  "short": "A7FB",
+  "apiStatus": "payment_pending",
+  "paymentUrl": "http://localhost:3100/pay/ord_758d60683a8c49c3a7fb?demo=1",
+  "rowCount": 1,
+  "rowText": "DEMO · PENDIENTE\nPedido A7FB\n\nHoy 11:23 a.m. · Por cobrar\n\n1 × AUDPEND1793813009\n\n$45.00\nDemo, no es dinero real\nFalta cobrar $45.00\nVer conceptos",
+  "badgePendiente": true,
+  "metodoPorCobrar": true,
+  "faltaCobrar": true
+}

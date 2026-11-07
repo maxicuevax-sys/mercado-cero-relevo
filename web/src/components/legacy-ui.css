@@ -1,0 +1,97 @@
+@import "./ui/operational-tokens.css";
+
+/* Alcance explícito: las vistas clásicas. Ninguna regla alcanza /inicio. */
+.app-shell.mc-legacy-ui { background: var(--color-canvas); color: var(--color-ink); }
+.mc-legacy-ui .paper-canvas { background: var(--color-canvas); }
+.mc-legacy-ui :is(.screen-heading__title, .sheet-title) {
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  line-height: 1.15;
+}
+.mc-legacy-ui .screen-heading__title { font-size: clamp(1.75rem, 3vw, 2.5rem); }
+.mc-legacy-ui .sheet-panel { background: var(--color-surface); }
+.mc-legacy-ui .sheet-title { font-size: 1.25rem; overflow-wrap: normal; word-break: normal; }
+.mc-legacy-ui :is(.credit-list-card, .credit-row) { box-shadow: none; }
+.mc-fiados .tab-readable { max-width: 56rem; }
+.mc-fiados .credit-list-card {
+  padding: 16px 20px;
+  border: 1px solid var(--color-separator);
+  border-left: 3px solid var(--color-accent);
+  border-radius: 16px;
+  background: var(--color-surface);
+}
+.mc-fiados-art { width: 60px; height: 60px; object-fit: contain; flex: 0 0 auto; }
+.mc-fiados .credit-list-card > div > div { flex: 1 1 10rem; }
+.mc-fiados .credit-list-card .tabular { font-size: 2rem; color: var(--color-accent); }
+.mc-fiados .credit-row {
+  border: 0;
+  border-bottom: 1px solid var(--color-separator);
+  border-radius: 0;
+  background: transparent;
+  padding: 16px 0;
+}
+.mc-fiados .credit-row .tabular { font-size: 1.375rem; }
+.mc-fiados .credit-row button { width: auto; padding-inline: 20px; }
+.mc-fiados .credit-row > div > .rounded-full {
+  background: var(--color-green-soft); color: var(--color-accent);
+}
+@media (max-width: 540px) {
+  .mc-fiados .credit-list-card { padding: 12px; }
+  .mc-fiados-art { width: 44px; height: 44px; }
+  .mc-fiados .credit-list-card > div > div { flex-basis: 8rem; }
+}
+
+/* Corte: conteo primero en DOM, teclado y móvil. En desktop ocupa la columna
+   izquierda y después se recorren las comprobaciones de la derecha. */
+.mc-corte-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 20px;
+}
+.mc-corte-layout > div { min-width: 0; }
+.mc-corte-count { grid-column: 1; grid-row: 1 / span 3; }
+.mc-corte-checklist { grid-column: 2; grid-row: 1; }
+.mc-corte-overview { grid-column: 2; grid-row: 2; }
+.mc-corte-reconcile { grid-column: 2; grid-row: 3; }
+.mc-corte .book-sheet {
+  padding: 18px;
+  border-radius: 18px;
+  background: var(--color-surface);
+  box-shadow: none;
+}
+.mc-corte .mc-cash-count { border-top: 3px solid var(--color-accent); }
+.mc-corte h2 { font-family: var(--font-hearth), "Hearth", Georgia, serif; }
+.mc-corte #corte-contado { font-size: 1.75rem; }
+.mc-corte .control-frame { background: var(--color-canvas); }
+.mc-corte .mc-cash-count > div:first-child { align-items: center; gap: 8px; }
+.mc-corte .mc-cash-count > div:first-child h2 { font-size: 1.5rem; }
+.mc-corte .mc-cash-count > div:first-child button { margin: 0; }
+@media (max-width: 1000px) {
+  .mc-corte-layout { display: flex; flex-direction: column; gap: 16px; }
+  .mc-corte-layout > div { width: 100%; }
+}
+@media (max-width: 540px) {
+  .mc-corte .book-sheet { padding: 14px; }
+}
+
+.mc-corte { container: mc-close / inline-size; }
+@container mc-close (max-width: 48em) {
+  .mc-corte-layout { display: flex; flex-direction: column; gap: 16px; }
+  .mc-corte-layout > div { width: 100%; }
+}
+@media (forced-colors: active) {
+  .mc-legacy-ui :is(.topbar-merchant, .topbar-address) { color: CanvasText; }
+}
+
+/* Una hoja estrecha con texto grande necesita el ancho completo para su título.
+   El cierre conserva su fila y objetivo48px; no se truncan palabras. */
+.mc-legacy-ui .sheet-panel { container: mc-sheet / inline-size; }
+@container mc-sheet (max-width: 13em) {
+  .mc-legacy-ui .sheet-panel > div:first-child {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 48px;
+    gap: 4px;
+  }
+  .mc-legacy-ui .sheet-title { grid-column: 1 / -1; grid-row: 2; }
+  .mc-legacy-ui .sheet-panel > div:first-child > button { grid-column: 2; grid-row: 1; }
+}

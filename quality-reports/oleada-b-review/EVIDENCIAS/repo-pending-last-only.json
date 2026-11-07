@@ -1,0 +1,22 @@
+{
+  "first": "ord_b7f29745c8eb43fb9b14",
+  "last": "ord_e45941c17dc04017b3d6",
+  "results": [
+    {
+      "name": "restores last pending id",
+      "ok": true,
+      "detail": "title='Pedido B3D6' expected=B3D6"
+    },
+    {
+      "name": "does not restore first pending id",
+      "ok": true,
+      "detail": "first=9B14"
+    },
+    {
+      "name": "no list of other pending orders",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "failed": 0
+}

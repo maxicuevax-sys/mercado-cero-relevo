@@ -1,0 +1,132 @@
+{
+  "routes": [
+    {
+      "path": "/inicio",
+      "status": 200,
+      "url": "http://localhost:3100/inicio",
+      "h1": "¡Buen día, Lupita!",
+      "shellNew": 1,
+      "shellLegacy": 0
+    },
+    {
+      "path": "/caja",
+      "status": 200,
+      "url": "http://localhost:3100/caja",
+      "h1": "Nueva venta",
+      "shellNew": 1,
+      "shellLegacy": 0
+    },
+    {
+      "path": "/ventas",
+      "status": 200,
+      "url": "http://localhost:3100/ventas",
+      "h1": "Ventas",
+      "shellNew": 1,
+      "shellLegacy": 0
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "url": "http://localhost:3100/",
+      "h1": "Caja",
+      "shellNew": 0,
+      "shellLegacy": 1
+    },
+    {
+      "path": "/?tab=caja",
+      "status": 200,
+      "url": "http://localhost:3100/?tab=caja",
+      "h1": "Caja",
+      "shellNew": 0,
+      "shellLegacy": 1
+    },
+    {
+      "path": "/?tab=fiado",
+      "status": 200,
+      "url": "http://localhost:3100/?tab=fiado",
+      "h1": "Caja",
+      "shellNew": 0,
+      "shellLegacy": 1
+    },
+    {
+      "path": "/?tab=corte",
+      "status": 200,
+      "url": "http://localhost:3100/?tab=corte",
+      "h1": "Caja",
+      "shellNew": 0,
+      "shellLegacy": 1
+    },
+    {
+      "path": "/?tab=meta",
+      "status": 200,
+      "url": "http://localhost:3100/?tab=meta",
+      "h1": "Caja",
+      "shellNew": 0,
+      "shellLegacy": 1
+    },
+    {
+      "path": "/?tab=pendientes",
+      "status": 200,
+      "url": "http://localhost:3100/?tab=pendientes",
+      "h1": "Caja",
+      "shellNew": 0,
+      "shellLegacy": 1
+    }
+  ],
+  "navigation": [
+    {
+      "alias": "/fiados",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=fiado&ayuda=1",
+      "expected": "tab=fiado"
+    },
+    {
+      "alias": "/corte",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=corte&ayuda=1",
+      "expected": "tab=corte"
+    },
+    {
+      "alias": "/metas",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=meta&ayuda=1",
+      "expected": "tab=meta"
+    },
+    {
+      "alias": "/pendientes",
+      "status": 307,
+      "location": "http://localhost:3100/?tab=pendientes&ayuda=1",
+      "expected": "tab=pendientes"
+    },
+    {
+      "case": "back_caja",
+      "url": "http://localhost:3100/caja",
+      "h1": "Nueva venta"
+    },
+    {
+      "case": "reload_caja",
+      "url": "http://localhost:3100/caja",
+      "h1": "Nueva venta"
+    },
+    {
+      "case": "draft_after_navigation",
+      "restoreBanner": 1,
+      "lines": 1,
+      "total": "$25.00"
+    },
+    {
+      "case": "caja_to_fiados",
+      "url": "http://localhost:3100/?tab=fiado",
+      "h1": "Caja",
+      "shellNew": 1,
+      "shellLegacy": 1
+    },
+    {
+      "case": "public_pay",
+      "status": 200,
+      "shellNew": 0,
+      "title": "Quedó anotado"
+    }
+  ],
+  "errors": []
+}
