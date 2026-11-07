@@ -139,6 +139,9 @@
   .mc-reference-a .mc-op-grid { grid-template-columns: minmax(0, 1fr); }
   .mc-reference-a .mc-corte-date { min-height: 80px; border-radius: 24px; font-size: 1.75rem; }
   .mc-reference-a .mc-corte-date svg { width: 48px; height: 48px; }
+  .inicio-shell.mc-reference-a:has(.mc-corte-page) .inicio-topbar { min-height: calc(150 * var(--a-u)); }
+  .inicio-shell.mc-reference-a .inicio-main > .mc-corte-page { padding-top: 24px; padding-inline: 50px; }
+  .mc-reference-a .mc-corte-page > .mc-op-header { min-height: 76px; margin-bottom: 8px; }
   .mc-reference-a .mc-corte-summary__rows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   .mc-reference-a .mc-corte-summary__rows > div { display: flex; flex-direction: column; gap: 8px; padding: 20px 24px; border: 1px solid var(--inicio-border); border-radius: 24px; font-size: 1.625rem; }
   .mc-reference-a .mc-corte-summary__rows dd { font: 700 2.875rem/1.1 Georgia, serif; }
