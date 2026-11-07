@@ -88,7 +88,7 @@ export default async function PendientesPage({
       demo={isDemoMode()}
       contentClassName="mc-pend-main"
       actions={
-        <Link className="mc-pend-cta" href="/pendientes/nuevo">
+        <Link className="mc-pend-cta mc-pend-header-cta" href="/pendientes/nuevo">
           <Plus className="mc-pend-icon" aria-hidden="true" />
           Nuevo pendiente
         </Link>

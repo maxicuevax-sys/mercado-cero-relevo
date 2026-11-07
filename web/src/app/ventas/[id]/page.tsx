@@ -127,7 +127,7 @@ export default async function DetalleVentaPage({
         <div className="mc-dv-actions">
           <Link href="/ventas" className="mc-dv-back">
             <ArrowLeft aria-hidden="true" />
-            Ventas
+            <span className="mc-dv-back__label">Ventas</span>
           </Link>
           <TicketButton />
         </div>

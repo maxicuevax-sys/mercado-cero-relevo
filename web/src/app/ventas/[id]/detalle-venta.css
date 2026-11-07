@@ -570,12 +570,53 @@
   }
 
   .mc-dv-page > .mc-op-header {
+    position: relative;
+    display: block;
+    min-height: 52px;
     margin-bottom: 20px;
+    padding: 0 104px 0 56px;
   }
 
+  .mc-dv-page > .mc-op-header .mc-page-header__eyebrow {
+    display: none;
+  }
+
+  .mc-dv-page > .mc-op-header .mc-page-header__title {
+    font-size: 1.375rem;
+    text-align: start;
+    white-space: nowrap;
+  }
+
+  /* Ref. 16: flecha a la izquierda del título y Ticket a la derecha. */
   .mc-dv-actions {
-    width: 100%;
-    justify-content: flex-start;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: auto;
+    pointer-events: none;
+  }
+
+  .mc-dv-actions > * {
+    pointer-events: auto;
+  }
+
+  .mc-dv-back {
+    width: 44px;
+    min-height: 48px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .mc-dv-back__label {
+    display: none;
+  }
+
+  .mc-dv-ticket {
+    min-height: 44px;
+    padding: 8px 14px;
   }
 
   .mc-dv-hero {
@@ -648,7 +689,7 @@
 
 @media (max-width: 479.98px) {
   .mc-dv-page > .mc-op-header {
-    padding-right: 0;
+    padding-right: 100px;
   }
 
   .mc-dv-hero {

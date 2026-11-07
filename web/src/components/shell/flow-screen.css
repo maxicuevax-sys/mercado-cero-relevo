@@ -912,6 +912,167 @@
 }
 
 
+/* Paridad fiados: fila blanda, monto con fondo verde, saldo y filas de historial. */
+.mc-flow__heading-action {
+  display: flex;
+  align-items: center;
+  margin-inline-start: auto;
+}
+
+.mc-flow__export {
+  display: inline-flex;
+  min-height: 56px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 22px;
+  border: 1px solid #d9cfb6;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--flow-green);
+  font-size: 26px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mc-flow__export svg { width: 28px; height: 28px; }
+.mc-flow__export:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.mc-flow__row--soft {
+  border-color: transparent;
+  background: var(--flow-soft);
+}
+
+.mc-flow__known-icon {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #dce9d2;
+  color: var(--flow-green);
+}
+
+.mc-flow__known-icon svg { width: 30px; height: 30px; }
+
+.mc-flow__field--money-soft {
+  border-color: transparent;
+  background: #e9efd8;
+}
+
+.mc-flow__balance {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 26px;
+  padding: 20px 24px;
+  border-radius: 24px;
+  background: var(--flow-soft);
+}
+
+.mc-flow__balance-icon {
+  display: grid;
+  width: 72px;
+  height: 72px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 16px;
+  background: #fff9f0;
+  color: var(--flow-green);
+}
+
+.mc-flow__balance-icon svg { width: 38px; height: 38px; }
+
+.mc-flow__balance-label {
+  min-width: 0;
+  font: 700 28px/1.2 Georgia, serif;
+}
+
+.mc-flow__balance-value {
+  margin-inline-start: auto;
+  padding: 8px 18px;
+  border-radius: 12px;
+  background: #dcecc4;
+  color: var(--flow-green);
+  font: 700 40px/1.1 Georgia, serif;
+  white-space: nowrap;
+}
+
+.mc-flow__balance--coins { gap: 20px; }
+
+.mc-flow__balance-art {
+  width: 124px;
+  height: 96px;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.mc-flow__balance-copy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+  padding-inline-start: 20px;
+  border-inline-start: 1px solid #c9d4b7;
+}
+
+.mc-flow__balance-copy .mc-flow__balance-value {
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 44px;
+}
+
+/* Historial del cliente: banda de fecha y filas sin tarjeta, como la referencia 17. */
+.mc-flow__movement {
+  min-height: 0;
+  margin-top: 0;
+  padding: 14px 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.mc-flow__group {
+  margin: 14px 0 2px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: #e6ecd7;
+  font-size: 26px;
+}
+
+.mc-flow__summary {
+  display: grid;
+  margin: 10px 0 0;
+}
+
+.mc-flow__summary > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 4px;
+  border-bottom: 1px solid var(--flow-line);
+}
+
+.mc-flow__summary dt { color: #3f4a40; font-size: 24px; }
+.mc-flow__summary dd { margin: 0; font: 700 32px/1.1 Georgia, serif; }
+.mc-flow__summary dd.is-clay { color: var(--flow-clay); }
+.mc-flow__summary dd.is-green { color: var(--flow-green); }
+
+.mc-flow__dialog-rows dt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mc-flow__dialog-rows dt svg {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  color: var(--flow-green);
+}
+
 @media (min-width: 761px) and (max-width: 1024px) {
   .mc-flow { --flow-nav: 148px; }
 
@@ -1206,4 +1367,25 @@
   .mc-flow__close-diff b { padding: 3px 6px; border-radius: 8px; font-size: 0.72rem; }
   .mc-flow__close-detail { padding: 2px 12px 10px; }
   .mc-flow__close-detail > div { padding: 6px 0; font-size: 0.72rem; }
+
+  .mc-flow__heading-action { flex: 0 0 auto; }
+  .mc-flow__export { min-height: 44px; gap: 6px; padding: 5px 12px; font-size: 0.8rem; }
+  .mc-flow__export svg { width: 17px; height: 17px; }
+  .mc-flow__known-icon { width: 40px; height: 40px; }
+  .mc-flow__known-icon svg { width: 22px; height: 22px; }
+  .mc-flow__balance { gap: 10px; margin-top: 13px; padding: 11px 12px; border-radius: 14px; }
+  .mc-flow__balance-icon { width: 40px; height: 40px; border-radius: 10px; }
+  .mc-flow__balance-icon svg { width: 21px; height: 21px; }
+  .mc-flow__balance-label { font-size: 0.92rem; }
+  .mc-flow__balance-value { padding: 5px 10px; border-radius: 9px; font-size: 1.15rem; }
+  .mc-flow__balance--coins { gap: 10px; }
+  .mc-flow__balance-art { width: 74px; height: 58px; }
+  .mc-flow__balance-copy { padding-inline-start: 10px; }
+  .mc-flow__balance-copy .mc-flow__balance-value { font-size: 1.3rem; }
+  .mc-flow__movement { padding: 7px 2px; gap: 9px; }
+  .mc-flow__group { margin: 10px 0 2px; padding: 5px 9px; border-radius: 7px; font-size: 0.82rem; }
+  .mc-flow__summary > div { padding: 9px 2px; gap: 10px; }
+  .mc-flow__summary dt { font-size: 0.8rem; }
+  .mc-flow__summary dd { font-size: 1rem; }
+  .mc-flow__dialog-rows dt svg { width: 18px; height: 18px; }
 }

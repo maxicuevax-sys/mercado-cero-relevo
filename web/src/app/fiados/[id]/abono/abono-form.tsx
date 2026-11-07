@@ -6,6 +6,7 @@ import { useId, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   Banknote,
+  Calculator,
   Check,
   CreditCard,
   Loader2,
@@ -16,6 +17,13 @@ import { formatMxn } from "@/lib/format";
 import type { Credit } from "@/lib/types";
 
 type Method = "cash" | "card" | "codi";
+
+const QUICK = [5000, 20000, 30000, 50000];
+
+/** Etiqueta corta de los montos rápidos, como la referencia ($50, no $50.00). */
+function shortMxn(cents: number): string {
+  return cents % 100 === 0 ? `$${cents / 100}` : formatMxn(cents);
+}
 
 const METHODS: Array<{ id: Method; label: string; Icon: typeof Banknote }> = [
   { id: "cash", label: "Efectivo", Icon: Banknote },
@@ -100,7 +108,10 @@ export function AbonoForm({ credit }: { credit: Credit }) {
 
   return (
     <form onSubmit={submit} noValidate>
-      <section className="mc-flow__row" aria-label={`${name}, saldo ${formatMxn(credit.balanceCents)}`}>
+      <section
+        className="mc-flow__row mc-flow__row--soft"
+        aria-label={`${name}, saldo ${formatMxn(credit.balanceCents)}`}
+      >
         <Image src="/assets/spec/fiados-avatar-juan.png" width={121} height={111} alt="" unoptimized />
         <div className="mc-flow__row-main">
           <strong>{name}</strong>
@@ -117,7 +128,7 @@ export function AbonoForm({ credit }: { credit: Credit }) {
       <label className="mc-flow__label" htmlFor={amountId}>
         Monto del abono
       </label>
-      <div className="mc-flow__field mc-flow__field--money">
+      <div className="mc-flow__field mc-flow__field--money mc-flow__field--money-soft">
         <span className="mc-flow__sign" aria-hidden="true">$</span>
         <input
           id={amountId}
@@ -130,6 +141,7 @@ export function AbonoForm({ credit }: { credit: Credit }) {
           }}
           placeholder="0.00"
           autoComplete="off"
+          aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           data-autofocus
           disabled={saving}
@@ -137,21 +149,28 @@ export function AbonoForm({ credit }: { credit: Credit }) {
       </div>
 
       <div className="mc-flow__chips" role="group" aria-label="Montos rápidos">
-        {[5000, 20000, 30000, 50000].map((value) => (
+        {QUICK.map((value) => (
           <button
             key={value}
             type="button"
             className={cents === value ? "mc-flow__chip is-active" : "mc-flow__chip"}
+            aria-label={`Abonar ${formatMxn(value)}`}
+            title={value > credit.balanceCents ? "Mayor al saldo pendiente" : undefined}
             onClick={() => {
               setAmount((value / 100).toFixed(2));
               if (error) setError(null);
             }}
             disabled={saving || value > credit.balanceCents}
           >
-            {formatMxn(value)}
+            {shortMxn(value)}
           </button>
         ))}
       </div>
+      {QUICK.some((value) => value > credit.balanceCents) ? (
+        <p className="mc-flow__hint">
+          Los montos mayores al saldo ({formatMxn(credit.balanceCents)}) quedan deshabilitados.
+        </p>
+      ) : null}
 
       <p className="mc-flow__label">Método de pago</p>
       <div className="mc-flow__methods" role="group" aria-label="Método de pago">
@@ -176,11 +195,12 @@ export function AbonoForm({ credit }: { credit: Credit }) {
           : "Queda como abono declarado; pey no lo verifica."}
       </p>
 
-      <section className="mc-flow__card mc-flow__card--soft" aria-label="Nuevo saldo">
-        <div className="mc-flow__metric" style={{ border: 0, padding: 0, background: "transparent" }}>
-          <p><Banknote aria-hidden="true" />Nuevo saldo del cliente</p>
-          <strong className="is-green">{formatMxn(nextBalance)}</strong>
-        </div>
+      <section className="mc-flow__balance" aria-label="Nuevo saldo">
+        <span className="mc-flow__balance-icon" aria-hidden="true">
+          <Calculator />
+        </span>
+        <span className="mc-flow__balance-label">Nuevo saldo del cliente</span>
+        <strong className="mc-flow__balance-value">{formatMxn(nextBalance)}</strong>
       </section>
 
       {error ? (

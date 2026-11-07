@@ -3,12 +3,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, CalendarCheck2, ChevronRight } from "lucide-react";
 import { connection } from "next/server";
-import { FlowScreen } from "@/components/shell/flow-screen";
-import { differenceText } from "@/components/corte/money";
+import { OperationalPage } from "@/components/shell/operational-page";
+import { DifferencePill } from "@/components/corte/difference-pill";
+import { ExportHistoryButton } from "@/components/corte/export-history";
 import { listRecentCashCloses } from "@/lib/cash";
-import { formatDayMonth, formatMxn, formatTime } from "@/lib/format";
+import { MERCHANT, isDemoMode } from "@/lib/config";
+import { formatDayMonth, formatMxn } from "@/lib/format";
 import { addDaysToDateKey, mexicoDateKey } from "@/lib/mexico-date";
 import registerNative from "@/assets/definitive-a/register.png";
+import "./historial.css";
 
 export const metadata: Metadata = {
   title: "Historial de cortes — Mercado Cero",
@@ -32,100 +35,144 @@ function dateLabel(dateKey: string): { top: string; bottom: string } {
   };
 }
 
-function toneClass(cents: number): string {
-  if (cents === 0) return "is-zero";
-  return cents > 0 ? "is-positive" : "is-negative";
-}
-
 export default async function HistorialCortesPage() {
   await connection();
   const closes = listRecentCashCloses(12);
+  const demo = isDemoMode();
+
+  const exportRows = closes.map((close) => ({
+    date: close.date,
+    dateLabel: `${dateLabel(close.date).top} ${dateLabel(close.date).bottom}`,
+    version: close.version,
+    salesCents: close.cashSalesCents + close.cashCreditCents,
+    cashCents: close.cashSalesCents,
+    creditCents: close.cashCreditCents,
+    expensesCents: close.expensesCents,
+    withdrawalsCents: close.withdrawalsCents,
+    expectedCents: close.expectedCents,
+    countedCents: close.countedCents,
+    differenceCents: close.differenceCents,
+    baseNextCents: close.baseNextCents,
+    withdrawalNextCents: close.withdrawalNextCents,
+    createdAt: close.createdAt,
+  }));
 
   return (
-    <FlowScreen
-      title="Historial de cortes"
-      titleId="historial-cortes-title"
-      backHref="/corte"
-      backLabel="Volver a Corte"
+    <OperationalPage
       activeHref="/corte"
+      title="Historial de cortes"
+      titleId="corte-historial-title"
+      actions={
+        <Link
+          className="mc-parity-back"
+          href="/corte"
+          aria-label="Volver a Corte"
+        >
+          <ArrowLeft aria-hidden="true" />
+        </Link>
+      }
+      merchant={MERCHANT.name}
+      address={MERCHANT.address}
+      demo={demo}
+      mainId="corte-historial-main"
+      contentClassName="mc-hist-page"
+      focusTargetId="corte-historial-title"
     >
-      <section className="mc-flow__hero" aria-label="Consulta tus cierres">
-        <Image src={registerNative} alt="" aria-hidden="true" sizes="240px" />
-        <div>
-          <h2>Consulta tus cierres</h2>
-          <p>Revisa cuánto vendiste, tus gastos y la diferencia de caja.</p>
+      <section className="mc-hist-banner" aria-label="Consulta tus cierres">
+        <Image
+          src={registerNative}
+          alt=""
+          aria-hidden="true"
+          className="mc-hist-banner__art"
+          sizes="(max-width: 760px) 40vw, 320px"
+        />
+        <div className="mc-hist-banner__copy">
+          <h2 className="mc-hist-banner__title">Consulta tus cierres</h2>
+          <p className="mc-hist-banner__body">
+            Revisa cuánto vendiste, tus gastos y la diferencia de caja.
+          </p>
         </div>
       </section>
 
-      <h2 className="mc-flow__section-title">Últimos cortes</h2>
-      {closes.length === 0 ? (
-        <div className="mc-flow__card">
-          <p className="mc-flow__note">
-            Todavía no hay cortes guardados. Al cerrar la caja del día, el corte
-            aparece aquí con su foto de ventas, gastos y diferencia.
-          </p>
-          <div className="mc-flow__actions">
-            <Link className="mc-flow__primary" href="/corte">
+      <section className="mc-hist-list" aria-labelledby="mc-hist-list-title">
+        <div className="mc-hist-list__head">
+          <h2 id="mc-hist-list-title" className="mc-hist-list__title">
+            Últimos cortes
+          </h2>
+          {closes.length > 0 ? (
+            <p className="mc-hist-list__meta">
+              {closes.length === 1 ? "1 cierre" : `${closes.length} cierres`}
+            </p>
+          ) : null}
+        </div>
+
+        {closes.length === 0 ? (
+          <div className="mc-hist-empty mc-op-empty">
+            <p className="mc-op-empty__title">Todavía no hay cortes guardados.</p>
+            <p className="mc-op-empty__body">
+              Al cerrar la caja del día, el corte aparece aquí con su foto de
+              ventas, gastos y diferencia.
+            </p>
+            <Link className="mc-hist-empty__action" href="/corte">
               <CalendarCheck2 aria-hidden="true" />
               Ir a Corte
             </Link>
           </div>
-        </div>
-      ) : (
-        <ul className="mc-flow__list">
-          {closes.map((close) => {
-            const label = dateLabel(close.date);
-            const sales = close.cashSalesCents + close.cashCreditCents;
-            return (
-              <li key={close.id}>
-                <details className="mc-flow__close">
-                  <summary>
-                    <span className="mc-flow__datebadge">
-                      <CalendarCheck2 aria-hidden="true" />
+        ) : (
+          <ul className="mc-hist-rows">
+            {closes.map((close) => {
+              const label = dateLabel(close.date);
+              const sales = close.cashSalesCents + close.cashCreditCents;
+              return (
+                <li key={close.id} className="mc-hist-row-item">
+                  <Link
+                    className="mc-hist-row"
+                    href={`/corte/historial/${close.date}?v=${close.id}`}
+                    aria-label={`Corte ${label.top} ${label.bottom}, versión ${close.version}`}
+                  >
+                    <span className="mc-hist-row__date">
+                      <CalendarCheck2
+                        className="mc-hist-row__calendar"
+                        aria-hidden="true"
+                      />
                       <strong>{label.top}</strong>
                       <small>{label.bottom}</small>
                     </span>
-                    <span className="mc-flow__close-main">
-                      <span>Ventas en efectivo</span>
+                    <span className="mc-hist-row__sales">
+                      <span className="mc-hist-row__caption">
+                        Ventas en efectivo
+                      </span>
                       <strong>{formatMxn(sales)}</strong>
                     </span>
-                    <span className="mc-flow__close-diff">
-                      <span>Diferencia</span>
-                      <b className={toneClass(close.differenceCents)}>
-                        {differenceText(close.differenceCents)}
-                      </b>
+                    <span className="mc-hist-row__diff">
+                      <span className="mc-hist-row__caption">Diferencia</span>
+                      <DifferencePill cents={close.differenceCents} />
                     </span>
-                    <ChevronRight className="mc-flow__chevron" aria-hidden="true" />
-                  </summary>
-                  <dl className="mc-flow__close-detail">
-                    <div><dt>Contado</dt><dd>{formatMxn(close.countedCents)}</dd></div>
-                    <div><dt>Esperado con movimientos</dt><dd>{formatMxn(close.expectedCents)}</dd></div>
-                    <div><dt>Gastos</dt><dd>−{formatMxn(close.expensesCents)}</dd></div>
-                    <div><dt>Retiros</dt><dd>−{formatMxn(close.withdrawalsCents)}</dd></div>
-                    <div><dt>Base para mañana</dt><dd>{formatMxn(close.baseNextCents)}</dd></div>
-                    <div><dt>Guardado</dt><dd>{formatTime(close.createdAt)} · v{close.version}</dd></div>
-                  </dl>
-                  {close.reason ? (
-                    <p className="mc-flow__note">Motivo de la corrección: {close.reason}</p>
-                  ) : null}
-                </details>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                    <ChevronRight
+                      className="mc-hist-row__chevron"
+                      aria-hidden="true"
+                    />
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
 
-      <p className="mc-flow__note">
+      {closes.length > 0 ? (
+        <ExportHistoryButton
+          rows={exportRows}
+          fileName="cortes-mercado-cero.csv"
+          noteId="mc-hist-export-note"
+        />
+      ) : null}
+
+      <p className="mc-hist-note">
         Cada corte es una foto del cierre: no cambia si entran ventas o abonos
-        después. El digital verificado no es efectivo de cajón.
+        después. El digital verificado no es efectivo de cajón; el fiado
+        pendiente no es dinero recibido.
       </p>
-
-      <div className="mc-flow__actions">
-        <Link className="mc-flow__secondary" href="/corte">
-          <ArrowLeft aria-hidden="true" />
-          Volver a Corte
-        </Link>
-      </div>
-    </FlowScreen>
+    </OperationalPage>
   );
 }
