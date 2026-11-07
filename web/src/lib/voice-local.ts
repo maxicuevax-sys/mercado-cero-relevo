@@ -106,6 +106,9 @@ function startsWithCustomerName(text: string): boolean {
 }
 
 function looksLikeCreditPayment(text: string): boolean {
+  // Frase fija del WAV de Kokoro: "Abono de 50 pesos a Juan, saldo 0 pesos."
+  // No trae verbo conjugado ("me pagó"), pero sí intención explícita de abono.
+  if (/^\s*abono\b/i.test(text)) return true;
   if (!PAYMENT_VERB_RE.test(text)) return false;
   return (
     CREDIT_SIGNAL_RE.test(text) ||

@@ -75,8 +75,9 @@ export function MobileLedger({
   matchesQuery: (name: string) => boolean;
   pager: ReactNode;
 }) {
-  // The figures printed in the art are a display sample, with no credit IDs.
-  const showSample = demo && !practice && !history;
+  // La lámina ilustrativa solo se usa cuando no hay deudas reales que mostrar.
+  // Con clientes reales, la libreta debe reflejar los saldos verdaderos.
+  const showSample = demo && credits.length === 0 && !practice && !history;
   const examples = showSample ? sample.filter(({ name }) => matchesQuery(name)) : [];
   const empty = showSample ? examples.length === 0 : credits.length === 0;
   return (

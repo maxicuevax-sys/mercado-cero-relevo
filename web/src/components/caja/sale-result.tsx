@@ -37,14 +37,17 @@ export function SaleResult({
   } = money;
   const isDemo = isDemoSale(order, demo);
   const isDigitalDemo = isDemo && hasDigital;
-  const isCashDemo = isDemo && hasCash && !hasDigital;
+  const isCashDemo = isDemo && hasCash && !hasDigital && !openCredit;
+  const isMixedCreditDemo = isDemo && hasCash && openCredit;
   const isCreditOnly = openCredit && paidCents === 0;
 
   const title = isDigitalDemo
     ? "Pago demo (simulado)"
-    : isCashDemo
-      ? "Venta cobrada en efectivo (demo)"
-      : openCredit && !isCreditOnly
+    : isMixedCreditDemo
+      ? "Venta demo registrada con saldo fiado"
+      : isCashDemo
+        ? "Venta cobrada en efectivo (demo)"
+        : openCredit && !isCreditOnly
         ? "Venta registrada con saldo fiado"
         : isCreditOnly
           ? "Venta registrada con fiado"
