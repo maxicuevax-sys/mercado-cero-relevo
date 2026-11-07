@@ -5,8 +5,8 @@
    ========================================================================== */
 
 :root {
-  --mc-margin: rgba(193, 73, 46, 0.18);
-  --mc-rule: rgba(95, 87, 76, 0.16);
+  --mc-margin: rgba(100, 116, 139, 0.12);
+  --mc-rule: rgba(148, 163, 184, 0.16);
   --mc-ledger-step: 34px;
   --mc-key-shadow: none;
   --mc-key-shadow-press: none;

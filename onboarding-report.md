@@ -13,6 +13,7 @@
   5. Anuncio en bocina de mostrador en `SaleResult` usando Web Speech API respetando la preferencia de silenciado (`localStorage["mercado-cero:muted"] === "1"`).
   6. Cobro y liquidación verificada de fiados mediante CoDi QR y Link Pey (`/api/credits/[id]/pay-link`) con abono automático e idempotente por webhook (`recordVerifiedCreditPaymentFromPey`).
   7. Diagnóstico de integración en `GET /api/pey/status` y visualización viva en `/ajustes` (Cobros y Seguridad).
+  8. Modernización visual: Estilo neutral *"Mostrador Mineral / Slate"* (Opción A), eliminando tintes crema/artesanales y gradientes cálidos en favor de fondos Slate 50 (`#F8FAFC`), tarjetas blancas puras (`#FFFFFF`), divisores neutros Slate 200 (`#E2E8F0`), acentos Slate 900 (`#0F172A`) y tipografía 100% sans-serif contemporánea (`--font-sans`).
 - **Qué quedó fuera:**
   - Los pagos simulados continúan estrictamente como `provider = 'demo'`, `demo = 1` y estado `demo_paid`. Ningún pago simulado transiciona a `paid`.
 
@@ -71,3 +72,4 @@
 ## Pendientes
 
 - Ninguno. La funcionalidad solicitada para cobros CoDi QR/Push, resiliencia S2S, verificación por numRef, hash-chain contable, bocina de mostrador y fiados está completa y sellada bajo evidencia.
+

@@ -1,40 +1,40 @@
 @import "tailwindcss";
 
 @theme {
-  /* Mercado Cero · dirección "Mercado de papel" (kit DesignOps). */
-  --color-canvas: #f9f6ee;
-  --color-surface: #fffdf7;
-  --color-surface-2: #f2ebdf;
-  --color-ink: #1f2622;
-  --color-ink-2: #515b54;
-  /* Texto de placeholder: 4.6:1 sobre surface-2 y 5.4:1 sobre surface. */
-  --color-placeholder: #6b6256;
-  /* Borde de controles: 4.0:1 sobre surface y 3.6:1 sobre surface-2. */
-  --color-control-border: #687369;
-  --color-separator: #e0d6c7;
-  --color-accent: #0f3d36;
-  --color-accent-press: #0a332c;
-  --color-success: #0a5039;
-  --color-attention: #8f2d1c;
-  --color-danger: #8a281b;
-  --color-info: #293b68;
-  --color-focus: #0e6f5a;
+  /* Mercado Cero · dirección "Mostrador Mineral / Slate" (neutro contemporáneo). */
+  --color-canvas: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-2: #f1f5f9;
+  --color-ink: #0f172a;
+  --color-ink-2: #475569;
+  /* Texto de placeholder: 6.8:1 sobre surface-2 y 7.5:1 sobre surface. */
+  --color-placeholder: #525e6f;
+  /* Borde de controles: 4.2:1 sobre surface y 3.8:1 sobre surface-2. */
+  --color-control-border: #64748b;
+  --color-separator: #e2e8f0;
+  --color-accent: #0f172a;
+  --color-accent-press: #1e293b;
+  --color-success: #059669;
+  --color-attention: #b45309;
+  --color-danger: #b91c1c;
+  --color-info: #0369a1;
+  --color-focus: #0f172a;
 
   /* Compatibilidad mientras migramos componentes */
-  --color-line: #e0d6c7;
-  --color-green: #0f3d36;
-  --color-green-deep: #0a332c;
-  --color-green-soft: #e2f3e7;
-  --color-terracotta: #c1492e;
-  --color-terracotta-deep: #8f2d1c;
-  --color-terracotta-soft: #fbe9e6;
-  --color-saffron: #f2c768;
-  --color-saffron-soft: #fff0d2;
-  --color-blue-soft: #e9ecf3;
+  --color-line: #e2e8f0;
+  --color-green: #0f172a;
+  --color-green-deep: #1e293b;
+  --color-green-soft: #f1f5f9;
+  --color-terracotta: #b45309;
+  --color-terracotta-deep: #92400e;
+  --color-terracotta-soft: #fef3c7;
+  --color-saffron: #f59e0b;
+  --color-saffron-soft: #f8fafc;
+  --color-blue-soft: #f0f9ff;
 
-  --font-sans: var(--font-alder), "Alder", "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  --font-display: var(--font-hearth), "Hearth", Georgia, serif;
+  --font-sans: var(--font-alder), "Alder", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-sans);
 
   /* HIG: body 17/24, footnote 13/18. */
   --text-xs: 0.8125rem;
@@ -42,18 +42,19 @@
   --text-sm: 1.0625rem;
   --text-sm--line-height: 1.5rem;
 
-  --shadow-card: 0 1px 2px rgba(31, 38, 34, 0.04),
-    0 8px 24px -20px rgba(31, 38, 34, 0.35);
-  --shadow-lift: 0 20px 46px -28px rgba(31, 38, 34, 0.45),
-    0 2px 6px rgba(31, 38, 34, 0.06);
+  --shadow-card: 0 1px 3px 0 rgba(15, 23, 42, 0.05),
+    0 1px 2px -1px rgba(15, 23, 42, 0.05);
+  --shadow-lift: 0 10px 15px -3px rgba(15, 23, 42, 0.07),
+    0 4px 6px -4px rgba(15, 23, 42, 0.03);
 }
 
 :root {
   --background: var(--color-canvas);
   --foreground: var(--color-ink);
   /* Compatibilidad temporal con las rutas que aún nombran las familias anteriores. */
-  --font-fraunces: var(--font-hearth);
-  --font-inter: var(--font-alder);
+  --font-fraunces: var(--font-sans);
+  --font-hearth: var(--font-sans);
+  --font-inter: var(--font-sans);
   /* Alto real del chrome fijo; lo mide CajaApp con ResizeObserver. */
   --mc-chrome-top: 0px;
   --mc-chrome-bottom: 0px;
@@ -92,17 +93,7 @@ main#main:focus-visible {
 
 body {
   background-color: var(--color-canvas);
-  background-image:
-    radial-gradient(
-      1100px 560px at 8% -12%,
-      rgba(255, 252, 244, 0.95) 0%,
-      rgba(255, 252, 244, 0) 62%
-    ),
-    radial-gradient(
-      900px 620px at 106% 6%,
-      rgba(230, 217, 197, 0.7) 0%,
-      rgba(230, 217, 197, 0) 58%
-    );
+  background-image: none;
   background-attachment: fixed;
   color: var(--color-ink);
   font-family: var(--font-sans);
@@ -114,16 +105,9 @@ body {
   font-feature-settings: "ss01" on, "cv11" on;
 }
 
-/* Grano de papel: fijo y decorativo; no toca contraste ni interacción. */
+/* Grano decorativo desactivado para estilo mineral neutro */
 body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.035;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+  display: none;
 }
 
 .app-shell {
@@ -136,13 +120,14 @@ body::before {
 h1,
 h2 {
   font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .sheet-title {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 html[data-contrast="high"] body {
