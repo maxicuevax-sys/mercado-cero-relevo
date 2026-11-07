@@ -98,7 +98,7 @@
   .mc-reference-a.inicio-shell--compact .inicio-greeting h1 { font: 700 clamp(2rem, 5.4vw, 3.25rem)/1.1 Georgia, serif; letter-spacing: -.04em; }
   .mc-reference-a.inicio-shell--compact .inicio-greeting p { font: 1.5rem/1.35 Arial, sans-serif; }
   .mc-reference-a.inicio-shell--compact .inicio-picado { display: none; }
-  .mc-reference-a .inicio-definitive-welcome-art { display: block; position: absolute; z-index: -1; right: -34px; bottom: -28px; width: 330px; height: 230px; object-fit: contain; object-position: right bottom; opacity: .9; }
+  .mc-reference-a .inicio-definitive-welcome-art { display: block; position: absolute; z-index: -1; right: calc(-34 * var(--a-u)); bottom: -28px; width: 330px; height: 230px; object-fit: contain; object-position: right bottom; opacity: .9; }
   .mc-reference-a.inicio-shell--compact .inicio-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
   .mc-reference-a.inicio-shell--compact .inicio-kpi:nth-child(2) { display: none; }
   .mc-reference-a.inicio-shell--compact .inicio-kpi { min-height: calc(218 * var(--a-u)); padding: 20px; border-radius: 32px; }

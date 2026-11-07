@@ -14,7 +14,11 @@ for item in manifest['items']:
  name=f"{item['route'][1:]}-{item['width']}x{item['height']}"
  ref=Image.open(refpath).convert('RGB')
  for phase in ['before','after']:
-  actual=Image.open(OUT/f'{phase}-{name}.png').convert('RGB');assert actual.size==ref.size
+  actualpath=OUT/f'{phase}-{name}.png'
+  if not actualpath.exists():
+   rows.append({'screen':name,'phase':phase,'status':'NO VERIFICADO','reason':'capture unavailable','reference':item['canonical']})
+   continue
+  actual=Image.open(actualpath).convert('RGB');assert actual.size==ref.size
   diff=ImageChops.difference(ref,actual)
   Image.blend(ref,actual,.5).save(OUT/f'{phase}-overlay-{name}.png')
   diff.save(OUT/f'{phase}-diff-{name}.png')
