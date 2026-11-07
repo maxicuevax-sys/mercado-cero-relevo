@@ -49,6 +49,8 @@
   .inicio-shell.mc-reference-a .mc-mobile-nav__more summary { list-style: none; cursor: pointer; }
   .inicio-shell.mc-reference-a .mc-mobile-nav__panel { bottom: calc(100% + 8px); right: 0; width: min(300px,85vw); }
   .inicio-shell.mc-reference-a .mc-op-header { position: relative; min-height: 52px; display: flex; align-items: center; padding: 0; margin: 0 0 8px; }
+  .inicio-shell.mc-reference-a .mc-op-header::after { content: ""; position: absolute; pointer-events: none; top: -18px; right: -14px; width: 184px; height: 46px; background: url("../../assets/definitive-a/picado.png") right top / contain no-repeat; mix-blend-mode: multiply; }
+  .inicio-shell.mc-reference-a .mc-op-header > div { position: relative; z-index: 1; }
   .inicio-shell.mc-reference-a .mc-page-header__title { font: 700 1.875rem/1.1 Georgia,serif; color: var(--inicio-ink); text-align: start; padding: 0; }
   .inicio-shell.mc-reference-a .mc-page-header__eyebrow { display: none; }
   .inicio-shell.mc-reference-a .mc-page-header__subtitle { display: none; }
@@ -109,14 +111,15 @@
   /* Pendientes: controls use the existing task API; orders remain links. */
   .inicio-shell.mc-reference-a .mc-pend-native-toolbar { display: grid; gap: 12px; }
   .inicio-shell.mc-reference-a .mc-pend-grid { display: flex; flex-direction: column; gap: 18px; }
-  .inicio-shell.mc-reference-a .mc-pend-tasks { order: -1; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+  .inicio-shell.mc-reference-a .mc-pend-tasks { order: -1; width: 100%; min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
   .inicio-shell.mc-reference-a .mc-pend-tasks .mc-pend-empty { min-height: 64px; padding: 12px; margin-top: 12px; }
+  .inicio-shell.mc-reference-a .mc-pend-tasks .mc-pend-empty { grid-template-columns: minmax(0,1fr); }
   .inicio-shell.mc-reference-a .mc-pend-tasks .mc-pend-empty__title { font-size: 1rem; }
   .inicio-shell.mc-reference-a .mc-pend-tasks .mc-pend-empty__text { font-size: .75rem; line-height: 1.3; }
   .inicio-shell.mc-reference-a .mc-pend-tasks .mc-pend-empty :is(img,button) { display: none; }
   .inicio-shell.mc-reference-a .mc-pend-tasks > .mc-pend-panel-head { display: none; }
   .inicio-shell.mc-reference-a .mc-pend-tasks > .mc-op-panel__body { padding: 0; }
-  .inicio-shell.mc-reference-a .mc-pend-native-tabs { display: grid; grid-template-columns: 1fr 1fr; padding: 2px; border: 1px solid var(--inicio-border); border-radius: 15px; }
+  .inicio-shell.mc-reference-a .mc-pend-native-tabs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); padding: 2px; border: 1px solid var(--inicio-border); border-radius: 15px; }
   .inicio-shell.mc-reference-a .mc-pend-native-tabs button { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 5px; border-radius: 12px; font: .875rem/1.2 Arial,sans-serif; }
   .inicio-shell.mc-reference-a .mc-pend-native-tabs button[aria-pressed="true"] { background: var(--inicio-green); color: var(--inicio-paper); font-weight: 700; }
   .inicio-shell.mc-reference-a .mc-pend-native-tabs svg { width: 22px; height: 22px; }
@@ -173,7 +176,7 @@
   .inicio-shell.mc-reference-a .mc-corte-date { min-height: 44px; margin-bottom: 8px; padding: 5px 12px; border: 1px solid var(--inicio-border); border-radius: 12px; font-size: .875rem; }
   .inicio-shell.mc-reference-a .mc-corte-summary > .mc-corte-summary__rows { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }
   .inicio-shell.mc-reference-a .mc-corte-summary > .mc-corte-summary__rows > div { display: flex; flex-direction: column; align-items: flex-start; min-height: 55px; gap: 3px; padding: 9px 12px; border: 1px solid var(--inicio-border); border-radius: 14px; font-size: .8125rem; }
-  .inicio-shell.mc-reference-a .mc-corte-summary > .mc-corte-summary__rows dd { font: 700 1.5rem/1.1 Georgia,serif; }
+  .inicio-shell.mc-reference-a .mc-corte-summary > .mc-corte-summary__rows dd { max-width: 100%; min-width: 0; flex-shrink: 1; overflow-wrap: anywhere; font: 700 1.5rem/1.1 Georgia,serif; }
   .inicio-shell.mc-reference-a .mc-corte-summary__balance { display: grid; grid-template-columns: 35% 1fr; gap: 16px; align-items: center; padding: 0 12px 0 0; margin-top: 8px; border-radius: 16px; overflow: hidden; background: var(--inicio-green); color: var(--inicio-paper); }
   .inicio-shell.mc-reference-a .mc-corte-native-register { display: block; width: 100%; height: 75px; object-fit: cover; }
   .inicio-shell.mc-reference-a .mc-corte-summary__balance span { font: 700 1rem/1.2 Georgia,serif; }
@@ -199,6 +202,30 @@
   .inicio-shell.mc-reference-a .mc-corte-denom-total { text-align: right; font: 700 .875rem/1.1 Georgia,serif; overflow-wrap: anywhere; }
   .inicio-shell.mc-reference-a .mc-corte-denoms__hint { font-size: .6875rem; }
   .inicio-shell.mc-reference-a .mc-corte-detail > summary { border: 1px solid var(--inicio-border); border-radius: 14px; padding: 10px 16px; min-height: 44px; font-size: .875rem; }
+  .inicio-shell.mc-reference-a:has(.mc-corte-page) .inicio-topbar { min-height: 62px; padding-block: 8px; }
+  .inicio-shell.mc-reference-a .inicio-main > .mc-corte-page { padding-top: 0; }
+  .inicio-shell.mc-reference-a .mc-corte-page > .mc-op-header { min-height: 42px; }
+  .inicio-shell.mc-reference-a .mc-corte-page .mc-page-header__title { font-size: 1.5rem; }
+  .inicio-shell.mc-reference-a .mc-corte-summary { margin-top: 8px; }
+  .inicio-shell.mc-reference-a .mc-corte-summary > .mc-corte-summary__rows > div { min-height: 48px; padding: 4px 10px; gap: 2px; }
+  .inicio-shell.mc-reference-a .mc-corte-summary > .mc-corte-summary__rows dt { font: .75rem/1.2 Arial,sans-serif; }
+  .inicio-shell.mc-reference-a .mc-corte-summary > .mc-corte-summary__rows dd { font-size: 1.375rem; }
+  .inicio-shell.mc-reference-a .mc-corte-native-register { height: 66px; }
+}
+
+/* Preserve the shell's 3+2 reflow when enlarged text reduces its em width. */
+@media (max-width: 760px) {
+  @container (max-width: 14em) {
+    .inicio-shell.mc-reference-a .mc-mobile-nav { grid-template-columns: repeat(3,minmax(0,1fr)); }
+    .inicio-shell.mc-reference-a .inicio-main > main,
+    .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-main > .inicio-content { padding-bottom: 210px; }
+    .inicio-shell.mc-reference-a .mc-pend-native-tabs { grid-template-columns: minmax(0,1fr); }
+    .inicio-shell.mc-reference-a .mc-pend-native-summary { grid-template-columns: minmax(0,1fr); }
+    .inicio-shell.mc-reference-a .mc-pend-native-summary > img { display: none; }
+    .inicio-shell.mc-reference-a .mc-pend-native-summary > div { min-width: 0; border: 0; }
+    .inicio-shell.mc-reference-a .mc-pend-native-totals { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .inicio-shell.mc-reference-a .mc-pend-native-tabs button { min-width: 0; }
+  }
 }
 
 @media (max-width: 360px) {
