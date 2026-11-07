@@ -205,7 +205,7 @@ export function PaymentPanel({
         </figure>
       ) : null}
 
-      {order.paymentUrl ? <button type="button" className="mc-caja-button mc-caja-button--secondary mc-qr-share" onClick={() => void copyLink()}><Share2 aria-hidden="true" />{copied ? "Compartir QR ? link copiado" : "Compartir QR"}</button> : null}
+      {order.paymentUrl ? <button type="button" className="mc-caja-button mc-caja-button--secondary mc-qr-share" onClick={() => void copyLink()}><Share2 aria-hidden="true" />{copied ? "Compartir QR · link copiado" : "Compartir QR"}</button> : null}
       {order.paymentUrl ? (
         <div className="mc-caja-link">
           <p>Link de cobro</p>
@@ -257,7 +257,7 @@ export function PaymentPanel({
           disabled={busy !== null}
         >
           {busy === "refresh" ? <span className="mc-caja-spinner" aria-hidden="true" /> : null}
-          Confirmar pago ? consultar estado
+          Confirmar pago · consultar estado
         </button>
         <button
           type="button"

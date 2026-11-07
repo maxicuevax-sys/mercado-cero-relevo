@@ -823,7 +823,7 @@ export function CajaScreen({
       {view === "method" ? <button type="button" className="mc-caja-back" aria-label="Volver a Nueva venta" disabled={saving} onClick={() => { setView("compose"); window.requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(".mc-spec-register")?.focus()); }}><ArrowLeft aria-hidden="true" /></button> : <Link href="/inicio" className="mc-caja-back" aria-label="Volver a Inicio"><ArrowLeft aria-hidden="true" /></Link>}
       <PageHeader
         eyebrow="Caja"
-        title={view === "compose" ? "Nueva venta" : view === "method" ? "M?todo de pago" : view === "payment" ? "Pago QR" : order?.status === "demo_paid" ? "Pago demo (simulado)" : order?.status === "paid" ? "Pago confirmado" : "Venta registrada"}
+        title={view === "compose" ? "Nueva venta" : view === "method" ? "Método de pago" : view === "payment" ? "Pago QR" : order?.status === "demo_paid" ? "Pago demo (simulado)" : order?.status === "paid" ? "Pago confirmado" : "Venta registrada"}
         titleId="caja-title"
         subtitle={
           view === "compose"

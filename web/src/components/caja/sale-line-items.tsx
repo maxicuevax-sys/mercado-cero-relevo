@@ -225,7 +225,7 @@ export function SaleLineItems({
                   <button
                     type="button"
                     className="mc-caja-line__step"
-                    aria-label={`? Reducir cantidad de ${line.description || "concepto"}`}
+                    aria-label={`− Reducir cantidad de ${line.description || "concepto"}`}
                     onClick={() => stepQuantity(line, -1)}
                     disabled={disabled || parseQuantity(line.quantity) <= 1}
                   >−</button>
