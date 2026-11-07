@@ -6,7 +6,7 @@ import { connection } from "next/server";
 import {
   ArrowDownLeft,
   ArrowLeft,
-  CalendarDays,
+  BarChart3,
   Check,
   Banknote,
   CreditCard,
@@ -19,6 +19,7 @@ import { FlowScreen } from "@/components/shell/flow-screen";
 import { getCredit, listCreditPayments } from "@/lib/db";
 import { formatMxn } from "@/lib/format";
 import { addDaysToDateKey, mexicoDateKey } from "@/lib/mexico-date";
+import { ExportMovementsButton } from "./export-movements";
 
 export const metadata: Metadata = {
   title: "Fiado de cliente — Mercado Cero",
@@ -57,11 +58,12 @@ export default async function FiadoDetallePage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ abono?: string }>;
+  searchParams: Promise<{ abono?: string; vista?: string }>;
 }) {
   await connection();
   const { id } = await params;
-  const { abono } = await searchParams;
+  const { abono, vista } = await searchParams;
+  const resumen = vista === "resumen";
   const credit = getCredit(id);
   if (!credit) notFound();
 
@@ -75,6 +77,7 @@ export default async function FiadoDetallePage({
     ...payments.map((payment) => ({
       id: payment.id,
       day: movementDay(payment.createdAt),
+      at: payment.createdAt,
       title: "Abono",
       detail: methodLabel(payment.method),
       method: payment.method,
@@ -84,13 +87,23 @@ export default async function FiadoDetallePage({
     {
       id: `sale-${credit.id}`,
       day: movementDay(credit.createdAt),
+      at: credit.createdAt,
       title: "Venta a fiado",
       detail: credit.orderId ? "Pedido registrado" : "Sin pedido",
       method: "sale",
       amountCents: credit.originalCents,
       tone: "clay" as const,
     },
-  ];
+  ].sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+
+  const exportRows = movements.map((movement) => ({
+    date: mexicoDateKey(new Date(movement.at)),
+    title: movement.title,
+    detail: movement.detail,
+    amount: `${movement.amountCents < 0 ? "-" : ""}${(
+      Math.abs(movement.amountCents) / 100
+    ).toFixed(2)}`,
+  }));
 
   const groups: Array<{ day: string; items: typeof movements }> = [];
   for (const movement of movements) {
@@ -106,6 +119,13 @@ export default async function FiadoDetallePage({
       backHref="/fiados"
       backLabel="Volver a Fiados"
       activeHref="/fiados"
+      headingAction={
+        <ExportMovementsButton
+          rows={exportRows}
+          customerName={name}
+          fileName={`fiado-${name.toLocaleLowerCase("es-MX").replace(/[^a-z0-9]+/gi, "-")}.csv`}
+        />
+      }
     >
       {abono === "ok" ? (
         <p className="mc-flow__card mc-flow__card--soft" role="status">
@@ -141,23 +161,84 @@ export default async function FiadoDetallePage({
       </section>
 
       <div className="mc-flow__tabs" role="group" aria-label="Vista">
-        <span className="mc-flow__tab is-active">
+        <Link
+          className={`mc-flow__tab${resumen ? "" : " is-active"}`}
+          href={`/fiados/${credit.id}`}
+          aria-current={resumen ? undefined : "page"}
+        >
           <ReceiptText aria-hidden="true" />
           Movimientos
-        </span>
-        <Link className="mc-flow__tab" href={`/fiados/${credit.id}#resumen`}>
+        </Link>
+        <Link
+          className={`mc-flow__tab${resumen ? " is-active" : ""}`}
+          href={`/fiados/${credit.id}?vista=resumen`}
+          aria-current={resumen ? "page" : undefined}
+        >
+          <BarChart3 aria-hidden="true" />
           Resumen
         </Link>
       </div>
 
-      <section id="resumen" aria-labelledby="mc-flow-movements">
+      {resumen ? (
+        <section aria-labelledby="mc-flow-summary-title">
+          <h2 id="mc-flow-summary-title" className="mc-flow__section-title">
+            Resumen del fiado
+          </h2>
+          <dl className="mc-flow__summary">
+            <div>
+              <dt>Saldo actual</dt>
+              <dd className="is-clay">{formatMxn(credit.balanceCents)}</dd>
+            </div>
+            <div>
+              <dt>Total del fiado</dt>
+              <dd>{formatMxn(credit.originalCents)}</dd>
+            </div>
+            <div>
+              <dt>Total de abonos</dt>
+              <dd className="is-green">{formatMxn(paidCents)}</dd>
+            </div>
+            <div>
+              <dt>Abonos registrados</dt>
+              <dd>{payments.length}</dd>
+            </div>
+            <div>
+              <dt>Abonos en efectivo</dt>
+              <dd>
+                {formatMxn(
+                  payments
+                    .filter((payment) => payment.method === "cash")
+                    .reduce((sum, payment) => sum + payment.amountCents, 0),
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>Abonos digitales o con tarjeta</dt>
+              <dd>
+                {formatMxn(
+                  payments
+                    .filter((payment) => payment.method !== "cash")
+                    .reduce((sum, payment) => sum + payment.amountCents, 0),
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>Último movimiento</dt>
+              <dd>{movements[0]?.day ?? "Sin movimientos"}</dd>
+            </div>
+          </dl>
+          <p className="mc-flow__note">
+            El saldo es deuda pendiente, no dinero recibido. Los abonos digitales o
+            con tarjeta quedan declarados, sin verificación de pey.
+          </p>
+        </section>
+      ) : (
+        <section id="resumen" aria-labelledby="mc-flow-movements">
         <h2 id="mc-flow-movements" className="mc-flow__section-title">
           Historial de movimientos
         </h2>
         {groups.map((group) => (
           <div key={group.day}>
             <p className="mc-flow__group">
-              <CalendarDays aria-hidden="true" />
               {group.day}
             </p>
             <ul className="mc-flow__list">
@@ -179,7 +260,8 @@ export default async function FiadoDetallePage({
             </ul>
           </div>
         ))}
-      </section>
+        </section>
+      )}
 
       <p className="mc-flow__note">
         Un abono reduce la deuda y no crea una venta nueva. Si fue en efectivo,
