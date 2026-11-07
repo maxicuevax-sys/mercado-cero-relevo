@@ -203,7 +203,7 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
         <button type="button" className="mc-sale-voice__manual hidden" aria-label="Escribir un producto a mano" disabled={disabled || busy} onClick={openManual}>
           <ScanBarcode aria-hidden="true" />
         </button>
-        <input id="mc-sale-voice-text" aria-label="Describe lo que vendiste" placeholder="Producto" value={text} maxLength={2000}
+        <input id="mc-sale-voice-text" aria-label="?Qu? vendiste? Describe los productos" placeholder="Producto" value={text} maxLength={2000}
           disabled={disabled || busy} aria-describedby={error ? "mc-sale-voice-hint mc-sale-voice-error" : "mc-sale-voice-hint"} onChange={(event) => { setText(event.target.value); setProposal([]); setError(null); }}
           onKeyDown={(event) => { if (event.key === "Enter" && !event.nativeEvent.isComposing) { event.preventDefault(); void parseText(); } }} />
         </div>
