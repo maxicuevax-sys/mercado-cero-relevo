@@ -72,3 +72,6 @@ Cualquier bloqueo: issue https://github.com/maxicuevax-sys/mercado-cero-relevo/i
 
 ## Computer use
 Sigue docs/relevo/COMPUTER-USE-DIEGO.md. Cua Driver + Hermes computer_use + MCP cua en OpenCode. Verifica cua-driver get_desktop_state y hermes computer-use doctor.
+
+## Computer use sin interrumpir
+Sigue docs/relevo/COMPUTER-USE-NO-INTERRUPT.md: browser por Playwright/headless; Cua solo background; sin foreground, sin overlay, sin perfil real del navegador.

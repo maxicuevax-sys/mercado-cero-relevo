@@ -140,3 +140,6 @@ Agregar MCP `cua` a `%USERPROFILE%\.config\opencode\opencode.json`:
 "cua": {"type":"local","command":["C:\\Users\\diego\\AppData\\Local\\Programs\\Cua\\cua-driver\\bin\\cua-driver.exe","mcp"],"enabled":true}
 ```
 Verificar: `cua-driver skills status` debe linkear OpenCode/Codex/Hermes. No YOLO; approvals manual/smart; no capturar passwords ni subir screenshots.
+
+## No interrumpir navegación
+Usa docs/relevo/COMPUTER-USE-NO-INTERRUPT.md. Cua solo background; navegación web por Playwright/headless; prohibido foreground salvo aprobación en relevo-attention; overlay off.
