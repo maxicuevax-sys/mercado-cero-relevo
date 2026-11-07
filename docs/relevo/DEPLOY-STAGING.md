@@ -55,3 +55,9 @@ ssh zicua-vps 'tail -50 /opt/mercado-cero-staging-v2/server.log'
 - 18/18 rutas + Detalle, 0 pageerrors.
 - Acceso: ssh -N -L 4604:127.0.0.1:4604 zicua-vps.
 
+
+## V5 — 6ae4f5a
+- /opt/mercado-cero-staging-v5, loopback **4605**, build bdd3348f8914844d91edb4d5fca3b4ca9e298c2.
+- 18/18 rutas + Detalle, 0 pageerrors.
+- Acceso: ssh -N -L 4605:127.0.0.1:4605 zicua-vps.
+
