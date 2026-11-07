@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -8,25 +9,22 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
-  type FormEvent,
+  type KeyboardEvent,
 } from "react";
 import {
   CalendarDays,
   Check,
-  ChevronDown,
   CircleAlert,
-  Clock3,
-  Loader2,
-  Plus,
-  RotateCcw,
-  Search,
   CircleCheck,
   Coins,
+  Loader2,
+  MoreHorizontal,
+  Plus,
+  Search,
   Trash2,
   X,
 } from "lucide-react";
 import { cn, formatMxn } from "@/lib/format";
-import nativeTasksArt from "@/assets/definitive-a/tasks.png";
 import {
   addDaysToDateKey,
   MEXICO_TZ,
@@ -35,21 +33,22 @@ import {
 } from "@/lib/mexico-date";
 import type { Task } from "@/lib/types";
 import listaIcon from "@/assets/brand/iconos/transparent/lista.png";
+import tasksArt from "@/assets/definitive-a/tasks.png";
+import { humanError, responseError, splitTaskNote } from "./task-money";
 
 /*
- * Panel de Tareas de /pendientes.
+ * Bandeja de /pendientes (ref. 08).
  *
- * Se escribe aquí en lugar de reutilizar `components/pending-tasks.tsx` porque
- * ese componente monta su propio `ScreenHeading` con un `<h1>` y estilos del
- * shell clásico: dentro del wrapper operativo nuevo duplicaría el H1 y
- * rompería la composición. Las llamadas a la API son las mismas
- * (`POST/PATCH /api/tasks`), sin tocar endpoints ni lógica.
+ * La pestaña "Hoy" muestra las tareas abiertas y "Completados" las hechas.
+ * Completar y reabrir persisten con `PATCH /api/tasks/[id]`; posponer y
+ * eliminar conservan la lógica que ya existía. El alta vive en
+ * `/pendientes/nuevo` con `POST /api/tasks` (contrato sin cambios).
  */
 
-const HOUR_MS = 60 * 60 * 1000;
 const MINUTE_MS = 60 * 1000;
-const TITLE_MAX = 120;
-const NOTE_MAX = 500;
+const HOUR_MS = 60 * 60 * 1000;
+
+type Tab = "open" | "done";
 
 const shortDateFormatter = new Intl.DateTimeFormat("es-MX", {
   timeZone: MEXICO_TZ,
@@ -76,7 +75,7 @@ function serverClockSnapshot(): null {
   return null;
 }
 
-/** Hora del cliente sin leer `Date.now()` durante el render (sin hydration mismatch). */
+/** Hora del cliente sin leer `Date.now()` durante el render. */
 function useClock(): number | null {
   return useSyncExternalStore(
     subscribeToClock,
@@ -96,7 +95,7 @@ function taskDueTime(task: Task): number | null {
   return Number.isNaN(time) ? null : time;
 }
 
-/** Mismo orden que `compareTasks` de `lib/tasks.ts` (que no puede entrar al bundle). */
+/** Mismo orden que `compareTasks` de `lib/tasks.ts` (no entra al bundle). */
 function sortTasks(a: Task, b: Task): number {
   if (a.status !== b.status) return a.status === "open" ? -1 : 1;
   if (a.status === "done") {
@@ -115,32 +114,47 @@ function sortTasks(a: Task, b: Task): number {
 
 type DueTone = "overdue" | "today" | "soon" | "none";
 
-function dueMeta(
+function dueInfo(
   task: Task,
   now: Date | null,
-): { text: string; tone: DueTone } {
+): { full: string; short: string; tone: DueTone } {
   const iso = task.postponedUntil ?? task.dueAt;
-  if (!iso) return { text: "Sin fecha", tone: "none" };
+  if (!iso) return { full: "Sin fecha", short: "", tone: "none" };
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return { text: "Sin fecha", tone: "none" };
+  if (Number.isNaN(date.getTime())) {
+    return { full: "Sin fecha", short: "", tone: "none" };
+  }
 
   if (!now) {
-    return { text: `Vence el ${shortDate(date)}`, tone: "soon" };
+    return {
+      full: `Vence el ${shortDate(date)}`,
+      short: shortDate(date),
+      tone: "soon",
+    };
   }
 
   const today = mexicoDateKey(now);
   const due = mexicoDateKey(date);
 
   if (due < today) {
-    return { text: `Venció el ${shortDate(date)}`, tone: "overdue" };
+    return {
+      full: `Venció el ${shortDate(date)}`,
+      short: due === addDaysToDateKey(today, -1) ? "Ayer" : shortDate(date),
+      tone: "overdue",
+    };
   }
   if (due === today) {
-    return { text: `Para hoy, ${timeFormatter.format(date)}`, tone: "today" };
+    const time = timeFormatter.format(date);
+    return { full: `Para hoy, ${time}`, short: time, tone: "today" };
   }
   if (due === addDaysToDateKey(today, 1)) {
-    return { text: "Para mañana", tone: "soon" };
+    return { full: "Para mañana", short: "Mañana", tone: "soon" };
   }
-  return { text: `Vence el ${shortDate(date)}`, tone: "soon" };
+  return {
+    full: `Vence el ${shortDate(date)}`,
+    short: shortDate(date),
+    tone: "soon",
+  };
 }
 
 function completedLabel(task: Task, now: Date | null): string {
@@ -167,95 +181,72 @@ function isFutureIso(iso: string): boolean {
   return new Date(iso).getTime() > Date.now();
 }
 
-async function responseError(response: Response): Promise<string> {
-  try {
-    const body = (await response.json()) as { error?: unknown };
-    if (typeof body.error === "string" && body.error.trim()) {
-      return body.error;
-    }
-  } catch {
-    // Respuesta sin JSON: usamos el texto genérico.
-  }
-  if (response.status === 404) return "Esa tarea ya no existe.";
-  if (response.status === 409) return "Esa tarea ya cambió. Actualiza e intenta de nuevo.";
-  if (response.status === 429) return "Demasiados intentos seguidos. Espera un momento.";
-  return "No pude completar la acción. Intenta de nuevo.";
-}
-
-function humanError(error: unknown, fallback: string): string {
-  if (error instanceof Error && error.message) {
-    if (/failed to fetch|networkerror|load failed|fetch failed/i.test(error.message)) {
-      return "No pude conectar. Revisa tu conexión e intenta de nuevo.";
-    }
-    return error.message;
-  }
-  return fallback;
-}
-
 export function TasksPanel({
   initialTasks,
   totalCount,
-  pendingCents = 0,
 }: {
   /** Tareas ya leídas en el servidor (`listTasks`). */
   initialTasks: Task[];
-  /** Total de tareas registradas (`countTasks`), para el resumen del panel. */
+  /** Total de tareas registradas (`countTasks`), para la nota al pie. */
   totalCount: number;
-  pendingCents?: number;
 }) {
-  const headingId = useId();
-  const formTitleId = useId();
-  const formNoteId = useId();
-  const formDateId = useId();
-  const formErrorId = useId();
+  const base = useId();
+  const summaryTitleId = `${base}-summary`;
+  const tabOpenId = `${base}-tab-open`;
+  const tabDoneId = `${base}-tab-done`;
+  const panelOpenId = `${base}-panel-open`;
+  const panelDoneId = `${base}-panel-done`;
+  const searchId = `${base}-search`;
 
   const rootRef = useRef<HTMLElement>(null);
-  const titleInputRef = useRef<HTMLInputElement>(null);
+  const tabOpenRef = useRef<HTMLButtonElement>(null);
+  const tabDoneRef = useRef<HTMLButtonElement>(null);
 
   const [tasks, setTasks] = useState<Task[]>(() =>
     [...initialTasks].sort(sortTasks),
   );
+  const [tab, setTab] = useState<Tab>("open");
+  const [query, setQuery] = useState("");
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
-  const [busyId, setBusyId] = useState<string | null>(null);
-
-  const [formOpen, setFormOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [note, setNote] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [formError, setFormError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-
+  const [menuId, setMenuId] = useState<string | null>(null);
   const [postponeId, setPostponeId] = useState<string | null>(null);
   const [pickingDateId, setPickingDateId] = useState<string | null>(null);
   const [pickedDate, setPickedDate] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [doneOpen, setDoneOpen] = useState(false);
-  const [nativeTab, setNativeTab] = useState("today");
-  const [query, setQuery] = useState("");
   const [focusTarget, setFocusTarget] = useState<string | null>(null);
 
   const clock = useClock();
   const now = clock === null ? null : new Date(clock * MINUTE_MS);
   const todayKey = now ? mexicoDateKey(now) : undefined;
 
-  const matches = (task: Task) => task.title.toLocaleLowerCase("es-MX").includes(query.trim().toLocaleLowerCase("es-MX"));
-  const openTasks = tasks.filter((task) => task.status === "open" && matches(task));
-  const doneTasks = tasks.filter((task) => task.status === "done" && matches(task));
-  const actionsDisabled = busyId !== null || saving;
+  const normalizedQuery = query.trim().toLocaleLowerCase("es-MX");
+  const matches = (task: Task) => {
+    if (!normalizedQuery) return true;
+    const { note } = splitTaskNote(task.note);
+    return `${task.title} ${note ?? ""}`
+      .toLocaleLowerCase("es-MX")
+      .includes(normalizedQuery);
+  };
+
+  const openAll = tasks.filter((task) => task.status === "open");
+  const doneAll = tasks.filter((task) => task.status === "done");
+  const openTasks = openAll.filter(matches);
+  const doneTasks = doneAll.filter(matches);
+  const amountsCents = openAll.reduce(
+    (sum, task) => sum + (splitTaskNote(task.note).amountCents ?? 0),
+    0,
+  );
+  const actionsDisabled = busyId !== null;
   const totalLabel =
     totalCount > tasks.length
-      ? ` · ${totalCount} en total`
-      : "";
+      ? `Mostrando ${tasks.length} de ${totalCount} pendientes.`
+      : null;
 
   const commit = useCallback((next: Task[]) => {
     setTasks(next.filter((task) => task.status !== "deleted").sort(sortTasks));
   }, []);
-
-  useEffect(() => {
-    if (!formOpen) return;
-    titleInputRef.current?.focus();
-  }, [formOpen]);
 
   useEffect(() => {
     if (!focusTarget) return;
@@ -263,85 +254,97 @@ export function TasksPanel({
     if (!root) return;
     const element = Array.from(
       root.querySelectorAll<HTMLElement>("[data-focus]"),
-    ).find((node) => node.dataset.focus === focusTarget && node.getClientRects().length > 0);
+    ).find(
+      (node) =>
+        node.dataset.focus === focusTarget && node.getClientRects().length > 0,
+    );
     if (element) {
       element.focus();
       setFocusTarget(null);
     }
-  }, [focusTarget, tasks]);
+  }, [focusTarget, tasks, tab]);
 
-  function openForm() {
+  function handleTabKey(event: KeyboardEvent<HTMLButtonElement>) {
+    const { key } = event;
+    if (
+      key !== "ArrowLeft" &&
+      key !== "ArrowRight" &&
+      key !== "Home" &&
+      key !== "End"
+    ) {
+      return;
+    }
+    event.preventDefault();
+    const next: Tab =
+      key === "Home"
+        ? "open"
+        : key === "End"
+          ? "done"
+          : tab === "open"
+            ? "done"
+            : "open";
+    setTab(next);
+    (next === "open" ? tabOpenRef.current : tabDoneRef.current)?.focus();
+  }
+
+  function toggleMenu(id: string) {
     setActionError(null);
     setDeleteId(null);
     setPostponeId(null);
-    setFormOpen(true);
+    setPickingDateId(null);
+    setPickedDate("");
+    setMenuId((current) => (current === id ? null : id));
   }
 
-  function closeForm() {
-    setFormOpen(false);
-    setFormError(null);
-    setFocusTarget("create");
+  function closeMenu(id?: string) {
+    setMenuId(null);
+    if (id) setFocusTarget(`menu-${id}`);
   }
 
-  async function handleCreate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFormError(null);
+  function startPostpone(id: string) {
+    setActionError(null);
+    setMenuId(null);
+    setDeleteId(null);
+    setPickingDateId(null);
+    setPickedDate("");
+    setPostponeId(id);
+    setFocusTarget(`postpone-first-${id}`);
+  }
 
-    const cleanTitle = title.trim();
-    if (!cleanTitle) {
-      setFormError("Escribe qué quieres recordar.");
-      titleInputRef.current?.focus();
+  function closePostpone(id: string) {
+    setPostponeId(null);
+    setPickingDateId(null);
+    setPickedDate("");
+    setFocusTarget(`menu-${id}`);
+  }
+
+  function submitPickedDate(id: string) {
+    const iso = dateInputToIso(pickedDate);
+    if (!iso) {
+      setActionError("Elige una fecha válida.");
+      setFocusTarget(`pick-date-${id}`);
       return;
     }
-    if (cleanTitle.length > TITLE_MAX) {
-      setFormError(`El título no puede pasar de ${TITLE_MAX} caracteres.`);
-      titleInputRef.current?.focus();
+    if (!isFutureIso(iso)) {
+      setActionError("Elige una fecha futura.");
+      setFocusTarget(`pick-date-${id}`);
       return;
     }
-    if (note.trim().length > NOTE_MAX) {
-      setFormError(`La nota no puede pasar de ${NOTE_MAX} caracteres.`);
-      return;
-    }
+    void runAction(id, "postpone", iso);
+  }
 
-    let dueAt: string | null = null;
-    if (dueDate) {
-      dueAt = dateInputToIso(dueDate);
-      if (!dueAt) {
-        setFormError("Elige una fecha válida.");
-        return;
-      }
-    }
+  function startDelete(id: string) {
+    setActionError(null);
+    setMenuId(null);
+    setPostponeId(null);
+    setPickingDateId(null);
+    setDeleteId(id);
+    setFocusTarget(`delete-cancel-${id}`);
+  }
 
-    setSaving(true);
-    try {
-      const response = await fetch("/api/tasks", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ title: cleanTitle, note: note.trim() || null, dueAt }),
-      });
-      if (!response.ok) {
-        throw new Error(await responseError(response));
-      }
-      const body = (await response.json()) as { task?: Task };
-      if (!body.task) {
-        throw new Error("El servidor no devolvió la tarea guardada.");
-      }
-      const created = body.task;
-      commit([...tasks.filter((task) => task.id !== created.id), created]);
-      setTitle("");
-      setNote("");
-      setDueDate("");
-      setFormOpen(false);
-      setAnnouncement(`Tarea anotada: ${created.title}.`);
-      setFocusTarget(`complete-${created.id}`);
-    } catch (caught) {
-      setFormError(humanError(caught, "No pude guardar la tarea."));
-    } finally {
-      setSaving(false);
-    }
+  function cancelDelete(id: string) {
+    setDeleteId(null);
+    setFocusTarget(`menu-${id}`);
   }
 
   async function runAction(
@@ -349,9 +352,9 @@ export function TasksPanel({
     action: "complete" | "reopen" | "postpone" | "delete",
     postponeUntil?: string,
   ) {
-    // El botón se deshabilita con `actionsDisabled`; el estado evita además
-    // una segunda acción mientras la primera está en vuelo.
-    if (busyId !== null || saving) return;
+    // El control se deshabilita con `actionsDisabled`; este guardia evita
+    // además una segunda acción mientras la primera está en vuelo.
+    if (busyId !== null) return;
     setBusyId(id);
     setActionError(null);
 
@@ -383,654 +386,614 @@ export function TasksPanel({
       const nextOpen = next.find((task) => task.status === "open");
       if (action === "delete") {
         setDeleteId(null);
-        setFocusTarget(nextOpen ? `complete-${nextOpen.id}` : "create");
-        setAnnouncement("Tarea eliminada.");
+        setMenuId(null);
+        setFocusTarget(nextOpen ? `check-${nextOpen.id}` : "new");
+        setAnnouncement("Pendiente eliminado.");
       } else if (action === "complete") {
-        setDoneOpen(true);
-        setFocusTarget(nextOpen ? `complete-${nextOpen.id}` : "create");
-        setAnnouncement("Tarea completada. Queda en Hechas.");
+        setMenuId(null);
+        setFocusTarget(nextOpen ? `check-${nextOpen.id}` : "new");
+        setAnnouncement("Pendiente completado. Queda en Completados.");
       } else if (action === "reopen") {
-        setFocusTarget(`complete-${id}`);
-        setAnnouncement("Tarea reabierta.");
+        setTab("open");
+        setMenuId(null);
+        setFocusTarget(`check-${id}`);
+        setAnnouncement("Pendiente reabierto. Vuelve a Hoy.");
       } else {
         setPostponeId(null);
         setPickingDateId(null);
         setPickedDate("");
-        setFocusTarget(`postpone-${id}`);
-        setAnnouncement("Tarea pospuesta.");
+        setFocusTarget(`menu-${id}`);
+        setAnnouncement("Pendiente pospuesto.");
       }
     } catch (caught) {
-      setActionError(humanError(caught, "No pude actualizar la tarea."));
+      setActionError(humanError(caught, "No pude actualizar el pendiente."));
     } finally {
       setBusyId(null);
     }
   }
 
-  function startPostpone(id: string) {
-    setActionError(null);
-    setDeleteId(null);
-    setPickingDateId(null);
-    setPickedDate("");
-    setPostponeId((current) => (current === id ? null : id));
-    if (postponeId !== id) setFocusTarget(`postpone-first-${id}`);
+  function clearSearch() {
+    setQuery("");
+    setFocusTarget("search");
   }
 
-  function closePostpone(id: string) {
-    setPostponeId(null);
-    setPickingDateId(null);
-    setPickedDate("");
-    setFocusTarget(`postpone-${id}`);
+  function renderEmptyOpen() {
+    const isFiltered = normalizedQuery.length > 0;
+    return (
+      <div className="mc-pend-empty" role="status">
+        <Image
+          src={listaIcon}
+          alt=""
+          aria-hidden="true"
+          width={88}
+          height={108}
+          className="mc-pend-empty__art"
+          sizes="(max-width: 479px) 44px, 72px"
+        />
+        <div className="mc-pend-empty__copy">
+          <p className="mc-pend-empty__title">
+            {isFiltered
+              ? "Nada coincide con la búsqueda."
+              : tasks.length === 0
+                ? "Aún no hay pendientes."
+                : "No hay pendientes abiertos."}
+          </p>
+          <p className="mc-pend-empty__text">
+            {isFiltered
+              ? `No encontré “${query.trim()}” en los pendientes de hoy.`
+              : tasks.length === 0
+                ? "Anota el primero: pagar al proveedor, recibir un pedido o llamar a un cliente."
+                : "Los completados quedan en su pestaña. Anota otro cuando algo quede para después."}
+          </p>
+          <div className="mc-pend-empty__actions">
+            {isFiltered ? (
+              <button
+                type="button"
+                className="mc-pend-cta mc-pend-cta--secondary"
+                onClick={clearSearch}
+              >
+                Limpiar búsqueda
+              </button>
+            ) : (
+              <Link
+                href="/pendientes/nuevo"
+                className="mc-pend-cta mc-pend-cta--secondary"
+              >
+                <Plus className="mc-pend-icon" aria-hidden="true" />
+                Nuevo pendiente
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  function submitPickedDate(id: string) {
-    const iso = dateInputToIso(pickedDate);
-    if (!iso) {
-      setActionError("Elige una fecha válida.");
-      setFocusTarget(`pick-date-${id}`);
-      return;
-    }
-    if (!isFutureIso(iso)) {
-      setActionError("Elige una fecha futura.");
-      setFocusTarget(`pick-date-${id}`);
-      return;
-    }
-    void runAction(id, "postpone", iso);
+  function renderEmptyDone() {
+    const isFiltered = normalizedQuery.length > 0;
+    return (
+      <div className="mc-pend-empty" role="status">
+        <Image
+          src={listaIcon}
+          alt=""
+          aria-hidden="true"
+          width={88}
+          height={108}
+          className="mc-pend-empty__art"
+          sizes="(max-width: 479px) 44px, 72px"
+        />
+        <div className="mc-pend-empty__copy">
+          <p className="mc-pend-empty__title">
+            {isFiltered
+              ? "Nada coincide en completados."
+              : "Aún no has completado pendientes."}
+          </p>
+          <p className="mc-pend-empty__text">
+            {isFiltered
+              ? `No encontré “${query.trim()}” entre las tareas hechas.`
+              : "Cuando marques uno, se moverá aquí con la fecha en que lo terminaste."}
+          </p>
+          <div className="mc-pend-empty__actions">
+            {isFiltered ? (
+              <button
+                type="button"
+                className="mc-pend-cta mc-pend-cta--secondary"
+                onClick={clearSearch}
+              >
+                Limpiar búsqueda
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="mc-pend-cta mc-pend-cta--secondary"
+                onClick={() => {
+                  setTab("open");
+                  tabOpenRef.current?.focus();
+                }}
+              >
+                Ver pendientes de hoy
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  function startDelete(id: string) {
-    setActionError(null);
-    setPostponeId(null);
-    setPickingDateId(null);
-    setDeleteId(id);
-    setFocusTarget(`delete-cancel-${id}`);
-  }
+  function renderTask(task: Task) {
+    const isDone = task.status === "done";
+    const { amountCents, note } = splitTaskNote(task.note);
+    const due = dueInfo(task, now);
+    const isBusy = busyId === task.id;
+    const isMenuOpen = menuId === task.id;
+    const isPostponing = postponeId === task.id;
+    const isPickingDate = pickingDateId === task.id;
+    const isDeleting = deleteId === task.id;
+    const meta = amountCents !== null ? formatMxn(amountCents) : isDone ? "" : due.short;
+    const hiddenDue =
+      amountCents !== null && !isDone && due.full !== "Sin fecha"
+        ? due.full
+        : null;
 
-  function cancelDelete(id: string) {
-    setDeleteId(null);
-    setFocusTarget(`delete-${id}`);
-  }
+    return (
+      <li
+        key={task.id}
+        className={cn("mc-pend-item", isDone && "mc-pend-item--done")}
+        aria-busy={isBusy ? true : undefined}
+      >
+        <div className="mc-pend-item__row">
+          <span className="mc-pend-check">
+            <input
+              type="checkbox"
+              checked={isDone}
+              disabled={actionsDisabled}
+              onChange={() =>
+                void runAction(task.id, isDone ? "reopen" : "complete")
+              }
+              aria-label={`${isDone ? "Reabrir" : "Completar"}: ${task.title}`}
+              data-focus={`check-${task.id}`}
+            />
+            <Check
+              className="mc-pend-check__icon"
+              aria-hidden="true"
+            />
+          </span>
 
-  // Secciones Hoy / Esta semana / Todos. Durante el render de servidor no hay
-  // reloj de cliente: todo cae en "Todos" y al hidratar se reagrupa sin saltos
-  // focales (la lista ya está ordenada por vencimiento).
-  const groups: Array<{ id: string; label: string; tasks: Task[] }> = [];
-  if (now) {
-    const todayKey = mexicoDateKey(now);
-    const weekEndKey = addDaysToDateKey(todayKey, 7);
-    const today: Task[] = [];
-    const week: Task[] = [];
-    const rest: Task[] = [];
-    for (const task of openTasks) {
-      const iso = task.postponedUntil ?? task.dueAt;
-      const date = iso ? new Date(iso) : null;
-      if (!date || Number.isNaN(date.getTime())) {
-        rest.push(task);
-        continue;
-      }
-      const key = mexicoDateKey(date);
-      if (key <= todayKey) today.push(task);
-      else if (key < weekEndKey) week.push(task);
-      else rest.push(task);
-    }
-    if (today.length > 0) {
-      groups.push({ id: `${headingId}-hoy`, label: "Hoy", tasks: today });
-    }
-    if (week.length > 0) {
-      groups.push({
-        id: `${headingId}-semana`,
-        label: "Esta semana",
-        tasks: week,
-      });
-    }
-    if (rest.length > 0) {
-      groups.push({ id: `${headingId}-todos`, label: "Todos", tasks: rest });
-    }
-  } else if (openTasks.length > 0) {
-    groups.push({ id: `${headingId}-todos`, label: "Todos", tasks: openTasks });
+          <div className="mc-pend-item__body">
+            <p className="mc-pend-item__title">{task.title}</p>
+            {note ? <p className="mc-pend-item__note">{note}</p> : null}
+
+            {isDone ? (
+              <p className="mc-pend-item__sub">{completedLabel(task, now)}</p>
+            ) : task.postponedUntil ? (
+              <p className="mc-pend-item__sub">
+                <span className="mc-pend-chip">Pospuesta</span>
+                {hiddenDue ? (
+                  <span className="sr-only">{hiddenDue}</span>
+                ) : null}
+              </p>
+            ) : hiddenDue ? (
+              <span className="sr-only">{hiddenDue}</span>
+            ) : null}
+
+            {isBusy ? (
+              <p className="mc-pend-busy">
+                <Loader2
+                  className="mc-pend-icon mc-pend-spin"
+                  aria-hidden="true"
+                />
+                Guardando…
+              </p>
+            ) : null}
+          </div>
+
+          {meta ? (
+            <p
+              className={cn(
+                "mc-pend-item__meta",
+                amountCents !== null && "mc-pend-item__meta--amount",
+              )}
+              title={hiddenDue ?? undefined}
+            >
+              {meta}
+            </p>
+          ) : (
+            <span aria-hidden="true" />
+          )}
+
+          {isDone ? (
+            <span aria-hidden="true" />
+          ) : (
+            <button
+              type="button"
+              className="mc-pend-item__menu"
+              aria-label={`Opciones de ${task.title}`}
+              aria-expanded={isMenuOpen}
+              aria-controls={
+                isMenuOpen ? `${base}-menu-${task.id}` : undefined
+              }
+              data-focus={`menu-${task.id}`}
+              disabled={actionsDisabled}
+              onClick={() => toggleMenu(task.id)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape" && isMenuOpen) {
+                  event.stopPropagation();
+                  closeMenu(task.id);
+                }
+              }}
+            >
+              <MoreHorizontal aria-hidden="true" />
+            </button>
+          )}
+        </div>
+
+        {isMenuOpen ? (
+          <div
+            id={`${base}-menu-${task.id}`}
+            className="mc-pend-item__panel"
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.stopPropagation();
+                closeMenu(task.id);
+              }
+            }}
+          >
+            <button
+              type="button"
+              className="mc-pend-action"
+              onClick={() => startPostpone(task.id)}
+              disabled={actionsDisabled}
+              data-focus={`postpone-${task.id}`}
+            >
+              <CalendarDays className="mc-pend-icon" aria-hidden="true" />
+              Posponer
+            </button>
+            <button
+              type="button"
+              className="mc-pend-action mc-pend-action--danger"
+              onClick={() => startDelete(task.id)}
+              disabled={actionsDisabled}
+              data-focus={`delete-${task.id}`}
+            >
+              <Trash2 className="mc-pend-icon" aria-hidden="true" />
+              Eliminar
+            </button>
+            <button
+              type="button"
+              className="mc-pend-button mc-pend-button--quiet"
+              onClick={() => closeMenu(task.id)}
+            >
+              Cerrar
+            </button>
+          </div>
+        ) : null}
+
+        {isDeleting ? (
+          <div
+            className="mc-pend-confirm"
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.stopPropagation();
+                cancelDelete(task.id);
+              }
+            }}
+          >
+            <p className="mc-pend-confirm__title">
+              ¿Eliminar “{task.title}”?
+            </p>
+            <p className="mc-pend-confirm__note">
+              Dejará de aparecer en tu lista. No se puede deshacer desde aquí.
+            </p>
+            <div className="mc-pend-confirm__actions">
+              <button
+                type="button"
+                data-focus={`delete-cancel-${task.id}`}
+                onClick={() => cancelDelete(task.id)}
+                className="mc-pend-button"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteId(null);
+                  void runAction(task.id, "delete");
+                }}
+                disabled={actionsDisabled}
+                className="mc-pend-button mc-pend-button--danger"
+              >
+                <Trash2 className="mc-pend-icon" aria-hidden="true" />
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {isPostponing ? (
+          <div
+            id={`postpone-${task.id}`}
+            className="mc-pend-postpone"
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.stopPropagation();
+                closePostpone(task.id);
+              }
+            }}
+          >
+            <p className="mc-pend-postpone__title">¿Para cuándo?</p>
+            <div className="mc-pend-postpone__choices">
+              <button
+                type="button"
+                data-focus={`postpone-first-${task.id}`}
+                onClick={() =>
+                  void runAction(task.id, "postpone", laterTodayIso())
+                }
+                disabled={actionsDisabled}
+                className="mc-pend-postpone__choice"
+              >
+                Más tarde hoy
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  void runAction(
+                    task.id,
+                    "postpone",
+                    mexicoAt(1, 9).toISOString(),
+                  )
+                }
+                disabled={actionsDisabled}
+                className="mc-pend-postpone__choice"
+              >
+                Mañana
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  void runAction(
+                    task.id,
+                    "postpone",
+                    mexicoAt(7, 9).toISOString(),
+                  )
+                }
+                disabled={actionsDisabled}
+                className="mc-pend-postpone__choice"
+              >
+                En una semana
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPickingDateId(task.id);
+                  setPickedDate("");
+                  setFocusTarget(`pick-date-${task.id}`);
+                }}
+                disabled={actionsDisabled}
+                className="mc-pend-postpone__choice"
+              >
+                Elegir fecha
+              </button>
+            </div>
+
+            {isPickingDate ? (
+              <div className="mc-pend-postpone__date">
+                <label
+                  htmlFor={`pick-date-${task.id}`}
+                  className="mc-pend-newfield__label"
+                >
+                  Nueva fecha
+                </label>
+                <input
+                  id={`pick-date-${task.id}`}
+                  data-focus={`pick-date-${task.id}`}
+                  type="date"
+                  value={pickedDate}
+                  min={todayKey}
+                  onChange={(event) => setPickedDate(event.target.value)}
+                  className="mc-pend-date-input"
+                />
+                <div className="mc-pend-confirm__actions">
+                  <button
+                    type="button"
+                    onClick={() => submitPickedDate(task.id)}
+                    disabled={actionsDisabled || !pickedDate}
+                    className="mc-pend-cta"
+                  >
+                    Guardar fecha
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPickingDateId(null);
+                      setPickedDate("");
+                      setFocusTarget(`postpone-first-${task.id}`);
+                    }}
+                    className="mc-pend-button"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            <div className="mc-pend-postpone__close">
+              <button
+                type="button"
+                onClick={() => closePostpone(task.id)}
+                className="mc-pend-button mc-pend-button--quiet"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </li>
+    );
   }
 
   return (
     <section
       ref={rootRef}
       id="mc-pend-tareas"
-      className="mc-op-panel mc-pend-tasks"
-      data-native-tab={nativeTab}
-      aria-labelledby={headingId}
+      className="mc-pend-board"
+      aria-labelledby={summaryTitleId}
     >
-      <div className="mc-pend-native-toolbar">
-        <div className="mc-pend-native-tabs" aria-label="Estado de tareas">
-          <button type="button" aria-pressed={nativeTab === "today"} onClick={() => setNativeTab("today")}><CalendarDays aria-hidden="true" />Hoy</button>
-          <button type="button" aria-pressed={nativeTab === "done"} onClick={() => { setNativeTab("done"); setDoneOpen(true); }}><CircleCheck aria-hidden="true" />Completados</button>
-        </div>
-        <label className="mc-pend-native-search"><Search aria-hidden="true" /><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Buscar pendiente" aria-label="Buscar pendiente" /></label>
-        <section className="mc-pend-native-summary" aria-label="Resumen de pendientes">
-          <Image src={nativeTasksArt} alt="" aria-hidden="true" sizes="140px" />
-          <div><h2>Pendientes de hoy</h2><div className="mc-pend-native-totals"><p><CircleCheck aria-hidden="true" /><strong>{tasks.filter(task => task.status === "open").length}</strong><span>tareas abiertas</span></p><p><Coins aria-hidden="true" /><strong>{formatMxn(pendingCents)}</strong><span>por cobrar</span></p></div></div>
-        </section>
+      <p role="status" aria-live="polite" className="sr-only">
+        {announcement}
+      </p>
+
+      <div
+        className="mc-pend-tabs"
+        role="tablist"
+        aria-label="Pendientes por estado"
+      >
+        <button
+          ref={tabOpenRef}
+          type="button"
+          role="tab"
+          id={tabOpenId}
+          aria-selected={tab === "open"}
+          aria-controls={panelOpenId}
+          tabIndex={tab === "open" ? 0 : -1}
+          className="mc-pend-tab"
+          onClick={() => setTab("open")}
+          onKeyDown={handleTabKey}
+        >
+          <CalendarDays aria-hidden="true" />
+          Hoy
+          <span className="sr-only">
+            : {openAll.length} {openAll.length === 1 ? "pendiente" : "pendientes"}
+          </span>
+        </button>
+        <button
+          ref={tabDoneRef}
+          type="button"
+          role="tab"
+          id={tabDoneId}
+          aria-selected={tab === "done"}
+          aria-controls={panelDoneId}
+          tabIndex={tab === "done" ? 0 : -1}
+          className="mc-pend-tab"
+          onClick={() => setTab("done")}
+          onKeyDown={handleTabKey}
+        >
+          <CircleCheck aria-hidden="true" />
+          Completados
+          <span className="sr-only">
+            : {doneAll.length} {doneAll.length === 1 ? "pendiente" : "pendientes"}
+          </span>
+        </button>
       </div>
-      <div className="mc-pend-panel-head">
-        <span className="mc-pend-medallion mc-pend-medallion--green">
-          <Image
-            src={listaIcon}
-            alt=""
-            aria-hidden="true"
-            width={20}
-            height={25}
-            className="mc-pend-medallion__art"
-          />
-        </span>
-        <div className="mc-pend-panel-head__copy">
-          <h2 id={headingId} className="mc-op-panel__title">
-            Tareas
+
+      <label className="mc-pend-search" htmlFor={searchId}>
+        <Search aria-hidden="true" />
+        <span className="sr-only">Buscar pendiente</span>
+        <input
+          id={searchId}
+          data-focus="search"
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Buscar pendiente"
+          autoComplete="off"
+        />
+      </label>
+
+      <div className="mc-pend-summary">
+        <Image
+          src={tasksArt}
+          alt=""
+          aria-hidden="true"
+          width={322}
+          height={242}
+          className="mc-pend-summary__art"
+          sizes="(max-width: 479px) 92px, (max-width: 767px) 92px, 38vw"
+        />
+        <div className="mc-pend-summary__copy">
+          <h2 id={summaryTitleId} className="mc-pend-summary__title">
+            Pendientes de hoy
           </h2>
-          <p className="mc-op-panel__meta">
-            {openTasks.length} {openTasks.length === 1 ? "abierta" : "abiertas"} ·{" "}
-            {doneTasks.length} {doneTasks.length === 1 ? "hecha" : "hechas"}
-            {totalLabel}
-          </p>
+          <ul className="mc-pend-summary__stats">
+            <li className="mc-pend-summary__stat">
+              <span className="mc-pend-summary__icon">
+                <CircleCheck aria-hidden="true" />
+              </span>
+              <span className="mc-pend-summary__value">{openAll.length}</span>
+              <span className="mc-pend-summary__label">
+                {openAll.length === 1 ? "tarea" : "tareas"}
+              </span>
+            </li>
+            <li className="mc-pend-summary__stat">
+              <span className="mc-pend-summary__icon">
+                <Coins aria-hidden="true" />
+              </span>
+              <span className="mc-pend-summary__value">
+                {formatMxn(amountsCents)}
+              </span>
+              <span className="mc-pend-summary__label">por cobrar</span>
+            </li>
+          </ul>
         </div>
-        {!formOpen && openTasks.length > 0 ? (
+      </div>
+
+      {actionError ? (
+        <div role="alert" className="mc-pend-alert mc-pend-alert--row">
+          <span className="mc-pend-alert__text">
+            <CircleAlert className="mc-pend-icon" aria-hidden="true" />
+            {actionError}
+          </span>
           <button
             type="button"
-            data-focus="create"
-            onClick={openForm}
-            className="mc-pend-cta mc-pend-cta--secondary mc-pend-tasks__new"
+            className="mc-pend-button mc-pend-button--quiet"
+            onClick={() => setActionError(null)}
           >
-            <Plus className="mc-pend-icon" aria-hidden="true" />
-            Anotar tarea
+            <X className="mc-pend-icon" aria-hidden="true" />
+            Cerrar
           </button>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
 
-      <div className="mc-op-panel__body">
-        <p role="status" aria-live="polite" className="sr-only">
-          {announcement}
-        </p>
-
-        {formOpen ? (
-          <form
-            id={`${headingId}-form`}
-            className="mc-pend-form"
-            onSubmit={handleCreate}
-            noValidate
-          >
-            <p className="mc-pend-form__kicker">Nueva tarea</p>
-            <div className="mc-pend-field">
-              <label htmlFor={formTitleId} className="mc-pend-field__label">
-                ¿Qué quieres recordar?
-              </label>
-              <input
-                ref={titleInputRef}
-                id={formTitleId}
-                type="text"
-                value={title}
-                onChange={(event) => {
-                  setTitle(event.target.value);
-                  if (formError) setFormError(null);
-                }}
-                maxLength={TITLE_MAX}
-                autoComplete="off"
-                placeholder="Pagar al proveedor"
-                className="mc-pend-input"
-                aria-invalid={formError ? true : undefined}
-                aria-describedby={formError ? formErrorId : undefined}
-              />
-            </div>
-            <div className="mc-pend-field">
-              <label htmlFor={formNoteId} className="mc-pend-field__label">
-                Nota <span className="mc-pend-field__optional">(opcional)</span>
-              </label>
-              <textarea
-                id={formNoteId}
-                value={note}
-                onChange={(event) => {
-                  setNote(event.target.value);
-                  if (formError) setFormError(null);
-                }}
-                maxLength={NOTE_MAX}
-                rows={2}
-                placeholder="A las 11, por la puerta de atrás"
-                className="mc-pend-input mc-pend-textarea"
-              />
-            </div>
-            <div className="mc-pend-field">
-              <label htmlFor={formDateId} className="mc-pend-field__label">
-                Fecha <span className="mc-pend-field__optional">(opcional)</span>
-              </label>
-              <input
-                id={formDateId}
-                type="date"
-                value={dueDate}
-                min={todayKey}
-                onChange={(event) => {
-                  setDueDate(event.target.value);
-                  if (formError) setFormError(null);
-                }}
-                className="mc-pend-input mc-pend-input--date"
-              />
-              <p className="mc-pend-field__hint">
-                Sin fecha queda en la lista sin día.
-              </p>
-            </div>
-
-            {formError ? (
-              <p id={formErrorId} role="alert" className="mc-pend-alert">
-                {formError}
-              </p>
-            ) : null}
-
-            <div className="mc-pend-form__actions">
-              <button
-                type="submit"
-                className="mc-pend-cta"
-                disabled={saving}
-                aria-busy={saving}
-              >
-                {saving ? (
-                  <Loader2 className="mc-pend-icon mc-pend-spin" aria-hidden="true" />
-                ) : (
-                  <Check className="mc-pend-icon" aria-hidden="true" />
-                )}
-                {saving ? "Guardando…" : "Guardar tarea"}
-              </button>
-              <button
-                type="button"
-                className="mc-pend-button"
-                onClick={closeForm}
-                disabled={saving}
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
-        ) : null}
-
-        {actionError ? (
-          <div role="alert" className="mc-pend-alert mc-pend-alert--row">
-            <span className="mc-pend-alert__text">
-              <CircleAlert className="mc-pend-icon" aria-hidden="true" />
-              {actionError}
-            </span>
-            <button
-              type="button"
-              className="mc-pend-button mc-pend-button--quiet"
-              onClick={() => setActionError(null)}
-            >
-              <X className="mc-pend-icon" aria-hidden="true" />
-              Cerrar
-            </button>
-          </div>
-        ) : null}
-
+      <div
+        role="tabpanel"
+        id={panelOpenId}
+        aria-labelledby={tabOpenId}
+        hidden={tab !== "open"}
+      >
         {openTasks.length === 0 ? (
-          <div className="mc-pend-empty" role="status">
-            <Image
-              src={listaIcon}
-              alt=""
-              aria-hidden="true"
-              width={88}
-              height={108}
-              className="mc-pend-empty__art"
-              sizes="(max-width: 479px) 44px, 80px"
-            />
-            <div className="mc-pend-empty__copy">
-              <p className="mc-pend-empty__title">
-                {tasks.length === 0
-                  ? "Aún no hay recados."
-                  : "No hay tareas abiertas."}
-              </p>
-              <p className="mc-pend-empty__text">
-                {tasks.length === 0
-                  ? "Aquí van los recordatorios del puesto: pagar al proveedor, recoger un pedido, llamar a un cliente."
-                  : "Las hechas quedan abajo. Anota otra cuando algo quede para después."}
-              </p>
-              {!formOpen ? (
-                <button
-                  type="button"
-                  data-focus="create"
-                  className="mc-pend-cta"
-                  onClick={openForm}
-                >
-                  <Plus className="mc-pend-icon" aria-hidden="true" />
-                  Anotar tarea
-                </button>
-              ) : null}
-            </div>
-          </div>
+          renderEmptyOpen()
         ) : (
-          groups.map((group) => (
-            <section
-              key={group.id}
-              className="mc-pend-group"
-              aria-labelledby={group.id}
-            >
-              <h3 id={group.id} className="mc-pend-group__label">
-                {group.label}
-                <span className="mc-pend-count">{group.tasks.length}</span>
-              </h3>
-              <ul className="mc-pend-task-list" aria-labelledby={group.id}>
-                {group.tasks.map((task) => {
-              const due = dueMeta(task, now);
-              const isBusy = busyId === task.id;
-              const isPostponing = postponeId === task.id;
-              const isPickingDate = pickingDateId === task.id;
-              const isDeleting = deleteId === task.id;
-
-              return (
-                <li
-                  key={task.id}
-                  className="mc-pend-task"
-                  aria-busy={isBusy}
-                >
-                  <div className="mc-pend-task__row">
-                    <button
-                      type="button"
-                      aria-label={`Completar: ${task.title}`}
-                      title={`Completar: ${task.title}`}
-                      data-focus={`complete-${task.id}`}
-                      disabled={actionsDisabled}
-                      onClick={() => void runAction(task.id, "complete")}
-                      className="mc-pend-task__check"
-                    >
-                      <Check className="mc-pend-icon" aria-hidden="true" />
-                    </button>
-
-                    <div className="mc-pend-task__main">
-                      <p className="mc-pend-task__title">{task.title}</p>
-                      {task.note ? (
-                        <p className="mc-pend-task__note">{task.note}</p>
-                      ) : null}
-
-                      <p
-                        className={cn(
-                          "mc-pend-task__meta",
-                          `mc-pend-task__meta--${due.tone}`,
-                        )}
-                      >
-                        <Clock3 className="mc-pend-icon" aria-hidden="true" />
-                        <span>{due.text}</span>
-                        {task.postponedUntil ? (
-                          <span className="mc-pend-chip">Pospuesta</span>
-                        ) : null}
-                        {isBusy ? (
-                          <span className="mc-pend-task__busy">
-                            <Loader2
-                              className="mc-pend-icon mc-pend-spin"
-                              aria-hidden="true"
-                            />
-                            Guardando…
-                          </span>
-                        ) : null}
-                      </p>
-
-                      {!isDeleting ? (
-                        <div className="mc-pend-task__actions">
-                          <button
-                            type="button"
-                            data-focus={`postpone-${task.id}`}
-                            onClick={() => startPostpone(task.id)}
-                            disabled={actionsDisabled}
-                            aria-expanded={isPostponing}
-                            aria-controls={
-                              isPostponing ? `postpone-${task.id}` : undefined
-                            }
-                            className="mc-pend-task__action"
-                          >
-                            <CalendarDays
-                              className="mc-pend-icon"
-                              aria-hidden="true"
-                            />
-                            Posponer
-                          </button>
-                          <button
-                            type="button"
-                            data-focus={`delete-${task.id}`}
-                            onClick={() => startDelete(task.id)}
-                            disabled={actionsDisabled}
-                            className="mc-pend-task__action mc-pend-task__action--danger"
-                          >
-                            <Trash2 className="mc-pend-icon" aria-hidden="true" />
-                            Eliminar
-                          </button>
-                        </div>
-                      ) : (
-                        <div
-                          className="mc-pend-confirm"
-                          onKeyDown={(event) => {
-                            if (event.key === "Escape") {
-                              event.stopPropagation();
-                              cancelDelete(task.id);
-                            }
-                          }}
-                        >
-                          <p className="mc-pend-confirm__title">
-                            ¿Eliminar “{task.title}”?
-                          </p>
-                          <p className="mc-pend-confirm__note">
-                            Dejará de aparecer en tu lista. No se puede
-                            deshacer desde aquí.
-                          </p>
-                          <div className="mc-pend-confirm__actions">
-                            <button
-                              type="button"
-                              data-focus={`delete-cancel-${task.id}`}
-                              onClick={() => cancelDelete(task.id)}
-                              className="mc-pend-button"
-                            >
-                              Cancelar
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setDeleteId(null);
-                                void runAction(task.id, "delete");
-                              }}
-                              disabled={actionsDisabled}
-                              className="mc-pend-button mc-pend-button--danger"
-                            >
-                              <Trash2
-                                className="mc-pend-icon"
-                                aria-hidden="true"
-                              />
-                              Sí, eliminar
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {isPostponing ? (
-                        <div
-                          id={`postpone-${task.id}`}
-                          className="mc-pend-postpone"
-                          onKeyDown={(event) => {
-                            if (event.key === "Escape") {
-                              event.stopPropagation();
-                              closePostpone(task.id);
-                            }
-                          }}
-                        >
-                          <p className="mc-pend-postpone__title">
-                            ¿Para cuándo?
-                          </p>
-                          <div className="mc-pend-postpone__choices">
-                            <button
-                              type="button"
-                              data-focus={`postpone-first-${task.id}`}
-                              onClick={() => void runAction(task.id, "postpone", laterTodayIso())}
-                              disabled={actionsDisabled}
-                              className="mc-pend-postpone__choice"
-                            >
-                              Más tarde hoy
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                void runAction(
-                                  task.id,
-                                  "postpone",
-                                  mexicoAt(1, 9).toISOString(),
-                                )
-                              }
-                              disabled={actionsDisabled}
-                              className="mc-pend-postpone__choice"
-                            >
-                              Mañana
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                void runAction(
-                                  task.id,
-                                  "postpone",
-                                  mexicoAt(7, 9).toISOString(),
-                                )
-                              }
-                              disabled={actionsDisabled}
-                              className="mc-pend-postpone__choice"
-                            >
-                              En una semana
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setPickingDateId(task.id);
-                                setPickedDate("");
-                                setFocusTarget(`pick-date-${task.id}`);
-                              }}
-                              disabled={actionsDisabled}
-                              className="mc-pend-postpone__choice"
-                            >
-                              Elegir fecha
-                            </button>
-                          </div>
-
-                          {isPickingDate ? (
-                            <div className="mc-pend-postpone__date">
-                              <label
-                                htmlFor={`pick-date-${task.id}`}
-                                className="mc-pend-field__label"
-                              >
-                                Nueva fecha
-                              </label>
-                              <input
-                                id={`pick-date-${task.id}`}
-                                data-focus={`pick-date-${task.id}`}
-                                type="date"
-                                value={pickedDate}
-                                min={todayKey}
-                                onChange={(event) =>
-                                  setPickedDate(event.target.value)
-                                }
-                                className="mc-pend-input mc-pend-input--date"
-                              />
-                              <div className="mc-pend-confirm__actions">
-                                <button
-                                  type="button"
-                                  onClick={() => submitPickedDate(task.id)}
-                                  disabled={actionsDisabled || !pickedDate}
-                                  className="mc-pend-cta"
-                                >
-                                  Guardar fecha
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setPickingDateId(null);
-                                    setPickedDate("");
-                                    setFocusTarget(`postpone-first-${task.id}`);
-                                  }}
-                                  className="mc-pend-button"
-                                >
-                                  Cancelar
-                                </button>
-                              </div>
-                            </div>
-                          ) : null}
-
-                          <div className="mc-pend-postpone__close">
-                            <button
-                              type="button"
-                              onClick={() => closePostpone(task.id)}
-                              className="mc-pend-button mc-pend-button--quiet"
-                            >
-                              Cerrar
-                            </button>
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-              </ul>
-            </section>
-          ))
+          <ul className="mc-pend-list" aria-label="Pendientes de hoy">
+            {openTasks.map(renderTask)}
+          </ul>
         )}
-
-        <section
-          className="mc-pend-done"
-          aria-labelledby={`${headingId}-done`}
-        >
-          <h3 id={`${headingId}-done`} className="mc-pend-done__heading">
-            <button
-              type="button"
-              data-focus="done-toggle"
-              onClick={() => setDoneOpen((open) => !open)}
-              aria-expanded={doneOpen}
-              aria-controls={`${headingId}-done-list`}
-              className="mc-pend-done__toggle"
-            >
-              <span className="mc-pend-done__label">
-                <Check className="mc-pend-icon" aria-hidden="true" />
-                Hechas
-                <span className="mc-pend-count">{doneTasks.length}</span>
-              </span>
-              <ChevronDown
-                className={cn("mc-pend-icon", doneOpen && "mc-pend-done__chevron--open")}
-                aria-hidden="true"
-              />
-            </button>
-          </h3>
-
-          <div id={`${headingId}-done-list`} hidden={!doneOpen}>
-            {doneTasks.length === 0 ? (
-              <p className="mc-pend-done__empty">
-                Aún no has completado tareas.
-              </p>
-            ) : (
-              <ul className="mc-pend-done__list" aria-label="Tareas hechas">
-                {doneTasks.map((task) => (
-                  <li key={task.id} className="mc-pend-done__item">
-                    <div className="mc-pend-done__copy">
-                      <span className="mc-pend-done__icon" aria-hidden="true">
-                        <Check className="mc-pend-icon" aria-hidden="true" />
-                      </span>
-                      <div>
-                        <p className="mc-pend-done__title">{task.title}</p>
-                        <p className="mc-pend-done__meta">
-                          {completedLabel(task, now)}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      data-focus={`reopen-${task.id}`}
-                      onClick={() => void runAction(task.id, "reopen")}
-                      disabled={actionsDisabled}
-                      className="mc-pend-task__action"
-                    >
-                      <RotateCcw className="mc-pend-icon" aria-hidden="true" />
-                      Reabrir
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </section>
-        {!formOpen ? <button type="button" onClick={openForm} className="mc-pend-native-create mc-pend-cta" data-focus="create"><Plus aria-hidden="true" />Nuevo pendiente</button> : null}
       </div>
+
+      <div
+        role="tabpanel"
+        id={panelDoneId}
+        aria-labelledby={tabDoneId}
+        hidden={tab !== "done"}
+      >
+        {doneTasks.length === 0 ? (
+          renderEmptyDone()
+        ) : (
+          <ul className="mc-pend-list" aria-label="Pendientes completados">
+            {doneTasks.map(renderTask)}
+          </ul>
+        )}
+      </div>
+
+      <Link
+        href="/pendientes/nuevo"
+        className="mc-pend-cta mc-pend-new"
+        data-focus="new"
+        prefetch={false}
+      >
+        <Plus className="mc-pend-icon" aria-hidden="true" />
+        Nuevo pendiente
+      </Link>
+
+      {totalLabel ? <p className="mc-pend-footnote">{totalLabel}</p> : null}
     </section>
   );
 }
