@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Check, ShoppingBasket, X } from "lucide-react";
+import { CalendarDays, Check, ReceiptText, ShoppingBasket, ShoppingCart, StickyNote, X } from "lucide-react";
 import { connection } from "next/server";
 import { FlowScreen } from "@/components/shell/flow-screen";
 import { getCredit } from "@/lib/db";
@@ -53,15 +53,15 @@ export default async function FiadoRegistradoPage({
             </div>
             <dl className="mc-flow__dialog-rows">
               <div>
-                <dt>Venta a fiado</dt>
+                <dt><ShoppingCart aria-hidden="true" />Venta a fiado</dt>
                 <dd>{formatMxn(amountCents || credit.originalCents)}</dd>
               </div>
               <div>
-                <dt>Fecha</dt>
+                <dt><CalendarDays aria-hidden="true" />Fecha</dt>
                 <dd>Hoy</dd>
               </div>
               <div>
-                <dt>Nota</dt>
+                <dt><StickyNote aria-hidden="true" />Nota</dt>
                 <dd>{note || "Sin nota"}</dd>
               </div>
             </dl>
@@ -79,6 +79,7 @@ export default async function FiadoRegistradoPage({
           </Link>
           {credit ? (
             <Link className="mc-flow__secondary" href={`/fiados/${credit.id}`}>
+              <ReceiptText aria-hidden="true" />
               Ver fiados de {name}
             </Link>
           ) : null}

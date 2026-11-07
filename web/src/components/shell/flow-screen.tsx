@@ -25,6 +25,7 @@ export function FlowScreen({
   merchant = MERCHANT.name,
   address = MERCHANT.address,
   initial = MERCHANT.owner.charAt(0).toUpperCase(),
+  headingAction,
   children,
   className = "",
 }: {
@@ -36,6 +37,8 @@ export function FlowScreen({
   merchant?: string;
   address?: string;
   initial?: string;
+  /** Acción real alineada al título (p. ej. exportar). Opcional: no altera otras rutas. */
+  headingAction?: ReactNode;
   children: ReactNode;
   className?: string;
 }) {
@@ -75,6 +78,7 @@ export function FlowScreen({
             <ChevronLeft aria-hidden="true" />
           </Link>
           <h1 id={titleId}>{title}</h1>
+          {headingAction ? <div className="mc-flow__heading-action">{headingAction}</div> : null}
         </div>
         {children}
       </main>

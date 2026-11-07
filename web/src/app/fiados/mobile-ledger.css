@@ -480,4 +480,22 @@
     font-weight: 750;
   }
 
+  /* La referencia 05 remata la fila con un chevron: también los fiados
+     saldados abren su historial (antes el enlace quedaba oculto en móvil). */
+  .mc-fiados-mobile .mc-fiados-mobile__row .mc-fiados-row__settled {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+  }
+
+  .mc-fiados-mobile .mc-fiados-mobile__row .mc-fiados-row__settled svg {
+    display: none;
+  }
+
 }

@@ -6,7 +6,6 @@ import { connection } from "next/server";
 import {
   ArrowDownLeft,
   ArrowLeft,
-  CalendarDays,
   Check,
   Banknote,
   CreditCard,
@@ -19,6 +18,7 @@ import { FlowScreen } from "@/components/shell/flow-screen";
 import { getCredit, listCreditPayments } from "@/lib/db";
 import { formatMxn } from "@/lib/format";
 import { addDaysToDateKey, mexicoDateKey } from "@/lib/mexico-date";
+import { ExportMovementsButton } from "./export-movements";
 
 export const metadata: Metadata = {
   title: "Fiado de cliente — Mercado Cero",
@@ -75,6 +75,7 @@ export default async function FiadoDetallePage({
     ...payments.map((payment) => ({
       id: payment.id,
       day: movementDay(payment.createdAt),
+      at: payment.createdAt,
       title: "Abono",
       detail: methodLabel(payment.method),
       method: payment.method,
@@ -84,13 +85,23 @@ export default async function FiadoDetallePage({
     {
       id: `sale-${credit.id}`,
       day: movementDay(credit.createdAt),
+      at: credit.createdAt,
       title: "Venta a fiado",
       detail: credit.orderId ? "Pedido registrado" : "Sin pedido",
       method: "sale",
       amountCents: credit.originalCents,
       tone: "clay" as const,
     },
-  ];
+  ].sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+
+  const exportRows = movements.map((movement) => ({
+    date: mexicoDateKey(new Date(movement.at)),
+    title: movement.title,
+    detail: movement.detail,
+    amount: `${movement.amountCents < 0 ? "-" : ""}${(
+      Math.abs(movement.amountCents) / 100
+    ).toFixed(2)}`,
+  }));
 
   const groups: Array<{ day: string; items: typeof movements }> = [];
   for (const movement of movements) {
@@ -106,6 +117,13 @@ export default async function FiadoDetallePage({
       backHref="/fiados"
       backLabel="Volver a Fiados"
       activeHref="/fiados"
+      headingAction={
+        <ExportMovementsButton
+          rows={exportRows}
+          customerName={name}
+          fileName={`fiado-${name.toLocaleLowerCase("es-MX").replace(/[^a-z0-9]+/gi, "-")}.csv`}
+        />
+      }
     >
       {abono === "ok" ? (
         <p className="mc-flow__card mc-flow__card--soft" role="status">
@@ -157,7 +175,6 @@ export default async function FiadoDetallePage({
         {groups.map((group) => (
           <div key={group.day}>
             <p className="mc-flow__group">
-              <CalendarDays aria-hidden="true" />
               {group.day}
             </p>
             <ul className="mc-flow__list">
