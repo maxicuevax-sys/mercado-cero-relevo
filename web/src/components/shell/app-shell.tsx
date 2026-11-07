@@ -4,6 +4,7 @@ import { Sidebar } from "./sidebar";
 import { SkipLink } from "./skip-link";
 import { RouteFocus } from "./route-focus";
 import { PreferencesBoot } from "./preferences-boot";
+import "./definitive-a.css";
 import {
   inicioFoot,
   inicioNav,
@@ -38,7 +39,7 @@ export function AppShell({
   focusTargetId?: string;
 }) {
   return (
-    <div className={`inicio-shell ${className}`.trim()}>
+    <div className={`inicio-shell ${className} ${["/inicio", "/corte", "/metas", "/pendientes"].includes(activeHref) ? "mc-reference-a" : ""}`.trim()}>
       <PreferencesBoot />
       <Suspense fallback={null}>
         <RouteFocus mainId={mainId} targetId={focusTargetId} />

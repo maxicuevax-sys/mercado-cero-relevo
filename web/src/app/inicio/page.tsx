@@ -103,6 +103,7 @@ export default async function InicioPage() {
           className="inicio-picado"
           sizes="250px"
         />
+        <Image src={lupitaArt} alt="" aria-hidden="true" className="inicio-definitive-welcome-art" sizes="400px" />
       </section>
 
       <section className="inicio-kpis" aria-label="Resumen del negocio">
