@@ -20,6 +20,12 @@ import {
 import { MERCHANT, isDemoMode } from "@/lib/config";
 import { formatActivityDate, shortOrder } from "@/lib/format";
 import { saleMoney } from "@/lib/sale-truth";
+import {
+  saleMethodLabel,
+  saleStampTone,
+  saleStatusLabel,
+  type SaleStampTone,
+} from "@/lib/sale-display";
 import type { Order } from "@/lib/types";
 import tacosArt from "@/assets/brand/ilustraciones/transparent/tacos.png";
 import papelPicadoArt from "@/assets/inicio/papel-picado.png";
@@ -41,21 +47,7 @@ const PAGE_SIZE = 25;
 const ROW_MEDALLIONS = [iconRecibo, iconTienda, iconCamion];
 const ROW_TONES = ["green", "saffron", "terracotta"];
 
-type StampTone = "demo" | "pendiente" | "fiado" | "ok" | "neutral";
-
-function stampTone(
-  order: Order,
-  creditBalanceCents: number,
-  isDemoOrder: boolean,
-): StampTone {
-  if (isDemoOrder) return "demo";
-  if (order.status === "payment_pending" || order.status === "partially_paid") {
-    return "pendiente";
-  }
-  if (creditBalanceCents > 0) return "fiado";
-  if (order.status === "cancelled") return "neutral";
-  return "ok";
-}
+type StampTone = SaleStampTone;
 
 export default async function VentasPage({
   searchParams,
@@ -222,7 +214,7 @@ export default async function VentasPage({
               const slot = index % ROW_MEDALLIONS.length;
               const medallion = ROW_MEDALLIONS[slot];
               const tone = ROW_TONES[slot];
-              const stamp = stampTone(order, creditBalanceCents, isDemoOrder);
+              const stamp: StampTone = saleStampTone(order, creditBalanceCents, isDemoOrder);
               return (
                 <li key={order.id} className="mc-ventas-item">
                   <article className="mc-ventas-row">
@@ -240,15 +232,27 @@ export default async function VentasPage({
 
                     <div className="mc-ventas-row__main">
                       <div className="mc-ventas-row__title">
-                        <h3>Pedido {shortOrder(order.id)}</h3>
+                        <h3>
+                          <Link
+                            href={`/ventas/${encodeURIComponent(order.id)}`}
+                            className="mc-ventas-row__link"
+                          >
+                            Pedido {shortOrder(order.id)}
+                          </Link>
+                        </h3>
                         <span
                           className={`mc-ventas-status mc-ventas-stamp mc-ventas-stamp--${stamp}`}
                         >
-                          {statusLabel(order, creditBalanceCents, creditKnown, isDemoOrder)}
+                          {saleStatusLabel(
+                            order,
+                            creditBalanceCents,
+                            creditKnown,
+                            isDemoOrder,
+                          )}
                         </span>
                       </div>
                       <p className="mc-ventas-row__meta">
-                        {formatActivityDate(order.createdAt)} · {methodLabel(order)}
+                        {formatActivityDate(order.createdAt)} · {saleMethodLabel(order)}
                         {order.customerName ? ` · ${order.customerName}` : ""}
                       </p>
                       <p className="mc-ventas-row__items">
@@ -314,23 +318,32 @@ export default async function VentasPage({
                       ) : null}
                     </div>
 
-                    <details className="mc-ventas-row__details">
-                      <summary>
-                        Ver conceptos
-                        <ChevronDown aria-hidden="true" />
-                      </summary>
-                      <ul>
-                        {order.items.map((item) => (
-                          <li key={item.id}>
-                            <span>{item.description}</span>
-                            <span>
-                              {item.quantity} × <CurrencyAmount cents={item.unitPriceCents} />
-                            </span>
-                            <CurrencyAmount cents={item.totalCents} />
-                          </li>
-                        ))}
-                      </ul>
-                    </details>
+                    <div className="mc-ventas-row__footer">
+                      <details className="mc-ventas-row__details">
+                        <summary>
+                          Ver conceptos
+                          <ChevronDown aria-hidden="true" />
+                        </summary>
+                        <ul>
+                          {order.items.map((item) => (
+                            <li key={item.id}>
+                              <span>{item.description}</span>
+                              <span>
+                                {item.quantity} × <CurrencyAmount cents={item.unitPriceCents} />
+                              </span>
+                              <CurrencyAmount cents={item.totalCents} />
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                      <Link
+                        href={`/ventas/${encodeURIComponent(order.id)}`}
+                        className="mc-ventas-row__open"
+                      >
+                        Ver detalle
+                        <ChevronRight aria-hidden="true" />
+                      </Link>
+                    </div>
                   </article>
                 </li>
               );
@@ -396,60 +409,4 @@ export default async function VentasPage({
       </p>
     </OperationalPage>
   );
-}
-
-function statusLabel(
-  order: Order,
-  creditBalanceCents: number,
-  creditKnown: boolean,
-  isDemoOrder: boolean,
-): string {
-  if (isDemoOrder) {
-    return order.status === "payment_pending" ? "Demo · pendiente" : "Demo";
-  }
-  if (order.status === "payment_pending") return "Pendiente";
-  if (creditKnown && order.creditCents > 0 && creditBalanceCents === 0) {
-    return "Saldado";
-  }
-  if (creditBalanceCents > 0) {
-    return order.paidCents > 0 || order.digitalPaidCents > 0
-      ? "Fiado + cobro"
-      : "Fiado";
-  }
-  if (order.status === "paid") return "Pagado";
-  if (order.status === "partially_paid") return "Parcial";
-  if (order.status === "fulfilled") return "Entregado";
-  if (order.status === "cancelled") return "Cancelado";
-  return "Registrado";
-}
-
-function methodLabel(order: Order): string {
-  if (order.status === "payment_pending") {
-    if (order.paidCents <= 0) return "Por cobrar";
-    if (order.digitalPaidCents > 0 && order.paidCents > order.digitalPaidCents) {
-      return "Efectivo + digital";
-    }
-    if (order.digitalPaidCents > 0) return "Digital";
-    return "Efectivo";
-  }
-  if (order.creditCents > 0 && order.paymentMethod === "cash") return "Efectivo + fiado";
-  if (order.creditCents > 0 && !order.paymentMethod) return "Fiado";
-  if (!order.paymentMethod && order.creditCents === 0) return "Digital";
-  if (order.paymentMethod === "cash" && order.digitalPaidCents > 0) {
-    return "Efectivo + digital";
-  }
-  switch (order.paymentMethod) {
-    case "cash":
-      return "Efectivo";
-    case "codi":
-      return "CoDi";
-    case "card":
-      return "Tarjeta";
-    case "wallet":
-      return "Wallet";
-    case "mixed":
-      return "Mixto";
-    default:
-      return "Sin método";
-  }
 }
