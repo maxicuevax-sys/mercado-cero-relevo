@@ -49,3 +49,9 @@ ssh zicua-vps 'tail -50 /opt/mercado-cero-staging-v2/server.log'
 - **18/18 rutas + Detalle, 0 pageerrors** por túnel.
 - v1 4601 y v2 4602 intactos; 4580/4497 intactos.
 - Acceso: `ssh -N -L 4603:127.0.0.1:4603 zicua-vps` → `http://127.0.0.1:4603`.
+
+## V4 — integrado 48fe63f
+- /opt/mercado-cero-staging-v4, loopback **4604**, build 2776b10f44d9cc2b61a72647d991ec99e02c19b0.
+- 18/18 rutas + Detalle, 0 pageerrors.
+- Acceso: ssh -N -L 4604:127.0.0.1:4604 zicua-vps.
+
