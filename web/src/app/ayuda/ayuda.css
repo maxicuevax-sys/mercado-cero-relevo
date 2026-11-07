@@ -429,3 +429,39 @@
     transition: none;
   }
 }
+
+/* DEFINITIVE 09: search, assistant, topic grid and support actions. */
+.mc-help-home { display: grid; gap: 16px; max-width: 900px; margin: 0 auto; min-width: 0; }
+.mc-help-home h2 { font: 700 1.5rem/1.15 Georgia, serif; }
+.mc-help-search { display: flex; align-items: center; gap: 12px; padding: 8px 14px; border: 1px solid var(--color-control-border); border-radius: 14px; background: var(--color-surface); }
+.mc-help-search input { min-width: 0; width: 100%; min-height: 32px; background: transparent; outline-offset: 3px; }
+.mc-help-welcome { display: grid; grid-template-columns: 35% minmax(0, 1fr); align-items: center; gap: 12px; border-radius: 20px; background: #e9edd9; padding: 12px; text-decoration: none; color: #163b2a; }
+.mc-help-welcome img { width: 100%; height: auto; border-radius: 10px; }
+.mc-help-welcome h2 { font-size: 1.35rem; }
+.mc-help-welcome p { font-size: .95rem; margin-top: 8px; }
+.mc-help-welcome small { display: block; margin-top: 8px; }
+.mc-help-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.mc-help-section-head button { min-height: 44px; padding: 8px; color: var(--color-accent); font-weight: 700; }
+.mc-help-topics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.mc-help-topics button { display: flex; align-items: center; gap: 10px; min-height: 76px; padding: 12px; border: 1px solid var(--color-separator); border-radius: 14px; background: var(--color-surface); text-align: left; }
+.mc-help-topics button:last-child { grid-column: 1 / -1; }
+.mc-help-topics svg { width: 30px; height: 30px; flex: none; color: var(--color-accent); }
+.mc-help-topics svg:last-child { width: 18px; height: 18px; margin-left: auto; }
+.mc-help-topics span { font: 700 1.1rem/1.2 Georgia, serif; overflow-wrap: anywhere; }
+.mc-help-support { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.mc-help-support > * { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 64px; padding: 10px 8px; border: 1px solid var(--color-separator); border-radius: 14px; background: var(--color-surface); color: var(--color-ink); text-decoration: none; font-size: .9rem; text-align: center; font-weight: 700; }
+.mc-help-support svg { flex: none; width: 24px; height: 24px; }
+.mc-help-support button:nth-child(2) { background: #00684c; color: #fffaf0; }
+.mc-help-guide, .mc-help-answer { border: 1px solid var(--color-separator); padding: 16px; border-radius: 16px; background: var(--color-surface); }
+.mc-help-guide summary { cursor: pointer; min-height: 48px; padding: 8px; font: 700 1.2rem Georgia, serif; }
+.mc-help-guide p, .mc-help-answer p { margin-block: 12px; }
+.mc-help-answer a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; }
+.mc-help-home :focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3px; }
+@media (max-width: 360px) {
+ .mc-help-welcome { grid-template-columns: 28% minmax(0, 1fr); gap: 8px; }
+ .mc-help-welcome h2 { font-size: 1.15rem; }
+ .mc-help-topics button { padding: 8px; gap: 6px; }
+ .mc-help-topics svg { width: 24px; }
+ .mc-help-support > * { flex-direction: column; }
+}
+html[data-contrast="high"] .mc-help-welcome { background: var(--color-surface); color: var(--color-ink); }
