@@ -797,8 +797,9 @@ def main() -> int:
 
         # ------------------------------------------------------------------
         # P1-01 legacy retirado: la raíz ya redirige a /inicio; no se monta la Caja clásica.
-        r = page.request.get(BASE + "/", max_redirects=0)
-        check("P1-01 raíz ya no monta Caja clásica", r.status in (307, 308), str(r.status))
+        page.goto(BASE + "/", wait_until="domcontentloaded")
+        page.wait_for_url(re.compile(r"/inicio/?$"), timeout=15_000)
+        check("P1-01 raíz redirige a Inicio", page.url.rstrip("/").endswith("/inicio"), page.url)
 
         check("sin pageerrors", not page_errors, "; ".join(page_errors))
         browser.close()
