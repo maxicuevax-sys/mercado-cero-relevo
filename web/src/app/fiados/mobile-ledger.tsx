@@ -182,7 +182,7 @@ export function MobileLedger({
         )}
         {showSample ? null : pager}
 
-        <Link href="/caja" prefetch={false} className="mc-fiados-mobile__new">
+        <Link href="/fiados/nuevo" prefetch={false} className="mc-fiados-mobile__new">
           <Plus aria-hidden="true" />Nuevo fiado
         </Link>
       </div>

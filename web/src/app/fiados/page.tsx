@@ -246,7 +246,7 @@ export default async function FiadosPage({ searchParams }: {
         )}
         {pageCount > 1 ? <FiadosPager page={page} pageCount={pageCount} query={query} history={history} /> : null}
         <div className="mc-fiados-ledger__foot">
-          <Link href="/caja" className="mc-fiados-new"><Plus aria-hidden="true" />Nuevo fiado</Link>
+          <Link href="/fiados/nuevo" className="mc-fiados-new"><Plus aria-hidden="true" />Nuevo fiado</Link>
         </div>
       </section>
       <details className="mc-fiados-explanation">

@@ -5,6 +5,7 @@ import { MERCHANT, isDemoMode } from "./config";
 import { mexicoDateKey, startOfMexicoDay } from "./time";
 import type {
   Credit,
+  CreditPayment,
   Customer,
   DailySummary,
   Order,
@@ -1760,6 +1761,29 @@ export function getCredit(id: string): Credit | null {
     dueDate: (row.due_date as string) ?? null,
     createdAt: row.created_at as string,
   };
+}
+
+/**
+ * Abonos de un fiado, del más reciente al más viejo. Es lectura directa de la
+ * libreta: no recalcula saldos ni crea movimientos.
+ */
+export function listCreditPayments(creditId: string): CreditPayment[] {
+  const rows = getDb()
+    .prepare(
+      `SELECT id, credit_id, amount_cents, provider, method, request_id, created_at
+       FROM credit_payments WHERE credit_id = ?
+       ORDER BY created_at DESC, id DESC`,
+    )
+    .all(creditId) as Array<Record<string, unknown>>;
+  return rows.map((row) => ({
+    id: row.id as string,
+    creditId: row.credit_id as string,
+    amountCents: Number(row.amount_cents),
+    provider: row.provider as string,
+    method: row.method as CreditPayment["method"],
+    requestId: (row.request_id as string) ?? null,
+    createdAt: row.created_at as string,
+  }));
 }
 
 /**

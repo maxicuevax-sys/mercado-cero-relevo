@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 import { connection } from "next/server";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { ProgressIndicator } from "@/components/ui/progress-indicator";
 import { MaskIcon } from "@/components/ui/icon";
-import { CreateGoalButton } from "@/components/metas/create-goal";
 import { ContributeGoalButton } from "@/components/metas/contribute-goal";
 import { MERCHANT, isDemoMode } from "@/lib/config";
 import { formatMxn } from "@/lib/format";
@@ -129,7 +130,10 @@ export default async function MetasPage() {
           </article>)}
           {goals.length === 0 ? <p>Aún no hay metas. Crea tu primera meta.</p> : null}
         </div>
-        <CreateGoalButton label="Nueva meta" />
+        <Link className="mc-metas-cta" href="/metas/nueva">
+          <Plus className="mc-metas-cta__icon" aria-hidden="true" />
+          Nueva meta
+        </Link>
         <p className="mc-metas-native-note">Apartado declarado; no es una cuenta bancaria. El efectivo sigue en tu caja.</p>
       </div>
       {goals.length > 0 ? (
@@ -272,7 +276,10 @@ export default async function MetasPage() {
               apartado. Puedes empezar con 50 pesos.
             </p>
             <div className="mc-metas-hero__actions">
-              <CreateGoalButton label="Crear mi primera meta" />
+              <Link className="mc-metas-cta" href="/metas/nueva">
+                <Plus className="mc-metas-cta__icon" aria-hidden="true" />
+                Crear mi primera meta
+              </Link>
               <p className="mc-metas-hero__note">
                 No es una cuenta bancaria: el dinero se queda en tu caja.
               </p>
@@ -346,7 +353,10 @@ export default async function MetasPage() {
 
       {goals.length > 0 ? (
         <div className="mc-metas-create">
-          <CreateGoalButton label="Nueva meta" />
+          <Link className="mc-metas-cta" href="/metas/nueva">
+          <Plus className="mc-metas-cta__icon" aria-hidden="true" />
+          Nueva meta
+        </Link>
         </div>
       ) : null}
 
