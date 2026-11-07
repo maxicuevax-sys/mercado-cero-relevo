@@ -44,13 +44,16 @@ export function SaleResult({
   const isCashDemo = isDemo && hasCash && !hasDigital && !openCredit;
   const isMixedCreditDemo = isDemo && hasCash && openCredit;
   const isCreditOnly = openCredit && paidCents === 0;
+  const isCreditOnlyDemo = isDemo && isCreditOnly;
 
   const title = isDigitalDemo
-    ? "Pago demo (simulado)"
+    ? "Pago demo"
     : isMixedCreditDemo
       ? "Venta demo registrada con saldo fiado"
       : isCashDemo
         ? "Venta cobrada en efectivo (demo)"
+        : isCreditOnlyDemo
+          ? "Venta demo registrada con fiado"
         : openCredit && !isCreditOnly
         ? "Venta registrada con saldo fiado"
         : isCreditOnly
@@ -70,7 +73,9 @@ export function SaleResult({
     : isCashDemo
       ? "Efectivo de demostración. No es dinero real ni una confirmación bancaria."
       : openCredit
-        ? hasCash && hasDigital
+        ? isDemo && !hasReceived
+          ? `No recibiste dinero. El importe de ${formatMxn(balanceCents)} quedó como deuda en Fiado. Es una práctica demo: no se movió dinero real.`
+        : hasCash && hasDigital
           ? `Recibiste ${formatMxn(cashPaidCents)} en efectivo y ${formatMxn(digitalPaidCents)} digital confirmado. El saldo de ${formatMxn(balanceCents)} quedó como deuda en Fiado.`
           : hasCash
             ? `Recibiste ${formatMxn(cashPaidCents)} en efectivo. El saldo de ${formatMxn(balanceCents)} quedó como deuda en Fiado.`
@@ -97,7 +102,7 @@ export function SaleResult({
       </h2>
       {hasDigital ? <div className={`mc-payment-confirmed${isDemo ? " mc-payment-confirmed--demo" : ""}`}>
         <Image src="/assets/spec/b-confirmed.png" alt="" width={123} height={150} loading="eager" />
-        <div><BadgeCheck aria-hidden="true" /><CurrencyAmount cents={order.totalCents} /><p>{isDemo ? "Pago digital simulado" : "Pago digital recibido"}</p><strong>{isDemo ? "DEMO · sin dinero real" : "Cobrado"}</strong></div>
+        <div><BadgeCheck aria-hidden="true" /><CurrencyAmount cents={digitalPaidCents} /><p>{isDemo ? "Pago digital simulado" : "Pago digital recibido"}</p><strong>{isDemo ? "DEMO · sin dinero real" : "Cobrado"}</strong></div>
       </div> : null}
       {!hasDigital ? <><p className="mc-caja-result__label">Total de la venta</p>
       <CurrencyAmount as="p" cents={order.totalCents} className="mc-caja-result__total" /></> : null}
@@ -114,7 +119,7 @@ export function SaleResult({
         </div>
         <div>
           <dt>Estado</dt>
-          <dd>{isDemo ? "Demo (simulado)" : statusLabel(order.status)}</dd>
+          <dd>{statusLabel(order.status)}</dd>
         </div>
         <div>
           <dt>Cobrado</dt>
@@ -181,7 +186,9 @@ export function SaleResult({
       {openCredit ? (
         <p className="mc-caja-result__banner">
           {isDemo
-            ? "Quedó anotado en Fiado. Solo el fiado es deuda; el pago demo no es dinero real y el saldo restante es deuda."
+            ? hasReceived
+              ? "Quedó anotado en Fiado. Solo el fiado es deuda; el pago demo no es dinero real y el saldo restante es deuda."
+              : "Quedó anotado en Fiado. Solo el fiado es deuda. Estás en modo demo: no se movió dinero real; el saldo es una deuda de práctica."
             : hasReceived
               ? "Quedó anotado en Fiado. Solo el fiado es deuda; el dinero recibido sí se registró y el saldo restante es deuda."
               : "Quedó anotado en Fiado. Solo el fiado es deuda; no recibiste dinero."}
@@ -228,7 +235,7 @@ function statusLabel(status: Order["status"]): string {
     case "paid":
       return "Pagado";
     case "demo_paid":
-      return "Demo (simulado)";
+      return "Cobro demo";
     case "payment_pending":
       return "Pendiente";
     case "partially_paid":

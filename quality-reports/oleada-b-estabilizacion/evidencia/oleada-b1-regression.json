@@ -1,11 +1,11 @@
 {
   "suite": "oleada-b1-regression",
   "baseUrl": "http://127.0.0.1:3390",
-  "generatedAt": "2026-11-04T21:59:59Z",
+  "generatedAt": "2026-11-07T03:35:26Z",
   "summary": {
-    "pass": 65,
+    "pass": 73,
     "fail": 0,
-    "total": 65
+    "total": 73
   },
   "results": [
     {
@@ -21,7 +21,7 @@
     {
       "name": "P0-01 no afirma efectivo recibido",
       "ok": true,
-      "detail": "RESULTADO\n\nVenta registrada con fiado\n\nTOTAL DE LA VENTA\n\n$100.00\n\nNo recibiste dinero. El importe de $100.00 quedó como deuda en Fiado.\n\nPEDIDO\n84FD\nESTADO\nDemo (simulado)\nCOBRADO\n$0.00\nCOBRADO EN EFECTIVO\n$0.00\nSALDO VIVO FIADO\n$100.00 · Juan\n\nQuedó anotado en Fiado. Solo el fiado es deuda; el pago demo no es dinero real y el saldo restante es deuda.\n\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $100.00. Si el estado no es pagado, no entregues como cobrado."
+      "detail": "RESULTADO\n\nVenta demo registrada con fiado\n\nTOTAL DE LA VENTA\n\n$100.00\n\nNo recibiste dinero. El importe de $100.00 quedó como deuda en Fiado. Es una práctica demo: no se movió dinero real.\n\nComprobante de pago · DEMO\nTOTAL\n$100.00\nMÉTODO\nFiado\nHORA\n09:34 p.m.\nPEDIDO\n8E32\nESTADO\nRegistrado\nCOBRADO\n$0.00\nCOBRADO EN EFECTIVO\n$0.00\nSALDO VIVO FIADO\n$100.00 · Juan\n\nQuedó anotado en Fiado. Solo el fiado es deuda. Estás en modo demo: no se movió dinero real; el saldo es una deuda de práctica.\n\nCompartir comprobante\n\nVolver al inicio\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $100.00. Si el estado no es pagado, no entregues como cobrado."
     },
     {
       "name": "P0-01 dice que no recibiste dinero",
@@ -32,6 +32,11 @@
       "name": "P0-01 muestra efectivo $0 y saldo fiado",
       "ok": true,
       "detail": ""
+    },
+    {
+      "name": "B5 fiado demo: estado Registrado sin 'Demo (simulado)' redundante",
+      "ok": true,
+      "detail": "RESULTADO\n\nVenta demo registrada con fiado\n\nTOTAL DE LA VENTA\n\n$100.00\n\nNo recibiste dinero. El importe de $100.00 quedó como deuda en Fiado. Es una práctica demo: no se movió dinero real.\n\nComprobante de pago · DEMO\nTOTAL\n$100.00\nMÉTODO\nFiado\nHORA\n09:34 p.m.\nPEDIDO\n8E32\nESTADO\nRegistrado\nCOBRADO\n$0.00\nCOBRADO EN EFECTIVO\n$0.00\nSALDO VIVO FIADO\n$100.00 · Juan\n\nQuedó anotado en Fiado. Solo el fiado es deuda. Estás en modo demo: no se movió dinero real; el saldo es una deuda de práctica.\n\nCompartir comprobante\n\nVolver al inicio\nNueva venta\nVer ventas\nVolver a Caja\n\nTotal registrado $100.00. Si el estado no es pagado, no entregues como cobrado."
     },
     {
       "name": "P0-02 API paid=60 y due=40",
@@ -54,9 +59,19 @@
       "detail": ""
     },
     {
+      "name": "B5 mixto API total 100, digital 40, fiado 40",
+      "ok": true,
+      "detail": "{\"totalCents\": 10000, \"paidCents\": 6000, \"digitalPaidCents\": 4000, \"creditCents\": 4000}"
+    },
+    {
+      "name": "B5 mixto: encabezado digital muestra $40, no el total",
+      "ok": true,
+      "detail": "$40.00\n\nPago digital simulado\n\nDEMO · sin dinero real"
+    },
+    {
       "name": "P1-07 sin cambio fantasma",
       "ok": true,
-      "detail": "COBRO\n\nTotal de la venta\n\n$100.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\n\nEl fiado ya cubre el total ($100.00) y no se aplicó el efectivo. Reduce el monto a fiado o el efectivo; no se registrará cambio fantasma.\n\nMonto a fiado\n¿Quién queda a deber?\nDescartar venta"
+      "detail": "COBRO\n\nTotal de la venta\n\n$100.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nElige cómo te pagan. El importe ya está calculado.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\n\nEl fiado ya cubre el total ($100.00) y no se aplicó el efectivo. Reduce el monto a fiado o el efectivo; no se registrará cambio fantasma.\n\nMonto a fiado\n¿Quién queda a deber?\nDescartar venta"
     },
     {
       "name": "P1-07 avisa que el fiado cubre todo y no se aplicó efectivo",
@@ -71,7 +86,7 @@
     {
       "name": "P1-07 sin aviso falso de total",
       "ok": true,
-      "detail": "COBRO\n\nTotal de la venta\n\n$100.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\nMonto a fiado\n¿Quién queda a deber?\n\nQuedan $30.00 por cobrar en digital. Se generará un cobro pendiente después de registrar la venta.\n\nEfectivo\n$40.00\nFiado\n$30.00\nDescartar venta"
+      "detail": "COBRO\n\nTotal de la venta\n\n$100.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nElige cómo te pagan. El importe ya está calculado.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\nMonto a fiado\n¿Quién queda a deber?\n\nQuedan $30.00 por cobrar en digital. Se generará un cobro pendiente después de registrar la venta.\n\nEfectivo\n$40.00\nFiado\n$30.00\nDescartar venta"
     },
     {
       "name": "P1-07 split válido pide digital $30",
@@ -81,17 +96,17 @@
     {
       "name": "P1-08 fila muestra cobrado $60",
       "ok": true,
-      "detail": "DEMO\nPedido A1E6\n\nHoy 3:59 p.m. · Efectivo\n\n1 × B1 b1_pending_1793829563506066500\n\n$100.00\nDemo, no es dinero real\nSimulado: cobrado $60.00\nFalta cobrar $40.00\nVer conceptos"
+      "detail": "Pedido AD92\nDEMO\n\nHoy 9:34 p.m. · Efectivo\n\n1 × B1 b1_pending_1794022466607543400\n\n$100.00\nDemo, no es dinero real\nSimulado: cobrado $60.00\nFalta cobrar $40.00\nVer conceptos"
     },
     {
       "name": "P1-08 fila muestra falta $40",
       "ok": true,
-      "detail": "DEMO\nPedido A1E6\n\nHoy 3:59 p.m. · Efectivo\n\n1 × B1 b1_pending_1793829563506066500\n\n$100.00\nDemo, no es dinero real\nSimulado: cobrado $60.00\nFalta cobrar $40.00\nVer conceptos"
+      "detail": "Pedido AD92\nDEMO\n\nHoy 9:34 p.m. · Efectivo\n\n1 × B1 b1_pending_1794022466607543400\n\n$100.00\nDemo, no es dinero real\nSimulado: cobrado $60.00\nFalta cobrar $40.00\nVer conceptos"
     },
     {
       "name": "P1-09 abono demo creado",
       "ok": true,
-      "detail": "200 {\"credit\":{\"id\":\"cred_e017f723089e4434a822\",\"customerId\":\"cus_6a65b851b448417cad65\",\"customerName\":\"Cliente demo\",\"orderId\":\"ord_74e79d61b1c04934a6f5\",\"originalCents\":10000,\"balanceCents\":5000,\"status\":\"partial\",\"dueDate\":null,\"createdAt\":\"2026-11-04T21:59:30.601Z\"},\"appliedCents\":5000,\"balanceCents\":5000,\"overpayCents\":0,\"duplicate\":false}"
+      "detail": "200 {\"credit\":{\"id\":\"cred_e7955533c1a946eeb38d\",\"customerId\":\"cus_dc79c6a920144538a29c\",\"customerName\":\"Cliente demo\",\"orderId\":\"ord_93c73b035267490999e9\",\"originalCents\":10000,\"balanceCents\":5000,\"status\":\"partial\",\"dueDate\":null,\"createdAt\":\"2026-11-07T03:34:41.359Z\"},\"appliedCents\":5000,\"balanceCents\":5000,\"overpayCents\":0,\"duplicate\":false}"
     },
     {
       "name": "P1-09 cashCents real no cambia; demoCashCents sí",
@@ -101,7 +116,7 @@
     {
       "name": "P1-09 Cobrado confirmado no incluye el abono demo",
       "ok": true,
-      "detail": "Cobrado confirmado\n\n$0.00\nSolo efectivo real y pagos verificados; demo no cuenta"
+      "detail": "Cobrado confirmado\n\n$0.00\n\nSolo efectivo real y pagos verificados; demo no cuenta"
     },
     {
       "name": "P1-01 importa el draft v1",
@@ -121,7 +136,7 @@
     {
       "name": "P1-01 avisa dos drafts distintos",
       "ok": true,
-      "detail": "CAJA\n\nNueva venta\n\nmiércoles, 4 de noviembre. Agrega lo que vendiste, revisa el total y elige cómo te pagan.\n\nTOTAL\n$100.00\nVER COBRO\n\nRecuperamos una venta sin confirmar.\n\nSeguir\nEmpezar de nuevo\n\nTambién hay un borrador distinto en la Caja clásica. No se mezcló con este y la confirmación queda bloqueada hasta que elijas cuál usar.\n\nUsar esta venta\nDescartar la de la Caja clásica\nAbrir Caja clásica\nEntendido\n\nCONCEPTOS\n\nQué estás vendiendo\n1 concepto\nCONCEPTO\nCANTIDAD\nPRECIO\nIMPORTE\nConcepto\nCantidad\nPrecio\nImporte\n$100.00\n×\n\nAgregar concepto\n\nProducto o servicio\nCantidad\nPrecio unitario\n+\nAgregar\n\nCOBRO\n\nTotal de la venta\n\n$100.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\n\nEfectivo exacto. No hay cambio.\n\nDescartar venta\nTOTAL\n$100.00\nRevisar cobro\nConfirmar venta\n\n1 conceptos en curso. El total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\n¿Necesitas dictar o verificar un comprobante? Usa la Caja clásica. Si allí queda un borrador, esta pantalla lo avisa antes de cobrar para que no se dupliquen ventas."
+      "detail": "CAJA\n\nNueva venta\n\nviernes, 6 de noviembre. Revisa el total antes de cobrar.\n\nTOTAL\n$100.00\nVER COBRO\n\nRecuperamos una venta sin confirmar.\n\nSeguir\nEmpezar de nuevo\n\nTambién hay un borrador distinto en la Caja clásica. No se mezcló con este y la confirmación queda bloqueada hasta que elijas cuál usar.\n\nUsar esta venta\nDescartar la de la Caja clásica\nAbrir Caja clásica\nEntendido\n¿Qué vendiste?\nManzana\nJitomate\nHuevo\nMás\n\nPulsa el micrófono para dictar o escribe la venta.\n\nCONCEPTOS\n\nTicket de venta\n1 concepto\nAgregar concepto a mano\nCONCEPTO\nCANTIDAD\nPRECIO\nIMPORTE\nConcepto\nCantidad\nPrecio\nImporte\n$100.00\n\nCOBRO\n\nTotal de la venta\n\n$100.00\n\nLo que el cliente debe pagar. No es dinero recibido.\n\nElige cómo te pagan. El importe ya está calculado.\n\nCómo se paga\nEfectivo\nDigital\nFiado\nMixto\nEfectivo recibido\n\nEfectivo exacto. No hay cambio.\n\nDescartar venta\nTOTAL\n$100.00\nRevisar cobro\nConfirmar venta\n\n1 conceptos en curso. El total es lo que debe pagar el cliente; no es dinero recibido hasta que el método lo confirme.\n\nPara revisar un comprobante también puedes abrir la Caja clásica. Si allí queda un borrador, esta pantalla lo avisa antes de cobrar para que no se dupliquen ventas."
     },
     {
       "name": "P1-01 bloquea confirmar en conflicto",
@@ -134,24 +149,24 @@
       "detail": ""
     },
     {
-      "name": "P1-11 Fiados se anuncia como Caja clásica",
+      "name": "P1-11 Fiados es una pantalla nueva en la nav",
       "ok": true,
-      "detail": ""
+      "detail": "1"
     },
     {
-      "name": "P1-11 chip visible Clásica",
+      "name": "P1-11 la nav ya no marca destinos clásicos",
       "ok": true,
-      "detail": "Fiados\nClásica\nabre la Caja clásica."
+      "detail": "Mercado\nCero\nInicio\nInicio\nCaja\nVentas\nFiados\nCorte\nMetas\nPendientes\nAyuda\nAjustes"
     },
     {
-      "name": "P1-11 el alias conserva tab=fiado",
+      "name": "P1-11 /fiados renderiza el shell nuevo",
       "ok": true,
-      "detail": "http://localhost:3390/?tab=fiado"
+      "detail": "shell total=2 visible=1 · clásico total=0 visible=0 · http://127.0.0.1:3390/fiados"
     },
     {
       "name": "P1-11 Ajustes sigue clicable sobre la barra de cobro",
       "ok": true,
-      "detail": "{'hitTag': 'A', 'hitHref': '/?ayuda=1#ajustes', 'rect': {'y': 710, 'bottom': 758}}"
+      "detail": "{'hitTag': 'SPAN', 'hitHref': '/ajustes', 'rect': {'y': 707.1875, 'bottom': 765.1875}}"
     },
     {
       "name": "P1-01 dos pestañas no duplican la venta",
@@ -161,12 +176,12 @@
     {
       "name": "P1-01 ambas pestañas muestran la misma venta",
       "ok": true,
-      "detail": "first=BD66 second=BD66"
+      "detail": "first=8F55 second=8F55"
     },
     {
       "name": "P1-01 venta idéntica repetida sí se registra",
       "ok": true,
-      "detail": "16 -> 18; B48B / B678"
+      "detail": "16 -> 18; 9A4B / A158"
     },
     {
       "name": "P1-06 no secuestra la Caja",
@@ -201,7 +216,7 @@
     {
       "name": "P1-12 hubo un solo POST",
       "ok": true,
-      "detail": "{'posts': 1, 'request_ids': ['sale_78fe185f-3e96-4b2d-9c12-338d08ce4429']}"
+      "detail": "{'posts': 1, 'request_ids': ['sale_eccf0ca2-f6aa-486b-b6af-27d724af4c4d']}"
     },
     {
       "name": "P1-12 conserva el aviso tras recargar",
@@ -231,12 +246,12 @@
     {
       "name": "P1-05 anuncia la página",
       "ok": true,
-      "detail": "Ventas · Mercado Cero. 42 en total · página 2 de 2"
+      "detail": "Ventas registradas. 42 en total · página 2 de 2"
     },
     {
       "name": "P1-02 importe visible a 1448",
       "ok": true,
-      "detail": "{'x': 840.6875, 'y': 423.65625, 'width': 96, 'height': 23.1875}"
+      "detail": "{'x': 847.875, 'y': 758.71875, 'width': 96, 'height': 23.1875}"
     },
     {
       "name": "P1-03 CTA visible a 1448x1086",
@@ -246,7 +261,7 @@
     {
       "name": "P1-02 importe visible a 1366",
       "ok": true,
-      "detail": "{'x': 785.765625, 'y': 401.96875, 'width': 96, 'height': 23.1875}"
+      "detail": "{'x': 792.515625, 'y': 413.71875, 'width': 96, 'height': 23.1875}"
     },
     {
       "name": "P1-03 CTA visible a 1366x768",
@@ -256,7 +271,7 @@
     {
       "name": "P1-02 importe visible a 1280",
       "ok": true,
-      "detail": "{'x': 719.984375, 'y': 395.25, 'width': 96, 'height': 23.1875}"
+      "detail": "{'x': 732, 'y': 216.921875, 'width': 96, 'height': 23.1875}"
     },
     {
       "name": "P1-03 CTA visible a 1280x800",
@@ -266,7 +281,7 @@
     {
       "name": "P1-02 importe visible a 768",
       "ok": true,
-      "detail": "{'x': 258.421875, 'y': -75.125, 'width': 226.578125, 'height': 23.1875}"
+      "detail": "{'x': 264, 'y': 104.859375, 'width': 221, 'height': 23.1875}"
     },
     {
       "name": "P1-03 CTA visible a 768x1024",
@@ -289,14 +304,39 @@
       "detail": "{'sw': 320, 'cw': 320}"
     },
     {
-      "name": "P1-04 nav móvil 3+2 a 200%",
+      "name": "B2 móvil: descartar venta visible y >=44px",
       "ok": true,
-      "detail": "130px 130px 130px"
+      "detail": "{'x': 14, 'y': 720, 'width': 362, 'height': 44}"
+    },
+    {
+      "name": "B2 móvil: descarta el ticket precargado",
+      "ok": true,
+      "detail": ""
     },
     {
       "name": "P1-04 total y botón no se solapan",
       "ok": true,
-      "detail": "{'x': 14, 'y': 621.203125, 'width': 183.265625, 'height': 86.796875} / {'x': 209.265625, 'y': 628.40625, 'width': 166.734375, 'height': 72.375}"
+      "detail": "{'x': 14, 'y': 1172.5, 'width': 362, 'height': 56} / {'x': 14, 'y': 1324.5, 'width': 362, 'height': 52}"
+    },
+    {
+      "name": "P1-04 Caja oculta el bottom-nav sustituido",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B1 móvil: chip y micrófono principal disponibles",
+      "ok": true,
+      "detail": "{'x': 316, 'y': -35.3125, 'width': 56, 'height': 56}"
+    },
+    {
+      "name": "B1 móvil: Registrar venta registra efectivo demo una sola vez",
+      "ok": true,
+      "detail": "{\"id\": \"ord_0e6976a03418489cbda8\", \"merchantId\": \"lupita\", \"status\": \"demo_paid\", \"totalCents\": 18000, \"paidCents\": 18000, \"digitalPaidCents\": 0, \"paymentMethod\": \"cash\", \"lastPaymentProvider\": \"cash\", \"lastPaymentDemo\": true, \"customerName\": null, \"creditId\": null, \"creditCents\": 0, \"paymentLinkId\": null, \"paymentUrl\": null, \"qrId\": null, \"qrString\": null, \"qrImage\": null, \"numRef\": null, \"createdAt\": \"2026-11-07T03:35:20.593Z\", \"updatedAt\": \"2026-11-07T03:35:20.594Z\", \"items\": [{\"id\": \"itm_a22cece0900d45a39059\", \"description\": \"Uno\", \"quantity\": 1, \"unitPriceCents\": 10000, \"totalCents\": 10000}, {\"id\": \"itm_ae8af086020b4a8190eb\", \"description\": \"Dos\", \"quantity\": 1, \"unitPriceCents\": 5000, \"totalCents\": 5000}, {\"id\": \"itm_c153c3ca163344d08d75\", \"description\": \"Tres\", \"quantity\": 1, \"unitPriceCents\": 3000, \"totalCents\": 3000}]}"
+    },
+    {
+      "name": "P1-04 nav móvil 3+2 a 200%",
+      "ok": true,
+      "detail": "122.656px 122.672px 122.656px"
     },
     {
       "name": "P1-13 papel picado no invade a 768",
@@ -306,7 +346,7 @@
     {
       "name": "P1-13 CTA de sugerencia sin recorte",
       "ok": true,
-      "detail": "{'x': 447, 'y': 1484.21875, 'width': 137.578125, 'height': 48}"
+      "detail": "{'x': 566.375, 'y': 1487.28125, 'width': 148.890625, 'height': 48}"
     },
     {
       "name": "P1-13 Inicio 768 sin scroll horizontal",
@@ -316,7 +356,7 @@
     {
       "name": "P1-01 legacy avisa de la venta en Caja nueva",
       "ok": true,
-      "detail": "Saltar al contenido\n\nMercado Cero\n\nLa caja que habla\n\nInicio\nCaja\nFiado\nCorte\nMeta\nPendientes\nModo demo\nAyuda\n\nAntojitos de Lupita\n\nCoyoacán, CDMX · miércoles, 4 de noviembre\n\nDEMO\nCaja\nVerificar\n\nVentas registradas hoy $190.00 · Cobrado confirmado $0.00 · Por cobrar de hoy $120.00\n\nPor cobrar de hoy $120.00\nVer la tira\n\nHay una venta sin confirmar en la Caja nueva.\n\nNo se mezcló con este borrador. Para evitar duplicarla, ábrela en la Caja nueva o confirma que quieres usar esta Caja clásica.\n\nAbrir Caja nueva\nUsar esta Caja clásica\n¿Qué vendiste?\n\nHabla, escribe o agrega a mano; tú confirmas.\n"
+      "detail": "Saltar al contenido\n\nMercado Cero\n\nLa caja que habla\n\nInicio\nCaja\nFiado\nCorte\nMeta\nPendientes\nModo demo\nAyuda\n\nAntojitos de Lupita\n\nCoyoacán, CDMX · viernes, 6 de noviembre\n\nDEMO\nCaja\nVerificar\n\nVentas registradas hoy $190.00 · Cobrado confirmado $0.00 · Por cobrar de hoy $120.00\n\nPor cobrar de hoy $120.00\nVer la tira\n\nHay una venta sin confirmar en la Caja nueva.\n\nNo se mezcló con este borrador. Para evitar duplicarla, ábrela en la Caja nueva o confirma que quieres usar esta Caja clásica.\n\nAbrir Caja nueva\nUsar esta Caja clásica\n¿Qué vendiste?\n\nHabla, escribe o agrega a mano; tú confirmas.\n\nT"
     },
     {
       "name": "P1-01 legacy bloquea la confirmación",
