@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
-import { ArrowRight, Clock3 } from "lucide-react";
+import { ArrowRight, Clock3, Plus } from "lucide-react";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { MaskIcon } from "@/components/ui/icon";
@@ -62,8 +62,13 @@ function statusOf(order: Order): { label: string; tone: PendingTone } {
   return { label: "Registrado", tone: "registered" };
 }
 
-export default async function PendientesPage() {
+export default async function PendientesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ creada?: string }>;
+}) {
   await connection();
+  const { creada } = await searchParams;
   const pendingOrders = listPendingOrders(50);
   const pendingCount = countPendingOrders();
   const pendingCents = sumPendingOrderBalances();
@@ -82,7 +87,18 @@ export default async function PendientesPage() {
       address={MERCHANT.address}
       demo={isDemoMode()}
       contentClassName="mc-pend-main"
+      actions={
+        <Link className="mc-pend-cta" href="/pendientes/nuevo">
+          <Plus className="mc-pend-icon" aria-hidden="true" />
+          Nuevo pendiente
+        </Link>
+      }
     >
+      {creada === "1" ? (
+        <p className="mc-pend-created" role="status">
+          Pendiente guardado. Ya aparece en la lista de hoy.
+        </p>
+      ) : null}
       <div className="mc-op-grid mc-op-grid--sidebar mc-pend-grid">
         <section
           id="mc-pend-cobros"

@@ -151,6 +151,17 @@ export function listCashCloses(date: string, limit = 5): CashClose[] {
   return rows.map(mapClose);
 }
 
+/** Últimos cortes de cualquier fecha, uno por versión más reciente. */
+export function listRecentCashCloses(limit = 12): CashClose[] {
+  const rows = getDb()
+    .prepare(
+      `SELECT * FROM cash_closes WHERE 1 = 1 ${visibleCloseFilter()}
+       ORDER BY date DESC, version DESC LIMIT ?`,
+    )
+    .all(Math.max(1, Math.floor(limit))) as unknown as CashCloseRow[];
+  return rows.map(mapClose);
+}
+
 /** Última versión del corte de una fecha. La versión 1 nunca se borra. */
 export function getCashClose(date: string): CashClose | null {
   const row = getDb()

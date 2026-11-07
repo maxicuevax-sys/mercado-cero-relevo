@@ -114,6 +114,7 @@ export default async function CortePage() {
       merchant={MERCHANT.name} address={MERCHANT.address} demo={demo}
       mainId="corte-main" contentClassName="mc-corte-page" focusTargetId="corte-title">
       <div className="mc-corte-date"><CalendarDays aria-hidden="true" /><time dateTime={status.date}>Hoy, {formatDayMonth(status.date)}</time></div>
+      <p className="mc-corte-history-link"><Link href="/corte/historial">Ver historial de cortes</Link></p>
       <section className="mc-corte-summary" aria-label="Resumen de caja de hoy">
         <dl className="mc-corte-summary__rows">
           <div><dt>Efectivo en caja</dt><dd>{formatMxn(status.expectedCents)}</dd></div>

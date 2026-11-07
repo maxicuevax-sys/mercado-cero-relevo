@@ -1691,3 +1691,22 @@ html:not([data-contrast="high"]) .mc-corte-summary__balance { background: #eeedc
   .mc-corte-summary__rows > div { font-size: .875rem; }
   .mc-corte-page .mc-corte-tally { padding: 16px 12px; }
 }
+
+.mc-corte-history-link {
+  margin: 8px 0 4px;
+  text-align: end;
+}
+
+.mc-corte-history-link a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding-inline: 10px;
+  border-radius: 10px;
+  color: var(--color-accent);
+  font-size: .9375rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
