@@ -14,6 +14,7 @@ from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path.cwd().parent
 OUT = ROOT / "harness/evidence/exact-parity/b-refs"
+OUT.mkdir(parents=True, exist_ok=True)
 BASE = "http://127.0.0.1:4583"
 RESULTS = []
 def check(name, ok, detail=None):
@@ -24,6 +25,7 @@ def capture(page, name):
     page.wait_for_load_state("networkidle")
     page.evaluate("document.fonts.ready")
     page.wait_for_timeout(200)
+    page.evaluate("window.scrollTo(0, 0)")
     page.screenshot(path=str(OUT / f"{name}.png"), full_page=True)
     page.screenshot(path=str(OUT / f"{name}-viewport.png"))
     overflow = page.evaluate("document.documentElement.scrollWidth > innerWidth")

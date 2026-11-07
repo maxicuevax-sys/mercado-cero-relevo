@@ -1058,12 +1058,9 @@ export function CajaScreen({
             }}
           />
           </div>
-          <CajaSpecCheckout totalCents={totalCents} changeCents={changeForSale} method={method}
-            cashInput={cashInput} creditInput={creditInput} customerName={customerName} error={error}
-            canConfirm={canConfirm} demo={demo} disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated || !lines.length}
-            onMethod={chooseMethod} onCash={value => { setCashInput(value); setError(null); }}
-            onCredit={value => { setCreditInput(value); setError(null); }}
-            onCustomer={value => { setCustomerName(value); setError(null); }} onConfirm={confirmSale} onReview={() => setView("method")} />
+          <CajaSpecCheckout totalCents={totalCents} method={method}
+            disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated || !lines.length}
+            onMethod={chooseMethod} onReview={() => setView("method")} />
         </>
       ) : null}
 

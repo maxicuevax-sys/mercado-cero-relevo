@@ -460,9 +460,12 @@
 .mc-help-home { overflow-wrap: anywhere; }
 .mc-help-home > *, .mc-help-welcome > *, .mc-help-topics span, .mc-help-support > * { min-width: 0; }
 .mc-help-topics button { flex-wrap: wrap; }
+.mc-help-topics button { padding: 10px; gap: 6px; }
+.mc-help-topics button > svg:first-child { width: 26px; height: 26px; }
 .mc-help-topics button > span { flex: 1; }
 .mc-help-support > * { flex-wrap: wrap; }
 @media (max-width: 360px) {
+ .mc-help-topics { grid-template-columns: minmax(0, 1fr); }
  .mc-help-welcome { grid-template-columns: 28% minmax(0, 1fr); gap: 8px; }
  .mc-help-welcome h2 { font-size: 1.15rem; }
  .mc-help-topics button { padding: 8px; gap: 6px; }

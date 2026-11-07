@@ -6,12 +6,8 @@ import { CurrencyAmount } from "@/components/ui/currency-amount";
 import type { PaymentChoice } from "./types";
 
 export function CajaSpecCheckout({ totalCents, method, disabled, onMethod, onReview }: {
-  totalCents: number; changeCents: number; method: PaymentChoice;
-  cashInput: string; creditInput: string; customerName: string; error: string | null;
-  canConfirm: boolean; disabled: boolean; demo: boolean;
-  onMethod: (method: PaymentChoice) => void; onCash: (value: string) => void;
-  onCredit: (value: string) => void; onCustomer: (value: string) => void;
-  onConfirm: () => Promise<void>; onReview: () => void;
+  totalCents: number; method: PaymentChoice; disabled: boolean;
+  onMethod: (method: PaymentChoice) => void; onReview: () => void;
 }) {
   const [digitalKind, setDigitalKind] = useState<"card" | "digital">("digital");
   function select(value: "cash" | "card" | "digital") {

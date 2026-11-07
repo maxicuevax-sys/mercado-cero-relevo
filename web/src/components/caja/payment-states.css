@@ -42,6 +42,7 @@
   .mc-caja-payment > .mc-payment-total { order: -2; }
   .mc-caja-payment > .mc-qr-state { order: -1; }
   .mc-caja-shell .mc-caja-payment .mc-caja-payment__actions { display: flex; flex-direction: column; gap: 10px; }
+  .mc-caja-shell .mc-caja-payment .mc-caja-payment__actions > * { flex: 0 0 auto; min-height: 48px; }
   .mc-caja-shell .mc-caja-payment .mc-payment-refresh { order: -1; }
   .mc-payment-total { padding: 12px; gap: 8px; }
   .mc-payment-total > span:last-child { font-size: 1.7rem; }
