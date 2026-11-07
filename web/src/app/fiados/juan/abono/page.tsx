@@ -29,7 +29,8 @@ export default async function AbonoPage({
   searchParams: Promise<{ credito?: string }>;
 }) {
   await connection();
-  const [{ slug }, query] = await Promise.all([params, searchParams]);
+  const [{ slug: paramSlug }, query] = await Promise.all([params, searchParams]);
+  const slug = paramSlug ?? "juan";
   const demo = isDemoMode();
   const initial = MERCHANT.owner.charAt(0).toUpperCase();
   const desired = normalizeName(slug);
