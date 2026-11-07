@@ -32,7 +32,7 @@ cd mercado-cero-refs
 git lfs pull
 git lfs ls-files
 ```
-- Deben estar los **31 activos** de `references/DEFINITIVE`, no punteros `.lfs`.
+- Deben estar los **31 activos** en `mobile/`, no punteros `.lfs`. El path `references/DEFINITIVE` no existe en el repo de refs; es `mobile/`.
 - Verifica tamaño/tipo de archivo; no edites ni hagas push a `mercado-cero-refs`.
 - Si faltan refs, reporta `REFS_INCOMPLETAS` con el listado.
 
@@ -75,9 +75,11 @@ Valida el JSON y reinicia OpenCode. En una sesión nueva verifica que existan he
 Elige una app benigna ya abierta (Explorador/Calculator/Notepad). NO uses el navegador del usuario.
 ```powershell
 agent-desktop list-apps
-agent-desktop snapshot --app Calculator -i
+agent-desktop list-windows
+agent-desktop snapshot --window-id <WINDOW_ID> -i
 agent-desktop click '@SNAPSHOT_ID:REF_ID'
-agent-desktop snapshot --app Calculator -i
+agent-desktop list-windows
+agent-desktop snapshot --window-id <WINDOW_ID> -i
 ```
 Reglas:
 - Refs siempre entre comillas simples en PowerShell: `'@s8f3k2p9:e8'`.
@@ -94,7 +96,8 @@ git clone https://github.com/maxicuevax-sys/mercado-cero-relevo.git
 cd mercado-cero-relevo
 git fetch origin revision/assembly-fixes
 git worktree add ..\diego-visual origin/revision/assembly-fixes
-cd ..\diego-visual
+cd ..\diego-visual\web
+npm ci
 git switch -c diego/visual-caja-fiados
 ```
 - Copia `.env.local` desde la plantilla; DB demo **tuya**.
@@ -103,8 +106,8 @@ git switch -c diego/visual-caja-fiados
 
 ## 7. Tus pantallas de hoy
 Te tocan **Caja** y **Fiados**. Una por una, con la ref exacta:
-- `/caja` → `references/DEFINITIVE/mobile/02_nueva_venta_941x1672.png`
-- `/fiados` → `references/DEFINITIVE/mobile/05_fiados_390x693.png`
+- `/caja` → `mobile/02_nueva_venta_941x1672.png`
+- `/fiados` → `mobile/05_fiados_390x693.png`
 
 Para cada una:
 1. `http://127.0.0.1:4600/<ruta>` a **390×693**.
