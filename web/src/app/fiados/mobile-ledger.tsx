@@ -116,7 +116,7 @@ export function MobileLedger({
       <div className="mc-fiados-mobile__sheet">
         <header className="mc-fiados-mobile__heading">
           <Link href="/inicio" prefetch={false} aria-label="Volver a Inicio"><ChevronLeft aria-hidden="true" /></Link>
-          <h1>Fiados</h1>
+          <h2>Fiados</h2>
           <Image src={papelPicado} width={488} height={102} alt="" unoptimized />
         </header>
 
