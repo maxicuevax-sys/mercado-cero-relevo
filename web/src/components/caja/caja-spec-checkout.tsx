@@ -5,9 +5,10 @@ import { Banknote, CreditCard, QrCode, ReceiptText } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import type { PaymentChoice } from "./types";
 
-export function CajaSpecCheckout({ totalCents, method, disabled, onMethod, onReview }: {
+export function CajaSpecCheckout({ totalCents, method, disabled, onMethod, onReview, onClear }: {
   totalCents: number; method: PaymentChoice; disabled: boolean;
   onMethod: (method: PaymentChoice) => void; onReview: () => void;
+  onClear: () => void;
 }) {
   const [digitalKind, setDigitalKind] = useState<"card" | "digital">("digital");
   function select(value: "cash" | "card" | "digital") {
@@ -23,6 +24,6 @@ export function CajaSpecCheckout({ totalCents, method, disabled, onMethod, onRev
       })}
     </div></fieldset>
     <button className="mc-spec-register" type="button" disabled={disabled || totalCents <= 0} onClick={onReview}><ReceiptText aria-hidden="true" /><span>Registrar venta</span></button>
-
+    <button className="mc-spec-clear" type="button" disabled={disabled} onClick={onClear}>Descartar venta</button>
   </section>;
 }

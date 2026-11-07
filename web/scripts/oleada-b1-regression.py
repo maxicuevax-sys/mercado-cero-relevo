@@ -182,6 +182,13 @@ def main() -> int:
             and "$0.00" in result_text
             and "saldo vivo fiado" in result_text.lower(),
         )
+        check(
+            "B5 fiado demo: estado Registrado sin 'Demo (simulado)' redundante",
+            "venta demo registrada con fiado" in result_text.lower()
+            and "registrado" in result_text.lower()
+            and "demo (simulado)" not in result_text.lower(),
+            result_text,
+        )
         page.screenshot(path=str(OUT / "p0-01-fiado-puro.png"), full_page=True)
 
         # ------------------------------------------------------------------
@@ -208,6 +215,37 @@ def main() -> int:
             "el dinero aún no se considera recibido" not in panel.lower(),
         )
         page.screenshot(path=str(OUT / "p0-02-mixto-panel.png"), full_page=True)
+
+        # ------------------------------------------------------------------
+        # B5/P1 · mixto efectivo + digital + fiado: el encabezado digital
+        # muestra lo digital cobrado, no el total de la venta.
+        # ------------------------------------------------------------------
+        reset(page)
+        add_item(page, "Mixto tripartita", "1", "100")
+        page.get_by_role("button", name="Mixto", exact=True).click()
+        page.get_by_label("Efectivo recibido", exact=True).and_(page.locator(":visible")).fill("20")
+        page.get_by_label("Monto a fiado", exact=True).and_(page.locator(":visible")).fill("40")
+        new_customer(page, "Ana")
+        page.locator(".mc-caja-confirm").click()
+        expect(page.locator(".mc-caja-payment")).to_be_visible()
+        page.get_by_role("button", name="Simular CoDi", exact=True).click()
+        expect(page.locator(".mc-caja-result")).to_be_visible()
+        mixed_order = page.request.get(BASE + "/api/orders").json()["orders"][0]
+        check(
+            "B5 mixto API total 100, digital 40, fiado 40",
+            mixed_order["totalCents"] == 10000
+            and mixed_order["digitalPaidCents"] == 4000
+            and mixed_order["creditCents"] == 4000
+            and mixed_order["paidCents"] == 6000,
+            json.dumps({k: mixed_order[k] for k in ["totalCents", "paidCents", "digitalPaidCents", "creditCents"]}),
+        )
+        digital_header = page.locator(".mc-payment-confirmed").inner_text()
+        check(
+            "B5 mixto: encabezado digital muestra $40, no el total",
+            "$40.00" in digital_header and "$100.00" not in digital_header,
+            digital_header,
+        )
+        page.screenshot(path=str(OUT / "p1-10-mixto-digital-fiado.png"), full_page=True)
 
         # ------------------------------------------------------------------
         # P1-07 · cambio fantasma y aviso falso
@@ -648,6 +686,21 @@ def main() -> int:
         pg.goto(BASE + "/caja", wait_until="domcontentloaded")
         pg.wait_for_timeout(350)
         pg.evaluate("localStorage.clear()")
+        pg.reload(wait_until="domcontentloaded")
+        expect(pg.locator(".mc-caja-line")).to_have_count(3)
+        b2_clear = pg.get_by_role("button", name="Descartar venta", exact=True).and_(
+            pg.locator(":visible")
+        )
+        b2_box = b2_clear.bounding_box()
+        check(
+            "B2 móvil: descartar venta visible y >=44px",
+            b2_clear.is_visible() and bool(b2_box and b2_box["height"] >= 44),
+            str(b2_box),
+        )
+        pg.once("dialog", lambda dialog: dialog.accept())
+        b2_clear.click()
+        expect(pg.locator(".mc-caja-line")).to_have_count(0)
+        check("B2 móvil: descarta el ticket precargado", True)
         pg.reload(wait_until="domcontentloaded")
         clear_demo_ticket(pg)
         add_item(pg, "Uno", "1", "100")
