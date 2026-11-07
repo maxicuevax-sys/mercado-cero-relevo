@@ -109,6 +109,9 @@
   .mc-fiados-mobile__bell {
     position: relative;
     display: grid;
+    min-width: 48px;
+    min-height: 48px;
+    flex: 0 0 48px;
     place-items: center;
     color: inherit;
   }
@@ -189,8 +192,9 @@
   .mc-fiados-mobile__heading a {
     display: grid;
     z-index: 1;
-    width: calc(24 * var(--fi-u));
-    min-height: calc(44 * var(--fi-u));
+    width: 48px;
+    min-height: 48px;
+    flex: 0 0 48px;
     place-items: center start;
     color: inherit;
   }
@@ -232,6 +236,7 @@
   .mc-fiados-mobile__tabs a {
     display: flex;
     min-width: 0;
+    min-height: 48px;
     align-items: center;
     justify-content: center;
     gap: calc(9 * var(--fi-u));

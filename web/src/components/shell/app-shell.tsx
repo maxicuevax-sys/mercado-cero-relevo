@@ -54,7 +54,6 @@ export function AppShell({
         </main>
       </div>
       <MobileNav
-        referenceA={["/inicio", "/corte", "/metas", "/pendientes"].includes(activeHref)}
         primary={mobilePrimaryItems}
         more={mobileMoreItems}
         activeHref={activeHref}

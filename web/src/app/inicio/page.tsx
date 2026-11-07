@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
-import { Plus, QrCode, Sparkles, Mic, Package, Coins, ChartNoAxesColumnIncreasing } from "lucide-react";
+import { Plus, QrCode, Sparkles, Mic, Store, NotebookPen, ChartNoAxesColumnIncreasing } from "lucide-react";
 import { getDashboardData } from "@/lib/dashboard";
 import { isDemoMode } from "@/lib/config";
 import { listGoals } from "@/lib/goals";
@@ -181,9 +181,9 @@ export default async function InicioPage() {
 
       <nav className="inicio-shortcuts" aria-label="Accesos rápidos">
         <Link href="/caja#mc-caja-payment-summary"><QrCode aria-hidden="true" /><span>Cobrar</span></Link>
-        <button type="button" disabled aria-label="Producto: módulo aún no disponible"><Package aria-hidden="true" /><span>Producto</span></button>
-        <button type="button" disabled aria-label="Gasto: módulo aún no disponible"><Coins aria-hidden="true" /><span>Gasto</span></button>
-        <button type="button" disabled aria-label="Reporte: módulo aún no disponible"><ChartNoAxesColumnIncreasing aria-hidden="true" /><span>Reporte</span></button>
+        <Link href="/ventas"><Store aria-hidden="true" /><span>Ventas</span></Link>
+        <Link href="/fiados"><NotebookPen aria-hidden="true" /><span>Fiados</span></Link>
+        <Link href="/corte"><ChartNoAxesColumnIncreasing aria-hidden="true" /><span>Corte</span></Link>
       </nav>
 
       <section className="inicio-pending" aria-labelledby="inicio-pending-title">
