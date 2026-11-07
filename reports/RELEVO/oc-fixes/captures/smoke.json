@@ -1,0 +1,328 @@
+{
+  "base": "http://localhost:3200",
+  "routes": 40,
+  "failures": [],
+  "consoleErrors": [],
+  "results": [
+    {
+      "route": "/",
+      "label": "raiz",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "raiz-390x693.png"
+    },
+    {
+      "route": "/",
+      "label": "raiz",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "raiz-1448x1086.png"
+    },
+    {
+      "route": "/inicio",
+      "label": "inicio",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "inicio-390x693.png"
+    },
+    {
+      "route": "/inicio",
+      "label": "inicio",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "inicio-1448x1086.png"
+    },
+    {
+      "route": "/onboarding",
+      "label": "onboarding",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "onboarding-390x693.png"
+    },
+    {
+      "route": "/onboarding",
+      "label": "onboarding",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "onboarding-1448x1086.png"
+    },
+    {
+      "route": "/caja",
+      "label": "caja",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "caja-390x693.png"
+    },
+    {
+      "route": "/caja",
+      "label": "caja",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "caja-1448x1086.png"
+    },
+    {
+      "route": "/ayuda",
+      "label": "ayuda",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "ayuda-390x693.png"
+    },
+    {
+      "route": "/ayuda",
+      "label": "ayuda",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "ayuda-1448x1086.png"
+    },
+    {
+      "route": "/ajustes",
+      "label": "ajustes",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "ajustes-390x693.png"
+    },
+    {
+      "route": "/ajustes",
+      "label": "ajustes",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "ajustes-1448x1086.png"
+    },
+    {
+      "route": "/fiados",
+      "label": "fiados",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "fiados-390x693.png"
+    },
+    {
+      "route": "/fiados",
+      "label": "fiados",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "fiados-1448x1086.png"
+    },
+    {
+      "route": "/fiados/nuevo",
+      "label": "fiados-nuevo",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "fiados-nuevo-390x693.png"
+    },
+    {
+      "route": "/fiados/nuevo",
+      "label": "fiados-nuevo",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "fiados-nuevo-1448x1086.png"
+    },
+    {
+      "route": "/fiados/registrado",
+      "label": "fiados-registrado",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "fiados-registrado-390x693.png"
+    },
+    {
+      "route": "/fiados/registrado",
+      "label": "fiados-registrado",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "fiados-registrado-1448x1086.png"
+    },
+    {
+      "route": "/corte",
+      "label": "corte",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "corte-390x693.png"
+    },
+    {
+      "route": "/corte",
+      "label": "corte",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "corte-1448x1086.png"
+    },
+    {
+      "route": "/corte/historial",
+      "label": "corte-historial",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "corte-historial-390x693.png"
+    },
+    {
+      "route": "/corte/historial",
+      "label": "corte-historial",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "corte-historial-1448x1086.png"
+    },
+    {
+      "route": "/metas",
+      "label": "metas",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "metas-390x693.png"
+    },
+    {
+      "route": "/metas",
+      "label": "metas",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "metas-1448x1086.png"
+    },
+    {
+      "route": "/metas/nueva",
+      "label": "metas-nueva",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "metas-nueva-390x693.png"
+    },
+    {
+      "route": "/metas/nueva",
+      "label": "metas-nueva",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "metas-nueva-1448x1086.png"
+    },
+    {
+      "route": "/pendientes",
+      "label": "pendientes",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "pendientes-390x693.png"
+    },
+    {
+      "route": "/pendientes",
+      "label": "pendientes",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "pendientes-1448x1086.png"
+    },
+    {
+      "route": "/pendientes/nuevo",
+      "label": "pendientes-nuevo",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "pendientes-nuevo-390x693.png"
+    },
+    {
+      "route": "/pendientes/nuevo",
+      "label": "pendientes-nuevo",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "pendientes-nuevo-1448x1086.png"
+    },
+    {
+      "route": "/ventas",
+      "label": "ventas",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "ventas-390x693.png"
+    },
+    {
+      "route": "/ventas",
+      "label": "ventas",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "ventas-1448x1086.png"
+    },
+    {
+      "route": "/fiados/demo_seed_cred_4daf36bd03f74634b99c",
+      "label": "fiado-juan",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "fiado-juan-390x693.png"
+    },
+    {
+      "route": "/fiados/demo_seed_cred_4daf36bd03f74634b99c",
+      "label": "fiado-juan",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "fiado-juan-1448x1086.png"
+    },
+    {
+      "route": "/fiados/demo_seed_cred_4daf36bd03f74634b99c/abono",
+      "label": "fiado-abono",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "fiado-abono-390x693.png"
+    },
+    {
+      "route": "/fiados/demo_seed_cred_4daf36bd03f74634b99c/abono",
+      "label": "fiado-abono",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "fiado-abono-1448x1086.png"
+    },
+    {
+      "route": "/ventas/demo_seed_ord_3005ea0f459e443fa18f",
+      "label": "venta-detalle",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "venta-detalle-390x693.png"
+    },
+    {
+      "route": "/ventas/demo_seed_ord_3005ea0f459e443fa18f",
+      "label": "venta-detalle",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "venta-detalle-1448x1086.png"
+    },
+    {
+      "route": "/corte/historial/2026-11-06?v=cash_demo_prev",
+      "label": "corte-detalle",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "corte-detalle-390x693.png"
+    },
+    {
+      "route": "/corte/historial/2026-11-06?v=cash_demo_prev",
+      "label": "corte-detalle",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "corte-detalle-1448x1086.png"
+    }
+  ]
+}

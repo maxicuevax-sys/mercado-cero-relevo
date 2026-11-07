@@ -76,7 +76,7 @@ def collect_errors(page, bucket: list[str]):
 
 def shot(page, name: str) -> str:
     target = OUT / f"{name}.png"
-    page.screenshot(path=str(target), full_page=True)
+    page.screenshot(path=str(target), full_page=False)
     return target.name
 
 
@@ -110,6 +110,8 @@ def main() -> None:
                     resp = page.goto(BASE + path, wait_until="networkidle", timeout=25000)
                     status = resp.status if resp else None
                     page.wait_for_timeout(250)
+                    page.evaluate("document.activeElement && document.activeElement.blur()")
+                    page.wait_for_timeout(80)
                     file_name = shot(page, f"{label}-{vp_name}")
                     results.append(
                         {
