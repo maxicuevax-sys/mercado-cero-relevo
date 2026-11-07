@@ -566,7 +566,8 @@ def main() -> int:
         # ------------------------------------------------------------------
         page.goto(BASE + "/inicio", wait_until="domcontentloaded")
         page.get_by_role("link", name="Caja", exact=True).click()
-        page.wait_for_timeout(500)
+        page.wait_for_url(BASE + "/caja")
+        page.wait_for_function("document.activeElement && ['caja-title', 'caja-main', 'H1'].includes(document.activeElement.id || document.activeElement.tagName)")
         active = page.evaluate(
             "document.activeElement && (document.activeElement.id || document.activeElement.tagName)"
         )

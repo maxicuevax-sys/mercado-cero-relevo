@@ -17,6 +17,7 @@ OUT = ROOT / "harness/evidence/exact-parity/b-refs"
 OUT.mkdir(parents=True, exist_ok=True)
 BASE = "http://127.0.0.1:4583"
 RESULTS = []
+GIT_SHA = subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
 def check(name, ok, detail=None):
     RESULTS.append(dict(name=name, ok=bool(ok), detail=detail))
     print(("PASS " if ok else "FAIL ") + name, flush=True)
@@ -188,8 +189,10 @@ finally:
     server.terminate()
     server.wait(timeout=15)
     log.close()
-    artifacts = [{"path": str(p.relative_to(ROOT)).replace('\\','/'), "sha256":hashlib.sha256(p.read_bytes()).hexdigest()} for p in OUT.glob('*.png')]
-    report=dict(git=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(), results=RESULTS, artifacts=artifacts, passed=sum(r['ok'] for r in RESULTS), failed=sum(not r['ok'] for r in RESULTS))
+    end_sha = subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+    check('commit stable during UI run', end_sha == GIT_SHA)
+    artifacts = [{"path": str(p.relative_to(ROOT)).replace('\\','/'), "sha256":hashlib.sha256(p.read_bytes()).hexdigest()} for p in OUT.glob('*.png') if p.name.startswith(('390-', '320-'))]
+    report=dict(git=GIT_SHA, gitAtEnd=end_sha, results=RESULTS, artifacts=artifacts, passed=sum(r['ok'] for r in RESULTS), failed=sum(not r['ok'] for r in RESULTS))
     (OUT/'ui.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf8')
     print(f"B REFS UI: {report['passed']} PASS / {report['failed']} FAIL",flush=True)
     if report['failed']: raise SystemExit(1)
