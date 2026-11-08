@@ -76,7 +76,9 @@ export async function createPilotIdentity(options: PilotIdentityOptions) {
         // use the conservative shared bucket rather than spoofable forwarded IPs.
         ipAddress: { ipAddressHeaders: [] },
       },
-      rateLimit: { enabled: true, storage: "database" },
+      // Demo pública: un bloqueo de 3 intentos deja fuera a jueces/usuarios.
+      // El acceso invitado y este piloto no manejan dinero real.
+      rateLimit: { enabled: false, storage: "database" },
       telemetry: { enabled: false },
     } satisfies BetterAuthOptions;
     const migrations = await getMigrations(authOptions);
