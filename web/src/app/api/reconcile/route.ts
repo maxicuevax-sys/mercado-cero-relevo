@@ -1,7 +1,8 @@
+import { withPilotRoute } from "../../../lib/auth/pilot-route";
 import { enforceRateLimit, internalErrorResponse } from "@/lib/http-security";
 import { getReconciliationReport } from "@/lib/reconcile";
 
-export async function GET(request: Request) {
+async function GETImpl(request: Request) {
   const limited = enforceRateLimit(request, "reconcile", 30, 60_000);
   if (limited) return limited;
 
@@ -13,3 +14,5 @@ export async function GET(request: Request) {
     return internalErrorResponse("reconcile", error);
   }
 }
+
+export const GET = withPilotRoute(GETImpl);

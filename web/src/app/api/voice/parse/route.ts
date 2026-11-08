@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../../lib/auth/pilot-route";
 import {
   bodyErrorResponse,
   enforceRateLimit,
@@ -10,7 +11,7 @@ import { parseSale } from "@/lib/voice";
 
 const MAX_TRANSCRIPT_CHARS = 2000;
 
-export async function POST(request: Request) {
+async function POSTImpl(request: Request) {
   const limited = enforceRateLimit(request, "voice-parse", 20, 60_000);
   if (limited) return limited;
 
@@ -48,3 +49,5 @@ export async function POST(request: Request) {
     return internalErrorResponse("voice parse", error);
   }
 }
+
+export const POST = withPilotRoute(POSTImpl);

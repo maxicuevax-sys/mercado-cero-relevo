@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 
 export const instant = false;
 
-export default async function AbonoPage({ params }: { params: Promise<{ id: string }> }) {
+async function AbonoPage({ params }: { params: Promise<{ id: string }> }) {
   await connection();
   const { id } = await params;
   const credit = getCredit(id);
@@ -29,3 +30,5 @@ export default async function AbonoPage({ params }: { params: Promise<{ id: stri
     </FlowScreen>
   );
 }
+
+export default withPilotPage(AbonoPage);

@@ -1,8 +1,9 @@
+import { withPilotRoute } from "../../../../lib/auth/pilot-route";
 import { appUrl, isDemoMode } from "@/lib/config";
 import { getDb, verifyAuditChain } from "@/lib/db";
 import { enforceRateLimit } from "@/lib/http-security";
 
-export async function GET(request: Request) {
+async function GETImpl(request: Request) {
   const limited = enforceRateLimit(request, "pey-status", 60, 60_000);
   if (limited) return limited;
 
@@ -57,3 +58,5 @@ export async function GET(request: Request) {
     auditChain,
   });
 }
+
+export const GET = withPilotRoute(GETImpl);

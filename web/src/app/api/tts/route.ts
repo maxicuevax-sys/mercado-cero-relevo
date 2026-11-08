@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../lib/auth/pilot-route";
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync } from "node:fs";
@@ -113,7 +114,7 @@ async function generate(text: string, key: string): Promise<string> {
   return out;
 }
 
-export async function POST(request: Request) {
+async function POSTImpl(request: Request) {
   const limited = enforceRateLimit(request, "tts", 40, 60_000);
   if (limited) return limited;
 
@@ -167,3 +168,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const POST = withPilotRoute(POSTImpl);

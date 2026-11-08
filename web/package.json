@@ -44,7 +44,9 @@
     "test:register-validation": "node --no-warnings --test scripts/register-validation.test.mjs",
     "test:pilot-browser": "playwright test -c playwright.pilot.config.ts",
     "test:access-ui": "playwright test -c playwright.access.config.ts",
-    "test:tenant-business": "node --no-warnings --test scripts/tenant-business.test.mjs"
+    "test:tenant-business": "node --no-warnings --test scripts/tenant-business.test.mjs",
+    "test:judge-accounts": "playwright test -c playwright.judge.config.ts",
+    "test:account-browser-state": "node --no-warnings --test src/lib/auth/browser-state.test.mjs"
   },
   "dependencies": {
     "@zxing/browser": "^0.2.1",

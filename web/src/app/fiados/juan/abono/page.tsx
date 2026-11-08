@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { AppShell } from "@/components/shell/app-shell";
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
 // El saldo vivo no se puede servir desde un snapshot de build.
 export const instant = false;
 
-export default async function AbonoPage({
+async function AbonoPage({
   params,
   searchParams,
 }: {
@@ -112,3 +113,5 @@ export default async function AbonoPage({
     </AppShell>
   );
 }
+
+export default withPilotPage(AbonoPage);

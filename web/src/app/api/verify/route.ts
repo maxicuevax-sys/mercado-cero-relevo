@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../lib/auth/pilot-route";
 import { isDemoMode } from "@/lib/config";
 import { getDb, getOrder, getOrderByNumRef } from "@/lib/db";
 import { enforceRateLimit } from "@/lib/http-security";
@@ -41,7 +42,7 @@ function rejected(reason: string, message: string) {
   return Response.json({ verified: false, reason, message });
 }
 
-export async function GET(request: Request) {
+async function GETImpl(request: Request) {
   const limited = enforceRateLimit(request, "verify", 60, 60_000);
   if (limited) return limited;
 
@@ -330,3 +331,5 @@ function hasReferenceMismatch(
 
   return false;
 }
+
+export const GET = withPilotRoute(GETImpl, { buyer: true });

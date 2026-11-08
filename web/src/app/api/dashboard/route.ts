@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../lib/auth/pilot-route";
 import { connection } from "next/server";
 import { getDashboardData } from "@/lib/dashboard";
 import { cachedJson } from "@/lib/http-cache";
@@ -12,7 +13,7 @@ import {
   parseNamedOffset,
 } from "@/lib/pagination";
 
-export async function GET(request: Request) {
+async function GETImpl(request: Request) {
   // La caja es dato vivo: nunca un snapshot de build.
   await connection();
   const params = new URL(request.url).searchParams;
@@ -49,3 +50,5 @@ export async function GET(request: Request) {
 
   return await cachedJson(request, dashboard, "dashboard");
 }
+
+export const GET = withPilotRoute(GETImpl);

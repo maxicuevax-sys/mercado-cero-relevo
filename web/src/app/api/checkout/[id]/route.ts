@@ -1,7 +1,8 @@
+import { withPilotRoute } from "../../../../lib/auth/pilot-route";
 import { getCheckoutData } from "@/lib/checkout";
 import { cachedJson } from "@/lib/http-cache";
 
-export async function GET(
+async function GETImpl(
   request: Request,
   ctx: { params: Promise<{ id: string }> },
 ) {
@@ -15,3 +16,5 @@ export async function GET(
   // vuelve a mandar el payload ni se rehidrata la pantalla.
   return await cachedJson(request, checkout, "orders");
 }
+
+export const GET = withPilotRoute(GETImpl, { buyer: true });

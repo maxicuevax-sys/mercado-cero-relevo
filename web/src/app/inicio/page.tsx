@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
 export const instant = false;
 
 
-export default async function InicioPage({ searchParams }: { searchParams: Promise<{ pedido?: string }> }) {
+async function InicioPage({ searchParams }: { searchParams: Promise<{ pedido?: string }> }) {
   await connection();
   const params = await searchParams;
   const initialOrder = params.pedido ? getOrder(params.pedido) : null;
@@ -235,3 +236,5 @@ export default async function InicioPage({ searchParams }: { searchParams: Promi
     </AppShell>
   );
 }
+
+export default withPilotPage(InicioPage);

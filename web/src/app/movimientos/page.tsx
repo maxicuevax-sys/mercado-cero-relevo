@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -175,7 +176,7 @@ function MovementRow({
   );
 }
 
-export default async function MovimientosPage({
+async function MovimientosPage({
   searchParams,
 }: {
   searchParams: Promise<{ filtro?: string; page?: string }>;
@@ -472,3 +473,5 @@ export default async function MovimientosPage({
     </OperationalPage>
   );
 }
+
+export default withPilotPage(MovimientosPage);

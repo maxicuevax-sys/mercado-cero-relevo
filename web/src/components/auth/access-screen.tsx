@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, Store, UserRound } from "lucide-react";
 import { AuthBrandbar, BrandRays } from "./auth-brandbar";
+import { clearAppBrowserState } from "@/lib/auth/browser-state";
 
 export function AccessScreen() {
   const [showPassword, setShowPassword] = useState(false);
@@ -36,7 +37,6 @@ export function AccessScreen() {
     setError("");
     setBusy(true);
     try {
-      // Fail closed until tenant isolation is ready; no fake session or redirect.
       const response = await fetch("/api/access/sign-in", {
         method: "POST",
         credentials: "same-origin",
@@ -44,9 +44,19 @@ export function AccessScreen() {
         body: JSON.stringify({ email, password }),
         cache: "no-store",
       });
-      setError(response.status === 503
-        ? "El acceso de prueba todavía no está abierto."
-        : "No pudimos iniciar sesión. Inténtalo de nuevo más tarde.");
+      if (response.status === 503) {
+        setError("El acceso de prueba todavía no está abierto.");
+        return;
+      }
+      const data = await response.json().catch(() => null);
+      if (response.ok && data?.ok === true) {
+        clearAppBrowserState();
+        // A full navigation discards the previous account's in-memory client state.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+        window.location.assign("/inicio");
+        return;
+      }
+      setError(typeof data?.error === "string" ? data.error : "No pudimos iniciar sesión. Inténtalo de nuevo más tarde.");
     } catch {
       setError("No pudimos conectarnos. Revisa tu conexión e inténtalo de nuevo.");
     } finally {

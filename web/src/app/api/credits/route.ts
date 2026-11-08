@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../lib/auth/pilot-route";
 import { connection } from "next/server";
 import { countCredits, listCredits } from "@/lib/db";
 import { cachedJson } from "@/lib/http-cache";
@@ -9,7 +10,7 @@ import {
   parseOffset,
 } from "@/lib/pagination";
 
-export async function GET(request: Request) {
+async function GETImpl(request: Request) {
   // El saldo vivo no puede servirse desde un snapshot de build.
   await connection();
   const params = new URL(request.url).searchParams;
@@ -31,3 +32,5 @@ export async function GET(request: Request) {
     "credits",
   );
 }
+
+export const GET = withPilotRoute(GETImpl);

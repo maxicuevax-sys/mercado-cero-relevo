@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -62,7 +63,7 @@ function statusOf(order: Order): { label: string; tone: PendingTone } {
   return { label: "Registrado", tone: "registered" };
 }
 
-export default async function PendientesPage({
+async function PendientesPage({
   searchParams,
 }: {
   searchParams: Promise<{ creada?: string }>;
@@ -323,3 +324,5 @@ export default async function PendientesPage({
     </OperationalPage>
   );
 }
+
+export default withPilotPage(PendientesPage);

@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../../lib/auth/pilot-route";
 import { z } from "zod";
 import {
   bodyErrorResponse,
@@ -25,7 +26,7 @@ function jsonError(message: string, status: number, extra?: Record<string, unkno
   return Response.json({ error: message, ...extra }, { status });
 }
 
-export async function PATCH(request: Request, ctx: RouteContext<"/api/tasks/[id]">) {
+async function PATCHImpl(request: Request, ctx: RouteContext<"/api/tasks/[id]">) {
   const limited = enforceRateLimit(request, "tasks-patch", 60, 60_000);
   if (limited) return limited;
 
@@ -82,7 +83,7 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/tasks/[id]
   }
 }
 
-export async function DELETE(request: Request, ctx: RouteContext<"/api/tasks/[id]">) {
+async function DELETEImpl(request: Request, ctx: RouteContext<"/api/tasks/[id]">) {
   const limited = enforceRateLimit(request, "tasks-delete", 60, 60_000);
   if (limited) return limited;
 
@@ -96,3 +97,6 @@ export async function DELETE(request: Request, ctx: RouteContext<"/api/tasks/[id
     return jsonError("No pude eliminar el pendiente. Intenta de nuevo.", 500);
   }
 }
+
+export const PATCH = withPilotRoute(PATCHImpl);
+export const DELETE = withPilotRoute(DELETEImpl);

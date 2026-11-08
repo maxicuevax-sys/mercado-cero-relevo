@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../../lib/auth/pilot-route";
 import {
   bodyErrorResponse,
   enforceRateLimit,
@@ -9,7 +10,7 @@ import {
 } from "@/lib/http-security";
 import { transcribeAudio } from "@/lib/voice";
 
-export async function POST(request: Request) {
+async function POSTImpl(request: Request) {
   // Esta ruta está fuera del matcher del Proxy para no bufferizar 12 MB:
   // conserva aquí la misma defensa CSRF y de operadora que el resto de mutadores.
   if (!isSameOriginMutation(request)) {
@@ -62,3 +63,5 @@ export async function POST(request: Request) {
     return internalErrorResponse("voice transcribe", error);
   }
 }
+
+export const POST = withPilotRoute(POSTImpl);

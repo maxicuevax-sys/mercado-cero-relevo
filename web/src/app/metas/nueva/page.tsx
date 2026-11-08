@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import { FlowScreen } from "@/components/shell/flow-screen";
 import { NewGoalForm } from "./new-goal-form";
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: "Nueva meta — Trangui",
 };
 
-export default function NuevaMetaPage() {
+function NuevaMetaPage() {
   return (
     <FlowScreen
       title="Nueva meta"
@@ -19,3 +20,5 @@ export default function NuevaMetaPage() {
     </FlowScreen>
   );
 }
+
+export default withPilotPage(NuevaMetaPage);

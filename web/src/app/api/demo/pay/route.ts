@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../../lib/auth/pilot-route";
 import { z } from "zod";
 import { isDemoMode } from "@/lib/config";
 import { recordDemoPayment } from "@/lib/demo-payments";
@@ -22,7 +23,7 @@ const bodySchema = z.object({
   requestId: z.string().trim().max(MAX_REQUEST_ID_CHARS).nullish(),
 });
 
-export async function POST(request: Request) {
+async function POSTImpl(request: Request) {
   if (!isDemoMode()) {
     return Response.json(
       { error: "El modo demo está desactivado.", code: "demo_disabled" },
@@ -90,3 +91,5 @@ export async function POST(request: Request) {
     return internalErrorResponse("demo pay", error);
   }
 }
+
+export const POST = withPilotRoute(POSTImpl);

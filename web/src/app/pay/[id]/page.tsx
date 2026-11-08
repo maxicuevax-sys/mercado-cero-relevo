@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { notFound } from "next/navigation";
@@ -18,7 +19,7 @@ interface CheckoutPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function CheckoutPage({ params }: CheckoutPageProps) {
+async function CheckoutPage({ params }: CheckoutPageProps) {
   await connection();
   const { id } = await params;
   const initialOrder = getCheckoutData(id);
@@ -27,3 +28,5 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
 
   return <CheckoutClient initialOrder={initialOrder} />;
 }
+
+export default withPilotPage(CheckoutPage, { buyer: true });

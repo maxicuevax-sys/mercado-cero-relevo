@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../../../lib/auth/pilot-route";
 import { z } from "zod";
 import { appErrorResponse, unexpectedResponse } from "@/lib/errors";
 import {
@@ -16,7 +17,7 @@ const bodySchema = z.object({
   expectedBalanceCents: z.number().int().nonnegative().optional(),
 });
 
-export async function POST(request: Request, ctx: RouteContext<"/api/credits/[id]/pay">) {
+async function POSTImpl(request: Request, ctx: RouteContext<"/api/credits/[id]/pay">) {
   const limited = enforceRateLimit(request, "credit-pay", 60, 60_000);
   if (limited) return limited;
 
@@ -62,3 +63,5 @@ export async function POST(request: Request, ctx: RouteContext<"/api/credits/[id
     return unexpectedResponse(error, "No se pudo registrar el abono.");
   }
 }
+
+export const POST = withPilotRoute(POSTImpl);

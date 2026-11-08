@@ -1,3 +1,4 @@
+import { withPilotPage } from "../lib/auth/pilot-page";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 
@@ -15,7 +16,7 @@ const TAB_REDIRECTS = {
   pendientes: "/pendientes",
 } as const;
 
-export default async function Home({
+async function Home({
   searchParams,
 }: {
   searchParams: Promise<{ tab?: string; ayuda?: string }>;
@@ -30,5 +31,7 @@ export default async function Home({
 
   if (params.ayuda === "1") redirect("/ayuda");
 
-  redirect("/inicio");
+  return redirect("/inicio");
 }
+
+export default withPilotPage(Home);

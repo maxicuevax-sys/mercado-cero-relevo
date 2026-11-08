@@ -18,7 +18,7 @@ Trigger SQLite BEFORE INSERT limita la tabla de usuarios a100, incluso con regis
 
 ## Todavía cerrado
 
-Esta función NO autentica peticiones: accountId deberá proceder exclusivamente de una sesión verificada del servidor, nunca de query/cabeceras del cliente. Acceso/registro públicos siguen devolviendo503. No se activa el modo de cuentas ni se cambia el VPS. No hay cambios visuales ni de la Caja vacía aprobada.
+Esta función NO autentica peticiones: accountId deberá proceder exclusivamente de una sesión verificada del servidor, nunca de query/cabeceras del cliente. Con el modo apagado, acceso/registro siguen devolviendo503. El modo permanece apagado en VPS; la conexión nueva solo se habilita en la fixture aislada de pruebas. No hay cambios visuales ni de la Caja vacía aprobada.
 
 ## Trabajo restante antes de abrir el piloto
 
@@ -29,3 +29,15 @@ Esta función NO autentica peticiones: accountId deberá proceder exclusivamente
 - Respaldar/restaurar conjuntamente identidad y bases; migrar propietario sin copiar sus ventas a cuentas demo. Canary y verificación antes de apertura.
 
 No presentar este avance como registro multiusuario terminado. Se conserva la dirección visual aprobada.
+
+## Avance 3: sesión y protección de rutas
+
+Se conectan los formularios existentes con Better Auth solo al activar explícitamente JUDGE_DEMO_ACCOUNTS=true en un proceso demo sin credenciales Pey/OpenAI/webhook/operator. Requiere JUDGE_DATA_ROOT absoluto, APP_URL y PILOT_AUTH_SECRET server-only. Cada página/API obtiene el usuario de una cookie de sesión verificada en el servidor, nunca de IDs o cabeceras del cliente.
+
+Todas las páginas privadas se fuerzan dinámicas y todas las operaciones API se envuelven en el contexto de base por cuenta. Checkout público, verify y webhook permanecen bloqueados en este modo demo; demo/pay sí permite simulaciones privadas dentro de la cuenta. Las respuestas privadas deshabilitan caché y validadores condicionales.
+
+Login/registro/cierre eliminan únicamente claves mercado-cero:/trangui: de localStorage/sessionStorage y hacen navegación completa para descartar estado de otra cuenta. Cerrar sesión usa la API real y revoca la cookie anterior; el cuerpo de las respuestas no expone tokens de Better Auth.
+
+Se conserva la UI y Caja vacía. La suite nueva prueba sesiones de dos navegadores, acceso con IDs ajenos, inventario de wrappers, revocación y limpieza de borradores. Resultado de ejecución se guarda en evidencia por SHA; no declarar aprobada antes de correrla.
+
+Registro local funcional bajo flag no equivale a apertura pública: quedan recuperación conjunta, provisión del propietario, cuotas de uso/almacenamiento y canary antes de modificar Cloudflare/VPS.

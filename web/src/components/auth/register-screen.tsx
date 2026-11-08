@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { ArrowRight, Eye, EyeOff, Info, LockKeyhole, Mail, UserRound } from "lucide-react";
 import { validateRegistration } from "@/lib/auth/register-validation";
+import { clearAppBrowserState } from "@/lib/auth/browser-state";
 import { AuthBrandbar } from "./auth-brandbar";
 
 export function RegisterScreen() {
@@ -29,7 +30,19 @@ export function RegisterScreen() {
     setBusy(true);
     try {
       const response = await fetch("/api/access/sign-up", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(result.values), cache: "no-store" });
-      setError(response.status === 503 ? "El registro de pruebas todavía no está abierto." : "No pudimos crear la cuenta. Inténtalo de nuevo más tarde.");
+      if (response.status === 503) {
+        setError("El registro de pruebas todavía no está abierto.");
+        return;
+      }
+      const data = await response.json().catch(() => null);
+      if (response.ok && data?.ok === true) {
+        clearAppBrowserState();
+        // A full navigation discards the previous account's in-memory client state.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+        window.location.assign("/inicio");
+        return;
+      }
+      setError(typeof data?.error === "string" ? data.error : "No pudimos crear la cuenta. Inténtalo de nuevo más tarde.");
     } catch {
       setError("No pudimos conectarnos. Revisa tu conexión e inténtalo de nuevo.");
     } finally { setBusy(false); }

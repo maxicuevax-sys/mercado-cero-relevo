@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -48,7 +49,7 @@ const ROW_TONES = ["green", "saffron", "terracotta"];
 
 type StampTone = SaleStampTone;
 
-export default async function VentasPage({
+async function VentasPage({
   searchParams,
 }: {
   searchParams: Promise<{ page?: string }>;
@@ -409,3 +410,5 @@ export default async function VentasPage({
     </OperationalPage>
   );
 }
+
+export default withPilotPage(VentasPage);

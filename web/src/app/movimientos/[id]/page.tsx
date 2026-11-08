@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -119,7 +120,7 @@ function PaymentRow({ payment }: { payment: MovementPayment }) {
   );
 }
 
-export default async function DetalleMovimientoPage({
+async function DetalleMovimientoPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -494,3 +495,5 @@ export default async function DetalleMovimientoPage({
     </OperationalPage>
   );
 }
+
+export default withPilotPage(DetalleMovimientoPage);

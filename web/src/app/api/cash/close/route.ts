@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../../lib/auth/pilot-route";
 import { z } from "zod";
 import { CashCloseError, closeCash, getCashStatus } from "@/lib/cash";
 import {
@@ -54,7 +55,7 @@ async function readJson(
   }
 }
 
-export async function POST(request: Request) {
+async function POSTImpl(request: Request) {
   const limited = enforceRateLimit(request, "cash-close", 30, 60_000);
   if (limited) return limited;
 
@@ -94,3 +95,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const POST = withPilotRoute(POSTImpl);

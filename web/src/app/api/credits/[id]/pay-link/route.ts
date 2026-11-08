@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../../../lib/auth/pilot-route";
 import crypto from "node:crypto";
 import QRCode from "qrcode";
 import { z } from "zod";
@@ -46,7 +47,7 @@ function reserveCreditNumRef(creditId: string): string {
   );
 }
 
-export async function POST(
+async function POSTImpl(
   request: Request,
   ctx: RouteContext<"/api/credits/[id]/pay-link">,
 ) {
@@ -156,3 +157,5 @@ export async function POST(
     return unexpectedResponse(error, "No se pudo generar el cobro del fiado.");
   }
 }
+
+export const POST = withPilotRoute(POSTImpl);

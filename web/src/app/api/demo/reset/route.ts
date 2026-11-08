@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../../lib/auth/pilot-route";
 import { isDemoMode } from "@/lib/config";
 import { DemoResetBlockedError, resetDemoData } from "@/lib/db";
 import {
@@ -7,7 +8,7 @@ import {
   isSameOriginMutation,
 } from "@/lib/http-security";
 
-export async function POST(request: Request) {
+async function POSTImpl(request: Request) {
   if (!isSameOriginMutation(request)) {
     return Response.json(
       { error: "El origen de la petición no está permitido.", code: "cross_origin" },
@@ -64,3 +65,5 @@ export async function POST(request: Request) {
     return internalErrorResponse("demo reset", error);
   }
 }
+
+export const POST = withPilotRoute(POSTImpl);

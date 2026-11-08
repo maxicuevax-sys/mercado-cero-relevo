@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../../../lib/auth/pilot-route";
 import crypto from "node:crypto";
 import QRCode from "qrcode";
 import { z } from "zod";
@@ -154,7 +155,7 @@ async function generatePayment(
   return attachPaymentLink(order.id, link);
 }
 
-export async function POST(request: Request, ctx: RouteContext<"/api/orders/[id]/pay">) {
+async function POSTImpl(request: Request, ctx: RouteContext<"/api/orders/[id]/pay">) {
   const limited = enforceRateLimit(request, "order-pay", 30, 60_000);
   if (limited) return limited;
 
@@ -199,3 +200,5 @@ export async function POST(request: Request, ctx: RouteContext<"/api/orders/[id]
     return unexpectedResponse(error, "No se pudo generar el cobro.");
   }
 }
+
+export const POST = withPilotRoute(POSTImpl);

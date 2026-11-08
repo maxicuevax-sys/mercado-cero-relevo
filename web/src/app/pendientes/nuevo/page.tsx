@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import { FlowScreen } from "@/components/shell/flow-screen";
 import { NewTaskForm } from "./new-task-form";
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: "Nuevo pendiente — Trangui",
 };
 
-export default function NuevoPendientePage() {
+function NuevoPendientePage() {
   return (
     <FlowScreen
       title="Nuevo pendiente"
@@ -19,3 +20,5 @@ export default function NuevoPendientePage() {
     </FlowScreen>
   );
 }
+
+export default withPilotPage(NuevoPendientePage);
