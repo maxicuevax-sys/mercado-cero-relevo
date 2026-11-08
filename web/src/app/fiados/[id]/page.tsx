@@ -11,6 +11,7 @@ import {
   Banknote,
   CreditCard,
   ReceiptText,
+  QrCode,
   Smartphone,
   Tag,
   Wallet,
@@ -281,6 +282,10 @@ export default async function FiadoDetallePage({
             Registrar abono
           </Link>
         )}
+        <Link className="mc-flow__secondary" href="/inicio#cobrar-codi">
+          <QrCode aria-hidden="true" />
+          Cobrar con CoDi
+        </Link>
         <Link className="mc-flow__secondary" href="/fiados">
           <ArrowLeft aria-hidden="true" />
           Volver a Fiados

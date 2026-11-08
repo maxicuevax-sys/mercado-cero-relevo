@@ -99,6 +99,9 @@ export default async function PendientesPage({
           Pendiente guardado. Ya aparece en la lista de hoy.
         </p>
       ) : null}
+      <p className="mc-pend-note">
+        <Link href="/movimientos?filtro=pendientes">Ver movimientos CoDi pendientes</Link>
+      </p>
       <div className="mc-op-grid mc-op-grid--sidebar mc-pend-grid">
         <section
           id="mc-pend-cobros"

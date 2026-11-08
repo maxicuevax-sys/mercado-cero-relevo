@@ -160,7 +160,11 @@ export default async function CortePage() {
         {history.slice(1).map((item) => <div key={item.id}><SavedClose close={item} /></div>)}
       </details>
 
-      <p className="mc-corte-history-link"><Link href="/corte/historial">Ver historial de cortes</Link></p>
+      <p className="mc-corte-history-link">
+        <Link href="/movimientos?filtro=pagados">Ver pagos CoDi</Link>
+        <span aria-hidden="true"> · </span>
+        <Link href="/corte/historial">Ver historial de cortes</Link>
+      </p>
     </OperationalPage>
   );
 }
