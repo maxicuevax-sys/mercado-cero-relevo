@@ -104,6 +104,13 @@ export function CreditPaySheet({
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
+  const [generatingQr, setGeneratingQr] = useState(false);
+  const [qrData, setQrData] = useState<{
+    qrString?: string | null;
+    qrImage?: string | null;
+    numRef?: string | null;
+    paymentUrl?: string | null;
+  } | null>(null);
   const [requestId] = useState(newRequestId);
   const payingRef = useRef(false);
 
@@ -114,6 +121,35 @@ export function CreditPaySheet({
   const returnedCents =
     requestedCents === null ? 0 : Math.max(0, requestedCents - appliedCents);
   const selectedMethod = METHODS.find((option) => option.id === method) ?? null;
+
+  async function generateVerifiableCodiQr() {
+    if (settled) {
+      setError("Ese fiado ya está saldado.");
+      return;
+    }
+    const cents = requestedCents && requestedCents > 0 ? appliedCents : credit.balanceCents;
+    setGeneratingQr(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/credits/${encodeURIComponent(credit.id)}/pay-link`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "qr", amountCents: cents }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "No se pudo generar el QR CoDi.");
+      setQrData({
+        qrString: data.qrString,
+        qrImage: data.qrImage,
+        numRef: data.numRef,
+        paymentUrl: data.paymentUrl,
+      });
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setGeneratingQr(false);
+    }
+  }
 
   async function registerPayment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -335,6 +371,43 @@ export function CreditPaySheet({
               : "Elige un método para registrar el abono."}
           </p>
         </fieldset>
+
+        {method === "codi" ? (
+          <div className="mc-fiados-codi-section" style={{ display: "flex", flexDirection: "column", gap: "8px", marginBlock: "8px" }}>
+            <button
+              type="button"
+              className="mc-caja-button mc-caja-button--secondary"
+              onClick={() => void generateVerifiableCodiQr()}
+              disabled={generatingQr || paying}
+            >
+              {generatingQr ? <Loader2 className="mc-fiados-spin" aria-hidden="true" /> : <Smartphone aria-hidden="true" />}
+              Generar QR CoDi verificable
+            </button>
+            {qrData?.qrImage ? (
+              <div className="mc-fiados-codi-qr" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", padding: "12px", border: "1px solid #dfd2bc", borderRadius: "14px", background: "#fffdf8" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={qrData.qrImage} alt="QR CoDi para abono" style={{ width: 180, height: 180 }} />
+                {qrData.numRef ? (
+                  <p className="mc-caja-numref" role="status" style={{ width: "100%", margin: 0 }}>
+                    <span>Referencia CoDi:</span>
+                    <strong className="mc-caja-numref__digits">#{qrData.numRef}</strong>
+                  </p>
+                ) : null}
+                <a
+                  className="mc-caja-button mc-caja-button--quiet"
+                  style={{ width: "100%", textAlign: "center", textDecoration: "none" }}
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                    `Hola ${credit.customerName ?? ""}, aquí puedes abonar tu fiado mediante CoDi (Referencia #${qrData.numRef}): ${qrData.qrString || qrData.paymentUrl || ""}`,
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Compartir por WhatsApp
+                </a>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
         <label className="mc-fiados-field" htmlFor={noteId}>
           <span className="mc-fiados-field__label">Nota (opcional)</span>

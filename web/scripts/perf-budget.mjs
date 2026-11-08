@@ -220,7 +220,11 @@ function main() {
 
   const rasters = publicRasters();
   const photos = rasters.filter((item) => /\.(jpe?g|webp|avif)$/i.test(item.file));
-  const icons = rasters.filter((item) => /\.(png|ico)$/i.test(item.file));
+  const icons = rasters.filter(
+    (item) =>
+      /\.(png|ico)$/i.test(item.file) &&
+      (item.file.startsWith("public/icons/") || item.file.startsWith("src/app/")),
+  );
   const favicon = rasters.find((item) => item.file.endsWith("favicon.ico"));
   const totals = {
     jsGzip: js.reduce((sum, item) => sum + item.gzip, 0),

@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { isDemoMode } from "@/lib/config";
 import {
   enforceRateLimit,
   hasValidDemoResetToken,
+  hasValidOperatorAccessToken,
+  isPublicPerimeterPath,
   isSameOriginMutation,
   MAX_ORDERS_BYTES,
   MAX_RESET_BYTES,
@@ -62,6 +65,7 @@ export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const method = request.method.toUpperCase();
   const mutating = MUTATING.has(method);
+  const demoMode = isDemoMode();
 
   if (mutating && pathname !== "/api/webhooks/pey") {
     if (!isSameOriginMutation(request)) {
@@ -87,6 +91,30 @@ export function proxy(request: NextRequest) {
         );
       }
     }
+  }
+
+  // En modo producción real (DEMO_MODE=false), ninguna ruta /api/demo/* está
+  // habilitada. Se corta en el Proxy antes de tocar controladores o base.
+  if (!demoMode && (pathname === "/api/demo" || pathname.startsWith("/api/demo/"))) {
+    return jsonError(
+      "El modo demo está desactivado.",
+      "demo_disabled",
+      403,
+    );
+  }
+
+  // Perímetro privado de operadora: cuando OPERATOR_ACCESS_TOKEN está definido,
+  // exige el token en todas las rutas privadas de la caja dejando abierto el
+  // checkout del comprador (/api/checkout/*) y el webhook (/api/webhooks/pey).
+  if (!isPublicPerimeterPath(pathname, demoMode) && !hasValidOperatorAccessToken(request)) {
+    const limited = enforceRateLimit(request, "operator-auth", 20, 60_000);
+    if (limited) return limited;
+
+    return jsonError(
+      "Se requiere acceso de operadora para usar la caja.",
+      "operator_auth_required",
+      401,
+    );
   }
 
   if (mutating) {

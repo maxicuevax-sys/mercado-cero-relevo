@@ -89,18 +89,30 @@ moverlo a Cloudflare WAF/Rate Limiting o a un almacén compartido.
   firmados (`PAYMENT_EVENT_REJECTED_CAP`). Los eventos con firma válida —y por
   tanto auditables— no entran en esa poda.
 
-## 3. Cloudflare Access (despliegue)
+## 3. Cloudflare Access y Perímetro Público/Privado (despliegue)
 
-1. Publica la app por **Cloudflare Tunnel**; no abras el puerto de Next al
-   público. El origen debe aceptar solo tráfico del túnel.
+1. Publica la app por **Cloudflare Tunnel** (Named Tunnel con dominio estable);
+   no abras el puerto de Next al público. El origen debe aceptar solo tráfico
+   del túnel.
 2. En Zero Trust → Access → Applications, protege el dominio completo con una
-   política de identidad (correo, IdP, OTP) o service token para operadores.
-3. Crea una **bypass policy** únicamente para `https://tu-dominio/api/webhooks/pey`
-   (pey no puede autenticarse con Access). La firma Standard Webhooks sigue
-   siendo obligatoria dentro de la ruta.
-4. Mantén `CF-Connecting-IP` como fuente de IP; Cloudflare la sobrescribe.
-5. Revisa los logs de Access para intentos denegados y no compartas el dominio
-   del túnel fuera del equipo durante el hackathon.
+   política de identidad (correo, IdP, OTP) o service token para operadoras.
+3. Crea **bypass policies** únicamente para el perímetro público:
+   - `https://tu-dominio/api/webhooks/pey` (pey no puede autenticarse con Access;
+     la firma Standard Webhooks sigue siendo obligatoria dentro de la ruta).
+   - `https://tu-dominio/pay/*` y `https://tu-dominio/api/checkout/*` (el
+     comprador que abre el link o escanea el QR desde su teléfono necesita ver y
+     pagar su orden sin sesión de comerciante).
+   - `https://tu-dominio/api/health` (sonda de salud y `buildSha` sin datos de
+     negocio).
+4. Como defensa en profundidad a nivel de aplicación, puedes definir
+   `OPERATOR_ACCESS_TOKEN` en `.env.local`: el Proxy (`web/src/proxy.ts`) exige
+   ese token (`x-operator-token`, `Authorization: Bearer` o cookie
+   `mc_operator_token`) en todas las rutas privadas de `/api/*`, mientras
+   mantiene abierto el perímetro público anterior.
+5. En producción (`DEMO_MODE=false`), el Proxy corta cualquier petición a
+   `/api/demo/*` (`/api/demo/pay`, `/api/demo/reset`) con `403 demo_disabled`.
+6. Mantén `CF-Connecting-IP` como fuente de IP; Cloudflare la sobrescribe.
+7. Revisa los logs de Access para intentos denegados.
 
 ## 4. Secretos y ACL de `.env.local`
 

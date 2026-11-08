@@ -42,6 +42,9 @@ export interface Order {
   qrString: string | null;
   qrImage: string | null;
   numRef: string | null;
+  qrExpiresAt: string | null;
+  codiPushId: string | null;
+  codiPhoneMasked: string | null;
   createdAt: string;
   updatedAt: string;
   items: OrderItem[];
@@ -79,6 +82,13 @@ export interface Credit {
   balanceCents: number;
   status: CreditStatus;
   dueDate: string | null;
+  paymentLinkId?: string | null;
+  paymentUrl?: string | null;
+  qrId?: string | null;
+  qrString?: string | null;
+  qrImage?: string | null;
+  numRef?: string | null;
+  qrExpiresAt?: string | null;
   createdAt: string;
 }
 
@@ -86,9 +96,11 @@ export interface CreditPayment {
   id: string;
   creditId: string;
   amountCents: number;
-  /** `cash` o `declared`; nunca `pey`. */
+  /** `cash`, `declared` o `pey` (abono confirmado). */
   provider: string;
   method: PaymentMethod;
+  transactionId?: string | null;
+  rawEvent?: string | null;
   requestId: string | null;
   createdAt: string;
 }
