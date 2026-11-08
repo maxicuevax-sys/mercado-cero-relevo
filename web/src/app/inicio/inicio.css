@@ -1735,3 +1735,32 @@ html[data-contrast="high"] .inicio-nav__item[aria-current="page"]:focus-visible 
     text-align: center;
   }
 }
+
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1 {
+    max-width: none;
+    font-size: clamp(1.6rem, 8vw, 2.1rem);
+    line-height: 1.05;
+    letter-spacing: -.04em;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-sun {
+    position: relative;
+    top: -8px;
+    align-self: start;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1 {
+    max-width: 10ch;
+    line-height: 1.04;
+  }
+}
+
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1 {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+}
