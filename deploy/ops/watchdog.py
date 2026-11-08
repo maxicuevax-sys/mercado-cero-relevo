@@ -53,13 +53,36 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
-def check_access():
+def public_response(path, opener):
+    request = urllib.request.Request('https://mercado.zicua.com' + path,
+        headers={'User-Agent': 'Mozilla/5.0 MercadoCeroMonitor/1', 'Accept': 'application/json'})
+    try:
+        return opener.open(request, timeout=20)
+    except urllib.error.HTTPError as error:
+        return error
+
+
+def check_access(target=None):
+    target = target or load_runtime_target(ROOT / 'runtime-target.json')
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
+    if target['requireJudgeAccounts']:
+        with public_response('/api/health', opener) as response:
+            if response.code != 200:
+                raise ValueError('Public judge health is not available without Access')
+            body = response.read(8193)
+            if len(body) > 8192:
+                raise ValueError('Public health response exceeds limit')
+            health = json.loads(body)
+        with public_response('/api/access/session', opener) as response:
+            status = response.code
+        verify_readiness(health, target, status)
+        return
     request = urllib.request.Request(
         'https://mercado.zicua.com/api/health',
         headers={'User-Agent': 'Mozilla/5.0 MercadoCeroMonitor/1', 'Accept': 'text/html'},
     )
     try:
-        response = urllib.request.build_opener(NoRedirect()).open(request, timeout=20)
+        response = opener.open(request, timeout=20)
     except urllib.error.HTTPError as error:
         response = error
     try:
@@ -137,13 +160,18 @@ def main():
             raise ValueError('Invalid runtime target configuration')
         check_origin(target)
 
+    def check_target_access():
+        if target is None:
+            raise ValueError('Invalid runtime target configuration')
+        check_access(target)
+
     def check_target_backup():
         if target is None:
             raise ValueError('Invalid runtime target configuration')
         verify_backup(json.loads((ROOT / 'last-success.json').read_text(encoding='utf-8-sig')), now, target)
 
     for name, check in [
-        ('Access publico', check_access), ('Origen VPS', check_target_origin),
+        ('Acceso publico', check_target_access), ('Origen VPS', check_target_origin),
         ('Respaldo externo', check_target_backup),
     ]:
         try:

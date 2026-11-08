@@ -5,10 +5,43 @@ from types import SimpleNamespace
 import json
 import contextlib
 import io
-from watchdog import transition, verify_backup, check_origin, main
+from watchdog import transition, verify_backup, check_origin, check_access, ACCESS_PREFIX, main
 
 
 class WatchdogChecks(unittest.TestCase):
+    def public_mock(self, code, payload=None, location=None):
+        response = io.BytesIO(json.dumps(payload or {}).encode())
+        response.code = code
+        response.headers = {'Location': location} if location else {}
+        return response
+
+    def test_public_judge_requires_exact_https_health_and_anonymous_session(self):
+        target = {'version': 1, 'buildSha': 'a' * 40, 'requireJudgeAccounts': True}
+        health = {'ok': True, 'buildSha': target['buildSha']}
+        with patch('watchdog.urllib.request.build_opener') as factory:
+            factory.return_value.open.side_effect = [self.public_mock(200, health), self.public_mock(401)]
+            check_access(target)
+            urls = [call.args[0].full_url for call in factory.return_value.open.call_args_list]
+            self.assertEqual(urls, ['https://mercado.zicua.com/api/health', 'https://mercado.zicua.com/api/access/session'])
+        for status, value in [(302, health), (200, {'ok': True, 'buildSha': 'b' * 40})]:
+            with patch('watchdog.urllib.request.build_opener') as factory:
+                factory.return_value.open.side_effect = [self.public_mock(status, value), self.public_mock(401)]
+                with self.assertRaises(ValueError): check_access(target)
+        for status in [200, 302, 503]:
+            with patch('watchdog.urllib.request.build_opener') as factory:
+                factory.return_value.open.side_effect = [self.public_mock(200, health), self.public_mock(status)]
+                with self.assertRaises(ValueError): check_access(target)
+
+    def test_legacy_still_requires_access_redirect(self):
+        target = {'version': 1, 'buildSha': 'a' * 40, 'requireJudgeAccounts': False}
+        with patch('watchdog.urllib.request.build_opener') as factory:
+            factory.return_value.open.return_value = self.public_mock(302, location=ACCESS_PREFIX + '?redirect=fixture')
+            check_access(target)
+        for code, location in [(200, None), (302, 'https://other.example')]:
+            with patch('watchdog.urllib.request.build_opener') as factory:
+                factory.return_value.open.return_value = self.public_mock(code, location=location)
+                with self.assertRaises(ValueError): check_access(target)
+
     def test_healthy_start_is_silent(self):
         self.assertIsNone(transition({}, True, 0)[1])
 

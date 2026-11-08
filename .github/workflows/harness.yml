@@ -60,6 +60,7 @@ jobs:
           python3 ../deploy/ops/test_verify_judge_snapshot.py
           pwsh -NoProfile -File ../deploy/ops/test-backup-windows.ps1
           python3 ../deploy/ops/test_runtime_target.py
+          python3 ../deploy/ops/test_legacy_archive.py
           python3 ../deploy/ops/test_watchdog.py
           python3 ../deploy/ops/test_validate_judge_release.py
           node --test ../deploy/ops/configure-kuma.test.cjs

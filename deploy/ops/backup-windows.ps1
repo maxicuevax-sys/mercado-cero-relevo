@@ -21,6 +21,25 @@ function Test-RecoveryHelperVersion([string]$Trusted, [string]$Captured) {
     $capturedCode = [IO.File]::ReadAllText($Captured, $utf8).Replace("`r`n", "`n")
     return [String]::Equals($localCode, $capturedCode, [StringComparison]::Ordinal)
 }
+function ConvertTo-BackupInstant([object]$Value) {
+    # PS7 can turn JSON dates into DateTime while PS5 preserves ISO strings.
+    # Never stringify DateTime: the invariant cast and local Parse cultures differ.
+    if ($Value -is [DateTimeOffset]) { return $Value.ToUniversalTime() }
+    if ($Value -is [DateTime]) {
+        if ($Value.Kind -eq [DateTimeKind]::Unspecified) { throw 'Backup timestamp requires an explicit time zone' }
+        return ([DateTimeOffset]::new($Value)).ToUniversalTime()
+    }
+    if ($Value -isnot [string] -or
+        -not [regex]::IsMatch($Value, '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$')) {
+        throw 'Backup timestamp must be an ISO instant with an explicit time zone'
+    }
+    return ([DateTimeOffset]::Parse($Value, [Globalization.CultureInfo]::InvariantCulture,
+        [Globalization.DateTimeStyles]::None)).ToUniversalTime()
+}
+function Test-JudgeCaptureFreshness([object]$SnapshotTime, [object]$CapturedAt) {
+    $captureAge = (ConvertTo-BackupInstant $SnapshotTime) - (ConvertTo-BackupInstant $CapturedAt)
+    return $captureAge.TotalMinutes -le 15 -and $captureAge.TotalMinutes -ge -5
+}
 try {
     $encrypted = [IO.File]::ReadAllBytes((Join-Path $taskRoot 'restic-password.dpapi'))
     $clear = [Security.Cryptography.ProtectedData]::Unprotect($encrypted, $null, [Security.Cryptography.DataProtectionScope]::CurrentUser)
@@ -33,12 +52,14 @@ try {
     if ($VerifyRestore) { Invoke-Restic check --read-data } else { Invoke-Restic check }
     $snapshots = & $resticExe snapshots --json --host mercado-cero-pilot | ConvertFrom-Json
     if ($LASTEXITCODE -ne 0 -or -not $snapshots) { throw 'No off-host snapshots available' }
-    $latest = $snapshots | Sort-Object time | Select-Object -Last 1
-    $snapshotAge = [DateTimeOffset]::UtcNow - [DateTimeOffset]::Parse($latest.time)
+    $latest = $snapshots | Sort-Object { (ConvertTo-BackupInstant $_.time).UtcDateTime.Ticks } | Select-Object -Last 1
+    $snapshotInstant = ConvertTo-BackupInstant $latest.time
+    $snapshotTime = $snapshotInstant.ToString('o')
+    $snapshotAge = [DateTimeOffset]::UtcNow - $snapshotInstant
     if ($snapshotAge.TotalHours -gt 3 -or $snapshotAge.TotalMinutes -lt -5) {
         throw 'Source snapshot is stale or its timestamp is invalid; copying old data is not a current backup'
     }
-    $report = [ordered]@{ ok = $true; timestamp = [DateTime]::UtcNow.ToString('o'); sourceSnapshotTime = $latest.time; snapshot = $latest.id; restoreVerified = $false; destination = $taskRoot }
+    $report = [ordered]@{ ok = $true; timestamp = [DateTime]::UtcNow.ToString('o'); sourceSnapshotTime = $snapshotTime; snapshot = $latest.id; restoreVerified = $false; destination = $taskRoot }
     if ($VerifyRestore) {
         if ($latest.id -notmatch '^[a-f0-9]{64}$') { throw 'Invalid source snapshot identifier' }
         # The full ID plus the 64-character tenant directory exceeds MAX_PATH on
@@ -91,16 +112,15 @@ try {
                 if ($hash -ne $line[0].Substring(0,64)) { throw 'Judge recovery metadata checksum mismatch' }
             }
             $capture = Get-Content (Join-Path $judgeTools 'capture.json') -Raw | ConvertFrom-Json
-            $captureAge = [DateTimeOffset]::Parse($latest.time) - [DateTimeOffset]::Parse($capture.capturedAt)
-            if ($captureAge.TotalMinutes -gt 15 -or $captureAge.TotalMinutes -lt -5) { throw 'Judge capture is stale' }
-            & python $verifier $judgeDir --snapshot-time $latest.time
+            if (-not (Test-JudgeCaptureFreshness $snapshotInstant $capture.capturedAt)) { throw 'Judge capture is stale' }
+            & python $verifier $judgeDir --snapshot-time $snapshotTime
             if ($LASTEXITCODE -ne 0) { throw 'Judge snapshot validation failed' }
             $judgeRestored = Join-Path $restoreDir 'judge-application-restored'
             if (-not (Test-Path $judgeRestored)) {
                 & node --no-warnings $localRecovery restore $judgeDir $judgeRestored
                 if ($LASTEXITCODE -ne 0) { throw 'Judge restore failed; inactive destination is not approved' }
             }
-            $judgeResult = & python $verifier $judgeDir --restored-root $judgeRestored --snapshot-time $latest.time
+            $judgeResult = & python $verifier $judgeDir --restored-root $judgeRestored --snapshot-time $snapshotTime
             if ($LASTEXITCODE -ne 0) { throw 'Judge restored data validation failed' }
             $judgeStatus = $judgeResult | ConvertFrom-Json
             $report['judgeSnapshotVerified'] = $true

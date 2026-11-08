@@ -4,6 +4,9 @@ const DEFAULT_TARGET_PATH = '/opt/mercado-cero/pilot/runtime-target.json';
 const LEGACY_SHA = '09b4f8d1aa63f40682e2e4082034fe952a1dd1e2';
 const BUILD_NAME = 'Mercado Cero · build de aplicación';
 const BUILD_URL = 'http://127.0.0.1:4590/api/health';
+const ACCESS_NAME = 'Mercado Cero · barrera Access';
+const PRIVATE_URL = 'https://mercado.zicua.com/inicio';
+const PUBLIC_SESSION_URL = 'https://mercado.zicua.com/api/access/session';
 
 function validateRuntimeTarget(value) {
     if (!value || Array.isArray(value) || typeof value !== 'object' ||
@@ -38,8 +41,9 @@ function buildMonitors(target, backupPushToken) {
             keyword: target.buildSha, accepted_statuscodes: ['200'] },
         { name: 'Mercado Cero · túnel listo', type: 'http',
             url: 'http://127.0.0.1:20459/ready', accepted_statuscodes: ['200'] },
-        { name: 'Mercado Cero · barrera Access', type: 'http',
-            url: 'https://mercado.zicua.com/inicio', accepted_statuscodes: ['302'] },
+        { name: ACCESS_NAME, type: 'http',
+            url: target.requireJudgeAccounts ? PUBLIC_SESSION_URL : PRIVATE_URL,
+            accepted_statuscodes: [target.requireJudgeAccounts ? '401' : '302'], method: 'GET', maxredirects: 0 },
     ];
     if (backupPushToken) monitors.push({ name: 'Mercado Cero · respaldo reciente', type: 'push',
         pushToken: backupPushToken, interval: 7200, accepted_statuscodes: ['200'] });
@@ -55,22 +59,37 @@ function planBuildUpdate(existing, target) {
     return existing.keyword === target.buildSha ? null : { ...existing, keyword: target.buildSha };
 }
 
+function planAccessUpdate(existing, target) {
+    target = validateRuntimeTarget(target);
+    if (!existing || existing.name !== ACCESS_NAME || existing.type !== 'http' ||
+        ![PRIVATE_URL, PUBLIC_SESSION_URL].includes(existing.url) ||
+        !Number.isInteger(existing.id) || existing.id < 1) {
+        throw new Error('Managed public access monitor identity does not match');
+    }
+    const url = target.requireJudgeAccounts ? PUBLIC_SESSION_URL : PRIVATE_URL;
+    const accepted_statuscodes = [target.requireJudgeAccounts ? '401' : '302'];
+    return existing.url === url && JSON.stringify(existing.accepted_statuscodes) === JSON.stringify(accepted_statuscodes) &&
+        existing.maxredirects === 0 && existing.method === 'GET' ? null :
+        { ...existing, url, accepted_statuscodes, maxredirects: 0, method: 'GET' };
+}
+
 async function reconcile(emit, existing, target, backupPushToken, report = () => {}) {
     const desired = buildMonitors(target, backupPushToken);
     for (const monitor of desired) {
         const matches = existing.filter(item => item.name === monitor.name);
         if (matches.length > 1) throw new Error('Ambiguous managed monitor name');
         if (matches.length) {
-            if (monitor.name !== BUILD_NAME) continue;
+            if (monitor.name !== BUILD_NAME && monitor.name !== ACCESS_NAME) continue;
+            const plan = monitor.name === BUILD_NAME ? planBuildUpdate : planAccessUpdate;
             // getMonitor and editMonitor verified against installed Kuma 2.5.9
             // /app/server/server.js:1016 and :818. Edit requires the FULL object.
-            if (planBuildUpdate(matches[0], target)) {
+            if (plan(matches[0], target)) {
                 const full = (await emit('getMonitor', matches[0].id)).monitor;
                 if (full?.id !== matches[0].id) throw new Error('Managed monitor ID changed');
-                const update = planBuildUpdate(full, target);
+                const update = plan(full, target);
                 if (update) {
                     await emit('editMonitor', update);
-                    report({ name: BUILD_NAME, id: update.id, updated: true });
+                    report({ name: monitor.name, id: update.id, updated: true });
                 }
             }
             continue;
@@ -129,5 +148,5 @@ async function main() {
     });
 }
 
-module.exports = { validateRuntimeTarget, loadRuntimeTarget, buildMonitors, planBuildUpdate, reconcile, targetPathFromArgs };
+module.exports = { validateRuntimeTarget, loadRuntimeTarget, buildMonitors, planBuildUpdate, planAccessUpdate, reconcile, targetPathFromArgs };
 if (require.main === module) main().catch(() => { console.error('Kuma setup failed'); process.exitCode = 1; });
