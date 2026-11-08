@@ -32,9 +32,9 @@ const alder = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Trangui · La caja que habla",
+  title: "Trangui · Tu mostrador digital",
   description:
-    "Cobra por voz, acepta CoDi, tarjeta y efectivo, y confirma un pago solo cuando el banco lo confirma.",
+    "Registra ventas, fiados y caja en un solo lugar. Prueba Trangui en modo demo, sin mover dinero.",
   applicationName: "Trangui",
   formatDetection: {
     telephone: false,

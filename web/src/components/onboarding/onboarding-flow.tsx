@@ -61,7 +61,7 @@ export function OnboardingFlow({ profile }: { profile: BusinessProfile | null })
       <div className="onb-intro">
         <p className="onb-eyebrow">Tu puesto, a tu manera</p>
         <h1 id="onb-title">¿Qué vendes<br />en tu puesto?</h1>
-        <p className="onb-copy">Te sugeriremos productos y ejemplos para tu negocio.</p>
+        <p className="onb-copy">Verás productos y ejemplos para tu giro.</p>
         <Image src={shopArt} alt="" aria-hidden="true" className="onb-art" sizes="(max-width: 760px) 100px, 360px" />
       </div>
       <form className="onb-form" onSubmit={submit} aria-busy={busy} noValidate>

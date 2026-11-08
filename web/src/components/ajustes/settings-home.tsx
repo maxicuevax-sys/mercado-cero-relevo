@@ -36,7 +36,7 @@ export function SettingsHome({ merchant, address, demo, accountMode = false }: {
 
   async function signOut() {
     if (!accountMode) {
-      setNotice("Este prototipo no tiene sesión local que cerrar. El acceso se administra fuera de la app; tus datos y preferencias se conservan.");
+      setNotice("En esta versión el acceso se controla fuera de la app. No hay una sesión local que cerrar; tus datos y preferencias se conservan.");
       return;
     }
     if (signingOut) return;
@@ -54,7 +54,7 @@ export function SettingsHome({ merchant, address, demo, accountMode = false }: {
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.assign("/acceso");
     } catch {
-      setNotice("No pudimos completar el cierre de sesión. Revisa tu conexión e inténtalo de nuevo.");
+      setNotice("No pudimos cerrar sesión. Revisa tu conexión y vuelve a intentarlo.");
     } finally {
       setSigningOut(false);
     }
@@ -96,7 +96,7 @@ export function SettingsHome({ merchant, address, demo, accountMode = false }: {
       Icon: Coins,
       content: (
         <div className="mc-settings-subpanel">
-          <p>Efectivo, pago digital y fiado se eligen en Caja. Las comisiones y la configuración del proveedor no se editan desde este prototipo.</p>
+          <p>Elige efectivo, pago digital o fiado en Caja. Por ahora no puedes cambiar aquí las comisiones ni la configuración del proveedor.</p>
           <div className="mc-settings-meta">
             <div>
               <strong>CoDi / Pey:</strong>{" "}
@@ -132,7 +132,7 @@ export function SettingsHome({ merchant, address, demo, accountMode = false }: {
       title: "Notificaciones",
       detail: "Avisos de ventas, cobros y pendientes",
       Icon: Bell,
-      content: <p>Los avisos de dinero permanecen visibles. Puedes ajustar las sugerencias opcionales más abajo.</p>,
+      content: <p>Seguirás viendo los avisos de dinero. Más abajo puedes elegir si quieres las sugerencias opcionales.</p>,
     },
     {
       title: "Seguridad",

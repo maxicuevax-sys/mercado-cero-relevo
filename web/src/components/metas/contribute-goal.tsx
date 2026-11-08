@@ -154,7 +154,7 @@ export function ContributeGoalButton({
       <ModalDialog
         open={open}
         title={`Apartar a ${goal.title}`}
-        description={`Faltan ${formatMxn(remaining)} para llegar a la meta. El apartado es un registro declarado: el efectivo sigue en tu resguardo.`}
+        description={`Faltan ${formatMxn(remaining)} para llegar a la meta. Aquí anotas lo que apartas; el efectivo sigue contigo.`}
         onClose={closeDialog}
         closeDisabled={saving}
       >

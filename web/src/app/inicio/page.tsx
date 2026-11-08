@@ -179,7 +179,7 @@ async function InicioPage({ searchParams }: { searchParams: Promise<{ pedido?: s
         <Image src={registerNative} alt="" aria-hidden="true" className="inicio-native-register" sizes="130px" />
         <div className="inicio-hero__content">
           <h2 id="inicio-hero-title">Nueva venta</h2>
-          <p>Registra y cobra en segundos.</p>
+          <p>Anota la venta y elige cómo cobrar.</p>
           <div className="inicio-hero__actions">
           <Link href="/caja" className="inicio-hero__cta">
             <Plus aria-hidden="true" /><MaskIcon src={iconCompras} className="inicio-hero__mobile-icon" /><span className="inicio-hero__desktop-label">Registrar</span><span className="inicio-hero__mobile-label">Nueva venta</span>
@@ -227,12 +227,12 @@ async function InicioPage({ searchParams }: { searchParams: Promise<{ pedido?: s
             className="inicio-pending__empty"
             title="No hay pendientes abiertos."
           >
-            Anota uno desde la pestaña Tareas.
+            Anota lo que te falta hacer en Pendientes.
           </EmptyState>
         )}
         {taskFixture ? (
           <p className="inicio-pending__fixture">
-            Ejemplos demo; no son tareas reales. Se administran en Tareas.
+            Son tareas de ejemplo de la demo. Anota tus propios pendientes en Pendientes.
           </p>
         ) : null}
       </section>

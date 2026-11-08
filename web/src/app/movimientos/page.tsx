@@ -381,8 +381,7 @@ async function MovimientosPage({
               <div className="mc-mov-empty mc-mov-empty--compact" role="status">
                 <h3 className="mc-mov-empty__title">{emptyTitle}</h3>
                 <p className="mc-mov-empty__body">
-                  Cambia el filtro para ver todo el historial de solicitudes y
-                  pagos.
+                  Prueba otro filtro para encontrar la solicitud o el pago que buscas.
                 </p>
                 <Link href="/movimientos" className="mc-mov-empty__link">
                   Ver todos
@@ -441,8 +440,7 @@ async function MovimientosPage({
                 El QR pide el pago; el banco lo confirma.
               </p>
               <p className="mc-mov-hero__note">
-                Este historial separa lo que se pidió de lo que ya entró. Un QR
-                o un link generado no suma a «Dinero recibido».
+                Aquí ves lo que falta cobrar y los pagos recibidos. Generar un QR o un enlace no suma dinero a «Dinero recibido».
               </p>
             </div>
             <Image

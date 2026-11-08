@@ -27,7 +27,7 @@ function NotificacionesPage() {
       <section className="mc-op-panel" aria-labelledby="notificaciones-empty">
         <h2 id="notificaciones-empty" className="mc-op-panel__title">Sin notificaciones nuevas</h2>
         <p className="mc-op-panel__meta">
-          Aquí aparecerán los avisos de Cobro CoDi. Mientras tanto, revisa tus movimientos o pendientes.
+          Los avisos de cobros todavía no están conectados aquí. Revisa el estado de cada cobro en Movimientos.
         </p>
         <p><Link href="/movimientos">Ver movimientos</Link> · <Link href="/pendientes">Ver pendientes</Link></p>
       </section>

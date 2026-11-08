@@ -241,7 +241,7 @@ export function SaleVoice({ disabled, onAdd, businessType }: { disabled: boolean
         </button>)}
         <button type="button" className="mc-sale-voice__chip mc-sale-voice__chip--more" disabled={disabled || busy} onClick={openManual}><Plus aria-hidden="true" /><span>Más</span></button>
       </div>
-      {preset ? <p className="mc-sale-preset-note">Ejemplos editables: usa tus propias cantidades y precios.</p> : null}
+      {preset ? <p className="mc-sale-preset-note">Son ejemplos. Usa tus cantidades y precios.</p> : null}
       <div className={`mc-sale-voice__actions${!busy && !text.trim() ? " mc-sale-voice__actions--idle" : ""}`}>
         <p id="mc-sale-voice-hint" role="status">{phase === "recording" ? "Escuchando… Pulsa detener al terminar. Máximo 30 segundos." : phase === "permission" ? "Esperando permiso de micrófono…" : phase === "transcribing" ? "Transcribiendo audio…" : phase === "parsing" ? "Interpretando venta…" : "Pulsa el micrófono para dictar o escribe la venta."}</p>
         {busy ? <button type="button" className="mc-caja-clear" onClick={cancel}>Cancelar dictado</button> : text.trim() ? <button type="button" className="mc-caja-button mc-caja-button--secondary" disabled={disabled} onClick={() => void parseText()}>Interpretar</button> : null}

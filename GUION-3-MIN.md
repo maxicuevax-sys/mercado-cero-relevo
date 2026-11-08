@@ -1,110 +1,62 @@
-# Guion narrado — 3 minutos
+# Trangui · guion para una presentación de tres minutos
 
-> Ensaya con cronómetro y en voz alta. Las acciones van entre corchetes.
-> Habla a unas 140 palabras por minuto; si te apuras, corta la frase marcada con ✂.
-> En modo demo, di **“esto es modo demo”** y señala el sello. Nunca presentes un pago simulado como real.
+Los tiempos son una distribución propuesta, no un ensayo medido. Se lee únicamente el texto después de **VOZ:**; las líneas **ACCIÓN:** son indicaciones para quien presenta.
 
----
+## Preparación
 
-## 0:00–0:20 · El problema
+Usar una cuenta de demo aislada y una versión cuya identidad se haya comprobado. Completar el giro del puesto si la cuenta es nueva; abrir Inicio. Confirmar antes del ensayo que Caja no tenga un borrador pendiente. Los negocios, ventas y saldos de ejemplo no se presentan como historias de personas reales.
 
-Lupita vende quesadillas en Coyoacán. Casi todo es efectivo, pero cuando le transfieren, el dinero cae en la cuenta de su hija Ana. Para saber si ya le pagaron, Lupita tiene que llamarle, esperar una captura y confiar. Si la captura es falsa, pierde la venta.
+Mantener visible el sello de demo. Usar la navegación real: Inicio, Caja, Fiados y Corte. No abrir una cuenta de producción, simular un recorrido que no esté disponible ni sustituir un fallo por una captura de otra versión.
 
-[Señala la cabecera con **Antojitos de Lupita**.]
+## 0:00–0:30 · Para qué existe
 
-Mercado Cero convierte esa duda en un estado claro: **pendiente, pagado o fiado**.
+ACCIÓN: Mostrar Inicio. Dejar que se vea la marca Trangui y el sello DEMO.
 
-## 0:20–0:50 · La venta
+VOZ: Comprar mercancía, atender, dar cambio, recordar quién quedó a deber y revisar la caja ocupan atención. A veces una venta termina, pero la cuenta sigue en la cabeza. Trangui viene de «tranqui». Queremos que llevar el puesto requiera menos trabajo mental. Todavía tenemos que comprobar si lo conseguimos con quienes lo van a usar.
 
-[Caja es la pantalla inicial.]
+## 0:30–0:45 · La caja empieza vacía
 
-Lupita no navega menús: habla.
+ACCIÓN: Abrir Caja desde la navegación. Señalar el ticket vacío y las sugerencias, sin pulsarlas.
 
-[Pulsa la frase **“Dos quesadillas de 35 y un agua de 20”**.]
+VOZ: Esta es Caja. Empieza vacía. Las sugerencias son ejemplos que se pueden editar; la persona decide qué vende y cuánto cuesta. También puede escribir o agregar un concepto a mano.
 
-“Dos quesadillas de 35 y un agua de 20.” La caja arma el pedido: dos quesadillas, un agua, noventa pesos.
+## 0:45–1:20 · Registrar efectivo de demo
 
-[Señala **$90.00**.]
+ACCIÓN: En Montos rápidos directos, pulsar **Agregar monto $20**. Señalar el concepto y el total. Después pulsar **Cobrar efectivo exacto** y mostrar el resultado.
 
-Si hay ruido, también puede escribirlo. ✂ *Si el tiempo aprieta, omite esta frase.*
+VOZ: Voy a agregar veinte pesos como ejemplo. El monto entra al ticket para revisarlo; todavía no hay una venta registrada. Ahora indico que recibí el efectivo exacto. La pantalla dice que es una venta de demo. Es un registro de efectivo declarado, no una confirmación bancaria.
 
-[Pulsa **Cobrar**.]
+## 1:20–1:55 · Mostrar el límite de la simulación
 
-## 0:50–1:20 · El cobro
+ACCIÓN: Volver a Inicio. En **Cobrar con CoDi**, escribir **20** en Monto a cobrar y pulsar **Cobrar $20.00**. Mostrar el QR y **Esperando pago**. Pulsar **Simular pago CoDi**; señalar **Pago simulado**.
 
-[Pulsa **Link de pago**.]
+VOZ: En Inicio también puedo mostrar el recorrido digital. Escribo el monto y aparece un QR. Aquí sigue esperando pago: mostrar el código no significa haber cobrado. Voy a simularlo. El resultado dice «Pago simulado». No entró dinero real. Esta presentación no valida un cobro bancario con Pey.
 
-Un solo link, un solo QR. El cliente paga con CoDi; si la cuenta tiene Stripe, también tarjeta, Apple Pay o Google Pay.
+## 1:55–2:20 · Volver a una cuenta pendiente
 
-[Muestra el QR.]
+ACCIÓN: Abrir Fiados. Mostrar la lista de ejemplo sin registrar un abono. Después abrir Corte y señalar el resumen; no cerrar ni guardar un corte durante este recorrido.
 
-La caja no dice “pagado” hasta que llega el webhook firmado de pey. Una captura no cuenta.
+VOZ: En Fiados puedo volver a los saldos pendientes sin contarlos como dinero recibido. Corte reúne los registros para revisar el día y contar el efectivo. Lo que ven aquí son datos de ejemplo. Queremos saber si esta forma de organizar las cuentas resulta clara al trabajar.
 
-[Si es demo, pulsa **Simular CoDi**. Sale **Pago demo (simulado)**; di: “Esto es modo demo; el sello lo indica.” Cierra con **Cerrar demo**.]
+## 2:20–3:00 · Qué falta demostrar
 
-## 1:20–1:50 · Anti-fraude
+ACCIÓN: Mantener Corte visible. Terminar mirando al público; no añadir pasos para llenar el tiempo.
 
-[Cierra el overlay con **Cerrar demo**. Pulsa **Verificar** en la cabecera y luego **Probar con un comprobante falso**.]
+VOZ: Aún no hemos medido ahorro de tiempo, dinero ni cansancio. Queremos observar a comerciantes usando la app, ver dónde se detienen y cuánto necesitan corregir. Si Trangui les pide repetir datos o les añade pendientes, hay que cambiarla. Buscamos colaboración para hacer esas pruebas. La meta es que, al cerrar el puesto, queden menos cuentas dando vueltas en la cabeza.
 
-Si el ID no existe en la cuenta de pey, no es un pago verificable. La app no se impresiona con capturas.
+## Recuento y duración
 
-[Señala **No verificado**.]
+<!-- RECUENTO: actualizar después de editar las líneas VOZ. -->
 
-## 1:50–2:20 · Fiado y voz
+La narración tiene **283 palabras** en seis intervenciones VOZ, contadas automáticamente por separación de espacios. Se excluyen títulos, indicaciones y notas.
 
-[Vuelve a **Caja** y pulsa **“Juan me pagó 50 del fiado”**.]
+A una velocidad supuesta de **140 palabras por minuto**, el texto ocupa aproximadamente **2:01**. Si las acciones y pausas suman entre **50 y 60 segundos**, la presentación quedaría entre **2:51 y 3:01**. Es una estimación, no una duración ensayada. El cronómetro decidirá qué ajustar.
 
-La voz abre la hoja con el saldo vivo y el monto; no escribe nada sola.
+## Antes de presentarlo
 
-[Elige **Efectivo** en “¿Cómo lo recibiste?” y pulsa **Registrar abono**.]
-
-El fiado no es una venta nueva: es un abono. El saldo de Juan baja de cincuenta a cero solo al confirmar.
-
-[Pulsa **“¿Cuánto vendí hoy?”**.]
-
-La voz también sirve para consultar, pero el dinero verificado y la deuda viven separados.
-
-## 2:20–2:40 · Mi negocio y corte
-
-[Abre **Corte** y baja a **Así va la caja**. Cambia **Hoy / Semana / Mes**.]
-
-La comerciante ve cuánto vendió, cuánto cobró de verdad, cuánto le deben y su ticket promedio.
-
-[En **Corte**, revisa **Antes de cerrar** y pulsa el icono **Actualizar corte**.]
-
-El abono de Juan sumó cincuenta pesos en efectivo: debería haber quinientos cincuenta.
-
-[Pulsa **Contar por billetes y monedas**; escribe **5** de $100, **1** de $50 y **0** de $20.]
-
-Cuadra. Todo sale del mismo registro.
-
-[Pulsa **Guardar corte** y confirma la hoja. Queda **Corte #1**.]
-
-## 2:40–3:00 · Mi camino y cierre
-
-[Abre **Meta**. Escribe **25** y pulsa **Apartar**.]
-
-Aparta veinticinco pesos para su sombrilla. No es una cuenta de ahorro: es un apartado declarado.
-
-[Señala **$325.00**.]
-
-De vender para el día a día a construir el negocio que quiere.
-
-> El mercado no necesita más apps. Necesita certeza.
-
----
-
-## Versión de 60 segundos (si cortan el tiempo)
-
-Lupita cobra en la cuenta de su hija y depende de una captura para saber si le pagaron. Mercado Cero le permite cobrar hablando, genera un link o QR y solo marca **pagado** cuando llega el webhook firmado de pey. También registra efectivo, fiado, corte de caja y una meta concreta. El mercado no necesita más apps: necesita certeza.
-
-## Checklist de ensayo
-
-- [ ] El texto narrado son **311 palabras**: ~2:13 a 140 palabras/min + ~45 s de acciones.
-- [ ] Cronómetro visible; empieza en 0:00.
-- [ ] Hazlo tres veces seguidas.
-- [ ] La tercera debe terminar en **2:50–3:00**.
-- [ ] Si te pasas de 3:00, corta la frase marcada con ✂ y acelera el cambio Hoy/Semana/Mes.
-- [ ] Si te quedas antes de 2:30, respira y deja que el jurado vea el QR y el sello **CUADRA**.
-- [ ] Di “modo demo” sin bajar la voz.
-- [ ] Cierra con la frase final mirando al jurado, no a la pantalla.
+- Ensayar en voz alta con cronómetro y ejecutar las acciones sobre la versión que se mostrará. Registrar la duración real y ajustar las pausas.
+- Comprobar que ambos recorridos de cobro estén disponibles. Si fallan, explicar el fallo; no afirmar que se completaron.
+- Conservar las palabras **demo**, **simulado** y **no entró dinero real**, aunque se acorte el texto.
+- Si preguntan por impacto, responder que todavía debe medirse. Si preguntan por pagos reales, separar la integración técnica con Pey de un cobro bancario efectivamente validado.
+- Para preguntas sobre jornadas, consultar DataMéxico: [vendedores ambulantes](https://www.economia.gob.mx/datamexico/es/profile/occupation/vendedores-ambulantes) y [comerciantes en establecimientos](https://www.economia.gob.mx/datamexico/es/profile/occupation/comerciantes-en-establecimientos). Explicar que sus categorías no identifican por sí solas a tianguistas ni prueban carga mental. No asumir que todas las personas tienen otro empleo.
+- Si preguntan por el código, explicar que el código original es abierto bajo [Apache License 2.0](LICENSE). Los materiales de terceros conservan sus propios términos; el alcance está en [LICENSING.md](LICENSING.md). Queremos que la comunidad pueda revisar el código, adaptarlo a prácticas locales y aportar mejoras con comerciantes y personas que trabajan en accesibilidad. Es una invitación, no una afirmación de que ya exista una comunidad activa.

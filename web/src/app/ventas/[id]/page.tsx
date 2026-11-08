@@ -256,8 +256,7 @@ async function DetalleVentaPage({
           </h2>
           <p className="mc-dv-notes__body">Sin notas</p>
           <p className="mc-dv-notes__hint">
-            Esta versión todavía no guarda notas por pedido; el detalle no
-            inventa texto.
+            Por ahora no puedes guardar notas en un pedido.
           </p>
         </div>
       </section>
@@ -276,10 +275,9 @@ async function DetalleVentaPage({
           Devolver venta
         </button>
         <p id="mc-dv-refund-note" className="mc-dv-refund__note">
-          No disponible en esta versión. No existe un endpoint que revierta el
-          cobro ni un pago confirmado, y no se simula una devolución. Si
-          necesitas corregir la venta, hazlo fuera del sistema y no la marques
-          como devuelta aquí.
+          Por ahora no puedes devolver una venta ni revertir un cobro desde
+          esta app. Si necesitas corregirla, hazlo fuera del sistema. Aquí
+          no se registra ni se simula una devolución.
         </p>
       </section>
 

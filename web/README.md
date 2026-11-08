@@ -1,3 +1,15 @@
+# Trangui · aplicación web
+
+Consulta el [README principal](../README.md) para conocer el producto, su licencia y los límites de la demo. La verificación está documentada en [HARNESS.md](../HARNESS.md); los comandos npm se ejecutan desde esta carpeta. Usa Node 24. La configuración de despliegue está en [`deploy/`](../deploy/), y no requiere Vercel.
+
+Para escribir textos consulta [VOZ-TRANGUI.md](../VOZ-TRANGUI.md).
+
+## Plantilla histórica del generador
+
+El contenido siguiente es la plantilla original de create-next-app. Sus referencias a Geist y Vercel no describen la tipografía ni el despliegue de Trangui.
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

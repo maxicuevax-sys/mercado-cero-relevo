@@ -443,7 +443,7 @@ export function TasksPanel({
               ? `No encontré “${query.trim()}” en los pendientes de hoy.`
               : tasks.length === 0
                 ? "Anota el primero: pagar al proveedor, recibir un pedido o llamar a un cliente."
-                : "Los completados quedan en su pestaña. Anota otro cuando algo quede para después."}
+                : "Revisa las tareas terminadas en Completados. Anota aquí lo que dejes para después."}
           </p>
           <div className="mc-pend-empty__actions">
             {isFiltered ? (
@@ -491,7 +491,7 @@ export function TasksPanel({
           <p className="mc-pend-empty__text">
             {isFiltered
               ? `No encontré “${query.trim()}” entre las tareas hechas.`
-              : "Cuando marques uno, se moverá aquí con la fecha en que lo terminaste."}
+              : "Cuando completes una tarea, aparecerá aquí con la fecha en que la terminaste."}
           </p>
           <div className="mc-pend-empty__actions">
             {isFiltered ? (

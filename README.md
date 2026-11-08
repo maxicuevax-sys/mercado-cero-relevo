@@ -1,3 +1,42 @@
+# Trangui
+
+**Un mostrador digital para llevar menos pendientes en la cabeza.**
+
+Trangui viene de *tranqui*. Buscamos que quien atiende un puesto de tianguis pueda registrar una venta, saber qué quedó fiado y revisar su caja sin reconstruir el día de memoria.
+
+Comprar mercancía, preparar el puesto, atender, cobrar y volver a surtir exige atención. Diseñamos alrededor de esas tareas: reunir la información necesaria, evitar capturas repetidas y explicar qué sigue. Reducir la carga mental es nuestro objetivo; todavía debemos medirlo con comerciantes.
+
+## Conoce la propuesta actual
+
+- [Pitch](PITCH.md) y [guion de demostración](GUION-3-MIN.md): propósito social, recorrido actual y límites de la demo.
+- **Qué puedes probar:** cuentas demo con datos separados, elección de giro, Caja inicialmente vacía, registro de efectivo, cobro digital simulado, ventas, movimientos, fiados y corte. Metas y Pendientes siguen en la navegación real.
+- **Qué falta demostrar:** un cobro real de extremo a extremo con Pey y el efecto del producto sobre tiempo, errores y esfuerzo percibido. Un QR o una captura no confirma un depósito. Una simulación no mueve dinero.
+- **Código abierto:** el código original se publica bajo [Apache 2.0](LICENSE). Consulta [LICENSING.md](LICENSING.md) para materiales de terceros; las imágenes y fuentes conservan sus propios términos.
+
+## Construir con la comunidad
+
+Queremos que comerciantes, desarrolladores y personas que prueban accesibilidad puedan revisar Trangui y proponer mejoras. Una aportación útil explica qué tarea intentó resolver, qué pasos sobraron y qué ocurrió. No hace falta proponer otra pantalla para señalar un problema.
+
+Para un reporte incluye ruta, pasos y dispositivo, sin datos de clientes ni secretos. Para un cambio de código lee [AGENTS.md](AGENTS.md) y [HARNESS.md](HARNESS.md), conserva la dirección visual y adjunta pruebas. Usa una rama por trabajo coherente, con los commits necesarios. La participación de la comunidad es una invitación, no una validación de campo que ya hayamos realizado.
+
+Aplicamos [Humanizer](https://github.com/blader/humanizer) como apoyo editorial: lenguaje concreto, sin exageraciones ni hechos inventados. La revisión no oculta el uso de IA ni reemplaza comprobar las fuentes.
+
+## Datos, sin estirar lo que dicen
+
+Data México reporta **31.6 horas semanales** para [vendedores ambulantes](https://www.economia.gob.mx/datamexico/es/profile/occupation/vendedores-ambulantes) y **46.8 horas** para [comerciantes en establecimientos](https://www.economia.gob.mx/datamexico/es/profile/occupation/comerciantes-en-establecimientos), en México, primer trimestre de 2026; consulta del 8 de noviembre de 2026. Son poblaciones distintas. Ninguna equivale exclusivamente a tianguistas ni mide carga mental o tiempo que Trangui ahorraría. No sumamos sus promedios ni suponemos que todas las personas tengan otro empleo.
+
+Proponemos comparar tareas con el método habitual de cada comerciante: finalización sin ayuda, errores, correcciones, pasos, tiempo y esfuerzo percibido. Es un plan de validación, no un resultado obtenido. No prometemos horas libres, menos estrés o mayores ingresos sin pruebas.
+
+## Estado técnico y documentación
+
+La aplicación está en `web/`. Usa Node 24 y consulta [HARNESS.md](HARNESS.md) para instalar, construir y verificar un commit limpio. [El reporte de integración](diego-reviewed-integration-report.md) identifica el lote técnico previo y su evidencia. Sus resultados pertenecen a los SHA indicados; no acreditan automáticamente cada cambio posterior ni el despliegue público.
+
+## Archivo histórico de Mercado Cero
+
+**Todo el contenido que sigue pertenece a etapas anteriores del proyecto.** Conservamos sus fuentes y evidencia sin reescribirlas. Los nombres, porcentajes, pruebas, videos, puertos, túneles, instrucciones y promesas de aquella etapa requieren comprobación antes de usarse. No describen por sí solos la versión actual de Trangui. Para presentar el producto usa el pitch y el guion enlazados arriba.
+
+---
+
 # Mercado Cero
 
 **La caja que habla.** Cobra, confirma y cuadra sin aprender un sistema.

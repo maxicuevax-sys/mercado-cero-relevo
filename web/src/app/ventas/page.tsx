@@ -77,7 +77,7 @@ async function VentasPage({
       title="Ventas"
       titleId="ventas-title"
       eyebrow="Historial"
-      subtitle="Consulta las ventas registradas. Los importes son ventas, no necesariamente dinero cobrado."
+      subtitle="Revisa tus ventas y cuánto falta cobrar. Una venta registrada todavía puede estar pendiente de pago."
       actions={
         <Link href="/caja" className="mc-ventas-cta">
           <Mic aria-hidden="true" />
@@ -183,8 +183,7 @@ async function VentasPage({
             Todavía no hay ventas registradas.
           </h2>
           <p className="mc-ventas-empty__body">
-            Registra la primera venta desde Caja. Aquí verás el historial y el
-            estado de cobro de cada pedido.
+            Anota tu primera venta en Caja. Aquí podrás revisar el pedido y si ya lo cobraste.
           </p>
           <Link href="/caja" className="mc-ventas-empty__link">
             Ir a Caja
@@ -388,8 +387,7 @@ async function VentasPage({
               Ventas registradas, dinero por confirmar.
             </p>
             <p className="mc-ventas-hero__note">
-              Cada fila distingue lo cobrado, lo pendiente y lo fiado. Un pedido
-              pagado no es lo mismo que un pedido registrado.
+              Cada venta muestra cuánto cobraste, cuánto falta y cuánto quedó fiado. Registrar el pedido no significa que ya esté pagado.
             </p>
           </div>
           <Image
