@@ -188,7 +188,11 @@ export function SaleVoice({ disabled, onAdd, businessType }: { disabled: boolean
           if (!response.ok || typeof value.text !== "string") throw new Error(value.error || "No pude transcribir el audio. Puedes escribir la venta.");
           setText(value.text);
           await interpret(value.text, token);
-        } catch (reason) { failure(reason, token); } finally { finish(token); }
+        } catch (reason) {
+          failure(reason, token);
+          setPhase("idle");
+          active.current = false;
+        } finally { finish(token); }
       };
       capture.start(); setPhase("recording");
       timer.current = setTimeout(() => { if (capture.state === "recording") capture.stop(); }, 30000);

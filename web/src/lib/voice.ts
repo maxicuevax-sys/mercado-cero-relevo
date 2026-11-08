@@ -9,6 +9,10 @@ export { mockParse };
  * Kokoro/Piper siguen siendo la salida TTS; esto es solo entrada de voz.
  */
 
+export class SttNoSpeechError extends Error {
+  constructor() { super("No se escuchó una venta en el audio."); this.name = "SttNoSpeechError"; }
+}
+
 export async function transcribeAudio(file: File): Promise<string> {
   const endpoint =
     process.env.LOCAL_STT_URL ?? "http://127.0.0.1:4097/transcribe";
@@ -24,7 +28,7 @@ export async function transcribeAudio(file: File): Promise<string> {
   }
   const data = (await response.json()) as { text?: string };
   const text = (data.text ?? "").trim();
-  if (!text) throw new Error("El STT local no devolvió texto.");
+  if (!text) throw new SttNoSpeechError();
   return text;
 }
 

@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useId, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { CalendarDays, Check, Clock3, Loader2, NotebookPen } from "lucide-react";
 import tasksNative from "@/assets/definitive-a/tasks.png";
 import { addDaysToDateKey, mexicoDateKey } from "@/lib/mexico-date";
@@ -36,7 +35,6 @@ function dueIso(day: DayChoice, time: string): string | null {
 }
 
 export function NewTaskForm() {
-  const router = useRouter();
   const titleId = useId();
   const timeId = useId();
   const amountId = useId();
@@ -83,7 +81,8 @@ export function NewTaskForm() {
       if (!response.ok) {
         throw new Error(body.error ?? "No pude guardar el pendiente. Intenta de nuevo.");
       }
-      router.push("/pendientes?creada=1");
+      // Navegación completa: evita que el Router Cache sirva la lista anterior.
+      window.location.assign("/pendientes?creada=1");
     } catch (caught) {
       setError(
         caught instanceof Error && caught.message

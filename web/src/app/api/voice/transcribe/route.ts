@@ -8,7 +8,7 @@ import {
   MAX_TRANSCRIBE_BYTES,
   readFormDataLimited,
 } from "@/lib/http-security";
-import { transcribeAudio } from "@/lib/voice";
+import { SttNoSpeechError, transcribeAudio } from "@/lib/voice";
 
 async function POSTImpl(request: Request) {
   // Esta ruta está fuera del matcher del Proxy para no bufferizar 12 MB:
@@ -60,6 +60,12 @@ async function POSTImpl(request: Request) {
     const text = await transcribeAudio(audio);
     return Response.json({ text });
   } catch (error) {
+    if (error instanceof SttNoSpeechError) {
+      return Response.json(
+        { error: "No escuché una venta. Habla más cerca del micrófono o escribe la venta.", code: "no_speech" },
+        { status: 422 },
+      );
+    }
     return internalErrorResponse("voice transcribe", error);
   }
 }
