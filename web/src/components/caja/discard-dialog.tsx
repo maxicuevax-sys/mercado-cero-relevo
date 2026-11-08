@@ -40,6 +40,21 @@ export function DiscardDialog({ title, description, confirmLabel, onCancel, onCo
       aria-modal="true"
       onCancel={(event) => { event.preventDefault(); onCancel(); }}
       onClick={(event) => { if (event.target === event.currentTarget) onCancel(); }}
+      onKeyDown={(event) => {
+        if (event.key !== "Tab") return;
+        // Keep the boundary inside the card, including browsers that otherwise
+        // move focus to browser chrome before cycling through a native dialog.
+        const buttons = event.currentTarget.querySelectorAll<HTMLButtonElement>("button:not(:disabled)");
+        const first = buttons[0];
+        const last = buttons[buttons.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }}
     >
       <div className="mc-caja-discard__card">
         <div className="mc-caja-discard__head">

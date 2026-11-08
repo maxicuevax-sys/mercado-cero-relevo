@@ -110,12 +110,22 @@ for (const width of [1448, 1280]) {
           expect(linkBounds.y).toBeGreaterThanOrEqual(0);
           expect(linkBounds.y + linkBounds.height).toBeLessThanOrEqual(1086);
         }
-        await expect(rail.locator(`a[href="${route}"]`)).toHaveAttribute("aria-current", "page");
+        await expect(rail.locator(`a.inicio-nav__item[href="${route}"]`)).toHaveAttribute("aria-current", "page");
         if (route === "/caja") await expect(page.getByText("Aún no hay conceptos.", { exact: true })).toBeVisible();
+        await page.screenshot({ path: testInfo.outputPath(`${route.slice(1)}-${width}.png`), fullPage: true });
       });
     }
     await expectCodiGeometry(page);
     await page.screenshot({ path: testInfo.outputPath(`inicio-codi-${width}.png`), fullPage: true });
+    const hub = page.locator("#cobrar-codi");
+    await hub.getByRole("button", { name: /^Cobrar \$100/ }).click();
+    await expect(hub.getByRole("img", { name: /^QR de cobro CoDi/ })).toBeVisible();
+    await expect(hub.getByRole("heading", { name: "Esperando pago", exact: true })).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath(`inicio-codi-qr-${width}.png`), fullPage: true });
+    await hub.getByRole("button", { name: "Simular pago CoDi", exact: true }).click();
+    await expect(hub.getByRole("heading", { name: "Pago simulado", exact: true })).toBeVisible();
+    await expect(hub.getByText(/No lo cuentes como cobrado/)).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath(`inicio-codi-simulado-${width}.png`), fullPage: true });
 
     // Presentation evidence only; B1 owns discard/restore behavior contracts.
     await page.locator("aside.inicio-sidebar").getByRole("link", { name: "Caja", exact: true }).click();
