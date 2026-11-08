@@ -24,10 +24,18 @@ stamp=$(date -u +%Y%m%dT%H%M%SZ)
 inside="/data/backups/auto-$stamp.db"
 stage="$root/backup-current"
 mkdir -p "$stage/database" "$stage/config"
-trap 'app_exec rm -f "$inside" >/dev/null 2>&1 || true' EXIT
-app_exec node deploy/snapshot.mjs "$inside"
-"$engine" cp "$container:$inside" "$stage/database/mercado-cero.db.partial"
-mv "$stage/database/mercado-cero.db.partial" "$stage/database/mercado-cero.db"
+legacy_mode=$(python3 "$root/ops/legacy_archive.py" mode)
+if [[ "$legacy_mode" == archive ]]; then
+  python3 "$root/ops/legacy_archive.py" capture
+elif [[ "$legacy_mode" == legacy ]]; then
+  trap 'app_exec rm -f "$inside" >/dev/null 2>&1 || true' EXIT
+  app_exec node deploy/snapshot.mjs "$inside"
+  "$engine" cp "$container:$inside" "$stage/database/mercado-cero.db.partial"
+  mv "$stage/database/mercado-cero.db.partial" "$stage/database/mercado-cero.db"
+  rm -f "$stage/database/legacy-archive.json"
+else
+  exit 1
+fi
 cp "$root/pilot.env" "$root/cloudflared.env" "$stage/config/"
 cp /etc/containers/systemd/mercado-cero-{tunnel,kuma,litestream}.container "$stage/config/"
 if [ -f /etc/containers/systemd/mercado-cero-pilot.container ]; then
@@ -38,6 +46,7 @@ if [ -f /etc/systemd/system/mercado-cero-pilot.service ]; then
 fi
 if [ -f "$root/app-runtime.env" ]; then cp "$root/app-runtime.env" "$stage/config/"; fi
 if [ -f "$root/runtime-target.json" ]; then cp "$root/runtime-target.json" "$stage/config/"; fi
+if [ -f "$root/legacy-archive.json" ]; then cp "$root/legacy-archive.json" "$stage/config/"; fi
 if [ -f "$root/judge-backup.env" ]; then cp "$root/judge-backup.env" "$stage/config/"; fi
 cp -a "$root/ops" "$stage/config/"
 if [ -d "$root/recovery-source" ]; then cp -a "$root/recovery-source" "$stage/"; fi

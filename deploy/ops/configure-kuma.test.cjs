@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 // Import has no socket.io-client requirement, stdin read, network or timer.
-const { loadRuntimeTarget, buildMonitors, planBuildUpdate, reconcile, targetPathFromArgs } = require('./configure-kuma.cjs');
+const { loadRuntimeTarget, buildMonitors, planBuildUpdate, planAccessUpdate, reconcile, targetPathFromArgs } = require('./configure-kuma.cjs');
 const target = { version: 1, buildSha: 'a'.repeat(40), requireJudgeAccounts: true };
 const desired = buildMonitors(target);
 const existing = desired.map((monitor, index) => ({ ...monitor, id: index + 1 }));
@@ -62,4 +62,24 @@ test('missing build is created with desired SHA; existing unrelated monitors unt
     assert.equal(calls[0][0], 'add');
     assert.equal(calls[0][1].keyword, target.buildSha);
     assert.equal(calls[0][1].url, 'http://127.0.0.1:4590/api/health');
+});
+
+test('public judge reconciles only owned Access monitor, preserving ID and notification settings; rollback restores private check', async () => {
+    const legacy = buildMonitors({ ...target, requireJudgeAccounts: false }).map((m, i) => ({ ...m, id: i + 1 }));
+    const full = { ...legacy[2], interval: 91, notificationIDList: { 7: true } };
+    const calls = [];
+    await reconcile(async (event, payload) => {
+        calls.push([event, payload]);
+        return event === 'getMonitor' ? { monitor: full } : { ok: true };
+    }, legacy, target);
+    assert.deepEqual(calls.map(x => x[0]), ['getMonitor', 'editMonitor']);
+    const updated = calls[1][1];
+    assert.equal(updated.id, full.id);
+    assert.equal(updated.url, 'https://mercado.zicua.com/api/access/session');
+    assert.deepEqual(updated.accepted_statuscodes, ['401']);
+    assert.deepEqual(updated.notificationIDList, full.notificationIDList);
+    const rollback = planAccessUpdate(updated, { ...target, requireJudgeAccounts: false });
+    assert.equal(rollback.url, 'https://mercado.zicua.com/inicio');
+    assert.deepEqual(rollback.accepted_statuscodes, ['302']);
+    assert.throws(() => planAccessUpdate({ ...full, url: 'https://foreign.example' }, target));
 });
