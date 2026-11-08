@@ -445,8 +445,8 @@ export function TasksPanel({
                 ? "Anota el primero: pagar al proveedor, recibir un pedido o llamar a un cliente."
                 : "Revisa las tareas terminadas en Completados. Anota aquí lo que dejes para después."}
           </p>
-          <div className="mc-pend-empty__actions">
-            {isFiltered ? (
+          {isFiltered ? (
+            <div className="mc-pend-empty__actions">
               <button
                 type="button"
                 className="mc-pend-cta mc-pend-cta--secondary"
@@ -454,16 +454,8 @@ export function TasksPanel({
               >
                 Limpiar búsqueda
               </button>
-            ) : (
-              <Link
-                href="/pendientes/nuevo"
-                className="mc-pend-cta mc-pend-cta--secondary"
-              >
-                <Plus className="mc-pend-icon" aria-hidden="true" />
-                Nuevo pendiente
-              </Link>
-            )}
-          </div>
+            </div>
+          ) : null}
         </div>
       </div>
     );

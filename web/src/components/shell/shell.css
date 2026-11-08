@@ -472,3 +472,9 @@
 .inicio-shell [tabindex="-1"]:focus-visible {
   outline: none;
 }
+
+/* Los títulos reciben foco programático; no deben mostrar recuadro. */
+.inicio-shell [tabindex="-1"]:focus,
+.inicio-shell [tabindex="-1"]:focus-visible {
+  outline: none !important;
+}
