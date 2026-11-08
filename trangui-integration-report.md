@@ -25,3 +25,7 @@ Los resultados verificables se guardan en `harness/evidence/runs/trangui-access/
 Revisión independiente: se reprodujo una asignación incorrecta por numRef compartido entre venta y fiado. Ahora las referencias ambiguas o contradictorias devuelven 409 sin escrituras. Siete pruebas del contrato pasan; las colisiones de generación requieren renovar la referencia, no asignar el dinero por prioridad.
 
 B1: el supuesto de tres productos demo precargados ya no aplica: CajaScreen inicia lines=[] y limpia el borrador de ejemplo. El check equivalente compone tres líneas con el formulario visible y conserva count=3, descarte visible >=44px y count=0 tras confirmar; no elimina aserciones.
+
+B1 también adapta dos supuestos del shell aprobado: Ajustes requiere desplazar la sidebar; se conserva hit-test y se añade navegación real. La navegación móvil cambió de 3+2 a cinco controles: se verifica la composición real a 200%, targets >=44px, viewport, ausencia de obstrucción y Más→Ajustes.
+
+Ajuste posterior del usuario: reducir ambas ilustraciones para dar respiración. Login conserva la escena completa a 86% del ancho disponible; registro reduce arte de 64% a 55%, con texto separado de la ilustración.

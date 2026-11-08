@@ -23,7 +23,7 @@
 .access-heading h1 { margin: 0 0 4px; color: #080b08; font: 800 clamp(1.9rem, 8.8vw, 2.65rem)/.98 Georgia, serif; letter-spacing: -.045em; }
 .access-heading h1 > span { display: block; }
 .access-subtitle { margin: 0 0 1px; color: var(--access-muted); font-size: clamp(.9rem, 4.1vw, 1.15rem); line-height: 1.4; }
-.access-illustration { position: relative; width: calc(100% + 8px); margin: 0 -4px 9px; aspect-ratio: 894 / 395; overflow: hidden; border-radius: 17px; }
+.access-illustration { position: relative; width: 86%; margin: 8px auto 18px; aspect-ratio: 894 / 395; overflow: hidden; border-radius: 17px; }
 /* Only the artwork window of the supplied reference is shown. All controls,
    titles, branding and copy are real HTML; the original bitmap is unchanged. */
 .access-illustration img { position: absolute; top: -126.582278%; left: -2.684564%; width: 105.257271%; max-width: none; height: auto; }

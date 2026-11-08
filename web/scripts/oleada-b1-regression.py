@@ -417,10 +417,14 @@ def main() -> int:
         page.set_viewport_size({"width": 1366, "height": 768})
         page.goto(BASE + "/caja", wait_until="domcontentloaded")
         page.wait_for_timeout(500)
-        settings_hit = page.evaluate(
-            """() => {
-              const link = document.querySelector('a[href="/ajustes"]');
-              if (!link) return null;
+        # DSH has a scrollable sidebar with more destinations. Bring the real
+        # sidebar link into view as a user would before checking obstruction;
+        # querying the first document-wide anchor can select an offscreen copy.
+        settings = page.locator('.inicio-sidebar:visible a[href="/ajustes"]')
+        expect(settings).to_be_visible()
+        settings.scroll_into_view_if_needed()
+        settings_hit = settings.evaluate(
+            """link => {
               const r = link.getBoundingClientRect();
               const hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
               return {
@@ -431,10 +435,12 @@ def main() -> int:
             }"""
         )
         check(
-            "P1-11 Ajustes sigue clicable sobre la barra de cobro",
+            "P1-11 Ajustes sigue clicable al desplazar la navegación de Caja",
             bool(settings_hit and settings_hit["hitHref"] == "/ajustes"),
             str(settings_hit),
         )
+        settings.click()
+        page.wait_for_url(re.compile(r"/ajustes/?$"), timeout=15_000)
 
         # P1-01 · dos pestañas con el mismo draft no duplican la venta.
         reset(page)
@@ -761,20 +767,40 @@ def main() -> int:
         )
         pg.screenshot(path=str(OUT / "p1-04-mobile-checkout.png"), full_page=True)
 
-        # Preserve the original 3+2 navigation check on a screen that renders
-        # it, at the same viewport and text scale. Hidden computed styles are
-        # not evidence that navigation is usable.
+        # DSH replaces the former 3+2 layout with five primary controls:
+        # Inicio, Movimientos, Cobrar, Caja and Más. Preserve visible navigation
+        # and text-scale coverage on Inicio, where the nav is rendered.
         pg.goto(BASE + "/inicio", wait_until="domcontentloaded")
         pg.evaluate("document.documentElement.style.fontSize='32px'")
         nav = pg.locator(".mc-mobile-nav")
         expect(nav).to_be_visible()
-        expect(nav).to_have_css("grid-template-columns", re.compile(r"^\S+ \S+ \S+$"))
+        expect(nav).to_have_css("grid-template-columns", re.compile(r"^\S+(?: \S+){4}$"))
         nav_columns = nav.evaluate("el => getComputedStyle(el).gridTemplateColumns")
-        check(
-            "P1-04 nav móvil 3+2 a 200%",
-            nav.is_visible() and len(nav_columns.split()) == 3,
-            nav_columns,
+        controls = nav.locator(":scope > a, :scope > details > summary")
+        expect(controls).to_have_count(5)
+        control_boxes = controls.evaluate_all(
+            """elements => elements.map(el => {
+              const r = el.getBoundingClientRect();
+              const hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+              return { x: r.x, y: r.y, right: r.right, bottom: r.bottom,
+                width: r.width, height: r.height, hittable: !!hit && el.contains(hit) };
+            })"""
         )
+        check(
+            "P1-04 nav móvil DSH de cinco controles a 200% sin recorte ni obstrucción",
+            nav.is_visible() and len(nav_columns.split()) == 5
+            and all(box["width"] >= 44 and box["height"] >= 44
+                    and 0 <= box["x"] < box["right"] <= 391
+                    and 0 <= box["y"] < box["bottom"] <= 845
+                    and box["hittable"] for box in control_boxes),
+            f"{nav_columns} / {control_boxes}",
+        )
+        nav.locator(".mc-mobile-nav__more > summary").click()
+        mobile_settings = nav.locator('.mc-mobile-nav__panel a[href="/ajustes"]')
+        expect(mobile_settings).to_be_visible()
+        mobile_settings.click()
+        pg.wait_for_url(re.compile(r"/ajustes/?$"), timeout=15_000)
+        check("P1-04 Más permite abrir Ajustes a 200%", True)
         pg.close()
 
         # ------------------------------------------------------------------
