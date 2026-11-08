@@ -1,3 +1,4 @@
+import { currentTenantDatabase } from "./auth/tenant-scope";
 import crypto from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
@@ -16,7 +17,7 @@ import type {
 
 const dataDir = path.join(process.cwd(), "data");
 const dbPath = process.env.DATABASE_PATH ?? path.join(dataDir, "mercado-cero.db");
-const backupDir =
+const legacyBackupDir =
   process.env.DATABASE_BACKUP_DIR ?? path.join(dataDir, "backups");
 /** Retención local: se conservan los backups más recientes, no todos. */
 const MAX_BACKUPS = 5;
@@ -76,13 +77,19 @@ function ensureDir() {
 }
 
 export function getDb(): DatabaseSync {
-  if (db) return db;
-  ensureDir();
+  const tenant = currentTenantDatabase();
+  if (tenant?.closed) throw new Error("Tenant database scope is closed");
+  if (!tenant && process.env.JUDGE_DEMO_ACCOUNTS === "true") {
+    throw new Error("A verified account tenant context is required");
+  }
+  if (tenant?.database) return tenant.database;
+  if (!tenant && db) return db;
+  if (!tenant) ensureDir();
 
   // La conexión solo se publica cuando la migración y el seed terminaron.
   // Si algo falla, se cierra y `db` sigue en null: la siguiente petición
   // vuelve a intentar el arranque completo en vez de servir una base a medias.
-  const database = new DatabaseSync(dbPath);
+  const database = new DatabaseSync(tenant?.databasePath ?? dbPath);
   try {
     database.exec("PRAGMA journal_mode = WAL;");
     database.exec("PRAGMA busy_timeout = 5000;");
@@ -97,12 +104,13 @@ export function getDb(): DatabaseSync {
     } catch {
       // La conexión pudo quedar inutilizable; conservamos el error original.
     }
-    db = null;
+    if (!tenant) db = null;
     throw error;
   }
 
-  db = database;
-  return db;
+  if (tenant) tenant.database = database;
+  else db = database;
+  return database;
 }
 
 function migrate(database: DatabaseSync) {
@@ -2114,6 +2122,7 @@ function listRealPeyPayments(database: DatabaseSync): RealPaymentRow[] {
 }
 
 function pruneBackups(keep = MAX_BACKUPS) {
+  const backupDir = currentTenantDatabase()?.backupDirectory ?? legacyBackupDir;
   let names: string[];
   try {
     names = fs.readdirSync(/*turbopackIgnore: true*/ backupDir);
@@ -2151,6 +2160,7 @@ function pruneBackups(keep = MAX_BACKUPS) {
  * detener el servidor.
  */
 function backupDatabase(database: DatabaseSync): string {
+  const backupDir = currentTenantDatabase()?.backupDirectory ?? legacyBackupDir;
   fs.mkdirSync(backupDir, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   let target = path.join(backupDir, `mercado-cero-${stamp}.db`);

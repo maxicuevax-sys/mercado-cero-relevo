@@ -43,7 +43,8 @@
     "test:pilot-identity": "node --no-warnings --test scripts/pilot-identity.test.mjs",
     "test:register-validation": "node --no-warnings --test scripts/register-validation.test.mjs",
     "test:pilot-browser": "playwright test -c playwright.pilot.config.ts",
-    "test:access-ui": "playwright test -c playwright.access.config.ts"
+    "test:access-ui": "playwright test -c playwright.access.config.ts",
+    "test:tenant-business": "node --no-warnings --test scripts/tenant-business.test.mjs"
   },
   "dependencies": {
     "@zxing/browser": "^0.2.1",
