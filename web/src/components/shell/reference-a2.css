@@ -249,7 +249,7 @@ html[data-contrast="high"] .mc-reference-a :is(.inicio-definitive-welcome-art,.i
 /* Menú de 5 posiciones: columnas simétricas para que el QR quede al centro
    exacto de la barra y no quede un hueco a la derecha. */
 .inicio-shell.mc-reference-a .mc-mobile-nav {
-  grid-template-columns: .9fr 1.2fr 1fr 1.2fr .9fr;
+  grid-template-columns: .85fr 1.3fr 1fr 1.3fr .85fr;
 }
 .inicio-shell.mc-reference-a .mc-mobile-nav__sale {
   justify-self: center;
@@ -260,4 +260,30 @@ html[data-contrast="high"] .mc-reference-a :is(.inicio-definitive-welcome-art,.i
     font-size: .6875rem;
     padding-inline: 2px;
   }
+}
+
+/* El item central debe ocupar su columna; el círculo QR conserva 52px. */
+.inicio-shell.mc-reference-a .mc-mobile-nav__sale {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  justify-self: stretch;
+}
+.inicio-shell.mc-reference-a .mc-mobile-nav__sale-circle {
+  width: 52px;
+  min-width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+}
+@media (max-width: 340px) {
+  .inicio-shell.mc-reference-a .mc-mobile-nav__sale-circle {
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+  }
+}
+
+@media (max-width: 400px) {
+  .inicio-shell.mc-reference-a .mc-mobile-nav__item { font-size: .6875rem; padding-inline: 2px; }
 }
