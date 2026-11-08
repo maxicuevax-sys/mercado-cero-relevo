@@ -41,3 +41,9 @@ Login/registro/cierre eliminan únicamente claves mercado-cero:/trangui: de loca
 Se conserva la UI y Caja vacía. La suite nueva prueba sesiones de dos navegadores, acceso con IDs ajenos, inventario de wrappers, revocación y limpieza de borradores. Resultado de ejecución se guarda en evidencia por SHA; no declarar aprobada antes de correrla.
 
 Registro local funcional bajo flag no equivale a apertura pública: quedan recuperación conjunta, provisión del propietario, cuotas de uso/almacenamiento y canary antes de modificar Cloudflare/VPS.
+
+## Correcciones verificadas durante el ensayo
+
+El primer ensayo de navegador demostró registro/sesión y bloqueo de rutas, pero la venta autenticada devolvió503. Diagnóstico de producción: copiar la Request proxificada de Next lanzaba un error de campos privados antes de ejecutar la venta. Se conserva la Request original y se evita304 en cachedJson solamente dentro de un contexto de cuenta. Siete pruebas de aislamiento/caché pasan; el legado conserva sus validadores.
+
+El limitador nativo de Better Auth sigue activo.429 conserva Retry-After y se muestra su mensaje; las pruebas esperan ese intervalo, sin desactivar el límite. Los mensajes503 de registro cerrado solo se usan con sus códigos explícitos, distinguiendo cupo lleno o servicio no disponible. La prueba de dos sesiones también se añade a CI con Chromium, datos temporales y sin claves reales.

@@ -30,11 +30,11 @@ export function RegisterScreen() {
     setBusy(true);
     try {
       const response = await fetch("/api/access/sign-up", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(result.values), cache: "no-store" });
-      if (response.status === 503) {
+      const data = await response.json().catch(() => null);
+      if (response.status === 503 && data?.code === "registration_not_open") {
         setError("El registro de pruebas todavía no está abierto.");
         return;
       }
-      const data = await response.json().catch(() => null);
       if (response.ok && data?.ok === true) {
         clearAppBrowserState();
         // A full navigation discards the previous account's in-memory client state.

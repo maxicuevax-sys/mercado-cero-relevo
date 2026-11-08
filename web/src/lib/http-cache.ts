@@ -1,3 +1,4 @@
+import { currentTenantDatabase } from "./auth/tenant-scope";
 import crypto from "node:crypto";
 import { promisify } from "node:util";
 import { gzip } from "node:zlib";
@@ -44,16 +45,18 @@ export async function cachedJson(
   payload: unknown,
   profile: CacheProfile,
 ): Promise<Response> {
+  const tenant = Boolean(currentTenantDatabase());
   const body = JSON.stringify(payload);
   const etag = etagFor(body);
   const headers = new Headers({
     "Content-Type": "application/json; charset=utf-8",
-    "Cache-Control": CACHE_PROFILES[profile],
+    "Cache-Control": tenant ? "private, no-store" : CACHE_PROFILES[profile],
     ETag: etag,
-    Vary: "Accept-Encoding",
+    Vary: tenant ? "Accept-Encoding, Cookie" : "Accept-Encoding",
   });
 
-  if (ifNoneMatchMatches(request.headers.get("if-none-match"), etag)) {
+  if (tenant) headers.delete("ETag");
+  if (!tenant && ifNoneMatchMatches(request.headers.get("if-none-match"), etag)) {
     return new Response(null, { status: 304, headers });
   }
 

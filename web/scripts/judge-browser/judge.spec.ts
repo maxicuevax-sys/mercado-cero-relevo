@@ -65,7 +65,23 @@ async function signUp(page: Page, email: string) {
   await page.getByLabel("Tu nombre", { exact: true }).fill("Juez temporal");
   await page.getByLabel("Correo electrónico", { exact: true }).fill(email);
   await page.getByLabel("Crea una contraseña", { exact: true }).fill(password);
-  await page.getByRole("button", { name: "Crear mi cuenta", exact: true }).click();
+  for (let attempt = 0; attempt <= 2; attempt += 1) {
+    const pending = page.waitForResponse(response => response.url().endsWith("/api/access/sign-up") && response.request().method() === "POST");
+    await page.getByRole("button", { name: "Crear mi cuenta", exact: true }).click();
+    const response = await pending;
+    if (response.status() === 429 && attempt < 2) {
+      expect((await page.context().request.get("/api/access/session")).status(), "Rate limiting must not create a session").toBe(401);
+      const retryAfter = Number(response.headers()["retry-after"]);
+      expect(Number.isInteger(retryAfter), "Native limiter must provide Retry-After seconds").toBe(true);
+      expect(retryAfter).toBeGreaterThanOrEqual(1);
+      expect(retryAfter).toBeLessThanOrEqual(10);
+      await page.waitForTimeout(retryAfter * 1000);
+      continue;
+    }
+    expect(response.status()).toBe(200);
+    expect(await response.json(), "The browser gets an HttpOnly cookie, never a bearer token").toEqual({ ok: true });
+    break;
+  }
   await expect(page).toHaveURL(/\/inicio$/);
   const session = await page.context().request.get("/api/access/session");
   expect(session.status()).toBe(200);

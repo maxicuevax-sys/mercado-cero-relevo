@@ -13,13 +13,10 @@ export function withPilotRoute<Args extends unknown[]>(
       const { verifiedJudgeAccount, runJudgeRequest } = await import("./pilot-runtime");
       const account = await verifiedJudgeAccount(request.headers);
       if (!account) return Response.json({ error: "Inicia sesión para continuar.", code: "session_required" }, { status: 401, headers: privateHeaders });
-      stage = "request-copy";
-      const incomingHeaders = new Headers(request.headers);
-      incomingHeaders.delete("If-None-Match");
-      incomingHeaders.delete("If-Modified-Since");
-      const privateRequest = new Request(request, { headers: incomingHeaders });
+      // Keep Next's original Request: copying its proxied instance with the
+      // native constructor fails its private-field brand check in production.
       stage = "tenant-handler";
-      const response = await runJudgeRequest(account, () => handler(privateRequest, ...args));
+      const response = await runJudgeRequest(account, () => handler(request, ...args));
       // Never reuse one account's browser cache after another account signs in.
       const headers = new Headers(response.headers);
       headers.set("Cache-Control", "private, no-store");

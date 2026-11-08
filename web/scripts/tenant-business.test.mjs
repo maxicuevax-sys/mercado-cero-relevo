@@ -167,3 +167,19 @@ test("connections close after success or failure, including detached async work"
   });
   await late;
 });
+
+
+test("tenant responses ignore conditional cache validators while legacy behavior stays intact", async () => {
+  const { cachedJson } = await import(pathToFileURL(transpileToTmp("lib/http-cache.ts")).href);
+  const request = () => new Request("http://localhost/api/orders", { headers: { "If-None-Match": "*" } });
+  assert.equal((await cachedJson(request(), { owner: "legacy" }, "orders")).status, 304);
+  await runInTenantDatabase({ root, accountId: "cache-alice" }, async () => {
+    const response = await cachedJson(request(), { owner: "alice" }, "orders");
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { owner: "alice" });
+    assert.equal(response.headers.get("Cache-Control"), "private, no-store");
+    assert.equal(response.headers.get("ETag"), null);
+    assert.match(response.headers.get("Vary"), /Cookie/);
+    assert.match(response.headers.get("Vary"), /Accept-Encoding/);
+  });
+});

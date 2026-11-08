@@ -44,11 +44,11 @@ export function AccessScreen() {
         body: JSON.stringify({ email, password }),
         cache: "no-store",
       });
-      if (response.status === 503) {
+      const data = await response.json().catch(() => null);
+      if (response.status === 503 && data?.code === "access_not_open") {
         setError("El acceso de prueba todavía no está abierto.");
         return;
       }
-      const data = await response.json().catch(() => null);
       if (response.ok && data?.ok === true) {
         clearAppBrowserState();
         // A full navigation discards the previous account's in-memory client state.
