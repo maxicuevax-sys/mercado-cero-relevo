@@ -94,6 +94,13 @@ export function getDb(): DatabaseSync {
     database.exec("PRAGMA journal_mode = WAL;");
     database.exec("PRAGMA busy_timeout = 5000;");
     database.exec("PRAGMA foreign_keys = ON;");
+    if (tenant) {
+      const pageSize = Number((database.prepare("PRAGMA page_size").get() as { page_size: number }).page_size);
+      const pages = Number((database.prepare("PRAGMA page_count").get() as { page_count: number }).page_count);
+      const maximumPages = Math.floor(8 * 1024 * 1024 / pageSize);
+      if (pages > maximumPages) throw new Error("Tenant database storage limit reached");
+      database.exec(`PRAGMA max_page_count = ${maximumPages}; PRAGMA journal_size_limit = 1048576;`);
+    }
     migrate(database);
     seed(database);
     seedGoal(database);

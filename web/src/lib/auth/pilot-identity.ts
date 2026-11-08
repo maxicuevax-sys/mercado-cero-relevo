@@ -46,6 +46,11 @@ export async function createPilotIdentity(options: PilotIdentityOptions) {
   const database = new DatabaseSync(identityPath);
   try {
     database.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000;");
+    const pageSize = Number((database.prepare("PRAGMA page_size").get() as { page_size: number }).page_size);
+    const pageCount = Number((database.prepare("PRAGMA page_count").get() as { page_count: number }).page_count);
+    const maximumPages = Math.floor(32 * 1024 * 1024 / pageSize);
+    if (pageCount > maximumPages) throw new Error("Identity storage limit reached");
+    database.exec(`PRAGMA max_page_count = ${maximumPages}; PRAGMA journal_size_limit = 1048576;`);
     const authOptions = {
       appName: "Trangui",
       baseURL: origin.origin,

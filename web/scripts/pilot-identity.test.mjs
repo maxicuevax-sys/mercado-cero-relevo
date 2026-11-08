@@ -62,6 +62,7 @@ test('identity uses WAL and foreign keys; registration is closed by default', as
   t.after(() => identity.close());
   assert.equal(identity.database.prepare('PRAGMA journal_mode').get().journal_mode, 'wal');
   assert.equal(identity.database.prepare('PRAGMA foreign_keys').get().foreign_keys, 1);
+  assert.equal(identity.database.prepare('PRAGMA max_page_count').get().max_page_count * identity.database.prepare('PRAGMA page_size').get().page_size, 32 * 1024 * 1024);
   const response = await signup(identity.auth);
   assert.equal(response.status, 400);
   assert.equal((await response.json()).code, 'EMAIL_PASSWORD_SIGN_UP_DISABLED');

@@ -1,4 +1,4 @@
-# Trangui: cuentas de prueba, avance 1
+# Trangui: cuentas de prueba y recuperación
 
 Base: main `9712cafff96605876ae5e51160fe03e86b35d6f6`. Una rama para el lote: `codex/judge-demo-accounts`.
 
@@ -10,7 +10,7 @@ No usa variables globales para elegir la cuenta. El getDb heredado sigue funcion
 
 Las cuentas solo permiten DEMO_MODE=true explícito, con Pey y OpenAI sin claves. Los identificadores no se convierten directamente en rutas y se rechazan enlaces simbólicos de almacenamiento.
 
-Seis pruebas cubren ventas/fiados/auditoría entre dos contextos concurrentes, persistencia al reabrir, pagos demo, reset, retención de cinco backups sin tocar otra cuenta ni propietario, rechazo de proveedores activos, contexto ausente, cuenta inválida, ámbito anidado y cierre tras error/tarea desprendida. Contrato QR/abonos7/7 e identidad9/9 siguen pasando. Revisión independiente sin hallazgos bloqueantes; se añadieron pruebas para sus lagunas de cobertura.
+Ocho pruebas cubren ventas/fiados/auditoría entre dos contextos concurrentes, persistencia al reabrir, pagos demo, reset, retención de cinco backups sin tocar otra cuenta ni propietario, rechazo de proveedores activos, contexto ausente, cuenta inválida, ámbito anidado y cierre tras error/tarea desprendida. Contrato QR/abonos7/7 e identidad9/9 siguen pasando. Revisión independiente sin hallazgos bloqueantes; se añadieron pruebas para sus lagunas de cobertura.
 
 ## Avance 2: cupo atómico
 
@@ -22,11 +22,12 @@ Esta función NO autentica peticiones: accountId deberá proceder exclusivamente
 
 ## Trabajo restante antes de abrir el piloto
 
-- Resolver sesión Better Auth y aprovisionar cuenta; el cupo100 ya tiene guarda atómica en SQLite.
-- Vincular todas las páginas y API a su cuenta; endpoints públicos de comprador/webhook permanecen cerrados para el piloto multiusuario demo.
-- Separar o limpiar borradores/localStorage al cambiar sesión para no mostrar datos de otra cuenta en la misma computadora.
-- Probar dos navegadores/sesiones, IDs ajenos, expiración/revocación, cuotas y falta de credenciales.
-- Respaldar/restaurar conjuntamente identidad y bases; migrar propietario sin copiar sus ventas a cuentas demo. Canary y verificación antes de apertura.
+- [x] Resolver sesión Better Auth y aprovisionar cuenta con cupo100 atómico.
+- [x] Vincular páginas y API a su cuenta; comprador/webhook siguen cerrados en el piloto demo.
+- [x] Limpiar borradores locales y de sesión al cambiar cuenta, preservando otras aplicaciones.
+- [x] Probar dos navegadores, IDs ajenos, cookies inválidas/revocación, cupo, proveedores desactivados y accesibilidad.
+- [x] Herramienta local de snapshot/restauración conjunta con revocación de sesiones.
+- [ ] Integrar esa recuperación en la programación real del VPS; aprovisionar la cuenta propietaria sin copiar sus ventas a las cuentas demo; canary y verificación antes de abrir Access.
 
 No presentar este avance como registro multiusuario terminado. Se conserva la dirección visual aprobada.
 
@@ -44,6 +45,16 @@ Registro local funcional bajo flag no equivale a apertura pública: quedan recup
 
 ## Correcciones verificadas durante el ensayo
 
-El primer ensayo de navegador demostró registro/sesión y bloqueo de rutas, pero la venta autenticada devolvió503. Diagnóstico de producción: copiar la Request proxificada de Next lanzaba un error de campos privados antes de ejecutar la venta. Se conserva la Request original y se evita304 en cachedJson solamente dentro de un contexto de cuenta. Siete pruebas de aislamiento/caché pasan; el legado conserva sus validadores.
+El primer ensayo de navegador demostró registro/sesión y bloqueo de rutas, pero la venta autenticada devolvió503. Diagnóstico de producción: copiar la Request proxificada de Next lanzaba un error de campos privados antes de ejecutar la venta. Se conserva la Request original y se evita304 en cachedJson solamente dentro de un contexto de cuenta. La prueba de aislamiento/caché pasa; el legado conserva sus validadores.
 
 El limitador nativo de Better Auth sigue activo.429 conserva Retry-After y se muestra su mensaje; las pruebas esperan ese intervalo, sin desactivar el límite. Los mensajes503 de registro cerrado solo se usan con sus códigos explícitos, distinguiendo cupo lleno o servicio no disponible. La prueba de dos sesiones también se añade a CI con Chromium, datos temporales y sin claves reales.
+
+## Estado de verificación
+
+El build `bc86102` pasó cuentas7/7, acceso legado8/8 y B172/72, con capturas390/320 inspeccionadas y árbol limpio. El bloqueo buyer404 se hace antes del render por Proxy porque notFound() en streaming puede responder200. No se cambia el flujo de comprador en modo legado.
+
+Límites del siguiente incremento: 8MiB por base de negocio demo y32MiB para identidad, más cupo100; no se aplican a la base heredada del propietario. Ocho contratos de aislamiento/almacenamiento y nueve de identidad pasan. La guarda de almacenamiento usa max_page_count y rechaza bases ya mayores al cupo; WAL y respaldos se gestionan aparte. Fuente del mecanismo: [SQLite limits](https://sqlite.org/limits.html).
+
+La nueva utilidad `deploy/judge-snapshot.mjs` conserva el catálogo de cuentas capturado primero, toma snapshots SQLite individuales consistentes con WAL y valida manifiesto/hashes/integridad. La restauración solo publica un directorio nuevo, revoca todas las sesiones y verifica cada copia contra el hash del manifiesto validado inicialmente, incluso si cambia transitoriamente el origen. Ver `docs/judge-recovery.md`. Resultado local:11 pruebas,10PASS y1skip explícito por privilegios Windows para symlink de archivo; la prueba de junction de directorio sí pasó. CI Linux ejecuta el conjunto completo.
+
+El paquete de recuperación y las cuotas todavía no se han instalado en producción. El gate full23/23 no está certificado: no confundir CI/canary con un release público completo.

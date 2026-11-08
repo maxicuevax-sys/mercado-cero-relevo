@@ -22,6 +22,7 @@ function transpileTsFile(relativeUrl, replacements = []) {
 
 const errorsUrl = transpileTsFile("../src/lib/errors.ts");
 const configUrl = transpileTsFile("../src/lib/config.ts");
+const pilotModeUrl = transpileTsFile("../src/lib/auth/pilot-mode.ts");
 const httpSecurityUrl = transpileTsFile("../src/lib/http-security.ts", [
   ['from "./errors"', `from "${errorsUrl}"`],
 ]);
@@ -32,6 +33,7 @@ const nextServerUrl = new URL(
 const proxyUrl = transpileTsFile("../src/proxy.ts", [
   ['from "next/server"', `from "${nextServerUrl}"`],
   ['from "@/lib/config"', `from "${configUrl}"`],
+  ['from "@/lib/auth/pilot-mode"', `from "${pilotModeUrl}"`],
   ['from "@/lib/http-security"', `from "${httpSecurityUrl}"`],
 ]);
 
@@ -169,4 +171,16 @@ test("proxy exige OPERATOR_ACCESS_TOKEN en rutas privadas pero permite webhook y
       assert.equal(proxy(healthReq).status, 200);
     },
   );
+});
+
+
+test("account mode rejects buyer routes before any streaming response", async () => {
+  await withEnv({ JUDGE_DEMO_ACCOUNTS: "true", DEMO_MODE: "true" }, async () => {
+    for (const route of ["/pay/order", "/pay/order/success", "/api/checkout/order", "/api/verify", "/api/webhooks/pey"]) {
+      const response = proxy(new NextRequest(`http://localhost:3000${route}`));
+      assert.equal(response.status, 404);
+      assert.equal((await response.json()).code, "demo_buyer_unavailable");
+      assert.equal(response.headers.get("Cache-Control"), "private, no-store");
+    }
+  });
 });

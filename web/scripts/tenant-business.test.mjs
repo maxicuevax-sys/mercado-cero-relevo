@@ -183,3 +183,18 @@ test("tenant responses ignore conditional cache validators while legacy behavior
     assert.match(response.headers.get("Vary"), /Accept-Encoding/);
   });
 });
+
+
+test("a demo account cannot exhaust disk through unbounded SQLite growth", async () => {
+  await runInTenantDatabase({ root, accountId: "quota-account" }, async () => {
+    const database = getDb();
+    const pageSize = database.prepare("PRAGMA page_size").get().page_size;
+    const maxPages = database.prepare("PRAGMA max_page_count").get().max_page_count;
+    assert.equal(maxPages * pageSize, 8 * 1024 * 1024);
+    database.exec("CREATE TABLE quota_probe(value BLOB)");
+    assert.throws(() => database.exec("INSERT INTO quota_probe(value) VALUES (zeroblob(9 * 1024 * 1024))"), /full/i);
+    assert.equal(database.prepare("SELECT count(*) AS n FROM quota_probe").get().n, 0);
+    assert.equal(database.prepare("PRAGMA integrity_check").get().integrity_check, "ok");
+  });
+  await runInTenantDatabase({ root, accountId: "quota-other" }, async () => assert.equal(sale("Unaffected quota neighbor").totalCents, 5000));
+});

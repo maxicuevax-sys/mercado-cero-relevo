@@ -50,6 +50,8 @@ jobs:
           npm run test:pilot-identity
           npm run test:register-validation
           npm run test:account-browser-state
+          npm run test:prod-pilot
+          npm run test:judge-recovery
 
       - name: Harness static gate (build con BUILD_SHA)
         run: npm run verify:static
