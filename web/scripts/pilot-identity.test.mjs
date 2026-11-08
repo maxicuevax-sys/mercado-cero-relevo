@@ -139,3 +139,23 @@ test('does not trust a client-supplied forwarded IP before proxy integration', a
   assert.equal(response.status, 200);
   assert.equal(identity.database.prepare('SELECT ipAddress FROM session').get().ipAddress, '');
 });
+
+
+test('the hundredth account slot is atomic across simultaneous signups and persists after reopening', async t => {
+  const options = { ...fixture(t), allowSignUp: true };
+  const identity = await createPilotIdentity(options);
+  const insert = identity.database.prepare('INSERT INTO user (id, name, email, emailVerified, createdAt, updatedAt) VALUES (?, ?, ?, 0, ?, ?)');
+  for (let i = 0; i < 99; i++) insert.run(`seed-${i}`, 'Quota fixture', `seed-${i}@example.test`, Date.now(), Date.now());
+  const responses = await Promise.all([signup(identity.auth, 'last-slot-a@example.test'), signup(identity.auth, 'last-slot-b@example.test')]);
+  assert.equal(responses.filter(response => response.status === 200).length, 1);
+  assert.equal(identity.database.prepare('SELECT count(*) AS n FROM user').get().n, 100);
+  const accepted = responses.find(response => response.status === 200);
+  const sessionCookie = cookieOf(accepted);
+  assert.ok((await (await request(identity.auth, 'get-session', null, sessionCookie)).json()).user);
+  identity.close();
+  const reopened = await createPilotIdentity(options);
+  const rejected = await signup(reopened.auth, 'over-quota@example.test');
+  assert.notEqual(rejected.status, 200);
+  assert.equal(reopened.database.prepare('SELECT count(*) AS n FROM user').get().n, 100);
+  assert.equal(reopened.database.prepare('SELECT count(*) AS n FROM account').get().n, 1);
+});

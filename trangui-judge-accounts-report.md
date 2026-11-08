@@ -10,7 +10,11 @@ No usa variables globales para elegir la cuenta. El getDb heredado sigue funcion
 
 Las cuentas solo permiten DEMO_MODE=true explícito, con Pey y OpenAI sin claves. Los identificadores no se convierten directamente en rutas y se rechazan enlaces simbólicos de almacenamiento.
 
-Seis pruebas cubren ventas/fiados/auditoría entre dos contextos concurrentes, persistencia al reabrir, pagos demo, reset, retención de cinco backups sin tocar otra cuenta ni propietario, rechazo de proveedores activos, contexto ausente, cuenta inválida, ámbito anidado y cierre tras error/tarea desprendida. Contrato QR/abonos7/7 e identidad8/8 siguen pasando. Revisión independiente sin hallazgos bloqueantes; se añadieron pruebas para sus lagunas de cobertura.
+Seis pruebas cubren ventas/fiados/auditoría entre dos contextos concurrentes, persistencia al reabrir, pagos demo, reset, retención de cinco backups sin tocar otra cuenta ni propietario, rechazo de proveedores activos, contexto ausente, cuenta inválida, ámbito anidado y cierre tras error/tarea desprendida. Contrato QR/abonos7/7 e identidad9/9 siguen pasando. Revisión independiente sin hallazgos bloqueantes; se añadieron pruebas para sus lagunas de cobertura.
+
+## Avance 2: cupo atómico
+
+Trigger SQLite BEFORE INSERT limita la tabla de usuarios a100, incluso con registros concurrentes y conexiones reabiertas. Una prueba con99 cuentas y dos registros reales reproduce dos éxitos antes de la corrección y exactamente uno después. La cuenta admitida conserva sesión; los rechazos no dejan una credencial huérfana. Esta guarda no abre el registro: la futura API deberá traducir cupo lleno a un mensaje controlado.
 
 ## Todavía cerrado
 
@@ -18,7 +22,7 @@ Esta función NO autentica peticiones: accountId deberá proceder exclusivamente
 
 ## Trabajo restante antes de abrir el piloto
 
-- Resolver sesión Better Auth y aprovisionar cuenta de forma atómica con cupo100.
+- Resolver sesión Better Auth y aprovisionar cuenta; el cupo100 ya tiene guarda atómica en SQLite.
 - Vincular todas las páginas y API a su cuenta; endpoints públicos de comprador/webhook permanecen cerrados para el piloto multiusuario demo.
 - Separar o limpiar borradores/localStorage al cambiar sesión para no mostrar datos de otra cuenta en la misma computadora.
 - Probar dos navegadores/sesiones, IDs ajenos, expiración/revocación, cuotas y falta de credenciales.

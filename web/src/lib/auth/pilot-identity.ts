@@ -76,6 +76,16 @@ export async function createPilotIdentity(options: PilotIdentityOptions) {
     } satisfies BetterAuthOptions;
     const migrations = await getMigrations(authOptions);
     await migrations.runMigrations();
+    // Enforced at the write boundary, not a count-before-signup check:
+    // simultaneous registrations cannot both claim the final pilot slot.
+    database.exec(`
+      CREATE TRIGGER IF NOT EXISTS pilot_max_100_accounts
+      BEFORE INSERT ON user
+      WHEN (SELECT COUNT(*) FROM user) >= 100
+      BEGIN
+        SELECT RAISE(ABORT, 'pilot_account_limit');
+      END;
+    `);
     const auth = betterAuth(authOptions);
     let closed = false;
     return {

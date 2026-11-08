@@ -44,8 +44,11 @@ jobs:
       - name: Harness unit tests
         run: npm run test:harness
 
-      - name: Account business isolation contracts
-        run: npm run test:tenant-business
+      - name: Account identity and business isolation contracts
+        run: |
+          npm run test:tenant-business
+          npm run test:pilot-identity
+          npm run test:register-validation
 
       - name: Harness static gate (build con BUILD_SHA)
         run: npm run verify:static
