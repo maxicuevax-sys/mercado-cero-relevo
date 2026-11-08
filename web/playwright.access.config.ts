@@ -11,9 +11,10 @@ export default defineConfig({
   reporter: [["list"], ["json", { outputFile: "./test-results/access-results.json" }]],
   use: { browserName: "chromium", headless: true, baseURL: `http://127.0.0.1:${port}` },
   webServer: {
-    command: `npm run build && node node_modules/next/dist/bin/next start -H 127.0.0.1 -p ${port}`,
+    // Like the runtime harness, this requires a clean, exact-SHA production build.
+    command: `node node_modules/next/dist/bin/next start -H 127.0.0.1 -p ${port}`,
     url: `http://127.0.0.1:${port}/api/health`,
-    timeout: 180000,
+    timeout: 30000,
     reuseExistingServer: false,
     env: {
       DEMO_MODE: "true",

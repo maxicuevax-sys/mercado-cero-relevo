@@ -2,6 +2,15 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import path from "node:path";
 import { mkdirSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+
+test.beforeAll(async ({ request }) => {
+  const sha = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+  const status = execFileSync("git", ["status", "--porcelain=v1", "--untracked-files=all"], { encoding: "utf8" }).trim();
+  expect(status, "Commit changes before generating final runtime evidence").toBe("");
+  const health = await request.get("/api/health");
+  expect((await health.json()).buildSha).toBe(sha);
+});
 
 test.beforeEach(async ({ page }) => {
   if (process.env.DEBUG_ACCESS_UI === "1") {
@@ -22,10 +31,10 @@ test("correo, contraseña y teclado funcionan sin fingir una sesión", async ({ 
   await page.getByRole("button", { name: "Ocultar contraseña", exact: true }).click();
   await expect(page.getByLabel("Contraseña", { exact: true })).toHaveAttribute("type", "password");
   await page.getByRole("button", { name: "Entrar a mi demo", exact: true }).click();
-  await expect(page.getByRole("alert")).toHaveText("Escribe un correo electrónico válido.");
+  await expect(page.locator("form").getByRole("alert")).toHaveText("Escribe un correo electrónico válido.");
   await page.getByLabel("Correo electrónico", { exact: true }).fill("juez-visual@example.test");
   await page.getByLabel("Contraseña", { exact: true }).press("Enter");
-  await expect(page.getByRole("alert")).toHaveText("El acceso de prueba todavía no está abierto.");
+  await expect(page.locator("form").getByRole("alert")).toHaveText("El acceso de prueba todavía no está abierto.");
   await expect(page).toHaveURL(/\/acceso$/);
   expect((await page.context().cookies()).filter(cookie => cookie.name.includes("session"))).toEqual([]);
   await page.getByRole("button", { name: "Crear cuenta de prueba", exact: true }).click();

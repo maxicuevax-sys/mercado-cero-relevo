@@ -19,7 +19,8 @@ Esto es una implementación de pantalla, no activación de cuentas multiusuario.
 
 La prueba inicial falló por ruta ausente (RED). La prueba en desarrollo detectó
 recargas continuas de Fast Refresh; las pruebas finales usan build de producción.
-`npm run test:access-ui` comprueba comportamiento y axe a 390×693, 320×569 y
+Tras `npm run build` en un árbol limpio, `npm run test:access-ui` exige SHA
+servido igual a HEAD y comprueba comportamiento y axe a 390×693, 320×569 y
 1448×1086; conserva capturas en `harness/evidence/runs/trangui-access/`.
 Su informe JSON queda en `web/test-results/access-results.json`.
 
