@@ -1,0 +1,64 @@
+param([switch]$VerifyRestore)
+$ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Security
+$taskRoot = $PSScriptRoot
+$resticExe = Join-Path $taskRoot 'tools\restic.exe'
+$mutex = New-Object System.Threading.Mutex($false, 'Local\MercadoCeroOffHostBackup')
+if (-not $mutex.WaitOne(0)) { $mutex.Dispose(); exit 0 }
+$temporaryPassword = Join-Path $taskRoot ('.password-' + [guid]::NewGuid().ToString('N'))
+$previousRepository = $env:RESTIC_REPOSITORY
+$previousPassword = $env:RESTIC_PASSWORD_FILE
+function Invoke-Restic {
+    & $resticExe @args
+    if ($LASTEXITCODE -ne 0) { throw "restic failed with exit $LASTEXITCODE" }
+}
+try {
+    $encrypted = [IO.File]::ReadAllBytes((Join-Path $taskRoot 'restic-password.dpapi'))
+    $clear = [Security.Cryptography.ProtectedData]::Unprotect($encrypted, $null, [Security.Cryptography.DataProtectionScope]::CurrentUser)
+    [IO.File]::WriteAllBytes($temporaryPassword, $clear)
+    [Array]::Clear($clear, 0, $clear.Length)
+    $env:RESTIC_PASSWORD_FILE = $temporaryPassword
+    $env:RESTIC_REPOSITORY = Join-Path $taskRoot 'repository'
+    if (-not (Test-Path (Join-Path $env:RESTIC_REPOSITORY 'config'))) { Invoke-Restic init }
+    Invoke-Restic -o 'sftp.args=-oBatchMode=yes -oConnectTimeout=20' copy --from-repo 'sftp:zicua-vps:/opt/mercado-cero/pilot/restic-repo' --from-password-file $temporaryPassword --host mercado-cero-pilot
+    if ($VerifyRestore) { Invoke-Restic check --read-data } else { Invoke-Restic check }
+    $snapshots = & $resticExe snapshots --json --host mercado-cero-pilot | ConvertFrom-Json
+    if ($LASTEXITCODE -ne 0 -or -not $snapshots) { throw 'No off-host snapshots available' }
+    $latest = $snapshots | Sort-Object time | Select-Object -Last 1
+    $snapshotAge = [DateTimeOffset]::UtcNow - [DateTimeOffset]::Parse($latest.time)
+    if ($snapshotAge.TotalHours -gt 3 -or $snapshotAge.TotalMinutes -lt -5) {
+        throw 'Source snapshot is stale or its timestamp is invalid; copying old data is not a current backup'
+    }
+    $report = [ordered]@{ ok = $true; timestamp = [DateTime]::UtcNow.ToString('o'); sourceSnapshotTime = $latest.time; snapshot = $latest.id; restoreVerified = $false; destination = $taskRoot }
+    if ($VerifyRestore) {
+        $restoreDir = Join-Path $taskRoot ('restore-verification\' + $latest.id)
+        if (-not (Test-Path $restoreDir)) { Invoke-Restic restore $latest.id --target $restoreDir }
+        $databaseDir = Join-Path $restoreDir 'opt\mercado-cero\pilot\backup-current\database'
+        $expected = ((Get-Content (Join-Path $databaseDir 'SHA256SUMS') -Raw).Split(' ')[0]).Trim()
+        $actual = (Get-FileHash (Join-Path $databaseDir 'mercado-cero.db') -Algorithm SHA256).Hash
+        if ($expected -ne $actual) { throw 'Restored database hash mismatch' }
+        $coolifyDir = Join-Path $restoreDir 'opt\mercado-cero\pilot\backup-current\coolify'
+        if (Test-Path (Join-Path $coolifyDir 'database.dump')) {
+            $expectedDump = ((Get-Content (Join-Path $coolifyDir 'SHA256SUMS') -Raw).Split(' ')[0]).Trim()
+            $actualDump = (Get-FileHash (Join-Path $coolifyDir 'database.dump') -Algorithm SHA256).Hash
+            if ($expectedDump -ne $actualDump) { throw 'Restored Coolify dump hash mismatch' }
+            if (-not (Test-Path (Join-Path $coolifyDir '.env'))) { throw 'Coolify APP_KEY recovery file missing' }
+            $report['coolifyDumpSha256'] = $actualDump.ToLowerInvariant()
+        }
+        & python (Join-Path $taskRoot 'verify-db.py') (Join-Path $databaseDir 'mercado-cero.db')
+        if ($LASTEXITCODE -ne 0) { throw 'Restored SQLite validation failed' }
+        $report.restoreVerified = $true
+        $report.databaseSha256 = $actual.ToLowerInvariant()
+    }
+    $report | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $taskRoot 'last-success.json')
+    Write-Output ($report | ConvertTo-Json -Compress)
+} catch {
+    @{ ok = $false; timestamp = [DateTime]::UtcNow.ToString('o'); error = $_.Exception.Message } | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $taskRoot 'last-failure.json')
+    throw
+} finally {
+    if (Test-Path $temporaryPassword) { Remove-Item -LiteralPath $temporaryPassword -Force }
+    $env:RESTIC_REPOSITORY = $previousRepository
+    $env:RESTIC_PASSWORD_FILE = $previousPassword
+    $mutex.ReleaseMutex()
+    $mutex.Dispose()
+}

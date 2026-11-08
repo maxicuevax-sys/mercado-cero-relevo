@@ -31,7 +31,7 @@ import welcomeNative from "@/assets/definitive-a/welcome.png";
 import registerNative from "@/assets/definitive-a/register.png";
 
 export const metadata: Metadata = {
-  title: "Inicio · Mercado Cero",
+  title: "Inicio · Trangui",
 };
 
 export const instant = false;

@@ -2997,7 +2997,7 @@ export default function CajaApp({
 
           <footer className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-separator pt-5 text-sm text-ink-2 sm:flex-row sm:flex-wrap sm:items-center">
             <p className="min-w-0">
-              Mercado Cero · prototipo DevDay Exchange CDMX 2026 · pey + voz local open source ·{" "}
+              Trangui · prototipo DevDay Exchange CDMX 2026 · pey + voz local open source ·{" "}
               <a href="/credits.txt" className="inline-flex min-h-12 items-center underline underline-offset-2 hover:text-ink">
                 Fotos: créditos
               </a>
@@ -3077,7 +3077,7 @@ export default function CajaApp({
             if (typeof navigator.share === "function") {
               try {
                 await navigator.share({
-                  title: "Pago seguro · Mercado Cero",
+                  title: "Pago seguro · Trangui",
                   text: "Abre este link para pagar tu pedido.",
                   url: value,
                 });
@@ -7562,7 +7562,7 @@ function AppSidebar({
           />
         </div>
         <div className="min-w-0">
-          <p className="brand-name">Mercado Cero</p>
+          <p className="brand-name">Trangui</p>
           <p className="brand-tagline">La caja que habla</p>
           <span className="sr-only">Inicio</span>
         </div>

@@ -89,7 +89,7 @@ export function MobileLedger({
       <header className="mc-fiados-mobile__brandbar">
         <Link href="/inicio" prefetch={false} className="mc-fiados-mobile__brand">
           <Image src={brand} width={36} height={36} alt="" unoptimized />
-          <span>Mercado<br />Cero</span>
+          <span>Trangui</span>
         </Link>
         <div className="mc-fiados-mobile__merchant">
           <Store aria-hidden="true" />

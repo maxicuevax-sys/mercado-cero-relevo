@@ -22,7 +22,7 @@ import "./metas.css";
 import savingsNative from "@/assets/definitive-a/savings.png";
 
 export const metadata: Metadata = {
-  title: "Metas · Mercado Cero",
+  title: "Metas · Trangui",
 };
 
 export const instant = false;

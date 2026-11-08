@@ -32,7 +32,7 @@ import iconTienda from "@/assets/brand/iconos/transparent/tienda.png";
 import "./movimientos.css";
 
 export const metadata: Metadata = {
-  title: "Movimientos · Mercado Cero",
+  title: "Movimientos · Trangui",
   description:
     "Historial de solicitudes y pagos CoDi: qué se pidió, qué se cobró y qué sigue pendiente.",
 };

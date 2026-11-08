@@ -14,9 +14,7 @@ export function BrandLockup({ href = "/inicio" }: { href?: string }) {
       />
       <span className="inicio-brand__wordmark">
         <span className="inicio-brand__name">
-          Mercado{" "}
-          <br />
-          Cero
+          Trangui
         </span>
         <svg
           className="inicio-brand__rays"

@@ -4,7 +4,7 @@ import { CajaScreen } from "@/components/caja/caja-screen";
 import { MERCHANT, isDemoMode } from "@/lib/config";
 
 export const metadata: Metadata = {
-  title: "Caja · Mercado Cero",
+  title: "Caja · Trangui",
 };
 
 export const instant = false;

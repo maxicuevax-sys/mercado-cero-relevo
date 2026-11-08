@@ -27,7 +27,7 @@ import iconPendientes from "@/assets/inicio/icons/pendientes.svg";
 import "./pendientes.css";
 
 export const metadata: Metadata = {
-  title: "Pendientes · Mercado Cero",
+  title: "Pendientes · Trangui",
 };
 
 export const instant = false;

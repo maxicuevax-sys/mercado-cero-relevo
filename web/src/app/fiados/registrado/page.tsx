@@ -7,7 +7,7 @@ import { getCredit } from "@/lib/db";
 import { formatMxn } from "@/lib/format";
 
 export const metadata: Metadata = {
-  title: "Fiado registrado — Mercado Cero",
+  title: "Fiado registrado — Trangui",
 };
 
 export const instant = false;

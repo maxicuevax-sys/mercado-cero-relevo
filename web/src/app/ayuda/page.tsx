@@ -5,7 +5,7 @@ import { HelpHome } from "@/components/ayuda/help-home";
 import { MERCHANT, isDemoMode } from "@/lib/config";
 import "./ayuda.css";
 
-export const metadata: Metadata = { title: "Ayuda · Mercado Cero" };
+export const metadata: Metadata = { title: "Ayuda · Trangui" };
 export const instant = false;
 
 export default async function Page() {

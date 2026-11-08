@@ -22,7 +22,7 @@ import "@/components/shell/ledger-parity.css";
 import "./mobile-ledger.css";
 
 export const metadata: Metadata = {
-  title: "Fiados · Mercado Cero",
+  title: "Fiados · Trangui",
 };
 
 // El saldo vivo no se puede servir desde un snapshot de build.

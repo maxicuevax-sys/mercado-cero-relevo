@@ -1,9 +1,9 @@
-﻿import type { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Mercado Cero · La caja que habla",
-    short_name: "Mercado Cero",
+    name: "Trangui · La caja que habla",
+    short_name: "Trangui",
     description:
       "Cobra por voz, acepta CoDi, tarjeta y efectivo, y confirma un pago solo cuando el banco lo confirma.",
     start_url: "/inicio",

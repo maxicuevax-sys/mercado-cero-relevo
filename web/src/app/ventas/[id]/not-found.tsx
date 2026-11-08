@@ -7,7 +7,7 @@ import "../ventas.css";
 import "./detalle-venta.css";
 
 export const metadata: Metadata = {
-  title: "Venta no encontrada · Mercado Cero",
+  title: "Venta no encontrada · Trangui",
 };
 
 export default function VentaNoEncontrada() {

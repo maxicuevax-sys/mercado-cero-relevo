@@ -1,0 +1,6 @@
+# Local recovery only. Off-host protection is the encrypted restic copy.
+dbs:
+  - path: /data/mercado-cero.db
+    replica:
+      url: file:///replica/mercado-cero
+      sync-interval: 10s

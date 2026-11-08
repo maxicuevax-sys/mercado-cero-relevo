@@ -23,7 +23,7 @@ import { addDaysToDateKey, mexicoDateKey } from "@/lib/mexico-date";
 import { ExportMovementsButton } from "./export-movements";
 
 export const metadata: Metadata = {
-  title: "Fiado de cliente — Mercado Cero",
+  title: "Fiado de cliente — Trangui",
 };
 
 export const instant = false;

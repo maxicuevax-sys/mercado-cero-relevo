@@ -1,10 +1,10 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { MERCHANT, isDemoMode } from "@/lib/config";
 
-export const metadata: Metadata = { title: "Notificaciones · Mercado Cero" };
+export const metadata: Metadata = { title: "Notificaciones · Trangui" };
 
 export default function NotificacionesPage() {
   const demo = isDemoMode();

@@ -159,7 +159,7 @@ export async function GET(request: Request) {
   if (isDemoMode()) {
     return rejected(
       "not_found",
-      "Ese comprobante no corresponde a un pago confirmado por Mercado Cero.",
+      "Ese comprobante no corresponde a un pago confirmado por Trangui.",
     );
   }
 

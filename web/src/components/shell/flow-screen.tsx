@@ -52,9 +52,7 @@ export function FlowScreen({
         <Link className="mc-flow__brand" href="/inicio" aria-label="Ir a Inicio">
           <Image src={brand} width={36} height={36} alt="" unoptimized />
           <span>
-            Mercado
-            <br />
-            Cero
+            Trangui
           </span>
         </Link>
         <div className="mc-flow__merchant">

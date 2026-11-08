@@ -33,7 +33,7 @@ import iconCamion from "@/assets/brand/iconos/transparent/camion.png";
 import "./detalle-movimiento.css";
 
 export const metadata: Metadata = {
-  title: "Detalle del movimiento · Mercado Cero",
+  title: "Detalle del movimiento · Trangui",
   description:
     "Consulta la solicitud, el QR y los pagos registrados de un movimiento CoDi.",
 };

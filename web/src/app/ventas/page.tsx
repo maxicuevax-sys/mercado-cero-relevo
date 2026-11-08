@@ -36,7 +36,7 @@ import iconQr from "@/assets/brand/iconos/transparent/qr-telefono.png";
 import "./ventas.css";
 
 export const metadata: Metadata = {
-  title: "Ventas · Mercado Cero",
+  title: "Ventas · Trangui",
 };
 
 export const instant = false;

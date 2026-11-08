@@ -207,7 +207,7 @@ export function SaleResult({
 
       <button type="button" className="mc-caja-button mc-caja-button--secondary mc-receipt-share" onClick={async () => {
         const text = `${isDemo ? "DEMO SIMULADO - SIN DINERO REAL" : title}\nPedido ${order.id}\nTotal ${formatMxn(order.totalCents)}\nEstado ${statusLabel(order.status)}\n${note}`;
-        try { if (navigator.share) await navigator.share({ title: "Comprobante Mercado Cero", text }); else await navigator.clipboard.writeText(text); setShareNotice("Comprobante compartido o copiado."); } catch { setShareNotice("No se compartió. Puedes copiar los datos del comprobante en pantalla."); }
+        try { if (navigator.share) await navigator.share({ title: "Comprobante Trangui", text }); else await navigator.clipboard.writeText(text); setShareNotice("Comprobante compartido o copiado."); } catch { setShareNotice("No se compartió. Puedes copiar los datos del comprobante en pantalla."); }
       }}><Share2 aria-hidden="true" />Compartir comprobante</button>
       <p role="status">{shareNotice}</p>
       <Link href="/inicio" className="mc-caja-button mc-caja-button--primary"><House aria-hidden="true" />Volver al inicio</Link>

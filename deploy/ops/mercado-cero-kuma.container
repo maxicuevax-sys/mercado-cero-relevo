@@ -1,0 +1,26 @@
+[Unit]
+Description=Mercado Cero private Uptime Kuma
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+Image=docker.io/louislam/uptime-kuma@sha256:92eb954ce9a68eca749efe76ef9c6dffe43d23a56ed68f35f3866a29f7108b6e
+Pull=never
+ContainerName=mercado-cero-kuma
+Network=host
+Volume=mercado-cero-kuma-data:/app/data
+Environment=UPTIME_KUMA_HOST=127.0.0.1
+Environment=UPTIME_KUMA_PORT=4591
+NoNewPrivileges=true
+DropCapability=all
+LogDriver=journald
+
+[Service]
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=120
+MemoryMax=768M
+CPUQuota=50%
+
+[Install]
+WantedBy=multi-user.target

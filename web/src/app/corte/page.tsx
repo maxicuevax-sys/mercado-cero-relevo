@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Image from "next/image";
 import registerNative from "@/assets/definitive-a/register.png";
 import { ArrowLeft, Banknote, CalendarDays, CheckCircle2, CreditCard, QrCode } from "lucide-react";
@@ -22,7 +22,7 @@ import "./corte.css";
 import "@/components/shell/ledger-parity.css";
 
 export const metadata: Metadata = {
-  title: "Corte de caja Â· Mercado Cero",
+  title: "Corte de caja Â· Trangui",
 };
 
 export const instant = false;

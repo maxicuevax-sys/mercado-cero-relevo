@@ -1,0 +1,27 @@
+[Unit]
+Description=Mercado Cero SQLite continuous local replica
+Requires=mercado-cero-pilot.service
+After=mercado-cero-pilot.service
+
+[Container]
+Image=docker.io/litestream/litestream@sha256:6df7cdb7f08b2a38936c6835c43244030d2810eeb98cf3141522fb0185e2ba38
+Pull=never
+ContainerName=mercado-cero-litestream
+User=1000:1000
+Network=none
+Volume=mercado-cero-pilot-data:/data
+Volume=mercado-cero-litestream-data:/replica
+Volume=/opt/mercado-cero/pilot/ops/litestream-local.yml:/etc/litestream.yml:ro
+Exec=replicate -config /etc/litestream.yml
+NoNewPrivileges=true
+DropCapability=all
+LogDriver=journald
+
+[Service]
+Restart=on-failure
+RestartSec=10
+MemoryMax=256M
+CPUQuota=25%
+
+[Install]
+WantedBy=multi-user.target

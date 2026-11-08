@@ -1,0 +1,17 @@
+[Unit]
+Description=Mercado Cero private Coolify control plane
+Requires=docker.service
+After=docker.service network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/data/coolify/source
+ExecStartPre=/usr/bin/docker compose -p mercado-cero-coolify -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.custom.yml config -q
+ExecStart=/usr/bin/docker compose -p mercado-cero-coolify -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.custom.yml up -d --wait --wait-timeout 180
+ExecStop=/usr/bin/docker compose -p mercado-cero-coolify -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.custom.yml stop
+TimeoutStartSec=240
+TimeoutStopSec=90
+
+[Install]
+WantedBy=multi-user.target

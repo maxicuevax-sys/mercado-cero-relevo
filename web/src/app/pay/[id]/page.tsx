@@ -6,7 +6,7 @@ import "@/app/checkout.css";
 import CheckoutClient from "./checkout-client";
 
 export const metadata: Metadata = {
-  title: "Pagar · Mercado Cero",
+  title: "Pagar · Trangui",
   description: "Paga tu pedido con CoDi, tarjeta o wallet.",
 };
 

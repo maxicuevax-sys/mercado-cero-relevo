@@ -5,7 +5,7 @@ import { SettingsHome } from "@/components/ajustes/settings-home";
 import { MERCHANT, isDemoMode } from "@/lib/config";
 import "./ajustes.css";
 
-export const metadata: Metadata = { title: "Ajustes · Mercado Cero" };
+export const metadata: Metadata = { title: "Ajustes · Trangui" };
 export const instant = false;
 
 export default async function Page() {

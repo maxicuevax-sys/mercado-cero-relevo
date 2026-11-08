@@ -6,7 +6,7 @@ import { MEXICO_TZ } from "@/lib/mexico-date";
 import { NewCreditForm } from "./new-credit-form";
 
 export const metadata: Metadata = {
-  title: "Nuevo fiado — Mercado Cero",
+  title: "Nuevo fiado — Trangui",
 };
 
 export const instant = false;

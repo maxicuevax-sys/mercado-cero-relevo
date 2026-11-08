@@ -34,10 +34,13 @@
     "verify:list": "node scripts/harness-gate.mjs --list",
     "verify:evidence": "node scripts/verify-evidence.mjs",
     "harness:report": "node scripts/harness-report.mjs",
-    "test:contracts": "npm run test:security && npm run test:fix-datos && npm run test:perf-budget && npm run test:perf-data"
+    "test:contracts": "npm run test:security && npm run test:fix-datos && npm run test:perf-budget && npm run test:perf-data",
+    "test:pilot-identity": "node --no-warnings --test scripts/pilot-identity.test.mjs",
+    "test:pilot-browser": "playwright test -c playwright.pilot.config.ts"
   },
   "dependencies": {
     "@zxing/browser": "^0.2.1",
+    "better-auth": "1.7.18",
     "lucide-react": "^1.65.0",
     "next": "16.4.3",
     "openai": "^7.45.1",
@@ -47,6 +50,8 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.65.0",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^26.6.6",
     "@types/qrcode": "^1.5.6",

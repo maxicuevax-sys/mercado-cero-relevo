@@ -3,7 +3,7 @@ import { FlowScreen } from "@/components/shell/flow-screen";
 import { NewTaskForm } from "./new-task-form";
 
 export const metadata: Metadata = {
-  title: "Nuevo pendiente — Mercado Cero",
+  title: "Nuevo pendiente — Trangui",
 };
 
 export default function NuevoPendientePage() {

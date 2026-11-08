@@ -6,7 +6,7 @@ import { MERCHANT, isDemoMode } from "@/lib/config";
 import "./detalle-movimiento.css";
 
 export const metadata: Metadata = {
-  title: "Movimiento no encontrado · Mercado Cero",
+  title: "Movimiento no encontrado · Trangui",
 };
 
 export default function MovimientoNoEncontrado() {

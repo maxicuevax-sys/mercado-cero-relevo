@@ -123,7 +123,7 @@ export default function CheckoutSuccessPage({
   useEffect(() => {
     if (!missing) return;
     const previousTitle = document.title;
-    document.title = "Cobro no encontrado · Mercado Cero";
+    document.title = "Cobro no encontrado · Trangui";
     return () => {
       document.title = previousTitle;
     };
@@ -148,7 +148,7 @@ export default function CheckoutSuccessPage({
                 No encontramos este cobro
               </h1>
               <p className="mt-3 text-sm leading-relaxed text-ink-2">
-                Este link no corresponde a un cobro de Mercado Cero. Pide a la comerciante
+                Este link no corresponde a un cobro de Trangui. Pide a la comerciante
                 que genere uno nuevo.
               </p>
             </div>

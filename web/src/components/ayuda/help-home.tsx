@@ -22,7 +22,7 @@ export function HelpHome() {
   const matches = topics.filter(topic => normalize(topic.title + " " + topic.text).includes(normalize(query.trim())));
   return <div className="mc-help-home">
     <label className="mc-help-search"><Search aria-hidden="true" /><span className="sr-only">Buscar ayuda</span><input type="search" placeholder="Buscar ayuda" value={query} onChange={event => setQuery(event.target.value)} /></label>
-    <div className="mc-help-welcome"><Image src="/assets/spec/b-help-bot.png" alt="" width={133} height={95} /><div><h2>¡Hola! Soy el asistente de Mercado Cero</h2><p>Puedo explicar funciones y guiarte en el uso de la app.</p></div></div>
+    <div className="mc-help-welcome"><Image src="/assets/spec/b-help-bot.png" alt="" width={133} height={95} /><div><h2>¡Hola! Soy el asistente de Trangui</h2><p>Puedo explicar funciones y guiarte en el uso de la app.</p></div></div>
     <div className="mc-help-section-head"><h2>Temas frecuentes</h2><button type="button" onClick={() => { setQuery(""); setSelected(null); }}>Ver todos</button></div>
     <div className="mc-help-topics">{matches.map(topic => <button type="button" key={topic.title} aria-expanded={selected === topics.indexOf(topic)} aria-controls="mc-help-topic-answer" onClick={() => setSelected(selected === topics.indexOf(topic) ? null : topics.indexOf(topic))}><topic.Icon aria-hidden="true" /><span>{topic.title}</span><ChevronRight aria-hidden="true" /></button>)}</div>
     {query ? <p role="status">{matches.length} temas encontrados.</p> : null}

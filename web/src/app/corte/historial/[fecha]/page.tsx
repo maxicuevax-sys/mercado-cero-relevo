@@ -18,7 +18,7 @@ import { mexicoDateKey, startOfMexicoDay } from "@/lib/time";
 import "../historial.css";
 
 export const metadata: Metadata = {
-  title: "Detalle del corte · Mercado Cero",
+  title: "Detalle del corte · Trangui",
 };
 
 export const instant = false;

@@ -14,7 +14,7 @@ import registerNative from "@/assets/definitive-a/register.png";
 import "./historial.css";
 
 export const metadata: Metadata = {
-  title: "Historial de cortes — Mercado Cero",
+  title: "Historial de cortes — Trangui",
 };
 
 export const instant = false;
