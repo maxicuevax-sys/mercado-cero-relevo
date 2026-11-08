@@ -53,6 +53,12 @@ jobs:
           npm run test:prod-pilot
           npm run test:judge-recovery
 
+      - name: Joint account operational backup and restore contracts
+        run: |
+          python3 ../deploy/ops/test_judge_backup.py
+          python3 ../deploy/ops/test_verify_judge_snapshot.py
+          pwsh -NoProfile -File ../deploy/ops/test-backup-windows.ps1
+
       - name: Harness static gate (build con BUILD_SHA)
         run: npm run verify:static
 
