@@ -1,0 +1,17 @@
+﻿[Unit]
+Description=Trangui local faster-whisper STT
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment=LOCAL_STT_HOST=172.30.0.1
+Environment=LOCAL_STT_PORT=4097
+Environment=LOCAL_STT_MODEL=base
+ExecStart=/opt/mercado-cero/pilot/stt/venv/bin/python /opt/mercado-cero/pilot/stt/server.py
+Restart=on-failure
+RestartSec=5
+User=root
+
+[Install]
+WantedBy=multi-user.target

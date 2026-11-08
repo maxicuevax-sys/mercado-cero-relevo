@@ -19,3 +19,9 @@
 ## Pendiente
 - Micrófono: el contenedor no tiene STT en 127.0.0.1:4097. Interpretar con texto sí funciona; el dictado requiere servicio local/sidecar.
 - Overflow de otros navegadores/fotos reales no sustituido por WebKit emulado.
+
+## Micrófono / STT (post-deploy)
+- Servicio host 	rangui-local-stt.service activo y enabled, faster-whisper 1.2.1, modelo base, bind 172.30.0.1:4097.
+- LOCAL_STT_URL=http://172.30.0.1:4097/transcribe en compose.json de producción (backup compose.pre-stt.json).
+- Prueba pública: WAV de voz -> /api/voice/transcribe -> 200 2 quesadillas y un refresco.
+- No se tocaron DNS/443/CyberPanel/mail; contenedor 4597 recreado; build sigue 34c4329.
