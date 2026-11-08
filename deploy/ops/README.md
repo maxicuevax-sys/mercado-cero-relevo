@@ -98,7 +98,8 @@ captura y cifrado; una ejecución independiente del hook comparte ese lock.
 Instalar en la carpeta privada de respaldos Windows el verificador Python y el
 helper Node revisados, y crear el marcador `judge-backup-required`. Ese marcador
 exige restauración en cada ejecución, aunque falte `-VerifyRestore`. Node 24 o
-superior es necesario. El helper local debe coincidir con el de la imagen capturada;
+superior es necesario. El helper local debe coincidir con el de la imagen capturada
+(solo se normalizan finales de línea CRLF/LF; se conservan los hashes de bytes);
 un cambio de versión requiere revisión e instalación explícita antes de restaurar.
 Nunca se ejecuta código descargado del repositorio de respaldos.
 

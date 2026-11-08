@@ -13,6 +13,14 @@ function Invoke-Restic {
     & $resticExe @args
     if ($LASTEXITCODE -ne 0) { throw "restic failed with exit $LASTEXITCODE" }
 }
+function Test-RecoveryHelperVersion([string]$Trusted, [string]$Captured) {
+    # Git checkouts may use CRLF while container archives use LF (or vice versa).
+    # Normalize only that transport difference; all code remains case-sensitive.
+    $utf8 = New-Object System.Text.UTF8Encoding($false, $true)
+    $localCode = [IO.File]::ReadAllText($Trusted, $utf8).Replace("`r`n", "`n")
+    $capturedCode = [IO.File]::ReadAllText($Captured, $utf8).Replace("`r`n", "`n")
+    return [String]::Equals($localCode, $capturedCode, [StringComparison]::Ordinal)
+}
 try {
     $encrypted = [IO.File]::ReadAllBytes((Join-Path $taskRoot 'restic-password.dpapi'))
     $clear = [Security.Cryptography.ProtectedData]::Unprotect($encrypted, $null, [Security.Cryptography.DataProtectionScope]::CurrentUser)
@@ -61,9 +69,9 @@ try {
             if (-not (Test-Path $judgeDir) -or -not (Test-Path $judgeTools)) { throw 'Required judge backup missing' }
             # Never execute a helper recovered from a repository. Require the reviewed,
             # locally installed helper to match the captured runtime version first.
-            $trustedHash = (Get-FileHash $localRecovery -Algorithm SHA256).Hash
-            $capturedHash = (Get-FileHash (Join-Path $judgeTools 'judge-snapshot.mjs') -Algorithm SHA256).Hash
-            if ($trustedHash -ne $capturedHash) { throw 'Judge recovery helper version requires review' }
+            if (-not (Test-RecoveryHelperVersion $localRecovery (Join-Path $judgeTools 'judge-snapshot.mjs'))) {
+                throw 'Judge recovery helper version requires review'
+            }
             $sumLines = Get-Content (Join-Path $judgeTools 'SHA256SUMS')
             foreach ($name in @('judge-snapshot.mjs', 'runtime-env.json', 'capture.json')) {
                 $line = @($sumLines | Where-Object { $_ -match ('^[a-f0-9]{64}  ' + [regex]::Escape($name) + '$') })

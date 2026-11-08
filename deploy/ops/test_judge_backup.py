@@ -18,7 +18,7 @@ if args[0]=='inspect':
     field=args[2]
     if 'Config.Env' in field:
         env=['JUDGE_DEMO_ACCOUNTS=true','DEMO_MODE=true','JUDGE_DATA_ROOT=/data/judges','PILOT_AUTH_SECRET=PRIVATE-TEST-SECRET','OPENAI_API_KEY=']
-        if os.environ.get('BAD_ENV'): env.append('PEY_API_KEY=PRIVATE-PROVIDER')
+        if os.environ.get('BAD_ENV'): env.append('PEY_API_KEY=test-provider-blocked')
         print(json.dumps(env))
     elif 'Running' in field: print('false' if os.environ.get('DOWN') else 'true')
     else: print(image)
