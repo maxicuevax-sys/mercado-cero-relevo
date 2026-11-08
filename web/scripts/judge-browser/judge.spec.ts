@@ -38,6 +38,19 @@ test("source inventory prevents new page or API exports from bypassing account s
         discoveredPages.push(route.replace(/\[id\]/g, "ajeno").replace(/\[fecha\]/g, "2026-11-07"));
       }
     } else if (route !== "/api/health" && !route.startsWith("/api/access/")) {
+      // These two exact isolated routes authenticate explicitly: payment uses
+      // verifiedJudgeAccount; callback uses Standard Webhooks without a session.
+      if (route === "/api/real-test/payment") {
+        expect(source).toContain("await verifiedJudgeAccount(request.headers)");
+        expect(source).toContain("if (!account)");
+        expect(source).toContain("isSameOriginMutation(request)");
+        continue;
+      }
+      if (route === "/api/real-test/webhook") {
+        expect(source).toContain("receiveRealTest(identity.database, raw, request.headers)");
+        expect(source).toContain("readTextLimited(request, MAX_WEBHOOK_BYTES)");
+        continue;
+      }
       const exported = [...source.matchAll(/export\s+(?:async\s+)?(?:function|const)\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\b/g)];
       expect(exported.length, `Missing classified handlers: ${route}`).toBeGreaterThan(0);
       for (const [, method] of exported) {

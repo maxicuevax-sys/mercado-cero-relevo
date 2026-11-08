@@ -27,3 +27,11 @@ Se recuperaron del trabajo publicado en el chat «Crear QR artístico de tiangui
 La metadata principal/OpenGraph/Twitter expresa el propósito social y usa el dominio https://xn--hw9h.st/. No presenta el aviso operativo de demo como propuesta de valor. Los avisos financieros dentro de los flujos siguen intactos. La tarjeta ilustrada conserva su indicación visual de demo, y el QR artístico de compartir abre la app; no se confunde con un QR de pago dinámico.
 
 El sitio emoji tiene un despliegue independiente: trangui-public-emoji en4597, relay4598 y APP_URL propio. Actualizarlo exige conservar su secreto, sus datos y el relay; no cambiar DNS ni reemplazar cuentas con las de4590. La operación final se verifica por su salud HTTPS, cuenta/login y metadata publicadas. No se afirma que el webhook real esté operativo: DSH documentó un QR y cargo bancario de un centavo sin conciliación en producto.
+
+## Último lote: QR y prueba real aislada
+
+El renderer QR aplica toldos procedurales sobre la matriz real, nunca la imagen de compartir para otros pedidos. Mantiene margen4, patrones funcionales y alternativa QR original; rechaza decoración si la densidad sería ilegible al tamaño mínimo. Tres contratos y nueve imágenes rasterizadas leídas byte a byte por ZXing y OpenCV pasaron; falta lectura bancaria física del arte.
+
+La prueba de un centavo usa un carril independiente de las ventas demo, autenticado y limitado a una cuenta autorizada, con un único intento global que bloquea reintentos inciertos. El callback tiene excepción exacta de Origin, límites de cuerpo y firma StandardWebhooks. Requiere receptor, APIkeyId y cuenta autorizada verificados; permanece deshabilitado si faltan. Solo un evento firmado que coincida con QR/referencia/receptor/importe/transacción puede confirmar. Siete contratos incluyen proxy real sin Origin y rechazo de secretos malformados; no equivale a un webhook bancario recibido en público.
+
+Con el bundle privado exacto de DSH se confirmó por GET de Pey que el QR358311ed46 tiene una transacción PAID de un centavo y su banco está ACTIVE. Esto verifica el pago anterior en Pey, no demuestra conciliación automática de Trangui. Los secretos se guardan fuera de Git y no se incluyen en la evidencia.

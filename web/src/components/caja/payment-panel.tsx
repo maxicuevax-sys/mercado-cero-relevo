@@ -8,6 +8,7 @@ import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatMxn } from "@/lib/format";
 import { saleMoney } from "@/lib/sale-truth";
 import type { Order } from "@/lib/types";
+import { TianguisQr } from "@/components/ui/tianguis-qr";
 
 const TERMINAL = new Set(["paid", "demo_paid", "fulfilled", "cancelled"]);
 
@@ -459,9 +460,10 @@ export function PaymentPanel({
               QR Cámara (Link)
             </button>
           </div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={
+          <TianguisQr
+            payload={qrViewMode === "codi" && order.qrImage && !demo ? order.qrString : null}
+            decodeOriginal={qrViewMode === "link" || demo}
+            original={
               qrViewMode === "link"
                 ? (linkQrDataUrl ?? order.qrImage ?? "")
                 : (order.qrImage ?? linkQrDataUrl ?? "")
