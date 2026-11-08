@@ -141,7 +141,11 @@ function MovementRow({
             className="mc-mov-row__total"
           />
           {state === "cancelled" ? (
-            <span className="mc-mov-row__pending">Cancelada, no se cobra</span>
+            <span className="mc-mov-row__pending">
+              {summary.hasPayment
+                ? "Cancelada · pago registrado"
+                : "Cancelada, no se cobra"}
+            </span>
           ) : summary.dueCents > 0 ? (
             <span className="mc-mov-row__due">
               Falta cobrar <CurrencyAmount cents={summary.dueCents} />

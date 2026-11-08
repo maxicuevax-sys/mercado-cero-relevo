@@ -386,7 +386,9 @@ function stateDetail(state: MovementState, summary: MovementSummary): string {
         ? `Pago demo (simulado); faltan ${formatMxn(summary.dueCents)} por cobrar.`
         : "Pago demo: simulación, no es dinero real.";
     case "cancelled":
-      return "Esta solicitud no cuenta como cobro.";
+      return summary.hasPayment
+        ? "Cancelada, pero tiene pagos registrados; revisa su fuente abajo."
+        : "Esta solicitud no cuenta como cobro.";
   }
 }
 
