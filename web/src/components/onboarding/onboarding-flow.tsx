@@ -54,7 +54,7 @@ export function OnboardingFlow({ profile }: { profile: BusinessProfile | null })
 
   return <main className="onb-shell" id="onboarding-main">
     <header className="onb-header">
-      <div className="onb-brand"><Image src={brandShop} alt="" width={44} height={44} aria-hidden="true" /><span>Trangui</span><span className="onb-rays" aria-hidden="true">✳</span></div>
+      <div className="onb-brand"><Image src={brandShop} alt="" width={44} height={44} aria-hidden="true" /><span>Trangui</span><svg className="onb-rays" viewBox="0 0 28 30" aria-hidden="true"><path d="m6 6 9-4M7 14h14M6 22l9 5" /></svg></div>
       <span className="onb-demo">DEMO</span>
     </header>
     <article className="onb-card" aria-labelledby="onb-title">

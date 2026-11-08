@@ -225,7 +225,7 @@ test("onboarding is accessible at 320, 390 and 1448 and preserves choice after a
     await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ error: "No pudimos guardar el giro. Inténtalo otra vez." }) });
   });
   await page.getByRole("button", { name: "Empezar con mi puesto", exact: true }).click();
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.getByRole("alert").filter({ hasText: "No pudimos guardar tu giro" })).toBeVisible();
   await expect(page).toHaveURL(/\/onboarding$/);
   await expect(page.getByRole("radio", { name: choices.general, exact: true })).toBeChecked();
   expect(await profile(page.context())).toBeNull();
