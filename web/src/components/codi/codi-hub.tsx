@@ -11,12 +11,11 @@ import { PAYMENT_STATES, orderStatusCopy } from "@/lib/payment-labels";
 import type { Order } from "@/lib/types";
 import { TianguisQr } from "@/components/ui/tianguis-qr";
 import "./codi-hub.css";
-import { RealTestPayment } from "./real-test-payment";
 
 /** Mismo tope que `MAX_UNIT_PRICE_CENTS` en lib/orders.ts; se valida también en el servidor. */
 const MAX_AMOUNT_CENTS = 10_000_000;
-const MIN_AMOUNT_CENTS = 100;
-const QUICK_AMOUNTS = [2_000, 5_000, 10_000];
+const MIN_AMOUNT_CENTS = 1;
+const QUICK_AMOUNTS = [1, 2_000, 5_000, 10_000];
 const POLL_MS = 5_000;
 const TERMINAL: ReadonlySet<Order["status"]> = new Set([
   "paid",
@@ -280,7 +279,6 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
                   ${cents / 100}
                 </button>
               ))}
-              <RealTestPayment />
             </div>
 
             <button
