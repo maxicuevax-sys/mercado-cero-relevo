@@ -1256,7 +1256,7 @@
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-sidebar { padding: 20px 12px 0; }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-brand { padding: 4px 0 17px; border: 0; }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-brand__name { font: 700 min(2.5rem, 40px)/0.94 Georgia, serif; }
-  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item { min-height: 58px; gap: 18px; padding-inline: 20px; border-radius: 20px; font-size: 1.3125rem; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item { min-height: 58px; flex-wrap: nowrap; gap: 14px; padding-inline: 16px; border-radius: 20px; font-size: 1.3125rem; }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item[aria-current="page"] { background: #ffe8bf; color: var(--inicio-ink); }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item[aria-current="page"] .inicio-nav__icon { color: var(--inicio-green); }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-sidebar__foot { margin-top: 23px; padding-top: 3px; }

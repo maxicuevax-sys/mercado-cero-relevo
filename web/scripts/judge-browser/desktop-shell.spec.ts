@@ -89,6 +89,7 @@ for (const width of [1448, 1280]) {
     });
     await register(page);
     let originalRail: { x: number; width: number } | undefined;
+    const originalLinkHeights = new Map<string, number>();
     for (const [name, route] of destinations) {
       await test.step(`sidebar → ${route}`, async () => {
         // Next retains previous route trees in hidden Activity containers.
@@ -109,6 +110,9 @@ for (const width of [1448, 1280]) {
         expect((await links.evaluateAll(elements => elements.map(element => element.getAttribute("href")))).sort()).toEqual(sidebarInventory);
         for (const link of await links.all()) {
           const linkBounds = await box(link);
+          const href = (await link.getAttribute("href"))!;
+          if (!originalLinkHeights.has(href)) originalLinkHeights.set(href, linkBounds.height);
+          expect(Math.abs(linkBounds.height - originalLinkHeights.get(href)!), `${route}: ${href} changed height when active`).toBeLessThanOrEqual(1);
           expect(linkBounds.x).toBeGreaterThanOrEqual(bounds.x - 1);
           expect(linkBounds.x + linkBounds.width).toBeLessThanOrEqual(bounds.x + bounds.width + 1);
           expect(linkBounds.y).toBeGreaterThanOrEqual(0);
@@ -116,7 +120,38 @@ for (const width of [1448, 1280]) {
         }
         await expect(rail.locator(`a.inicio-nav__item[href="${route}"]`)).toHaveAttribute("aria-current", "page");
         if (route === "/caja") await expect(page.getByText("Aún no hay conceptos.", { exact: true })).toBeVisible();
+        if (route === "/corte") {
+          await expect(page.locator("main:visible")).not.toContainText(/[ÃÂ]/);
+          expect((await box(page.locator(".mc-corte-v2-hero__art img:visible"))).width).toBeLessThanOrEqual(200);
+        }
+        if (route === "/metas") {
+          await expect(page.locator(".mc-metas-native")).toBeHidden();
+          expect((await box(page.locator(".mc-metas-hero__art img:visible"))).width).toBeLessThanOrEqual(240);
+        }
+        if (route === "/pendientes") {
+          const lines = await page.locator(".mc-pend-summary__value:visible").evaluateAll(elements => elements.map(element => {
+            const range = document.createRange(); range.selectNodeContents(element);
+            return new Set(Array.from(range.getClientRects(), rect => Math.round(rect.top))).size;
+          }));
+          expect(lines.length).toBeGreaterThanOrEqual(2);
+          expect(lines.every(count => count === 1), "Task summary numbers must not split into vertical fragments").toBe(true);
+          expect((await box(page.locator(".mc-pend-hero__art img:visible"))).width).toBeLessThanOrEqual(200);
+        }
         await page.screenshot({ path: testInfo.outputPath(`${route.slice(1)}-${width}.png`), fullPage: true });
+        if (route === "/corte") {
+          await page.locator(".mc-corte-v2-count > summary").click();
+          await expect(page.getByLabel("Total contado en pesos", { exact: true })).toBeVisible();
+          await page.screenshot({ path: testInfo.outputPath(`corte-conteo-${width}.png`), fullPage: true });
+          await page.locator(".mc-corte-v2-count > summary").click();
+        }
+        if (route === "/metas") {
+          await page.locator(".mc-metas-hero:visible").getByRole("button", { name: "Apartar", exact: true }).click();
+          const goalDialog = page.getByRole("dialog", { name: /^Apartar a / });
+          await expect(goalDialog).toBeVisible();
+          await page.screenshot({ path: testInfo.outputPath(`metas-apartar-${width}.png`), fullPage: false });
+          await page.keyboard.press("Escape");
+          await expect(goalDialog).toBeHidden();
+        }
       });
     }
     await expectCodiGeometry(page);
@@ -147,6 +182,8 @@ for (const width of [1448, 1280]) {
     expect(dialogBounds.y).toBeGreaterThanOrEqual(0);
     expect(dialogBounds.x + dialogBounds.width).toBeLessThanOrEqual(width);
     expect(dialogBounds.y + dialogBounds.height).toBeLessThanOrEqual(1086);
-    await page.screenshot({ path: testInfo.outputPath(`caja-discard-dialog-${width}.png`), fullPage: true });
+    // Capture the viewport: full-page stitching misrepresents fixed top-layer
+    // dialogs and sticky rails when the trigger was below the fold.
+    await page.screenshot({ path: testInfo.outputPath(`caja-discard-dialog-${width}.png`), fullPage: false });
   });
 }
