@@ -1,4 +1,4 @@
-import { test, expect, type Page, type BrowserContext } from "@playwright/test";
+import { test, expect, type Page, type BrowserContext, type Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
@@ -65,22 +65,52 @@ async function signUp(page: Page, email: string) {
   await page.getByLabel("Tu nombre", { exact: true }).fill("Juez temporal");
   await page.getByLabel("Correo electrónico", { exact: true }).fill(email);
   await page.getByLabel("Crea una contraseña", { exact: true }).fill(password);
-  for (let attempt = 0; attempt <= 2; attempt += 1) {
-    const pending = page.waitForResponse(response => response.url().endsWith("/api/access/sign-up") && response.request().method() === "POST");
-    await page.getByRole("button", { name: "Crear mi cuenta", exact: true }).click();
-    const response = await pending;
-    if (response.status() === 429 && attempt < 2) {
-      expect((await page.context().request.get("/api/access/session")).status(), "Rate limiting must not create a session").toBe(401);
-      const retryAfter = Number(response.headers()["retry-after"]);
-      expect(Number.isInteger(retryAfter), "Native limiter must provide Retry-After seconds").toBe(true);
-      expect(retryAfter).toBeGreaterThanOrEqual(1);
-      expect(retryAfter).toBeLessThanOrEqual(10);
-      await page.waitForTimeout(retryAfter * 1000);
-      continue;
+  type SignupResponse = { attempt: number; status: number; headers: Record<string, string>; body: Buffer };
+  let pendingCapture: { resolve: (response: SignupResponse) => void; reject: (error: unknown) => void } | undefined;
+  let captureAttempt = 0;
+  const signupRoute = "**/api/access/sign-up";
+  const captureSignup = async (route: Route) => {
+    if (route.request().method() !== "POST" || !pendingCapture) {
+      await route.continue();
+      return;
     }
-    expect(response.status()).toBe(200);
-    expect(await response.json(), "The browser gets an HttpOnly cookie, never a bearer token").toEqual({ ok: true });
-    break;
+    const pending = pendingCapture;
+    pendingCapture = undefined;
+    try {
+      // Read the real upstream body before delivering it: the product redirects
+      // immediately after success, which invalidates Chromium's response handle.
+      const response = await route.fetch({ maxRetries: 0, maxRedirects: 0 });
+      const body = await response.body();
+      const captured = { attempt: captureAttempt++, status: response.status(), headers: response.headers(), body };
+      await route.fulfill({ response, body });
+      pending.resolve(captured);
+    } catch (error) {
+      pending.reject(error);
+      await route.abort();
+    }
+  };
+  await page.route(signupRoute, captureSignup);
+  try {
+    for (let attempt = 0; attempt <= 2; attempt += 1) {
+      const pending = new Promise<SignupResponse>((resolve, reject) => { pendingCapture = { resolve, reject }; });
+      await page.getByRole("button", { name: "Crear mi cuenta", exact: true }).click();
+      const response = await pending;
+      expect(response.attempt, "Each native signup response must belong to this UI attempt").toBe(attempt);
+      if (response.status === 429 && attempt < 2) {
+        expect((await page.context().request.get("/api/access/session")).status(), "Rate limiting must not create a session").toBe(401);
+        const retryAfter = Number(response.headers["retry-after"]);
+        expect(Number.isInteger(retryAfter), "Native limiter must provide Retry-After seconds").toBe(true);
+        expect(retryAfter).toBeGreaterThanOrEqual(1);
+        expect(retryAfter).toBeLessThanOrEqual(10);
+        await page.waitForTimeout(retryAfter * 1000);
+        continue;
+      }
+      expect(response.status).toBe(200);
+      expect(JSON.parse(response.body.toString("utf8")), "The browser gets an HttpOnly cookie, never a bearer token").toEqual({ ok: true });
+      break;
+    }
+  } finally {
+    await page.unroute(signupRoute, captureSignup);
   }
   await expect(page).toHaveURL(/\/inicio$/);
   const session = await page.context().request.get("/api/access/session");
