@@ -1,0 +1,16 @@
+<!doctype html><html lang="es"><meta charset="utf-8">
+<title>Relevo · estado</title>
+<style>
+:root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#f5f7f5;color:#15231c;font:15px/1.45 system-ui,sans-serif}
+main{max-width:1080px;margin:0 auto;padding:32px 20px 64px}header{display:flex;gap:16px;justify-content:space-between;align-items:end;margin-bottom:20px}
+h1{margin:0;font-size:30px;letter-spacing:-.03em}h2{font-size:16px;margin:0 0 12px}.sub{color:#5d6d63;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.card{background:#fff;border:1px solid #dfe7e1;border-radius:16px;padding:18px;box-shadow:0 2px 8px #15231c0a}
+.card.ok{border-top:4px solid #1c7a4a}.card.bad{border-top:4px solid #b42318}dl{margin:0}dt{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#728078;margin-top:10px}
+dd{margin:2px 0 0;font-weight:650;word-break:break-word}.note{margin-top:18px;padding:14px 16px;border-radius:12px;background:#eef4ef;border:1px solid #d9e5dc;font-size:13px}
+a{color:#166a43}footer{margin-top:22px;color:#6b7b71;font-size:12px}code{font-size:12px}
+</style></head><body><main>
+<header><div><h1>Operación Relevo</h1><div class="sub">Panel read-only · 2026-11-07T08:08:42Z</div></div><div class="sub">mercadocero · demo 7-nov</div></header>
+<div class="grid"><section class='card ok'><h2>Producto / fallback</h2><dl><div class='row'><dt>4497</dt><dd>d1fe344fcaa15a5625d09db10a6e049c6464ba03 · OK</dd></div><div class='row'><dt>4580 candidato</dt><dd>48fe63f235144f6a7704505a9a79ffccaca46ab7 · OK</dd></div><div class='row'><dt>HEAD / build</dt><dd>48fe63f / 48fe63f23514 · limpio</dd></div></dl></section><section class='card ok'><h2>Goal gate / atención</h2><dl><div class='row'><dt>gate</dt><dd>PASS</dd></div><div class='row'><dt>hard/system</dt><dd>0</dd></div><div class='row'><dt>estado</dt><dd>sin decisiones hard</dd></div></dl></section><section class='card ok'><h2>Watchdog</h2><dl><div class='row'><dt>status</dt><dd>warn</dd></div><div class='row'><dt>checks</dt><dd>277</dd></div><div class='row'><dt>anomalías</dt><dd>100</dd></div><div class='row'><dt>reinicios</dt><dd>0</dd></div></dl></section><section class='card ok'><h2>Verificación</h2><dl><div class='row'><dt>smoke</dt><dd>18 rutas + Detalle · 0 errors</dd></div><div class='row'><dt>security</dt><dd>58/58</dd></div><div class='row'><dt>demo-pay</dt><dd>66/66</dd></div><div class='row'><dt>B1</dt><dd>73/73</dd></div><div class='row'><dt>static</dt><dd>5/5 · árbol limpio</dd></div></dl></section></div>
+<div class="note"><strong>Regla:</strong> 4580 es el candidato; 4497 es el fallback. Hard/system bloquean el goal; soft va a digest. No se declara <code>paid</code> real sin webhook firmado.</div>
+<footer>Generado por <code>relevo-status</code>. Datos vivos: health, watchdog, attention gate, git/build. <a href="ATTENTION.html">Bandeja de atención</a> · <a href="INFRA-MACRO.html">Mapa de infraestructura</a> · <a href="DEMO-REHEARSAL-FINAL.md">Ensayo de demo</a></footer>
+</main></body></html>
