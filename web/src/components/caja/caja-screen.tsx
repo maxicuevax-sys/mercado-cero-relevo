@@ -724,6 +724,20 @@ export function CajaScreen({
         // La venta ya está recuperada; el saldo se toma del listado.
       }
 
+      // Other tabs may still hold this exact draft without an in-memory request.
+      // Publish its receipt before releasing the shared unknown/request records.
+      try {
+        writeConfirmedSale({
+          instanceId: draftInstanceId,
+          requestId: unknownResult.requestId,
+          signature: unknownResult.signature,
+          orderId: recovered.id,
+          confirmedAt: new Date().toISOString(),
+        });
+      } catch {
+        // Without shared storage the current tab still retains the request key.
+      }
+
       const due = Math.max(
         0,
         recovered.totalCents - recovered.paidCents - recovered.creditCents,
@@ -751,6 +765,7 @@ export function CajaScreen({
       setCashReceivedCents(0);
       setView(due > 0 ? "payment" : "result");
       setLines([]);
+      setDraftInstanceId(newInstanceId());
       setCashInput("");
       setCreditInput("");
       setCustomerName("");
@@ -774,7 +789,7 @@ export function CajaScreen({
         "No pudimos consultar el estado. No edites ni cobres otra vez; reintenta la consulta.",
       );
     }
-  }, [unknownResult]);
+  }, [unknownResult, draftInstanceId]);
 
   function goToPayment() {
     const target = document.getElementById("mc-caja-payment-summary");

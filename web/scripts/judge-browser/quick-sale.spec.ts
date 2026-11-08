@@ -252,10 +252,22 @@ test("ambiguous quick cash response blocks a second charge until real reconcilia
   const baseline = await orders(page.context());
   await page.goto("/caja");
   await addManual(page);
+  await expect.poll(() => page.evaluate(() => {
+    const raw = localStorage.getItem("mercado-cero:caja-draft:v2");
+    return raw ? JSON.parse(raw).lines.length : 0;
+  })).toBe(1);
+  // Open the same durable draft before the first attempt. This tab deliberately
+  // remains untouched until the first tab has recovered its committed order.
+  const twin = await page.context().newPage();
+  await twin.setViewportSize({ width: 390, height: 693 });
+  await twin.goto("/caja");
+  await expect(twin.locator(".mc-caja-line textarea")).toHaveValue("Producto manual");
   let attempts = 0;
+  let firstPayload: Record<string, unknown> | undefined;
   await page.route("**/api/orders", async route => {
     if (route.request().method() !== "POST") return route.continue();
     attempts += 1;
+    firstPayload = route.request().postDataJSON();
     // The real server commits successfully; only its delivery is ambiguous.
     // Reconciliation must discover that order instead of creating another.
     const response = await route.fetch({ maxRetries: 0, maxRedirects: 0 });
@@ -271,10 +283,28 @@ test("ambiguous quick cash response blocks a second charge until real reconcilia
   expect(committed).toHaveLength(baseline.length + 1);
   await page.screenshot({ path: testInfo.outputPath("cash-unknown-390.png"), fullPage: true });
   await page.getByRole("button", { name: "Consultar si se registró", exact: true }).click();
-  await expectCashResult(page, baseline, 2000);
+  const recovered = await expectCashResult(page, baseline, 2000);
   expect(ids(await orders(page.context()))).toEqual(ids(committed));
   expect(attempts).toBe(1);
+  expect(firstPayload).toBeDefined();
+  const twinPost = twin.waitForRequest(request => request.url().endsWith("/api/orders") && request.method() === "POST");
+  await quick(twin).click();
+  const twinPayload = (await twinPost).postDataJSON();
+  expect(twinPayload.requestId, "The stale tab must reuse the reconciled draft's original request key").toBe(firstPayload?.requestId);
+  expect(twinPayload).toEqual(firstPayload);
+  const sameOrder = await expectCashResult(twin, baseline, 2000);
+  expect(sameOrder.id).toBe(recovered.id);
+  expect(ids(await orders(page.context()))).toEqual(ids(committed));
+  await twin.close();
   await page.unroute("**/api/orders");
+  await nextSale(page);
+  await addManual(page);
+  const newPost = page.waitForRequest(request => request.url().endsWith("/api/orders") && request.method() === "POST");
+  await quick(page).click();
+  const newPayload = (await newPost).postDataJSON();
+  expect(newPayload.requestId, "A legitimate identical new sale needs its own request key").not.toBe(firstPayload?.requestId);
+  const legitimate = await expectCashResult(page, committed, 2000);
+  expect(legitimate.id).not.toBe(recovered.id);
 });
 
 test("uncommitted quick cash survives reload and a 404 lookup before retrying the same key", async ({ page }, testInfo) => {
