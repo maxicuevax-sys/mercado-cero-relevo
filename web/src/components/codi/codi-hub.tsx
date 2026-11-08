@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Loader2, QrCode, RefreshCw } from "lucide-react";
+import { Banknote, Check, Loader2, QrCode, RefreshCw, Zap } from "lucide-react";
 import qrArt from "@/assets/brand/ilustraciones/transparent/qr.png";
 import { parseMoneyCents } from "@/components/caja/types";
 import { formatMxn } from "@/lib/format";
@@ -138,6 +138,52 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
       requestRef.current = null;
     } catch (caught) {
       setError(friendlyError(caught, "No se pudo iniciar el cobro con CoDi."));
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function startCashCobro() {
+    if (creating || simulating) return;
+    const cents = amountCents;
+    if (cents < MIN_AMOUNT_CENTS) {
+      setError("Escribe un monto de al menos $1.00 para cobrar.");
+      amountRef.current?.focus();
+      return;
+    }
+    if (cents > MAX_AMOUNT_CENTS) {
+      setError("El monto máximo por cobro es $100,000.00.");
+      return;
+    }
+
+    setCreating(true);
+    setError(null);
+    try {
+      const requestId = newClientKey("cobro-cash");
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: [
+            {
+              description: "Cobro rápido",
+              quantity: 1,
+              unitPriceCents: cents,
+            },
+          ],
+          cashCents: cents,
+          paymentMethod: "cash",
+          requestId,
+        }),
+      });
+      const data = (await response.json()) as { order?: Order; error?: string };
+      if (!response.ok || !data.order) {
+        throw new Error(data.error ?? "No se pudo registrar el cobro en efectivo.");
+      }
+      setOrder(data.order);
+      requestRef.current = null;
+    } catch (caught) {
+      setError(friendlyError(caught, "No se pudo registrar el cobro en efectivo."));
     } finally {
       setCreating(false);
     }
@@ -280,25 +326,44 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
               ))}
             </div>
 
-            <button
-              type="button"
-              className="mc-codi__cta"
-              onClick={() => void startCobro()}
-              disabled={creating}
-            >
-              {creating ? (
-                <Loader2 className="mc-codi__spin" aria-hidden="true" />
-              ) : (
-                <QrCode aria-hidden="true" />
-              )}
-              <span>
-                {creating
-                  ? "Preparando el QR…"
-                  : amountCents >= MIN_AMOUNT_CENTS
-                    ? `Cobrar ${formatMxn(amountCents)}`
-                    : "Cobrar con CoDi"}
-              </span>
-            </button>
+            <div className="mc-codi__buttons">
+              <button
+                type="button"
+                className="mc-codi__cta"
+                onClick={() => void startCobro()}
+                disabled={creating}
+              >
+                {creating ? (
+                  <Loader2 className="mc-codi__spin" aria-hidden="true" />
+                ) : (
+                  <QrCode aria-hidden="true" />
+                )}
+                <span>
+                  {creating
+                    ? "Preparando el QR…"
+                    : amountCents >= MIN_AMOUNT_CENTS
+                      ? `Cobrar con CoDi (${formatMxn(amountCents)})`
+                      : "Cobrar con CoDi"}
+                </span>
+              </button>
+              <button
+                type="button"
+                className="mc-codi__cta mc-codi__cta--cash"
+                onClick={() => void startCashCobro()}
+                disabled={creating}
+              >
+                {creating ? (
+                  <Loader2 className="mc-codi__spin" aria-hidden="true" />
+                ) : (
+                  <Banknote aria-hidden="true" />
+                )}
+                <span>
+                  {amountCents >= MIN_AMOUNT_CENTS
+                    ? `⚡ Cobro rápido en efectivo (${formatMxn(amountCents)})`
+                    : "⚡ Cobro rápido en efectivo"}
+                </span>
+              </button>
+            </div>
 
             <p className="mc-codi__hint" id="mc-codi-amount-help">
               El QR no es un pago: el cobro se confirma cuando el pago llega.{" "}
@@ -315,11 +380,11 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
             <Check />
           </span>
           <p className="mc-codi__eyebrow">
-            <span>Cobro con CoDi</span>
+            <span>{order.paymentMethod === "cash" ? "Cobro en efectivo" : "Cobro con CoDi"}</span>
             {demo ? <span className="mc-codi__badge">Demo</span> : null}
           </p>
           <h2 id="mc-codi-title" ref={headingRef} tabIndex={-1} className="mc-codi__title">
-            {title}
+            {order.paymentMethod === "cash" ? "Cobro en efectivo registrado" : title}
           </h2>
           <p className="mc-codi__settled-amount">{formatMxn(order.totalCents)}</p>
           <p className="mc-codi__settled-meta">
@@ -327,11 +392,15 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
             {order.numRef ? ` · Referencia ${order.numRef}` : ""}
           </p>
           <p className="mc-codi__note">
-            {order.status === "demo_paid"
-              ? `${PAYMENT_STATES.demo.detail} No lo cuentes como cobrado.`
-              : order.status === "paid"
-                ? "El proveedor de pagos confirmó este cobro."
-                : "La entrega de este pedido ya quedó registrada."}
+            {order.paymentMethod === "cash"
+              ? demo
+                ? "Cobro en efectivo registrado (demo). Sumado a la caja de hoy."
+                : "Cobro en efectivo registrado. Sumado a la caja de hoy."
+              : order.status === "demo_paid"
+                ? `${PAYMENT_STATES.demo.detail} No lo cuentes como cobrado.`
+                : order.status === "paid"
+                  ? "El proveedor de pagos confirmó este cobro."
+                  : "La entrega de este pedido ya quedó registrada."}
           </p>
           <div className="mc-codi__actions">
             <button type="button" className="mc-codi__cta" onClick={nuevoCobro}>

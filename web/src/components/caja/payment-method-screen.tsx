@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { ArrowRight, Banknote, CalendarDays, QrCode, ReceiptText } from "lucide-react";
+import { ArrowRight, Banknote, CalendarDays, QrCode, ReceiptText, Zap } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import type { PaymentChoice } from "./types";
 
@@ -27,7 +27,38 @@ export function PaymentMethodScreen(p: Props) {
       </label>)}
     </fieldset>
     <details className="mc-payment-mixed"><summary>Otros métodos de cobro</summary><button type="button" aria-pressed={p.method === "mixed"} disabled={p.disabled} onClick={() => { p.onMethod("mixed"); setReview(true); }}>Mixto</button></details>
-    {!review ? <button type="button" className="mc-caja-button mc-caja-button--primary mc-payment-continue" disabled={p.disabled} onClick={() => { setReview(true); window.requestAnimationFrame(() => document.getElementById("mc-method-review")?.focus()); }}>Continuar <ArrowRight aria-hidden="true" /></button> : null}
+    {!review ? (
+      <div className="mc-payment-actions">
+        {p.method === "cash" ? (
+          <button
+            type="button"
+            className="mc-caja-button mc-caja-button--quick-pay mc-payment-quick-cash"
+            disabled={p.disabled}
+            onClick={async () => {
+              p.onCash((p.totalCents / 100).toFixed(2));
+              setReview(true);
+              await p.onConfirm();
+            }}
+          >
+            <Zap aria-hidden="true" />
+            <span>⚡ Cobrar en efectivo exacto</span>
+          </button>
+        ) : null}
+        <button
+          type="button"
+          className="mc-caja-button mc-caja-button--primary mc-payment-continue"
+          disabled={p.disabled}
+          onClick={() => {
+            setReview(true);
+            window.requestAnimationFrame(() =>
+              document.getElementById("mc-method-review")?.focus(),
+            );
+          }}
+        >
+          Continuar <ArrowRight aria-hidden="true" />
+        </button>
+      </div>
+    ) : null}
     {review ? <section id="mc-method-review" tabIndex={-1} className="mc-payment-review" aria-label="Revisar cobro">
       <h2>Revisa el cobro</h2>
       {p.method === "cash" || p.method === "mixed" ? <><label>Efectivo recibido<input value={p.cashInput} inputMode="decimal" disabled={p.disabled} onChange={e => p.onCash(e.target.value)} /></label><button type="button" disabled={p.disabled} onClick={() => p.onCash((p.totalCents / 100).toFixed(2))}>Efectivo exacto</button>{p.changeCents > 0 ? <p>Cambio a devolver <CurrencyAmount cents={p.changeCents} /></p> : null}</> : null}

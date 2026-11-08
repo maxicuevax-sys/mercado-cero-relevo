@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Bell } from "lucide-react";
+import { ArrowLeft, Bell, Zap } from "lucide-react";
 import type { DashboardData } from "@/lib/dashboard";
 import type { Order } from "@/lib/types";
 import { AppShell } from "@/components/shell/app-shell";
@@ -309,6 +309,22 @@ export function CajaScreen({
     if (window.confirm("¿Descartar la venta sin confirmar?")) clearDraft();
   }, [clearDraft]);
 
+  const handleQuickAdd = useCallback(
+    (cents: number) => {
+      if (saving || Boolean(unknownResult) || legacyConflict) return;
+      const line: DraftLine = {
+        id: newLineId(),
+        description: "Venta rápida",
+        quantity: "1",
+        price: (cents / 100).toFixed(2),
+      };
+      setLines((current) => [...current, line]);
+      setError(null);
+      setAnnouncement(`Venta rápida por $${cents / 100} agregada.`);
+    },
+    [legacyConflict, saving, unknownResult],
+  );
+
   function discardLegacyDraft() {
     if (
       !window.confirm(
@@ -342,7 +358,7 @@ export function CajaScreen({
     }
   }
 
-  function validate(): string | null {
+  function validateLinesOnly(): string | null {
     if (!lines.length) return "Agrega al menos un concepto.";
     const issues: Record<string, string> = {};
     for (const line of lines) {
@@ -367,6 +383,12 @@ export function CajaScreen({
       });
       return "Revisa los conceptos marcados.";
     }
+    return null;
+  }
+
+  function validate(): string | null {
+    const linesIssue = validateLinesOnly();
+    if (linesIssue) return linesIssue;
     if (overpay) return "El fiado no puede superar el total.";
     if (creditCoversAllWithCash) {
       return "El fiado ya cubre el total y no se aplicó el efectivo. Ajusta el monto a fiado o el efectivo.";
@@ -415,14 +437,76 @@ export function CajaScreen({
       setError(issue);
       return;
     }
-    setSaving(true);
-    setError(null);
-
-    const { payload, signature } = buildSalePayload(
+    await executeSale(
       lines,
       cashInput,
       creditInput,
       customerName,
+      changeForSale,
+      cashCents,
+    );
+  }
+
+  async function confirmQuickSale() {
+    if (saleLockRef.current || lines.length === 0 || totalCents <= 0) return;
+    const issue = validateLinesOnly();
+    if (issue) {
+      setError(issue);
+      return;
+    }
+    const exactCashStr = (totalCents / 100).toFixed(2);
+    setMethod("cash");
+    setCashInput(exactCashStr);
+    setCreditInput("");
+    setCustomerName("");
+    setError(null);
+
+    saleLockRef.current = true;
+    try {
+      const locks = (
+        navigator as Navigator & {
+          locks?: {
+            request: <T>(name: string, callback: () => Promise<T>) => Promise<T>;
+          };
+        }
+      ).locks;
+      const runner = () =>
+        executeSale(
+          lines,
+          exactCashStr,
+          "",
+          "",
+          0,
+          totalCents,
+        );
+      if (locks) {
+        await locks.request("mercado-cero:caja-sale", runner);
+      } else {
+        await runner();
+      }
+    } catch (caught) {
+      setError(friendlySaleError(caught));
+    } finally {
+      saleLockRef.current = false;
+    }
+  }
+
+  async function executeSale(
+    saleLines: DraftLine[],
+    saleCashInput: string,
+    saleCreditInput: string,
+    saleCustomerName: string,
+    saleChangeCents: number,
+    saleCashReceivedCents: number,
+  ) {
+    setSaving(true);
+    setError(null);
+
+    const { payload, signature } = buildSalePayload(
+      saleLines,
+      saleCashInput,
+      saleCreditInput,
+      saleCustomerName,
     );
     // Otra pestaña pudo dejar un intento ambiguo con la misma venta. No se
     // vuelve a enviar hasta reconciliar; esta pestaña sí puede reintentar.
@@ -547,8 +631,8 @@ export function CajaScreen({
       );
       setOrder(created);
       setCreditBalanceCents(creditBalance);
-      setChangeCents(changeForSale);
-      setCashReceivedCents(cashCents);
+      setChangeCents(saleChangeCents);
+      setCashReceivedCents(saleCashReceivedCents);
       setView(due > 0 ? "payment" : "result");
       try {
         if (due > 0) {
@@ -1057,13 +1141,20 @@ export function CajaScreen({
               setCustomerName(value);
               setError(null);
             }}
+            onQuickPay={() => void confirmQuickSale()}
             onClear={requestClearDraft}
           />
           </div>
-          <CajaSpecCheckout totalCents={totalCents} method={method}
+          <CajaSpecCheckout
+            totalCents={totalCents}
+            method={method}
             disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated}
-            onMethod={chooseMethod} onReview={() => setView("method")}
-            onClear={requestClearDraft} />
+            onMethod={chooseMethod}
+            onReview={() => setView("method")}
+            onQuickPay={() => void confirmQuickSale()}
+            onQuickAdd={handleQuickAdd}
+            onClear={requestClearDraft}
+          />
         </>
       ) : null}
 
@@ -1110,6 +1201,15 @@ export function CajaScreen({
               </button>
             ) : null}
           </div>
+          <button
+            type="button"
+            className="mc-caja-button mc-caja-button--quick-pay"
+            onClick={() => void confirmQuickSale()}
+            disabled={saving || totalCents <= 0 || Boolean(unknownResult) || legacyConflict}
+          >
+            <Zap aria-hidden="true" />
+            <span>⚡ Cobro rápido</span>
+          </button>
           <button
             type="button"
             className="mc-caja-button mc-caja-button--primary mc-caja-confirm"

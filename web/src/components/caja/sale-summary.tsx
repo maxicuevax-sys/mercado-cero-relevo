@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { Zap } from "lucide-react";
 import iconCash from "@/assets/brand/iconos/transparent/caja.png";
 import iconDigital from "@/assets/brand/iconos/transparent/qr-telefono.png";
 import iconCredit from "@/assets/brand/iconos/transparent/libreta.png";
@@ -33,6 +34,7 @@ export function SaleSummary({
   onCash,
   onCredit,
   onCustomer,
+  onQuickPay,
   onClear,
 }: {
   totalCents: number;
@@ -51,6 +53,7 @@ export function SaleSummary({
   onCash: (value: string) => void;
   onCredit: (value: string) => void;
   onCustomer: (value: string) => void;
+  onQuickPay?: () => void;
   onClear: () => void;
 }) {
   const cashShortfall = method === "cash" ? Math.max(0, totalCents - appliedCashCents) : 0;
@@ -79,6 +82,17 @@ export function SaleSummary({
         <h2 id="mc-caja-summary-title">Total de la venta</h2>
         <CurrencyAmount as="p" cents={totalCents} className="mc-caja-total" />
         <p className="mc-caja-total__note">Lo que el cliente debe pagar. No es dinero recibido.</p>
+        {totalCents > 0 && onQuickPay ? (
+          <button
+            type="button"
+            className="mc-caja-button mc-caja-button--quick-pay mc-caja-summary__quick"
+            onClick={onQuickPay}
+            disabled={saving || locked}
+          >
+            <Zap aria-hidden="true" />
+            <span>⚡ Cobro rápido en efectivo ({formatMxn(totalCents)})</span>
+          </button>
+        ) : null}
       </div>
       <div className="mc-caja-receipt__rule" aria-hidden="true" />
       <p className="mc-caja-receipt__micro">
@@ -105,16 +119,28 @@ export function SaleSummary({
       </fieldset>
 
       {method === "cash" || method === "mixed" ? (
-        <label className="mc-caja-field">
-          <span>Efectivo recibido</span>
-          <input
-            value={cashInput}
-            onChange={(event) => onCash(event.target.value)}
-            inputMode="decimal"
-            placeholder="0.00"
-            disabled={saving || locked}
-          />
-        </label>
+        <div className="mc-caja-cash-row">
+          <label className="mc-caja-field">
+            <span>Efectivo recibido</span>
+            <input
+              value={cashInput}
+              onChange={(event) => onCash(event.target.value)}
+              inputMode="decimal"
+              placeholder="0.00"
+              disabled={saving || locked}
+            />
+          </label>
+          {totalCents > 0 ? (
+            <button
+              type="button"
+              className="mc-caja-exact-btn"
+              onClick={() => onCash((totalCents / 100).toFixed(2))}
+              disabled={saving || locked}
+            >
+              Exacto
+            </button>
+          ) : null}
+        </div>
       ) : null}
 
       {method === "cash" && totalCents > 0 ? (

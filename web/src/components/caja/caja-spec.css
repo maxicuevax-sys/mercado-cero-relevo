@@ -61,8 +61,23 @@
   .mc-spec-methods button { display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 0; height: 40px; padding: 5px; border: 1px solid #e4dac3; border-radius: 12px; background: #fff9f0; color: #1e1f1a; font: 13px/1.2 Arial, sans-serif; cursor: pointer; }
   .mc-spec-methods button[aria-pressed="true"] { background: #0c4133; color: #fffaf0; border-color: #0c4133; }
   .mc-spec-methods svg { width: 22px; height: 22px; flex: 0 0 auto; stroke-width: 1.7; }
-  .mc-spec-register { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 52px; margin-top: 22px; padding: 10px 12px; border: 1px solid #0c4133; border-radius: 12px; background: #0c4133; color: #fffaf0; font: 700 19px/1.25 Arial, sans-serif; cursor: pointer; }
-  .mc-spec-register svg { width: 30px; height: 30px; flex: 0 0 auto; stroke-width: 1.8; }
+  .mc-spec-empty-hint { margin-top: 10px; }
+  .mc-spec-methods-hint { margin: 0; font-size: 13px; line-height: 1.35; color: #50584b; }
+  .mc-spec-quick-amounts { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .mc-spec-quick-label { font-size: 13px; font-weight: 700; color: #1e1f1a; }
+  .mc-spec-quick-chips { display: flex; align-items: center; gap: 6px; }
+  .mc-spec-chip { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 4px 10px; border: 1px solid #007353; border-radius: 9999px; background: #e7ebd6; color: #0c4133; font: 700 13px/1 Arial, sans-serif; cursor: pointer; }
+  .mc-spec-chip:hover:not(:disabled) { background: #d7e2bf; }
+  .mc-spec-chip:disabled { opacity: .5; cursor: not-allowed; }
+
+  .mc-spec-quick-pay { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 52px; margin-top: 14px; padding: 10px 12px; border: 1px solid #007353; border-radius: 12px; background: #007353; color: #fffaf0; font: 700 18px/1.25 Arial, sans-serif; cursor: pointer; box-shadow: 0 2px 4px rgba(0, 115, 83, 0.2); }
+  .mc-spec-quick-pay:hover:not(:disabled) { background: #005f44; }
+  .mc-spec-quick-pay:active:not(:disabled) { transform: translateY(1px); }
+  .mc-spec-quick-pay:disabled { opacity: .55; cursor: not-allowed; box-shadow: none; }
+  .mc-spec-quick-pay svg { width: 24px; height: 24px; flex: 0 0 auto; stroke-width: 2.2; }
+
+  .mc-spec-register { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 48px; margin-top: 10px; padding: 8px 12px; border: 1px solid #0c4133; border-radius: 12px; background: #fff9f0; color: #0c4133; font: 700 16px/1.25 Arial, sans-serif; cursor: pointer; }
+  .mc-spec-register svg { width: 24px; height: 24px; flex: 0 0 auto; stroke-width: 1.8; }
   .mc-spec-register:disabled { opacity: .6; cursor: not-allowed; }
   /* B2: el ticket precargado también se puede descartar en 390/320. */
   .mc-spec-clear { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 44px; margin-top: 8px; padding: 8px 12px; border: 0; background: transparent; color: #50584b; font: 600 14px/1.3 Arial, sans-serif; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
@@ -106,8 +121,10 @@
   .mc-spec-methods legend { line-height: 18px; }
   .mc-spec-methods button { height: 36px; font-size: 11px; gap: 5px; }
   .mc-spec-methods svg { width: 18px; height: 18px; }
-  .mc-spec-register { min-height: 44px; margin-top: 16px; font-size: 17px; padding-block: 7px; }
-  .mc-spec-register svg { width: 27px; height: 27px; }
+  .mc-spec-quick-pay { min-height: 48px; margin-top: 10px; font-size: 16px; padding-block: 7px; }
+  .mc-spec-quick-pay svg { width: 22px; height: 22px; }
+  .mc-spec-register { min-height: 44px; margin-top: 8px; font-size: 15px; padding-block: 7px; }
+  .mc-spec-register svg { width: 22px; height: 22px; }
 }
 
 /* B: 24px minimum even at 320px; preserve reference 59px row height while keeping all targets >= 24px. */
