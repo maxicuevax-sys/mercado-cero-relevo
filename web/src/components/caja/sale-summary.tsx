@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { Banknote } from "lucide-react";
+import { QuickAmounts } from "./quick-amounts";
 import iconCash from "@/assets/brand/iconos/transparent/caja.png";
 import iconDigital from "@/assets/brand/iconos/transparent/qr-telefono.png";
 import iconCredit from "@/assets/brand/iconos/transparent/libreta.png";
@@ -34,6 +36,9 @@ export function SaleSummary({
   onCredit,
   onCustomer,
   onClear,
+  canQuickCash,
+  onQuickCash,
+  onQuickAdd,
 }: {
   totalCents: number;
   appliedCashCents: number;
@@ -52,6 +57,9 @@ export function SaleSummary({
   onCredit: (value: string) => void;
   onCustomer: (value: string) => void;
   onClear: () => void;
+  canQuickCash: boolean;
+  onQuickCash: () => void;
+  onQuickAdd: (cents: number) => void;
 }) {
   const cashShortfall = method === "cash" ? Math.max(0, totalCents - appliedCashCents) : 0;
   const creditEnteredCents = parseMoneyCents(creditInput);
@@ -80,6 +88,8 @@ export function SaleSummary({
         <CurrencyAmount as="p" cents={totalCents} className="mc-caja-total" />
         <p className="mc-caja-total__note">Lo que el cliente debe pagar. No es dinero recibido.</p>
       </div>
+      {totalCents <= 0 ? <QuickAmounts disabled={saving || locked} onAdd={onQuickAdd} /> : null}
+      {canQuickCash ? <button type="button" className="mc-caja-button mc-caja-button--secondary mc-caja-quick-cash" disabled={saving || locked} onClick={onQuickCash}><Banknote aria-hidden="true" /><span>Cobrar efectivo exacto</span></button> : null}
       <div className="mc-caja-receipt__rule" aria-hidden="true" />
       <p className="mc-caja-receipt__micro">
         Elige cómo te pagan. El importe ya está calculado.

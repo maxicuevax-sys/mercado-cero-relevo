@@ -1,0 +1,11 @@
+.mc-caja-shell .mc-caja-quick-amounts { margin: 16px 0; min-width: 0; }
+.mc-caja-shell .mc-caja-quick-amounts > p { margin: 0 0 8px; font-size: .9375rem; font-weight: 700; }
+.mc-caja-shell .mc-caja-quick-amounts > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.mc-caja-shell .mc-caja-quick-amounts button { flex: 1 1 52px; min-height: 44px; padding: 8px; border: 1px solid #cbbfa7; border-radius: 12px; background: #f0efda; color: #0c4133; font: inherit; font-weight: 700; cursor: pointer; }
+.mc-caja-shell .mc-caja-quick-amounts small { display: block; margin-top: 8px; color: var(--color-ink-secondary, #52645a); font-size: .8125rem; line-height: 1.4; }
+.mc-caja-shell .mc-caja-quick-amounts button:disabled { opacity: .6; cursor: not-allowed; }
+.mc-caja-shell .mc-caja-quick-amounts button:focus-visible { outline: 3px solid var(--color-focus, #0c4133); outline-offset: 3px; }
+.mc-caja-shell .mc-caja-quick-cash { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; margin-top: 14px; white-space: normal; }
+.mc-caja-shell .mc-caja-quick-cash svg { flex: 0 0 22px; width: 22px; height: 22px; }
+html[data-contrast="high"] .mc-caja-shell .mc-caja-quick-amounts button { border-color: #000; background: #fff; color: #000; }
+html[data-contrast="high"] .mc-caja-shell .mc-caja-quick-amounts small { color: #1a1a1a; }
