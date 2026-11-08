@@ -29,22 +29,22 @@
 .access-illustration img { position: absolute; top: -126.582278%; left: -2.684564%; width: 105.257271%; max-width: none; height: auto; }
 .access-form { margin: 0; }
 .access-field + .access-field { margin-top: 7px; }
-.access-field label { display: flex; align-items: center; gap: 10px; margin: 0 5px 3px; font: 700 clamp(1rem, 4.7vw, 1.4rem)/1.2 Georgia, serif; color: #111b12; }
+.access-field label { display: flex; align-items: center; gap: 10px; margin: 0 5px 4px; font-family: var(--font-display); font-size: clamp(1rem, 4.7vw, 1.3rem); font-weight: 700; line-height: 1.2; color: #111b12; }
 .access-field label > svg { width: 23px; height: 23px; flex: 0 0 auto; color: #075127; stroke-width: 1.9; }
-.access-field input { display: block; width: 100%; min-height: 36px; padding: 6px 15px; border: 1px solid #8d8476; border-radius: 11px; background: #fffaf3; color: #203026; font: 400 1rem/1.25 var(--font-alder), Arial, sans-serif; }
+.access-field input { display: block; width: 100%; min-height: 44px; padding: 10px 15px; border: 1px solid #8d8476; border-radius: 12px; background: #fffaf3; color: #203026; font: 400 1rem/1.25 var(--font-sans); }
 .access-field input::placeholder { color: #656560; opacity: 1; }
 .access-field input[aria-invalid="true"] { border-color: #962c21; }
 .access-password-wrap { position: relative; }
-.access-password-wrap input { padding-right: 47px; }
-.access-password-toggle { position: absolute; right: 1px; top: 0; bottom: 0; display: grid; place-items: center; width: 44px; min-height: 36px; border: 0; border-radius: 10px; background: transparent; color: #08442c; cursor: pointer; }
+.access-password-wrap input { padding-right: 48px; }
+.access-password-toggle { position: absolute; right: 2px; top: 0; bottom: 0; display: grid; place-items: center; width: 44px; min-height: 44px; border: 0; border-radius: 10px; background: transparent; color: #08442c; cursor: pointer; }
 .access-password-toggle > svg { width: 23px; height: 23px; stroke-width: 2; }
-.access-submit, .access-register { display: flex; align-items: center; justify-content: center; gap: 12px; width: calc(100% + 8px); margin-left: -4px; min-height: 42px; padding: 5px 12px; border-radius: 15px; font: 800 clamp(1rem, 4.7vw, 1.3rem)/1.1 var(--font-alder), Arial, sans-serif; cursor: pointer; }
+.access-submit, .access-register { display: flex; align-items: center; justify-content: center; gap: 12px; width: calc(100% + 8px); margin-left: -4px; min-height: 46px; padding: 8px 12px; border-radius: 15px; font-family: var(--font-sans); font-size: clamp(1rem, 4.7vw, 1.25rem); font-weight: 700; line-height: 1.15; cursor: pointer; }
 .access-submit { margin-top: 12px; border: 1px solid #00402d; border-top-color: #008d67; background: linear-gradient(145deg, #006c4a, #00472f 75%); color: #fffdf4; box-shadow: 0 2px 3px #153b201a; }
 .access-submit > svg { width: 29px; height: 29px; stroke-width: 2.6; }
 .access-submit:disabled { cursor: wait; opacity: .75; }
 .access-divider { display: flex; align-items: center; gap: 12px; margin: 7px 3px; color: #4f534f; font-size: .9rem; line-height: 1.35; text-align: center; }
 .access-divider::before, .access-divider::after { content: ""; height: 1px; flex: 1; background: #b4aea2; }
-.access-register { border: 1.5px solid #005039; background: transparent; color: #03442c; min-height: 39px; text-decoration: none; }
+.access-register { border: 1.5px solid #005039; background: transparent; color: #03442c; min-height: 44px; text-decoration: none; }
 .access-register > svg { width: 25px; height: 25px; stroke-width: 2.3; }
 .access-promise { display: flex; align-items: center; gap: 12px; margin: 9px -4px 0; padding: 6px 13px; border-radius: 22px; background: linear-gradient(100deg, #edf0d4, #f0f0d8); }
 .access-promise-mark { position: relative; display: grid; place-items: center; width: 71px; min-height: 34px; padding-right: 17px; border-right: 1px solid #98ad72; flex: 0 0 auto; }
