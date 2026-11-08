@@ -112,6 +112,9 @@ async function signUp(page: Page, email: string) {
   } finally {
     await page.unroute(signupRoute, captureSignup);
   }
+  await expect(page).toHaveURL(/\/onboarding$/);
+  await page.getByRole("radio", { name: "Un poco de todo", exact: true }).check();
+  await page.getByRole("button", { name: "Empezar con mi puesto", exact: true }).click();
   await expect(page).toHaveURL(/\/inicio$/);
   const session = await page.context().request.get("/api/access/session");
   expect(session.status()).toBe(200);

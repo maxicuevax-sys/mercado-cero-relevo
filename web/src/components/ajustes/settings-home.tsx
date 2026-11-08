@@ -88,7 +88,7 @@ export function SettingsHome({ merchant, address, demo, accountMode = false }: {
       title: "Mi negocio",
       detail: "Datos, horario y productos",
       Icon: Store,
-      content: <p>{merchant} · {address}. La edición de datos y horarios aún no está disponible.</p>,
+      content: <div className="mc-settings-subpanel"><p>{merchant} · {address}. La edición de datos y horarios aún no está disponible.</p><Link href="/onboarding">Cambiar giro</Link></div>,
     },
     {
       title: "Cobros",

@@ -1,3 +1,6 @@
+import { redirect } from "next/navigation";
+import { judgeAccountsEnabled } from "@/lib/auth/pilot-mode";
+import { getBusinessProfile } from "@/lib/business-profile";
 import { withPilotPage } from "../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -40,6 +43,7 @@ export const instant = false;
 
 async function InicioPage({ searchParams }: { searchParams: Promise<{ pedido?: string }> }) {
   await connection();
+  if (judgeAccountsEnabled() && !getBusinessProfile()) redirect("/onboarding");
   const params = await searchParams;
   const initialOrder = params.pedido ? getOrder(params.pedido) : null;
   const dashboard = getDashboardData({ compactPending: true });

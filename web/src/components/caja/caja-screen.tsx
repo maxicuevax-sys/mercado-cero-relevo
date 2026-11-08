@@ -18,6 +18,7 @@ import {
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatLongDate } from "@/lib/format";
 import { SaleLineItems } from "./sale-line-items";
+import type { BusinessType } from "@/lib/business-profile";
 import { SaleVoice } from "./sale-voice";
 import { CajaSpecCheckout } from "./caja-spec-checkout";
 import { SaleSummary } from "./sale-summary";
@@ -94,9 +95,11 @@ const TERMINAL_ORDER_STATUSES = new Set<Order["status"]>([
 export function CajaScreen({
   merchant,
   demo,
+  businessType,
 }: {
   merchant: DashboardData["merchant"];
   demo: boolean;
+  businessType?: BusinessType;
 }) {
   const [lines, setLines] = useState<DraftLine[]>([]);
   const [draftInstanceId, setDraftInstanceId] = useState(() => newInstanceId());
@@ -964,6 +967,7 @@ export function CajaScreen({
       {view === "compose" ? (
         <>
           <SaleVoice
+            businessType={businessType}
             disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated}
             onAdd={(proposed) => {
               if (saving || unknownResult || legacyConflict || !hydrated) return false;
