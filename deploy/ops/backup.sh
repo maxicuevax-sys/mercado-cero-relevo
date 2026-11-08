@@ -73,6 +73,44 @@ fi
 # Optional account capture must succeed before the combined encrypted publication.
 # Keep the legacy database/configuration above: judge mode is an additional root.
 bash "$root/ops/backup-judges.sh" --parent-lock-held
+# The emoji primary has a separate identity/business root. Keep the previous
+# public/candidate capture above; never publish a fresh combined snapshot without both.
+if [[ -f "$root/emoji-backup.env" || -d "$stage/emoji" ]]; then
+  [[ -f "$root/emoji-backup.env" ]] || exit 1
+  bash "$root/ops/backup-judges.sh" --emoji --parent-lock-held
+  python3 - "$stage" <<'PYEMOJI'
+import hashlib, json, pathlib, shutil
+stage=pathlib.Path(__import__('sys').argv[1]); source=pathlib.Path('/opt/mercado-cero/public-emoji')
+output=stage/'emoji/config'
+for p in [source, *source.parents, output, *output.parents]:
+    if p.is_symlink(): raise SystemExit('Unsafe emoji recovery path')
+output.mkdir(mode=0o700,exist_ok=True); output.chmod(0o700)
+files=[(source/name,name) for name in ['compose.json','runtime.env','deployment.json']]
+files += [(pathlib.Path('/opt/mercado-cero/pilot/emoji-backup.env'),'emoji-backup.env')]
+for original,name in files:
+    if original.is_symlink() or not original.is_file(): raise SystemExit('Missing emoji recovery configuration')
+    target=output/name
+    if target.is_symlink(): raise SystemExit('Unsafe emoji recovery file')
+    shutil.copyfile(original,target); target.chmod(0o600)
+# Bind recovery configuration to the exact immutable runtime captured above.
+compose=json.loads((output/'compose.json').read_text())
+deployment=json.loads((output/'deployment.json').read_text())
+capture=json.loads((stage/'emoji/judge-tools/capture.json').read_text())
+services=compose.get('services',{})
+if set(services)!={'trangui-public-emoji'}: raise SystemExit('Emoji service identity mismatch')
+service=services['trangui-public-emoji']
+if service.get('image')!=capture['image'] or deployment.get('image')!=capture['image']: raise SystemExit('Emoji image changed during capture')
+env=dict(x.split('=',1) for x in json.loads((stage/'emoji/judge-tools/runtime-env.json').read_text()))
+if deployment.get('buildSha')!=env.get('EXPECTED_BUILD_SHA'): raise SystemExit('Emoji release changed during capture')
+for line in (output/'runtime.env').read_text().splitlines():
+    if not line or line.startswith('#'): continue
+    key,sep,value=line.partition('=')
+    if not sep or env.get(key)!=value: raise SystemExit('Emoji private environment changed during capture')
+(output/'SHA256SUMS').write_text(''.join(hashlib.sha256((output/name).read_bytes()).hexdigest()+'  '+name+'\n' for _,name in files))
+(output/'SHA256SUMS').chmod(0o600)
+print('Emoji primary recovery configuration captured privately.')
+PYEMOJI
+fi
 restic backup --tag mercado-cero --host mercado-cero-pilot "$stage"
 restic check
 date -u +%FT%TZ > "$root/last-backup-success"

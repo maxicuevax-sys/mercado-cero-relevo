@@ -4,19 +4,26 @@
 set -euo pipefail
 umask 077
 parent_lock_held=0
-if [[ $# == 1 && "$1" == --parent-lock-held ]]; then parent_lock_held=1
-elif [[ $# != 0 ]]; then echo 'Invalid judge backup arguments.' >&2; exit 1
-fi
+emoji=0
+for arg in "$@"; do
+  case "$arg" in
+    --parent-lock-held) [[ "$parent_lock_held" == 0 ]] || exit 1; parent_lock_held=1 ;;
+    --emoji) [[ "$emoji" == 0 ]] || exit 1; emoji=1 ;;
+    *) echo 'Invalid judge backup arguments.' >&2; exit 1 ;;
+  esac
+done
 root=${MC_PILOT_ROOT:-/opt/mercado-cero/pilot}
 [[ "$root" == /* && "$root" != / ]] || exit 1
 config="$root/judge-backup.env"
+stage="$root/backup-current"
+if [[ "$emoji" == 1 ]]; then config="$root/emoji-backup.env"; stage="$stage/emoji"; fi
 if [[ ! -e "$config" && ! -L "$config" ]]; then
   # Missing configuration may only be a first-use no-op. Published judge material
   # must never silently survive as a supposedly fresh encrypted backup.
-  python3 - "$root" <<'PYNOOP'
+  python3 - "$stage" <<'PYNOOP'
 import pathlib, sys
 root=pathlib.Path(sys.argv[1])
-for rel in ['backup-current/judges', 'backup-current/judge-tools', 'backup-current/config/judge-backup.env']:
+for rel in ['judges', 'judge-tools', 'config/judge-backup.env']:
     p=root/rel
     if p.exists() or p.is_symlink(): raise SystemExit(1)
 PYNOOP
@@ -24,17 +31,16 @@ PYNOOP
 fi
 
 # Validate every existing ancestor before opening the lock or creating private staging.
-python3 - "$root" <<'PY'
+python3 - "$root" "$config" "$stage" <<'PY'
 import pathlib, sys
 p = pathlib.Path(sys.argv[1])
 if str(p) != sys.argv[1] or '..' in p.parts: raise SystemExit(1)
 for q in [p, *p.parents]:
     if q.is_symlink(): raise SystemExit(1)
 if not p.is_dir(): raise SystemExit(1)
-for name in ['judge-backup.env', '.judge-backup.lock', 'backup-current']:
-    q = p / name
+for q in [pathlib.Path(sys.argv[2]), pathlib.Path(sys.argv[3]), p/'.judge-backup.lock', p/'backup-current']:
     if q.is_symlink(): raise SystemExit(1)
-if not (p / 'judge-backup.env').is_file(): raise SystemExit(1)
+if not pathlib.Path(sys.argv[2]).is_file(): raise SystemExit(1)
 PY
 # Share the parent's lock across capture, publication and restic encryption.
 # Test sandboxes use a local lock; production retains the established global path.
@@ -75,9 +81,12 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   esac
 done < "$config"
 [[ "$engine" == docker || "$engine" == podman ]] || exit 1
-[[ "$container" =~ ^mercado-cero-[a-zA-Z0-9][a-zA-Z0-9_.-]*$ && ${#container} -le 128 ]] || exit 1
+if [[ "$emoji" == 1 ]]; then
+  [[ "$container" == trangui-public-emoji ]] || exit 1
+else
+  [[ "$container" =~ ^mercado-cero-[a-zA-Z0-9][a-zA-Z0-9_.-]*$ && ${#container} -le 128 ]] || exit 1
+fi
 [[ "$data_root" == /data/judges ]] || exit 1
-stage="$root/backup-current"
 mkdir -p "$stage"
 work=$(mktemp -d "$stage/.judges-incoming.XXXXXXXXXXXX")
 inside="/data/judge-backups/auto-$(date -u +%Y%m%dT%H%M%SZ)-${work##*.}"

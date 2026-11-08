@@ -85,6 +85,25 @@ class JudgeBackupTests(unittest.TestCase):
             self.assertEqual((stage/name/'old').read_text(),'previous verified publication')
         self.assertEqual(list(stage.glob('.judges-incoming.*')), [])
 
+    def test_emoji_capture_is_additional_and_exact_container(self):
+        stage=self.previous()
+        (self.root/'emoji-backup.env').write_text('JUDGE_BACKUP_ENGINE=docker\nJUDGE_BACKUP_CONTAINER=trangui-public-emoji\nJUDGE_BACKUP_DATA_ROOT=/data/judges\n')
+        result=self.run_hook(('--emoji',))
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assert_preserved(stage)
+        self.assertTrue((stage/'emoji/judges/manifest.json').is_file())
+        capture=json.loads((stage/'emoji/judge-tools/capture.json').read_text())
+        self.assertEqual(capture['container'],'trangui-public-emoji')
+        self.assertEqual((stage/'emoji/judge-tools/runtime-env.json').stat().st_mode & 0o777,0o600)
+
+    def test_emoji_rejects_wrong_container_and_missing_existing_configuration(self):
+        (self.root/'emoji-backup.env').write_text('JUDGE_BACKUP_ENGINE=docker\nJUDGE_BACKUP_CONTAINER=mercado-cero-wrong\nJUDGE_BACKUP_DATA_ROOT=/data/judges\n')
+        self.assertNotEqual(self.run_hook(('--emoji',)).returncode,0)
+        self.assertEqual(self.calls(),[])
+        (self.root/'emoji-backup.env').unlink()
+        (self.root/'backup-current/emoji/judges').mkdir(parents=True)
+        self.assertNotEqual(self.run_hook(('--emoji',)).returncode,0)
+
     def test_optional_absent_has_no_side_effects(self):
         p=self.root/'legacy'; p.write_text('legacy')
         result=self.run_hook()
