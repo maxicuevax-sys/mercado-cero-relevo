@@ -36,6 +36,11 @@ export async function handleJudgeAccess(request: Request, action: "sign-in" | "s
     headers.delete("Content-Length");
     const result = await identity.auth.handler(new Request(`${origin}/api/auth/${endpoint}`, { method: "POST", headers, body: JSON.stringify(payload) }));
     if (!result.ok) {
+      if (result.status === 429) {
+        const limited = failure("Demasiados intentos. Espera unos segundos y vuelve a intentar.", "access_rate_limited", 429);
+        limited.headers.set("Retry-After", result.headers.get("Retry-After") ?? "10");
+        return limited;
+      }
       if (action === "sign-up" && full()) return failure("El piloto ya alcanzó su cupo de cuentas de prueba.", "pilot_full", 503);
       return failure(action === "sign-in" ? "Correo o contraseña incorrectos." : "No pudimos completar la solicitud. Inténtalo más tarde.", "access_rejected", result.status === 429 ? 429 : 400);
     }
