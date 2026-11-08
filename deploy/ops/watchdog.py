@@ -6,9 +6,9 @@ from pathlib import Path
 import subprocess
 import urllib.error
 import urllib.request
+from runtime_target import load_runtime_target, verify_readiness
 
 ROOT = Path(__file__).resolve().parent
-EXPECTED_SHA = '09b4f8d1aa63f40682e2e4082034fe952a1dd1e2'
 ACCESS_PREFIX = 'https://tiny-base-f09a.cloudflareaccess.com/cdn-cgi/access/login/mercado.zicua.com'
 
 
@@ -22,12 +22,14 @@ def age_hours(value, now):
     return age
 
 
-def verify_backup(report, now):
+def verify_backup(report, now, target=None):
     if not report.get('ok') or not report.get('restoreVerified'):
         raise ValueError('Latest copy has no successful restore proof')
     # Both clocks matter: a fresh copy of an old snapshot is still stale.
     if age_hours(report['timestamp'], now) > 6 or age_hours(report['sourceSnapshotTime'], now) > 6:
         raise ValueError('Off-host restore or source snapshot is older than six hours')
+    if target and target['requireJudgeAccounts'] and report.get('judgeRestoreVerified') is not True:
+        raise ValueError('Latest off-host copy has no verified judge-account restore')
 
 
 def transition(previous, healthy, now_seconds):
@@ -67,7 +69,8 @@ def check_access():
         response.close()
 
 
-def check_origin():
+def check_origin(target=None):
+    target = target or load_runtime_target(ROOT / 'runtime-target.json')
     result = subprocess.run(
         ['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=15', 'zicua-vps',
          'curl -fsS --max-time 10 http://127.0.0.1:4590/api/health'],
@@ -76,8 +79,17 @@ def check_origin():
     if result.returncode:
         raise ValueError('SSH origin health could not be verified from this computer')
     health = json.loads(result.stdout)
-    if health.get('ok') is not True or health.get('buildSha') != EXPECTED_SHA:
-        raise ValueError('Origin health or application SHA mismatch')
+    session_status = None
+    if target['requireJudgeAccounts']:
+        result = subprocess.run(
+            ['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=15', 'zicua-vps',
+             "curl -sS --max-time 10 -o /dev/null -w '%{http_code}' http://127.0.0.1:4590/api/access/session"],
+            capture_output=True, text=True, timeout=35, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0),
+        )
+        if result.returncode or result.stdout.strip() != '401':
+            raise ValueError('Judge account session endpoint is not ready (expected unauthenticated 401)')
+        session_status = 401
+    verify_readiness(health, target, session_status)
 
 
 def notify(event, failed):
@@ -114,9 +126,25 @@ def main():
         return
     now = datetime.now(timezone.utc)
     checks = []
+    try:
+        target = load_runtime_target(ROOT / 'runtime-target.json')
+    except (OSError, ValueError):
+        target = None
+        checks.append({'name': 'Runtime target', 'ok': False, 'error': 'Invalid runtime target configuration'})
+
+    def check_target_origin():
+        if target is None:
+            raise ValueError('Invalid runtime target configuration')
+        check_origin(target)
+
+    def check_target_backup():
+        if target is None:
+            raise ValueError('Invalid runtime target configuration')
+        verify_backup(json.loads((ROOT / 'last-success.json').read_text(encoding='utf-8-sig')), now, target)
+
     for name, check in [
-        ('Access publico', check_access), ('Origen VPS', check_origin),
-        ('Respaldo externo', lambda: verify_backup(json.loads((ROOT / 'last-success.json').read_text(encoding='utf-8-sig')), now)),
+        ('Access publico', check_access), ('Origen VPS', check_target_origin),
+        ('Respaldo externo', check_target_backup),
     ]:
         try:
             check()
