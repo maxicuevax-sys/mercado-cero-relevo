@@ -19,3 +19,11 @@ El cierre encontró tres dependencias operativas: el script Windows reinterpreta
 El archivo legacy se conserva como snapshot SQLite independiente e inmutable verificado por hash, permisos e integridad; nunca se monta en la app web nueva. El modo público exige además el respaldo conjunto de cuentas. Kuma reutiliza el ID y configuración del monitor, y el watchdog exige salud HTTPS del SHA objetivo y sesión anónima401. El propietario autorizó publicar la demo para jueces; no se abrirá Access mientras el origen siga siendo legacy. Para revertir al piloto09, restablecer primero la barrera Access y después la configuración anterior.
 
 La activación pública y sus resultados se registran aparte bajo `harness/evidence/runs/trangui-delivery/`; este informe no presenta una acción preparada como si ya hubiera ocurrido. El SHA del producto servido puede ser 56684e1, contenido en los merges posteriores que solo añaden operación y evidencia; comprobar siempre `/api/health` contra el objetivo explícito del despliegue.
+
+## Identidad y dominio de entrega
+
+Se recuperaron del trabajo publicado en el chat «Crear QR artístico de tianguis» (clone local trangui-social, SHA4a43364) los iconos de canasta T, la tarjeta social v2 y el manifest. Sus recursos se importaron sin sustituir el código funcional vigente por la base cb40d60 de aquella publicación. Sidebar, topbar y acceso/registro pasan a usar el mismo icono existente. El header móvil de Inicio usa verde de marca con contraste calculado9.21:1; geometría y alto contraste conservados.
+
+La metadata principal/OpenGraph/Twitter expresa el propósito social y usa el dominio https://xn--hw9h.st/. No presenta el aviso operativo de demo como propuesta de valor. Los avisos financieros dentro de los flujos siguen intactos. La tarjeta ilustrada conserva su indicación visual de demo, y el QR artístico de compartir abre la app; no se confunde con un QR de pago dinámico.
+
+El sitio emoji tiene un despliegue independiente: trangui-public-emoji en4597, relay4598 y APP_URL propio. Actualizarlo exige conservar su secreto, sus datos y el relay; no cambiar DNS ni reemplazar cuentas con las de4590. La operación final se verifica por su salud HTTPS, cuenta/login y metadata publicadas. No se afirma que el webhook real esté operativo: DSH documentó un QR y cargo bancario de un centavo sin conciliación en producto.

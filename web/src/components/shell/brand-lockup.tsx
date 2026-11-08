@@ -1,16 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
-import brandShop from "@/assets/inicio/brand-shop-cream.svg";
 
 export function BrandLockup({ href = "/inicio" }: { href?: string }) {
   return (
     <Link className="inicio-brand" href={href}>
       <Image
-        src={brandShop}
+        src="/icons/trangui-192-v1.png"
         alt=""
         aria-hidden="true"
         className="inicio-brand__mark"
         sizes="76px"
+        width={76}
+        height={76}
+        style={{ background: "#fff6e9", borderRadius: 8, objectFit: "contain", filter: "none" }}
       />
       <span className="inicio-brand__wordmark">
         <span className="inicio-brand__name">

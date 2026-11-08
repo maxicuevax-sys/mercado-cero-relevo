@@ -32,9 +32,21 @@ const alder = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Trangui · Tu mostrador digital",
-  description:
-    "Registra ventas, fiados y caja en un solo lugar. Prueba Trangui en modo demo, sin mover dinero.",
+  metadataBase: new URL("https://xn--hw9h.st/"),
+  title: "Trangui · Menos pendientes en la cabeza",
+  description: "Un mostrador digital para comerciantes de tianguis: organiza ventas, cobros y fiados y lleva menos pendientes en la cabeza. Conoce el flujo QR y CoDi.",
+  openGraph: {
+    type: "website", url: "https://xn--hw9h.st/", locale: "es_MX", siteName: "Trangui",
+    title: "Trangui · Menos pendientes en la cabeza",
+    description: "Un mostrador digital para comerciantes de tianguis: organiza ventas, cobros y fiados y lleva menos pendientes en la cabeza. Conoce el flujo QR y CoDi.",
+    images: [{ url: "/social/trangui-qr-codi-v2.jpg", width: 1200, height: 630, type: "image/jpeg", alt: "Trangui: tu puesto, con menos pendientes. Un taquero organiza su negocio en el tianguis." }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Trangui · Menos pendientes en la cabeza",
+    description: "Un mostrador digital para comerciantes de tianguis: organiza ventas, cobros y fiados y lleva menos pendientes en la cabeza. Conoce el flujo QR y CoDi.",
+    images: [{ url: "/social/trangui-qr-codi-v2.jpg", alt: "Trangui: tu puesto, con menos pendientes." }],
+  },
   applicationName: "Trangui",
   formatDetection: {
     telephone: false,
