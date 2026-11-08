@@ -1,7 +1,8 @@
-param([switch]$VerifyRestore)
+param([switch]$VerifyRestore, [switch]$RequireJudgeBackup)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Security
 $taskRoot = $PSScriptRoot
+if ($RequireJudgeBackup -or (Test-Path (Join-Path $taskRoot 'judge-backup-required'))) { $VerifyRestore = $true }
 $resticExe = Join-Path $taskRoot 'tools\restic.exe'
 $mutex = New-Object System.Threading.Mutex($false, 'Local\MercadoCeroOffHostBackup')
 if (-not $mutex.WaitOne(0)) { $mutex.Dispose(); exit 0 }
@@ -49,6 +50,45 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Restored SQLite validation failed' }
         $report.restoreVerified = $true
         $report.databaseSha256 = $actual.ToLowerInvariant()
+        $stageDir = Join-Path $restoreDir 'opt\mercado-cero\pilot\backup-current'
+        $judgeDir = Join-Path $stageDir 'judges'
+        $judgeTools = Join-Path $stageDir 'judge-tools'
+        $judgeExpected = $RequireJudgeBackup -or (Test-Path (Join-Path $taskRoot 'judge-backup-required')) -or
+            (Test-Path (Join-Path $stageDir 'config\judge-backup.env')) -or (Test-Path $judgeDir)
+        if ($judgeExpected) {
+            $localRecovery = Join-Path $taskRoot 'tools\judge-snapshot.mjs'
+            $verifier = Join-Path $taskRoot 'verify-judge-snapshot.py'
+            if (-not (Test-Path $judgeDir) -or -not (Test-Path $judgeTools)) { throw 'Required judge backup missing' }
+            # Never execute a helper recovered from a repository. Require the reviewed,
+            # locally installed helper to match the captured runtime version first.
+            $trustedHash = (Get-FileHash $localRecovery -Algorithm SHA256).Hash
+            $capturedHash = (Get-FileHash (Join-Path $judgeTools 'judge-snapshot.mjs') -Algorithm SHA256).Hash
+            if ($trustedHash -ne $capturedHash) { throw 'Judge recovery helper version requires review' }
+            $sumLines = Get-Content (Join-Path $judgeTools 'SHA256SUMS')
+            foreach ($name in @('judge-snapshot.mjs', 'runtime-env.json', 'capture.json')) {
+                $line = @($sumLines | Where-Object { $_ -match ('^[a-f0-9]{64}  ' + [regex]::Escape($name) + '$') })
+                if ($line.Count -ne 1) { throw 'Judge recovery metadata checksum missing' }
+                $hash = (Get-FileHash (Join-Path $judgeTools $name) -Algorithm SHA256).Hash
+                if ($hash -ne $line[0].Substring(0,64)) { throw 'Judge recovery metadata checksum mismatch' }
+            }
+            $capture = Get-Content (Join-Path $judgeTools 'capture.json') -Raw | ConvertFrom-Json
+            $captureAge = [DateTimeOffset]::Parse($latest.time) - [DateTimeOffset]::Parse($capture.capturedAt)
+            if ($captureAge.TotalMinutes -gt 15 -or $captureAge.TotalMinutes -lt -5) { throw 'Judge capture is stale' }
+            & python $verifier $judgeDir --snapshot-time $latest.time
+            if ($LASTEXITCODE -ne 0) { throw 'Judge snapshot validation failed' }
+            $judgeRestored = Join-Path $restoreDir 'judge-application-restored'
+            if (-not (Test-Path $judgeRestored)) {
+                & node --no-warnings $localRecovery restore $judgeDir $judgeRestored
+                if ($LASTEXITCODE -ne 0) { throw 'Judge restore failed; inactive destination is not approved' }
+            }
+            $judgeResult = & python $verifier $judgeDir --restored-root $judgeRestored --snapshot-time $latest.time
+            if ($LASTEXITCODE -ne 0) { throw 'Judge restored data validation failed' }
+            $judgeStatus = $judgeResult | ConvertFrom-Json
+            $report['judgeSnapshotVerified'] = $true
+            $report['judgeRestoreVerified'] = $true
+            $report['judgeAccounts'] = $judgeStatus.accounts
+            $report['judgeSessionsRevoked'] = $judgeStatus.sessionsRevoked
+        }
     }
     $report | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $taskRoot 'last-success.json')
     Write-Output ($report | ConvertTo-Json -Compress)

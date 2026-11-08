@@ -37,6 +37,7 @@ if [ -f /etc/systemd/system/mercado-cero-pilot.service ]; then
   cp /etc/systemd/system/mercado-cero-pilot.service "$stage/config/"
 fi
 if [ -f "$root/app-runtime.env" ]; then cp "$root/app-runtime.env" "$stage/config/"; fi
+if [ -f "$root/judge-backup.env" ]; then cp "$root/judge-backup.env" "$stage/config/"; fi
 cp -a "$root/ops" "$stage/config/"
 if [ -d "$root/recovery-source" ]; then cp -a "$root/recovery-source" "$stage/"; fi
 cp "$root/ops/litestream-local.yml" "$stage/config/"
@@ -59,6 +60,9 @@ if [ -d "$RESTIC_REPOSITORY" ] && [ "$(du -sm "$RESTIC_REPOSITORY" | cut -f1)" -
   echo 'Mercado Cero backup repository reached 1 GiB; retention review required.' >&2
   exit 1
 fi
+# Optional account capture must succeed before the combined encrypted publication.
+# Keep the legacy database/configuration above: judge mode is an additional root.
+bash "$root/ops/backup-judges.sh" --parent-lock-held
 restic backup --tag mercado-cero --host mercado-cero-pilot "$stage"
 restic check
 date -u +%FT%TZ > "$root/last-backup-success"

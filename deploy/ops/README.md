@@ -65,11 +65,53 @@ La aplicación y el túnel existentes no requieren rollback por este lote.
 ## Aún pendiente
 
 - Docker + Coolify ya instalados y origen migrado; ver CONTROL-PLANE.md.
-- Better Auth y autorización por comerciante: integración de producto pendiente.
+- Better Auth y aislamiento por comerciante integrados; instancia privada de prueba,
+  todavía sin sustituir la aplicación pública.
 - Pey real + endpoint de webhook firmado: continúan desactivados en DEMO.
 - Canal de alertas permanente fuera de esta computadora; hay vigilancia externa
   desde Windows con avisos locales configurados, no correo/Telegram.
 - R2 no activado: el usuario eligió computadora si no se garantiza costo cero.
+
+## Respaldo de cuentas demo
+
+`backup-judges.sh` añade al mismo respaldo cifrado un corte de identidad y las bases
+de los comerciantes de ese catálogo. Conserva el respaldo anterior de la aplicación
+pública y Coolify. Configuración opcional, privada y tratada como datos en
+`/opt/mercado-cero/pilot/judge-backup.env`:
+
+```text
+JUDGE_BACKUP_ENGINE=docker
+JUDGE_BACKUP_CONTAINER=mercado-cero-judge-canary
+JUDGE_BACKUP_DATA_ROOT=/data/judges
+```
+
+El contenedor debe estar activo, en DEMO, con cuentas habilitadas y sin claves de
+proveedores. El hook verifica el corte copiado con la imagen inmutable de ese
+contenedor; configura límites y red deshabilitada para su validador temporal.
+Incluye configuración de recuperación privada dentro de restic: nunca publicar
+`runtime-env.json`, bases, manifiesto de usuarios ni claves en GitHub.
+
+Después de activarlo, perder la configuración deja el gate rojo; no se considera
+un corte viejo como respaldo reciente. El lock principal se conserva durante
+captura y cifrado; una ejecución independiente del hook comparte ese lock.
+
+Instalar en la carpeta privada de respaldos Windows el verificador Python y el
+helper Node revisados, y crear el marcador `judge-backup-required`. Ese marcador
+exige restauración en cada ejecución, aunque falte `-VerifyRestore`. Node 24 o
+superior es necesario. El helper local debe coincidir con el de la imagen capturada;
+un cambio de versión requiere revisión e instalación explícita antes de restaurar.
+Nunca se ejecuta código descargado del repositorio de respaldos.
+
+La copia externa verifica frescura (corte a no más de 15 minutos del snapshot),
+hashes, SQLite y restauración a una raíz inactiva nueva. Compara todos los registros
+de identidad y negocio y exige cero sesiones restauradas. No cambia los mounts de
+la aplicación. Ver [contrato de recuperación](../../docs/judge-recovery.md) para los
+cortes individuales y sus límites: no existe una transacción global entre bases.
+
+Rollback de este lote: conservar repositorios y datos; restaurar las versiones
+guardadas de los scripts y retirar únicamente la configuración/marcador añadidos,
+con el servicio de respaldo detenido. No retirar la protección de cuentas para
+ocultar un fallo ni declarar éxito con un corte viejo.
 
 Fuentes de instalación: documentación oficial de Litestream, restic y releases
 de louislam/uptime-kuma. Ver evidencia operativa en el run de `vps-pilot`.
