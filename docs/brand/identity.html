@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Trangui · Identidad del repositorio</title>
+<style>
+@font-face{font-family:Hearth;src:url('../../web/src/assets/fonts/Hearth-Variable.woff2');font-weight:100 900}
+@font-face{font-family:Alder;src:url('../../web/src/assets/fonts/Alder-Variable.woff2');font-weight:100 900}
+*{box-sizing:border-box}html,body{margin:0;background:#fff8ed;color:#083e28}
+.piece{position:relative;overflow:hidden;background:#fff8ed;text-align:center;isolation:isolate}
+.art{position:absolute;left:100px;top:20px;width:1000px;height:1000px;overflow:hidden}
+.art img{position:absolute;max-width:none;width:1080px;height:1920px;left:-40px;top:-460px}
+h1,p{position:absolute;margin:0;width:100%;left:0}
+h1{font-family:Hearth,Georgia,serif;font-weight:750;font-size:154px;line-height:1;letter-spacing:-6px;top:1035px}
+p{font-family:Alder,Arial,sans-serif;font-size:38px;line-height:1.25;top:1220px}
+#identity{width:1200px;height:1340px}
+#avatar{width:1200px;height:1200px}#avatar .art{top:-40px}#avatar h1{top:925px;font-size:142px}#avatar p{top:1090px;font-size:35px}
+#social{width:1280px;height:640px}#social .art{left:425px;top:6px;transform:scale(.43);transform-origin:top left}#social h1{top:440px;font-size:104px;letter-spacing:-4px}#social p{top:566px;font-size:28px}
+body>section{display:none}body[data-piece=identity] #identity,body[data-piece=avatar] #avatar,body[data-piece=social] #social{display:block}
+</style>
+<body data-piece="identity">
+<section class="piece" id="identity" aria-label="Identidad principal">
+  <div class="art"><img src="qr-original.png" alt="QR artístico original: vista aérea de un tianguis con lonas de colores"></div>
+  <h1>Trangui</h1><p>Tu puesto, con menos pendientes.</p>
+</section>
+<section class="piece" id="avatar" aria-label="Avatar cuadrado descargable">
+  <div class="art"><img src="qr-original.png" alt="QR artístico original de Trangui"></div>
+  <h1>Trangui</h1><p>Tu puesto, con menos pendientes.</p>
+</section>
+<section class="piece" id="social" aria-label="Portada para compartir">
+  <div class="art"><img src="qr-original.png" alt="QR artístico original de Trangui"></div>
+  <h1>Trangui</h1><p>Tu puesto, con menos pendientes.</p>
+</section>
+<script>const piece=new URLSearchParams(location.search).get('piece');if(['identity','avatar','social'].includes(piece))document.body.dataset.piece=piece;</script>
+</body>
+</html>

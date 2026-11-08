@@ -1,0 +1,74 @@
+{
+  "date": "2026-11-08",
+  "originalSha256": "e9d6461bc41c201648f221fef92ea62f7c4c120ea7e692b5e81e81ce6d4cead7",
+  "originalByteIdentical": true,
+  "qrPayload": "https://xn--hw9h.st/",
+  "artSourceBounds": [
+    148,
+    568,
+    932,
+    1352
+  ],
+  "pixelComparisons": {
+    "trangui-identidad.png": {
+      "differentPixels": 0,
+      "bounds": [
+        208,
+        128,
+        992,
+        912
+      ]
+    },
+    "trangui-avatar.png": {
+      "differentPixels": 0,
+      "bounds": [
+        208,
+        68,
+        992,
+        852
+      ]
+    }
+  },
+  "assets": {
+    "qr-original.png": {
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "sha256": "e9d6461bc41c201648f221fef92ea62f7c4c120ea7e692b5e81e81ce6d4cead7",
+      "decoded": [
+        "https://xn--hw9h.st/"
+      ]
+    },
+    "trangui-avatar.png": {
+      "dimensions": [
+        1200,
+        1200
+      ],
+      "sha256": "9ff49b4d70db0a5be53a22cf683e98d283065ac0e8344e58426dbe8aba1da2dd",
+      "decoded": [
+        "https://xn--hw9h.st/"
+      ]
+    },
+    "trangui-identidad.png": {
+      "dimensions": [
+        1200,
+        1340
+      ],
+      "sha256": "1158363d2b04b40825282cb697d41cf7d9d488aa12830674c0151a78eb8ae9bd",
+      "decoded": [
+        "https://xn--hw9h.st/"
+      ]
+    },
+    "trangui-social.png": {
+      "dimensions": [
+        1280,
+        640
+      ],
+      "sha256": "af604e1d8d7e06a4e299c97de4e45f4b55e723c3d9e0439d202ab433b838f037",
+      "decoded": [
+        "https://xn--hw9h.st/"
+      ]
+    }
+  }
+}

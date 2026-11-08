@@ -1,3 +1,15 @@
+<p align="center">
+  <a href="https://xn--hw9h.st/">
+    <img src="docs/brand/trangui-identidad.png" width="560" alt="Trangui. Tu puesto, con menos pendientes. QR artístico original de un tianguis.">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://xn--hw9h.st/">Abrir Trangui</a> ·
+  <a href="docs/brand/README.md">Identidad y descargas</a> ·
+  <a href="PITCH.md">Conocer la propuesta</a>
+</p>
+
 # Trangui
 
 **Un mostrador digital para llevar menos pendientes en la cabeza.**
