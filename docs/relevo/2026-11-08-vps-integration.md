@@ -44,7 +44,11 @@ solo con `require.resolve()` desde la raíz de ese bundle daba una conclusión f
   ausente se rechaza. No activa canales externos de notificación.
 - B1, móvil 320 y venta esperan a que termine su servidor antes de retirar sus
   bases temporales. Esto corrige una carrera de limpieza, sin cambiar aserciones
-  ni resultados del producto.
+  ni resultados del producto. B1 pasó 78/78 en el build de este lote. Las otras
+  dos suites se ejecutaron y fallan en su primera espera por `h1:has-text('Caja')`:
+  dependen de la UI clásica retirada, además de ese título. Se conservaron sus
+  aserciones; requieren migrar escenarios a las rutas canónicas y no cuentan
+  como gates aprobados. No hay listeners de esos tres fixtures al terminar.
 
 ## Rollback del lote
 
@@ -75,4 +79,6 @@ servicios del servidor.
    conectividad. No se contrató R2 ni otro servicio de pago.
 
 Pey real continúa desactivado. No se generaron cobros bancarios ni se cambiaron
-reglas de webhook. El gate completo de 23 pruebas de release no está certificado.
+reglas de webhook. El gate completo de 23 pruebas de release no está certificado. CI de push y PR
+pasó en `3da4d1d811a687f616fa69a68520199abf7beace`; ese resultado no incluye las
+dos suites legacy fallidas ni sustituye la prueba pública HTTPS.
