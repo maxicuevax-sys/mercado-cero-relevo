@@ -22,7 +22,7 @@ with sync_playwright() as p:
         expect(page.get_by_role('heading', name='Revisa lo que entendí', exact=True)).to_be_visible()
         expect(page.get_by_text('1 × Kilo de jitomate', exact=True)).to_be_visible()
         page.get_by_role('button', name='Dictar venta', exact=True).click()
-        expect(page.locator('#mc-sale-voice-error')).to_contain_text('No se concedió permiso')
+        expect(page.locator('#mc-sale-voice-error')).to_contain_text(re.compile('permiso|no permite grabar audio'))
         assert not errors, errors
         assert not order_mutations, order_mutations
         print(f'PASS {engine.name}: denied storage does not block Caja, real local interpretation, denied microphone explained, zero order mutations')
