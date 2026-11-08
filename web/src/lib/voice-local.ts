@@ -173,19 +173,32 @@ export function mockParse(transcript: string): ParsedSale {
     };
   }
 
-  const items: ParsedSale["items"] = [];
+  const ordered: Array<{ index: number; item: ParsedSale["items"][number] }> = [];
+  // Match explicit prices first so units and multiword names offered by the UI
+  // ("1 kilo de jitomate a 30 pesos") are not reduced to "1 kilo".
+  const explicitRegex = /\b(\d+|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|doce|quince|veinte)\s+([a-záéíóúñ]+(?:\s+(?!(?:y|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|doce|quince|veinte)\b)[a-záéíóúñ]+)*?)\s+(?:de|a)\s+\$?(\d+(?:\.\d+)?)/gi;
+  let remaining = text;
+  let explicit: RegExpExecArray | null;
+  while ((explicit = explicitRegex.exec(text)) !== null) {
+    const unitPriceCents = Math.round(Number(explicit[3]) * 100);
+    if (unitPriceCents > 0) ordered.push({ index: explicit.index, item: {
+      description: capitalize(explicit[2]), quantity: parseNumber(explicit[1]), unitPriceCents,
+    } });
+    remaining = remaining.slice(0, explicit.index) + " ".repeat(explicit[0].length) + remaining.slice(explicit.index + explicit[0].length);
+  }
   const itemRegex =
     /(\d+|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|doce|quince|veinte)\s+([a-záéíóúñ]+)(?:\s+(?:de|a)\s+\$?(\d+(?:\.\d+)?))?/gi;
   let match: RegExpExecArray | null;
-  while ((match = itemRegex.exec(text)) !== null) {
+  while ((match = itemRegex.exec(remaining)) !== null) {
     const quantity = parseNumber(match[1]);
     const description = capitalize(match[2]);
     const explicitPrice = match[3] ? Math.round(Number(match[3]) * 100) : 0;
     const unitPriceCents = explicitPrice || catalogPrice(description);
     if (unitPriceCents > 0) {
-      items.push({ description, quantity, unitPriceCents });
+      ordered.push({ index: match.index, item: { description, quantity, unitPriceCents } });
     }
   }
+  const items = ordered.sort((a, b) => a.index - b.index).map(entry => entry.item);
 
   const cashMatch = text.match(/(?:efectivo|en efectivo|con)\s+\$?(\d+(?:\.\d+)?)/);
   const cashCents = cashMatch ? Math.round(Number(cashMatch[1]) * 100) : 0;

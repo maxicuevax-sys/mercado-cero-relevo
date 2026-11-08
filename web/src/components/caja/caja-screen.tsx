@@ -180,7 +180,7 @@ export function CajaScreen({
       }
     } catch {
       // Un borrador corrupto no debe bloquear una venta nueva.
-      window.localStorage.removeItem(DRAFT_KEY);
+      try { window.localStorage.removeItem(DRAFT_KEY); } catch { /* Storage may be unavailable on iPhone. */ }
     }
 
     try {
@@ -240,7 +240,7 @@ export function CajaScreen({
         writeStoredRequest(requestRef.current);
       }
     } catch {
-      window.localStorage.removeItem(UNKNOWN_KEY);
+      try { window.localStorage.removeItem(UNKNOWN_KEY); } catch { /* Keep the new ticket usable without storage. */ }
     }
 
     try {

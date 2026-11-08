@@ -39,5 +39,18 @@ test("account transitions clear both app namespaces in local and session storage
 
 test("blocked cleanup fails visibly instead of pretending account state was removed", () => {
   const blocked = { length: 1, key() { return "mercado-cero:caja-draft:v2"; }, removeItem() { throw new Error("blocked"); } };
-  assert.throws(() => clearAppBrowserState(blocked, storageFixture({})), /blocked/);
+  assert.throws(() => clearAppBrowserState(blocked, storageFixture({})), /browser_state_cleanup_failed/);
+});
+
+test("iPhone storage access denial does not misreport a successful session as a network error", () => {
+  const session = storageFixture({ 'trangui:old': 'remove', unrelated: 'keep' });
+  const previous = globalThis.window;
+  globalThis.window = {
+    get localStorage() { throw new DOMException('Storage denied', 'SecurityError'); },
+    sessionStorage: session,
+  };
+  try {
+    assert.doesNotThrow(() => clearAppBrowserState());
+    assert.deepEqual(session.entries(), { unrelated: 'keep' });
+  } finally { if (previous === undefined) delete globalThis.window; else globalThis.window = previous; }
 });
