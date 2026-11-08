@@ -126,6 +126,21 @@
 }
 @media (max-width: 360px) {
   .mc-caja-shell .mc-caja-line { grid-template-columns: 36px minmax(0, 1fr) 84px 57px 28px; }
+
+  /* Generic items have no illustration: reclaim that empty column for the
+     editable name. Keep the existing <=12em enlarged-text reflow untouched. */
+  @container (min-width: 12.01em) {
+    .mc-caja-shell .mc-caja-line:has(> .mc-caja-line__art:empty) {
+      grid-template-columns: minmax(0, 1fr) 84px 57px 28px;
+    }
+    .mc-caja-shell .mc-caja-line:has(> .mc-caja-line__art:empty) > .mc-caja-line__art { display: none; }
+    .mc-caja-shell .mc-caja-line:has(> .mc-caja-line__art:empty) .mc-caja-field--description,
+    .mc-caja-shell .mc-caja-line:has(> .mc-caja-line__art:empty) > .mc-caja-line__price-toggle { grid-column: 1; margin-left: 0; }
+    .mc-caja-shell .mc-caja-line:has(> .mc-caja-line__art:empty) > .mc-caja-line__price-toggle { margin-top: 0; }
+    .mc-caja-shell .mc-caja-line:has(> .mc-caja-line__art:empty) > .mc-caja-line__quantity { grid-column: 2; }
+    .mc-caja-shell .mc-caja-line:has(> .mc-caja-line__art:empty) > .mc-caja-line__total { grid-column: 3; }
+    .mc-caja-shell .mc-caja-line:has(> .mc-caja-line__art:empty) > .mc-caja-icon-button { grid-column: 4; }
+  }
 }
 
 .mc-spec-methods-hint { margin: 8px 0 0; font-size: .8125rem; line-height: 1.3; color: var(--color-ink-2); }
