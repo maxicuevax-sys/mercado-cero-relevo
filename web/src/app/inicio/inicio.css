@@ -1695,3 +1695,43 @@ html[data-contrast="high"] .inicio-nav__item[aria-current="page"]:focus-visible 
 @keyframes inicio-spin { to { transform: rotate(360deg); } }
 .inicio-shell--compact .inicio-task__check { min-width: 34px; min-height: 34px; }
 @media (max-width: 760px) { .inicio-task__check { min-width: 44px; min-height: 44px; } }
+
+
+/* KPI móviles: sin caja vacía; el texto ocupa la tarjeta. */
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi {
+    min-height: 0;
+    padding: 11px 9px 12px;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__top {
+    gap: 5px;
+    align-items: center;
+    font-size: .8125rem;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__icon {
+    width: 25px;
+    height: 25px;
+    border-radius: 8px;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__glyph {
+    width: 17px;
+    height: 17px;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__value {
+    margin-top: 5px;
+    font: 700 clamp(1.35rem, 6.2vw, 1.75rem)/1.05 Georgia, serif;
+    text-align: left;
+    white-space: nowrap;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__note {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__value {
+    text-align: center;
+  }
+}

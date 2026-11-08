@@ -261,9 +261,12 @@ function BarcodeScanner({ onClose, onDetect }: { onClose: () => void; onDetect: 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const detectRef = useRef(onDetect);
-  detectRef.current = onDetect;
+  const controlsRef = useRef<{ stop: () => void } | null>(null);
   const [status, setStatus] = useState("Abriendo cámara…");
-  let controlsRef: { stop: () => void } | null = null;
+
+  useEffect(() => {
+    detectRef.current = onDetect;
+  }, [onDetect]);
 
   useEffect(() => {
     let active = true;
@@ -286,7 +289,7 @@ function BarcodeScanner({ onClose, onDetect }: { onClose: () => void; onDetect: 
             const value = result?.getText()?.trim();
             if (value) detectRef.current(value);
           });
-          if (active) controlsRef = controls;
+          if (active) controlsRef.current = controls;
           else controls.stop();
           return;
         }
@@ -304,7 +307,7 @@ function BarcodeScanner({ onClose, onDetect }: { onClose: () => void; onDetect: 
       }
     }
     void start();
-    return () => { active = false; controlsRef?.stop(); if (interval) clearInterval(interval); streamRef.current?.getTracks().forEach((track) => track.stop()); };
+    return () => { active = false; controlsRef.current?.stop(); if (interval) clearInterval(interval); streamRef.current?.getTracks().forEach((track) => track.stop()); };
   }, []);
 
   return <div className="mc-scan-overlay" role="dialog" aria-modal="true" aria-label="Escanear código de barras">
