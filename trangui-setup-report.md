@@ -18,6 +18,11 @@ Pruebas antes del commit: identidad 8/8; Chromium/axe 1/1; snapshot WAL 1/1.
 La identidad sigue sin montarse públicamente; no prueba aislamiento de ventas.
 El VPS continúa sirviendo `09b4f8d` y no recibió este candidato.
 
+La primera corrida static del candidato identificó tres errores React Hooks
+en la cámara heredada de DSH. Se corrigieron en el candidato con dos cambios
+de ámbito/efecto; el lint del archivo pasó de 3 errores a 0, sin desactivar
+reglas. El 4/5 inicial no cuenta como PASS y se repite contra el commit limpio.
+
 La evidencia final de build/gates, comprobaciones de dinero y capturas se genera
 contra el SHA limpio de este candidato en
 `harness/evidence/runs/trangui-base/` y `harness/evidence/latest-static.json`.

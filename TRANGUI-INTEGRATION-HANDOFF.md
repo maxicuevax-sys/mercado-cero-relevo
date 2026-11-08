@@ -33,6 +33,10 @@ hub CoDi, cámara, micrófono y pendientes de DSH.
   de DSH en package.json/lock. Identidad separada, registro cerrado por defecto.
 - Pruebas `test:pilot-identity` y `test:pilot-browser`, sin ruta pública de auth
   montada. No confundir identidad probada con aislamiento de ventas terminado.
+- Corrección mínima del lint de cámara heredado de DSH: actualizar el callback
+  ref dentro de un efecto y mantener el control ZXing en el ámbito del efecto.
+  Los tres errores se reprodujeron antes y quedaron en cero después; no se
+  deshabilitó ninguna regla ni se cambió la interfaz del escáner.
 
 ## Límites y continuidad
 

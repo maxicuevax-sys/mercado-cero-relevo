@@ -261,12 +261,12 @@ function BarcodeScanner({ onClose, onDetect }: { onClose: () => void; onDetect: 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const detectRef = useRef(onDetect);
-  detectRef.current = onDetect;
+  useEffect(() => { detectRef.current = onDetect; }, [onDetect]);
   const [status, setStatus] = useState("Abriendo cámara…");
-  let controlsRef: { stop: () => void } | null = null;
 
   useEffect(() => {
     let active = true;
+    let controlsRef: { stop: () => void } | null = null;
     let interval: ReturnType<typeof setInterval> | null = null;
     async function start() {
       try {
