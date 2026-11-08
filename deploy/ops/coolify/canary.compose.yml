@@ -1,0 +1,22 @@
+# Private rehearsal only: isolated SQLite copy; never mounts the active database.
+services:
+  mercado-cero-canary:
+    image: localhost/mercado-cero:09b4f8d1aa63f40682e2e4082034fe952a1dd1e2
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      DEMO_MODE: "true"
+      APP_URL: http://127.0.0.1:24595
+      DATABASE_PATH: /data/mercado-cero.db
+      DATABASE_BACKUP_DIR: /data/backups
+      PEY_API_KEY: ""
+      PEY_WEBHOOK_SECRET: ""
+      OPENAI_API_KEY: ""
+    volumes:
+      - /opt/mercado-cero/pilot/coolify-canary:/data
+    ports:
+      - "127.0.0.1:4595:3000"
+    mem_limit: 768m
+    cpus: 1.0
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]

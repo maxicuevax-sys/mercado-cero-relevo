@@ -442,8 +442,9 @@ export function attachPaymentLink(
 
 export function attachQr(
   orderId: string,
-  qr: { id: string; qrString: string; qrImage: string | null },
+  qr: { id: string; qrString: string; qrImage: string | null; expiresAt?: string | null },
   numRef: string,
+  options?: { forceRefresh?: boolean },
 ): Order {
   const database = getDb();
   let committed = false;
@@ -451,7 +452,7 @@ export function attachQr(
   try {
     const row = database
       .prepare(
-        "SELECT status, total_cents, paid_cents, credit_cents, qr_string FROM orders WHERE id = ?",
+        "SELECT status, total_cents, paid_cents, credit_cents, qr_string, qr_expires_at FROM orders WHERE id = ?",
       )
       .get(orderId) as
       | {
@@ -460,6 +461,7 @@ export function attachQr(
           paid_cents: number;
           credit_cents: number;
           qr_string: string | null;
+          qr_expires_at: string | null;
         }
       | undefined;
     if (!row) throw new NotFoundError("Pedido no encontrado.", "order_not_found");
@@ -473,7 +475,9 @@ export function attachQr(
       return existing;
     }
 
-    if (row.qr_string) {
+    const isExpired = row.qr_expires_at ? Date.parse(row.qr_expires_at) <= Date.now() : false;
+    const canReuse = row.qr_string && !options?.forceRefresh && !isExpired;
+    if (canReuse) {
       database.exec("COMMIT");
       committed = true;
       const existing = getOrder(orderId);
@@ -498,14 +502,16 @@ export function attachQr(
       outstandingCents > 0 && row.status !== "partially_paid"
         ? "payment_pending"
         : row.status;
+    const expiresAt = qr.expiresAt ?? null;
     database
       .prepare(
-        "UPDATE orders SET qr_id = ?, qr_string = ?, qr_image = ?, num_ref = ?, status = ?, updated_at = ? WHERE id = ?",
+        "UPDATE orders SET qr_id = ?, qr_string = ?, qr_image = ?, num_ref = ?, qr_expires_at = ?, status = ?, updated_at = ? WHERE id = ?",
       )
-      .run(qr.id, qr.qrString, qr.qrImage, numRef, nextStatus, nowIso(), orderId);
-    audit("codi_qr.attached", "order", orderId, {
+      .run(qr.id, qr.qrString, qr.qrImage, numRef, expiresAt, nextStatus, nowIso(), orderId);
+    audit(row.qr_string ? "codi_qr.refreshed" : "codi_qr.attached", "order", orderId, {
       id: qr.id,
       numRef,
+      expiresAt,
       status: nextStatus,
     });
     database.exec("COMMIT");
@@ -523,6 +529,268 @@ export function attachQr(
   const updated = getOrder(orderId);
   if (!updated) throw new NotFoundError("Pedido no encontrado.", "order_not_found");
   return updated;
+}
+
+export function attachCodiPush(
+  orderId: string,
+  push: { id: string; phoneMasked: string; expiresAt: string },
+  numRef: string,
+): Order {
+  const database = getDb();
+  let committed = false;
+  database.exec("BEGIN IMMEDIATE");
+  try {
+    const row = database
+      .prepare(
+        "SELECT status, total_cents, paid_cents, credit_cents FROM orders WHERE id = ?",
+      )
+      .get(orderId) as
+      | {
+          status: string;
+          total_cents: number;
+          paid_cents: number;
+          credit_cents: number;
+        }
+      | undefined;
+    if (!row) throw new NotFoundError("Pedido no encontrado.", "order_not_found");
+
+    if (COVERED_ORDER_STATUSES.has(row.status)) {
+      database.exec("COMMIT");
+      committed = true;
+      const existing = getOrder(orderId);
+      if (!existing) throw new NotFoundError("Pedido no encontrado.", "order_not_found");
+      return existing;
+    }
+
+    const collision = getOrderByNumRef(numRef);
+    if (collision && collision.id !== orderId) {
+      throw new ConflictError(
+        "Ese número de referencia ya está en uso. Intenta de nuevo.",
+        "num_ref_conflict",
+      );
+    }
+
+    const outstandingCents =
+      Number(row.total_cents) - Number(row.paid_cents) - Number(row.credit_cents);
+    const nextStatus =
+      outstandingCents > 0 && row.status !== "partially_paid"
+        ? "payment_pending"
+        : row.status;
+
+    database
+      .prepare(
+        "UPDATE orders SET codi_push_id = ?, codi_phone_masked = ?, num_ref = ?, qr_expires_at = ?, status = ?, updated_at = ? WHERE id = ?",
+      )
+      .run(push.id, push.phoneMasked, numRef, push.expiresAt, nextStatus, nowIso(), orderId);
+
+    audit("codi_push.created", "order", orderId, {
+      id: push.id,
+      phoneMasked: push.phoneMasked,
+      numRef,
+      expiresAt: push.expiresAt,
+      status: nextStatus,
+    });
+    database.exec("COMMIT");
+    committed = true;
+  } finally {
+    if (!committed) {
+      try {
+        database.exec("ROLLBACK");
+      } catch {
+        // Ignorar si la transacción cerró
+      }
+    }
+  }
+
+  const updated = getOrder(orderId);
+  if (!updated) throw new NotFoundError("Pedido no encontrado.", "order_not_found");
+  return updated;
+}
+
+export function attachCreditPaymentLink(
+  creditId: string,
+  link: { id: string; url: string },
+): Credit {
+  const database = getDb();
+  let committed = false;
+  database.exec("BEGIN IMMEDIATE");
+  try {
+    const row = database
+      .prepare("SELECT balance_cents, status FROM credits WHERE id = ?")
+      .get(creditId) as { balance_cents: number; status: string } | undefined;
+    if (!row) throw new NotFoundError("Fiado no encontrado.", "credit_not_found");
+
+    database
+      .prepare("UPDATE credits SET payment_link_id = ?, payment_url = ? WHERE id = ?")
+      .run(link.id, link.url, creditId);
+
+    audit("credit.payment_link.attached", "credit", creditId, link);
+    database.exec("COMMIT");
+    committed = true;
+  } finally {
+    if (!committed) {
+      try {
+        database.exec("ROLLBACK");
+      } catch {
+        // Ignorar
+      }
+    }
+  }
+  const updated = getCredit(creditId);
+  if (!updated) throw new NotFoundError("Fiado no encontrado.", "credit_not_found");
+  return updated;
+}
+
+export function attachCreditQr(
+  creditId: string,
+  qr: { id: string; qrString: string; qrImage: string | null; expiresAt?: string | null },
+  numRef: string,
+): Credit {
+  const database = getDb();
+  let committed = false;
+  database.exec("BEGIN IMMEDIATE");
+  try {
+    const row = database
+      .prepare("SELECT balance_cents, status FROM credits WHERE id = ?")
+      .get(creditId) as { balance_cents: number; status: string } | undefined;
+    if (!row) throw new NotFoundError("Fiado no encontrado.", "credit_not_found");
+
+    database
+      .prepare(
+        "UPDATE credits SET qr_id = ?, qr_string = ?, qr_image = ?, num_ref = ?, qr_expires_at = ? WHERE id = ?",
+      )
+      .run(qr.id, qr.qrString, qr.qrImage, numRef, qr.expiresAt ?? null, creditId);
+
+    audit("credit.codi_qr.attached", "credit", creditId, { id: qr.id, numRef });
+    database.exec("COMMIT");
+    committed = true;
+  } finally {
+    if (!committed) {
+      try {
+        database.exec("ROLLBACK");
+      } catch {
+        // Ignorar
+      }
+    }
+  }
+  const updated = getCredit(creditId);
+  if (!updated) throw new NotFoundError("Fiado no encontrado.", "credit_not_found");
+  return updated;
+}
+
+export function recordVerifiedCreditPaymentFromPey(input: {
+  creditId: string;
+  amountCents: number;
+  method: PaymentMethod;
+  transactionId: string;
+  rawEvent?: string | null;
+}): {
+  credit: Credit;
+  appliedCents: number;
+  balanceCents: number;
+  duplicate: boolean;
+} {
+  const database = getDb();
+  const txId = input.transactionId.trim();
+  if (!txId) {
+    throw new ValidationError("Falta transactionId para el abono verificado.");
+  }
+  const amountCents = Math.round(input.amountCents);
+  if (!Number.isFinite(amountCents) || amountCents <= 0) {
+    throw new ValidationError("El abono debe ser mayor a cero.");
+  }
+
+  database.exec("SAVEPOINT credit_pey_record");
+  let committed = false;
+  try {
+    if (database.prepare("SELECT 1 FROM payments WHERE transaction_id = ?").get(txId)) {
+      throw new ConflictError("La transacción ya corresponde a una venta.", "credit_transaction_conflict");
+    }
+    // 1. Idempotencia estricta por transaction_id en credit_payments
+    const existing = database
+      .prepare(
+        "SELECT id, credit_id, amount_cents FROM credit_payments WHERE transaction_id = ?",
+      )
+      .get(txId) as { id: string; credit_id: string; amount_cents: number } | undefined;
+
+    if (existing) {
+      if (existing.credit_id !== input.creditId || Number(existing.amount_cents) !== amountCents) {
+        throw new ConflictError("La transacción ya corresponde a otro abono.", "credit_transaction_conflict");
+      }
+      const credit = getCredit(input.creditId);
+      if (!credit) throw new NotFoundError("Fiado no encontrado.", "credit_not_found");
+      database.exec("RELEASE SAVEPOINT credit_pey_record");
+      committed = true;
+      return {
+        credit,
+        appliedCents: Number(existing.amount_cents),
+        balanceCents: credit.balanceCents,
+        duplicate: true,
+      };
+    }
+
+    const credit = getCredit(input.creditId);
+    if (!credit) throw new NotFoundError("Fiado no encontrado.", "credit_not_found");
+
+    if (amountCents > credit.balanceCents) {
+      throw new ConflictError("El abono verificado excede el saldo pendiente.", "credit_amount_mismatch");
+    }
+    const appliedCents = amountCents;
+    const newBalance = Math.max(0, credit.balanceCents - appliedCents);
+    const nextStatus = newBalance === 0 ? "settled" : "partial";
+
+    database
+      .prepare(
+        `INSERT INTO credit_payments
+         (id, credit_id, amount_cents, method, provider, transaction_id, raw_event, demo, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .run(
+        newId("cp"),
+        input.creditId,
+        appliedCents,
+        input.method,
+        "pey",
+        txId,
+        input.rawEvent ?? null,
+        isDemoMode() ? 1 : 0,
+        nowIso(),
+      );
+
+    database
+      .prepare("UPDATE credits SET balance_cents = ?, status = ? WHERE id = ?")
+      .run(newBalance, nextStatus, input.creditId);
+
+    audit("credit.pey_payment", "credit", input.creditId, {
+      amountCents: appliedCents,
+      transactionId: txId,
+      method: input.method,
+      newBalance,
+      status: nextStatus,
+    });
+
+    database.exec("RELEASE SAVEPOINT credit_pey_record");
+    committed = true;
+
+    const updated = getCredit(input.creditId);
+    if (!updated) throw new Error("No pude leer el fiado actualizado.");
+
+    return {
+      credit: updated,
+      appliedCents,
+      balanceCents: newBalance,
+      duplicate: false,
+    };
+  } finally {
+    if (!committed) {
+      try {
+        database.exec("ROLLBACK TO SAVEPOINT credit_pey_record");
+        database.exec("RELEASE SAVEPOINT credit_pey_record");
+      } catch {
+        // Ignorar
+      }
+    }
+  }
 }
 
 export function recordPayment(
@@ -560,6 +828,9 @@ export function recordPayment(
   database.exec("SAVEPOINT payment_record");
   let released = false;
   try {
+    if (input.transactionId && database.prepare("SELECT 1 FROM credit_payments WHERE transaction_id = ?").get(input.transactionId)) {
+      throw new ConflictError("La transacción ya corresponde a un fiado.", "payment_transaction_conflict");
+    }
     if (input.transactionId) {
       const raced = database
         .prepare("SELECT id FROM payments WHERE transaction_id = ?")

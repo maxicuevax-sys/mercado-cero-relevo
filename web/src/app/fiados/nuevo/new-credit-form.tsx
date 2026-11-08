@@ -146,7 +146,15 @@ export function NewCreditForm({
         <ChevronRight className="mc-flow__chevron" aria-hidden="true" />
       </div>
       {known ? (
-        <p className="mc-flow__hint">Saldo actual de {known.name}: {formatMxn(known.balanceCents)}</p>
+        <section className="mc-flow__row mc-flow__row--soft" aria-label={`Cliente conocido: ${known.name}`}>
+          <span className="mc-flow__known-icon" aria-hidden="true"><UserRound /></span>
+          <span className="mc-flow__row-main">
+            <strong>{known.name}</strong>
+            <span>Saldo actual: {formatMxn(known.balanceCents)}</span>
+          </span>
+        </section>
+      ) : customer.trim() ? (
+        <p className="mc-flow__hint">Cliente nuevo: se abrirá su libreta al registrar el fiado.</p>
       ) : null}
 
       <label className="mc-flow__label" htmlFor={amountId}>
@@ -191,13 +199,19 @@ export function NewCreditForm({
         <span>{todayLabel}</span>
       </div>
 
-      <section className="mc-flow__card mc-flow__card--soft" aria-label="Nuevo saldo">
-        <p className="mc-flow__row-main">
-          <span>Nuevo saldo de {customer.trim() || "tu cliente"}</span>
-          <strong style={{ display: "block", marginTop: 6, font: "700 2.4rem/1.1 Georgia, serif", color: "var(--flow-green)" }}>
-            {formatMxn(nextBalance)}
-          </strong>
-        </p>
+      <section className="mc-flow__balance mc-flow__balance--coins" aria-label="Nuevo saldo">
+        <Image
+          src="/assets/spec/fiados-monedas.png"
+          width={320}
+          height={200}
+          alt=""
+          unoptimized
+          className="mc-flow__balance-art"
+        />
+        <div className="mc-flow__balance-copy">
+          <span className="mc-flow__balance-label">Nuevo saldo de {customer.trim() || "tu cliente"}</span>
+          <strong className="mc-flow__balance-value">{formatMxn(nextBalance)}</strong>
+        </div>
       </section>
 
       {error ? (

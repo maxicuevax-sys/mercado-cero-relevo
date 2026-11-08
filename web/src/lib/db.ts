@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
@@ -122,6 +123,9 @@ function migrate(database: DatabaseSync) {
       qr_string TEXT,
       qr_image TEXT,
       num_ref TEXT,
+      qr_expires_at TEXT,
+      codi_push_id TEXT,
+      codi_phone_masked TEXT,
       request_id TEXT,
       request_hash TEXT,
       demo INTEGER NOT NULL DEFAULT 0,
@@ -183,6 +187,13 @@ function migrate(database: DatabaseSync) {
       balance_cents INTEGER NOT NULL,
       status TEXT NOT NULL DEFAULT 'open',
       due_date TEXT,
+      payment_link_id TEXT,
+      payment_url TEXT,
+      qr_id TEXT,
+      qr_string TEXT,
+      qr_image TEXT,
+      num_ref TEXT,
+      qr_expires_at TEXT,
       demo INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL,
       FOREIGN KEY (customer_id) REFERENCES customers(id)
@@ -195,6 +206,8 @@ function migrate(database: DatabaseSync) {
       method TEXT NOT NULL DEFAULT 'cash',
       provider TEXT NOT NULL DEFAULT 'cash',
       note TEXT,
+      transaction_id TEXT,
+      raw_event TEXT,
       request_id TEXT,
       request_hash TEXT,
       demo INTEGER NOT NULL DEFAULT 0,
@@ -208,7 +221,9 @@ function migrate(database: DatabaseSync) {
       entity TEXT NOT NULL,
       entity_id TEXT NOT NULL,
       detail TEXT,
-      created_at TEXT NOT NULL
+      created_at TEXT NOT NULL,
+      prev_hash TEXT,
+      entry_hash TEXT
     );
 
     CREATE TABLE IF NOT EXISTS cash_closes (
@@ -460,6 +475,63 @@ function migrate(database: DatabaseSync) {
   }
 
   migrateCashCloses(database);
+
+  // 1. orders: qr_expires_at, codi_push_id, codi_phone_masked
+  if (!hasColumn(database, "orders", "qr_expires_at")) {
+    database.exec("ALTER TABLE orders ADD COLUMN qr_expires_at TEXT;");
+  }
+  if (!hasColumn(database, "orders", "codi_push_id")) {
+    database.exec("ALTER TABLE orders ADD COLUMN codi_push_id TEXT;");
+  }
+  if (!hasColumn(database, "orders", "codi_phone_masked")) {
+    database.exec("ALTER TABLE orders ADD COLUMN codi_phone_masked TEXT;");
+  }
+
+  // 2. credits: payment_link_id, payment_url, qr_id, qr_string, qr_image, num_ref, qr_expires_at
+  if (!hasColumn(database, "credits", "payment_link_id")) {
+    database.exec("ALTER TABLE credits ADD COLUMN payment_link_id TEXT;");
+  }
+  if (!hasColumn(database, "credits", "payment_url")) {
+    database.exec("ALTER TABLE credits ADD COLUMN payment_url TEXT;");
+  }
+  if (!hasColumn(database, "credits", "qr_id")) {
+    database.exec("ALTER TABLE credits ADD COLUMN qr_id TEXT;");
+  }
+  if (!hasColumn(database, "credits", "qr_string")) {
+    database.exec("ALTER TABLE credits ADD COLUMN qr_string TEXT;");
+  }
+  if (!hasColumn(database, "credits", "qr_image")) {
+    database.exec("ALTER TABLE credits ADD COLUMN qr_image TEXT;");
+  }
+  if (!hasColumn(database, "credits", "num_ref")) {
+    database.exec("ALTER TABLE credits ADD COLUMN num_ref TEXT;");
+  }
+  if (!hasColumn(database, "credits", "qr_expires_at")) {
+    database.exec("ALTER TABLE credits ADD COLUMN qr_expires_at TEXT;");
+  }
+  database.exec(`
+    CREATE INDEX IF NOT EXISTS idx_credits_payment_link_id ON credits(payment_link_id) WHERE payment_link_id IS NOT NULL;
+    CREATE INDEX IF NOT EXISTS idx_credits_num_ref ON credits(num_ref) WHERE num_ref IS NOT NULL;
+  `);
+
+  // 3. credit_payments: transaction_id, raw_event + index
+  if (!hasColumn(database, "credit_payments", "transaction_id")) {
+    database.exec("ALTER TABLE credit_payments ADD COLUMN transaction_id TEXT;");
+  }
+  if (!hasColumn(database, "credit_payments", "raw_event")) {
+    database.exec("ALTER TABLE credit_payments ADD COLUMN raw_event TEXT;");
+  }
+  database.exec(
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_credit_payments_tx_id ON credit_payments(transaction_id) WHERE transaction_id IS NOT NULL;",
+  );
+
+  // 4. audit_log: prev_hash, entry_hash
+  if (!hasColumn(database, "audit_log", "prev_hash")) {
+    database.exec("ALTER TABLE audit_log ADD COLUMN prev_hash TEXT;");
+  }
+  if (!hasColumn(database, "audit_log", "entry_hash")) {
+    database.exec("ALTER TABLE audit_log ADD COLUMN entry_hash TEXT;");
+  }
 
   // Las filas viejas de la demo se reconocen por sus prefijos reservados.
   // No se marca por cliente: un crédito real puede apuntar a un cliente demo
@@ -792,6 +864,10 @@ function tableColumns(database: DatabaseSync, table: string): Array<{ name: stri
   return database.prepare(`PRAGMA table_info(${table})`).all() as unknown as Array<{
     name: string;
   }>;
+}
+
+function hasColumn(database: DatabaseSync, table: string, column: string): boolean {
+  return tableColumns(database, table).some((col) => col.name === column);
 }
 
 /**
@@ -1248,11 +1324,61 @@ function seedDemoHistory(database: DatabaseSync) {
 
 export function audit(action: string, entity: string, entityId: string, detail?: unknown) {
   const database = getDb();
+  const id = newId("aud");
+  const createdAt = nowIso();
+  const detailJson = detail !== undefined && detail !== null ? JSON.stringify(detail) : null;
+  const lastRow = database
+    .prepare("SELECT entry_hash FROM audit_log WHERE entry_hash IS NOT NULL ORDER BY rowid DESC LIMIT 1")
+    .get() as { entry_hash: string } | undefined;
+  const prevHash = lastRow?.entry_hash ?? "GENESIS";
+  const entryHash = crypto
+    .createHash("sha256")
+    .update(`${prevHash}|${id}|${action}|${entity}|${entityId}|${detailJson ?? ""}|${createdAt}`)
+    .digest("hex");
+
   database
     .prepare(
-      "INSERT INTO audit_log (id, action, entity, entity_id, detail, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+      "INSERT INTO audit_log (id, action, entity, entity_id, detail, created_at, prev_hash, entry_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
     )
-    .run(newId("aud"), action, entity, entityId, detail ? JSON.stringify(detail) : null, nowIso());
+    .run(id, action, entity, entityId, detailJson, createdAt, prevHash, entryHash);
+}
+
+export function verifyAuditChain(): { ok: boolean; checked: number; brokenAtId: string | null } {
+  const database = getDb();
+  const rows = database
+    .prepare(
+      "SELECT id, action, entity, entity_id, detail, created_at, prev_hash, entry_hash FROM audit_log WHERE entry_hash IS NOT NULL ORDER BY rowid ASC",
+    )
+    .all() as Array<{
+      id: string;
+      action: string;
+      entity: string;
+      entity_id: string;
+      detail: string | null;
+      created_at: string;
+      prev_hash: string;
+      entry_hash: string;
+    }>;
+
+  let prevHash = "GENESIS";
+  let checked = 0;
+  for (const row of rows) {
+    if (row.prev_hash !== prevHash) {
+      return { ok: false, checked, brokenAtId: row.id };
+    }
+    const expectedHash = crypto
+      .createHash("sha256")
+      .update(
+        `${row.prev_hash}|${row.id}|${row.action}|${row.entity}|${row.entity_id}|${row.detail ?? ""}|${row.created_at}`,
+      )
+      .digest("hex");
+    if (row.entry_hash !== expectedHash) {
+      return { ok: false, checked, brokenAtId: row.id };
+    }
+    prevHash = row.entry_hash;
+    checked += 1;
+  }
+  return { ok: true, checked, brokenAtId: null };
 }
 
 /**
@@ -1396,6 +1522,9 @@ function mapOrders(
       // `qrString` cuando `qrImage` es null. El detalle por id sí lo conserva.
       qrImage: includeQrImage ? ((row.qr_image as string) ?? null) : null,
       numRef: (row.num_ref as string) ?? null,
+      qrExpiresAt: (row.qr_expires_at as string) ?? null,
+      codiPushId: (row.codi_push_id as string) ?? null,
+      codiPhoneMasked: (row.codi_phone_masked as string) ?? null,
       createdAt: row.created_at as string,
       updatedAt: row.updated_at as string,
       items: itemsByOrder.get(id) ?? [],
@@ -1677,17 +1806,28 @@ export function listCredits(limit?: number, offset = 0): Credit[] {
     .all(
       ...(safeLimit === null ? [] : [safeLimit, safeOffset]),
     ) as Record<string, unknown>[];
-  return rows.map((row) => ({
+  return rows.map(mapCreditRow);
+}
+
+function mapCreditRow(row: Record<string, unknown>): Credit {
+  return {
     id: row.id as string,
     customerId: row.customer_id as string,
-    customerName: row.customer_name as string,
+    customerName: (row.customer_name as string) ?? undefined,
     orderId: (row.order_id as string) ?? null,
     originalCents: Number(row.original_cents),
     balanceCents: Number(row.balance_cents),
     status: row.status as Credit["status"],
     dueDate: (row.due_date as string) ?? null,
+    paymentLinkId: (row.payment_link_id as string) ?? null,
+    paymentUrl: (row.payment_url as string) ?? null,
+    qrId: (row.qr_id as string) ?? null,
+    qrString: (row.qr_string as string) ?? null,
+    qrImage: (row.qr_image as string) ?? null,
+    numRef: (row.num_ref as string) ?? null,
+    qrExpiresAt: (row.qr_expires_at as string) ?? null,
     createdAt: row.created_at as string,
-  }));
+  };
 }
 
 export function countCredits(): number {
@@ -1750,17 +1890,37 @@ export function getCredit(id: string): Credit | null {
   if (!isDemoMode() && Number(row.demo) === 1) {
     return null;
   }
-  return {
-    id: row.id as string,
-    customerId: row.customer_id as string,
-    customerName: row.customer_name as string,
-    orderId: (row.order_id as string) ?? null,
-    originalCents: Number(row.original_cents),
-    balanceCents: Number(row.balance_cents),
-    status: row.status as Credit["status"],
-    dueDate: (row.due_date as string) ?? null,
-    createdAt: row.created_at as string,
-  };
+  return mapCreditRow(row);
+}
+
+export function getCreditByPaymentLink(paymentLinkId: string): Credit | null {
+  const database = getDb();
+  const demoFilter = isDemoMode() ? "" : " AND c.demo = 0";
+  const row = database
+    .prepare(
+      `SELECT c.*, cu.name AS customer_name
+       FROM credits c JOIN customers cu ON cu.id = c.customer_id
+       WHERE c.payment_link_id = ?${demoFilter}
+       ORDER BY c.created_at DESC LIMIT 1`,
+    )
+    .get(paymentLinkId) as Record<string, unknown> | undefined;
+  if (!row) return null;
+  return mapCreditRow(row);
+}
+
+export function getCreditByNumRef(numRef: string): Credit | null {
+  const database = getDb();
+  const demoFilter = isDemoMode() ? "" : " AND c.demo = 0";
+  const row = database
+    .prepare(
+      `SELECT c.*, cu.name AS customer_name
+       FROM credits c JOIN customers cu ON cu.id = c.customer_id
+       WHERE c.num_ref = ?${demoFilter}
+       ORDER BY c.created_at DESC LIMIT 1`,
+    )
+    .get(numRef) as Record<string, unknown> | undefined;
+  if (!row) return null;
+  return mapCreditRow(row);
 }
 
 /**
@@ -1770,7 +1930,7 @@ export function getCredit(id: string): Credit | null {
 export function listCreditPayments(creditId: string): CreditPayment[] {
   const rows = getDb()
     .prepare(
-      `SELECT id, credit_id, amount_cents, provider, method, request_id, created_at
+      `SELECT id, credit_id, amount_cents, provider, method, transaction_id, raw_event, request_id, created_at
        FROM credit_payments WHERE credit_id = ?
        ORDER BY created_at DESC, id DESC`,
     )
@@ -1781,6 +1941,8 @@ export function listCreditPayments(creditId: string): CreditPayment[] {
     amountCents: Number(row.amount_cents),
     provider: row.provider as string,
     method: row.method as CreditPayment["method"],
+    transactionId: (row.transaction_id as string) ?? null,
+    rawEvent: (row.raw_event as string) ?? null,
     requestId: (row.request_id as string) ?? null,
     createdAt: row.created_at as string,
   }));
@@ -1863,8 +2025,9 @@ export function getDailySummary(): DailySummary {
       continue;
     }
     methods[payment.method] = (methods[payment.method] ?? 0) + amount;
-    // Un abono digital de fiado no pasó por pey: se declara, no se verifica.
+    // Un abono digital de fiado con provider='pey' está verificado; declared no.
     if (payment.method === "cash") cashCents += amount;
+    else if (payment.provider === "pey") verifiedDigitalCents += amount;
     else declaredDigitalCents += amount;
   }
 

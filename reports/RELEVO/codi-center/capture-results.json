@@ -1,0 +1,248 @@
+{
+  "base": "http://localhost:4590",
+  "checks": [
+    {
+      "name": "390x693: sin scroll horizontal",
+      "ok": true,
+      "detail": {
+        "sw": 390,
+        "cw": 390
+      }
+    },
+    {
+      "name": "390: hub CoDi visible en la primera pantalla",
+      "ok": true,
+      "detail": {
+        "top": 298,
+        "bottom": 664,
+        "left": 14,
+        "right": 376,
+        "w": 362,
+        "h": 366
+      }
+    },
+    {
+      "name": "390: CTA del hub sobre la barra inferior",
+      "ok": true,
+      "detail": {
+        "cta": {
+          "top": 512,
+          "bottom": 564,
+          "left": 31,
+          "right": 359,
+          "w": 328,
+          "h": 52
+        },
+        "nav": {
+          "top": 621
+        }
+      }
+    },
+    {
+      "name": "390: targets táctiles del hub >= 44 px",
+      "ok": true,
+      "detail": {
+        "input": {
+          "top": 401,
+          "bottom": 447,
+          "left": 67,
+          "right": 289,
+          "w": 222,
+          "h": 46
+        },
+        "chips": [
+          {
+            "w": 78,
+            "h": 44
+          },
+          {
+            "w": 78,
+            "h": 44
+          },
+          {
+            "w": 78,
+            "h": 44
+          },
+          {
+            "w": 78,
+            "h": 44
+          }
+        ],
+        "cta": {
+          "top": 512,
+          "bottom": 564,
+          "left": 31,
+          "right": 359,
+          "w": 328,
+          "h": 52
+        }
+      }
+    },
+    {
+      "name": "390: etiquetas de la barra sin recorte",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "390: el centro de la barra es el hub CoDi",
+      "ok": true,
+      "detail": "/inicio#cobrar-codi"
+    },
+    {
+      "name": "390: Pendientes/Fiados/Corte/Metas/Ventas/Ajustes en Más",
+      "ok": true,
+      "detail": [
+        "/fiados",
+        "/corte",
+        "/pendientes",
+        "/metas",
+        "/ventas",
+        "/ayuda",
+        "/ajustes"
+      ]
+    },
+    {
+      "name": "390: Inicio y Movimientos en la barra",
+      "ok": true,
+      "detail": [
+        "/inicio",
+        "/movimientos",
+        "/inicio#cobrar-codi",
+        "/caja",
+        ""
+      ]
+    },
+    {
+      "name": "1448x1086: sin scroll horizontal",
+      "ok": true,
+      "detail": {
+        "sw": 1448,
+        "cw": 1448
+      }
+    },
+    {
+      "name": "390x693: CTA cobrar habilitado",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390x693: QR generado con imagen cargada",
+      "ok": true,
+      "detail": "QR de cobro CoDi por $125.00, pedido 9713"
+    },
+    {
+      "name": "390x693: estado espera de pago",
+      "ok": true,
+      "detail": "Esperando pago"
+    },
+    {
+      "name": "390x693: aviso de que el QR no es dinero",
+      "ok": true,
+      "detail": "El QR está listo y no es dinero recibido: en demo, simula el pago para ver el estado."
+    },
+    {
+      "name": "390x693: simulación demo disponible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390x693: estado pago demo",
+      "ok": true,
+      "detail": "Pago simulado"
+    },
+    {
+      "name": "390x693: demo declara que no es dinero real",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390x693: demo no afirma pago recibido",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1448x1086: CTA cobrar habilitado",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1448x1086: QR generado con imagen cargada",
+      "ok": true,
+      "detail": "QR de cobro CoDi por $125.00, pedido 9C18"
+    },
+    {
+      "name": "1448x1086: estado espera de pago",
+      "ok": true,
+      "detail": "Esperando pago"
+    },
+    {
+      "name": "1448x1086: aviso de que el QR no es dinero",
+      "ok": true,
+      "detail": "El QR está listo y no es dinero recibido: en demo, simula el pago para ver el estado."
+    },
+    {
+      "name": "1448x1086: simulación demo disponible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1448x1086: estado pago demo",
+      "ok": true,
+      "detail": "Pago simulado"
+    },
+    {
+      "name": "1448x1086: demo declara que no es dinero real",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1448x1086: demo no afirma pago recibido",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "320: sin scroll horizontal",
+      "ok": true,
+      "detail": {
+        "sw": 320,
+        "cw": 320
+      }
+    },
+    {
+      "name": "320: input y CTA del hub >= 44 px",
+      "ok": true,
+      "detail": {
+        "input": {
+          "top": 366,
+          "bottom": 412,
+          "left": 65,
+          "right": 221,
+          "w": 157,
+          "h": 46
+        },
+        "cta": {
+          "top": 527,
+          "bottom": 579,
+          "left": 28,
+          "right": 292,
+          "w": 263,
+          "h": 52
+        }
+      }
+    },
+    {
+      "name": "320: etiquetas de la barra sin recorte",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "nav: el centro lleva a /inicio#cobrar-codi",
+      "ok": true,
+      "detail": "http://localhost:4590/inicio#cobrar-codi"
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "pass": 29,
+  "fail": 0
+}

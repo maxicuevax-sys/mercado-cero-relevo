@@ -1,4 +1,4 @@
-﻿/* Inicio · una sola fuente de verdad para la ruta /inicio.
+/* Inicio · una sola fuente de verdad para la ruta /inicio.
    No importar tokens globales aquí: el shell de Caja tiene su propio lenguaje. */
 
 .inicio-shell {
@@ -500,7 +500,7 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "greeting" "kpis" "hero" "pending" "suggestion" "assistant";
+  grid-template-areas: "greeting" "kpis" "codi" "hero" "pending" "suggestion" "assistant";
   gap: 20px;
   align-items: start;
   width: calc(100% - 48px);
@@ -601,6 +601,23 @@
   text-decoration: none;
 }
 .inicio-hero__cta svg { width: 20px; height: 20px; flex: 0 0 auto; }
+/* Micrófono de la tarjeta Nueva venta: mismo destino que Registrar, pero
+   como acción secundaria visible (la referencia lo dibuja a la derecha). */
+.inicio-hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.inicio-hero__mic {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgb(255 253 247 / 0.55);
+  border-radius: 14px;
+  background: rgb(255 253 247 / 0.12);
+  color: #fffdf7;
+  text-decoration: none;
+}
+.inicio-hero__mic svg { width: 22px; height: 22px; }
+.inicio-hero__mic:hover { background: rgb(255 253 247 / 0.2); }
+.inicio-hero__mic:focus-visible { outline-color: #fffdf7; }
 .inicio-pending { grid-area: pending; min-width: 0; align-self: stretch; padding: 20px 24px; border: 1px solid var(--inicio-border-soft); border-radius: 20px; background: var(--inicio-surface); box-shadow: 0 2px 8px rgb(31 38 34 / 0.04); }
 .inicio-pending__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
 .inicio-pending__title { display: flex; align-items: center; gap: 10px; min-width: 0; }
@@ -643,7 +660,7 @@
 @container inicio-main (min-width: 52rem) {
   .inicio-content {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-areas: "greeting greeting" "kpis kpis" "hero pending" "suggestion suggestion" "assistant assistant";
+    grid-template-areas: "greeting greeting" "kpis kpis" "codi codi" "hero pending" "suggestion suggestion" "assistant assistant";
   }
   .inicio-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
@@ -683,7 +700,7 @@
 }
 /* Conserva el acceso prioritario del Inicio existente a 320 px. */
 @container inicio-main (max-width: 23rem) {
-  .inicio-content { grid-template-areas: "greeting" "hero" "kpis" "pending" "suggestion"; }
+  .inicio-content { grid-template-areas: "greeting" "codi" "hero" "kpis" "pending" "suggestion"; }
 }
 /* En texto ampliado el umbral rem crece: una columna antes de truncar dinero. */
 @container inicio-main (max-width: 19rem) {
@@ -706,7 +723,7 @@
   .inicio-shell--compact .inicio-content { padding-bottom: calc(10rem + env(safe-area-inset-bottom)); }
   .inicio-shell--compact .mc-mobile-nav {
     position: fixed; right: 0; bottom: 0; left: 0; z-index: 50;
-    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+    display: grid; grid-template-columns: 1.05fr 1.4fr 1fr 0.9fr 0.95fr;
     padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid var(--color-separator);
     background: var(--color-surface); box-shadow: 0 -8px 24px rgb(31 38 34 / 0.08);
   }
@@ -785,7 +802,7 @@
 
 @media (max-width: 760px) {
   .inicio-shell--compact .inicio-content {
-    grid-template-areas: "greeting" "kpis" "hero" "shortcuts" "pending" "suggestion" "assistant";
+    grid-template-areas: "greeting" "kpis" "codi" "hero" "shortcuts" "pending" "suggestion" "assistant";
     gap: clamp(16px, 5.13vw, 20px);
     padding-top: clamp(20px, 6.4vw, 25px);
   }
@@ -892,6 +909,345 @@
   .inicio-assistant { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* --------------------------------------------------------------------------
+   Paridad móvil con DEFINITIVE/mobile/01_inicio_941x1672 (inicio lleno).
+   La lámina de 941 es la misma composición de 390 escalada ×2.41, así que
+   aquí se reproduce a 390 con unidades proporcionales (--mob-u) en lugar de
+   colapsar la pantalla a "un botón verde". Solo aplica a /inicio
+   (.inicio-shell--compact), nunca a Caja, Corte, Metas ni Pendientes.
+   -------------------------------------------------------------------------- */
+@media (max-width: 760px) {
+  .inicio-shell.inicio-shell--compact { --mob-u: calc(100vw / 390); }
+
+  /* Cabecera crema del canon: marca Mercado Cero, campana y avatar. */
+  .inicio-shell.inicio-shell--compact .inicio-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: calc(68 * var(--mob-u));
+    padding: calc(10 * var(--mob-u)) calc(16 * var(--mob-u));
+    background: var(--inicio-paper);
+    color: var(--inicio-green);
+    border-bottom: 1px solid var(--inicio-border-soft);
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-topbar__mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: calc(8 * var(--mob-u));
+    min-height: 0;
+    color: var(--inicio-green);
+    font-family: var(--font-hearth), Georgia, serif;
+    font-size: calc(18 * var(--mob-u));
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-topbar__mobile-brand img {
+    width: calc(34 * var(--mob-u));
+    height: calc(34 * var(--mob-u));
+    filter: none;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-topbar__brand-rays {
+    width: calc(14 * var(--mob-u));
+    height: calc(18 * var(--mob-u));
+    margin-left: calc(3 * var(--mob-u));
+    color: var(--inicio-maize);
+  }
+
+  /* La referencia no repite el nombre del negocio en la cabecera de Inicio. */
+  .inicio-shell.inicio-shell--compact .inicio-topbar__merchant { display: none; }
+
+  .inicio-shell.inicio-shell--compact .inicio-topbar__actions { gap: calc(10 * var(--mob-u)); }
+  .inicio-shell.inicio-shell--compact .inicio-topbar__alerts { width: 44px; height: 44px; color: var(--inicio-green); }
+  .inicio-shell.inicio-shell--compact .inicio-topbar__bell { width: calc(26 * var(--mob-u)); height: calc(26 * var(--mob-u)); }
+
+  .inicio-shell.inicio-shell--compact .inicio-avatar {
+    display: grid;
+    width: calc(32 * var(--mob-u));
+    height: calc(32 * var(--mob-u));
+    place-items: center;
+    border-radius: 50%;
+    background: var(--inicio-green);
+    color: var(--inicio-paper);
+    font-family: Arial, "Segoe UI", sans-serif;
+    font-size: calc(15 * var(--mob-u));
+    font-weight: 700;
+  }
+
+  /* La verdad demo sigue visible aunque la lámina no la dibuje. */
+  .inicio-shell.inicio-shell--compact .inicio-demo {
+    display: inline-flex;
+    align-items: center;
+    min-height: calc(20 * var(--mob-u));
+    padding: 0 calc(6 * var(--mob-u));
+    border: 1px solid var(--inicio-clay);
+    border-radius: 999px;
+    color: var(--inicio-clay);
+    font-family: Arial, "Segoe UI", sans-serif;
+    font-size: calc(9 * var(--mob-u));
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1;
+  }
+  .inicio-shell.inicio-shell--compact .inicio-topbar :focus-visible { outline-color: var(--inicio-green); }
+
+  .inicio-shell.inicio-shell--compact .inicio-main,
+  .inicio-shell.inicio-shell--compact .inicio-main > main {
+    background: var(--inicio-paper);
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-main > main,
+  .inicio-shell.inicio-shell--compact.inicio-shell--compact .inicio-main > .inicio-content {
+    border-radius: 0;
+    padding-inline: calc(14 * var(--mob-u));
+  }
+
+  /* Saludo: nombre, subtítulo y la ilustración del puesto a la derecha. */
+  .inicio-shell.inicio-shell--compact .inicio-greeting {
+    min-height: calc(86 * var(--mob-u));
+    grid-template-columns: calc(34 * var(--mob-u)) minmax(0, 1fr);
+    gap: calc(10 * var(--mob-u));
+    padding: calc(4 * var(--mob-u)) 0 0 calc(2 * var(--mob-u));
+    align-items: start;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-sun {
+    position: static;
+    transform: none;
+    grid-column: 1;
+    grid-row: 1;
+    width: calc(34 * var(--mob-u));
+    height: calc(34 * var(--mob-u));
+    margin-top: calc(6 * var(--mob-u));
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-greeting > div {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-greeting h1 {
+    font-size: calc(25 * var(--mob-u));
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    max-width: 13ch;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-greeting__owner { display: inline; }
+  .inicio-shell.inicio-shell--compact .inicio-date-copy,
+  .inicio-shell.inicio-shell--compact .inicio-greeting__demo { display: none; }
+
+  .inicio-shell.inicio-shell--compact .inicio-native-subtitle { display: inline; }
+
+  .inicio-shell.inicio-shell--compact .inicio-greeting p {
+    display: block;
+    max-width: 18ch;
+    margin-top: calc(4 * var(--mob-u));
+    font-size: calc(14 * var(--mob-u));
+    line-height: 1.3;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-picado { display: none; }
+
+  .inicio-shell.inicio-shell--compact .inicio-definitive-welcome-art {
+    display: block;
+    position: absolute;
+    z-index: 0;
+    top: calc(-14 * var(--mob-u));
+    right: calc(-12 * var(--mob-u));
+    width: calc(132 * var(--mob-u));
+    height: auto;
+    object-fit: contain;
+    object-position: right top;
+    pointer-events: none;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-greeting > div { position: relative; }
+
+  /* Tres métricas como la lámina: Ventas hoy · Por cobrar · Meta. */
+  .inicio-shell.inicio-shell--compact .inicio-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: calc(6 * var(--mob-u));
+    margin-top: calc(4 * var(--mob-u));
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-kpi:nth-child(2) { display: none; }
+  .inicio-shell.inicio-shell--compact .inicio-kpi:nth-child(4) { display: flex; }
+
+  .inicio-shell.inicio-shell--compact .inicio-kpi {
+    min-height: calc(100 * var(--mob-u));
+    padding: calc(9 * var(--mob-u)) calc(8 * var(--mob-u));
+    border-radius: calc(14 * var(--mob-u));
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-kpi__top {
+    gap: calc(5 * var(--mob-u));
+    font-size: calc(11 * var(--mob-u));
+    line-height: 1.2;
+    font-weight: 700;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-kpi__icon {
+    width: calc(28 * var(--mob-u));
+    height: calc(28 * var(--mob-u));
+    border-radius: 50%;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-kpi__glyph {
+    width: calc(17 * var(--mob-u));
+    height: calc(17 * var(--mob-u));
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-kpi__value {
+    margin-top: calc(8 * var(--mob-u));
+    font-size: calc(21 * var(--mob-u));
+    line-height: 1.05;
+    text-align: left;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-kpi__note {
+    margin-top: calc(2 * var(--mob-u));
+    font-size: calc(10 * var(--mob-u));
+    line-height: 1.25;
+    text-align: left;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-goal {
+    height: calc(8 * var(--mob-u));
+    margin-top: calc(6 * var(--mob-u));
+  }
+
+  /* Tarjeta "Nueva venta": arte + título + subtítulo + pastilla + micrófono. */
+  .inicio-shell.inicio-shell--compact .inicio-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 0.86fr) minmax(0, 1fr);
+    align-items: center;
+    min-height: calc(126 * var(--mob-u));
+    border-radius: calc(18 * var(--mob-u));
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-hero__art {
+    display: block;
+    width: 118%;
+    max-width: none;
+    align-self: end;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-hero__content {
+    padding: calc(12 * var(--mob-u)) calc(10 * var(--mob-u)) calc(12 * var(--mob-u)) 0;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-hero h2 {
+    display: block;
+    font-size: calc(24 * var(--mob-u));
+    line-height: 1.04;
+    letter-spacing: -0.04em;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-hero p {
+    display: block;
+    max-width: none;
+    margin-top: calc(4 * var(--mob-u));
+    font-size: calc(12 * var(--mob-u));
+    line-height: 1.3;
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-hero__actions {
+    display: flex;
+    align-items: center;
+    gap: calc(8 * var(--mob-u));
+    margin-top: calc(9 * var(--mob-u));
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-hero__cta {
+    display: inline-flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: calc(38 * var(--mob-u));
+    padding: calc(6 * var(--mob-u)) calc(12 * var(--mob-u));
+    background: var(--inicio-paper);
+    color: var(--inicio-green);
+    border: 0;
+    border-radius: 999px;
+    box-shadow: none;
+    font-family: Arial, "Segoe UI", sans-serif;
+    font-size: calc(14 * var(--mob-u));
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-hero__cta > svg {
+    display: block;
+    width: calc(15 * var(--mob-u));
+    height: calc(15 * var(--mob-u));
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-hero__mobile-icon,
+  .inicio-shell.inicio-shell--compact .inicio-hero__mobile-label { display: none; }
+  .inicio-shell.inicio-shell--compact .inicio-hero__desktop-label { display: inline; }
+
+  /* Separación vertical + tecla crema del micrófono, como la lámina. */
+  .inicio-shell.inicio-shell--compact .inicio-hero__mic {
+    display: inline-grid;
+    width: calc(38 * var(--mob-u));
+    height: calc(38 * var(--mob-u));
+    border: 0;
+    border-left: 1px solid rgb(255 253 247 / 0.35);
+    border-radius: 0;
+    background: transparent;
+    color: var(--inicio-paper);
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-hero__mic svg {
+    width: calc(20 * var(--mob-u));
+    height: calc(20 * var(--mob-u));
+  }
+
+  /* Accesos rápidos: cuatro teclas de papel. */
+  .inicio-shell.inicio-shell--compact .inicio-shortcuts { gap: calc(6 * var(--mob-u)); }
+
+  .inicio-shell.inicio-shell--compact .inicio-shortcuts a {
+    min-height: calc(62 * var(--mob-u));
+    gap: calc(5 * var(--mob-u));
+    border-radius: calc(12 * var(--mob-u));
+    font-size: calc(12 * var(--mob-u));
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-shortcuts svg,
+  .inicio-shell.inicio-shell--compact .inicio-shortcuts .inicio-icon {
+    width: calc(21 * var(--mob-u));
+    height: calc(21 * var(--mob-u));
+  }
+
+  /* Pendientes vuelve a ser tarjeta, como en la lámina. */
+  .inicio-shell.inicio-shell--compact .inicio-pending {
+    padding: calc(11 * var(--mob-u)) calc(12 * var(--mob-u));
+    border: 1px solid var(--inicio-border-soft);
+    border-radius: calc(14 * var(--mob-u));
+    background: var(--inicio-surface);
+    box-shadow: 0 2px 8px rgb(31 38 34 / 0.04);
+  }
+
+  .inicio-shell.inicio-shell--compact .inicio-pending h2 { font-size: calc(17 * var(--mob-u)); }
+  .inicio-shell.inicio-shell--compact .inicio-pending__icon { color: var(--inicio-green); width: calc(19 * var(--mob-u)); height: calc(19 * var(--mob-u)); }
+  .inicio-shell.inicio-shell--compact .inicio-pending__head a { font-size: calc(12 * var(--mob-u)); }
+
+  /* Barra inferior: pastilla clara en el destino activo, como la lámina. */
+  .inicio-shell.inicio-shell--compact .mc-mobile-nav .mc-mobile-nav__item {
+    border-radius: calc(14 * var(--mob-u));
+  }
+
+  .inicio-shell.inicio-shell--compact .mc-mobile-nav .mc-mobile-nav__item[aria-current="page"] {
+    background: #e2ead0;
+    color: var(--inicio-green);
+    font-weight: 700;
+  }
+}
+
 @media (min-width: 1200px) {
   :is(.inicio-shell--compact, .inicio-shell--desktop) {
     --font-inter: Arial, "Segoe UI", sans-serif;
@@ -900,7 +1256,7 @@
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-sidebar { padding: 20px 12px 0; }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-brand { padding: 4px 0 17px; border: 0; }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-brand__name { font: 700 min(2.5rem, 40px)/0.94 Georgia, serif; }
-  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item { min-height: 58px; gap: 24px; padding-inline: 22px; border-radius: 20px; font-size: 1.375rem; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item { min-height: 58px; gap: 18px; padding-inline: 20px; border-radius: 20px; font-size: 1.3125rem; }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item[aria-current="page"] { background: #ffe8bf; color: var(--inicio-ink); }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item[aria-current="page"] .inicio-nav__icon { color: var(--inicio-green); }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-sidebar__foot { margin-top: 23px; padding-top: 3px; }
@@ -935,7 +1291,7 @@
     padding: 18px 0 34px;
     gap: 24px 20px;
     grid-template-columns: minmax(0, 0.484fr) minmax(0, 0.516fr);
-    grid-template-areas: "greeting greeting" "kpis kpis" "hero pending" "suggestion suggestion";
+    grid-template-areas: "greeting greeting" "kpis kpis" "codi codi" "hero pending" "suggestion suggestion";
   }
   .inicio-shell--compact .inicio-greeting {
     position: relative;
@@ -1178,4 +1534,260 @@ html[data-contrast="high"] .inicio-nav__item[aria-current="page"]:focus-visible 
   html[data-contrast="high"] .inicio-hero__content {
     padding: 12px;
   }
+}
+
+/* Tipografía y capas de la referencia 01: Hearth para titulares, Alder para UI. */
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__mobile-brand,
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting p,
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__top,
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__note,
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-task,
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-shortcuts :is(a,button),
+  .inicio-shell.mc-reference-a.inicio-shell--compact .mc-mobile-nav__item {
+    font-family: var(--font-alder), "Segoe UI", Arial, sans-serif;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1,
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-hero h2,
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-pending h2 {
+    font-family: var(--font-hearth), Georgia, serif;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__value {
+    font-family: var(--font-alder), "Segoe UI", Arial, sans-serif;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1 {
+    position: relative;
+    z-index: 2;
+    max-width: 16ch;
+    font-size: clamp(1.35rem, 6.2vw, 1.65rem);
+    line-height: 1.1;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-sun {
+    position: relative;
+    z-index: 2;
+    display: block;
+    visibility: visible;
+    opacity: 1;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-definitive-welcome-art {
+    z-index: 0;
+  }
+}
+
+/* La lámina 01 deja el saludo en una línea y la ilustración al borde derecho. */
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1 {
+    max-width: none;
+    white-space: nowrap;
+    font-size: clamp(1.1rem, 5.2vw, 1.3rem);
+    letter-spacing: -0.035em;
+    z-index: 3;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-definitive-welcome-art {
+    right: calc(-70 * var(--mob-u, 1));
+    width: calc(150 * var(--mob-u, 1));
+    height: calc(94 * var(--mob-u, 1));
+    z-index: 0;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__alerts {
+    display: grid;
+    color: var(--inicio-paper);
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__bell {
+    color: var(--inicio-paper);
+  }
+}
+
+/* Ajuste fino tras comparar 01: topbar crema más alta y saludo/KPIs a escala. */
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar {
+    min-height: calc(96 * var(--mob-u, 1));
+    padding: calc(16 * var(--mob-u, 1)) calc(18 * var(--mob-u, 1));
+    background: var(--inicio-paper);
+    color: var(--inicio-green);
+    border-bottom: 1px solid var(--inicio-border-soft);
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__mobile-brand {
+    color: var(--inicio-green);
+    font-size: calc(1.75rem * var(--mob-u, 1));
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__mobile-brand img {
+    width: calc(56 * var(--mob-u, 1));
+    height: calc(49 * var(--mob-u, 1));
+    filter: none;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-demo { display: none; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__alerts { color: var(--inicio-green); }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-avatar {
+    background: var(--inicio-green);
+    color: var(--inicio-paper);
+    border-color: var(--inicio-green);
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting {
+    min-height: calc(96 * var(--mob-u, 1));
+    padding-top: calc(8 * var(--mob-u, 1));
+    padding-bottom: calc(12 * var(--mob-u, 1));
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-sun {
+    width: calc(46 * var(--mob-u, 1));
+    height: calc(46 * var(--mob-u, 1));
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1 {
+    font-size: calc(1.35rem * var(--mob-u, 1));
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi {
+    min-height: calc(112 * var(--mob-u, 1));
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__value {
+    font-size: calc(1.5rem * var(--mob-u, 1));
+  }
+}
+
+/* Compresión final de Inicio para que los 3 pendientes entren en 693 px. */
+@media (max-width: 760px) {
+  /* La ilustración del saludo sangra a la derecha a propósito; se recorta en
+     el borde del shell para que no abra scroll horizontal en 320-390. */
+  .inicio-shell.mc-reference-a { overflow-x: clip; }
+
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar {
+    min-height: calc(88 * var(--mob-u, 1));
+    padding: calc(12 * var(--mob-u, 1)) calc(18 * var(--mob-u, 1));
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__alerts {
+    display: grid !important;
+    width: calc(44 * var(--mob-u, 1));
+    height: calc(44 * var(--mob-u, 1));
+    color: var(--inicio-green);
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__bell {
+    display: block;
+    width: calc(26 * var(--mob-u, 1));
+    height: calc(26 * var(--mob-u, 1));
+    color: var(--inicio-green);
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting {
+    min-height: calc(82 * var(--mob-u, 1));
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-sun {
+    width: calc(42 * var(--mob-u, 1));
+    height: calc(42 * var(--mob-u, 1));
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi {
+    min-height: calc(104 * var(--mob-u, 1));
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-content {
+    gap: calc(9 * var(--mob-u, 1));
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-shortcuts :is(a,button) {
+    min-height: calc(66 * var(--mob-u, 1));
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-task {
+    min-height: calc(38 * var(--mob-u, 1));
+  }
+}
+
+/* Checkbox real: botón de 44px táctil, sin borde nativo. */
+.inicio-task__check { padding: 0; display: grid; place-items: center; appearance: none; cursor: pointer; }
+.inicio-task__check:disabled { cursor: progress; opacity: .85; }
+.inicio-task__check--done::after { display: none; }
+.inicio-task__check svg { width: 16px; height: 16px; color: #fffdf7; }
+.inicio-task__check-spin { animation: inicio-spin .8s linear infinite; }
+@keyframes inicio-spin { to { transform: rotate(360deg); } }
+.inicio-shell--compact .inicio-task__check { min-width: 34px; min-height: 34px; }
+@media (max-width: 760px) { .inicio-task__check { min-width: 44px; min-height: 44px; } }
+
+
+/* KPI móviles: sin caja vacía; el texto ocupa la tarjeta. */
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi {
+    min-height: 0;
+    padding: 11px 9px 12px;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__top {
+    gap: 5px;
+    align-items: center;
+    font-size: .8125rem;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__icon {
+    width: 25px;
+    height: 25px;
+    border-radius: 8px;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__glyph {
+    width: 17px;
+    height: 17px;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__value {
+    margin-top: 5px;
+    font: 700 clamp(1.35rem, 6.2vw, 1.75rem)/1.05 Georgia, serif;
+    text-align: left;
+    white-space: nowrap;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__note {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__value {
+    text-align: center;
+  }
+}
+
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1 {
+    max-width: none;
+    font-size: clamp(1.6rem, 8vw, 2.1rem);
+    line-height: 1.05;
+    letter-spacing: -.04em;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-sun {
+    position: relative;
+    top: -8px;
+    align-self: start;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1 {
+    max-width: 10ch;
+    line-height: 1.04;
+  }
+}
+
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1 {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+}
+
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar {
+    min-height: 64px;
+    height: auto;
+    padding: 8px 14px;
+    align-items: center;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__mobile-brand {
+    gap: 7px;
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__mobile-brand img {
+    width: 34px;
+    height: 30px;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__brand-rays {
+    width: 12px;
+    height: 12px;
+    margin-left: 2px;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__actions { gap: 8px; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__alerts { width: 40px; height: 40px; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__bell { width: 22px; height: 22px; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-avatar { width: 29px; height: 29px; font-size: .875rem; }
 }

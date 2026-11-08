@@ -6,7 +6,7 @@ import { getCredit } from "@/lib/db";
 import { AbonoForm } from "./abono-form";
 
 export const metadata: Metadata = {
-  title: "Registrar abono — Mercado Cero",
+  title: "Registrar abono — Trangui",
 };
 
 export const instant = false;

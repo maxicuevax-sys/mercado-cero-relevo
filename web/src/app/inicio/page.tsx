@@ -1,26 +1,26 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
-import { Plus, QrCode, Sparkles, Mic, Store, NotebookPen, ChartNoAxesColumnIncreasing } from "lucide-react";
+import { Plus, QrCode, Mic, Package, Receipt, BarChart3 } from "lucide-react";
 import { getDashboardData } from "@/lib/dashboard";
+import { getOrder } from "@/lib/db";
 import { isDemoMode } from "@/lib/config";
 import { listGoals } from "@/lib/goals";
 import { listTasks } from "@/lib/tasks";
 import { formatActivityDate, formatLongDate } from "@/lib/format";
 import heroArt from "@/assets/inicio/hero-registradora.png";
-import lupitaArt from "@/assets/inicio/sugerencia-lupita.png";
 import picadoArt from "@/assets/inicio/papel-picado.png";
 import sunArt from "@/assets/inicio/icons/sol-bienvenida.svg";
 import iconCompras from "@/assets/inicio/icons/compras.svg";
 import iconMonedas from "@/assets/inicio/icons/monedas.svg";
 import iconPendientes from "@/assets/inicio/icons/pendientes.svg";
 import iconMetas from "@/assets/inicio/icons/metas.svg";
-import botArt from "@/assets/brand/ilustraciones/transparent/bot.png";
-import microphoneArt from "@/assets/brand/iconos/transparent/microfono.png";
 import pendingPhoneArt from "@/assets/brand/iconos/transparent/qr-telefono.png";
 import { AppShell } from "@/components/shell/app-shell";
 import { TopBar } from "@/components/shell/top-bar";
+import { CodiHub } from "@/components/codi/codi-hub";
+import { HomeTaskCheck } from "@/components/pendientes/home-task-check";
 import { MaskIcon } from "@/components/ui/icon";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { ProgressIndicator } from "@/components/ui/progress-indicator";
@@ -31,13 +31,16 @@ import welcomeNative from "@/assets/definitive-a/welcome.png";
 import registerNative from "@/assets/definitive-a/register.png";
 
 export const metadata: Metadata = {
-  title: "Inicio · Mercado Cero",
+  title: "Inicio · Trangui",
 };
 
 export const instant = false;
 
-export default async function InicioPage() {
+
+export default async function InicioPage({ searchParams }: { searchParams: Promise<{ pedido?: string }> }) {
   await connection();
+  const params = await searchParams;
+  const initialOrder = params.pedido ? getOrder(params.pedido) : null;
   const dashboard = getDashboardData({ compactPending: true });
   const goal = listGoals()[0] ?? null;
   const tasks = listTasks(8)
@@ -158,6 +161,8 @@ export default async function InicioPage() {
         </article>
       </section>
 
+      <CodiHub demo={demo} initialOrder={initialOrder} />
+
       <section className="inicio-hero" aria-labelledby="inicio-hero-title">
         <Image
           src={heroArt}
@@ -180,10 +185,10 @@ export default async function InicioPage() {
       </section>
 
       <nav className="inicio-shortcuts" aria-label="Accesos rápidos">
-        <Link href="/caja#mc-caja-payment-summary"><QrCode aria-hidden="true" /><span>Cobrar</span></Link>
-        <Link href="/ventas"><Store aria-hidden="true" /><span>Ventas</span></Link>
-        <Link href="/fiados"><NotebookPen aria-hidden="true" /><span>Fiados</span></Link>
-        <Link href="/corte"><ChartNoAxesColumnIncreasing aria-hidden="true" /><span>Corte</span></Link>
+        <Link href="/inicio#cobrar-codi"><QrCode aria-hidden="true" /><span>Cobrar</span></Link>
+        <Link href="/caja"><Package aria-hidden="true" /><span>Producto</span></Link>
+        <Link href="/corte"><Receipt aria-hidden="true" /><span>Gasto</span></Link>
+        <Link href="/ventas"><BarChart3 aria-hidden="true" /><span>Reporte</span></Link>
       </nav>
 
       <section className="inicio-pending" aria-labelledby="inicio-pending-title">
@@ -199,9 +204,11 @@ export default async function InicioPage() {
           <ul className="inicio-pending__list">
             {homeTasks.map((task) => (
               <li key={task.id} className="inicio-task">
-                <span
-                  className={`inicio-task__check${task.done ? " inicio-task__check--done" : ""}`}
-                  aria-hidden="true"
+                <HomeTaskCheck
+                  taskId={task.id}
+                  initialDone={task.done}
+                  label={task.title}
+                  fixture={task.fixture}
                 />
                 {task.done ? <span className="sr-only">Hecho: </span> : null}
                 <span className="inicio-task__title">{task.title}</span>
@@ -225,36 +232,6 @@ export default async function InicioPage() {
         ) : null}
       </section>
 
-      <section className="inicio-suggestion" aria-label="Sugerencia">
-        <Image
-          src={lupitaArt}
-          alt=""
-          aria-hidden="true"
-          className="inicio-suggestion__art"
-          sizes="330px"
-        />
-        <div className="inicio-suggestion__content">
-          <div className="inicio-suggestion__mobile-copy">
-            <p className="inicio-suggestion__kicker">Sugerencia</p>
-            <h2>Tu negocio, en orden.</h2>
-            <p>Registra una venta o revisa tus pendientes antes de cerrar el día.</p>
-          </div>
-          <div className="inicio-suggestion__desktop-copy">
-            <h2><Sparkles aria-hidden="true" />Sugerencia</h2>
-            <p>Agrega un producto nuevo.</p>
-          </div>
-        </div>
-        <Link href="/ventas" className="inicio-suggestion__cta">
-          Ir a ventas <Plus aria-hidden="true" />
-        </Link>
-      </section>
-
-      <section className="inicio-assistant" aria-labelledby="inicio-assistant-title">
-        <Image src={botArt} alt="" aria-hidden="true" width={72} height={72} sizes="72px" />
-        <div><h2 id="inicio-assistant-title">Asistente <span>(opcional)</span></h2><p>Consulta la guía o dicta una venta cuando lo necesites.</p></div>
-        <Link href="/ayuda">Ver ayuda</Link>
-        <Link href="/caja"><Image src={microphoneArt} alt="" aria-hidden="true" width={24} height={24} />Dictar venta</Link>
-      </section>
     </AppShell>
   );
 }

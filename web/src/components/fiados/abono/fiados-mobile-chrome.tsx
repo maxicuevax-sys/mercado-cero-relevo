@@ -6,18 +6,16 @@ import "./fiados-mobile-chrome.css";
 
 /**
  * Barra de marca de las pantallas de flujo de fiados (18 y 20).
- * Reproduce la franja verde de la lámina: símbolo de tienda, "Mercado Cero",
+ * Reproduce la franja verde de la lámina: símbolo de tienda, "Trangui",
  * campana con punto de aviso y la inicial de la comerciante.
  */
 export function FiadosMobileBar({ initial }: { initial: string }) {
   return (
     <header className="mc-fiadosbar">
-      <Link href="/inicio" prefetch={false} className="mc-fiadosbar__brand" aria-label="Mercado Cero · Ir a Inicio">
+      <Link href="/inicio" prefetch={false} className="mc-fiadosbar__brand" aria-label="Trangui · Ir a Inicio">
         <Image src={brand} width={36} height={36} alt="" unoptimized />
         <span>
-          Mercado
-          <br />
-          Cero
+          Trangui
           <svg className="mc-fiadosbar__rays" viewBox="0 0 20 24" aria-hidden="true" focusable="false">
             <path d="M4 6 13 2M5 12h12M4 18l9 4" />
           </svg>

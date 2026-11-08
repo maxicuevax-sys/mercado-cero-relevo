@@ -1482,6 +1482,16 @@ html[data-contrast="high"] .mc-pend-summary__icon {
     padding: 16px 16px calc(96px + env(safe-area-inset-bottom));
   }
 
+  /* Ref. 08: la bandeja de tareas va antes de los cobros por confirmar. */
+  .mc-pend-main .mc-pend-grid > .mc-pend-board {
+    order: -1;
+  }
+
+  /* El alta vive al pie de la bandeja, como en la referencia. */
+  .mc-pend-main .mc-pend-header-cta {
+    display: none;
+  }
+
   .mc-op-main.mc-pend-main > .mc-op-header {
     margin-bottom: 14px;
   }

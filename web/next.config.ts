@@ -94,6 +94,7 @@ const privateHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   // `BUILD_SHA` queda disponible en el servidor y `NEXT_PUBLIC_BUILD_SHA`
   // en el cliente. /api/health lo devuelve para que el harness compare el
   // SHA servido con el SHA de git sin adivinar.
@@ -191,8 +192,12 @@ const nextConfig: NextConfig = {
         source: "/",
         headers: privateHeaders,
       },
+      { source: "/acceso", headers: privateHeaders },
+      { source: "/registro", headers: privateHeaders },
       { source: "/caja", headers: privateHeaders },
       { source: "/ventas", headers: privateHeaders },
+      { source: "/movimientos", headers: privateHeaders },
+      { source: "/movimientos/:path*", headers: privateHeaders },
       { source: "/fiados", headers: privateHeaders },
       { source: "/corte", headers: privateHeaders },
       { source: "/metas", headers: privateHeaders },

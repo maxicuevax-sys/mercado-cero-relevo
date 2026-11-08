@@ -1,0 +1,810 @@
+/* Hub CoDi de Inicio.
+   Vive dentro de .inicio-shell, así que hereda la paleta y las tipografías de
+   la casa (papel, crema, verde, Hearth/Alder) sin crear un sistema nuevo. */
+
+.inicio-codi {
+  grid-area: codi;
+  min-width: 0;
+  scroll-margin-top: 96px;
+}
+
+.mc-codi {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  border: 1px solid var(--inicio-border);
+  border-radius: 26px;
+  background:
+    radial-gradient(120% 150% at 100% 0%, #fff3d8 0%, rgb(255 243 216 / 0) 58%),
+    var(--inicio-surface);
+  box-shadow: 0 3px 10px rgb(31 38 34 / 0.05);
+  color: var(--inicio-ink);
+}
+
+.mc-codi__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  gap: 30px;
+  align-items: center;
+  padding: 26px 30px;
+}
+
+.mc-codi__copy,
+.mc-codi__form,
+.mc-codi__order-info,
+.mc-codi__settled {
+  min-width: 0;
+}
+
+.mc-codi__eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--inicio-green);
+  font-family: var(--font-alder), "Alder", "Segoe UI", Arial, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.mc-codi__eyebrow svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.mc-codi__badge {
+  padding: 2px 8px;
+  border: 1.5px solid var(--inicio-clay);
+  border-radius: 999px;
+  background: #fff3e7;
+  color: var(--inicio-clay);
+  font-family: Arial, "Segoe UI", sans-serif;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+}
+
+.mc-codi__title {
+  margin-top: 6px;
+  font-family: var(--font-hearth), Georgia, serif;
+  font-size: clamp(1.875rem, 3.4cqi, 2.5rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
+}
+
+.mc-codi__title:focus-visible {
+  outline: 3px solid var(--inicio-focus);
+  outline-offset: 3px;
+}
+
+.mc-codi__lede {
+  margin-top: 8px;
+  max-width: 34ch;
+  color: var(--inicio-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.mc-codi__art {
+  width: 150px;
+  max-width: 100%;
+  margin-top: 16px;
+  pointer-events: none;
+}
+
+.mc-codi__art img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mc-codi__label {
+  display: block;
+  color: var(--inicio-ink-2);
+  font-family: var(--font-alder), "Alder", "Segoe UI", Arial, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.mc-codi__amount {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 64px;
+  margin-top: 8px;
+  padding: 4px 16px;
+  border: 2px solid var(--inicio-border);
+  border-radius: 18px;
+  background: #fffaf0;
+  transition: border-color 0.15s ease;
+}
+
+.mc-codi__amount:focus-within {
+  border-color: var(--inicio-green);
+}
+
+.mc-codi__currency {
+  flex: 0 0 auto;
+  color: var(--inicio-ink-2);
+  font-family: var(--font-hearth), Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.mc-codi__currency--suffix {
+  font-family: Arial, "Segoe UI", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.mc-codi__input {
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--inicio-green);
+  font-family: var(--font-alder), "Alder", "Segoe UI", Arial, sans-serif;
+  font-size: clamp(1.875rem, 4.4cqi, 2.5rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.mc-codi__input::placeholder {
+  color: #a9b09f;
+}
+
+.mc-codi__input:focus {
+  outline: none;
+}
+
+.mc-codi__quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.mc-codi__chip {
+  min-height: 44px;
+  min-width: 64px;
+  flex: 1 1 0;
+  padding: 0 12px;
+  border: 1.5px solid var(--inicio-border);
+  border-radius: 999px;
+  background: var(--inicio-paper);
+  color: var(--inicio-green);
+  font-family: var(--font-alder), "Alder", "Segoe UI", Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mc-codi__chip:hover {
+  border-color: var(--inicio-green);
+}
+
+.mc-codi__chip[aria-pressed="true"] {
+  border-color: var(--inicio-green);
+  background: var(--inicio-green);
+  color: #fffdf7;
+}
+
+.mc-codi__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  margin-top: 12px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--inicio-green);
+  color: #fffdf7;
+  font-family: var(--font-alder), "Alder", "Segoe UI", Arial, sans-serif;
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mc-codi__cta:hover:not(:disabled) {
+  background: var(--inicio-green-deep);
+}
+
+.mc-codi__cta:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.mc-codi__cta svg {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+}
+
+.mc-codi__cta:focus-visible,
+.mc-codi__chip:focus-visible,
+.mc-codi__button-secondary:focus-visible,
+.mc-codi__button-quiet:focus-visible {
+  outline: 3px solid var(--inicio-focus);
+  outline-offset: 3px;
+}
+
+.mc-codi__hint {
+  margin-top: 10px;
+  color: var(--inicio-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.mc-codi__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 2px;
+  color: var(--inicio-green);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mc-codi__spin {
+  animation: mc-codi-spin 0.9s linear infinite;
+}
+
+@keyframes mc-codi-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Estado con QR generado: el QR manda, las acciones quedan a la derecha. */
+.mc-codi__order {
+  display: grid;
+  grid-template-columns: minmax(200px, 236px) minmax(0, 1fr);
+  gap: 30px;
+  align-items: center;
+  padding: 26px 30px;
+}
+
+.mc-codi__qr-pane {
+  min-width: 0;
+}
+
+.mc-codi__figure {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--inicio-border);
+  border-radius: 20px;
+  background: #fffdf7;
+}
+
+.mc-codi__figure img {
+  display: block;
+  width: 100%;
+  max-width: 208px;
+  height: auto;
+  border-radius: 8px;
+}
+
+.mc-codi__figure figcaption {
+  max-width: 30ch;
+  color: var(--inicio-ink-2);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.mc-codi__qr-missing {
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+  border: 2px dashed var(--inicio-border);
+  border-radius: 20px;
+  background: #fffaf0;
+  text-align: center;
+}
+
+.mc-codi__qr-missing p {
+  color: var(--inicio-ink-2);
+  font-size: 0.875rem;
+}
+
+.mc-codi__order-amount {
+  margin-top: 2px;
+  color: var(--inicio-green);
+  font-family: var(--font-hearth), Georgia, serif;
+  font-size: clamp(2rem, 4cqi, 2.625rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.mc-codi__order-meta {
+  margin-top: 4px;
+  color: var(--inicio-ink-2);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.mc-codi__note {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--inicio-maize);
+  border-radius: 0 12px 12px 0;
+  background: #fff6e3;
+  color: var(--inicio-ink);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.mc-codi__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.mc-codi__actions .mc-codi__cta {
+  width: auto;
+  flex: 1 1 210px;
+  margin-top: 0;
+}
+
+.mc-codi__button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 10px 18px;
+  border: 1.5px solid var(--inicio-green);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--inicio-green);
+  font-family: var(--font-alder), "Alder", "Segoe UI", Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mc-codi__button-secondary:hover:not(:disabled) {
+  background: #f1f6e6;
+}
+
+.mc-codi__button-secondary:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.mc-codi__button-secondary svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.mc-codi__button-quiet {
+  min-height: 48px;
+  padding: 10px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--inicio-ink-2);
+  font-family: var(--font-alder), "Alder", "Segoe UI", Arial, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.mc-codi__error {
+  margin: 0 30px 24px;
+  padding: 12px 14px;
+  border: 1px solid #b33d24;
+  border-left: 4px solid var(--inicio-clay);
+  border-radius: 12px;
+  background: #fff3e7;
+  color: #8f2d1c;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Pago confirmado (o demo simulado): cierre breve, sin gritar dinero real. */
+.mc-codi__settled {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 30px 30px 32px;
+  text-align: center;
+}
+
+.mc-codi__settled .mc-codi__eyebrow {
+  justify-content: center;
+}
+
+.mc-codi__check {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  background: var(--inicio-green);
+  color: #fffdf7;
+}
+
+.mc-codi__check svg {
+  width: 30px;
+  height: 30px;
+}
+
+.mc-codi__settled-amount {
+  margin-top: 2px;
+  color: var(--inicio-green);
+  font-family: var(--font-hearth), Georgia, serif;
+  font-size: clamp(2rem, 4cqi, 2.5rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+
+.mc-codi__settled-meta {
+  color: var(--inicio-ink-2);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mc-codi__settled .mc-codi__note {
+  max-width: 52ch;
+  margin-top: 12px;
+  border-left: 0;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.mc-codi__settled .mc-codi__actions {
+  justify-content: center;
+  margin-top: 16px;
+}
+
+@media (max-width: 1023px) {
+  .mc-codi__grid,
+  .mc-codi__order {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    padding: 22px;
+  }
+
+  .mc-codi__art {
+    display: none;
+  }
+
+  .mc-codi__lede {
+    max-width: none;
+  }
+
+  .mc-codi__order {
+    gap: 16px;
+    justify-items: stretch;
+  }
+
+  .mc-codi__qr-pane {
+    justify-self: center;
+  }
+
+  .mc-codi__error {
+    margin-inline: 22px;
+  }
+}
+
+@media (max-width: 760px) {
+  .mc-codi {
+    border-radius: 20px;
+  }
+
+  .mc-codi__grid {
+    display: block;
+    position: relative;
+    padding: 15px 16px 18px;
+  }
+
+  .mc-codi__eyebrow {
+    padding-right: 90px;
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+  }
+
+  .mc-codi__eyebrow svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mc-codi__title {
+    margin-top: 4px;
+    padding-right: 84px;
+    font-size: clamp(1.375rem, 6.6vw, 1.625rem);
+    line-height: 1.06;
+  }
+
+  .mc-codi__lede {
+    display: none;
+  }
+
+  .mc-codi__art {
+    display: block;
+    position: absolute;
+    top: 10px;
+    right: 8px;
+    width: 82px;
+    margin: 0;
+  }
+
+  .mc-codi__form {
+    margin-top: 12px;
+  }
+
+  .mc-codi__label {
+    font-size: 0.6875rem;
+  }
+
+  .mc-codi__amount {
+    min-height: 52px;
+    margin-top: 5px;
+    padding: 2px 12px;
+    border-radius: 15px;
+  }
+
+  .mc-codi__currency {
+    font-size: 1.25rem;
+  }
+
+  .mc-codi__input {
+    min-height: 46px;
+    font-size: clamp(1.5rem, 7vw, 1.875rem);
+  }
+
+  .mc-codi__quick {
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .mc-codi__chip {
+    min-height: 44px;
+    min-width: 0;
+    padding: 0 4px;
+    font-size: 0.9375rem;
+  }
+
+  .mc-codi__cta {
+    min-height: 52px;
+    margin-top: 9px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 1.0625rem;
+  }
+
+  .mc-codi__cta svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .mc-codi__hint {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .mc-codi__link {
+    min-height: 40px;
+    margin-top: 0;
+    font-size: 0.8125rem;
+  }
+
+  .mc-codi__order {
+    display: block;
+    padding: 14px 16px 18px;
+  }
+
+  .mc-codi__qr-pane {
+    margin-bottom: 12px;
+  }
+
+  .mc-codi__figure {
+    padding: 10px;
+  }
+
+  .mc-codi__figure img {
+    max-width: 172px;
+  }
+
+  .mc-codi__qr-missing {
+    padding: 14px;
+  }
+
+  .mc-codi__order-amount {
+    font-size: 1.875rem;
+  }
+
+  .mc-codi__note {
+    margin-top: 8px;
+    padding: 8px 10px;
+    font-size: 0.8125rem;
+  }
+
+  .mc-codi__actions {
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .mc-codi__order .mc-codi__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mc-codi__actions .mc-codi__cta {
+    flex: 1 1 100%;
+  }
+
+  .mc-codi__order .mc-codi__actions .mc-codi__cta {
+    grid-column: 1 / -1;
+  }
+
+  .mc-codi__button-secondary {
+    flex: 1 1 auto;
+    min-height: 46px;
+    gap: 6px;
+    padding: 9px 8px;
+    font-size: 0.875rem;
+  }
+
+  .mc-codi__button-quiet {
+    min-height: 46px;
+    padding: 8px 4px;
+    font-size: 0.875rem;
+  }
+
+  .mc-codi__settled {
+    padding: 22px 16px 24px;
+  }
+
+  .mc-codi__settled .mc-codi__note {
+    text-align: left;
+  }
+
+  .mc-codi__settled .mc-codi__actions .mc-codi__cta {
+    flex: 1 1 100%;
+  }
+
+  .mc-codi__error {
+    margin: 0 16px 16px;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 340px) {
+  .mc-codi__art {
+    display: none;
+  }
+
+  .mc-codi__title,
+  .mc-codi__eyebrow {
+    padding-right: 0;
+  }
+
+  .mc-codi__quick {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Alto contraste: mismos estados con tinta y papel puros. */
+html[data-contrast="high"] .mc-codi {
+  border: 2px solid #000;
+  background: #fff;
+  color: #000;
+}
+
+html[data-contrast="high"] .mc-codi__art {
+  display: none;
+}
+
+html[data-contrast="high"] .mc-codi :is(.mc-codi__amount, .mc-codi__figure, .mc-codi__qr-missing) {
+  border-color: #000;
+  background: #fff;
+  color: #000;
+}
+
+html[data-contrast="high"] .mc-codi__currency,
+html[data-contrast="high"] .mc-codi__label,
+html[data-contrast="high"] .mc-codi__hint,
+html[data-contrast="high"] .mc-codi__lede,
+html[data-contrast="high"] .mc-codi__order-meta,
+html[data-contrast="high"] .mc-codi__settled-meta,
+html[data-contrast="high"] .mc-codi__button-quiet,
+html[data-contrast="high"] .mc-codi__figure figcaption {
+  color: #000;
+}
+
+html[data-contrast="high"] .mc-codi :is(.mc-codi__title, .mc-codi__order-amount, .mc-codi__settled-amount, .mc-codi__input, .mc-codi__eyebrow) {
+  color: #000;
+}
+
+html[data-contrast="high"] .mc-codi__badge {
+  border-color: #000;
+  background: #fff;
+  color: #000;
+}
+
+html[data-contrast="high"] .mc-codi__chip,
+html[data-contrast="high"] .mc-codi__button-secondary {
+  border: 2px solid #000;
+  background: #fff;
+  color: #000;
+}
+
+html[data-contrast="high"] .mc-codi__chip[aria-pressed="true"] {
+  background: #000;
+  color: #fff;
+}
+
+html[data-contrast="high"] .mc-codi__cta {
+  border: 2px solid #000;
+  background: #000;
+  color: #fff;
+}
+
+html[data-contrast="high"] .mc-codi__check {
+  border: 2px solid #000;
+  background: #000;
+  color: #fff;
+}
+
+html[data-contrast="high"] .mc-codi__note {
+  border: 2px solid #000;
+  background: #fff;
+  color: #000;
+}
+
+html[data-contrast="high"] .mc-codi__error {
+  border: 2px solid #000;
+  background: #fff;
+  color: #000;
+}
+
+html[data-contrast="high"] .mc-codi :is(a, button, input):focus-visible {
+  outline: 3px solid #000;
+  outline-offset: 3px;
+}

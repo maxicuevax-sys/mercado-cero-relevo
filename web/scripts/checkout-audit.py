@@ -18,8 +18,6 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright
-
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
@@ -158,6 +156,8 @@ def run_audit() -> int:
         return 1
     checkout_url = f"{BASE}/pay/{order_id}"
     print(f"INFO  pedido 120.00 MXN · {order_id[:12]}…")
+
+    from playwright.sync_api import sync_playwright
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)

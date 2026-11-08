@@ -1,0 +1,208 @@
+{
+  "base": "http://127.0.0.1:3105",
+  "captures": 25,
+  "failures": [],
+  "consoleErrors": [],
+  "results": [
+    {
+      "route": "/movimientos",
+      "label": "listado-todos",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "listado-todos-390x693.png"
+    },
+    {
+      "route": "/movimientos",
+      "label": "listado-todos",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "listado-todos-1448x1086.png"
+    },
+    {
+      "route": "/movimientos?filtro=pendientes",
+      "label": "listado-pendientes",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "listado-pendientes-390x693.png"
+    },
+    {
+      "route": "/movimientos?filtro=pendientes",
+      "label": "listado-pendientes",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "listado-pendientes-1448x1086.png"
+    },
+    {
+      "route": "/movimientos?filtro=pagados",
+      "label": "listado-pagados",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "listado-pagados-390x693.png"
+    },
+    {
+      "route": "/movimientos?filtro=pagados",
+      "label": "listado-pagados",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "listado-pagados-1448x1086.png"
+    },
+    {
+      "route": "/movimientos/ord_5c3c119cd1e946a99903",
+      "label": "detalle-creada",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-creada-390x693.png"
+    },
+    {
+      "route": "/movimientos/ord_5c3c119cd1e946a99903",
+      "label": "detalle-creada",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-creada-1448x1086.png"
+    },
+    {
+      "route": "/movimientos/demo_hist_pending_ord_44e3a29878b047a2a846",
+      "label": "detalle-link",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-link-390x693.png"
+    },
+    {
+      "route": "/movimientos/demo_hist_pending_ord_44e3a29878b047a2a846",
+      "label": "detalle-link",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-link-1448x1086.png"
+    },
+    {
+      "route": "/movimientos/ord_f9feec5678a1400e9a86",
+      "label": "detalle-qr",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-qr-390x693.png"
+    },
+    {
+      "route": "/movimientos/ord_f9feec5678a1400e9a86",
+      "label": "detalle-qr",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-qr-1448x1086.png"
+    },
+    {
+      "route": "/movimientos/ord_24020334a41d407ba901",
+      "label": "detalle-vencida",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-vencida-390x693.png"
+    },
+    {
+      "route": "/movimientos/ord_24020334a41d407ba901",
+      "label": "detalle-vencida",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-vencida-1448x1086.png"
+    },
+    {
+      "route": "/movimientos/demo_hist_4_ord_6a9091556aeb4dfdb768",
+      "label": "detalle-demo",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-demo-390x693.png"
+    },
+    {
+      "route": "/movimientos/demo_hist_4_ord_6a9091556aeb4dfdb768",
+      "label": "detalle-demo",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-demo-1448x1086.png"
+    },
+    {
+      "route": "/movimientos/ord_7eb5247aaba6484b8ff1",
+      "label": "detalle-cancelada",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-cancelada-390x693.png"
+    },
+    {
+      "route": "/movimientos/ord_7eb5247aaba6484b8ff1",
+      "label": "detalle-cancelada",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-cancelada-1448x1086.png"
+    },
+    {
+      "route": "/movimientos",
+      "label": "listado-todos-390-scroll",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "listado-todos-390-scroll-390x693.png"
+    },
+    {
+      "route": "/movimientos?filtro=pagados",
+      "label": "listado-pagados-1448-scroll",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "listado-pagados-1448-scroll-1448x1086.png"
+    },
+    {
+      "route": "/movimientos/ord_f9feec5678a1400e9a86",
+      "label": "detalle-qr-390-scroll",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-qr-390-scroll-390x693.png"
+    },
+    {
+      "route": "/movimientos/ord_f9feec5678a1400e9a86",
+      "label": "detalle-qr-1448-scroll",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-qr-1448-scroll-1448x1086.png"
+    },
+    {
+      "route": "/movimientos/ord_24020334a41d407ba901",
+      "label": "detalle-vencida-390-scroll",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-vencida-390-scroll-390x693.png"
+    },
+    {
+      "route": "/movimientos/demo_hist_4_ord_6a9091556aeb4dfdb768",
+      "label": "detalle-demo-390-scroll",
+      "viewport": "390x693",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-demo-390-scroll-390x693.png"
+    },
+    {
+      "route": "/movimientos/demo_hist_4_ord_6a9091556aeb4dfdb768",
+      "label": "detalle-demo-1448-scroll",
+      "viewport": "1448x1086",
+      "status": 200,
+      "consoleErrors": [],
+      "shot": "detalle-demo-1448-scroll-1448x1086.png"
+    }
+  ]
+}

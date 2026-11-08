@@ -6,6 +6,7 @@ import { getOrder, getOrderByNumRef } from "@/lib/db";
 import {
   ConflictError,
   NotFoundError,
+  ValidationError,
   appErrorResponse,
   unexpectedResponse,
 } from "@/lib/errors";
@@ -16,14 +17,16 @@ import {
   MAX_SMALL_JSON_BYTES,
   readOptionalJsonLimited,
 } from "@/lib/http-security";
-import { attachPaymentLink, attachQr } from "@/lib/orders";
-import { createCodiQr, createPaymentLink } from "@/lib/pey";
+import { attachCodiPush, attachPaymentLink, attachQr } from "@/lib/orders";
+import { createCodiPush, createCodiQr, createPaymentLink } from "@/lib/pey";
 import type { Order } from "@/lib/types";
 
 export const MAX_NUM_REF_ATTEMPTS = 10;
 
 const bodySchema = z.object({
-  mode: z.enum(["link", "qr"]).optional(),
+  mode: z.enum(["link", "qr", "codi_push"]).optional(),
+  phone: z.string().trim().regex(/^\d{10}$/).optional(),
+  forceRefresh: z.boolean().optional(),
 });
 
 /**
@@ -72,7 +75,14 @@ function reserveNumRef(orderId: string): string {
   );
 }
 
-async function generatePayment(orderId: string, mode: "link" | "qr"): Promise<Order> {
+async function generatePayment(
+  orderId: string,
+  options: {
+    mode: "link" | "qr" | "codi_push";
+    phone?: string;
+    forceRefresh?: boolean;
+  },
+): Promise<Order> {
   const order = getOrder(orderId);
   if (!order) {
     throw new NotFoundError("Pedido no encontrado.", "order_not_found");
@@ -93,8 +103,11 @@ async function generatePayment(orderId: string, mode: "link" | "qr"): Promise<Or
     .map((item) => `${item.quantity} ${item.description}`)
     .join(", ")}`.slice(0, 120);
 
-  if (mode === "qr") {
-    if (order.qrString) return order;
+  if (options.mode === "qr") {
+    const isExpired = order.qrExpiresAt ? Date.parse(order.qrExpiresAt) <= Date.now() : false;
+    if (order.qrString && !options.forceRefresh && !isExpired) {
+      return order;
+    }
 
     const numRef = reserveNumRef(order.id);
     const qr = await createCodiQr({ orderId: order.id, amountCents, concept, numRef });
@@ -109,10 +122,33 @@ async function generatePayment(orderId: string, mode: "link" | "qr"): Promise<Or
         color: { dark: "#143D2F", light: "#FFFFFF" },
       }));
 
-    return attachQr(order.id, { ...qr, qrImage }, numRef);
+    return attachQr(
+      order.id,
+      { ...qr, qrImage },
+      numRef,
+      { forceRefresh: options.forceRefresh || isExpired },
+    );
   }
 
-  if (order.paymentUrl) return order;
+  if (options.mode === "codi_push") {
+    if (!options.phone || !/^\d{10}$/.test(options.phone)) {
+      throw new ValidationError(
+        "Se requiere un número de celular de 10 dígitos para el cobro CoDi Push.",
+        "phone_required",
+      );
+    }
+    const numRef = order.numRef ?? reserveNumRef(order.id);
+    const push = await createCodiPush({
+      orderId: order.id,
+      amountCents,
+      concept,
+      phone: options.phone,
+      numRef,
+    });
+    return attachCodiPush(order.id, push, numRef);
+  }
+
+  if (order.paymentUrl && !options.forceRefresh) return order;
 
   const link = await createPaymentLink({ orderId: order.id, amountCents, concept });
   return attachPaymentLink(order.id, link);
@@ -122,13 +158,13 @@ export async function POST(request: Request, ctx: RouteContext<"/api/orders/[id]
   const limited = enforceRateLimit(request, "order-pay", 30, 60_000);
   if (limited) return limited;
 
-  let body: { mode?: "link" | "qr" };
+  let body: { mode?: "link" | "qr" | "codi_push"; phone?: string; forceRefresh?: boolean };
   try {
-    body = await readOptionalJsonLimited<{ mode?: "link" | "qr" }>(
-      request,
-      MAX_SMALL_JSON_BYTES,
-      {},
-    );
+    body = await readOptionalJsonLimited<{
+      mode?: "link" | "qr" | "codi_push";
+      phone?: string;
+      forceRefresh?: boolean;
+    }>(request, MAX_SMALL_JSON_BYTES, {});
   } catch (error) {
     return bodyErrorResponse(error);
   }
@@ -144,7 +180,11 @@ export async function POST(request: Request, ctx: RouteContext<"/api/orders/[id]
     const { id } = await ctx.params;
     const input = bodySchema.parse(body);
     const order = await withOrderLock(id, () =>
-      generatePayment(id, input.mode ?? "link"),
+      generatePayment(id, {
+        mode: input.mode ?? "link",
+        phone: input.phone,
+        forceRefresh: input.forceRefresh,
+      }),
     );
     return Response.json({ order });
   } catch (error) {

@@ -194,7 +194,7 @@ export function SaleLineItems({
               >
                 <div className="mc-caja-line__art" aria-hidden="true">
                   {product.image ? (
-                    <Image src={`/assets/spec/caja-producto-${product.image}.png`} alt="" width={44} height={44} sizes="44px" />
+                    <Image src={`/assets/spec/caja-producto-${product.image}.png`} alt="" width={44} height={44} sizes="44px" unoptimized />
                   ) : null}
                 </div>
                 <label className="mc-caja-field mc-caja-field--description">

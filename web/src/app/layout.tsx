@@ -32,10 +32,10 @@ const alder = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Mercado Cero · La caja que habla",
+  title: "Trangui · La caja que habla",
   description:
     "Cobra por voz, acepta CoDi, tarjeta y efectivo, y confirma un pago solo cuando el banco lo confirma.",
-  applicationName: "Mercado Cero",
+  applicationName: "Trangui",
   formatDetection: {
     telephone: false,
     email: false,
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    title: "Mercado Cero",
+    title: "Trangui",
     statusBarStyle: "default",
   },
 };

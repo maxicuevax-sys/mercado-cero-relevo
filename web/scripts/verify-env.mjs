@@ -37,15 +37,28 @@ function loadEnv(file) {
 }
 
 const env = loadEnv(ENV_PATH);
+const requireProd = process.argv.includes("--prod");
 const apiKey = env.PEY_API_KEY ?? "";
 const secret = env.PEY_WEBHOOK_SECRET ?? "";
+const openAiKey = env.OPENAI_API_KEY ?? "";
+const operatorToken = env.OPERATOR_ACCESS_TOKEN ?? "";
 const appUrl = (env.APP_URL ?? "http://localhost:3000").replace(/\/+$/, "");
 const configuredDemo =
   env.DEMO_MODE === "true" ? true : env.DEMO_MODE === "false" ? false : !apiKey;
+const isQuickTunnel = /\.trycloudflare\.com$/i.test(new URL(appUrl).hostname);
 
 const checks = [];
 function check(name, ok, detail, level = "FAIL") {
   checks.push({ name, ok, detail, level: ok ? "PASS" : level });
+}
+
+if (requireProd) {
+  check(
+    "DEMO_MODE desactivado (--prod)",
+    !configuredDemo,
+    configuredDemo ? "DEMO_MODE sigue activo" : "DEMO_MODE=false (modo real)",
+    "FAIL",
+  );
 }
 
 check(
@@ -54,19 +67,41 @@ check(
   apiKey
     ? `configurada (${apiKey.length} caracteres)`
     : "vacía (correcto en demo, obligatoria en real)",
-  configuredDemo ? "WARN" : "FAIL",
+  configuredDemo && !requireProd ? "WARN" : "FAIL",
 );
 check(
   "PEY_WEBHOOK_SECRET",
   secret.length >= 16,
   secret ? `configurado (${secret.length} caracteres)` : "vacío",
-  configuredDemo ? "WARN" : "FAIL",
+  configuredDemo && !requireProd ? "WARN" : "FAIL",
 );
 check(
-  "APP_URL",
-  configuredDemo || appUrl.startsWith("https://"),
+  "OPENAI_API_KEY",
+  openAiKey.length >= 20,
+  openAiKey ? `configurada (${openAiKey.length} caracteres)` : "vacía (voz/transcripción deshabilitada)",
+  requireProd ? "FAIL" : "WARN",
+);
+check(
+  "APP_URL HTTPS",
+  (configuredDemo && !requireProd) || appUrl.startsWith("https://"),
   appUrl,
-  configuredDemo ? "WARN" : "FAIL",
+  configuredDemo && !requireProd ? "WARN" : "FAIL",
+);
+check(
+  "Dominio estable (sin quick tunnel efímero)",
+  !isQuickTunnel,
+  isQuickTunnel
+    ? `${appUrl} es un quick tunnel efímero (*.trycloudflare.com)`
+    : appUrl,
+  requireProd ? "FAIL" : "WARN",
+);
+check(
+  "OPERATOR_ACCESS_TOKEN (perímetro privado)",
+  operatorToken.length >= 16,
+  operatorToken
+    ? `configurado (${operatorToken.length} caracteres)`
+    : "no configurado (depende exclusivamente de Cloudflare Access)",
+  "WARN",
 );
 check(
   "Modo de la app",
@@ -78,10 +113,21 @@ check(
 
 let server = null;
 try {
-  const response = await fetch(`${appUrl}/api/dashboard`, {
+  const healthRes = await fetch(`${appUrl}/api/health`, {
     signal: AbortSignal.timeout(8000),
   });
-  if (response.ok) server = await response.json();
+  if (healthRes.ok) {
+    const health = await healthRes.json();
+    if (typeof health?.demoMode === "boolean") {
+      server = health;
+    }
+  }
+  if (!server) {
+    const response = await fetch(`${appUrl}/api/dashboard`, {
+      signal: AbortSignal.timeout(8000),
+    });
+    if (response.ok) server = await response.json();
+  }
 } catch {
   // Se reporta abajo.
 }

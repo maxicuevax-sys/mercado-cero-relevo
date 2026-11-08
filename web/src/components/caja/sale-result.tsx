@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BadgeCheck, Share2, House } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatMxn } from "@/lib/format";
@@ -25,6 +25,7 @@ export function SaleResult({
   onNewSale: () => void;
 }) {
   const [shareNotice, setShareNotice] = useState("");
+  const spokenRef = useRef<string | null>(null);
   const money = saleMoney(order, creditBalanceCents);
   const {
     paidCents,
@@ -40,6 +41,30 @@ export function SaleResult({
     creditSettled,
   } = money;
   const isDemo = isDemoSale(order, demo);
+
+  useEffect(() => {
+    if (spokenRef.current === order.id) return;
+    if (order.status !== "paid" && order.status !== "demo_paid") return;
+    if (!hasDigital) return;
+
+    spokenRef.current = order.id;
+
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    try {
+      if (window.localStorage.getItem("mercado-cero:muted") === "1") return;
+      const text = isDemo
+        ? `Simulación demo de pago digital por ${formatMxn(digitalPaidCents)}. Sin dinero real.`
+        : `Pago confirmado por Pey: ${formatMxn(digitalPaidCents)}${
+            order.numRef ? `, referencia ${order.numRef.split("").join(" ")}` : ""
+          }.`;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "es-MX";
+      utterance.rate = 1.0;
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      // Graceful fallback
+    }
+  }, [order.id, order.status, order.numRef, hasDigital, isDemo, digitalPaidCents]);
   const isDigitalDemo = isDemo && hasDigital;
   const isCashDemo = isDemo && hasCash && !hasDigital && !openCredit;
   const isMixedCreditDemo = isDemo && hasCash && openCredit;
@@ -207,7 +232,7 @@ export function SaleResult({
 
       <button type="button" className="mc-caja-button mc-caja-button--secondary mc-receipt-share" onClick={async () => {
         const text = `${isDemo ? "DEMO SIMULADO - SIN DINERO REAL" : title}\nPedido ${order.id}\nTotal ${formatMxn(order.totalCents)}\nEstado ${statusLabel(order.status)}\n${note}`;
-        try { if (navigator.share) await navigator.share({ title: "Comprobante Mercado Cero", text }); else await navigator.clipboard.writeText(text); setShareNotice("Comprobante compartido o copiado."); } catch { setShareNotice("No se compartió. Puedes copiar los datos del comprobante en pantalla."); }
+        try { if (navigator.share) await navigator.share({ title: "Comprobante Trangui", text }); else await navigator.clipboard.writeText(text); setShareNotice("Comprobante compartido o copiado."); } catch { setShareNotice("No se compartió. Puedes copiar los datos del comprobante en pantalla."); }
       }}><Share2 aria-hidden="true" />Compartir comprobante</button>
       <p role="status">{shareNotice}</p>
       <Link href="/inicio" className="mc-caja-button mc-caja-button--primary"><House aria-hidden="true" />Volver al inicio</Link>

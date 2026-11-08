@@ -27,7 +27,7 @@ import iconPendientes from "@/assets/inicio/icons/pendientes.svg";
 import "./pendientes.css";
 
 export const metadata: Metadata = {
-  title: "Pendientes · Mercado Cero",
+  title: "Pendientes · Trangui",
 };
 
 export const instant = false;
@@ -88,7 +88,7 @@ export default async function PendientesPage({
       demo={isDemoMode()}
       contentClassName="mc-pend-main"
       actions={
-        <Link className="mc-pend-cta" href="/pendientes/nuevo">
+        <Link className="mc-pend-cta mc-pend-header-cta" href="/pendientes/nuevo">
           <Plus className="mc-pend-icon" aria-hidden="true" />
           Nuevo pendiente
         </Link>
@@ -99,6 +99,9 @@ export default async function PendientesPage({
           Pendiente guardado. Ya aparece en la lista de hoy.
         </p>
       ) : null}
+      <p className="mc-pend-note">
+        <Link href="/movimientos?filtro=pendientes">Ver movimientos CoDi pendientes</Link>
+      </p>
       <div className="mc-op-grid mc-op-grid--sidebar mc-pend-grid">
         <section
           id="mc-pend-cobros"
@@ -225,7 +228,7 @@ export default async function PendientesPage({
                           <CurrencyAmount cents={money.dueCents} />
                         </p>
                         <Link
-                          href={`/pay/${order.id}`}
+                          href={`/inicio?pedido=${encodeURIComponent(order.id)}#cobrar-codi`}
                           prefetch={false}
                           className="mc-pend-order__cta"
                           aria-label={`Cobrar pedido ${shortOrder(order.id)}`}

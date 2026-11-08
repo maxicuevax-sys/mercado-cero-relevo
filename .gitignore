@@ -55,3 +55,12 @@ harness/evidence/exact-parity/
 # Capturas de auditoría: artefactos locales grandes. Los informes y JSON
 # de evidencia sí se versionan; las PNG se conservan en el workspace.
 quality-reports/**/*.png
+
+# Local deployment credentials
+deploy/*.env
+deploy/*.env.local
+
+# Local visual review session (contains transient session access keys).
+.superpowers/
+web/test-results/
+web/playwright-report/

@@ -88,17 +88,22 @@
     height: auto;
   }
 
-  .mc-fiados-mobile__merchant strong,
+  .mc-fiados-mobile__merchant strong {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(3 * var(--fi-u));
+    white-space: nowrap;
+  }
+
   .mc-fiados-mobile__merchant small {
     display: block;
     overflow-wrap: anywhere;
   }
 
   .mc-fiados-mobile__merchant strong svg {
-    display: inline;
+    flex: 0 0 auto;
     width: calc(12 * var(--fi-u));
     height: auto;
-    vertical-align: middle;
   }
 
   .mc-fiados-mobile__merchant small {
@@ -112,14 +117,15 @@
     min-width: 48px;
     min-height: 48px;
     flex: 0 0 48px;
+    margin-inline: calc(-10 * var(--fi-u));
     place-items: center;
     color: inherit;
   }
 
   .mc-fiados-mobile__bell::after {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: calc(13 * var(--fi-u));
+    right: calc(13 * var(--fi-u));
     width: calc(7 * var(--fi-u));
     aspect-ratio: 1;
     border-radius: 50%;
@@ -195,6 +201,7 @@
     width: 48px;
     min-height: 48px;
     flex: 0 0 48px;
+    margin-inline-end: calc(-26 * var(--fi-u));
     place-items: center start;
     color: inherit;
   }
@@ -226,8 +233,9 @@
 
   .mc-fiados-mobile__tabs {
     display: grid;
-    min-height: calc(44 * var(--fi-u));
+    min-height: calc(42 * var(--fi-u));
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
     padding: calc(2 * var(--fi-u));
     border: 1px solid var(--fi-line);
     border-radius: calc(12 * var(--fi-u));
@@ -237,6 +245,7 @@
     display: flex;
     min-width: 0;
     min-height: 48px;
+    margin-block: calc(-5 * var(--fi-u));
     align-items: center;
     justify-content: center;
     gap: calc(9 * var(--fi-u));
@@ -330,7 +339,8 @@
 
   .mc-fiados-mobile__total > div {
     min-width: 0;
-    padding: 2px 4px 5px 0;
+    border-inline-start: 1px solid #cdd6be;
+    padding: 2px 4px 5px calc(10 * var(--fi-u));
   }
 
   .mc-fiados-mobile__total p:first-child {
@@ -478,6 +488,24 @@
     background: #dce9d2;
     color: var(--fi-green);
     font-weight: 750;
+  }
+
+  /* La referencia 05 remata la fila con un chevron: también los fiados
+     saldados abren su historial (antes el enlace quedaba oculto en móvil). */
+  .mc-fiados-mobile .mc-fiados-mobile__row .mc-fiados-row__settled {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+  }
+
+  .mc-fiados-mobile .mc-fiados-mobile__row .mc-fiados-row__settled svg {
+    display: none;
   }
 
 }

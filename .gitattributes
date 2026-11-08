@@ -1,0 +1,2 @@
+# Deployment scripts and systemd/YAML files must remain usable on Linux.
+deploy/ops/** text eol=lf

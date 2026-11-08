@@ -1,0 +1,33 @@
+.access-demo--outline { border: 1.5px solid #7fa77b; border-radius: 999px; background: transparent; color: #fffdf4; padding: 9px 12px; }
+.register-paper { padding-top: 0; padding-bottom: 24px; min-height: 610px; overflow: hidden; }
+.register-hero { position: relative; min-height: 211px; padding-top: 18px; }
+.register-art { position: absolute; z-index: 0; top: 0; right: -14px; width: 55%; aspect-ratio: 600 / 522; overflow: hidden; clip-path: polygon(21% 0,100% 0,100% 100%,0 100%,0 84%,6% 80%,6% 65%,0 65%,0 27%,18% 27%); }
+.register-art img { position: absolute; top: -40.421456%; left: -70.666667%; width: 170.666667%; max-width: none; height: auto; }
+.register-eyebrow { position: relative; z-index: 1; margin: 0 0 12px; color: #004c36; font-size: .64rem; letter-spacing: .1em; line-height: 1.2; font-weight: 800; text-transform: uppercase; }
+.register-hero h1 { position: relative; z-index: 1; width: 52%; margin: 0; color: #080b08; font: 800 clamp(2rem, 9.8vw, 2.8rem)/.98 Georgia,serif; letter-spacing: -.04em; }
+.register-hero h1 span { display: block; }
+.register-underline { position: relative; z-index: 1; display: block; width: 45%; height: 16px; margin: 7px 0 8px; fill: none; stroke: #f9b900; stroke-width: 7; stroke-linecap: round; }
+.register-description { position: relative; z-index: 1; width: 46%; margin: 0; color: #4d5551; font-size: clamp(.82rem, 3.5vw, 1rem); line-height: 1.4; }
+.register-form .access-field + .access-field { margin-top: 13px; }
+.register-form .access-field label { margin: 0 0 4px; font: 750 1rem/1.25 var(--font-alder),Arial,sans-serif; }
+.register-input { position: relative; }
+.register-input > svg { position: absolute; top: 50%; left: 13px; width: 23px; height: 23px; transform: translateY(-50%); color: #00553d; stroke-width: 1.8; pointer-events: none; }
+.register-input input { min-height: 43px; padding-left: 45px; border-radius: 14px; }
+.register-hint { display: flex; align-items: flex-start; gap: 9px; margin: 10px 0 0; color: #505853; font-size: .85rem; line-height: 1.45; }
+.register-hint svg { width: 17px; height: 17px; margin-top: 1px; flex: 0 0 auto; color: #00553d; }
+.register-submit { margin-top: 24px; min-height: 48px; border-radius: 25px; }
+.register-back { display: block; width: fit-content; margin: 15px auto 0; color: #00513b; font-size: .8rem; text-align: center; text-underline-offset: 3px; }
+@media(min-width:700px) {
+  .register-paper { min-height: 660px; padding-top: 0; }
+  .register-hero { min-height: 260px; padding-top: 23px; }
+  .register-art { right: -20px; }
+  .register-eyebrow { font-size: .8rem; }
+  .register-description { font-size: 1rem; }
+  .register-hero h1 { font-size: 3rem; }
+  .register-input input { min-height: 49px; }
+}
+
+@media (max-width: 359px) {
+  .register-eyebrow { font-size: .54rem; }
+  .register-description { width: 44%; }
+}

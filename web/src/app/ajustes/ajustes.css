@@ -1,8 +1,8 @@
-/* Ajustes · composición ilustrada con el ritmo del canon de Inicio.
+/* Ajustes Â· composiciÃ³n ilustrada con el ritmo del canon de Inicio.
    Utilidades de arte: `.mc-art-*` (`components/shell/operational.css`).
-   Ritmo 24px entre secciones, tarjetas con padding 20–24, radios 20–22,
-   banda lateral con una ilustración grande + papel picado; los controles
-   nunca quedan encima de una ilustración. */
+   Ritmo 24px entre secciones, tarjetas con padding 20â€“24, radios 20â€“22,
+   banda lateral con una ilustraciÃ³n grande + papel picado; los controles
+   nunca quedan encima de una ilustraciÃ³n. */
 
 .mc-ajustes-layout {
   display: grid;
@@ -48,7 +48,7 @@
   }
 }
 
-/* Banda lateral: ilustración debajo del texto (columna estrecha). */
+/* Banda lateral: ilustraciÃ³n debajo del texto (columna estrecha). */
 .mc-ajustes-band.mc-art-banner {
   grid-template-columns: minmax(0, 1fr) 96px;
   align-items: center;
@@ -89,7 +89,7 @@
 }
 
 /* -------------------------------------------------------------------------
-   Acción del encabezado (secundaria)
+   AcciÃ³n del encabezado (secundaria)
    ------------------------------------------------------------------------- */
 .mc-ajustes-action {
   display: inline-flex;
@@ -309,7 +309,7 @@
 }
 
 /* -------------------------------------------------------------------------
-   Preferencias de acompañamiento (componente existente)
+   Preferencias de acompaÃ±amiento (componente existente)
    ------------------------------------------------------------------------- */
 .mc-ajustes-companion__body {
   margin-top: 16px;
@@ -345,7 +345,7 @@
 }
 
 /* -------------------------------------------------------------------------
-   Qué se guarda (privacidad y movimiento)
+   QuÃ© se guarda (privacidad y movimiento)
    ------------------------------------------------------------------------- */
 .mc-ajustes-stored__list {
   display: grid;

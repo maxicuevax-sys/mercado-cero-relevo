@@ -24,15 +24,22 @@
   .mc-caja-shell .mc-sale-voice__field {
     grid-template-columns: minmax(0, 1fr) 56px;
     align-items: center;
-    gap: 8px;
+    gap: 7px;
     min-height: 64px;
-    padding: 3px;
+    padding: 4px 5px;
     border: 1px solid var(--sale-voice-border);
-    border-radius: 14px;
-    background: var(--sale-voice-paper);
+    border-radius: 15px;
+    background: #f6efe2;
   }
 
-  .mc-caja-shell .mc-sale-voice__entry { min-width: 0; }
+  .mc-caja-shell .mc-sale-voice__entry {
+    min-width: 0;
+    min-height: 48px;
+    padding-inline: 2px 8px;
+    border: 1px solid #e1d6be;
+    border-radius: 11px;
+    background: var(--sale-voice-paper);
+  }
 
   .mc-caja-shell .mc-sale-voice__manual {
     display: grid;
@@ -121,3 +128,10 @@
     .mc-caja-shell .mc-sale-voice__phrases .mc-sale-voice__chip { padding-inline: 4px; gap: 4px; font-size: 10px; }
   }
 }
+
+.mc-scan-overlay { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 16px; background: rgb(8 24 18 / .72); }
+.mc-scan-card { position: relative; width: min(100%, 420px); padding: 14px; border-radius: 20px; background: #fffaf0; box-shadow: 0 20px 60px rgb(0 0 0 / .35); }
+.mc-scan-close { position: absolute; top: 8px; right: 8px; z-index: 2; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 999px; background: #f4e8cc; color: #183e35; }
+.mc-scan-video { display: block; width: 100%; aspect-ratio: 4 / 3; border-radius: 12px; background: #183e35; object-fit: cover; }
+.mc-scan-status { margin: 10px 0 0; color: #183e35; font-weight: 700; }
+.mc-scan-hint { margin: 4px 0 0; color: #52645a; font-size: .875rem; }

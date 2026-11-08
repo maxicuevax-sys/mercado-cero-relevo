@@ -1,0 +1,12 @@
+{
+  "data-root": "/opt/mercado-cero/docker",
+  "bip": "172.30.0.1/24",
+  "default-address-pools": [{ "base": "172.31.0.0/16", "size": 24 }],
+  "ip-forward": false,
+  "ip-forward-no-drop": true,
+  "ipv6": false,
+  "ip6tables": false,
+  "live-restore": true,
+  "log-driver": "local",
+  "log-opts": { "max-size": "10m", "max-file": "3" }
+}

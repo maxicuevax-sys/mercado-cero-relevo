@@ -1,5 +1,5 @@
 import { isDemoMode } from "@/lib/config";
-import { getDb, getOrder } from "@/lib/db";
+import { getDb, getOrder, getOrderByNumRef } from "@/lib/db";
 import { enforceRateLimit } from "@/lib/http-security";
 import {
   getPeyTransaction,
@@ -50,8 +50,72 @@ export async function GET(request: Request) {
   const orderId = url.searchParams.get("orderId")?.trim();
 
   if (!transactionId) {
-    return Response.json({ error: "Falta transactionId." }, { status: 400 });
+    const numRef = url.searchParams.get("numRef")?.trim();
+    if (!numRef) {
+      return Response.json({ error: "Falta transactionId o numRef." }, { status: 400 });
+    }
+    if (!/^\d{6}$/.test(numRef)) {
+      return Response.json({ error: "numRef inválido. Debe tener 6 dígitos numéricos." }, { status: 400 });
+    }
+    const order = getOrderByNumRef(numRef);
+    if (!order) {
+      return rejected("order_not_found", "No hay ningún pedido con esa referencia CoDi.");
+    }
+    if (order.status === "demo_paid") {
+      return Response.json({
+        verified: false,
+        source: "demo",
+        reason: "demo_payment",
+        message: "El pedido es una simulación demo. No es dinero real.",
+        orderId: order.id,
+        numRef,
+      });
+    }
+
+    const database = getDb();
+    const local = database
+      .prepare(
+        `SELECT p.id, p.order_id, p.method, p.amount_cents, p.transaction_id, p.demo, p.created_at
+         FROM payments p
+         WHERE p.order_id = ? AND p.status = 'paid' AND p.provider = 'pey' AND p.demo = 0
+         LIMIT 1`,
+      )
+      .get(order.id) as
+      | {
+          id: string;
+          order_id: string;
+          method: string;
+          amount_cents: number;
+          transaction_id: string;
+          demo: number;
+          created_at: string;
+        }
+      | undefined;
+
+    if (!local) {
+      return rejected("not_paid", "El pedido aún no tiene un pago confirmado por Pey.");
+    }
+
+    const expected = expectedDigitalCents(order);
+    if (Number(local.amount_cents) !== expected) {
+      return rejected(
+        "amount_mismatch",
+        `El monto pagado (${local.amount_cents}) no coincide con el saldo esperado (${expected}).`,
+      );
+    }
+
+    return Response.json({
+      verified: true,
+      source: "local",
+      numRef,
+      transactionId: local.transaction_id,
+      orderId: order.id,
+      method: local.method,
+      amountCents: Number(local.amount_cents),
+      createdAt: local.created_at,
+    });
   }
+
   if (transactionId.length > 200) {
     return Response.json({ error: "transactionId inválido." }, { status: 400 });
   }
@@ -159,7 +223,7 @@ export async function GET(request: Request) {
   if (isDemoMode()) {
     return rejected(
       "not_found",
-      "Ese comprobante no corresponde a un pago confirmado por Mercado Cero.",
+      "Ese comprobante no corresponde a un pago confirmado por Trangui.",
     );
   }
 

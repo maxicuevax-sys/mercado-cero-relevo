@@ -22,7 +22,7 @@ import "./metas.css";
 import savingsNative from "@/assets/definitive-a/savings.png";
 
 export const metadata: Metadata = {
-  title: "Metas · Mercado Cero",
+  title: "Metas · Trangui",
 };
 
 export const instant = false;
@@ -118,7 +118,7 @@ export default async function MetasPage() {
         <div className="mc-metas-native-list">
           {goals.map(goal => <article key={goal.id} className="mc-metas-native-card">
             <Image src={savingsNative} alt="" aria-hidden="true" sizes="90px" />
-            <div className="mc-metas-native-copy"><h2>{goal.title}</h2><p>Objetivo {formatMxn(goal.targetCents)}</p>
+            <div className="mc-metas-native-copy"><h2>{goal.title}</h2><p><Image src={metaIcon} alt="" aria-hidden="true" width={14} height={15} className="mc-metas-native-goal-icon" /> Objetivo {formatMxn(goal.targetCents)}</p>
               <ProgressIndicator value={goal.progressPct} label={`Avance de ${goal.title}`} className="mc-metas-native-progress" />
               <p>{formatMxn(goal.savedCents)} / {formatMxn(goal.targetCents)}</p>
             </div>

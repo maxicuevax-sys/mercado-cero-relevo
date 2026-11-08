@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Bell, ChevronLeft, Store } from "lucide-react";
 import brand from "@/assets/inicio/brand-shop-cream.svg";
 import { MobileNav } from "./mobile-nav";
-import { operationalMobileMore, operationalMobilePrimary } from "./nav";
+import { codiMobileCenter, operationalMobileMore, operationalMobilePrimary } from "./nav";
 import { MERCHANT } from "@/lib/config";
 import "./flow-screen.css";
 
@@ -25,6 +25,7 @@ export function FlowScreen({
   merchant = MERCHANT.name,
   address = MERCHANT.address,
   initial = MERCHANT.owner.charAt(0).toUpperCase(),
+  headingAction,
   children,
   className = "",
 }: {
@@ -36,6 +37,8 @@ export function FlowScreen({
   merchant?: string;
   address?: string;
   initial?: string;
+  /** Acción real alineada al título (p. ej. exportar). Opcional: no altera otras rutas. */
+  headingAction?: ReactNode;
   children: ReactNode;
   className?: string;
 }) {
@@ -49,9 +52,7 @@ export function FlowScreen({
         <Link className="mc-flow__brand" href="/inicio" aria-label="Ir a Inicio">
           <Image src={brand} width={36} height={36} alt="" unoptimized />
           <span>
-            Mercado
-            <br />
-            Cero
+            Trangui
           </span>
         </Link>
         <div className="mc-flow__merchant">
@@ -75,6 +76,7 @@ export function FlowScreen({
             <ChevronLeft aria-hidden="true" />
           </Link>
           <h1 id={titleId}>{title}</h1>
+          {headingAction ? <div className="mc-flow__heading-action">{headingAction}</div> : null}
         </div>
         {children}
       </main>
@@ -83,6 +85,7 @@ export function FlowScreen({
         primary={operationalMobilePrimary}
         more={operationalMobileMore}
         activeHref={activeHref}
+        center={codiMobileCenter}
       />
     </div>
   );

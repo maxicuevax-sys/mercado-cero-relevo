@@ -1,0 +1,1086 @@
+/* Detalle de movimiento CoDi · misma composición de ticket que el detalle de
+   venta, con la verdad de cobro separada en tarjetas. Solo clases `.mc-mvd-*`.
+   Tokens heredados del wrapper `.mc-op-main`; base 4, tarjetas 22, sombra única. */
+
+.mc-mvd-page {
+  --mc-mvd-border: var(--color-separator);
+  --mc-mvd-shadow: 0 2px 8px rgb(31 38 34 / 0.05);
+  position: relative;
+}
+
+.mc-mvd-page.mc-op-main {
+  padding: 24px;
+  padding-bottom: 72px;
+}
+
+.mc-mvd-page > .mc-op-header,
+.mc-mvd-page > .mc-op-page {
+  width: 100%;
+  max-width: 920px;
+  margin-inline: auto;
+}
+
+.mc-mvd-page > .mc-op-page {
+  gap: 16px;
+}
+
+.mc-mvd-page > .mc-op-header {
+  margin-bottom: 24px;
+}
+
+/* Volver. */
+.mc-mvd-back {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--color-accent);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.mc-mvd-back:hover {
+  background: var(--color-green-soft);
+}
+
+.mc-mvd-back svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+/* -------------------------------------------------------------------------
+   Hero: folio, total, estado y fecha.
+   ------------------------------------------------------------------------- */
+.mc-mvd-hero {
+  display: grid;
+  grid-template-columns: minmax(120px, 190px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
+  padding: 20px 24px;
+  border-radius: 24px;
+  background: var(--color-accent);
+  color: #fffdf7;
+  box-shadow: var(--mc-mvd-shadow);
+}
+
+.mc-mvd-hero__art {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 0;
+}
+
+.mc-mvd-hero__art img {
+  width: 100%;
+  max-width: 190px;
+  height: auto;
+  object-fit: contain;
+}
+
+.mc-mvd-hero__body {
+  min-width: 0;
+}
+
+.mc-mvd-hero__folio {
+  color: #fffdf7;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.mc-mvd-hero__total {
+  margin-top: 2px;
+  color: #fffdf7;
+  font-family: var(--font-alder), "Alder", "Segoe UI", sans-serif;
+  font-size: clamp(2rem, 4.6vw, 3rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.mc-mvd-status {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  margin-top: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--color-green-soft);
+  color: var(--color-accent);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.mc-mvd-status--demo {
+  background: var(--color-saffron-soft);
+  color: #7a2e12;
+}
+
+.mc-mvd-status--pending {
+  background: var(--color-blue-soft);
+  color: #1f3f5c;
+}
+
+.mc-mvd-status--expired {
+  background: var(--color-terracotta-soft);
+  color: #7a2e12;
+}
+
+.mc-mvd-status--neutral {
+  border: 1px solid rgb(255 253 247 / 0.6);
+  background: rgb(255 253 247 / 0.14);
+  color: #fffdf7;
+}
+
+.mc-mvd-hero__state {
+  max-width: 46ch;
+  margin-top: 6px;
+  color: rgb(255 253 247 / 0.88);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.mc-mvd-hero__when {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  padding-left: 18px;
+  border-left: 1px solid rgb(255 253 247 / 0.28);
+}
+
+.mc-mvd-hero__when svg {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 2px;
+}
+
+.mc-mvd-hero__date {
+  color: #fffdf7;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.mc-mvd-hero__time {
+  color: #fffdf7;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.mc-mvd-demo {
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, var(--color-attention) 34%, transparent);
+  border-radius: 12px;
+  background: var(--color-saffron-soft);
+  color: var(--color-attention);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+/* -------------------------------------------------------------------------
+   Tarjetas de contenido.
+   ------------------------------------------------------------------------- */
+.mc-mvd-card {
+  min-width: 0;
+  padding: 18px 20px;
+  border: 1px solid var(--mc-mvd-border);
+  border-radius: 22px;
+  background: var(--color-surface);
+  box-shadow: var(--mc-mvd-shadow);
+}
+
+.mc-mvd-card--money {
+  background: color-mix(in srgb, var(--color-surface) 86%, var(--color-green-soft));
+}
+
+.mc-mvd-card__title {
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.mc-mvd-card__lead {
+  max-width: 64ch;
+  margin-top: 4px;
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.mc-mvd-card__empty {
+  padding: 12px 0;
+  color: var(--color-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.mc-mvd-empty-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px dashed var(--mc-mvd-border);
+  border-radius: 12px;
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.mc-mvd-empty-line svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--color-accent);
+}
+
+/* -------------------------------------------------------------------------
+   Conceptos y total.
+   ------------------------------------------------------------------------- */
+.mc-mvd-items {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mc-mvd-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--mc-mvd-border);
+}
+
+.mc-mvd-item:first-child {
+  border-top: 0;
+}
+
+.mc-mvd-item__badge {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--color-green-soft);
+}
+
+.mc-mvd-item__badge--saffron {
+  background: var(--color-saffron-soft);
+}
+
+.mc-mvd-item__badge--terracotta {
+  background: var(--color-terracotta-soft);
+}
+
+.mc-mvd-item__badge img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.mc-mvd-item__main {
+  min-width: 0;
+}
+
+.mc-mvd-item__name {
+  color: var(--color-ink);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.mc-mvd-item__unit {
+  margin-top: 2px;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.mc-mvd-item__total {
+  color: var(--color-ink);
+  font-family: var(--font-alder), "Alder", "Segoe UI", sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: 1.2;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.mc-mvd-total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  min-width: 0;
+  margin-top: 10px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--color-green-soft);
+}
+
+.mc-mvd-total > span {
+  color: var(--color-accent);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.mc-mvd-total__value {
+  color: var(--color-accent);
+  font-family: var(--font-alder), "Alder", "Segoe UI", sans-serif;
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+/* -------------------------------------------------------------------------
+   Metadatos de la solicitud.
+   ------------------------------------------------------------------------- */
+.mc-mvd-meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 14px 0 0;
+  overflow: hidden;
+  border: 1px solid var(--mc-mvd-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+}
+
+.mc-mvd-meta__cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px 14px;
+  border-top: 1px solid var(--mc-mvd-border);
+  border-left: 1px solid var(--mc-mvd-border);
+}
+
+.mc-mvd-meta__cell:nth-child(4n + 1) {
+  border-left: 0;
+}
+
+.mc-mvd-meta__cell:nth-child(-n + 4) {
+  border-top: 0;
+}
+
+.mc-mvd-meta__cell > svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--color-accent);
+}
+
+.mc-mvd-meta__cell > div {
+  min-width: 0;
+}
+
+.mc-mvd-meta__label {
+  color: var(--color-ink-2);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.mc-mvd-meta__value {
+  margin: 2px 0 0;
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+/* -------------------------------------------------------------------------
+   QR y link.
+   ------------------------------------------------------------------------- */
+.mc-mvd-qr {
+  display: grid;
+  grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
+  align-items: center;
+  gap: 16px 20px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px dashed var(--mc-mvd-border);
+  border-radius: 18px;
+  background: var(--color-surface-2);
+}
+
+.mc-mvd-qr__image {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  aspect-ratio: 1;
+  padding: 8px;
+  border: 1px solid var(--mc-mvd-border);
+  border-radius: 14px;
+  background: #fff;
+  object-fit: contain;
+}
+
+.mc-mvd-qr__missing {
+  display: flex;
+  width: 100%;
+  max-width: 200px;
+  aspect-ratio: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border: 1px dashed var(--mc-mvd-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  color: var(--color-ink-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.mc-mvd-qr__missing svg {
+  width: 28px;
+  height: 28px;
+  color: var(--color-accent);
+}
+
+.mc-mvd-qr__copy {
+  min-width: 0;
+}
+
+.mc-mvd-qr__title {
+  color: var(--color-ink);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.mc-mvd-qr__meta {
+  margin-top: 2px;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.mc-mvd-qr__note,
+.mc-mvd-link__note {
+  max-width: 44ch;
+  margin-top: 6px;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.mc-mvd-qr__warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 8px;
+  color: var(--color-attention);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.mc-mvd-qr__warning svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.mc-mvd-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--mc-mvd-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+}
+
+.mc-mvd-link > svg {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--color-accent);
+}
+
+.mc-mvd-link > div {
+  min-width: 0;
+}
+
+.mc-mvd-link__title {
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.mc-mvd-link__anchor {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  margin-top: 2px;
+  color: var(--color-accent);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+.mc-mvd-link__meta {
+  margin-top: 2px;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+/* -------------------------------------------------------------------------
+   Dinero: grande lo real, aparte lo demo y lo que falta.
+   ------------------------------------------------------------------------- */
+.mc-mvd-money__value {
+  margin-top: 8px;
+  color: var(--color-accent);
+  font-family: var(--font-alder), "Alder", "Segoe UI", sans-serif;
+  font-size: clamp(2rem, 4.6vw, 3rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.mc-mvd-money__note {
+  max-width: 60ch;
+  margin-top: 4px;
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.mc-mvd-money__rows {
+  display: grid;
+  gap: 0;
+  margin: 14px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--mc-mvd-border);
+}
+
+.mc-mvd-money__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--mc-mvd-border);
+}
+
+.mc-mvd-money__row dt {
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.mc-mvd-money__row dd {
+  margin: 0;
+  color: var(--color-ink);
+  font-family: var(--font-alder), "Alder", "Segoe UI", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: 1.3;
+}
+
+.mc-mvd-money__row--demo dt,
+.mc-mvd-money__row--demo dd {
+  color: var(--color-attention);
+}
+
+.mc-mvd-money__row--credit dt,
+.mc-mvd-money__row--credit dd {
+  color: var(--color-attention);
+}
+
+.mc-mvd-money__credit-note {
+  max-width: 60ch;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--color-terracotta-soft);
+  color: var(--color-attention);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+/* -------------------------------------------------------------------------
+   Pagos registrados.
+   ------------------------------------------------------------------------- */
+.mc-mvd-payments {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mc-mvd-payment {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--mc-mvd-border);
+}
+
+.mc-mvd-payment:first-child {
+  border-top: 0;
+}
+
+.mc-mvd-payment__icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--color-green-soft);
+  color: var(--color-accent);
+}
+
+.mc-mvd-payment__icon--demo {
+  background: var(--color-saffron-soft);
+  color: var(--color-attention);
+}
+
+.mc-mvd-payment__icon--neutral {
+  background: var(--color-surface-2);
+  color: var(--color-ink-2);
+}
+
+.mc-mvd-payment__icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.mc-mvd-payment__main {
+  min-width: 0;
+}
+
+.mc-mvd-payment__title {
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  font-weight: 800;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.mc-mvd-payment__meta {
+  margin-top: 2px;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.mc-mvd-payment__txn {
+  margin-top: 2px;
+  color: var(--color-ink-2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.mc-mvd-payment__amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  min-width: 0;
+  text-align: right;
+}
+
+.mc-mvd-payment__value {
+  color: var(--color-ink);
+  font-family: var(--font-alder), "Alder", "Segoe UI", sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.mc-mvd-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border: 1.5px solid currentColor;
+  border-radius: 6px;
+  color: var(--color-ink-2);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.mc-mvd-badge--demo {
+  background: var(--color-saffron-soft);
+  color: var(--color-attention);
+}
+
+.mc-mvd-badge--ok {
+  background: var(--color-green-soft);
+  color: var(--color-accent);
+}
+
+.mc-mvd-badge--neutral {
+  background: var(--color-surface);
+  color: var(--color-ink-2);
+}
+
+/* -------------------------------------------------------------------------
+   Límites y pie.
+   ------------------------------------------------------------------------- */
+.mc-mvd-notes {
+  display: grid;
+  gap: 6px;
+  max-width: 78ch;
+  padding: 0 2px;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------------------------------
+   Empty del detalle.
+   ------------------------------------------------------------------------- */
+.mc-mvd-notfound {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  max-width: 560px;
+  padding: 24px;
+  border: 1px dashed var(--mc-mvd-border);
+  border-radius: 22px;
+  background: var(--color-surface);
+  box-shadow: var(--mc-mvd-shadow);
+}
+
+.mc-mvd-notfound > svg {
+  width: 32px;
+  height: 32px;
+  color: var(--color-accent);
+}
+
+.mc-mvd-notfound__title {
+  color: var(--color-ink);
+  font-family: var(--font-hearth), "Hearth", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.mc-mvd-notfound__body {
+  max-width: 52ch;
+  color: var(--color-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.mc-mvd-notfound .mc-mvd-back {
+  margin-top: 8px;
+}
+
+/* -------------------------------------------------------------------------
+   Responsive: 920 escritorio, 390 y 320 móvil.
+   ------------------------------------------------------------------------- */
+@media (max-width: 1023.98px) {
+  .mc-mvd-page.mc-op-main {
+    padding: 20px 16px 72px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .mc-mvd-page.mc-op-main {
+    padding: 20px 16px calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .mc-mvd-page > .mc-op-header {
+    position: relative;
+    display: block;
+    min-height: 52px;
+    margin-bottom: 20px;
+    padding: 0 0 0 52px;
+  }
+
+  .mc-mvd-page > .mc-op-header .mc-page-header__eyebrow {
+    display: none;
+  }
+
+  .mc-mvd-page > .mc-op-header .mc-page-header__title {
+    margin-top: 0;
+    font-size: 1.375rem;
+    text-align: start;
+  }
+
+  .mc-mvd-page > .mc-op-header .mc-page-header__actions {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    pointer-events: none;
+  }
+
+  .mc-mvd-page > .mc-op-header .mc-page-header__actions > * {
+    pointer-events: auto;
+  }
+
+  .mc-mvd-back {
+    width: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .mc-mvd-back__label {
+    display: none;
+  }
+
+  .mc-mvd-hero {
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 12px 16px;
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .mc-mvd-hero__art {
+    grid-row: 1 / span 2;
+  }
+
+  .mc-mvd-hero__art img {
+    max-width: 112px;
+  }
+
+  .mc-mvd-hero__when {
+    grid-column: 2;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    padding: 8px 0 0;
+    border-top: 1px solid rgb(255 253 247 / 0.28);
+    border-left: 0;
+  }
+
+  .mc-mvd-hero__when svg {
+    width: 18px;
+    height: 18px;
+    margin-bottom: 0;
+  }
+
+  .mc-mvd-hero__date,
+  .mc-mvd-hero__time {
+    font-size: 0.875rem;
+  }
+
+  .mc-mvd-card {
+    padding: 16px;
+  }
+
+  .mc-mvd-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mc-mvd-meta__cell:nth-child(4n + 1) {
+    border-left: 1px solid var(--mc-mvd-border);
+  }
+
+  .mc-mvd-meta__cell:nth-child(2n + 1) {
+    border-left: 0;
+  }
+
+  .mc-mvd-meta__cell:nth-child(-n + 4) {
+    border-top: 1px solid var(--mc-mvd-border);
+  }
+
+  .mc-mvd-meta__cell:nth-child(-n + 2) {
+    border-top: 0;
+  }
+
+  .mc-mvd-qr {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+  }
+
+  .mc-mvd-qr__image,
+  .mc-mvd-qr__missing {
+    max-width: 168px;
+  }
+}
+
+@media (max-width: 479.98px) {
+  .mc-mvd-page > .mc-op-header {
+    padding-left: 48px;
+  }
+
+  .mc-mvd-hero {
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 10px 12px;
+    padding: 14px;
+  }
+
+  .mc-mvd-hero__art img {
+    max-width: 92px;
+  }
+
+  .mc-mvd-hero__total {
+    font-size: clamp(1.625rem, 8vw, 2rem);
+  }
+
+  .mc-mvd-hero__folio {
+    font-size: 0.8125rem;
+  }
+
+  .mc-mvd-status {
+    margin-top: 6px;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+  }
+
+  .mc-mvd-card__title {
+    font-size: 1.25rem;
+  }
+
+  .mc-mvd-item {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .mc-mvd-item__total {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .mc-mvd-payment {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .mc-mvd-payment__amount {
+    grid-column: 2;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .mc-mvd-total {
+    padding: 12px 14px;
+  }
+
+  .mc-mvd-total > span {
+    font-size: 1.0625rem;
+  }
+
+  .mc-mvd-total__value {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 359.98px) {
+  .mc-mvd-hero {
+    grid-template-columns: 76px minmax(0, 1fr);
+    padding: 12px;
+  }
+
+  .mc-mvd-hero__art img {
+    max-width: 76px;
+  }
+
+  .mc-mvd-hero__total {
+    font-size: 1.5rem;
+  }
+
+  .mc-mvd-meta {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mc-mvd-meta__cell,
+  .mc-mvd-meta__cell:nth-child(2n + 1),
+  .mc-mvd-meta__cell:nth-child(4n + 1) {
+    border-left: 0;
+    border-top: 1px solid var(--mc-mvd-border);
+  }
+
+  .mc-mvd-meta__cell:first-child {
+    border-top: 0;
+  }
+
+  .mc-mvd-total {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (forced-colors: active) {
+  .mc-mvd-hero,
+  .mc-mvd-card,
+  .mc-mvd-total,
+  .mc-mvd-meta,
+  .mc-mvd-back,
+  .mc-mvd-status,
+  .mc-mvd-badge {
+    border: 1px solid CanvasText;
+  }
+
+  .mc-mvd-qr,
+  .mc-mvd-link,
+  .mc-mvd-meta__cell {
+    border-color: CanvasText;
+  }
+}

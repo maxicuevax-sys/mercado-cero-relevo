@@ -32,7 +32,7 @@ import "../ventas.css";
 import "./detalle-venta.css";
 
 export const metadata: Metadata = {
-  title: "Detalle de venta · Mercado Cero",
+  title: "Detalle de venta · Trangui",
   description: "Consulta el ticket, los productos y el estado real de una venta.",
 };
 
@@ -127,7 +127,7 @@ export default async function DetalleVentaPage({
         <div className="mc-dv-actions">
           <Link href="/ventas" className="mc-dv-back">
             <ArrowLeft aria-hidden="true" />
-            Ventas
+            <span className="mc-dv-back__label">Ventas</span>
           </Link>
           <TicketButton />
         </div>

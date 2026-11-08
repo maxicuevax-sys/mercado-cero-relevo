@@ -105,7 +105,7 @@ export function OptionalAssistant() {
         <div role="status" aria-live="polite" aria-atomic="true">
           {result && <div className="mc-assistant-answer"><p className="mc-assistant-question">{result.question}</p>
             <p>{topic?.answer ?? "No encontré esa pregunta en la guía local. Revisa las preguntas frecuentes; esta guía no ofrece respuestas generadas ni soporte en vivo."}</p>
-            <p className="mc-assistant-source">Fuente: guía de uso de Mercado Cero.</p>
+            <p className="mc-assistant-source">Fuente: guía de uso de Trangui.</p>
             <Link href={topic?.href ?? "#mc-ayuda-faq-title"}>{topic?.action ?? "Ver preguntas frecuentes"}<ChevronRight size={18} aria-hidden="true" /></Link>
           </div>}
         </div>

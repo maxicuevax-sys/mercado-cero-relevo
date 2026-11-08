@@ -6,7 +6,7 @@ import "@/app/checkout.css";
 import CheckoutSuccessClient from "./success-client";
 
 export const metadata: Metadata = {
-  title: "Confirmando pago · Mercado Cero",
+  title: "Confirmando pago · Trangui",
   description: "Estamos verificando tu pago con el banco.",
 };
 

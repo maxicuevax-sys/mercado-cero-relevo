@@ -7,12 +7,23 @@ import { PreferencesBoot } from "./preferences-boot";
 import "./definitive-a.css";
 import "./reference-a2.css";
 import {
+  codiMobileCenter,
   inicioFoot,
   inicioNav,
   mobileMore,
   mobilePrimary,
+  type ShellMobileCenter,
   type ShellNavItem,
 } from "./nav";
+
+/**
+ * Barra móvil compartida: Inicio · Movimientos · [Cobrar con CoDi] · Caja ·
+ * Más. Fiados, Corte, Pendientes, Metas, Ventas, Ayuda y Ajustes no se
+ * pierden: viven en "Más".
+ */
+function contextualMobilePrimary(_activeHref: string): ShellNavItem[] {
+  return mobilePrimary;
+}
 
 export function AppShell({
   children,
@@ -23,8 +34,9 @@ export function AppShell({
   contentClassName = "inicio-content",
   nav = inicioNav,
   foot = inicioFoot,
-  mobilePrimaryItems = mobilePrimary,
+  mobilePrimaryItems,
   mobileMoreItems = mobileMore,
+  mobileCenter = codiMobileCenter,
   focusTargetId,
 }: {
   children: ReactNode;
@@ -37,10 +49,11 @@ export function AppShell({
   foot?: ShellNavItem[];
   mobilePrimaryItems?: ShellNavItem[];
   mobileMoreItems?: ShellNavItem[];
+  mobileCenter?: ShellMobileCenter;
   focusTargetId?: string;
 }) {
   return (
-    <div className={`inicio-shell ${className} ${["/inicio", "/corte", "/metas", "/pendientes"].includes(activeHref) ? "mc-reference-a" : ""}`.trim()}>
+    <div className={`inicio-shell ${className} ${["/inicio", "/movimientos", "/corte", "/metas", "/pendientes", "/notificaciones"].includes(activeHref) ? "mc-reference-a" : ""}`.trim()}>
       <PreferencesBoot />
       <Suspense fallback={null}>
         <RouteFocus mainId={mainId} targetId={focusTargetId} />
@@ -54,9 +67,10 @@ export function AppShell({
         </main>
       </div>
       <MobileNav
-        primary={mobilePrimaryItems}
+        primary={mobilePrimaryItems ?? contextualMobilePrimary(activeHref)}
         more={mobileMoreItems}
         activeHref={activeHref}
+        center={mobileCenter}
       />
     </div>
   );

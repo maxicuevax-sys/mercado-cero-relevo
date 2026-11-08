@@ -12,7 +12,7 @@ import { BrandLockup } from "@/components/shell/brand-lockup";
 import {
   cajaFoot,
   cajaMobileMore,
-  cajaMobilePrimary,
+  
   cajaNav,
 } from "@/components/shell/nav";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
@@ -154,7 +154,13 @@ export function CajaScreen({
     try {
       const raw = window.localStorage.getItem(DRAFT_KEY);
       const storedDraft = raw ? parseStoredDraft(raw) : null;
-      if (storedDraft && storedDraft.lines.length > 0 && (demo || !storedDraft.lines.some(line => line.id.startsWith("spec-demo-")))) {
+      const storedIsDemoSeed = Boolean(
+        storedDraft?.lines.some((line) => line.id.startsWith("spec-demo-")),
+      );
+      if (storedIsDemoSeed) {
+        // Limpia drafts viejos del ticket de ejemplo; no son una venta real.
+        window.localStorage.removeItem(DRAFT_KEY);
+      } else if (storedDraft && storedDraft.lines.length > 0) {
         // El borrador vive en localStorage; el effect es la frontera con ese sistema externo.
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setLines(storedDraft.lines);
@@ -177,13 +183,23 @@ export function CajaScreen({
         if (!hasV2Draft) {
           // Una sola fuente visible: el borrador de la Caja clásica se importa
           // a /caja, conservando la llave de idempotencia si coincide.
-          setLines(legacy.draft.lines);
+          const legacyLines = legacy.draft.lines.filter(
+            (line) => !line.id.startsWith("spec-demo-"),
+          );
+          if (legacyLines.length === 0) {
+            window.localStorage.removeItem(LEGACY_DRAFT_KEY);
+            setLines([]);
+            setDraftInstanceId("");
+            hasV2Draft = true;
+          } else {
+          setLines(legacyLines);
           setDraftInstanceId(legacy.draft.instanceId);
           setCashInput(legacy.draft.cashInput);
           setCreditInput(legacy.draft.creditInput);
           setCustomerName(legacy.draft.customerName);
           setMethod(legacy.draft.method);
           setRestoredNotice(true);
+          }
           if (legacy.request) {
             requestRef.current = legacy.request;
             writeStoredRequest(legacy.request);
@@ -202,22 +218,7 @@ export function CajaScreen({
       // Un borrador legacy corrupto no debe bloquear /caja.
     }
 
-    // La spec autoriza este ticket de ejemplo solo en DEMO. Un borrador,
-    // legado o intento sin resolver siempre tiene prioridad sobre el ejemplo.
-    if (demo && !hasV2Draft) {
-      try {
-        if (!window.localStorage.getItem(LEGACY_DRAFT_KEY) && !window.localStorage.getItem(UNKNOWN_KEY) && !window.localStorage.getItem(CONFIRMED_KEY)) {
-          setLines([
-            { id: "spec-demo-tortilla", description: "Tortilla", quantity: "2", price: "35.00" },
-            { id: "spec-demo-huevo", description: "Huevo", quantity: "1", price: "50.00" },
-            { id: "spec-demo-refresco", description: "Refresco", quantity: "1", price: "20.00" },
-          ]);
-        }
-      } catch {
-        // Sin almacenamiento legible no se sustituye ningún estado recuperable.
-      }
-    }
-
+    // Ticket inicial vacío: el comerciante decide qué vender.
     setHydrated(true);
 
     try {
@@ -806,7 +807,6 @@ export function CajaScreen({
       contentClassName="mc-caja"
       nav={cajaNav}
       foot={cajaFoot}
-      mobilePrimaryItems={cajaMobilePrimary}
       mobileMoreItems={cajaMobileMore}
       topbar={
         <><TopBar
@@ -1061,7 +1061,7 @@ export function CajaScreen({
           />
           </div>
           <CajaSpecCheckout totalCents={totalCents} method={method}
-            disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated || !lines.length}
+            disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated}
             onMethod={chooseMethod} onReview={() => setView("method")}
             onClear={requestClearDraft} />
         </>

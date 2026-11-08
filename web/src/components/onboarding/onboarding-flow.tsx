@@ -53,7 +53,7 @@ const SAMPLE = {
 function BrandHeader() {
   return (
     <header className="onb-header">
-      <div className="onb-brand" aria-label="Mercado Cero">
+      <div className="onb-brand" aria-label="Trangui">
         <Image
           src={brandShop}
           alt=""
@@ -64,9 +64,7 @@ function BrandHeader() {
         />
         <span className="onb-brand__wordmark">
           <span className="onb-brand__name">
-            Mercado
-            <br />
-            Cero
+            Trangui
           </span>
           <svg
             className="onb-brand__rays"

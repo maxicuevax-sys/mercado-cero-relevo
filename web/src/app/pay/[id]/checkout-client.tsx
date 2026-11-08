@@ -455,7 +455,7 @@ export default function CheckoutPage({
               0
             </div>
             <div>
-              <p className="pay-brand-name">Mercado Cero</p>
+              <p className="pay-brand-name">Trangui</p>
               <p className="pay-eyebrow font-semibold text-ink-2">Pago protegido</p>
             </div>
           </div>
@@ -601,7 +601,7 @@ export default function CheckoutPage({
         <footer className="pay-footer">
           <ShieldCheck className="h-4 w-4 text-green" aria-hidden="true" />
           {demoMode
-            ? "Demo de Mercado Cero · pago simulado, sin cargo real"
+            ? "Demo de Trangui · pago simulado, sin cargo real"
             : "Procesado por pey · confirmación bancaria verificada"}
         </footer>
       </div>

@@ -1,0 +1,24 @@
+# Active pilot. Reuses the existing SQLite volume only after Podman is stopped.
+services:
+  mercado-cero-pilot:
+    image: localhost/mercado-cero:09b4f8d1aa63f40682e2e4082034fe952a1dd1e2
+    pull_policy: never
+    restart: unless-stopped
+    env_file:
+      - /opt/mercado-cero/pilot/pilot.env
+    environment:
+      DEMO_MODE: "true"
+      APP_URL: https://mercado.zicua.com
+      DATABASE_PATH: /data/mercado-cero.db
+      DATABASE_BACKUP_DIR: /data/backups
+      PEY_API_KEY: ""
+      PEY_WEBHOOK_SECRET: ""
+      OPENAI_API_KEY: ""
+    volumes:
+      - /var/lib/containers/storage/volumes/mercado-cero-pilot-data/_data:/data
+    ports:
+      - "127.0.0.1:4590:3000"
+    mem_limit: 768m
+    cpus: 1.5
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]

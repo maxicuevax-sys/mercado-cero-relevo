@@ -1,0 +1,16 @@
+[Unit]
+Description=Mercado Cero application deployed by Coolify
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/docker start mercado-cero-pilot-jmkt3zjnd560s3g0vhqw97db
+ExecStartPost=/usr/bin/python3 /opt/mercado-cero/pilot/ops/wait-app.py
+ExecStop=/usr/bin/docker stop -t 30 mercado-cero-pilot-jmkt3zjnd560s3g0vhqw97db
+TimeoutStartSec=90
+TimeoutStopSec=45
+
+[Install]
+WantedBy=multi-user.target

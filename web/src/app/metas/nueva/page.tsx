@@ -3,7 +3,7 @@ import { FlowScreen } from "@/components/shell/flow-screen";
 import { NewGoalForm } from "./new-goal-form";
 
 export const metadata: Metadata = {
-  title: "Nueva meta — Mercado Cero",
+  title: "Nueva meta — Trangui",
 };
 
 export default function NuevaMetaPage() {

@@ -1,0 +1,4 @@
+dbs:
+  - path: /data/mercado-cero.db
+    replica:
+      url: ${LITESTREAM_REPLICA_URL}

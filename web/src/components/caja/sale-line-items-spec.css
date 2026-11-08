@@ -142,7 +142,7 @@
     line-height: 1;
     cursor: pointer;
   }
-  .mc-caja-shell .mc-caja-line__step:disabled { opacity: .4; cursor: default; }
+  .mc-caja-shell .mc-caja-line__step:disabled { opacity: .85; cursor: default; }
   .mc-caja-shell .mc-caja-line .mc-caja-field--qty { display: block; }
   .mc-caja-shell .mc-caja-line .mc-caja-field--qty input {
     min-height: 30px;
