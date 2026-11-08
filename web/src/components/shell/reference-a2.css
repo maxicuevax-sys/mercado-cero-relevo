@@ -244,3 +244,20 @@
 
 html[data-contrast="high"] .mc-reference-a :is(.mc-pend-native-summary,.mc-metas-native-card,.mc-metas-native-summary,.mc-corte-denom__label) { background: #fff; color: #000; border-color: #000; }
 html[data-contrast="high"] .mc-reference-a :is(.inicio-definitive-welcome-art,.inicio-native-register,.mc-corte-native-register,.mc-metas-native img,.mc-pend-native-summary > img) { visibility: hidden; }
+
+
+/* Menú de 5 posiciones: columnas simétricas para que el QR quede al centro
+   exacto de la barra y no quede un hueco a la derecha. */
+.inicio-shell.mc-reference-a .mc-mobile-nav {
+  grid-template-columns: .9fr 1.2fr 1fr 1.2fr .9fr;
+}
+.inicio-shell.mc-reference-a .mc-mobile-nav__sale {
+  justify-self: center;
+  align-self: center;
+}
+@media (max-width: 350px) {
+  .inicio-shell.mc-reference-a .mc-mobile-nav__item {
+    font-size: .6875rem;
+    padding-inline: 2px;
+  }
+}
