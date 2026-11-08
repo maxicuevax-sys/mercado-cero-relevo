@@ -40,6 +40,24 @@ async function signup(auth, email = 'judge-a@example.test', extra = {}) {
   return request(auth, 'sign-up/email', { name: 'Juez de prueba', email, password, ...extra });
 }
 
+test('demo accepts short and over-128 passwords for signup and signin', async t => {
+  const identity = await createPilotIdentity({ ...fixture(t), allowSignUp: true });
+  for (const [index, candidate] of ['a', 'x'.repeat(129), 'x'.repeat(1024)].entries()) {
+    const email = `unrestricted-${index}@example.test`;
+    const created = await signup(identity.auth, email, { password: candidate });
+    assert.equal(created.status, 200, `signup length=${candidate.length}: ${await created.clone().text()}`);
+    const login = await request(identity.auth, 'sign-in/email', { email, password: candidate });
+    assert.equal(login.status, 200, `signin length=${candidate.length}: ${await login.clone().text()}`);
+  }
+});
+
+test('upstream signup schema requires a nonempty credential; demo offers separate guest entry', async t => {
+  const identity = await createPilotIdentity({ ...fixture(t), allowSignUp: true });
+  const response = await signup(identity.auth, 'empty@example.test', { password: '' });
+  assert.equal(response.status, 400);
+  assert.equal(identity.database.prepare('SELECT count(*) AS n FROM user').get().n, 0);
+});
+
 test('rejects weak secret and unsafe origins before creating any files', async t => {
   for (const invalid of [{ secret: 'short' }, { baseURL: 'http://example.com' }, { baseURL: 'https://user:pass@example.com' }, { baseURL: baseURL + '/path' }, { baseURL: baseURL + '?query=1' }, { baseURL: 'file:///tmp/auth' }]) {
     const options = { ...fixture(t), ...invalid };
@@ -104,12 +122,9 @@ test('two identity instances do not share users or accept the other session', as
   assert.ok(stored.length > 30);
 });
 
-test('rejects passwords outside 12–128 and mutations from another origin', async t => {
+test('rejects mutations from another origin', async t => {
   const identity = await createPilotIdentity({ ...fixture(t), allowSignUp: true });
   t.after(() => identity.close());
-  for (const invalid of ['short', 'x'.repeat(129)]) {
-    assert.equal((await signup(identity.auth, 'invalid@example.test', { password: invalid })).status, 400);
-  }
   const forged = await request(identity.auth, 'sign-up/email', { name: 'Juez', email: 'forged@example.test', password }, null, 'https://other.example');
   assert.equal(forged.status, 403);
   assert.equal(identity.database.prepare('SELECT count(*) AS n FROM user').get().n, 0);
