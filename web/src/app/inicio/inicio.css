@@ -1764,3 +1764,30 @@ html[data-contrast="high"] .inicio-nav__item[aria-current="page"]:focus-visible 
     overflow-wrap: break-word;
   }
 }
+
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar {
+    min-height: 64px;
+    height: auto;
+    padding: 8px 14px;
+    align-items: center;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__mobile-brand {
+    gap: 7px;
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__mobile-brand img {
+    width: 34px;
+    height: 30px;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__brand-rays {
+    width: 12px;
+    height: 12px;
+    margin-left: 2px;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__actions { gap: 8px; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__alerts { width: 40px; height: 40px; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__bell { width: 22px; height: 22px; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-avatar { width: 29px; height: 29px; font-size: .875rem; }
+}

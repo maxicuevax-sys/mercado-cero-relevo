@@ -287,3 +287,41 @@ html[data-contrast="high"] .mc-reference-a :is(.inicio-definitive-welcome-art,.i
 @media (max-width: 400px) {
   .inicio-shell.mc-reference-a .mc-mobile-nav__item { font-size: .6875rem; padding-inline: 2px; }
 }
+
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a .inicio-topbar {
+    min-height: 64px;
+    padding: 8px 14px;
+    align-items: center;
+  }
+  .inicio-shell.mc-reference-a .inicio-topbar__mobile-brand {
+    gap: 7px;
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+  .inicio-shell.mc-reference-a .inicio-topbar__mobile-brand img {
+    width: 34px;
+    height: 30px;
+  }
+  .inicio-shell.mc-reference-a .inicio-topbar__brand-rays {
+    width: 12px;
+    height: 12px;
+    margin-left: 2px;
+  }
+  .inicio-shell.mc-reference-a .inicio-topbar__actions {
+    gap: 8px;
+  }
+  .inicio-shell.mc-reference-a .inicio-topbar__alerts {
+    width: 40px;
+    height: 40px;
+  }
+  .inicio-shell.mc-reference-a .inicio-topbar__bell {
+    width: 22px;
+    height: 22px;
+  }
+  .inicio-shell.mc-reference-a .inicio-avatar {
+    width: 29px;
+    height: 29px;
+    font-size: .875rem;
+  }
+}
