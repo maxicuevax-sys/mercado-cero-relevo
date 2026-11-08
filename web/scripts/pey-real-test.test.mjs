@@ -62,6 +62,7 @@ test("inactive receiver cannot issue QR",async()=>{const db=new DatabaseSync(":m
 test("signature, timestamp, receiver, key, QR, ref, amount and transaction enforced; duplicate safe",async()=>{
  const db=new DatabaseSync(":memory:");await m.createRealTest(db,"alpha",mock([]));const row=m.realTestRow(db);
  const event={type:"codi.qr.payment_received",amount:0.01,apiKeyId:row.api_key_id,bankAccountId:row.bank_id,codiQrId:row.qr_id,numRef:row.num_ref,transactionId:"01M3QR8H0RH0XBCKYYD242YXNV",datePaid:Math.floor(Date.now()/1000)};
+ assert.equal(m.receiveRealTest(db,...signed({...event,bankAccountId:undefined})),422);
  assert.equal(m.receiveRealTest(db,JSON.stringify(event),new Headers()),401);assert.equal(m.receiveRealTest(db,...signed(event,-301)),401);
  for(const [key,value] of Object.entries({amount:1,currency:"USD",bankAccountId:"other",apiKeyId:"other",codiQrId:"other",numRef:"other",transactionId:"demo_fake",type:"demo_paid",datePaid:0})) {assert.equal(m.receiveRealTest(db,...signed({...event,[key]:value})),422,key);assert.equal(m.realTestRow(db).status,"pending");}
  assert.equal(m.receiveRealTest(db,...signed(event)),200);assert.equal(m.receiveRealTest(db,...signed(event)),200);assert.equal(m.receiveRealTest(db,...signed(event,0,"different")),409);assert.equal(m.publicRealTest(m.realTestRow(db),"alpha").paidConfirmed,true);db.close();
@@ -78,5 +79,34 @@ test("signed callback traverses actual Next proxy; payment cross-origin remains 
  assert.equal(m.receiveRealTest(db,await request.text(),request.headers),200);
  const foreign=proxy(new NextRequest("https://example.test/api/real-test/payment",{method:"POST",headers:{Origin:"https://evil.test","Sec-Fetch-Site":"cross-site"},body:"{}"}));assert.equal(foreign.status,403);
  const oversized=proxy(new NextRequest("https://example.test/api/real-test/webhook",{method:"POST",headers:{"Content-Length":"65537"},body:"{}"}));assert.equal(oversized.status,413);db.close();
+});
+test("portal-linked requires fresh exact private portal attestation; never falls back from registered 404",async()=>{
+ const values={REAL_TEST_PEY_RECEIVER_MODE:"portal-linked",REAL_TEST_PEY_PORTAL_VERIFIED_AT:new Date(Date.now()-1000).toISOString(),REAL_TEST_PEY_PORTAL_BANK_STATUS:"ACTIVE",REAL_TEST_PEY_PORTAL_BANK_ACCOUNT_ID:process.env.REAL_TEST_PEY_BANK_ACCOUNT_ID,REAL_TEST_PEY_PORTAL_API_KEY_ID:process.env.REAL_TEST_PEY_API_KEY_ID};
+ const previous=Object.fromEntries(Object.keys(values).map(k=>[k,process.env[k]]));Object.assign(process.env,values);
+ try {
+   assert.ok(m.realTestConfig());
+   for(const [key,value] of Object.entries({...values,REAL_TEST_PEY_RECEIVER_MODE:"invalid",REAL_TEST_PEY_PORTAL_VERIFIED_AT:new Date(Date.now()-3_600_001).toISOString(),REAL_TEST_PEY_PORTAL_BANK_STATUS:"PENDING",REAL_TEST_PEY_PORTAL_BANK_ACCOUNT_ID:"other",REAL_TEST_PEY_PORTAL_API_KEY_ID:"other"})) {
+     process.env[key]=value;assert.equal(m.realTestConfig(),null,key);process.env[key]=values[key];
+   }
+   for(const key of Object.keys(values)){delete process.env[key];if(key!=="REAL_TEST_PEY_RECEIVER_MODE")assert.equal(m.realTestConfig(),null,key);process.env[key]=values[key];}
+   process.env.REAL_TEST_PEY_PORTAL_VERIFIED_AT=new Date(Date.now()+60_000).toISOString();assert.equal(m.realTestConfig(),null);Object.assign(process.env,values);
+   const db=new DatabaseSync(":memory:"),calls=[];
+   const payment=await m.createRealTest(db,"alpha",async(url,init)=>{calls.push({url,init});assert.equal(url,"https://api.pey.mx/codi/qr");const body=JSON.parse(init.body);assert.equal(Object.hasOwn(body,"bankAccountId"),false);assert.equal(body.amount,0.01);return Response.json({id:"portal123",qrString:"exact-provider-portal-payload"});});
+   assert.equal(calls.length,1);assert.equal(payment.paidConfirmed,false);const row=m.realTestRow(db);assert.equal(row.bank_id,values.REAL_TEST_PEY_PORTAL_BANK_ACCOUNT_ID);assert.equal(row.api_key_id,values.REAL_TEST_PEY_PORTAL_API_KEY_ID);
+   const event={type:"codi.qr.payment_received",amount:0.01,apiKeyId:row.api_key_id,bankAccountId:row.bank_id,codiQrId:row.qr_id,numRef:row.num_ref,transactionId:"01M3QR8H0RH0XBCKYYD242YXNV",datePaid:Math.floor(Date.now()/1000)};
+   assert.equal(row.receiver_mode,"portal-linked");
+   assert.equal(m.receiveRealTest(db,...signed({...event,bankAccountId:"other"})),422);
+   assert.equal(m.receiveRealTest(db,...signed({...event,apiKeyId:undefined,bankAccountId:undefined})),422);
+   assert.equal(m.receiveRealTest(db,...signed({...event,bankAccountId:undefined})),200);db.close();
+ } finally {for(const [key,value] of Object.entries(previous)){if(value===undefined)delete process.env[key];else process.env[key]=value;}}
+ const db=new DatabaseSync(":memory:"),calls=[];await assert.rejects(m.createRealTest(db,"alpha",async(url)=>{calls.push(url);return Response.json({error:{type:"BANK_ACCOUNT_NOT_FOUND"}},{status:404});}),/receiver_unverified/);assert.equal(calls.length,1);assert.equal(m.realTestRow(db),undefined);db.close();
+});
+test("existing attempts migrate to registered mode and current portal config cannot reinterpret their signed callbacks",async()=>{
+ const old=new DatabaseSync(":memory:");old.exec("CREATE TABLE pey_real_test(singleton INTEGER PRIMARY KEY); INSERT INTO pey_real_test(singleton) VALUES(1)");m.realTestSchema(old);assert.equal(old.prepare("SELECT receiver_mode FROM pey_real_test").get().receiver_mode,"api-registered");old.close();
+ const db=new DatabaseSync(":memory:");await m.createRealTest(db,"alpha",mock([]));const row=m.realTestRow(db);assert.equal(row.receiver_mode,"api-registered");
+ const attestation={REAL_TEST_PEY_RECEIVER_MODE:"portal-linked",REAL_TEST_PEY_PORTAL_VERIFIED_AT:new Date(Date.now()-1000).toISOString(),REAL_TEST_PEY_PORTAL_BANK_STATUS:"ACTIVE",REAL_TEST_PEY_PORTAL_BANK_ACCOUNT_ID:row.bank_id,REAL_TEST_PEY_PORTAL_API_KEY_ID:row.api_key_id};
+ const prev=Object.fromEntries(Object.keys(attestation).map(k=>[k,process.env[k]]));Object.assign(process.env,attestation);
+ try {const event={type:"codi.qr.payment_received",amount:0.01,apiKeyId:row.api_key_id,codiQrId:row.qr_id,numRef:row.num_ref,transactionId:"01M3QR8H0RH0XBCKYYD242YXNV",datePaid:Math.floor(Date.now()/1000)};assert.equal(m.receiveRealTest(db,...signed(event)),422);assert.equal(m.realTestRow(db).status,"pending");}
+ finally{for(const [k,v]of Object.entries(prev)){if(v===undefined)delete process.env[k];else process.env[k]=v;}db.close();}
 });
 test.after(()=>fs.rmSync(temporary,{recursive:true,force:true}));
