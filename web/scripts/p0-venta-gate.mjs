@@ -14,6 +14,7 @@ import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { stopTestServer } from "./server-lifecycle.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const WEB = path.resolve(HERE, "..");
@@ -60,15 +61,6 @@ const backupDir = path.join(tmp, "backups");
 
 let server = null;
 let serverOutput = "";
-
-function stopServer() {
-  if (!server || server.killed) return;
-  try {
-    server.kill();
-  } catch {
-    // best effort
-  }
-}
 
 async function waitForHealth(timeoutMs = 60_000) {
   const deadline = Date.now() + timeoutMs;
@@ -154,7 +146,7 @@ try {
     }
   }
 } finally {
-  stopServer();
+  await stopTestServer(server ? { child: server } : null);
   try {
     fs.rmSync(tmp, { recursive: true, force: true });
   } catch {

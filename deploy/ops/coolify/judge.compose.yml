@@ -1,0 +1,64 @@
+# Private durable release rehearsal. Does not replace the active public pilot.
+# Supply --env-file /opt/mercado-cero/pilot/judge-release/release.env explicitly.
+services:
+  mercado-cero-judge-release:
+    container_name: mercado-cero-judge-release
+    image: ${JUDGE_RELEASE_IMAGE:?Set an immutable image digest}
+    pull_policy: never
+    init: true
+    restart: unless-stopped
+    user: "1000:1000"
+    read_only: true
+    entrypoint: ["node", "server.js"]
+    command: []
+    env_file:
+      - ${JUDGE_RELEASE_ENV_FILE:?Set the protected external environment file}
+    environment:
+      JUDGE_RELEASE_SHA: ${JUDGE_RELEASE_SHA:?Set the full 40-character build SHA}
+      EXPECTED_BUILD_SHA: ${JUDGE_RELEASE_SHA:?Set the full 40-character build SHA}
+      NODE_ENV: production
+      DEMO_MODE: "true"
+      JUDGE_DEMO_ACCOUNTS: "true"
+      JUDGE_DATA_ROOT: /data/judges
+      APP_URL: https://mercado.zicua.com
+      DATABASE_PATH: /data/legacy-must-not-be-used.db
+      DATABASE_BACKUP_DIR: /data/backups
+      PEY_API_KEY: ""
+      PEY_WEBHOOK_SECRET: ""
+      OPENAI_API_KEY: ""
+      OPERATOR_ACCESS_TOKEN: ""
+      DEMO_RESET_TOKEN: ""
+      TRUST_PROXY: "0"
+    volumes:
+      - type: bind
+        source: ${JUDGE_RELEASE_DATA_DIR:?Set an existing private persistent directory}
+        target: /data
+        bind:
+          create_host_path: false
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=32m,uid=1000,gid=1000,mode=1770
+      - /app/.next/cache:rw,noexec,nosuid,nodev,size=32m,uid=1000,gid=1000,mode=0700
+    ports:
+      - "127.0.0.1:4596:3000"
+    mem_limit: 512m
+    memswap_limit: 512m
+    cpus: 0.5
+    pids_limit: 128
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 30s
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      # Liveness plus initialized identity readiness; never creates an account.
+      test:
+        - CMD
+        - node
+        - -e
+        - "Promise.all([fetch('http://127.0.0.1:3000/api/health'),fetch('http://127.0.0.1:3000/api/access/session')]).then(async([h,s])=>{const j=await h.json();process.exit(h.ok&&j.ok===true&&j.demoMode===true&&j.buildSha===process.env.EXPECTED_BUILD_SHA&&s.status===401?0:1)}).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
