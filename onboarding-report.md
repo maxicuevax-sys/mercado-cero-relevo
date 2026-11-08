@@ -78,3 +78,21 @@
 ## Correcciones de integración Trangui
 
 La consulta `sync-pey` solo observa el estado del proveedor; no registra dinero ni cierra ventas. Incluso ante `PAID`, espera el webhook firmado. La integración también exige moneda MXN explícita y rechaza reuso de transacciones entre ventas/fiados y sobrepagos de fiados. El detalle y las pruebas están en `trangui-integration-report.md`.
+
+## Homogeneización Móvil, Tipografía Nativa y Shell de Navegación
+
+1. **Unificación de Shell de Navegación (`AppShell`):**
+   - Se aplicó la clase `mc-reference-a` de forma universal en `AppShell` para todas las rutas (`/inicio`, `/caja`, `/ventas`, `/fiados`, `/corte`, `/metas`, `/pendientes`).
+   - Se removió la regla que ocultaba `.inicio-topbar` en `/caja` y `/fiados`, garantizando una barra superior verde idéntica y persistente.
+   - Se desactivó la barra de navegación duplicada en `/fiados` (`mc-fiados-mobile__nav`), consolidando a `.mc-mobile-nav` como la única barra móvil compartida.
+   - Se eliminaron los fondos oscuros disonantes (`#0c4133`) en `/caja` y `/fiados`, unificándolos sobre el lienzo continuo de papel cálido (`var(--inicio-paper)` / `#f9f6ee`).
+
+2. **Tipografía del Sistema y Cero «Dientes de Sierra»:**
+   - Adopción de la pila nativa del sistema (Apple HIG / Segoe UI / Roboto) en `--font-sans` y `--font-display`.
+   - Inclusión de suavizado antialiasing de hardware (`-webkit-font-smoothing: antialiased`, `-moz-osx-font-smoothing: grayscale`, `text-rendering: optimizeLegibility`) en `html` y `body`.
+   - Cifras monetarias con `tabular-nums` sans-serif uniforme en caja, estados de pago y fiados.
+
+3. **Touch Targets y Accesibilidad:**
+   - Todos los botones, toggles, chips e inputs elevados a un mínimo de 44 px.
+   - Eliminación de microtextos < 12 px en toda la interfaz móvil.
+   - Soporte `@media (prefers-reduced-motion: reduce)` en animaciones y spinners.

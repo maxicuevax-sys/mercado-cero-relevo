@@ -1351,7 +1351,7 @@
   .mc-flow__bar { height: 7px; margin-top: 5px; }
   .mc-flow__pct { padding: 4px 7px; border-radius: 8px; font-size: 0.8rem; }
   .mc-flow__segmented { padding: 3px; border-radius: 11px; }
-  .mc-flow__segmented button { min-height: 40px; border-radius: 9px; font-size: 0.86rem; }
+  .mc-flow__segmented button { min-height: 44px; border-radius: 9px; font-size: 0.875rem; }
   .mc-flow__split { margin-top: 10px; gap: 10px; }
   .mc-flow__field--time { flex: 0 0 132px; }
   .mc-flow__close { margin-top: 7px; border-radius: 12px; }
@@ -1388,4 +1388,14 @@
   .mc-flow__summary dt { font-size: 0.8rem; }
   .mc-flow__summary dd { font-size: 1rem; }
   .mc-flow__dialog-rows dt svg { width: 18px; height: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mc-flow__spin {
+    animation: none !important;
+  }
+  .mc-flow__actions button,
+  .mc-flow__segmented button {
+    transition: none !important;
+  }
 }

@@ -32,9 +32,10 @@
   --color-saffron-soft: #fff0d2;
   --color-blue-soft: #e9ecf3;
 
-  --font-sans: var(--font-alder), "Alder", "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  --font-display: var(--font-hearth), "Hearth", Georgia, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, system-ui, sans-serif, var(--font-alder), "Alder";
+  --font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, system-ui, sans-serif, var(--font-hearth), "Hearth";
 
   /* HIG: body 17/24, footnote 13/18. */
   --text-xs: 0.8125rem;
@@ -66,6 +67,9 @@
 }
 
 html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   scroll-behavior: smooth;
   /* El header es sticky y la tab bar fija: ningún ancla ni foco queda debajo. */
   scroll-padding-top: calc(var(--mc-chrome-top, 0px) + 12px);
@@ -91,6 +95,9 @@ main#main:focus-visible {
 }
 
 body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   background-color: var(--color-canvas);
   background-image:
     radial-gradient(
