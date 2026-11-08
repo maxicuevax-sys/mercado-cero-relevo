@@ -54,3 +54,6 @@ function CheckoutSuccessPage({ params }: SuccessPageProps) {
 }
 
 export default withPilotPage(CheckoutSuccessPage, { buyer: true });
+
+// Session-bound pages must never prerender another account's HTML.
+export const instant = false;

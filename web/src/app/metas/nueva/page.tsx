@@ -22,3 +22,6 @@ function NuevaMetaPage() {
 }
 
 export default withPilotPage(NuevaMetaPage);
+
+// Session-bound pages must never prerender another account's HTML.
+export const instant = false;

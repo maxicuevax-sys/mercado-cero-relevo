@@ -13,3 +13,6 @@ function OnboardingPage() {
 }
 
 export default withPilotPage(OnboardingPage);
+
+// Session-bound pages must never prerender another account's HTML.
+export const instant = false;

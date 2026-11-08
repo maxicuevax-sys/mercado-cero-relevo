@@ -36,3 +36,6 @@ function NotificacionesPage() {
 }
 
 export default withPilotPage(NotificacionesPage);
+
+// Session-bound pages must never prerender another account's HTML.
+export const instant = false;

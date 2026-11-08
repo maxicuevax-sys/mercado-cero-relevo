@@ -22,3 +22,6 @@ function NuevoPendientePage() {
 }
 
 export default withPilotPage(NuevoPendientePage);
+
+// Session-bound pages must never prerender another account's HTML.
+export const instant = false;
