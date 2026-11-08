@@ -42,7 +42,8 @@ export async function handleJudgeAccess(request: Request, action: "sign-in" | "s
         return limited;
       }
       if (action === "sign-up" && full()) return failure("El piloto ya alcanzó su cupo de cuentas de prueba.", "pilot_full", 503);
-      return failure(action === "sign-in" ? "Correo o contraseña incorrectos." : "No pudimos completar la solicitud. Inténtalo más tarde.", "access_rejected", result.status === 429 ? 429 : 400);
+      if (action === "sign-up") return failure("Ese correo ya está registrado o los datos no son válidos. Inicia sesión o usa Entrar sin cuenta.", "email_exists_or_invalid", 400);
+      return failure("Correo o contraseña incorrectos.", "access_rejected", result.status === 429 ? 429 : 400);
     }
     // Do not expose Better Auth's bearer token or raw provider response to JS.
     const response = Response.json({ ok: true }, { headers: privateHeaders });

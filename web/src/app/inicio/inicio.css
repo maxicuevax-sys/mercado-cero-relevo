@@ -1801,3 +1801,14 @@ html[data-contrast="high"] .inicio-nav__item[aria-current="page"]:focus-visible 
   html:not([data-contrast="high"]) .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-avatar { border-color: var(--inicio-paper); }
   html:not([data-contrast="high"]) .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar :focus-visible { outline-color: var(--inicio-paper); }
 }
+
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-definitive-welcome-art {
+    right: 0;
+    width: 150px;
+    max-width: 40vw;
+    height: 96px;
+    object-fit: contain;
+    object-position: right bottom;
+  }
+}
