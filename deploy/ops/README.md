@@ -108,6 +108,9 @@ hashes, SQLite y restauración a una raíz inactiva nueva. Compara todos los reg
 de identidad y negocio y exige cero sesiones restauradas. No cambia los mounts de
 la aplicación. Ver [contrato de recuperación](../../docs/judge-recovery.md) para los
 cortes individuales y sus límites: no existe una transacción global entre bases.
+Las carpetas de verificación usan `snap-` y 12 caracteres del ID para evitar
+MAX_PATH con las rutas de comerciantes en Windows. Un marcador con el ID completo
+impide reutilizar por colisión o aceptar una extracción incompleta.
 
 Rollback de este lote: conservar repositorios y datos; restaurar las versiones
 guardadas de los scripts y retirar únicamente la configuración/marcador añadidos,

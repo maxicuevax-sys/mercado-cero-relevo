@@ -40,8 +40,19 @@ try {
     }
     $report = [ordered]@{ ok = $true; timestamp = [DateTime]::UtcNow.ToString('o'); sourceSnapshotTime = $latest.time; snapshot = $latest.id; restoreVerified = $false; destination = $taskRoot }
     if ($VerifyRestore) {
-        $restoreDir = Join-Path $taskRoot ('restore-verification\' + $latest.id)
-        if (-not (Test-Path $restoreDir)) { Invoke-Restic restore $latest.id --target $restoreDir }
+        if ($latest.id -notmatch '^[a-f0-9]{64}$') { throw 'Invalid source snapshot identifier' }
+        # The full ID plus the 64-character tenant directory exceeds MAX_PATH on
+        # this Windows profile. Bind a short folder to the complete ID explicitly.
+        $restoreDir = Join-Path $taskRoot ('restore-verification\snap-' + $latest.id.Substring(0,12))
+        $snapshotMarker = Join-Path $restoreDir 'source-snapshot-id'
+        if (Test-Path $restoreDir) {
+            if (-not (Test-Path $snapshotMarker) -or (Get-Content $snapshotMarker -Raw).Trim() -cne $latest.id) {
+                throw 'Restore directory is incomplete or belongs to another snapshot'
+            }
+        } else {
+            Invoke-Restic restore $latest.id --target $restoreDir
+            Set-Content -LiteralPath $snapshotMarker -Value $latest.id -Encoding ASCII
+        }
         $databaseDir = Join-Path $restoreDir 'opt\mercado-cero\pilot\backup-current\database'
         $expected = ((Get-Content (Join-Path $databaseDir 'SHA256SUMS') -Raw).Split(' ')[0]).Trim()
         $actual = (Get-FileHash (Join-Path $databaseDir 'mercado-cero.db') -Algorithm SHA256).Hash
