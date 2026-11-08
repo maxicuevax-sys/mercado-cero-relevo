@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../../lib/auth/pilot-route";
 import { z } from "zod";
 import { CashCloseError, previewCashClose } from "@/lib/cash";
 import {
@@ -37,7 +38,7 @@ async function readJson(
  * Devuelve la diferencia calculada con los totales vivos del servidor.
  * No escribe nada: la confirmación del corte usa este resultado.
  */
-export async function POST(request: Request) {
+async function POSTImpl(request: Request) {
   const limited = enforceRateLimit(request, "cash-preview", 60, 60_000);
   if (limited) return limited;
 
@@ -72,3 +73,5 @@ export async function POST(request: Request) {
     return internalErrorResponse("cash preview", error);
   }
 }
+
+export const POST = withPilotRoute(POSTImpl);

@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../../lib/auth/pilot-route";
 import { appErrorResponse, unexpectedResponse } from "@/lib/errors";
 import {
   bodyErrorResponse,
@@ -8,7 +9,7 @@ import {
 } from "@/lib/http-security";
 import { fulfillOrder, getOrderDetail } from "@/lib/orders";
 
-export async function GET(_request: Request, ctx: RouteContext<"/api/orders/[id]">) {
+async function GETImpl(_request: Request, ctx: RouteContext<"/api/orders/[id]">) {
   const { id } = await ctx.params;
   const detail = getOrderDetail(id);
   if (!detail) {
@@ -17,7 +18,7 @@ export async function GET(_request: Request, ctx: RouteContext<"/api/orders/[id]
   return Response.json(detail);
 }
 
-export async function PATCH(request: Request, ctx: RouteContext<"/api/orders/[id]">) {
+async function PATCHImpl(request: Request, ctx: RouteContext<"/api/orders/[id]">) {
   const limited = enforceRateLimit(request, "order-patch", 60, 60_000);
   if (limited) return limited;
 
@@ -55,3 +56,6 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/orders/[id
     return unexpectedResponse(error, "No se pudo marcar el pedido.");
   }
 }
+
+export const GET = withPilotRoute(GETImpl);
+export const PATCH = withPilotRoute(PATCHImpl);

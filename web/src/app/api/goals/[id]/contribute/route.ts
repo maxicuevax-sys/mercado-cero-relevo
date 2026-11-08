@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../../../lib/auth/pilot-route";
 import { z } from "zod";
 import { appErrorResponse, unexpectedResponse } from "@/lib/errors";
 import {
@@ -25,7 +26,7 @@ const contributionSchema = z.object({
     .max(MAX_REQUEST_ID_CHARS),
 });
 
-export async function POST(
+async function POSTImpl(
   request: Request,
   ctx: RouteContext<"/api/goals/[id]/contribute">,
 ) {
@@ -57,3 +58,5 @@ export async function POST(
     return unexpectedResponse(error, "No se pudo registrar la aportación.");
   }
 }
+
+export const POST = withPilotRoute(POSTImpl);

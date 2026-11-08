@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../lib/auth/pilot-route";
 import { connection } from "next/server";
 import { z } from "zod";
 import { cachedJson } from "@/lib/http-cache";
@@ -42,7 +43,7 @@ function jsonError(message: string, status: number, extra?: Record<string, unkno
   return Response.json({ error: message, ...extra }, { status });
 }
 
-export async function GET(request: Request) {
+async function GETImpl(request: Request) {
   // La bandeja es dato vivo: no puede servirse desde un snapshot de build.
   await connection();
   const params = new URL(request.url).searchParams;
@@ -65,7 +66,7 @@ export async function GET(request: Request) {
   );
 }
 
-export async function POST(request: Request) {
+async function POSTImpl(request: Request) {
   const limited = enforceRateLimit(request, "tasks-create", 60, 60_000);
   if (limited) return limited;
 
@@ -96,3 +97,6 @@ export async function POST(request: Request) {
     return jsonError("No pude guardar el pendiente. Intenta de nuevo.", 500);
   }
 }
+
+export const GET = withPilotRoute(GETImpl);
+export const POST = withPilotRoute(POSTImpl);

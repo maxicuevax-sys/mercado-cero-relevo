@@ -44,6 +44,15 @@ jobs:
       - name: Harness unit tests
         run: npm run test:harness
 
+      - name: Account identity and business isolation contracts
+        run: |
+          npm run test:tenant-business
+          npm run test:pilot-identity
+          npm run test:register-validation
+          npm run test:account-browser-state
+          npm run test:prod-pilot
+          npm run test:judge-recovery
+
       - name: Harness static gate (build con BUILD_SHA)
         run: npm run verify:static
 
@@ -58,6 +67,12 @@ jobs:
 
       - name: Contrato de rendimiento de datos
         run: npm run test:perf-data
+
+      - name: Chromium for isolated account browser contracts
+        run: npx playwright install --with-deps chromium
+
+      - name: Real two-session demo account flows
+        run: npm run test:judge-accounts
 
       - name: Tabla de la evidencia
         run: npm run harness:report

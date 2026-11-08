@@ -19,7 +19,8 @@
  *   node scripts/p0-demo-real-contract.mjs
  */
 import crypto from "node:crypto";
-import { spawn, spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
+import { stopTestServer as stopServer } from "./server-lifecycle.mjs";
 import fs from "node:fs";
 import net from "node:net";
 import os from "node:os";
@@ -123,6 +124,7 @@ function startServer({ port, dbPath, demoMode, force = false }) {
       DATABASE_PATH: dbPath,
       DATABASE_BACKUP_DIR: backups,
       DEMO_MODE: demoMode ? "true" : "false",
+      JUDGE_DEMO_ACCOUNTS: "false",
       FORCE_DEMO_RESET: force ? "1" : "0",
       APP_URL: `http://127.0.0.1:${port}`,
       PEY_WEBHOOK_SECRET: SECRET,
@@ -133,26 +135,6 @@ function startServer({ port, dbPath, demoMode, force = false }) {
     windowsHide: true,
   });
   return { child, log, logPath };
-}
-
-function stopServer(server) {
-  if (!server) return;
-  const { child, log } = server;
-  if (child.exitCode === null) {
-    if (process.platform === "win32") {
-      spawnSync("taskkill", ["/PID", String(child.pid), "/T", "/F"], {
-        stdio: "ignore",
-        timeout: 20_000,
-      });
-    } else {
-      child.kill("SIGTERM");
-    }
-  }
-  try {
-    fs.closeSync(log);
-  } catch {
-    // Ya estaba cerrado.
-  }
 }
 
 function readLog(server) {
@@ -288,7 +270,7 @@ async function main() {
       JSON.stringify({ goal: demoGoal?.id, task: demoTask?.id }),
     );
   } finally {
-    stopServer(demoServer);
+    await stopServer(demoServer);
   }
 
   copyDatabase(demoDb, realDb);
@@ -531,7 +513,7 @@ async function main() {
     check("real: flujo sin excepción", false, String(error));
     console.error(readLog(realServer));
   } finally {
-    stopServer(realServer);
+    await stopServer(realServer);
   }
 
   // -------------------------------------------------------------------
@@ -562,7 +544,7 @@ async function main() {
     check("reset bloqueado: sin excepción", false, String(error));
     console.error(readLog(demoServer));
   } finally {
-    stopServer(demoServer);
+    await stopServer(demoServer);
   }
 
   // -------------------------------------------------------------------
@@ -668,7 +650,7 @@ async function main() {
     check("reset FORCE: sin excepción", false, String(error));
     console.error(readLog(demoServer));
   } finally {
-    stopServer(demoServer);
+    await stopServer(demoServer);
     try {
       fs.rmSync(tmp, { recursive: true, force: true });
     } catch {

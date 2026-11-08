@@ -18,7 +18,7 @@ COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 COPY --from=builder --chown=node:node /app/.next/BUILD_SHA ./.next/BUILD_SHA
 COPY --from=builder --chown=node:node /app/public ./public
-COPY --chown=node:node deploy/snapshot.mjs ./deploy/snapshot.mjs
+COPY --chown=node:node deploy/snapshot.mjs deploy/judge-snapshot.mjs ./deploy/
 RUN mkdir -p /data /app/data /app/.next/cache && chown -R node:node /data /app/data /app/.next/cache
 USER node
 EXPOSE 3000

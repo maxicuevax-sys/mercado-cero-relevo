@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { CajaScreen } from "@/components/caja/caja-screen";
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
 
 export const instant = false;
 
-export default async function CajaPage() {
+async function CajaPage() {
   await connection();
   return <CajaScreen merchant={MERCHANT} demo={isDemoMode()} />;
 }
+
+export default withPilotPage(CajaPage);

@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Image from "next/image";
 import registerNative from "@/assets/definitive-a/register.png";
@@ -61,7 +62,7 @@ function SavedClose({ close }: { close: CashClose }) {
   );
 }
 
-export default async function CortePage() {
+async function CortePage() {
   await connection();
   const status = getCashStatus();
   const saved = getCashClose(status.date);
@@ -169,3 +170,5 @@ export default async function CortePage() {
   );
 }
 
+
+export default withPilotPage(CortePage);

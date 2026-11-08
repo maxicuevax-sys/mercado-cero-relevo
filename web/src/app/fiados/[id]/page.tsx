@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -54,7 +55,7 @@ function MethodIcon({ method }: { method: string }) {
   return <Wallet aria-hidden="true" />;
 }
 
-export default async function FiadoDetallePage({
+async function FiadoDetallePage({
   params,
   searchParams,
 }: {
@@ -294,3 +295,5 @@ export default async function FiadoDetallePage({
     </FlowScreen>
   );
 }
+
+export default withPilotPage(FiadoDetallePage);

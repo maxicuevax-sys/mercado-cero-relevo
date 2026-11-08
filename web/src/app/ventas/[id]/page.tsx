@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -91,7 +92,7 @@ function paymentTruth(
   return "Sin cobro confirmado para esta venta.";
 }
 
-export default async function DetalleVentaPage({
+async function DetalleVentaPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -289,3 +290,5 @@ export default async function DetalleVentaPage({
     </OperationalPage>
   );
 }
+
+export default withPilotPage(DetalleVentaPage);

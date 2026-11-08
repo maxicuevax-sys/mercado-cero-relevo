@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -178,7 +179,7 @@ function FiadosPager({
   );
 }
 
-export default async function FiadosPage({ searchParams }: {
+async function FiadosPage({ searchParams }: {
   searchParams: Promise<{ page?: string; q?: string; view?: string; libreta?: string }>;
 }) {
   await connection();
@@ -257,3 +258,5 @@ export default async function FiadosPage({ searchParams }: {
     </OperationalPage>
   );
 }
+
+export default withPilotPage(FiadosPage);

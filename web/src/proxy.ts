@@ -1,3 +1,4 @@
+import { judgeAccountsEnabled } from "@/lib/auth/pilot-mode";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { isDemoMode } from "@/lib/config";
@@ -67,6 +68,17 @@ export function proxy(request: NextRequest) {
   const mutating = MUTATING.has(method);
   const demoMode = isDemoMode();
 
+  // Return before rendering: streamed notFound pages can otherwise emit HTTP200.
+  if (judgeAccountsEnabled() && (
+    pathname === "/pay" || pathname.startsWith("/pay/") ||
+    pathname === "/api/checkout" || pathname.startsWith("/api/checkout/") ||
+    pathname === "/api/verify" || pathname === "/api/webhooks/pey"
+  )) {
+    const blocked = jsonError("Esta ruta no está disponible en el piloto de cuentas demo.", "demo_buyer_unavailable", 404);
+    blocked.headers.set("Cache-Control", "private, no-store");
+    return blocked;
+  }
+
   if (mutating && pathname !== "/api/webhooks/pey") {
     if (!isSameOriginMutation(request)) {
       return jsonError(
@@ -133,5 +145,5 @@ export function proxy(request: NextRequest) {
 export const config = {
   // Transcribe se excluye para que Next no clone/bufferice 12 MB en el Proxy.
   // Esa ruta aplica same-origin, rate limit y el tope de 12 MB por su cuenta.
-  matcher: ["/api/((?!voice/transcribe).*)"],
+  matcher: ["/api/((?!voice/transcribe).*)", "/pay/:path*"],
 };

@@ -7,6 +7,7 @@ import { Bell, ChevronRight, CircleHelp, CloudUpload, Coins, LogOut, MapPin, Mic
 import { AccessibilityPanel } from "./accessibility-panel";
 import { AssistantPreference } from "@/components/ayuda/optional-assistant";
 import { CompanionPreferences } from "@/components/companion-preferences";
+import { clearAppBrowserState } from "@/lib/auth/browser-state";
 
 interface PeyStatusData {
   demoMode: boolean;
@@ -26,11 +27,38 @@ const eventName = "mercado-cero:preferences-changed";
 function subscribe(callback: () => void) { window.addEventListener(eventName, callback); window.addEventListener("storage", callback); return () => { window.removeEventListener(eventName, callback); window.removeEventListener("storage", callback); }; }
 function voiceSnapshot() { try { return localStorage.getItem("mercado-cero:muted") !== "1"; } catch { return true; } }
 
-export function SettingsHome({ merchant, address, demo }: { merchant: string; address: string; demo: boolean }) {
+export function SettingsHome({ merchant, address, demo, accountMode = false }: { merchant: string; address: string; demo: boolean; accountMode?: boolean }) {
   const voice = useSyncExternalStore(subscribe, voiceSnapshot, () => true);
   const [notice, setNotice] = useState("");
   const [sessionVoice, setSessionVoice] = useState<boolean | null>(null);
   const [peyStatus, setPeyStatus] = useState<PeyStatusData | null>(null);
+  const [signingOut, setSigningOut] = useState(false);
+
+  async function signOut() {
+    if (!accountMode) {
+      setNotice("Este prototipo no tiene sesión local que cerrar. El acceso se administra fuera de la app; tus datos y preferencias se conservan.");
+      return;
+    }
+    if (signingOut) return;
+    setSigningOut(true);
+    setNotice("");
+    try {
+      const response = await fetch("/api/access/sign-out", { method: "POST", credentials: "same-origin", cache: "no-store" });
+      const data = await response.json().catch(() => null);
+      if (!response.ok || data?.ok !== true) {
+        setNotice(typeof data?.error === "string" ? data.error : "No pudimos cerrar sesión. Inténtalo de nuevo.");
+        return;
+      }
+      clearAppBrowserState();
+      // A full navigation discards the signed-out account's in-memory client state.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.assign("/acceso");
+    } catch {
+      setNotice("No pudimos completar el cierre de sesión. Revisa tu conexión e inténtalo de nuevo.");
+    } finally {
+      setSigningOut(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -112,7 +140,7 @@ export function SettingsHome({ merchant, address, demo }: { merchant: string; ad
       Icon: ShieldCheck,
       content: (
         <div className="mc-settings-subpanel">
-          <p>El acceso de producción se administra fuera de esta app. No hay contraseña local ni recuperación de cuenta en este prototipo.</p>
+          <p>{accountMode ? "Tu cuenta de demo usa correo electrónico y contraseña. Por ahora no hay recuperación de contraseña por correo." : "El acceso de producción se administra fuera de esta app. No hay contraseña local ni recuperación de cuenta en este prototipo."}</p>
           <div className="mc-settings-meta">
             <div>
               <strong>Bitácora contable:</strong>{" "}
@@ -148,7 +176,7 @@ export function SettingsHome({ merchant, address, demo }: { merchant: string; ad
       <details><summary><CloudUpload aria-hidden="true" /><span><strong>Respaldo de datos</strong><small>Guarda y recupera tu información</small></span><ChevronRight aria-hidden="true" /></summary><p>Los respaldos se administran en el servidor. No hay exportación ni restauración desde esta pantalla.</p></details>
     </section>
     <Link href="/ayuda" className="mc-settings-help"><CircleHelp aria-hidden="true" />Centro de ayuda<ChevronRight aria-hidden="true" /></Link>
-    <button type="button" className="mc-settings-logout" onClick={() => setNotice("Este prototipo no tiene sesión local que cerrar. El acceso se administra fuera de la app; tus datos y preferencias se conservan.")}><LogOut aria-hidden="true" />Cerrar sesión</button>
+    <button type="button" className="mc-settings-logout" disabled={signingOut} onClick={signOut}><LogOut aria-hidden="true" />Cerrar sesión</button>
     <p role="status">{notice}</p>
     <details className="mc-settings-extra"><summary>Texto, contraste y preferencias avanzadas</summary><AccessibilityPanel /><AssistantPreference /><CompanionPreferences /></details>
   </div>;

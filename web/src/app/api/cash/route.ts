@@ -1,7 +1,8 @@
+import { withPilotRoute } from "../../../lib/auth/pilot-route";
 import { getCashStatus } from "@/lib/cash";
 import { enforceRateLimit, internalErrorResponse } from "@/lib/http-security";
 
-export async function GET(request: Request) {
+async function GETImpl(request: Request) {
   const limited = enforceRateLimit(request, "cash-status", 120, 60_000);
   if (limited) return limited;
 
@@ -11,3 +12,5 @@ export async function GET(request: Request) {
     return internalErrorResponse("cash status", error);
   }
 }
+
+export const GET = withPilotRoute(GETImpl);

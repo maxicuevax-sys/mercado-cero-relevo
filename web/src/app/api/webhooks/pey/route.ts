@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../../lib/auth/pilot-route";
 import crypto from "node:crypto";
 import { getDb, newId, nowIso } from "@/lib/db";
 import {
@@ -117,7 +118,7 @@ function auditEvent(input: {
   }
 }
 
-export async function POST(request: Request) {
+async function POSTImpl(request: Request) {
   const limited = enforceRateLimit(request, "webhook-pey", 120, 60_000);
   if (limited) return limited;
 
@@ -282,3 +283,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const POST = withPilotRoute(POSTImpl, { buyer: true });

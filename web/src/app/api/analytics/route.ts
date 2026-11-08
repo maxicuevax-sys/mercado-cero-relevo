@@ -1,10 +1,11 @@
+import { withPilotRoute } from "../../../lib/auth/pilot-route";
 import { connection } from "next/server";
 import { getAnalytics } from "@/lib/analytics";
 import { cachedJson } from "@/lib/http-cache";
 import { enforceRateLimit, internalErrorResponse } from "@/lib/http-security";
 import type { AnalyticsPeriod } from "@/lib/types";
 
-export async function GET(request: Request) {
+async function GETImpl(request: Request) {
   const limited = enforceRateLimit(request, "analytics", 120, 60_000);
   if (limited) return limited;
   await connection();
@@ -18,3 +19,5 @@ export async function GET(request: Request) {
     return internalErrorResponse("analytics", error);
   }
 }
+
+export const GET = withPilotRoute(GETImpl);

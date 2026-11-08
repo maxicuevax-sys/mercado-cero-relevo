@@ -46,6 +46,11 @@ export async function createPilotIdentity(options: PilotIdentityOptions) {
   const database = new DatabaseSync(identityPath);
   try {
     database.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000;");
+    const pageSize = Number((database.prepare("PRAGMA page_size").get() as { page_size: number }).page_size);
+    const pageCount = Number((database.prepare("PRAGMA page_count").get() as { page_count: number }).page_count);
+    const maximumPages = Math.floor(32 * 1024 * 1024 / pageSize);
+    if (pageCount > maximumPages) throw new Error("Identity storage limit reached");
+    database.exec(`PRAGMA max_page_count = ${maximumPages}; PRAGMA journal_size_limit = 1048576;`);
     const authOptions = {
       appName: "Trangui",
       baseURL: origin.origin,
@@ -76,6 +81,16 @@ export async function createPilotIdentity(options: PilotIdentityOptions) {
     } satisfies BetterAuthOptions;
     const migrations = await getMigrations(authOptions);
     await migrations.runMigrations();
+    // Enforced at the write boundary, not a count-before-signup check:
+    // simultaneous registrations cannot both claim the final pilot slot.
+    database.exec(`
+      CREATE TRIGGER IF NOT EXISTS pilot_max_100_accounts
+      BEFORE INSERT ON user
+      WHEN (SELECT COUNT(*) FROM user) >= 100
+      BEGIN
+        SELECT RAISE(ABORT, 'pilot_account_limit');
+      END;
+    `);
     const auth = betterAuth(authOptions);
     let closed = false;
     return {

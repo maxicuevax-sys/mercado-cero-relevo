@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -28,7 +29,7 @@ function isDateKey(value: string): boolean {
   return !Number.isNaN(Date.parse(`${value}T12:00:00Z`));
 }
 
-export default async function CorteDetallePage({
+async function CorteDetallePage({
   params,
   searchParams,
 }: {
@@ -226,3 +227,5 @@ export default async function CorteDetallePage({
     </OperationalPage>
   );
 }
+
+export default withPilotPage(CorteDetallePage);

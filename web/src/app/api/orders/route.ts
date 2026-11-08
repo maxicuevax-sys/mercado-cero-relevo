@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../lib/auth/pilot-route";
 import { connection } from "next/server";
 import { z } from "zod";
 import { countOrders, getOrderByRequestId, listOrders } from "@/lib/db";
@@ -47,7 +48,7 @@ const createOrderSchema = z.object({
   requestId: z.string().trim().max(MAX_REQUEST_ID_CHARS).optional(),
 });
 
-export async function GET(request: Request) {
+async function GETImpl(request: Request) {
   await connection();
   const params = new URL(request.url).searchParams;
   const requestId = params.get("requestId")?.trim();
@@ -89,7 +90,7 @@ export async function GET(request: Request) {
   );
 }
 
-export async function POST(request: Request) {
+async function POSTImpl(request: Request) {
   const limited = enforceRateLimit(request, "orders-create", 60, 60_000);
   if (limited) return limited;
 
@@ -121,3 +122,6 @@ export async function POST(request: Request) {
     return response;
   }
 }
+
+export const GET = withPilotRoute(GETImpl);
+export const POST = withPilotRoute(POSTImpl);

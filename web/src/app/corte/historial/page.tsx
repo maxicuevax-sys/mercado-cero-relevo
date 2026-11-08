@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -35,7 +36,7 @@ function dateLabel(dateKey: string): { top: string; bottom: string } {
   };
 }
 
-export default async function HistorialCortesPage() {
+async function HistorialCortesPage() {
   await connection();
   const closes = listRecentCashCloses(12);
   const demo = isDemoMode();
@@ -176,3 +177,5 @@ export default async function HistorialCortesPage() {
     </OperationalPage>
   );
 }
+
+export default withPilotPage(HistorialCortesPage);

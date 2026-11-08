@@ -23,7 +23,7 @@
     "test:security": "node --no-warnings scripts/security-contract.mjs",
     "test:prod-pilot": "node --no-warnings --test scripts/prod-pilot-readiness.test.mjs",
     "test:p0-adversarial": "python scripts/p0-adversarial-e2e.py",
-    "test:harness": "node --test scripts/harness-gate.test.mjs scripts/check-deps.test.mjs scripts/evidence-integrity.test.mjs scripts/checkout-gate.test.mjs",
+    "test:harness": "node --test scripts/harness-gate.test.mjs scripts/check-deps.test.mjs scripts/evidence-integrity.test.mjs scripts/checkout-gate.test.mjs scripts/server-lifecycle.test.mjs",
     "test:mobile-320": "python scripts/mobile-320-e2e.py",
     "test:inicio-contract": "node scripts/inicio-adoption-contract.mjs",
     "test:inicio-compact": "python scripts/inicio-compact-gate.py",
@@ -43,7 +43,11 @@
     "test:pilot-identity": "node --no-warnings --test scripts/pilot-identity.test.mjs",
     "test:register-validation": "node --no-warnings --test scripts/register-validation.test.mjs",
     "test:pilot-browser": "playwright test -c playwright.pilot.config.ts",
-    "test:access-ui": "playwright test -c playwright.access.config.ts"
+    "test:access-ui": "playwright test -c playwright.access.config.ts",
+    "test:tenant-business": "node --no-warnings --test scripts/tenant-business.test.mjs",
+    "test:judge-accounts": "playwright test -c playwright.judge.config.ts",
+    "test:account-browser-state": "node --no-warnings --test src/lib/auth/browser-state.test.mjs",
+    "test:judge-recovery": "node --no-warnings --test ../deploy/judge-snapshot.test.mjs"
   },
   "dependencies": {
     "@zxing/browser": "^0.2.1",

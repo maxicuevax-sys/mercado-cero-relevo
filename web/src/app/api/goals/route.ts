@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../lib/auth/pilot-route";
 import { z } from "zod";
 import { appErrorResponse, unexpectedResponse } from "@/lib/errors";
 import { MAX_GOAL_TITLE_CHARS, createGoal, listGoals } from "@/lib/goals";
@@ -14,11 +15,11 @@ const createSchema = z.object({
   deadline: z.string().datetime().nullable().optional(),
 });
 
-export async function GET() {
+async function GETImpl() {
   return Response.json({ goals: listGoals() });
 }
 
-export async function POST(request: Request) {
+async function POSTImpl(request: Request) {
   const limited = enforceRateLimit(request, "goals-create", 30, 60_000);
   if (limited) return limited;
 
@@ -44,3 +45,6 @@ export async function POST(request: Request) {
     return unexpectedResponse(error, "No se pudo crear la meta.");
   }
 }
+
+export const GET = withPilotRoute(GETImpl);
+export const POST = withPilotRoute(POSTImpl);

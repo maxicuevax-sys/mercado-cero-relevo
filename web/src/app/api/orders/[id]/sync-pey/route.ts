@@ -1,3 +1,4 @@
+import { withPilotRoute } from "../../../../../lib/auth/pilot-route";
 import { isDemoMode } from "@/lib/config";
 import { getDb } from "@/lib/db";
 import { appErrorResponse, unexpectedResponse } from "@/lib/errors";
@@ -83,7 +84,7 @@ function resolveCandidateTransactionIds(order: Order, explicitTxId: string): str
   return [...candidates];
 }
 
-export async function POST(
+async function POSTImpl(
   request: Request,
   ctx: RouteContext<"/api/orders/[id]/sync-pey">,
 ) {
@@ -195,3 +196,5 @@ export async function POST(
     return unexpectedResponse(error, "No se pudo sincronizar con Pey.");
   }
 }
+
+export const POST = withPilotRoute(POSTImpl);

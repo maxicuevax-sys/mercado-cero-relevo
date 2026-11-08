@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { X } from "lucide-react";
@@ -6,7 +7,7 @@ import { MERCHANT, isDemoMode } from "@/lib/config";
 
 export const metadata: Metadata = { title: "Notificaciones · Trangui" };
 
-export default function NotificacionesPage() {
+function NotificacionesPage() {
   const demo = isDemoMode();
   return (
     <OperationalPage
@@ -33,3 +34,8 @@ export default function NotificacionesPage() {
     </OperationalPage>
   );
 }
+
+export default withPilotPage(NotificacionesPage);
+
+// Session-bound pages must never prerender another account's HTML.
+export const instant = false;

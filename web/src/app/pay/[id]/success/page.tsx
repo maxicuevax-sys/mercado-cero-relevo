@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -44,10 +45,15 @@ async function SuccessContent({ params }: SuccessPageProps) {
   return <CheckoutSuccessClient initialOrder={initialOrder} />;
 }
 
-export default function CheckoutSuccessPage({ params }: SuccessPageProps) {
+function CheckoutSuccessPage({ params }: SuccessPageProps) {
   return (
     <Suspense fallback={<SuccessFallback />}>
       <SuccessContent params={params} />
     </Suspense>
   );
 }
+
+export default withPilotPage(CheckoutSuccessPage, { buyer: true });
+
+// Session-bound pages must never prerender another account's HTML.
+export const instant = false;

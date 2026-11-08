@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { FlowScreen } from "@/components/shell/flow-screen";
@@ -17,7 +18,7 @@ const dayFormatter = new Intl.DateTimeFormat("es-MX", {
   month: "short",
 });
 
-export default async function NuevoFiadoPage() {
+async function NuevoFiadoPage() {
   await connection();
   const todayLabel = `Hoy, ${dayFormatter.format(new Date()).replace(/\.$/, "")}`;
   const byName = new Map<string, number>();
@@ -42,3 +43,5 @@ export default async function NuevoFiadoPage() {
     </FlowScreen>
   );
 }
+
+export default withPilotPage(NuevoFiadoPage);

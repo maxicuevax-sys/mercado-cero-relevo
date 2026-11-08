@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -74,7 +75,7 @@ function goalHint(goal: Goal): string {
   return "Sin fecha límite: aparta a tu ritmo.";
 }
 
-export default async function MetasPage() {
+async function MetasPage() {
   await connection();
   const goals = listGoals();
   const demo = isDemoMode();
@@ -368,3 +369,5 @@ export default async function MetasPage() {
     </OperationalPage>
   );
 }
+
+export default withPilotPage(MetasPage);

@@ -1,3 +1,4 @@
+import { withPilotPage } from "../../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CalendarDays, Check, ReceiptText, ShoppingBasket, ShoppingCart, StickyNote, X } from "lucide-react";
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 
 export const instant = false;
 
-export default async function FiadoRegistradoPage({
+async function FiadoRegistradoPage({
   searchParams,
 }: {
   searchParams: Promise<{ creditId?: string; amount?: string; note?: string }>;
@@ -88,3 +89,5 @@ export default async function FiadoRegistradoPage({
     </FlowScreen>
   );
 }
+
+export default withPilotPage(FiadoRegistradoPage);
