@@ -60,8 +60,8 @@ export async function createPilotIdentity(options: PilotIdentityOptions) {
       emailAndPassword: {
         enabled: true,
         disableSignUp: options.allowSignUp !== true,
-        minPasswordLength: 12,
-        maxPasswordLength: 128,
+        minPasswordLength: 1,
+        maxPasswordLength: 4096,
         requireEmailVerification: false,
       },
       session: {

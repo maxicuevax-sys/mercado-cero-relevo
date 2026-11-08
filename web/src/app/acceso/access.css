@@ -69,3 +69,14 @@
   .access-demo, .access-eyebrow, .access-promise, .access-submit { border: 1px solid ButtonText; }
   .access-page :is(input, button):focus-visible { outline-color: Highlight; }
 }
+
+.access-guest {
+  width: 100%;
+  margin-top: 12px;
+  border: 1px solid #b8c7b0;
+  background: #fffdf7;
+  color: #183e35;
+  cursor: pointer;
+  font: inherit;
+}
+.access-guest:disabled { opacity: .65; cursor: progress; }

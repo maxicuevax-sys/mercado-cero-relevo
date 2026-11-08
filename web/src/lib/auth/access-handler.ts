@@ -21,7 +21,7 @@ export async function handleJudgeAccess(request: Request, action: "sign-in" | "s
       if (!result.ok) return failure(result.message, "invalid_form", 400);
       payload = result.values;
     } else {
-      if (typeof payload.email !== "string" || payload.email.length > 254 || typeof payload.password !== "string" || payload.password.length < 12 || payload.password.length > 128) return failure("Revisa tu correo y contraseña.", "invalid_form", 400);
+      if (typeof payload.email !== "string" || payload.email.length > 254 || typeof payload.password !== "string") return failure("Revisa tu correo y contraseña.", "invalid_form", 400);
       payload = { email: payload.email.trim(), password: payload.password };
     }
   }

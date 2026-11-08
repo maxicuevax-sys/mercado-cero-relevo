@@ -12,6 +12,7 @@ export function AccessScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [invalidField, setInvalidField] = useState<"email" | "password" | null>(null);
+  const [guestBusy, setGuestBusy] = useState(false);
 
   async function signIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -25,12 +26,6 @@ export function AccessScreen() {
       setInvalidField("email");
       setError("Escribe un correo electrónico válido.");
       emailInput.focus();
-      return;
-    }
-    if (password.length < 12 || password.length > 128) {
-      setInvalidField("password");
-      setError("Escribe tu contraseña de 12 a 128 caracteres.");
-      (form.elements.namedItem("password") as HTMLInputElement).focus();
       return;
     }
     setInvalidField(null);
@@ -64,6 +59,26 @@ export function AccessScreen() {
     }
   }
 
+  async function guest() {
+    if (guestBusy) return;
+    setGuestBusy(true);
+    setError("");
+    try {
+      const response = await fetch("/api/access/guest", { method: "POST", credentials: "same-origin", cache: "no-store" });
+      const data = await response.json().catch(() => null);
+      if (!response.ok || data?.ok !== true) {
+        setError(typeof data?.error === "string" ? data.error : "No pudimos abrir la demo sin cuenta. Inténtalo de nuevo.");
+        return;
+      }
+      clearAppBrowserState();
+      window.location.assign("/onboarding");
+    } catch {
+      setError("No pudimos conectarnos. Revisa tu conexión e inténtalo de nuevo.");
+    } finally {
+      setGuestBusy(false);
+    }
+  }
+
   return (
     <main className="access-page">
       <article className="access-screen" aria-labelledby="access-title">
@@ -92,7 +107,7 @@ export function AccessScreen() {
             <div className="access-field">
               <label htmlFor="access-password"><LockKeyhole aria-hidden="true" /><span>Contraseña</span></label>
               <div className="access-password-wrap">
-                <input id="access-password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="Tu contraseña" minLength={12} maxLength={128} required aria-invalid={invalidField === "password"} aria-describedby={error ? "access-error" : undefined} />
+                <input id="access-password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="Tu contraseña" required aria-invalid={invalidField === "password"} aria-describedby={error ? "access-error" : undefined} />
                 <button className="access-password-toggle" type="button" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"} aria-pressed={showPassword}>
                   {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
                 </button>
@@ -101,6 +116,10 @@ export function AccessScreen() {
             {error ? <p className="access-message access-message--error" id="access-error" role="alert">{error}</p> : null}
             <button className="access-submit" type="submit" disabled={busy}><ArrowRight aria-hidden="true" /><span>{busy ? "Conectando…" : "Entrar a mi demo"}</span></button>
           </form>
+          <button className="access-register access-guest" type="button" onClick={() => void guest()} disabled={guestBusy}>
+            <UserRound aria-hidden="true" />
+            <span>{guestBusy ? "Abriendo demo…" : "Entrar sin cuenta"}</span>
+          </button>
           <div className="access-divider"><span>¿Es tu primera visita?</span></div>
           <Link className="access-register" href="/registro"><UserRound aria-hidden="true" /><span>Crear cuenta de prueba</span></Link>
           <aside className="access-promise" aria-label="Sobre la demo"><div className="access-promise-mark"><Store aria-hidden="true" /><BrandRays /></div><p>Cada persona prueba con sus propios datos. Siempre en modo demo.</p></aside>
