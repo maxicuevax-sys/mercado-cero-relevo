@@ -1,7 +1,6 @@
 import { getJudgeRuntime, verifiedJudgeAccount } from "../../../../lib/auth/pilot-runtime";
 import { realTestConfig, realTestRow, publicRealTest, createRealTest } from "../../../../lib/pey-real-test";
 import { isSameOriginMutation, readTextLimited, enforceRateLimit, bodyErrorResponse } from "../../../../lib/http-security";
-export const runtime = "nodejs";
 const headers = { "Cache-Control": "private, no-store", Vary: "Cookie" };
 async function handle(request: Request, create: boolean) {
   const config = realTestConfig();
