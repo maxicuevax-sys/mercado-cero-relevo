@@ -53,7 +53,7 @@ export function AppShell({
   focusTargetId?: string;
 }) {
   return (
-    <div className={`inicio-shell ${className} ${["/inicio", "/corte", "/metas", "/pendientes"].includes(activeHref) ? "mc-reference-a" : ""}`.trim()}>
+    <div className={`inicio-shell ${className} ${["/inicio", "/movimientos", "/corte", "/metas", "/pendientes", "/notificaciones"].includes(activeHref) ? "mc-reference-a" : ""}`.trim()}>
       <PreferencesBoot />
       <Suspense fallback={null}>
         <RouteFocus mainId={mainId} targetId={focusTargetId} />

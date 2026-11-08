@@ -466,3 +466,9 @@
   .mc-mobile-nav__item,
   .inicio-shell.inicio-shell--compact .mc-mobile-nav__item { font-size: 0.75rem; }
 }
+
+/* Los títulos reciben foco programático al navegar; no deben mostrar caja. */
+.inicio-shell [tabindex="-1"]:focus,
+.inicio-shell [tabindex="-1"]:focus-visible {
+  outline: none;
+}

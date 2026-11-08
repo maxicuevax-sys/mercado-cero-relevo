@@ -40,7 +40,7 @@ export function TopBar({
             DEMO
           </span>
         ) : null}
-        <Link href="/pendientes" className="inicio-topbar__alerts" aria-label="Ver pendientes">
+        <Link href="/notificaciones" className="inicio-topbar__alerts" aria-label="Ver notificaciones">
           <MaskIcon src={bellIcon} className="inicio-topbar__bell" />
         </Link>
         <span className="inicio-avatar" aria-hidden="true">

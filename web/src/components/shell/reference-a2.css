@@ -49,7 +49,7 @@
   .inicio-shell.mc-reference-a .mc-mobile-nav__more summary { list-style: none; cursor: pointer; }
   .inicio-shell.mc-reference-a .mc-mobile-nav__panel { bottom: calc(100% + 8px); right: 0; width: min(300px,85vw); }
   .inicio-shell.mc-reference-a .mc-op-header { position: relative; min-height: 52px; display: flex; align-items: center; padding: 0; margin: 0 0 8px; }
-  .inicio-shell.mc-reference-a .mc-op-header::after { content: ""; position: absolute; pointer-events: none; top: -18px; right: -14px; width: 184px; height: 46px; background: url("../../assets/definitive-a/picado.png") right top / contain no-repeat; mix-blend-mode: multiply; }
+  .inicio-shell.mc-reference-a .mc-op-header::after { content: ""; position: absolute; pointer-events: none; top: 6px; right: 2px; width: 146px; height: 34px; background: url("../../assets/definitive-a/picado.png") right top / contain no-repeat; mix-blend-mode: multiply; }
   .inicio-shell.mc-reference-a .mc-op-header > .min-w-0 { position: relative; z-index: 1; }
   .inicio-shell.mc-reference-a .mc-page-header__title { font: 700 1.875rem/1.1 Georgia,serif; color: var(--inicio-ink); text-align: start; padding: 0; }
   .inicio-shell.mc-reference-a .mc-page-header__eyebrow { display: none; }

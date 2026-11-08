@@ -963,3 +963,8 @@
     border-color: CanvasText;
   }
 }
+
+/* El shell de referencia ya dibuja el papel picado del encabezado. */
+.inicio-shell.mc-reference-a .mc-mov-page__picado {
+  display: none;
+}

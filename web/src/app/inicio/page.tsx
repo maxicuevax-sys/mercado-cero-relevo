@@ -203,9 +203,10 @@ export default async function InicioPage({ searchParams }: { searchParams: Promi
           <ul className="inicio-pending__list">
             {homeTasks.map((task) => (
               <li key={task.id} className="inicio-task">
-                <span
+                <Link
+                  href="/pendientes"
                   className={`inicio-task__check${task.done ? " inicio-task__check--done" : ""}`}
-                  aria-hidden="true"
+                  aria-label={`Abrir pendiente: ${task.title}`}
                 />
                 {task.done ? <span className="sr-only">Hecho: </span> : null}
                 <span className="inicio-task__title">{task.title}</span>

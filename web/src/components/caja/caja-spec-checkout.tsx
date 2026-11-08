@@ -18,7 +18,7 @@ export function CajaSpecCheckout({ totalCents, method, disabled, onMethod, onRev
   return <section className="mc-spec-checkout" aria-label="Total y cobro">
     <div className="mc-spec-total"><span>Total</span><CurrencyAmount cents={totalCents} /></div>
     <fieldset className="mc-spec-methods"><legend>Cobro</legend><div>
-      {([{ id: "cash", label: "Efectivo", Icon: Banknote }, { id: "card", label: "Tarjeta", Icon: CreditCard }, { id: "digital", label: "Digital", Icon: QrCode }] as const).map(({ id, label, Icon }) => {
+      {([{ id: "cash", label: "Efectivo", Icon: Banknote }, { id: "card", label: "Tarjeta", Icon: CreditCard }, { id: "digital", label: "QR CoDi", Icon: QrCode }] as const).map(({ id, label, Icon }) => {
         const selected = id === "cash" ? method === "cash" : method === "digital" && digitalKind === id;
         return <button key={id} type="button" aria-pressed={selected} disabled={disabled} onClick={() => select(id)}><Icon aria-hidden="true" /><span>{label}</span></button>;
       })}
