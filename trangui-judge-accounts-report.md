@@ -60,3 +60,7 @@ La nueva utilidad `deploy/judge-snapshot.mjs` conserva el catálogo de cuentas c
 El paquete de recuperación y las cuotas todavía no se han instalado en producción. El gate full23/23 no está certificado: no confundir CI/canary con un release público completo.
 
 El Dockerfile incluye ahora ambas herramientas de snapshot en el runner. Esto prepara la imagen futura; no afirma que esté reconstruida o instalada en el VPS.
+
+## Portabilidad de la verificación Linux
+
+CI detectó una carrera en el propio contrato demo→real: enviaba SIGTERM sin esperar la salida y reutilizaba el puerto, por lo que su readiness podía observar el proceso anterior. Se reproducía como fetch failed en la fase FORCE, sin fallo del ledger. El cierre ahora espera exit, con límite y terminación forzada de respaldo, antes de copiar bases/reusar puertos. La regresión de proceso falló con el helper anterior y pasa con el nuevo. Se mantienen los32 checks de datos; la prueba POSIX del fallback corre en Linux y se omite explícitamente en Windows.
