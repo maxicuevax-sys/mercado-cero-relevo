@@ -687,6 +687,12 @@ def main() -> int:
         pg.wait_for_timeout(350)
         pg.evaluate("localStorage.clear()")
         pg.reload(wait_until="domcontentloaded")
+        # DSH removed the old preloaded DEMO ticket. Preserve the three-line
+        # discard contract by composing a ticket through the visible UI.
+        expect(pg.locator(".mc-caja-line")).to_have_count(0)
+        add_item(pg, "Uno", "1", "100")
+        add_item(pg, "Dos", "1", "50")
+        add_item(pg, "Tres", "1", "30")
         expect(pg.locator(".mc-caja-line")).to_have_count(3)
         b2_clear = pg.get_by_role("button", name="Descartar venta", exact=True).and_(
             pg.locator(":visible")
@@ -700,7 +706,7 @@ def main() -> int:
         pg.once("dialog", lambda dialog: dialog.accept())
         b2_clear.click()
         expect(pg.locator(".mc-caja-line")).to_have_count(0)
-        check("B2 móvil: descarta el ticket precargado", True)
+        check("B2 móvil: descarta el ticket de tres líneas", True)
         pg.reload(wait_until="domcontentloaded")
         clear_demo_ticket(pg)
         add_item(pg, "Uno", "1", "100")

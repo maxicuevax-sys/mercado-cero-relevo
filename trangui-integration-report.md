@@ -23,3 +23,5 @@ Acceso y registro permanecen cerrados con 503: no se simula una sesión. Falta c
 Los resultados verificables se guardan en `harness/evidence/runs/trangui-access/`, `harness/evidence/runs/trangui-pr-review/` y la corrida del harness identificada por SHA. No contar evidencia de un build anterior como prueba de esta integración.
 
 Revisión independiente: se reprodujo una asignación incorrecta por numRef compartido entre venta y fiado. Ahora las referencias ambiguas o contradictorias devuelven 409 sin escrituras. Siete pruebas del contrato pasan; las colisiones de generación requieren renovar la referencia, no asignar el dinero por prioridad.
+
+B1: el supuesto de tres productos demo precargados ya no aplica: CajaScreen inicia lines=[] y limpia el borrador de ejemplo. El check equivalente compone tres líneas con el formulario visible y conserva count=3, descarte visible >=44px y count=0 tras confirmar; no elimina aserciones.
