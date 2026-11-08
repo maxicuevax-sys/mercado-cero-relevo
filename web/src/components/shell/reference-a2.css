@@ -33,7 +33,7 @@
   .inicio-shell.mc-reference-a:has(.mc-corte-page) > .mc-mobile-nav { display: grid; }
   .inicio-shell.mc-reference-a .mc-mobile-nav {
     display: grid; position: fixed; inset: auto 0 0; z-index: 50;
-    grid-template-columns: repeat(5,minmax(0,1fr)); gap: 0;
+    grid-template-columns: 1.05fr 1.4fr 1fr 0.9fr 0.95fr; gap: 0;
     min-height: 72px; padding: 5px 10px max(5px,env(safe-area-inset-bottom));
     border: 1px solid var(--inicio-border); border-radius: 28px 28px 0 0;
     background: var(--inicio-paper); box-shadow: 0 -2px 8px #3527140c;
@@ -58,7 +58,7 @@
 
   /* Inicio native composition. Desktop retains the existing shell and grid. */
   .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-main { background: var(--inicio-paper); }
-  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-main > .inicio-content { display: grid; grid-template-columns: minmax(0,1fr); grid-template-areas: "greeting" "kpis" "hero" "shortcuts" "pending" "suggestion" "assistant"; gap: 12px; padding: 0 14px 100px; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-main > .inicio-content { display: grid; grid-template-columns: minmax(0,1fr); grid-template-areas: "greeting" "kpis" "codi" "hero" "shortcuts" "pending" "suggestion" "assistant"; gap: 12px; padding: 0 14px 100px; }
   .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting { position: relative; display: grid; grid-template-columns: 42px minmax(0,1fr); gap: 8px; align-items: center; min-height: 80px; padding: 0 0 16px; isolation: isolate; }
   .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-sun { position: static; width: 42px; height: 42px; transform: none; }
   .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting > div { grid-column: 2; grid-row: 1; }
@@ -230,6 +230,8 @@
   .inicio-shell.mc-reference-a .inicio-topbar { padding-inline: 14px; }
   .inicio-shell.mc-reference-a .inicio-topbar__mobile-brand { font-size: 1.25rem; }
   .inicio-shell.mc-reference-a .inicio-topbar__actions { gap: 4px; }
+  .inicio-shell.mc-reference-a .mc-mobile-nav { grid-template-columns: 1fr 1.5fr 1fr 0.8fr 0.9fr; }
+  .inicio-shell.mc-reference-a .mc-mobile-nav__item { font-size: .75rem; }
   .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1 { max-width: 11ch; }
   .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting p { max-width: 15ch; }
   .inicio-shell.mc-reference-a .inicio-hero__actions { flex-wrap: wrap; }

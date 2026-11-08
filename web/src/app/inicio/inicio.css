@@ -1,4 +1,4 @@
-﻿/* Inicio · una sola fuente de verdad para la ruta /inicio.
+/* Inicio · una sola fuente de verdad para la ruta /inicio.
    No importar tokens globales aquí: el shell de Caja tiene su propio lenguaje. */
 
 .inicio-shell {
@@ -500,7 +500,7 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "greeting" "kpis" "hero" "pending" "suggestion" "assistant";
+  grid-template-areas: "greeting" "kpis" "codi" "hero" "pending" "suggestion" "assistant";
   gap: 20px;
   align-items: start;
   width: calc(100% - 48px);
@@ -660,7 +660,7 @@
 @container inicio-main (min-width: 52rem) {
   .inicio-content {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-areas: "greeting greeting" "kpis kpis" "hero pending" "suggestion suggestion" "assistant assistant";
+    grid-template-areas: "greeting greeting" "kpis kpis" "codi codi" "hero pending" "suggestion suggestion" "assistant assistant";
   }
   .inicio-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
@@ -700,7 +700,7 @@
 }
 /* Conserva el acceso prioritario del Inicio existente a 320 px. */
 @container inicio-main (max-width: 23rem) {
-  .inicio-content { grid-template-areas: "greeting" "hero" "kpis" "pending" "suggestion"; }
+  .inicio-content { grid-template-areas: "greeting" "codi" "hero" "kpis" "pending" "suggestion"; }
 }
 /* En texto ampliado el umbral rem crece: una columna antes de truncar dinero. */
 @container inicio-main (max-width: 19rem) {
@@ -723,7 +723,7 @@
   .inicio-shell--compact .inicio-content { padding-bottom: calc(10rem + env(safe-area-inset-bottom)); }
   .inicio-shell--compact .mc-mobile-nav {
     position: fixed; right: 0; bottom: 0; left: 0; z-index: 50;
-    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+    display: grid; grid-template-columns: 1.05fr 1.4fr 1fr 0.9fr 0.95fr;
     padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid var(--color-separator);
     background: var(--color-surface); box-shadow: 0 -8px 24px rgb(31 38 34 / 0.08);
   }
@@ -802,7 +802,7 @@
 
 @media (max-width: 760px) {
   .inicio-shell--compact .inicio-content {
-    grid-template-areas: "greeting" "kpis" "hero" "shortcuts" "pending" "suggestion" "assistant";
+    grid-template-areas: "greeting" "kpis" "codi" "hero" "shortcuts" "pending" "suggestion" "assistant";
     gap: clamp(16px, 5.13vw, 20px);
     padding-top: clamp(20px, 6.4vw, 25px);
   }
@@ -1256,7 +1256,7 @@
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-sidebar { padding: 20px 12px 0; }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-brand { padding: 4px 0 17px; border: 0; }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-brand__name { font: 700 min(2.5rem, 40px)/0.94 Georgia, serif; }
-  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item { min-height: 58px; gap: 24px; padding-inline: 22px; border-radius: 20px; font-size: 1.375rem; }
+  :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item { min-height: 58px; gap: 18px; padding-inline: 20px; border-radius: 20px; font-size: 1.3125rem; }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item[aria-current="page"] { background: #ffe8bf; color: var(--inicio-ink); }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-nav__item[aria-current="page"] .inicio-nav__icon { color: var(--inicio-green); }
   :is(.inicio-shell--compact, .inicio-shell--desktop) .inicio-sidebar__foot { margin-top: 23px; padding-top: 3px; }
@@ -1291,7 +1291,7 @@
     padding: 18px 0 34px;
     gap: 24px 20px;
     grid-template-columns: minmax(0, 0.484fr) minmax(0, 0.516fr);
-    grid-template-areas: "greeting greeting" "kpis kpis" "hero pending" "suggestion suggestion";
+    grid-template-areas: "greeting greeting" "kpis kpis" "codi codi" "hero pending" "suggestion suggestion";
   }
   .inicio-shell--compact .inicio-greeting {
     position: relative;
@@ -1645,6 +1645,10 @@ html[data-contrast="high"] .inicio-nav__item[aria-current="page"]:focus-visible 
 
 /* Compresión final de Inicio para que los 3 pendientes entren en 693 px. */
 @media (max-width: 760px) {
+  /* La ilustración del saludo sangra a la derecha a propósito; se recorta en
+     el borde del shell para que no abra scroll horizontal en 320-390. */
+  .inicio-shell.mc-reference-a { overflow-x: clip; }
+
   .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar {
     min-height: calc(88 * var(--mob-u, 1));
     padding: calc(12 * var(--mob-u, 1)) calc(18 * var(--mob-u, 1));

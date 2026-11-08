@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { connection } from "next/server";
@@ -18,6 +18,7 @@ import iconMetas from "@/assets/inicio/icons/metas.svg";
 import pendingPhoneArt from "@/assets/brand/iconos/transparent/qr-telefono.png";
 import { AppShell } from "@/components/shell/app-shell";
 import { TopBar } from "@/components/shell/top-bar";
+import { CodiHub } from "@/components/codi/codi-hub";
 import { MaskIcon } from "@/components/ui/icon";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { ProgressIndicator } from "@/components/ui/progress-indicator";
@@ -156,6 +157,8 @@ export default async function InicioPage() {
         </article>
       </section>
 
+      <CodiHub demo={demo} />
+
       <section className="inicio-hero" aria-labelledby="inicio-hero-title">
         <Image
           src={heroArt}
@@ -178,7 +181,7 @@ export default async function InicioPage() {
       </section>
 
       <nav className="inicio-shortcuts" aria-label="Accesos rápidos">
-        <Link href="/caja#mc-caja-payment-summary"><QrCode aria-hidden="true" /><span>Cobrar</span></Link>
+        <Link href="/inicio#cobrar-codi"><QrCode aria-hidden="true" /><span>Cobrar</span></Link>
         <Link href="/caja"><Package aria-hidden="true" /><span>Producto</span></Link>
         <Link href="/corte"><Receipt aria-hidden="true" /><span>Gasto</span></Link>
         <Link href="/ventas"><BarChart3 aria-hidden="true" /><span>Reporte</span></Link>

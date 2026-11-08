@@ -251,7 +251,7 @@
     left: 0;
     z-index: 50;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: 1.05fr 1.4fr 1fr 0.9fr 0.95fr;
     padding: 0 8px env(safe-area-inset-bottom);
     border: 1px solid var(--inicio-border);
     border-bottom: 0;
@@ -408,7 +408,7 @@
   /* Inicio compacto aún trae reglas anteriores de la barra. Su mayor
      especificidad se resuelve aquí, sin editar el Inicio protegido. */
   .inicio-shell.inicio-shell--compact .mc-mobile-nav {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: 1.05fr 1.4fr 1fr 0.9fr 0.95fr;
     padding: 0 8px env(safe-area-inset-bottom);
     background: var(--inicio-paper);
     box-shadow: 0 -2px 8px rgb(31 38 34 / 0.05);
@@ -462,4 +462,7 @@
   .inicio-shell .inicio-topbar__mobile-brand img { width: 32px; height: 32px; }
   .inicio-shell .inicio-topbar__actions { gap: 4px; }
   .inicio-shell .inicio-demo { padding-inline: 4px; letter-spacing: 0.04em; }
+  .mc-mobile-nav { grid-template-columns: 1fr 1.5fr 1fr 0.8fr 0.9fr; }
+  .mc-mobile-nav__item,
+  .inicio-shell.inicio-shell--compact .mc-mobile-nav__item { font-size: 0.75rem; }
 }

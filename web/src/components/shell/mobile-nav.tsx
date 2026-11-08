@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, QrCode } from "lucide-react";
 import { MaskIcon } from "@/components/ui/icon";
-import { isNavItemActive, type ShellNavItem } from "./nav";
+import { isNavItemActive, type ShellMobileCenter, type ShellNavItem } from "./nav";
 import reportIcon from "@/assets/inicio/icons/reportes.svg";
 import shopIcon from "@/assets/inicio/brand-shop-cream.svg";
 import "./shell.css";
@@ -13,14 +13,30 @@ export function MobileNav({
   primary,
   more,
   activeHref,
+  center,
 }: {
   primary: ShellNavItem[];
   more: ShellNavItem[];
   activeHref: string;
+  /** Acción central de la barra. Si falta, cae al enlace histórico a Caja. */
+  center?: ShellMobileCenter;
 }) {
   const moreRef = useRef<HTMLDetailsElement>(null);
-  const sale = primary.find((item) => item.href === "/caja");
-  const destinations = primary.filter((item) => item !== sale);
+  // Compatibilidad con las pantallas que aún no declaran centro explícito.
+  const fallbackSale = center ? undefined : primary.find((item) => item.href === "/caja");
+  const action =
+    center ??
+    (fallbackSale
+      ? {
+          label: "Vender",
+          href: fallbackSale.href,
+          ariaLabel: "Nueva venta",
+          glyph: "plus" as const,
+        }
+      : null);
+  const destinations = fallbackSale
+    ? primary.filter((item) => item !== fallbackSale)
+    : primary;
 
   function destination(item: ShellNavItem) {
     const active = isNavItemActive(item, activeHref);
@@ -30,6 +46,7 @@ export function MobileNav({
         href={item.href}
         aria-current={active ? "page" : undefined}
         aria-label={item.ariaLabel}
+        prefetch={item.prefetch}
         className="mc-mobile-nav__item"
       >
         <MaskIcon src={item.id === "ventas" ? shopIcon : item.icon} className="mc-mobile-nav__icon" />
@@ -65,16 +82,17 @@ export function MobileNav({
   return (
     <nav className="mc-mobile-nav" aria-label="Principal">
       {destinations.slice(0, 2).map(destination)}
-      {sale ? (
-          <Link
-            href={sale.href}
-            aria-current={isNavItemActive(sale, activeHref) ? "page" : undefined}
-            aria-label="Nueva venta"
-            className="mc-mobile-nav__item mc-mobile-nav__sale"
-          >
-            <span className="mc-mobile-nav__sale-circle"><Plus aria-hidden="true" /></span>
-            <span className="sr-only">Vender</span>
-          </Link>
+      {action ? (
+        <Link
+          href={action.href}
+          aria-label={action.ariaLabel ?? action.label}
+          className="mc-mobile-nav__item mc-mobile-nav__sale"
+        >
+          <span className="mc-mobile-nav__sale-circle">
+            {action.glyph === "qr" ? <QrCode aria-hidden="true" /> : <Plus aria-hidden="true" />}
+          </span>
+          <span className="sr-only">{action.label}</span>
+        </Link>
       ) : null}
       {destinations.slice(2).map(destination)}
       <details className="mc-mobile-nav__more" ref={moreRef}>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Bell, ChevronLeft, Store } from "lucide-react";
 import brand from "@/assets/inicio/brand-shop-cream.svg";
 import { MobileNav } from "./mobile-nav";
-import { operationalMobileMore, operationalMobilePrimary } from "./nav";
+import { codiMobileCenter, operationalMobileMore, operationalMobilePrimary } from "./nav";
 import { MERCHANT } from "@/lib/config";
 import "./flow-screen.css";
 
@@ -87,6 +87,7 @@ export function FlowScreen({
         primary={operationalMobilePrimary}
         more={operationalMobileMore}
         activeHref={activeHref}
+        center={codiMobileCenter}
       />
     </div>
   );

@@ -28,6 +28,7 @@ export function Sidebar({
               href={item.href}
               aria-current={active ? "page" : undefined}
               aria-label={item.ariaLabel}
+              prefetch={item.prefetch}
               className="inicio-nav__item"
             >
               <MaskIcon src={item.icon} className="inicio-nav__icon" />

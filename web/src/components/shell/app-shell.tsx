@@ -7,16 +7,22 @@ import { PreferencesBoot } from "./preferences-boot";
 import "./definitive-a.css";
 import "./reference-a2.css";
 import {
-  appNav,
+  codiMobileCenter,
   inicioFoot,
   inicioNav,
   mobileMore,
+  mobilePrimary,
+  type ShellMobileCenter,
   type ShellNavItem,
 } from "./nav";
 
+/**
+ * Barra móvil compartida: Inicio · Movimientos · [Cobrar con CoDi] · Caja ·
+ * Más. Fiados, Corte, Pendientes, Metas, Ventas, Ayuda y Ajustes no se
+ * pierden: viven en "Más".
+ */
 function contextualMobilePrimary(_activeHref: string): ShellNavItem[] {
-  // Principal: Inicio · Ventas · Vender. Fiados/Corte/Pendientes viven en Más.
-  return [appNav[0], appNav[2], appNav[1], appNav[6]];
+  return mobilePrimary;
 }
 
 export function AppShell({
@@ -30,6 +36,7 @@ export function AppShell({
   foot = inicioFoot,
   mobilePrimaryItems,
   mobileMoreItems = mobileMore,
+  mobileCenter = codiMobileCenter,
   focusTargetId,
 }: {
   children: ReactNode;
@@ -42,6 +49,7 @@ export function AppShell({
   foot?: ShellNavItem[];
   mobilePrimaryItems?: ShellNavItem[];
   mobileMoreItems?: ShellNavItem[];
+  mobileCenter?: ShellMobileCenter;
   focusTargetId?: string;
 }) {
   return (
@@ -62,6 +70,7 @@ export function AppShell({
         primary={mobilePrimaryItems ?? contextualMobilePrimary(activeHref)}
         more={mobileMoreItems}
         activeHref={activeHref}
+        center={mobileCenter}
       />
     </div>
   );
