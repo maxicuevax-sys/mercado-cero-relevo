@@ -58,3 +58,5 @@ Límites del siguiente incremento: 8MiB por base de negocio demo y32MiB para ide
 La nueva utilidad `deploy/judge-snapshot.mjs` conserva el catálogo de cuentas capturado primero, toma snapshots SQLite individuales consistentes con WAL y valida manifiesto/hashes/integridad. La restauración solo publica un directorio nuevo, revoca todas las sesiones y verifica cada copia contra el hash del manifiesto validado inicialmente, incluso si cambia transitoriamente el origen. Ver `docs/judge-recovery.md`. Resultado local:11 pruebas,10PASS y1skip explícito por privilegios Windows para symlink de archivo; la prueba de junction de directorio sí pasó. CI Linux ejecuta el conjunto completo.
 
 El paquete de recuperación y las cuotas todavía no se han instalado en producción. El gate full23/23 no está certificado: no confundir CI/canary con un release público completo.
+
+El Dockerfile incluye ahora ambas herramientas de snapshot en el runner. Esto prepara la imagen futura; no afirma que esté reconstruida o instalada en el VPS.
