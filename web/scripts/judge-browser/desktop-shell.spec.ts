@@ -91,9 +91,13 @@ for (const width of [1448, 1280]) {
     let originalRail: { x: number; width: number } | undefined;
     for (const [name, route] of destinations) {
       await test.step(`sidebar → ${route}`, async () => {
-        const rail = page.locator("aside.inicio-sidebar");
+        // Next retains previous route trees in hidden Activity containers.
+        // Assert the user's visible shell, while rejecting two visible rails.
+        const rail = page.locator("aside.inicio-sidebar:visible");
+        await expect(rail).toHaveCount(1);
         await rail.getByRole("link", { name, exact: true }).click();
         await expect(page).toHaveURL(new RegExp(`${route}$`));
+        await expect(rail).toHaveCount(1);
         await page.evaluate(() => document.fonts.ready);
         const bounds = await box(rail);
         expect(bounds.width).toBeGreaterThanOrEqual(200);
@@ -128,7 +132,7 @@ for (const width of [1448, 1280]) {
     await page.screenshot({ path: testInfo.outputPath(`inicio-codi-simulado-${width}.png`), fullPage: true });
 
     // Presentation evidence only; B1 owns discard/restore behavior contracts.
-    await page.locator("aside.inicio-sidebar").getByRole("link", { name: "Caja", exact: true }).click();
+    await page.locator("aside.inicio-sidebar:visible").getByRole("link", { name: "Caja", exact: true }).click();
     await expect(page).toHaveURL(/\/caja$/);
     await page.getByText("Agregar concepto a mano", { exact: true }).click();
     await page.getByLabel("Producto o servicio", { exact: true }).fill("Concepto temporal para diálogo");
