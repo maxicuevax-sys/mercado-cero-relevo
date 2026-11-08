@@ -26,3 +26,8 @@
   .register-hero h1 { font-size: 3rem; }
   .register-input input { min-height: 49px; }
 }
+
+@media (max-width: 359px) {
+  .register-eyebrow { font-size: .54rem; }
+  .register-description { width: 44%; }
+}

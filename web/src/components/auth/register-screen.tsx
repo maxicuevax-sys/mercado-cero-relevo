@@ -38,7 +38,7 @@ export function RegisterScreen() {
     <AuthBrandbar register />
     <div className="access-paper register-paper">
       <div className="register-hero">
-        <div className="register-art"><Image src="/assets/auth/register-reference.png" alt="Taquero preparando tacos al pastor bajo un toldo rojo en el tianguis" width={1024} height={1535} sizes="(max-width: 560px) 65vw, 310px" preload /></div>
+        <div className="register-art"><Image src="/assets/auth/register-reference.png" alt="Taquero preparando tacos al pastor bajo un toldo rojo en el tianguis" width={1024} height={1535} sizes="(max-width: 480px) 110vw, 530px" quality={90} preload /></div>
         <p className="register-eyebrow">Bienvenido al mostrador</p>
         <h1 id="register-title"><span>Crea tu</span> <span>cuenta.</span></h1>
         <svg className="register-underline" viewBox="0 0 170 22" aria-hidden="true"><path d="M5 16Q80 0 165 11" /></svg>
