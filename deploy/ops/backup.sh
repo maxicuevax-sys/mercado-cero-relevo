@@ -37,6 +37,7 @@ if [ -f /etc/systemd/system/mercado-cero-pilot.service ]; then
   cp /etc/systemd/system/mercado-cero-pilot.service "$stage/config/"
 fi
 if [ -f "$root/app-runtime.env" ]; then cp "$root/app-runtime.env" "$stage/config/"; fi
+if [ -f "$root/runtime-target.json" ]; then cp "$root/runtime-target.json" "$stage/config/"; fi
 if [ -f "$root/judge-backup.env" ]; then cp "$root/judge-backup.env" "$stage/config/"; fi
 cp -a "$root/ops" "$stage/config/"
 if [ -d "$root/recovery-source" ]; then cp -a "$root/recovery-source" "$stage/"; fi
