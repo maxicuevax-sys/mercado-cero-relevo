@@ -67,7 +67,15 @@ async function unavailable(button: Locator) {
 
 async function addManual(page: Page, description = "Producto manual", amount = "20") {
   const manual = page.locator("details#mc-caja-manual");
-  if (await manual.getAttribute("open") === null) await manual.locator("summary").click();
+  if (await manual.getAttribute("open") === null) {
+    const summary = manual.locator("summary");
+    if (await summary.isVisible()) await summary.click();
+    else await page.locator(".mc-sale-voice__chip--more").click();
+  }
+  await expect(manual).toHaveAttribute("open", "");
+  await expect(manual.getByLabel("Producto o servicio", { exact: true })).toBeVisible();
+  await expect(manual.getByLabel("Cantidad", { exact: true })).toBeVisible();
+  await expect(manual.getByLabel("Precio unitario", { exact: true })).toBeVisible();
   await manual.getByLabel("Producto o servicio", { exact: true }).fill(description);
   await manual.getByLabel("Cantidad", { exact: true }).fill("1");
   await manual.getByLabel("Precio unitario", { exact: true }).fill(amount);
