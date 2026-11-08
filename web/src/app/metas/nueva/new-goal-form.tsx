@@ -63,7 +63,7 @@ export function NewGoalForm() {
       return;
     }
     if (initialCents === null) {
-      setError("El ahorro inicial no es un monto válido.");
+      setError("Revisa cuánto has apartado. Escribe un monto válido.");
       return;
     }
     if (initialCents > targetCents) {
@@ -256,8 +256,7 @@ export function NewGoalForm() {
         </Link>
       </div>
       <p className="mc-flow__note">
-        El apartado es un registro declarado: no es una cuenta bancaria y el
-        efectivo sigue en tu caja.
+        Aquí anotas lo que apartas. No es una cuenta bancaria y el efectivo sigue en tu caja.
       </p>
     </form>
   );

@@ -481,8 +481,8 @@ async function DetalleMovimientoPage({
 
       <section className="mc-mvd-notes" aria-label="Límites de esta vista">
         <p>
-          Esta pantalla no cambia estados ni registra pagos: muestra lo que ya
-          está guardado en la misma base que Caja y Ventas.
+          Aquí consultas el registro que también ves en Caja y Ventas. Esta
+          pantalla no cambia el estado ni registra pagos.
         </p>
         <p>
           La hora exacta de generación del QR no se guarda. «QR vencido» se

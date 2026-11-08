@@ -57,7 +57,7 @@ function SavedClose({ close }: { close: CashClose }) {
       {close.reason ? (
         <p className="mc-corte-history__reason">Motivo de la corrección: <strong>{close.reason}</strong></p>
       ) : null}
-      <p className="mc-corte-history__note">Esta foto no cambia si entran ventas o abonos después del cierre.</p>
+      <p className="mc-corte-history__note">El corte guardado conserva estas cifras aunque después entren ventas o abonos.</p>
     </div>
   );
 }

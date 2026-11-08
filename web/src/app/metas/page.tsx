@@ -97,7 +97,7 @@ async function MetasPage() {
       title="Metas"
       titleId="metas-title"
       eyebrow="AHORRO"
-      subtitle="Organiza lo que quieres comprar o apartar para una emergencia. Se anota aquí; no es una cuenta bancaria."
+      subtitle="Anota para qué quieres apartar dinero y cuánto llevas. Esto no es una cuenta bancaria."
       merchant={MERCHANT.name}
       address={MERCHANT.address}
       demo={demo}
@@ -135,7 +135,7 @@ async function MetasPage() {
           <Plus className="mc-metas-cta__icon" aria-hidden="true" />
           Nueva meta
         </Link>
-        <p className="mc-metas-native-note">Apartado declarado; no es una cuenta bancaria. El efectivo sigue en tu caja.</p>
+        <p className="mc-metas-native-note">Aquí anotas lo que apartas. No es una cuenta bancaria: el efectivo sigue en tu caja.</p>
       </div>
       {goals.length > 0 ? (
         <section className="mc-metas-summary" aria-label="Resumen de metas">
@@ -261,8 +261,7 @@ async function MetasPage() {
                 </p>
               )}
               <p className="mc-metas-hero__note">
-                El efectivo sigue en tu caja: aquí solo anotas cuánto llevas
-                apartado.
+                Anota cuánto has apartado. El efectivo sigue en tu caja.
               </p>
             </div>
           </div>
@@ -273,8 +272,7 @@ async function MetasPage() {
               Tu primera meta
             </h2>
             <p className="mc-metas-hero__intro">
-              Elige algo concreto para tu puesto y apunta cuánto llevas
-              apartado. Puedes empezar con 50 pesos.
+              Elige una meta para tu puesto y anota cuánto has apartado. Puedes empezar con 50 pesos.
             </p>
             <div className="mc-metas-hero__actions">
               <Link className="mc-metas-cta" href="/metas/nueva">
@@ -362,9 +360,7 @@ async function MetasPage() {
       ) : null}
 
       <p className="mc-metas-note">
-        El apartado es un registro declarado: no es una cuenta bancaria, no
-        genera intereses y el efectivo sigue en tu caja. El historial de
-        movimientos no se muestra en esta pantalla.
+        Aquí anotas lo que apartas. No es una cuenta bancaria ni genera intereses: el efectivo sigue en tu caja. Esta pantalla no muestra el historial de movimientos.
       </p>
     </OperationalPage>
   );

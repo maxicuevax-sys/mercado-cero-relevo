@@ -49,7 +49,7 @@ export function AssistantPreference() {
         <span className="mc-assistant-switch" aria-hidden="true"><span /></span>
         <span>{enabled ? "Activado" : "Desactivado"}</span>
       </button>
-      <p id={descriptionId}>Se activa solo si tú eliges. Caja y los avisos de dinero siguen disponibles. La elección se guarda en este navegador si permite almacenamiento.</p>
+      <p id={descriptionId}>Tú decides si usarlo. Caja y los avisos de dinero funcionan igual. Este navegador recordará tu elección si permite guardar datos.</p>
     </div>
   );
 }
@@ -60,7 +60,7 @@ const TOPICS = [
   { title: "¿Qué me falta pagar?", icon: Wallet, terms: /pagar|pendiente|debo|deuda|fiad/i,
     answer: "Pendientes muestra lo que falta revisar; Fiados muestra lo que tus clientes deben al negocio. Esta guía no consulta deudas con proveedores ni calcula cuánto debes pagar.", href: "/pendientes", action: "Revisar Pendientes" },
   { title: "Sugerencias de compra", icon: ShoppingBag, terms: /compra|inventario|producto|surtir/i,
-    answer: "Todavía no hay recomendaciones de compra conectadas a tu inventario. Puedes anotar lo que necesitas en Pendientes y decidir tú qué comprar.", href: "/pendientes", action: "Abrir Pendientes" },
+    answer: "La guía todavía no usa tu inventario para sugerir compras. Anota lo que necesitas en Pendientes y decide qué comprar.", href: "/pendientes", action: "Abrir Pendientes" },
   { title: "Explicarme un reporte", icon: BookOpen, terms: /reporte|corte|efectivo|saldo/i,
     answer: "En Corte comparas el efectivo esperado con lo que contaste. Una diferencia se muestra para revisarla; la app no la ajusta sola. Los pagos demo se distinguen del dinero real.", href: "/corte", action: "Consultar Corte" },
 ] as const;
@@ -104,7 +104,7 @@ export function OptionalAssistant() {
         </form>
         <div role="status" aria-live="polite" aria-atomic="true">
           {result && <div className="mc-assistant-answer"><p className="mc-assistant-question">{result.question}</p>
-            <p>{topic?.answer ?? "No encontré esa pregunta en la guía local. Revisa las preguntas frecuentes; esta guía no ofrece respuestas generadas ni soporte en vivo."}</p>
+            <p>{topic?.answer ?? "Esa pregunta no está en la guía. Prueba con las preguntas frecuentes. Las respuestas están escritas de antemano; no es un chat en vivo."}</p>
             <p className="mc-assistant-source">Fuente: guía de uso de Trangui.</p>
             <Link href={topic?.href ?? "#mc-ayuda-faq-title"}>{topic?.action ?? "Ver preguntas frecuentes"}<ChevronRight size={18} aria-hidden="true" /></Link>
           </div>}

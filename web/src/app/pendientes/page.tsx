@@ -83,7 +83,7 @@ async function PendientesPage({
       title="Pendientes"
       titleId="pendientes-title"
       eyebrow="LO QUE SIGUE"
-      subtitle="Cobros que faltan y tareas para después. Un cobro pendiente no es dinero recibido."
+      subtitle="Revisa qué falta cobrar y qué tienes por hacer. Un cobro pendiente no es dinero recibido."
       merchant={MERCHANT.name}
       address={MERCHANT.address}
       demo={isDemoMode()}
@@ -151,8 +151,8 @@ async function PendientesPage({
                     No hay cobros pendientes.
                   </p>
                   <p className="mc-pend-empty__text">
-                    Cuando una venta quede por cobrar aparecerá aquí, con su
-                    enlace de pago y lo que falta cobrar.
+                    Aquí verás las ventas por cobrar, su enlace de pago y el
+                    monto que falta.
                   </p>
                   <Link href="/caja" className="mc-pend-cta mc-pend-cta--secondary">
                     Ir a Caja
@@ -297,8 +297,8 @@ async function PendientesPage({
             Tu día, en orden.
           </h2>
           <p className="mc-pend-hero__text">
-            Los cobros por un lado, los recados por otro. Lo que falta queda a
-            la vista, sin mezclarlo con el dinero que ya entró.
+            Revisa qué te falta cobrar y qué tareas dejaste para después.
+            Los cobros pendientes se muestran aparte del dinero recibido.
           </p>
           <ul className="mc-pend-hero__chips">
             <li className="mc-pend-hero__chip">

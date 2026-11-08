@@ -178,7 +178,7 @@ export function SaleSummary({
       {creditCoversAllWithCash ? (
         <p className="mc-caja-alert" role="alert">
           El fiado ya cubre el total ({formatMxn(totalCents)}) y no se aplicó el efectivo.
-          Reduce el monto a fiado o el efectivo; no se registrará cambio fantasma.
+          Reduce el monto a fiado o el efectivo; no se registrará un cambio que no corresponde.
         </p>
       ) : null}
 
@@ -213,7 +213,7 @@ export function SaleSummary({
           </label>
           {needsCustomer ? (
             <span id="mc-caja-customer-hint" className="mc-caja-hint">
-              Escribe el nombre de quien queda a deber para registrar el fiado.
+              Escribe quién te queda a deber para anotar el fiado.
             </span>
           ) : null}
         </>

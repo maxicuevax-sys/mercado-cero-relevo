@@ -238,7 +238,7 @@ async function FiadosPage({ searchParams }: {
         {credits.length === 0 ? (
           <div className="mc-op-empty mc-fiados-empty" role="status">
             <p className="mc-op-empty__title">{query ? "Sin coincidencias" : history ? "Sin fiados saldados" : "Sin fiados pendientes"}</p>
-            <p className="mc-op-empty__body">{query ? `No encontramos un cliente que coincida con ${query}.` : history ? "Los fiados que termines de cobrar aparecen aquí." : "Anota una venta a fiado desde Caja para llevar su saldo y registrar abonos."}</p>
+            <p className="mc-op-empty__body">{query ? `No encontramos un cliente que coincida con ${query}.` : history ? "Los fiados que termines de cobrar aparecen aquí." : "Registra el fiado en Caja. Aquí puedes revisar el saldo y anotar cada abono."}</p>
           </div>
         ) : (
           <ul className="mc-fiados-list">

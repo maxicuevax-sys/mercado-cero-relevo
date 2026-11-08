@@ -58,3 +58,7 @@ Nada se considera listo si rompe el contrato del webhook, la verdad demo/pey o b
 - Commit al terminar y escribe `<lane>-report.md` en la raíz del worktree: cambios, verificación corrida y resultado, pendientes. Plantilla: `harness/templates/LANE-REPORT.md`.
 - Antes del reporte, corre `npm run verify:fast` como mínimo; si el carril toca runtime, adjunta el latest correspondiente (`latest.json` full o `latest-static.json` static).
 - El merge lo hace **solo el orquestador** (Hermes), previa revisión humana. Un worker nunca hace merge a `master`.
+
+## Textos de Trangui
+
+Para copy visible, README y pitch aplica `VOZ-TRANGUI.md` con Humanizer. Conserva contratos, rutas y verdad demo/real; no inventes datos ni impacto social.

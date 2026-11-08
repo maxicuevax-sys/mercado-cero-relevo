@@ -100,7 +100,7 @@ export function NewTaskForm() {
         <Image src={tasksNative} alt="" aria-hidden="true" sizes="240px" />
         <div>
           <h2>Anota lo que sigue</h2>
-          <p>Recados y recordatorios del puesto, sin mover el dinero de la caja.</p>
+          <p>Anota lo que queda por hacer en tu puesto. Esto no mueve el dinero de la caja.</p>
         </div>
       </section>
 

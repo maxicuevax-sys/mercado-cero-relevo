@@ -348,8 +348,7 @@ export function CashCount({
       </div>
 
       <p className="mc-corte-lede">
-        El conteo va primero: escribe el total contado o cuenta por billetes y
-        monedas. Después revisa los movimientos y guarda. Nada se guarda solo.
+        Escribe cuánto contaste o suma tus billetes y monedas. Luego revisa los movimientos y guarda el corte. Nada se guarda solo.
       </p>
 
       {error ? (
@@ -428,8 +427,7 @@ export function CashCount({
             </p>
           )}
           <p className="mc-corte-hint">
-            La diferencia exacta la recalcula el servidor al confirmar; no se
-            guarda nada hasta que tú lo pidas.
+            La diferencia se vuelve a calcular cuando confirmas. Tú decides cuándo guardar el corte.
           </p>
 
           <button
