@@ -90,6 +90,16 @@ export async function createPilotIdentity(options: PilotIdentityOptions) {
       BEGIN
         SELECT RAISE(ABORT, 'pilot_account_limit');
       END;
+
+      CREATE TABLE IF NOT EXISTS pey_sub_accounts (
+        user_id TEXT PRIMARY KEY,
+        pey_sub_account_id TEXT NOT NULL,
+        bank_account_id TEXT,
+        email TEXT NOT NULL,
+        name TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+      );
     `);
     const auth = betterAuth(authOptions);
     let closed = false;

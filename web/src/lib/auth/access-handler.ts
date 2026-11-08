@@ -2,6 +2,7 @@ import { judgeAccountsEnabled } from "./pilot-mode";
 import { getJudgeRuntime } from "./pilot-runtime";
 import { validateRegistration } from "./register-validation";
 import { bodyErrorResponse, isSameOriginMutation, readJsonLimited } from "../http-security";
+import { createPeySubAccount } from "../pey";
 
 const privateHeaders = { "Cache-Control": "private, no-store", Vary: "Cookie" };
 function failure(error: string, code: string, status: number) { return Response.json({ error, code }, { status, headers: privateHeaders }); }
@@ -43,6 +44,35 @@ export async function handleJudgeAccess(request: Request, action: "sign-in" | "s
       }
       if (action === "sign-up" && full()) return failure("El piloto ya alcanzó su cupo de cuentas de prueba.", "pilot_full", 503);
       return failure(action === "sign-in" ? "Correo o contraseña incorrectos." : "No pudimos completar la solicitud. Inténtalo más tarde.", "access_rejected", result.status === 429 ? 429 : 400);
+    }
+    if (action === "sign-up") {
+      try {
+        const row = identity.database
+          .prepare("SELECT id, name, email FROM user WHERE email = ?")
+          .get(payload.email as string) as { id: string; name: string; email: string } | undefined;
+        if (row) {
+          const peyAccount = await createPeySubAccount({
+            userId: row.id,
+            name: row.name,
+            email: row.email,
+          });
+          identity.database
+            .prepare(`
+              INSERT OR REPLACE INTO pey_sub_accounts (user_id, pey_sub_account_id, bank_account_id, email, name, created_at)
+              VALUES (?, ?, ?, ?, ?, ?)
+            `)
+            .run(
+              row.id,
+              peyAccount.subAccountId,
+              peyAccount.bankAccountId ?? null,
+              row.email,
+              row.name,
+              peyAccount.createdAt,
+            );
+        }
+      } catch (err) {
+        console.error("[access-handler] Pey sub-account provisioning note:", err);
+      }
     }
     // Do not expose Better Auth's bearer token or raw provider response to JS.
     const response = Response.json({ ok: true }, { headers: privateHeaders });

@@ -1,4 +1,5 @@
 import { withPilotRoute } from "../../../../../lib/auth/pilot-route";
+import { currentTenantAccountId } from "@/lib/auth/tenant-scope";
 import crypto from "node:crypto";
 import QRCode from "qrcode";
 import { z } from "zod";
@@ -104,6 +105,9 @@ async function generatePayment(
     .map((item) => `${item.quantity} ${item.description}`)
     .join(", ")}`.slice(0, 120);
 
+  const tenantId = currentTenantAccountId();
+  const subAccountId = tenantId ? `demo_sub_${tenantId}` : undefined;
+
   if (options.mode === "qr") {
     const isExpired = order.qrExpiresAt ? Date.parse(order.qrExpiresAt) <= Date.now() : false;
     if (order.qrString && !options.forceRefresh && !isExpired) {
@@ -111,7 +115,7 @@ async function generatePayment(
     }
 
     const numRef = reserveNumRef(order.id);
-    const qr = await createCodiQr({ orderId: order.id, amountCents, concept, numRef });
+    const qr = await createCodiQr({ orderId: order.id, amountCents, concept, numRef, subAccountId });
     const qrValue = isDemoMode()
       ? `${appUrl()}/pay/${order.id}?demo=1`
       : qr.qrString;
@@ -145,13 +149,14 @@ async function generatePayment(
       concept,
       phone: options.phone,
       numRef,
+      subAccountId,
     });
     return attachCodiPush(order.id, push, numRef);
   }
 
   if (order.paymentUrl && !options.forceRefresh) return order;
 
-  const link = await createPaymentLink({ orderId: order.id, amountCents, concept });
+  const link = await createPaymentLink({ orderId: order.id, amountCents, concept, subAccountId });
   return attachPaymentLink(order.id, link);
 }
 

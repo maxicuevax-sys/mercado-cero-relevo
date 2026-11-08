@@ -164,3 +164,17 @@ test('the hundredth account slot is atomic across simultaneous signups and persi
   assert.equal(reopened.database.prepare('SELECT count(*) AS n FROM user').get().n, 100);
   assert.equal(reopened.database.prepare('SELECT count(*) AS n FROM account').get().n, 1);
 });
+
+test('pey_sub_accounts table exists and links to user', async t => {
+  const options = { ...fixture(t), allowSignUp: true };
+  const identity = await createPilotIdentity(options);
+  t.after(() => identity.close());
+  const response = await signup(identity.auth, 'pey-test@example.test');
+  assert.equal(response.status, 200);
+  const user = identity.database.prepare('SELECT id, email, name FROM user WHERE email = ?').get('pey-test@example.test');
+  assert.ok(user);
+  identity.database.prepare('INSERT INTO pey_sub_accounts (user_id, pey_sub_account_id, email, name, created_at) VALUES (?, ?, ?, ?, ?)').run(user.id, `demo_sub_${user.id}`, user.email, user.name, new Date().toISOString());
+  const sub = identity.database.prepare('SELECT * FROM pey_sub_accounts WHERE user_id = ?').get(user.id);
+  assert.equal(sub.pey_sub_account_id, `demo_sub_${user.id}`);
+  assert.equal(sub.user_id, user.id);
+});
