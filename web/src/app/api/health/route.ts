@@ -1,4 +1,5 @@
 import { connection } from "next/server";
+import { isDemoMode } from "@/lib/config";
 
 /**
  * Identidad del proceso que sirve la app.
@@ -13,6 +14,7 @@ export async function GET() {
     {
       ok: true,
       buildSha: process.env.BUILD_SHA ?? "unknown",
+      demoMode: isDemoMode(),
       node: process.version,
       uptimeSeconds: Math.round(process.uptime()),
     },

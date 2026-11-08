@@ -1,4 +1,4 @@
-﻿import { redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { connection } from "next/server";
 
 // La caja entera depende de datos vivos: es preferible bloquear el request

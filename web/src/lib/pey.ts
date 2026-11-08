@@ -334,3 +334,145 @@ export function mapPeyMethod(
   }
   return "unknown";
 }
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function identifier(value: unknown): string {
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  return "";
+}
+
+/**
+ * Extrae de forma segura posibles `transactionId` desde payloads JSON
+ * guardados en `payment_events` (tanto de eventos `codi.qr.payment_received` /
+ * `codi.pn.payment_received` con `transactionId` en raíz, como
+ * `payment_link.status_updated` con `transactions[].transactionId`).
+ */
+export function extractCandidateTransactionIds(payloads: string[]): string[] {
+  if (!Array.isArray(payloads)) return [];
+  const seen = new Set<string>();
+  const add = (value: unknown) => {
+    const id = identifier(value);
+    if (id) {
+      seen.add(id);
+    }
+  };
+
+  const inspectRecord = (record: Record<string, unknown>) => {
+    add(record.transactionId);
+    if (Array.isArray(record.transactions)) {
+      for (const tx of record.transactions) {
+        if (isRecord(tx)) {
+          add(tx.transactionId);
+        }
+      }
+    }
+  };
+
+  for (const raw of payloads) {
+    if (typeof raw !== "string" || !raw.trim()) continue;
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      continue;
+    }
+    if (!isRecord(parsed)) continue;
+
+    inspectRecord(parsed);
+    if (isRecord(parsed.data)) {
+      inspectRecord(parsed.data);
+    }
+  }
+
+  return [...seen];
+}
+
+export interface PeyOrderReferenceTarget {
+  id: string;
+  paymentLinkId?: string | null;
+  qrId?: string | null;
+  codiPushId?: string | null;
+  numRef?: string | null;
+}
+
+export type PeySyncFailureReason =
+  | "not_paid"
+  | "currency_mismatch"
+  | "amount_mismatch"
+  | "reference_mismatch";
+
+export type PeyTransactionValidationResult =
+  | { ok: true; amountCents: number }
+  | { ok: false; reason: PeySyncFailureReason };
+
+export function hasPeyReferenceMismatch(
+  order: PeyOrderReferenceTarget,
+  transaction: PeyTransaction,
+): boolean {
+  const metadata = isRecord(transaction.metadata) ? transaction.metadata : {};
+  const externalMetadata = isRecord(metadata.externalMetadata) ? metadata.externalMetadata : {};
+  const metadataOrderId = identifier(metadata.orderId) || identifier(externalMetadata.orderId);
+  if (metadataOrderId && metadataOrderId !== order.id) return true;
+
+  const clientReferenceId = identifier((transaction as Record<string, unknown>).clientReferenceId);
+  if (clientReferenceId && clientReferenceId !== order.id) return true;
+
+  const txNumRef =
+    identifier((transaction as Record<string, unknown>).numRef) || identifier(metadata.numRef);
+  if (txNumRef && order.numRef && txNumRef !== order.numRef) return true;
+
+  const payableId = identifier(transaction.payableId);
+  const matchedNumRef = Boolean(txNumRef && order.numRef && txNumRef === order.numRef);
+  if (!metadataOrderId && !clientReferenceId && !payableId && !matchedNumRef) return true;
+
+  if (transaction.payableType === "PAYMENT_LINK") {
+    if (!order.paymentLinkId) return true;
+    if (payableId && payableId !== order.paymentLinkId) return true;
+  } else if (transaction.payableType === "API_CODI_QR") {
+    if (!order.qrId) return true;
+    if (payableId && payableId !== order.qrId) return true;
+  } else if (transaction.payableType === "API_CODI_PN") {
+    if (!order.codiPushId) return true;
+    if (payableId && payableId !== order.codiPushId) return true;
+  } else if (
+    payableId &&
+    payableId !== order.paymentLinkId &&
+    payableId !== order.qrId &&
+    payableId !== order.codiPushId
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+export function validatePeyTransactionForOrder(
+  order: PeyOrderReferenceTarget,
+  transaction: PeyTransaction,
+  expectedCents: number,
+): PeyTransactionValidationResult {
+  const amountCents = transactionBaseCents(transaction);
+  const isPaid = transaction.status === "PAID";
+  const isMxn = !transaction.currency || transaction.currency.toUpperCase() === "MXN";
+  const amountMatches = amountCents !== null && amountCents === expectedCents;
+  const referenceMatches = !hasPeyReferenceMismatch(order, transaction);
+
+  if (isPaid && isMxn && amountMatches && referenceMatches) {
+    return { ok: true, amountCents };
+  }
+
+  return {
+    ok: false,
+    reason: !isPaid
+      ? "not_paid"
+      : !isMxn
+        ? "currency_mismatch"
+        : !amountMatches
+          ? "amount_mismatch"
+          : "reference_mismatch",
+  };
+}

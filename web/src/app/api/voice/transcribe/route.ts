@@ -1,6 +1,7 @@
 import {
   bodyErrorResponse,
   enforceRateLimit,
+  hasValidOperatorAccessToken,
   internalErrorResponse,
   isSameOriginMutation,
   MAX_TRANSCRIBE_BYTES,
@@ -10,11 +11,23 @@ import { transcribeAudio } from "@/lib/voice";
 
 export async function POST(request: Request) {
   // Esta ruta está fuera del matcher del Proxy para no bufferizar 12 MB:
-  // conserva aquí la misma defensa CSRF que el resto de mutadores.
+  // conserva aquí la misma defensa CSRF y de operadora que el resto de mutadores.
   if (!isSameOriginMutation(request)) {
     return Response.json(
       { error: "El origen de la petición no está permitido.", code: "cross_origin" },
       { status: 403 },
+    );
+  }
+
+  if (!hasValidOperatorAccessToken(request)) {
+    const authLimited = enforceRateLimit(request, "operator-auth", 20, 60_000);
+    if (authLimited) return authLimited;
+    return Response.json(
+      {
+        error: "Se requiere acceso de operadora para usar la caja.",
+        code: "operator_auth_required",
+      },
+      { status: 401 },
     );
   }
 

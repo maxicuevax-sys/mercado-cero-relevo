@@ -61,7 +61,13 @@ html[data-contrast="high"] :is(.mc-payment-total, .mc-payment-option, .mc-paymen
 
 .mc-caja-numref { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--color-surface-2); border: 1px solid var(--color-separator); border-radius: 12px; font-size: 0.95rem; color: var(--color-ink); }
 .mc-caja-numref__digits { font-family: var(--font-sans); font-size: 1.35rem; font-variant-numeric: tabular-nums; letter-spacing: 0.05em; color: var(--color-ink); font-weight: 700; }
+.mc-caja-qr__modes { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px; margin-bottom: 10px; border: 1px solid var(--color-separator); border-radius: 12px; background: var(--color-surface-2); }
+.mc-caja-qr__mode { flex: 1 1 auto; min-height: 44px; min-width: 0; padding: 6px 10px; border-radius: 9px; border: 1px solid transparent; background: transparent; color: var(--color-ink); font-weight: 600; font-size: 0.85rem; cursor: pointer; overflow-wrap: anywhere; }
+.mc-caja-qr__mode[aria-pressed="true"] { background: var(--color-ink); color: #ffffff; border-color: var(--color-ink); font-weight: 700; }
+.mc-caja-qr--expired img { opacity: 0.35; filter: grayscale(1); }
 .mc-caja-qr-expiry { display: flex; flex-direction: column; gap: 8px; padding: 10px 14px; border: 1px dashed var(--color-control-border); border-radius: 12px; background: var(--color-surface); font-size: 0.85rem; color: var(--color-ink-2); }
+.mc-caja-qr-expiry--expired { border-color: var(--color-danger); color: var(--color-ink); }
+.mc-caja-sync-notice { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--color-separator); background: var(--color-surface-2); color: var(--color-ink); font-size: 0.9rem; margin: 0; overflow-wrap: anywhere; }
 .mc-caja-codi-push { border: 1px solid var(--color-separator); border-radius: 14px; padding: 8px 12px; background: var(--color-surface); margin-block: 8px; }
 .mc-caja-codi-push summary { cursor: pointer; font-weight: 600; color: var(--color-ink); padding: 4px 0; }
 .mc-caja-codi-push__form { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; }
@@ -71,9 +77,9 @@ html[data-contrast="high"] :is(.mc-payment-total, .mc-payment-option, .mc-paymen
 
 /* The available width relative to text size decides when totals must stack. */
 @container (max-width: 14em) {
-  .mc-payment-total, .mc-qr-tabs { flex-wrap: wrap; }
+  .mc-payment-total, .mc-qr-tabs, .mc-caja-qr__modes { flex-wrap: wrap; }
   .mc-payment-total > span:last-child { flex-basis: 100%; max-width: 100%; text-align: right; }
-  .mc-qr-tabs > * { min-width: 0; flex: 1 1 100%; flex-wrap: wrap; }
+  .mc-qr-tabs > *, .mc-caja-qr__mode { min-width: 0; flex: 1 1 100%; flex-wrap: wrap; }
   .mc-payment-confirmed { grid-template-columns: minmax(0, 1fr); }
   .mc-payment-confirmed > img { width: 100px; justify-self: center; }
   .mc-payment-confirmed > div { min-width: 0; }

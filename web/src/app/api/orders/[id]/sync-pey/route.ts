@@ -8,22 +8,13 @@ import {
 } from "@/lib/http-security";
 import { getOrderDetail, recordPayment } from "@/lib/orders";
 import {
+  extractCandidateTransactionIds,
   getPeyTransaction,
   mapPeyMethod,
-  transactionBaseCents,
-  type PeyTransaction,
+  validatePeyTransactionForOrder,
+  type PeySyncFailureReason,
 } from "@/lib/pey";
 import type { Order } from "@/lib/types";
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function identifier(value: unknown): string {
-  if (typeof value === "string") return value.trim();
-  if (typeof value === "number" && Number.isFinite(value)) return String(value);
-  return "";
-}
 
 function expectedDigitalCents(order: Order): number {
   const cash = getDb()
@@ -36,37 +27,61 @@ function expectedDigitalCents(order: Order): number {
   return Math.max(0, order.totalCents - order.creditCents - Number(cash.total));
 }
 
-function hasReferenceMismatch(order: Order, transaction: PeyTransaction): boolean {
-  const metadata = isRecord(transaction.metadata) ? transaction.metadata : {};
-  const externalMetadata = isRecord(metadata.externalMetadata) ? metadata.externalMetadata : {};
-  const metadataOrderId = identifier(metadata.orderId) || identifier(externalMetadata.orderId);
-  if (metadataOrderId && metadataOrderId !== order.id) return true;
+function resolveCandidateTransactionIds(order: Order, explicitTxId: string): string[] {
+  const candidates = new Set<string>();
+  const add = (value: string | null | undefined) => {
+    const id = typeof value === "string" ? value.trim() : "";
+    if (id && !id.startsWith("demo_")) {
+      candidates.add(id);
+    }
+  };
 
-  const clientReferenceId = identifier((transaction as Record<string, unknown>).clientReferenceId);
-  if (clientReferenceId && clientReferenceId !== order.id) return true;
+  add(explicitTxId);
 
-  const payableId = identifier(transaction.payableId);
-  if (!metadataOrderId && !clientReferenceId && !payableId) return true;
+  const database = getDb();
+  const paymentRows = database
+    .prepare(
+      `SELECT transaction_id
+       FROM payments
+       WHERE order_id = ? AND transaction_id IS NOT NULL AND provider != 'demo' AND demo = 0
+       ORDER BY created_at DESC`,
+    )
+    .all(order.id) as Array<{ transaction_id: string | null }>;
 
-  if (transaction.payableType === "PAYMENT_LINK") {
-    if (!order.paymentLinkId) return true;
-    if (payableId && payableId !== order.paymentLinkId) return true;
-  } else if (transaction.payableType === "API_CODI_QR") {
-    if (!order.qrId) return true;
-    if (payableId && payableId !== order.qrId) return true;
-  } else if (transaction.payableType === "API_CODI_PN") {
-    if (!order.codiPushId) return true;
-    if (payableId && payableId !== order.codiPushId) return true;
-  } else if (
-    payableId &&
-    payableId !== order.paymentLinkId &&
-    payableId !== order.qrId &&
-    payableId !== order.codiPushId
-  ) {
-    return true;
+  for (const row of paymentRows) {
+    add(row.transaction_id);
   }
 
-  return false;
+  const needles = [
+    order.id,
+    order.numRef,
+    order.paymentLinkId,
+    order.qrId,
+    order.codiPushId,
+  ]
+    .map((value) => (typeof value === "string" ? value.trim() : ""))
+    .filter(Boolean);
+
+  if (needles.length > 0) {
+    const clauses = needles.map(() => "INSTR(payload, ?) > 0").join(" OR ");
+    const eventRows = database
+      .prepare(
+        `SELECT payload
+         FROM payment_events
+         WHERE provider = 'pey' AND (${clauses})
+         ORDER BY processed_at DESC, rowid DESC
+         LIMIT 50`,
+      )
+      .all(...needles) as Array<{ payload: string }>;
+
+    for (const candidateId of extractCandidateTransactionIds(
+      eventRows.map((row) => row.payload),
+    )) {
+      add(candidateId);
+    }
+  }
+
+  return [...candidates];
 }
 
 export async function POST(
@@ -123,7 +138,8 @@ export async function POST(
     }
 
     const txId = typeof body.transactionId === "string" ? body.transactionId.trim() : "";
-    if (!txId) {
+    const candidateIds = resolveCandidateTransactionIds(order, txId);
+    if (candidateIds.length === 0) {
       return Response.json({
         order,
         credit: detail.credit,
@@ -133,41 +149,45 @@ export async function POST(
       });
     }
 
-    const transaction = await getPeyTransaction(txId);
-    if (!transaction) {
-      return Response.json({
-        order,
-        credit: detail.credit,
-        payments: detail.payments,
-        synced: false,
-        reason: "transaction_not_found",
-      });
-    }
-
     const expected = expectedDigitalCents(order);
-    const amountCents = transactionBaseCents(transaction);
+    let failureReason: PeySyncFailureReason | "transaction_not_found" =
+      "transaction_not_found";
 
-    const isPaid = transaction.status === "PAID";
-    const isMxn = !transaction.currency || transaction.currency.toUpperCase() === "MXN";
-    const amountMatches = amountCents !== null && amountCents === expected;
-    const referenceMatches = !hasReferenceMismatch(order, transaction);
+    for (const candidateId of candidateIds) {
+      const transaction = await getPeyTransaction(candidateId);
+      if (!transaction) {
+        continue;
+      }
 
-    if (isPaid && isMxn && amountMatches && referenceMatches) {
-      const updated = recordPayment(order.id, {
-        provider: "pey",
-        method: mapPeyMethod(transaction.paymentMethod),
-        amountCents,
-        transactionId: transaction.id,
-        paymentLinkId: order.paymentLinkId,
-        rawEvent: JSON.stringify(transaction),
-      });
-      const updatedDetail = getOrderDetail(order.id);
-      return Response.json({
-        order: updatedDetail?.order ?? updated,
-        credit: updatedDetail?.credit,
-        payments: updatedDetail?.payments,
-        synced: true,
-      });
+      const validation = validatePeyTransactionForOrder(order, transaction, expected);
+      if (validation.ok) {
+        const fallbackMethod =
+          transaction.paymentMethod ??
+          (transaction.payableType?.includes("CODI") ? "CODI" : undefined);
+        const updated = recordPayment(order.id, {
+          provider: "pey",
+          method: mapPeyMethod(fallbackMethod),
+          amountCents: validation.amountCents,
+          transactionId: transaction.id,
+          paymentLinkId: order.paymentLinkId,
+          rawEvent: JSON.stringify(transaction),
+        });
+        const updatedDetail = getOrderDetail(order.id);
+        return Response.json({
+          order: updatedDetail?.order ?? updated,
+          credit: updatedDetail?.credit,
+          payments: updatedDetail?.payments,
+          synced: true,
+        });
+      }
+
+      if (
+        failureReason === "transaction_not_found" ||
+        (failureReason === "reference_mismatch" &&
+          validation.reason !== "reference_mismatch")
+      ) {
+        failureReason = validation.reason;
+      }
     }
 
     return Response.json({
@@ -175,13 +195,7 @@ export async function POST(
       credit: detail.credit,
       payments: detail.payments,
       synced: false,
-      reason: !isPaid
-        ? "not_paid"
-        : !isMxn
-          ? "currency_mismatch"
-          : !amountMatches
-            ? "amount_mismatch"
-            : "reference_mismatch",
+      reason: failureReason,
     });
   } catch (error) {
     const known = appErrorResponse(error);

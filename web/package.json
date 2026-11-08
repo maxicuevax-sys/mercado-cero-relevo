@@ -21,6 +21,7 @@
     "test:demo-pay": "node scripts/p0-demo-pay-contract.mjs",
     "test:b1-regression": "node scripts/oleada-b1-gate.mjs",
     "test:security": "node --no-warnings scripts/security-contract.mjs",
+    "test:prod-pilot": "node --no-warnings --test scripts/prod-pilot-readiness.test.mjs",
     "test:p0-adversarial": "python scripts/p0-adversarial-e2e.py",
     "test:harness": "node --test scripts/harness-gate.test.mjs scripts/check-deps.test.mjs scripts/evidence-integrity.test.mjs scripts/checkout-gate.test.mjs",
     "test:mobile-320": "python scripts/mobile-320-e2e.py",
@@ -33,6 +34,10 @@
     "verify:full": "node scripts/harness-gate.mjs --full",
     "verify:list": "node scripts/harness-gate.mjs --list",
     "verify:evidence": "node scripts/verify-evidence.mjs",
+    "verify:env": "node scripts/verify-env.mjs",
+    "verify:prod-env": "node scripts/verify-env.mjs --prod",
+    "tunnel": "node scripts/tunnel.mjs",
+    "pilot:qr": "node scripts/real-qr-pilot.mjs",
     "harness:report": "node scripts/harness-report.mjs",
     "test:contracts": "npm run test:security && npm run test:fix-datos && npm run test:perf-budget && npm run test:perf-data"
   },

@@ -151,6 +151,74 @@ export function hasValidDemoResetToken(request: Request): boolean {
   return false;
 }
 
+export const OPERATOR_COOKIE_NAME = "mc_operator_token";
+
+/**
+ * Rutas públicas del perímetro de producción:
+ * - `/api/health`: sonda de identidad del build y proceso (sin datos de negocio).
+ * - `/api/webhooks/pey`: autenticado criptográficamente por firma Standard Webhooks.
+ * - `/api/checkout/*` y `/pay/*`: checkout público del comprador desde su propio teléfono.
+ *
+ * En modo demo, `/api/demo/pay` también es invocado por el comprador desde `/pay/[id]`.
+ */
+export function isPublicPerimeterPath(pathname: string, demoMode = false): boolean {
+  if (pathname === "/api/health") return true;
+  if (pathname === "/api/webhooks/pey") return true;
+  if (pathname === "/api/checkout" || pathname.startsWith("/api/checkout/")) return true;
+  if (pathname === "/pay" || pathname.startsWith("/pay/")) return true;
+  if (demoMode && pathname === "/api/demo/pay") return true;
+  return false;
+}
+
+export function configuredOperatorAccessToken(): string | null {
+  const token = process.env.OPERATOR_ACCESS_TOKEN?.trim();
+  return token ? token : null;
+}
+
+function readCookieValue(cookieHeader: string | null, name: string): string | null {
+  if (!cookieHeader) return null;
+  for (const part of cookieHeader.split(";")) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+    const eq = trimmed.indexOf("=");
+    if (eq === -1) continue;
+    const key = trimmed.slice(0, eq).trim();
+    if (key !== name) continue;
+    const raw = trimmed.slice(eq + 1).trim();
+    try {
+      return decodeURIComponent(raw);
+    } catch {
+      return raw;
+    }
+  }
+  return null;
+}
+
+/**
+ * Verifica el token de operadora (`OPERATOR_ACCESS_TOKEN`) en tiempo constante.
+ * Si no está configurado en el entorno, devuelve `true` para preservar el flujo
+ * local y de pruebas del harness; en despliegues de piloto actúa como candado
+ * de aplicación adicional a Cloudflare Access sobre las rutas privadas.
+ */
+export function hasValidOperatorAccessToken(request: Request): boolean {
+  const token = configuredOperatorAccessToken();
+  if (!token) return true;
+
+  const headerToken = request.headers.get("x-operator-token")?.trim();
+  if (headerToken && safeEqual(headerToken, token)) return true;
+
+  const authorization = request.headers.get("authorization")?.trim();
+  if (authorization?.toLowerCase().startsWith("bearer ")) {
+    const bearer = authorization.slice(7).trim();
+    if (bearer && safeEqual(bearer, token)) return true;
+  }
+
+  const cookieToken = readCookieValue(request.headers.get("cookie"), OPERATOR_COOKIE_NAME);
+  if (cookieToken && safeEqual(cookieToken, token)) return true;
+
+  return false;
+}
+
 export interface RateLimitResult {
   allowed: boolean;
   remaining: number;
