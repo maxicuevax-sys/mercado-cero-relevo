@@ -228,7 +228,7 @@ export default async function PendientesPage({
                           <CurrencyAmount cents={money.dueCents} />
                         </p>
                         <Link
-                          href={`/pay/${order.id}`}
+                          href={`/inicio?pedido=${encodeURIComponent(order.id)}#cobrar-codi`}
                           prefetch={false}
                           className="mc-pend-order__cta"
                           aria-label={`Cobrar pedido ${shortOrder(order.id)}`}

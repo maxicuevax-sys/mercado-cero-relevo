@@ -4,6 +4,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { Plus, QrCode, Mic, Package, Receipt, BarChart3 } from "lucide-react";
 import { getDashboardData } from "@/lib/dashboard";
+import { getOrder } from "@/lib/db";
 import { isDemoMode } from "@/lib/config";
 import { listGoals } from "@/lib/goals";
 import { listTasks } from "@/lib/tasks";
@@ -35,8 +36,10 @@ export const metadata: Metadata = {
 export const instant = false;
 
 
-export default async function InicioPage() {
+export default async function InicioPage({ searchParams }: { searchParams: Promise<{ pedido?: string }> }) {
   await connection();
+  const params = await searchParams;
+  const initialOrder = params.pedido ? getOrder(params.pedido) : null;
   const dashboard = getDashboardData({ compactPending: true });
   const goal = listGoals()[0] ?? null;
   const tasks = listTasks(8)
@@ -157,7 +160,7 @@ export default async function InicioPage() {
         </article>
       </section>
 
-      <CodiHub demo={demo} />
+      <CodiHub demo={demo} initialOrder={initialOrder} />
 
       <section className="inicio-hero" aria-labelledby="inicio-hero-title">
         <Image
