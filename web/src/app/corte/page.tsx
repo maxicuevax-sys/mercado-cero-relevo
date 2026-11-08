@@ -23,7 +23,7 @@ import "./corte.css";
 import "@/components/shell/ledger-parity.css";
 
 export const metadata: Metadata = {
-  title: "Corte de caja Â· Trangui",
+  title: "Corte de caja · Trangui",
 };
 
 export const instant = false;
@@ -37,7 +37,7 @@ function SavedClose({ close }: { close: CashClose }) {
   return (
     <div className="mc-corte-history__saved">
       <p className="mc-corte-history__version">
-        Corte #{close.version} Â· {formatTime(close.createdAt)}
+        Corte #{close.version} · {formatTime(close.createdAt)}
       </p>
       <dl className="mc-corte-history__rows">
         <div><dt>Contado</dt><dd>{formatMxn(close.countedCents)}</dd></div>
@@ -49,15 +49,15 @@ function SavedClose({ close }: { close: CashClose }) {
           </dd>
         </div>
         <div><dt>Retiros</dt><dd>{formatMxn(close.withdrawalsCents)}</dd></div>
-        <div><dt>Base para maÃ±ana</dt><dd>{formatMxn(close.baseNextCents)}</dd></div>
+        <div><dt>Base para mañana</dt><dd>{formatMxn(close.baseNextCents)}</dd></div>
         <div><dt>Retiro adicional</dt><dd>{formatMxn(close.withdrawalNextCents)}</dd></div>
-        <div><dt>Efectivo del dÃ­a (foto)</dt><dd>{formatMxn(close.snapshotCashCents)}</dd></div>
+        <div><dt>Efectivo del día (foto)</dt><dd>{formatMxn(close.snapshotCashCents)}</dd></div>
         <div><dt>Fiado pendiente (foto)</dt><dd>{close.snapshotKnown ? formatMxn(close.snapshotCreditCents) : "No registrado"}</dd></div>
       </dl>
       {close.reason ? (
-        <p className="mc-corte-history__reason">Motivo de la correcciÃ³n: <strong>{close.reason}</strong></p>
+        <p className="mc-corte-history__reason">Motivo de la corrección: <strong>{close.reason}</strong></p>
       ) : null}
-      <p className="mc-corte-history__note">Esta foto no cambia si entran ventas o abonos despuÃ©s del cierre.</p>
+      <p className="mc-corte-history__note">Esta foto no cambia si entran ventas o abonos después del cierre.</p>
     </div>
   );
 }
@@ -72,7 +72,7 @@ async function CortePage() {
   const summary = getDailySummary();
   const demo = isDemoMode();
   const cashTodayCents = status.cashSalesCents + status.cashCreditCents;
-  const receiptSpeech = `Efectivo en caja: ${formatMxn(status.expectedCents)}. Cobros digitales verificados: ${formatMxn(summary.verifiedDigitalCents)}. Ventas del dÃ­a: ${formatMxn(summary.salesCents)}. Gastos: ${formatMxn(status.expensesCents)}.`;
+  const receiptSpeech = `Efectivo en caja: ${formatMxn(status.expectedCents)}. Cobros digitales verificados: ${formatMxn(summary.verifiedDigitalCents)}. Ventas del día: ${formatMxn(summary.salesCents)}. Gastos: ${formatMxn(status.expensesCents)}.`;
 
   const methods = summary.methods ?? {};
   const cashCents = methods.cash ?? summary.cashCents;
@@ -117,14 +117,14 @@ async function CortePage() {
       <section className="mc-corte-v2-card" aria-labelledby="corte-resumen-title">
         <h2 id="corte-resumen-title">Resumen del corte</h2>
         <dl className="mc-corte-v2-summary">
-          <div><dt>Ventas del dÃ­a</dt><dd>{formatMxn(summary.salesCents)}</dd></div>
+          <div><dt>Ventas del día</dt><dd>{formatMxn(summary.salesCents)}</dd></div>
           <div><dt>Cobros</dt><dd>{formatMxn(summary.salesCents)}</dd></div>
           <div><dt>Tickets</dt><dd>{tickets}</dd></div>
         </dl>
       </section>
 
       <section className="mc-corte-v2-card" aria-labelledby="corte-metodos-title">
-        <h2 id="corte-metodos-title">MÃ©todos de pago</h2>
+        <h2 id="corte-metodos-title">Métodos de pago</h2>
         <ul className="mc-corte-v2-methods">
           {methodRows.map(({ key, label, cents, Icon }) => (
             <li key={key}>
@@ -146,7 +146,7 @@ async function CortePage() {
       </details>
 
       <details className="mc-corte-detail">
-        <summary>Ver historial y movimientos{demo ? " Â· Demo" : ""}</summary>
+        <summary>Ver historial y movimientos{demo ? " · Demo" : ""}</summary>
         <ReadReceipt text={receiptSpeech} />
         <dl className="mc-corte-summary__rows">
           <div><dt>Efectivo recibido hoy</dt><dd>{formatMxn(cashTodayCents)}</dd></div>
@@ -154,7 +154,7 @@ async function CortePage() {
           <div><dt>Digital declarado, sin verificar</dt><dd>{formatMxn(summary.declaredDigitalCents)}</dd></div>
           <div><dt>Retiros</dt><dd>{formatMxn(status.withdrawalsCents)}</dd></div>
         </dl>
-        <p className="mc-corte-hint">{demo ? "Modo demo: los pagos simulados no cuentan como dinero real. " : ""}El digital verificado no es efectivo de cajÃ³n. Los abonos en efectivo entran al esperado; el fiado pendiente no. El saldo se recalcula al confirmar.</p>
+        <p className="mc-corte-hint">{demo ? "Modo demo: los pagos simulados no cuentan como dinero real. " : ""}El digital verificado no es efectivo de cajón. Los abonos en efectivo entran al esperado; el fiado pendiente no. El saldo se recalcula al confirmar.</p>
         <p className="mc-corte-hint">{pendingCount} cobros por confirmar por {formatMxn(pendingCents)}. <Link href="/pendientes">Ver pendientes</Link></p>
         <h2 className="mc-op-panel__title">Cortes de hoy</h2>
         {saved ? <SavedClose close={saved} /> : <p className="mc-corte-history__empty">Sin corte guardado hoy.</p>}

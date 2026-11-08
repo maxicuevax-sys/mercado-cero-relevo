@@ -1640,6 +1640,164 @@ html[data-contrast="high"] .mc-pend-summary__icon {
 }
 
 @media (min-width: 1024px) {
+  /* The task summary sits in the narrower board column. Its illustration must
+     not reserve 38% before two icon/value pairs compete for the remaining space. */
+  .mc-pend-main .mc-pend-grid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(300px, 1fr);
+    gap: 24px;
+  }
+
+  .mc-pend-main .mc-pend-summary {
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .mc-pend-main .mc-pend-summary__art {
+    width: 72px;
+    max-width: 100%;
+    height: 88px;
+    object-fit: contain;
+  }
+
+  .mc-pend-main .mc-pend-summary__copy {
+    padding-left: 14px;
+  }
+
+  .mc-pend-main .mc-pend-summary__title {
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+
+  .mc-pend-main .mc-pend-summary__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+    margin-top: 12px;
+  }
+
+  .mc-pend-main .mc-pend-summary__stat {
+    flex: 1 0 auto;
+    grid-template-columns: 32px max-content;
+    gap: 3px 8px;
+  }
+
+  .mc-pend-main .mc-pend-summary__stat + .mc-pend-summary__stat {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .mc-pend-main .mc-pend-summary__icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .mc-pend-main .mc-pend-summary__value {
+    font-size: 1.25rem;
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+
+  .mc-pend-main :is(.mc-pend-order__due-amount, .mc-pend-item__meta--amount),
+  .mc-pend-main .tabular-nums {
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+
+  /* These illustration classes previously had only a mobile hide rule; the
+     desktop page consequently rendered the source images at intrinsic size. */
+  .mc-pend-main .mc-pend-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: 128px minmax(0, 1fr);
+    align-items: center;
+    gap: 24px;
+    min-width: 0;
+    padding: 20px 28px;
+    border: 1px solid var(--color-separator);
+    border-radius: 20px;
+    background: var(--color-surface);
+  }
+
+  .mc-pend-main .mc-pend-hero__picado {
+    position: absolute;
+    top: 0;
+    right: 20px;
+    width: 140px;
+    height: 40px;
+    object-fit: contain;
+    object-position: top right;
+    pointer-events: none;
+  }
+
+  .mc-pend-main .mc-pend-hero__art {
+    width: 128px;
+    min-width: 0;
+  }
+
+  .mc-pend-main .mc-pend-hero__art-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 136px;
+    object-fit: contain;
+  }
+
+  .mc-pend-main .mc-pend-hero__copy {
+    min-width: 0;
+  }
+
+  .mc-pend-main .mc-pend-hero__kicker {
+    margin: 0 0 4px;
+    color: var(--color-ink-2);
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  .mc-pend-main .mc-pend-hero__title {
+    margin: 0;
+    font-family: var(--font-hearth), "Hearth", Georgia, serif;
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  .mc-pend-main .mc-pend-hero__text {
+    max-width: 64ch;
+    margin: 8px 0 12px;
+    color: var(--color-ink-2);
+    font-size: .9375rem;
+    line-height: 1.5;
+  }
+
+  .mc-pend-main .mc-pend-hero__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .mc-pend-main .mc-pend-hero__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: var(--color-green-soft);
+    color: var(--color-ink);
+    font-size: .8125rem;
+    line-height: 1.3;
+  }
+
+  .mc-pend-main .mc-pend-hero__chip-icon {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+  }
+
   .mc-pend-order {
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;

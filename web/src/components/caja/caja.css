@@ -1,5 +1,39 @@
 @import "../ui/operational-tokens.css";
 
+/* Caja confirmation shares the paper, ink and green of the ticket. */
+.mc-caja-discard {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 16px;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+}
+.mc-caja-discard[open] { display: grid; place-items: center; }
+.mc-caja-discard::backdrop { background: rgb(12 37 29 / .55); }
+.mc-caja-discard__card {
+  width: min(100%, 460px);
+  max-height: 100%;
+  overflow-y: auto;
+  padding: clamp(20px, 4vw, 28px);
+  border: 1px solid var(--color-separator);
+  border-radius: 24px;
+  background: var(--color-canvas);
+  box-shadow: 0 20px 64px rgb(0 0 0 / .2);
+}
+.mc-caja-discard__head { display: flex; align-items: flex-start; gap: 12px; }
+.mc-caja-discard__head h2 { flex: 1; margin: 0; font: 700 1.625rem/1.15 var(--font-hearth), Georgia, serif; overflow-wrap: anywhere; }
+.mc-caja-discard__close { display: grid; place-items: center; flex: 0 0 44px; width: 44px; min-height: 44px; border: 1px solid var(--color-separator); border-radius: 12px; background: var(--color-surface); color: inherit; cursor: pointer; }
+.mc-caja-discard__close svg { width: 20px; height: 20px; }
+.mc-caja-discard__card > p { margin: 16px 0 24px; font-size: 1rem; line-height: 1.5; }
+.mc-caja-discard__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.mc-caja-discard__actions .mc-caja-button { flex: 1 1 170px; min-height: 48px; white-space: normal; }
+
 /* Captura hablada de la lámina: campo principal + micrófono verde real. */
 .mc-sale-voice {
   min-width: 0;

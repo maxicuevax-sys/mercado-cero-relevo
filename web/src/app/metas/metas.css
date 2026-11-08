@@ -950,6 +950,82 @@
    Ritmo del shell
    ------------------------------------------------------------------------- */
 
+/* Desktop uses the existing protagonist and other-goals composition. The
+   native cards are the alternate mobile rendering of those same goals. */
+@media (min-width: 1024px) {
+  .mc-metas-main .mc-metas-native { display: none; }
+  .mc-metas-main > .mc-op-page:has(> .mc-metas-hero) { gap: 24px; }
+  .mc-metas-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .mc-metas-summary__item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--color-separator);
+    border-radius: 20px;
+    background: var(--mc-metas-surface);
+  }
+  .mc-metas-summary__copy { min-width: 0; }
+  .mc-metas-summary__label { margin: 0 0 6px; color: var(--color-ink-2); font-size: .9375rem; }
+  .mc-metas-summary__value { margin: 0; font-size: clamp(1.5rem, 2.3vw, 2rem); font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
+  .mc-metas-medallion { display: grid; place-items: center; flex: 0 0 48px; width: 48px; height: 48px; border-radius: 50%; color: var(--color-accent); }
+  .mc-metas-medallion--saffron { background: #ffe7ae; }
+  .mc-metas-medallion--green { background: var(--mc-metas-mint); }
+  .mc-metas-medallion--clay { background: #f9dfcf; }
+  .mc-metas-medallion__glyph { width: 26px; height: 26px; }
+  .mc-metas-medallion__art { width: 22px; height: 23px; object-fit: contain; }
+  .mc-metas-hero {
+    display: grid;
+    grid-template-columns: minmax(160px, 24%) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(24px, 3vw, 40px);
+    padding: clamp(24px, 3vw, 36px);
+    border: 1px solid var(--color-separator);
+    border-radius: 24px;
+    background: var(--mc-metas-surface);
+  }
+  .mc-metas-hero__art { display: grid; place-items: center; min-width: 0; }
+  .mc-metas-hero__art-img { display: block; width: 100%; max-width: 220px; height: auto; max-height: 240px; object-fit: contain; }
+  .mc-metas-hero__copy { min-width: 0; }
+  .mc-metas-hero__kicker { margin: 0 0 8px; color: var(--color-attention); font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .mc-metas-hero__title { margin: 0; font: 700 clamp(1.75rem, 2.8vw, 2.5rem)/1.12 var(--font-hearth), Georgia, serif; overflow-wrap: anywhere; }
+  .mc-metas-hero__objective { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; margin: 12px 0 20px; color: var(--color-ink-2); }
+  .mc-metas-objective { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+  .mc-metas-objective__icon { width: 17px; height: 18px; object-fit: contain; }
+  .mc-metas-hero__deadline { font-size: .875rem; }
+  .mc-metas-hero__figures { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+  .mc-metas-hero__amounts { margin: 8px 0; color: var(--color-ink-2); font-size: 1rem; overflow-wrap: anywhere; }
+  .mc-metas-hero__saved { color: var(--color-ink); font-size: 1.375rem; font-weight: 700; }
+  .mc-metas-hero__pct { color: var(--color-accent); font-size: 1.375rem; font-weight: 700; }
+  .mc-metas-hero__bar, .mc-metas-other__bar { height: 12px; overflow: hidden; border-radius: 999px; background: var(--mc-metas-track); }
+  .mc-metas-hero__bar-fill, .mc-metas-other__bar-fill { display: block; height: 100%; border-radius: inherit; background: var(--color-accent); }
+  .mc-metas-hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 20px; }
+  .mc-metas-hero__note, .mc-metas-hero__intro { max-width: 54ch; margin: 0; color: var(--color-ink-2); font-size: .9375rem; line-height: 1.5; }
+  .mc-metas-hero__intro { margin-top: 16px; }
+  .mc-metas-hero__done { margin: 0; color: var(--color-accent); font-weight: 700; }
+  .mc-metas-section-label { margin: 0 0 12px; font: 700 1.5rem/1.2 var(--font-hearth), Georgia, serif; }
+  .mc-metas-others__card { border: 1px solid var(--color-separator); border-radius: 20px; background: var(--mc-metas-surface); }
+  .mc-metas-others__list { margin: 0; padding: 0; list-style: none; }
+  .mc-metas-other { display: grid; grid-template-columns: 40px minmax(0, 1fr) minmax(140px, 24%); align-items: center; gap: 20px; padding: 20px; }
+  .mc-metas-other + .mc-metas-other { border-top: 1px solid var(--color-separator); }
+  .mc-metas-medallion--sm { width: 40px; height: 40px; }
+  .mc-metas-other__main { min-width: 0; }
+  .mc-metas-other__title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+  .mc-metas-other__title { margin: 0; font-size: 1.125rem; font-weight: 700; overflow-wrap: anywhere; }
+  .mc-metas-sello { padding: 4px 8px; border-radius: 8px; background: var(--mc-metas-mint); color: var(--color-accent); font-size: .75rem; font-weight: 700; }
+  .mc-metas-sello--late { background: #f9dfcf; color: var(--color-attention); }
+  .mc-metas-other__meta, .mc-metas-other__hint { margin: 8px 0; color: var(--color-ink-2); font-size: .875rem; line-height: 1.5; overflow-wrap: anywhere; }
+  .mc-metas-other__side { min-width: 0; }
+  .mc-metas-other__pct { margin: 0 0 8px; font-weight: 700; color: var(--color-accent); }
+  .mc-metas-other__side .mc-metas-cta { min-height: 44px; padding: 8px 16px; font-size: .9375rem; }
+  .mc-metas-create { display: flex; justify-content: flex-end; }
+}
+
 @media (max-width: 760px) {
   .inicio-shell.mc-reference-a .mc-op-main.mc-metas-main {
     padding: 18px 14px calc(100px + env(safe-area-inset-bottom));

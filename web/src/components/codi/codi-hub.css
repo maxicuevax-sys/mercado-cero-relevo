@@ -500,6 +500,68 @@
   margin-top: 16px;
 }
 
+/* Desktop: one compact charge panel, with the illustration beside the copy.
+   Phone/tablet composition stays in the existing rules below. */
+@media (min-width: 1200px) {
+  .mc-codi__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 1.1fr);
+    gap: 28px;
+    padding: 24px 28px;
+  }
+
+  .mc-codi__copy {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 104px;
+    column-gap: 16px;
+    align-items: center;
+  }
+
+  .mc-codi__copy > :is(.mc-codi__eyebrow, .mc-codi__title, .mc-codi__lede) {
+    grid-column: 1;
+  }
+
+  .mc-codi__title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 700;
+    font-size: clamp(1.875rem, 2.5vw, 2.25rem);
+    letter-spacing: -0.025em;
+  }
+
+  .mc-codi__art {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    width: 104px;
+    margin: 0;
+    align-self: center;
+  }
+
+  .mc-codi__form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 10px 16px;
+    width: 100%;
+    max-width: 560px;
+    justify-self: end;
+    align-items: center;
+  }
+
+  .mc-codi__form > :is(.mc-codi__label, .mc-codi__amount, .mc-codi__hint, .mc-codi__link) {
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
+
+  .mc-codi__quick {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 0;
+  }
+
+  .mc-codi__chip { min-width: 0; padding-inline: 4px; font-size: 0.9375rem; }
+  .mc-codi__form > .mc-codi__cta { width: 100%; margin-top: 0; padding-inline: 12px; font-size: 1.0625rem; }
+  .mc-codi__form > .mc-codi__link { justify-self: start; }
+}
+
 @media (max-width: 1023px) {
   .mc-codi__grid,
   .mc-codi__order {

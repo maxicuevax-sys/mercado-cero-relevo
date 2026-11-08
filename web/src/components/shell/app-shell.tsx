@@ -8,8 +8,8 @@ import "./definitive-a.css";
 import "./reference-a2.css";
 import {
   codiMobileCenter,
-  inicioFoot,
-  inicioNav,
+  appFoot,
+  appNav,
   mobileMore,
   mobilePrimary,
   type ShellMobileCenter,
@@ -32,8 +32,8 @@ export function AppShell({
   mainId = "main",
   className = "",
   contentClassName = "inicio-content",
-  nav = inicioNav,
-  foot = inicioFoot,
+  nav = appNav,
+  foot = appFoot,
   mobilePrimaryItems,
   mobileMoreItems = mobileMore,
   mobileCenter = codiMobileCenter,
@@ -53,7 +53,7 @@ export function AppShell({
   focusTargetId?: string;
 }) {
   return (
-    <div className={`inicio-shell ${className} ${["/inicio", "/movimientos", "/corte", "/metas", "/pendientes", "/notificaciones"].includes(activeHref) ? "mc-reference-a" : ""}`.trim()}>
+    <div className={`inicio-shell inicio-shell--desktop ${className} ${["/inicio", "/movimientos", "/corte", "/metas", "/pendientes", "/notificaciones"].includes(activeHref) ? "mc-reference-a" : ""}`.trim()}>
       <PreferencesBoot />
       <Suspense fallback={null}>
         <RouteFocus mainId={mainId} targetId={focusTargetId} />

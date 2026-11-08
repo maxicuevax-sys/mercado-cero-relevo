@@ -26,6 +26,7 @@ import "./payment-states.css";
 import { PaymentPanel } from "./payment-panel";
 import { PendingTray, type PendingEntry } from "./pending-tray";
 import { SaleResult } from "./sale-result";
+import { DiscardDialog } from "./discard-dialog";
 import {
   draftTotalCents,
   newLineId,
@@ -119,6 +120,7 @@ export function CajaScreen({
   const [reconcileMessage, setReconcileMessage] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  const [discardTarget, setDiscardTarget] = useState<"sale" | "legacy" | null>(null);
   const saleLockRef = useRef(false);
   const requestRef = useRef<StoredRequest | null>(null);
 
@@ -306,17 +308,10 @@ export function CajaScreen({
   }, [clearDraft]);
 
   const requestClearDraft = useCallback(() => {
-    if (window.confirm("¿Descartar la venta sin confirmar?")) clearDraft();
-  }, [clearDraft]);
+    setDiscardTarget("sale");
+  }, []);
 
   function discardLegacyDraft() {
-    if (
-      !window.confirm(
-        "¿Descartar el borrador de la Caja clásica? Esta venta de la Caja nueva no se toca.",
-      )
-    ) {
-      return;
-    }
     try {
       window.localStorage.removeItem(LEGACY_DRAFT_KEY);
     } catch {
@@ -906,7 +901,7 @@ export function CajaScreen({
                 >
                   Usar esta venta
                 </button>
-                <button type="button" className="mc-caja-clear" onClick={discardLegacyDraft}>
+                <button type="button" className="mc-caja-clear" onClick={() => setDiscardTarget("legacy")}>
                   Descartar la de la Caja clásica
                 </button>
               </>
@@ -1124,6 +1119,24 @@ export function CajaScreen({
       <p className="sr-only" role="status" aria-live="polite">
         {announcement}
       </p>
+
+      {discardTarget ? (
+        <DiscardDialog
+          title={discardTarget === "sale" ? "¿Descartar la venta sin confirmar?" : "¿Descartar el borrador de la Caja clásica?"}
+          description={discardTarget === "sale" ? "Se eliminarán los productos y los datos de esta venta sin confirmar. Puedes seguir con la venta para conservarlos." : "Esta venta de la Caja nueva se conserva. Solo se eliminará el borrador de la Caja clásica."}
+          confirmLabel={discardTarget === "sale" ? "Sí, descartar venta" : "Sí, descartar borrador clásico"}
+          onCancel={() => setDiscardTarget(null)}
+          onConfirm={() => {
+            setDiscardTarget(null);
+            if (discardTarget === "legacy") {
+              discardLegacyDraft();
+            } else {
+              clearDraft();
+              window.requestAnimationFrame(() => document.getElementById("mc-sale-voice-text")?.focus());
+            }
+          }}
+        />
+      ) : null}
 
       <div className="mc-caja-footnote">
         <p>

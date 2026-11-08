@@ -1904,3 +1904,77 @@ html:not([data-contrast="high"]) .mc-corte-summary__balance { background: #eeedc
     margin: 0 !important;
   }
 }
+
+/* The current Corte markup also needs a desktop composition; its original
+   v2 rules above apply only to the approved phone layout. */
+@media (min-width: 1024px) {
+  .inicio-shell .mc-op-main.mc-corte-page > .mc-op-header {
+    max-width: 1040px;
+    padding-right: 0;
+    margin-inline: auto;
+  }
+  .inicio-shell .mc-op-main.mc-corte-page > .mc-op-page {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 20px;
+    max-width: 1040px;
+    min-height: 0;
+    margin-inline: auto;
+  }
+  .mc-corte-page .mc-op-page > :is(.mc-corte-date, .mc-corte-v2-hero, .mc-corte-v2-count, .mc-corte-detail, .mc-corte-history-link) {
+    grid-column: 1 / -1;
+  }
+  .mc-corte-page .mc-corte-date { background: var(--color-surface); border-radius: 14px; }
+  .mc-corte-page .mc-corte-v2-hero {
+    display: grid;
+    grid-template-columns: 176px minmax(0, 1fr);
+    align-items: center;
+    gap: 24px;
+    min-height: 168px;
+    overflow: hidden;
+    border: 1px solid var(--color-separator);
+    border-radius: 22px;
+    background: var(--color-green-soft);
+  }
+  .mc-corte-page .mc-corte-v2-hero__art { align-self: end; }
+  .mc-corte-page .mc-corte-v2-hero__art img { display: block; width: 176px; max-width: 100%; height: auto; }
+  .mc-corte-page .mc-corte-v2-hero > div:last-child { min-width: 0; padding: 20px 24px 20px 0; }
+  .mc-corte-page .mc-corte-v2-hero p { margin: 0; font-size: 1.125rem; font-weight: 600; }
+  .mc-corte-page .mc-corte-v2-hero .tabular-nums {
+    margin-top: 8px;
+    font-size: clamp(2rem, 3vw, 2.75rem);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--color-accent);
+    overflow-wrap: anywhere;
+  }
+  .mc-corte-page .mc-corte-v2-card {
+    min-width: 0;
+    padding: 22px;
+    border: 1px solid var(--color-separator);
+    border-radius: 20px;
+    background: var(--color-surface);
+    box-shadow: var(--mc-corte-shadow);
+  }
+  .mc-corte-page .mc-corte-v2-card h2 { margin: 0 0 14px; font: 700 1.5rem/1.2 var(--font-hearth), Georgia, serif; }
+  .mc-corte-page .mc-corte-v2-summary { display: grid; gap: 0; margin: 0; }
+  .mc-corte-page .mc-corte-v2-summary > div { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; min-height: 56px; padding-block: 14px; border-bottom: 1px solid var(--color-separator); }
+  .mc-corte-page .mc-corte-v2-summary > div:last-child { border-bottom: 0; }
+  .mc-corte-page .mc-corte-v2-summary dt { color: var(--color-ink-2); }
+  .mc-corte-page .mc-corte-v2-summary dd { margin: 0; font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .mc-corte-page .mc-corte-v2-methods { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+  .mc-corte-page .mc-corte-v2-methods li { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto auto; align-items: center; gap: 10px; min-height: 56px; padding-block: 10px; border-bottom: 1px solid var(--color-separator); }
+  .mc-corte-page .mc-corte-v2-methods li:last-child { border-bottom: 0; }
+  .mc-corte-page .mc-corte-v2-method-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--color-green-soft); color: var(--color-accent); }
+  .mc-corte-page .mc-corte-v2-method-icon svg { width: 20px; height: 20px; }
+  .mc-corte-page .mc-corte-v2-methods strong { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .mc-corte-page .mc-corte-v2-method-pct { padding: 4px 6px; border-radius: 12px; background: var(--color-green-soft); color: var(--color-accent); font-size: .8125rem; text-align: center; }
+  .mc-corte-page .mc-corte-v2-close { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 12px 20px; border-radius: 14px; background: var(--color-accent); color: var(--color-surface); font-weight: 700; cursor: pointer; list-style: none; }
+  .mc-corte-page .mc-corte-v2-close::-webkit-details-marker { display: none; }
+  .mc-corte-page .mc-corte-v2-close svg { width: 22px; height: 22px; }
+  .mc-corte-page .mc-corte-v2-count[open] > summary { margin-bottom: 16px; }
+  .mc-corte-page .mc-corte-detail { margin-top: 0; padding: 8px 20px; border: 1px solid var(--color-separator); border-radius: 16px; background: var(--color-surface); }
+  .mc-corte-page .mc-corte-detail > summary { font-weight: 600; }
+  .mc-corte-page .mc-corte-history-link { margin: 0; }
+}
