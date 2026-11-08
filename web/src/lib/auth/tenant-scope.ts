@@ -7,6 +7,7 @@ import type { DatabaseSync } from "node:sqlite";
 interface TenantDatabaseScope {
   readonly databasePath: string;
   readonly backupDirectory: string;
+  readonly accountId?: string;
   database?: DatabaseSync;
   closed: boolean;
 }
@@ -14,6 +15,10 @@ const storage = new AsyncLocalStorage<TenantDatabaseScope>();
 
 export function currentTenantDatabase(): TenantDatabaseScope | undefined {
   return storage.getStore();
+}
+
+export function currentTenantAccountId(): string | undefined {
+  return storage.getStore()?.accountId;
 }
 
 function rejectSymlink(target: string) {
@@ -50,6 +55,7 @@ export async function runInTenantDatabase<T>(
   const scope: TenantDatabaseScope = {
     databasePath: path.join(directory, "demo.sqlite"),
     backupDirectory: path.join(directory, "backups"),
+    accountId: options.accountId,
     closed: false,
   };
   rejectSymlink(scope.databasePath);

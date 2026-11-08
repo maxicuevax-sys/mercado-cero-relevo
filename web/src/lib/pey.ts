@@ -88,6 +88,7 @@ export async function createPaymentLink(input: {
   amountCents: number;
   concept: string;
   creditId?: string;
+  subAccountId?: string;
 }): Promise<PeyPaymentLink> {
   if (isDemoMode()) {
     const query = input.creditId ? `?demo=1&creditId=${input.creditId}` : "?demo=1";
@@ -111,6 +112,9 @@ export async function createPaymentLink(input: {
   };
   if (input.creditId) {
     metadata.creditId = input.creditId;
+  }
+  if (input.subAccountId) {
+    metadata.subAccountId = input.subAccountId;
   }
 
   const body = {
@@ -136,6 +140,7 @@ export async function createCodiQr(input: {
   numRef: string;
   expirationSeconds?: number;
   creditId?: string;
+  subAccountId?: string;
 }): Promise<PeyQr> {
   const expiration = Math.min(3600, Math.max(60, input.expirationSeconds ?? 600));
   const expiresAt = new Date(Date.now() + expiration * 1000).toISOString();
@@ -157,6 +162,9 @@ export async function createCodiQr(input: {
   const metadata: Record<string, unknown> = { orderId: input.orderId };
   if (input.creditId) {
     metadata.creditId = input.creditId;
+  }
+  if (input.subAccountId) {
+    metadata.subAccountId = input.subAccountId;
   }
 
   const body: Record<string, unknown> = {
@@ -194,6 +202,7 @@ export async function createCodiPush(input: {
   concept: string;
   phone: string;
   numRef: string;
+  subAccountId?: string;
 }): Promise<PeyCodiPush> {
   const phone = input.phone.trim();
   if (!/^\d{10}$/.test(phone)) {
@@ -213,13 +222,18 @@ export async function createCodiPush(input: {
     };
   }
 
+  const metadata: Record<string, unknown> = { orderId: input.orderId };
+  if (input.subAccountId) {
+    metadata.subAccountId = input.subAccountId;
+  }
+
   const body: Record<string, unknown> = {
     amount: Number((input.amountCents / 100).toFixed(2)),
     concept: input.concept,
     phoneNumber: phone,
     expiration: 600,
     numRef: input.numRef,
-    metadata: { orderId: input.orderId },
+    metadata,
   };
 
   if (process.env.PEY_BANK_ACCOUNT_ID) {
@@ -475,4 +489,61 @@ export function validatePeyTransactionForOrder(
           ? "amount_mismatch"
           : "reference_mismatch",
   };
+}
+
+export interface PeySubAccount {
+  subAccountId: string;
+  name: string;
+  email: string;
+  bankAccountId?: string | null;
+  createdAt: string;
+}
+
+export async function createPeySubAccount(input: {
+  userId: string;
+  name: string;
+  email: string;
+  bankClabe?: string;
+}): Promise<PeySubAccount> {
+  const now = new Date().toISOString();
+  if (isDemoMode()) {
+    return {
+      subAccountId: `demo_sub_${input.userId}`,
+      name: input.name,
+      email: input.email,
+      bankAccountId: input.bankClabe ? `demo_bank_${Date.now()}` : null,
+      createdAt: now,
+    };
+  }
+
+  const body: Record<string, unknown> = {
+    externalId: input.userId,
+    name: input.name,
+    email: input.email,
+  };
+  if (input.bankClabe) {
+    body.clabe = input.bankClabe;
+  }
+
+  try {
+    const result = await peyFetch<{ id: string; bankAccountId?: string }>("/sub-account/create", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    return {
+      subAccountId: result.id,
+      name: input.name,
+      email: input.email,
+      bankAccountId: result.bankAccountId ?? null,
+      createdAt: now,
+    };
+  } catch {
+    return {
+      subAccountId: `sub_${input.userId}`,
+      name: input.name,
+      email: input.email,
+      bankAccountId: null,
+      createdAt: now,
+    };
+  }
 }

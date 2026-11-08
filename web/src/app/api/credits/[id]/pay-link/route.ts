@@ -1,4 +1,5 @@
 import { withPilotRoute } from "../../../../../lib/auth/pilot-route";
+import { currentTenantAccountId } from "@/lib/auth/tenant-scope";
 import crypto from "node:crypto";
 import QRCode from "qrcode";
 import { z } from "zod";
@@ -94,6 +95,8 @@ async function POSTImpl(
 
     const concept = `Abono fiado ${credit.customerName ?? "Cliente"} · ${(amountCents / 100).toFixed(2)} MXN`.slice(0, 120);
     const mode = input.mode ?? "qr";
+    const tenantId = currentTenantAccountId();
+    const subAccountId = tenantId ? `demo_sub_${tenantId}` : undefined;
 
     if (mode === "qr") {
       const numRef = credit.numRef ?? reserveCreditNumRef(credit.id);
@@ -103,6 +106,7 @@ async function POSTImpl(
         concept,
         numRef,
         creditId: credit.id,
+        subAccountId,
       });
 
       const qrValue = isDemoMode()
@@ -137,6 +141,7 @@ async function POSTImpl(
       amountCents,
       concept,
       creditId: credit.id,
+      subAccountId,
     });
 
     const updated = attachCreditPaymentLink(credit.id, link);
