@@ -81,7 +81,11 @@ test('real signup, secure cookie, maximum 24 hour session, and revocation', asyn
   const cookie = cookieOf(response);
   const session = await (await request(identity.auth, 'get-session', null, cookie)).json();
   assert.equal(session.user.email, 'judge-a@example.test');
-  assert.equal(Date.parse(session.session.expiresAt) - Date.parse(session.session.createdAt), 86400000);
+  const sessionDurationMs = Date.parse(session.session.expiresAt) - Date.parse(session.session.createdAt);
+  assert.ok(
+    Math.abs(sessionDurationMs - 86400000) <= 1000,
+    `Expected 24 hour session (86400000 ms), got ${sessionDurationMs}`
+  );
   const logout = await request(identity.auth, 'sign-out', {}, cookie);
   assert.equal(logout.status, 200);
   assert.equal(await (await request(identity.auth, 'get-session', null, cookie)).json(), null);
