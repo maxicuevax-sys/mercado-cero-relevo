@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Trangui · La caja que habla",
+    name: "Trangui · Tu puesto, con menos pendientes",
     short_name: "Trangui",
     description:
-      "Cobra por voz, acepta CoDi, tarjeta y efectivo, y confirma un pago solo cuando el banco lo confirma.",
+      "Lleva ventas, fiados y caja. Explora QR y CoDi en modo demo, sin mover dinero real.",
     start_url: "/inicio",
     scope: "/",
     display: "standalone",
@@ -17,19 +17,19 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["business", "finance", "productivity"],
     icons: [
       {
-        src: "/icons/icon-192.png",
+        src: "/icons/trangui-192-v1.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icons/icon-512.png",
+        src: "/icons/trangui-512-v1.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icons/icon-maskable-512.png",
+        src: "/icons/trangui-maskable-512-v1.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",

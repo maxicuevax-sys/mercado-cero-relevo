@@ -40,7 +40,7 @@ import {
 const MUTATING = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
 function bodyLimitFor(pathname: string): number | null {
-  if (pathname === "/api/webhooks/pey") return MAX_WEBHOOK_BYTES;
+  if (pathname === "/api/webhooks/pey" || pathname === "/api/real-test/webhook") return MAX_WEBHOOK_BYTES;
   if (pathname === "/api/voice/parse") return MAX_VOICE_PARSE_BYTES;
   // El multipart añade boundary y cabeceras; la ruta valida el archivo real.
   if (pathname === "/api/voice/transcribe") return MAX_TRANSCRIBE_BYTES + 64 * 1024;
@@ -79,7 +79,7 @@ export function proxy(request: NextRequest) {
     return blocked;
   }
 
-  if (mutating && pathname !== "/api/webhooks/pey") {
+  if (mutating && pathname !== "/api/webhooks/pey" && pathname !== "/api/real-test/webhook") {
     if (!isSameOriginMutation(request)) {
       return jsonError(
         "El origen de la petición no está permitido.",

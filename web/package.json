@@ -48,7 +48,9 @@
     "test:judge-accounts": "playwright test -c playwright.judge.config.ts",
     "test:business-profile": "node --no-warnings --test scripts/business-profile.test.mjs",
     "test:account-browser-state": "node --no-warnings --test src/lib/auth/browser-state.test.mjs",
-    "test:judge-recovery": "node --no-warnings --test ../deploy/judge-snapshot.test.mjs"
+    "test:judge-recovery": "node --no-warnings --test ../deploy/judge-snapshot.test.mjs",
+    "test:tianguis-qr": "node --test scripts/tianguis-qr.test.mjs",
+    "test:pey-real-test": "node --test scripts/pey-real-test.test.mjs"
   },
   "dependencies": {
     "@zxing/browser": "^0.2.1",

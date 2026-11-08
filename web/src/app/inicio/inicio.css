@@ -1790,4 +1790,14 @@ html[data-contrast="high"] .inicio-nav__item[aria-current="page"]:focus-visible 
   .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__alerts { width: 40px; height: 40px; }
   .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar__bell { width: 22px; height: 22px; }
   .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-avatar { width: 29px; height: 29px; font-size: .875rem; }
+
+  /* Keep the existing mobile chrome geometry and the high-contrast palette. */
+  html:not([data-contrast="high"]) .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar {
+    background: var(--inicio-green);
+    color: var(--inicio-paper);
+    border-bottom-color: var(--inicio-green);
+  }
+  html:not([data-contrast="high"]) .inicio-shell.mc-reference-a.inicio-shell--compact :is(.inicio-topbar__mobile-brand, .inicio-topbar__alerts, .inicio-topbar__bell) { color: var(--inicio-paper); }
+  html:not([data-contrast="high"]) .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-avatar { border-color: var(--inicio-paper); }
+  html:not([data-contrast="high"]) .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-topbar :focus-visible { outline-color: var(--inicio-paper); }
 }

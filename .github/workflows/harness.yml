@@ -68,6 +68,14 @@ jobs:
       - name: Harness static gate (build con BUILD_SHA)
         run: npm run verify:static
 
+      - name: Install isolated QR decoder test dependencies
+        run: python3 -m pip install -r scripts/qr-test-requirements.txt
+
+      - name: Real-test payment and QR rendering contracts
+        run: |
+          npm run test:pey-real-test
+          npm run test:tianguis-qr
+
       - name: Contrato de seguridad
         run: npm run test:security
 

@@ -279,8 +279,8 @@ export function transactionBaseCents(transaction: {
 export function verifyWebhookSignature(
   rawBody: string,
   headerValues: { id: string | null; timestamp: string | null; signature: string | null },
+  secret = process.env.PEY_WEBHOOK_SECRET,
 ): boolean {
-  const secret = process.env.PEY_WEBHOOK_SECRET;
   if (!secret || !headerValues.id || !headerValues.timestamp || !headerValues.signature) {
     return false;
   }

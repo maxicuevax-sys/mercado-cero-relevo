@@ -9,12 +9,14 @@ import { parseMoneyCents } from "@/components/caja/types";
 import { formatMxn } from "@/lib/format";
 import { PAYMENT_STATES, orderStatusCopy } from "@/lib/payment-labels";
 import type { Order } from "@/lib/types";
+import { TianguisQr } from "@/components/ui/tianguis-qr";
 import "./codi-hub.css";
+import { RealTestPayment } from "./real-test-payment";
 
 /** Mismo tope que `MAX_UNIT_PRICE_CENTS` en lib/orders.ts; se valida también en el servidor. */
 const MAX_AMOUNT_CENTS = 10_000_000;
 const MIN_AMOUNT_CENTS = 100;
-const QUICK_AMOUNTS = [2_000, 5_000, 10_000, 20_000];
+const QUICK_AMOUNTS = [2_000, 5_000, 10_000];
 const POLL_MS = 5_000;
 const TERMINAL: ReadonlySet<Order["status"]> = new Set([
   "paid",
@@ -278,6 +280,7 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
                   ${cents / 100}
                 </button>
               ))}
+              <RealTestPayment />
             </div>
 
             <button
@@ -348,9 +351,10 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
           <div className="mc-codi__qr-pane">
             {order.qrImage ? (
               <figure className="mc-codi__figure">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={order.qrImage}
+                <TianguisQr
+                  original={order.qrImage}
+                  payload={demo ? null : order.qrString}
+                  decodeOriginal={demo}
                   alt={`QR de cobro CoDi por ${formatMxn(
                     order.totalCents,
                   )}, pedido ${shortId}`}

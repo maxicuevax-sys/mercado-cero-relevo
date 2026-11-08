@@ -12,6 +12,7 @@ import {
 import { formatActivityDate, formatMxn, shortOrder } from "@/lib/format";
 import type { Credit } from "@/lib/types";
 import { SheetDialog } from "./dialog";
+import { TianguisQr } from "@/components/ui/tianguis-qr";
 
 type PayMethod = "cash" | "codi" | "card";
 
@@ -385,8 +386,7 @@ export function CreditPaySheet({
             </button>
             {qrData?.qrImage ? (
               <div className="mc-fiados-codi-qr" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", padding: "12px", border: "1px solid #dfd2bc", borderRadius: "14px", background: "#fffdf8" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={qrData.qrImage} alt="QR CoDi para abono" style={{ width: 180, height: 180 }} />
+                <TianguisQr original={qrData.qrImage} decodeOriginal={!!qrData.qrString} alt="QR CoDi para abono" style={{ width: 180, height: 180 }} />
                 {qrData.numRef ? (
                   <p className="mc-caja-numref" role="status" style={{ width: "100%", margin: 0 }}>
                     <span>Referencia CoDi:</span>
