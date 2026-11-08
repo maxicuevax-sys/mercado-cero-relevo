@@ -81,7 +81,10 @@ test('real signup, secure cookie, maximum 24 hour session, and revocation', asyn
   const cookie = cookieOf(response);
   const session = await (await request(identity.auth, 'get-session', null, cookie)).json();
   assert.equal(session.user.email, 'judge-a@example.test');
-  assert.equal(Date.parse(session.session.expiresAt) - Date.parse(session.session.createdAt), 86400000);
+  // Better Auth may cross one second between computing expiry and createdAt.
+  // Tolerate shortening by that tick, never a session exceeding 24 hours.
+  const durationMs = Date.parse(session.session.expiresAt) - Date.parse(session.session.createdAt);
+  assert.ok(durationMs >= 86_399_000 && durationMs <= 86_400_000, `Invalid session duration: ${durationMs}`);
   const logout = await request(identity.auth, 'sign-out', {}, cookie);
   assert.equal(logout.status, 200);
   assert.equal(await (await request(identity.auth, 'get-session', null, cookie)).json(), null);

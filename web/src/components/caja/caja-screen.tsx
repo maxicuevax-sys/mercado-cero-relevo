@@ -21,6 +21,7 @@ import { SaleLineItems } from "./sale-line-items";
 import type { BusinessType } from "@/lib/business-profile";
 import { SaleVoice } from "./sale-voice";
 import { CajaSpecCheckout } from "./caja-spec-checkout";
+import { QUICK_AMOUNTS } from "./quick-amounts";
 import { SaleSummary } from "./sale-summary";
 import { PaymentMethodScreen } from "./payment-method-screen";
 import "./payment-states.css";
@@ -340,7 +341,7 @@ export function CajaScreen({
     }
   }
 
-  function validate(): string | null {
+  function validate(receivedCashCents = cashCents): string | null {
     if (!lines.length) return "Agrega al menos un concepto.";
     const issues: Record<string, string> = {};
     for (const line of lines) {
@@ -372,7 +373,7 @@ export function CajaScreen({
     if (appliedCreditCents > 0 && !customerName.trim()) {
       return "Para fiado necesito el nombre del cliente.";
     }
-    if (method === "cash" && cashCents < totalCents) {
+    if (method === "cash" && receivedCashCents < totalCents) {
       return "El efectivo recibido no cubre el total. Agrega el faltante o elige Mixto.";
     }
     if (method === "credit" && appliedCreditCents < totalCents) {
@@ -384,8 +385,8 @@ export function CajaScreen({
     return null;
   }
 
-  async function confirmSale() {
-    if (saleLockRef.current) return;
+  async function confirmSale(exactCash = false) {
+    if (saleLockRef.current || (exactCash && !canQuickCash)) return;
     saleLockRef.current = true;
     try {
       const locks = (
@@ -396,9 +397,9 @@ export function CajaScreen({
         }
       ).locks;
       if (locks) {
-        await locks.request("mercado-cero:caja-sale", runSale);
+        await locks.request("mercado-cero:caja-sale", () => runSale(exactCash));
       } else {
-        await runSale();
+        await runSale(exactCash);
       }
     } catch (caught) {
       setError(friendlySaleError(caught));
@@ -407,18 +408,32 @@ export function CajaScreen({
     }
   }
 
-  async function runSale() {
-    const issue = validate();
+  async function runSale(exactCash = false) {
+    if (exactCash && !canQuickCash) return;
+    const receivedCashCents = exactCash ? totalCents : cashCents;
+    const issue = validate(receivedCashCents);
     if (issue) {
       setError(issue);
       return;
     }
-    setSaving(true);
-    setError(null);
+    if (exactCash) {
+      const exactInput = (totalCents / 100).toFixed(2);
+      setCashInput(exactInput);
+      // Persist the exact request draft before sending; a lost response/reload
+      // must not turn its retry into a different financial operation.
+      try {
+        window.localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          instanceId: draftInstanceId, lines, cashInput: exactInput,
+          creditInput, customerName, method,
+        }));
+      } catch {
+        // As with manual drafts, unavailable storage retains this tab's state.
+      }
+    }
 
     const { payload, signature } = buildSalePayload(
       lines,
-      cashInput,
+      exactCash ? (totalCents / 100).toFixed(2) : cashInput,
       creditInput,
       customerName,
     );
@@ -440,6 +455,8 @@ export function CajaScreen({
       }
     }
 
+    setSaving(true);
+    setError(null);
     let requestId = newRequestId("sale");
     const confirmed = readConfirmedSale();
     if (
@@ -545,8 +562,8 @@ export function CajaScreen({
       );
       setOrder(created);
       setCreditBalanceCents(creditBalance);
-      setChangeCents(changeForSale);
-      setCashReceivedCents(cashCents);
+      setChangeCents(exactCash ? 0 : changeForSale);
+      setCashReceivedCents(receivedCashCents);
       setView(due > 0 ? "payment" : "result");
       try {
         if (due > 0) {
@@ -666,16 +683,12 @@ export function CajaScreen({
         { cache: "no-store" },
       );
       if (response.status === 404) {
-        requestRef.current = null;
-        try {
-          window.localStorage.removeItem(REQUEST_KEY);
-        } catch {
-          // Sin storage no hay llave que limpiar.
-        }
-        setUnknownResult(null);
-        writeStoredUnknown(null);
+        // Absence now does not prove the original request cannot still commit.
+        // Keep its identity and locked draft for an explicit idempotent retry.
+        requestRef.current = { requestId: unknownResult.requestId, signature: unknownResult.signature };
+        try { writeStoredRequest(requestRef.current); } catch { /* Retain this tab's key. */ }
         setReconcileMessage(
-          "No se encontró una venta con esa llave. Puedes corregir los datos y confirmar de nuevo con una llave nueva.",
+          "La venta todavía no aparece. Si reintentas, se conservarán los mismos datos y la misma llave para evitar duplicarla.",
         );
         return;
       }
@@ -711,6 +724,20 @@ export function CajaScreen({
         // La venta ya está recuperada; el saldo se toma del listado.
       }
 
+      // Other tabs may still hold this exact draft without an in-memory request.
+      // Publish its receipt before releasing the shared unknown/request records.
+      try {
+        writeConfirmedSale({
+          instanceId: draftInstanceId,
+          requestId: unknownResult.requestId,
+          signature: unknownResult.signature,
+          orderId: recovered.id,
+          confirmedAt: new Date().toISOString(),
+        });
+      } catch {
+        // Without shared storage the current tab still retains the request key.
+      }
+
       const due = Math.max(
         0,
         recovered.totalCents - recovered.paidCents - recovered.creditCents,
@@ -738,6 +765,7 @@ export function CajaScreen({
       setCashReceivedCents(0);
       setView(due > 0 ? "payment" : "result");
       setLines([]);
+      setDraftInstanceId(newInstanceId());
       setCashInput("");
       setCreditInput("");
       setCustomerName("");
@@ -761,7 +789,7 @@ export function CajaScreen({
         "No pudimos consultar el estado. No edites ni cobres otra vez; reintenta la consulta.",
       );
     }
-  }, [unknownResult]);
+  }, [unknownResult, draftInstanceId]);
 
   function goToPayment() {
     const target = document.getElementById("mc-caja-payment-summary");
@@ -771,6 +799,26 @@ export function CajaScreen({
     window.requestAnimationFrame(() => {
       target.querySelector<HTMLElement>(".mc-caja-method--active")?.focus({ preventScroll: true });
     });
+  }
+
+  // Exact cash is an explicit shortcut, never a method conversion. Preserve any
+  // entered amount that could require change and every ambiguous-result lock.
+  const canQuickCash = hydrated && !saving && !unknownResult && !legacyConflict &&
+    method === "cash" && lines.length > 0 && totalCents > 0 &&
+    parseMoneyCents(creditInput) === 0 &&
+    (!cashInput.trim() || cashCents === totalCents);
+
+  function addQuickAmount(cents: number) {
+    if (!hydrated || saving || saleLockRef.current || unknownResult || legacyConflict ||
+        !QUICK_AMOUNTS.some(amount => amount === cents)) return;
+    if (lines.length >= 50 || totalCents + cents > 100_000_000) {
+      setError("El ticket excede el límite de conceptos o importe. No se añadió el monto.");
+      return;
+    }
+    const line: DraftLine = { id: newLineId(), description: "Venta rápida", quantity: "1", price: (cents / 100).toFixed(2) };
+    setLines(current => current.length < 50 && draftTotalCents(current) + cents <= 100_000_000 ? [...current, line] : current);
+    setError(null);
+    setAnnouncement(`Monto de $${cents / 100} añadido al ticket. Revisa la venta antes de registrarla.`);
   }
 
   const canConfirm =
@@ -1042,7 +1090,7 @@ export function CajaScreen({
             customerName={customerName}
             error={error}
             saving={saving}
-            locked={Boolean(unknownResult)}
+            locked={Boolean(unknownResult) || legacyConflict || !hydrated}
             onMethod={chooseMethod}
             onCash={(value) => {
               setCashInput(value);
@@ -1056,13 +1104,17 @@ export function CajaScreen({
               setCustomerName(value);
               setError(null);
             }}
+            canQuickCash={canQuickCash}
+            onQuickCash={() => void confirmSale(true)}
+            onQuickAdd={addQuickAmount}
             onClear={requestClearDraft}
           />
           </div>
           <CajaSpecCheckout totalCents={totalCents} method={method}
             disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated}
             onMethod={chooseMethod} onReview={() => setView("method")}
-            onClear={requestClearDraft} />
+            canQuickCash={canQuickCash} onQuickCash={() => void confirmSale(true)}
+            onQuickAdd={addQuickAmount} onClear={requestClearDraft} />
         </>
       ) : null}
 
@@ -1071,7 +1123,8 @@ export function CajaScreen({
         canConfirm={canConfirm} disabled={saving || Boolean(unknownResult) || legacyConflict} demo={demo}
         onMethod={chooseMethod} onCash={value => { setCashInput(value); setError(null); }}
         onCredit={value => { setCreditInput(value); setError(null); }}
-        onCustomer={value => { setCustomerName(value); setError(null); }} onConfirm={confirmSale} /> : null}
+        onCustomer={value => { setCustomerName(value); setError(null); }} onConfirm={confirmSale}
+        canQuickCash={canQuickCash} onQuickCash={() => void confirmSale(true)} /> : null}
 
       {view === "payment" && order ? (
         <PaymentPanel

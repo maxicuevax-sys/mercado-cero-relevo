@@ -13,6 +13,7 @@ type Props = {
   onMethod: (value: PaymentChoice) => void; onCash: (value: string) => void;
   onCredit: (value: string) => void; onCustomer: (value: string) => void;
   onConfirm: () => Promise<void>;
+  canQuickCash: boolean; onQuickCash: () => void;
 };
 
 /** M03 is a distinct view. Continue never changes payment status. */
@@ -27,6 +28,7 @@ export function PaymentMethodScreen(p: Props) {
       </label>)}
     </fieldset>
     <details className="mc-payment-mixed"><summary>Otros métodos de cobro</summary><button type="button" aria-pressed={p.method === "mixed"} disabled={p.disabled} onClick={() => { p.onMethod("mixed"); setReview(true); }}>Mixto</button></details>
+    {p.canQuickCash ? <button type="button" className="mc-caja-button mc-caja-button--secondary mc-caja-quick-cash" disabled={p.disabled} onClick={p.onQuickCash}><Banknote aria-hidden="true" /><span>Cobrar efectivo exacto</span></button> : null}
     {!review ? <button type="button" className="mc-caja-button mc-caja-button--primary mc-payment-continue" disabled={p.disabled} onClick={() => { setReview(true); window.requestAnimationFrame(() => document.getElementById("mc-method-review")?.focus()); }}>Continuar <ArrowRight aria-hidden="true" /></button> : null}
     {review ? <section id="mc-method-review" tabIndex={-1} className="mc-payment-review" aria-label="Revisar cobro">
       <h2>Revisa el cobro</h2>
