@@ -10,7 +10,7 @@
 }
 .access-screen { width: 100%; max-width: 480px; margin: 0 auto; background: var(--access-green); }
 .access-brandbar { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 20px 11px; color: #fffdf4; background: radial-gradient(ellipse at 60% 15%, #00654a, #003d2c 90%); }
-.access-brand { display: flex; align-items: center; gap: 8px; }
+.access-brand { display: flex; align-items: center; gap: 8px; color: inherit; text-decoration: none; }
 .access-brand > span { font: 800 clamp(1.5rem, 7vw, 2rem)/1 Georgia, serif; letter-spacing: -.04em; }
 .access-shop { width: 43px; height: 43px; object-fit: contain; }
 .access-rays { width: 20px; height: 25px; flex: 0 0 auto; fill: none; stroke: #fbb900; stroke-width: 4; stroke-linecap: round; }
@@ -44,7 +44,7 @@
 .access-submit:disabled { cursor: wait; opacity: .75; }
 .access-divider { display: flex; align-items: center; gap: 12px; margin: 7px 3px; color: #4f534f; font-size: .9rem; line-height: 1.35; text-align: center; }
 .access-divider::before, .access-divider::after { content: ""; height: 1px; flex: 1; background: #b4aea2; }
-.access-register { border: 1.5px solid #005039; background: transparent; color: #03442c; min-height: 39px; }
+.access-register { border: 1.5px solid #005039; background: transparent; color: #03442c; min-height: 39px; text-decoration: none; }
 .access-register > svg { width: 25px; height: 25px; stroke-width: 2.3; }
 .access-promise { display: flex; align-items: center; gap: 12px; margin: 9px -4px 0; padding: 6px 13px; border-radius: 22px; background: linear-gradient(100deg, #edf0d4, #f0f0d8); }
 .access-promise-mark { position: relative; display: grid; place-items: center; width: 71px; min-height: 34px; padding-right: 17px; border-right: 1px solid #98ad72; flex: 0 0 auto; }
@@ -53,7 +53,7 @@
 .access-promise p { margin: 0; color: #42483c; font-size: .85rem; line-height: 1.4; }
 .access-message { padding: 8px 0 0; margin: 0; color: #17471b; font-size: .9rem; line-height: 1.4; }
 .access-message--error { color: #8a281b; }
-.access-page :is(input, button):focus-visible { outline: 3px solid #19754c; outline-offset: 3px; }
+.access-page :is(input, button, a):focus-visible { outline: 3px solid #19754c; outline-offset: 3px; }
 @media (min-width: 700px) {
   .access-page { padding: 28px 24px; }
   .access-screen { border-radius: 30px; overflow: hidden; border: 1px solid #e4d9c8; box-shadow: 0 14px 40px #3a30251a; }

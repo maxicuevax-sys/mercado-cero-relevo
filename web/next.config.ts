@@ -193,6 +193,7 @@ const nextConfig: NextConfig = {
         headers: privateHeaders,
       },
       { source: "/acceso", headers: privateHeaders },
+      { source: "/registro", headers: privateHeaders },
       { source: "/caja", headers: privateHeaders },
       { source: "/ventas", headers: privateHeaders },
       { source: "/movimientos", headers: privateHeaders },

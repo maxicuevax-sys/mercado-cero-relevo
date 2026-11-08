@@ -1,19 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, MonitorPlay, Store, UserRound } from "lucide-react";
-import shop from "@/assets/inicio/brand-shop-cream.svg";
-
-function BrandRays() {
-  return <svg viewBox="0 0 28 30" aria-hidden="true" className="access-rays"><path d="m6 6 9-4M7 14h14M6 22l9 5" /></svg>;
-}
+import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, Store, UserRound } from "lucide-react";
+import { AuthBrandbar, BrandRays } from "./auth-brandbar";
 
 export function AccessScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
   const [invalidField, setInvalidField] = useState<"email" | "password" | null>(null);
 
   async function signIn(event: FormEvent<HTMLFormElement>) {
@@ -23,7 +19,6 @@ export function AccessScreen() {
     const fields = new FormData(form);
     const email = String(fields.get("email") ?? "").trim();
     const password = String(fields.get("password") ?? "");
-    setNotice("");
     const emailInput = form.elements.namedItem("email") as HTMLInputElement;
     if (!email || !emailInput.validity.valid) {
       setInvalidField("email");
@@ -62,13 +57,7 @@ export function AccessScreen() {
   return (
     <main className="access-page">
       <article className="access-screen" aria-labelledby="access-title">
-        <header className="access-brandbar">
-          <div className="access-brand" aria-label="Trangui">
-            <Image src={shop} alt="" aria-hidden="true" className="access-shop" width={50} height={50} />
-            <span>Trangui</span><BrandRays />
-          </div>
-          <span className="access-demo" aria-label="Modo demo"><MonitorPlay aria-hidden="true" /><span>DEMO</span></span>
-        </header>
+        <AuthBrandbar />
         <div className="access-paper">
           <div className="access-heading">
             <p className="access-eyebrow">Tu mostrador digital</p>
@@ -103,8 +92,7 @@ export function AccessScreen() {
             <button className="access-submit" type="submit" disabled={busy}><ArrowRight aria-hidden="true" /><span>{busy ? "Conectando…" : "Entrar a mi demo"}</span></button>
           </form>
           <div className="access-divider"><span>¿Es tu primera visita?</span></div>
-          <button className="access-register" type="button" onClick={() => { setError(""); setInvalidField(null); setNotice("El registro de pruebas estará disponible próximamente."); }}><UserRound aria-hidden="true" /><span>Crear cuenta de prueba</span></button>
-          {notice ? <p className="access-message" role="status">{notice}</p> : null}
+          <Link className="access-register" href="/registro"><UserRound aria-hidden="true" /><span>Crear cuenta de prueba</span></Link>
           <aside className="access-promise" aria-label="Sobre la demo"><div className="access-promise-mark"><Store aria-hidden="true" /><BrandRays /></div><p>Cada persona prueba con sus propios datos. Siempre en modo demo.</p></aside>
         </div>
       </article>

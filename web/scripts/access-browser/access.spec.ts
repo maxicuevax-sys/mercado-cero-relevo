@@ -37,8 +37,26 @@ test("correo, contraseña y teclado funcionan sin fingir una sesión", async ({ 
   await expect(page.locator("form").getByRole("alert")).toHaveText("El acceso de prueba todavía no está abierto.");
   await expect(page).toHaveURL(/\/acceso$/);
   expect((await page.context().cookies()).filter(cookie => cookie.name.includes("session"))).toEqual([]);
-  await page.getByRole("button", { name: "Crear cuenta de prueba", exact: true }).click();
-  await expect(page.getByRole("status")).toHaveText("El registro de pruebas estará disponible próximamente.");
+  await page.getByRole("link", { name: "Crear cuenta de prueba", exact: true }).click();
+  await expect(page).toHaveURL(/\/registro$/);
+  await expect(page.getByRole("heading", { name: "Crea tu cuenta." })).toBeVisible();
+});
+
+test("registro valida los campos, permite revisar la contraseña y permanece cerrado", async ({ page }) => {
+  await page.goto("/registro");
+  await page.getByRole("button", { name: "Crear mi cuenta", exact: true }).click();
+  await expect(page.locator("form").getByRole("alert")).toHaveText("Escribe tu nombre, de hasta 80 caracteres.");
+  await expect(page.getByLabel("Tu nombre", { exact: true })).toBeFocused();
+  await page.getByLabel("Tu nombre", { exact: true }).fill("Juez de prueba");
+  await page.getByLabel("Correo electrónico", { exact: true }).fill("juez-registro@example.test");
+  await page.getByLabel("Crea una contraseña", { exact: true }).fill("Prueba-registro-2026");
+  await page.getByRole("button", { name: "Mostrar contraseña", exact: true }).click();
+  await expect(page.getByLabel("Crea una contraseña", { exact: true })).toHaveAttribute("type", "text");
+  await page.getByRole("button", { name: "Crear mi cuenta", exact: true }).click();
+  await expect(page.locator("form").getByRole("alert")).toHaveText("El registro de pruebas todavía no está abierto.");
+  expect((await page.context().cookies()).filter(cookie => cookie.name.includes("session"))).toEqual([]);
+  await page.getByRole("link", { name: "Ya tengo cuenta · Iniciar sesión", exact: true }).click();
+  await expect(page).toHaveURL(/\/acceso$/);
 });
 
 for (const viewport of [{ width: 390, height: 693 }, { width: 320, height: 569 }, { width: 1448, height: 1086 }]) {
@@ -56,5 +74,21 @@ for (const viewport of [{ width: 390, height: 693 }, { width: 320, height: 569 }
     const evidence = path.resolve("../harness/evidence/runs/trangui-access");
     mkdirSync(evidence, { recursive: true });
     await page.screenshot({ path: path.join(evidence, `access-${viewport.width}x${viewport.height}.png`), fullPage: true });
+  });
+}
+
+for (const viewport of [{ width: 390, height: 693 }, { width: 320, height: 569 }, { width: 1448, height: 1086 }]) {
+  test(`registro, título negro y accesibilidad ${viewport.width}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/registro");
+    await expect(page).toHaveTitle("Crear cuenta · Trangui");
+    await expect(page.getByRole("heading", { name: "Crea tu cuenta." })).toHaveCSS("color", "rgb(8, 11, 8)");
+    await expect(page.getByRole("img", { name: /taquero preparando/i })).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze()).violations).toEqual([]);
+    const evidence = path.resolve("../harness/evidence/runs/trangui-access");
+    mkdirSync(evidence, { recursive: true });
+    await page.screenshot({ path: path.join(evidence, `register-${viewport.width}x${viewport.height}.png`), fullPage: true });
   });
 }

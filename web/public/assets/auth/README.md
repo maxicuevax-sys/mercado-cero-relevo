@@ -9,3 +9,9 @@ teléfono de la referencia no se dibujan en la página web.
 
 Si se entrega la ilustración original separada, reemplazar la imagen y quitar
 el desplazamiento de recorte, conservando el resto de la composición.
+
+`register-reference.png` es la segunda referencia individual del usuario
+(1024 × 1535). Se conserva sin editar. La ventana de arte x424, y211,
+600 × 522 usa una máscara CSS para excluir los textos de la referencia y
+conservar el toldo rojo, precio de tacos y taquero. El encabezado «Crea tu
+cuenta» se dibuja como texto negro por corrección explícita del usuario.
