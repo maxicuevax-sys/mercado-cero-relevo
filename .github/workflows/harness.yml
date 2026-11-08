@@ -46,6 +46,7 @@ jobs:
 
       - name: Account identity and business isolation contracts
         run: |
+          npm run test:business-profile
           npm run test:tenant-business
           npm run test:pilot-identity
           npm run test:register-validation

@@ -1,15 +1,18 @@
 import { withPilotPage } from "../../lib/auth/pilot-page";
+import { connection } from "next/server";
+import { getBusinessProfile } from "@/lib/business-profile";
 import type { Metadata } from "next";
 import { OnboardingFlow } from "@/components/onboarding/onboarding-flow";
 
 export const metadata: Metadata = {
   title: "Bienvenida · Trangui",
   description:
-    "Cuatro pasos para conocer Trangui: tu negocio, una venta de ejemplo y tu primera visita al mostrador.",
+    "Elige el giro de tu puesto y adapta las sugerencias de Trangui a tu negocio.",
 };
 
-function OnboardingPage() {
-  return <OnboardingFlow />;
+async function OnboardingPage() {
+  await connection();
+  return <OnboardingFlow profile={getBusinessProfile()} />;
 }
 
 export default withPilotPage(OnboardingPage);

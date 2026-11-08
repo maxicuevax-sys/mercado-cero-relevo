@@ -135,3 +135,5 @@
 .mc-scan-video { display: block; width: 100%; aspect-ratio: 4 / 3; border-radius: 12px; background: #183e35; object-fit: cover; }
 .mc-scan-status { margin: 10px 0 0; color: #183e35; font-weight: 700; }
 .mc-scan-hint { margin: 4px 0 0; color: #52645a; font-size: .875rem; }
+
+.mc-sale-preset-note { margin: 8px 0; color: #52645a; font-size: .8125rem; line-height: 1.4; }

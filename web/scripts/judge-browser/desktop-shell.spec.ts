@@ -42,6 +42,9 @@ async function register(page: Page) {
     expect(response.status()).toBe(200);
     break;
   }
+  await expect(page).toHaveURL(/\/onboarding$/);
+  await page.getByRole("radio", { name: "Un poco de todo", exact: true }).check();
+  await page.getByRole("button", { name: "Empezar con mi puesto", exact: true }).click();
   await expect(page).toHaveURL(/\/inicio$/);
   expect((await page.request.get("/api/access/session")).status()).toBe(200);
 }

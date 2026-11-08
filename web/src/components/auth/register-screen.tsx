@@ -39,7 +39,7 @@ export function RegisterScreen() {
         clearAppBrowserState();
         // A full navigation discards the previous account's in-memory client state.
         // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-        window.location.assign("/inicio");
+        window.location.assign("/onboarding");
         return;
       }
       setError(typeof data?.error === "string" ? data.error : "No pudimos crear la cuenta. Inténtalo de nuevo más tarde.");

@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Mic, Plus, ScanBarcode, Square, X } from "lucide-react";
+import { Mic, Plus, ScanBarcode, Square, Store, X } from "lucide-react";
 import { BrowserMultiFormatReader } from "@zxing/browser";
+import type { BusinessType } from "@/lib/business-profile";
+import { BUSINESS_PRESETS } from "@/lib/business-presets";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { draftTotalCents, lineTotalCents, newLineId, type DraftLine } from "./types";
 import { voiceDraft } from "./voice-draft";
@@ -16,7 +18,9 @@ const SUGGESTIONS = [
 ];
 
 /** Mismo MediaRecorder y APIs que Caja clásica. Solo propone conceptos, sin mutar pedidos. */
-export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (lines: DraftLine[]) => boolean }) {
+export function SaleVoice({ disabled, onAdd, businessType }: { disabled: boolean; onAdd: (lines: DraftLine[]) => boolean; businessType?: BusinessType }) {
+  const preset = businessType ? BUSINESS_PRESETS[businessType] : null;
+  const suggestions: readonly { label: string; text?: string; image?: string }[] = preset?.suggestions ?? SUGGESTIONS;
   const [text, setText] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -219,7 +223,7 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
         <button type="button" className="mc-sale-voice__manual hidden" aria-label="Abrir cámara para escanear código de barras" disabled={disabled || busy} onClick={openScanner}>
           <ScanBarcode aria-hidden="true" />
         </button>
-        <input id="mc-sale-voice-text" aria-label="¿Qué vendiste? Describe los productos" placeholder="Producto" value={text} maxLength={2000}
+        <input id="mc-sale-voice-text" aria-label="¿Qué vendiste? Describe los productos" placeholder={preset?.example ?? "Producto"} value={text} maxLength={2000}
           disabled={disabled || busy} aria-describedby={error ? "mc-sale-voice-hint mc-sale-voice-error" : "mc-sale-voice-hint"} onChange={(event) => { setText(event.target.value); setProposal([]); setError(null); }}
           onKeyDown={(event) => { if (event.key === "Enter" && !event.nativeEvent.isComposing) { event.preventDefault(); void parseText(); } }} />
         </div>
@@ -229,14 +233,15 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
         </button>
       </div>
       <div className="mc-sale-voice__phrases" aria-label="Productos sugeridos">
-        {SUGGESTIONS.map(({ label, image }) => <button type="button" key={label} className={`mc-sale-voice__chip mc-sale-voice__chip--${image}`} disabled={disabled || busy} onClick={() => { setText(label); setProposal([]); setError(null); document.getElementById("mc-sale-voice-text")?.focus(); }}>
+        {suggestions.map(({ label, text: suggestedText, image }) => <button type="button" key={label} className={`mc-sale-voice__chip mc-sale-voice__chip--${image ?? "general"}`} disabled={disabled || busy} onClick={() => { setText(suggestedText ?? label); setProposal([]); setError(null); document.getElementById("mc-sale-voice-text")?.focus(); }}>
           {/* Original reference crop; intentionally rendered at its requested 20px size. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <span className="mc-sale-voice__chip-art"><img src={`/assets/spec/caja-chip-${image}.png`} alt="" width={20} height={20} /></span>
+          <span className="mc-sale-voice__chip-art">{image ? <img src={`/assets/spec/caja-chip-${image}.png`} alt="" width={20} height={20} /> : <Store aria-hidden="true" />}</span>
           <span>{label}</span>
         </button>)}
         <button type="button" className="mc-sale-voice__chip mc-sale-voice__chip--more" disabled={disabled || busy} onClick={openManual}><Plus aria-hidden="true" /><span>Más</span></button>
       </div>
+      {preset ? <p className="mc-sale-preset-note">Ejemplos editables: usa tus propias cantidades y precios.</p> : null}
       <div className={`mc-sale-voice__actions${!busy && !text.trim() ? " mc-sale-voice__actions--idle" : ""}`}>
         <p id="mc-sale-voice-hint" role="status">{phase === "recording" ? "Escuchando… Pulsa detener al terminar. Máximo 30 segundos." : phase === "permission" ? "Esperando permiso de micrófono…" : phase === "transcribing" ? "Transcribiendo audio…" : phase === "parsing" ? "Interpretando venta…" : "Pulsa el micrófono para dictar o escribe la venta."}</p>
         {busy ? <button type="button" className="mc-caja-clear" onClick={cancel}>Cancelar dictado</button> : text.trim() ? <button type="button" className="mc-caja-button mc-caja-button--secondary" disabled={disabled} onClick={() => void parseText()}>Interpretar</button> : null}
