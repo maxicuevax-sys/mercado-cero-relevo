@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
+import { X } from "lucide-react";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { MERCHANT, isDemoMode } from "@/lib/config";
 
@@ -20,6 +21,7 @@ export default function NotificacionesPage() {
       initial={(MERCHANT.owner || "M").charAt(0).toUpperCase()}
       mainId="notificaciones-main"
       contentClassName="mc-notificaciones-page"
+      actions={<Link href="/inicio" className="mc-parity-back" aria-label="Cerrar notificaciones"><X aria-hidden="true" /></Link>}
     >
       <section className="mc-op-panel" aria-labelledby="notificaciones-empty">
         <h2 id="notificaciones-empty" className="mc-op-panel__title">Sin notificaciones nuevas</h2>

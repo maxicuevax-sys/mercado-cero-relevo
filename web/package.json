@@ -37,6 +37,7 @@
     "test:contracts": "npm run test:security && npm run test:fix-datos && npm run test:perf-budget && npm run test:perf-data"
   },
   "dependencies": {
+    "@zxing/browser": "^0.2.1",
     "lucide-react": "^1.65.0",
     "next": "16.4.3",
     "openai": "^7.45.1",

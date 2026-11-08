@@ -20,6 +20,7 @@ import pendingPhoneArt from "@/assets/brand/iconos/transparent/qr-telefono.png";
 import { AppShell } from "@/components/shell/app-shell";
 import { TopBar } from "@/components/shell/top-bar";
 import { CodiHub } from "@/components/codi/codi-hub";
+import { HomeTaskCheck } from "@/components/pendientes/home-task-check";
 import { MaskIcon } from "@/components/ui/icon";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { ProgressIndicator } from "@/components/ui/progress-indicator";
@@ -203,10 +204,11 @@ export default async function InicioPage({ searchParams }: { searchParams: Promi
           <ul className="inicio-pending__list">
             {homeTasks.map((task) => (
               <li key={task.id} className="inicio-task">
-                <Link
-                  href="/pendientes"
-                  className={`inicio-task__check${task.done ? " inicio-task__check--done" : ""}`}
-                  aria-label={`Abrir pendiente: ${task.title}`}
+                <HomeTaskCheck
+                  taskId={task.id}
+                  initialDone={task.done}
+                  label={task.title}
+                  fixture={task.fixture}
                 />
                 {task.done ? <span className="sr-only">Hecho: </span> : null}
                 <span className="inicio-task__title">{task.title}</span>

@@ -87,6 +87,12 @@ export function MobileNav({
           href={action.href}
           aria-label={action.ariaLabel ?? action.label}
           className="mc-mobile-nav__item mc-mobile-nav__sale"
+          onClick={() => {
+            const hash = action.href.split("#")[1];
+            if (!hash) return;
+            const target = document.getElementById(hash);
+            if (target) window.setTimeout(() => target.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+          }}
         >
           <span className="mc-mobile-nav__sale-circle">
             {action.glyph === "qr" ? <QrCode aria-hidden="true" /> : <Plus aria-hidden="true" />}

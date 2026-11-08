@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Mic, Plus, ScanBarcode, Square } from "lucide-react";
+import { Mic, Plus, ScanBarcode, Square, X } from "lucide-react";
+import { BrowserMultiFormatReader } from "@zxing/browser";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { draftTotalCents, lineTotalCents, newLineId, type DraftLine } from "./types";
 import { voiceDraft } from "./voice-draft";
@@ -21,6 +22,7 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
   const [error, setError] = useState<string | null>(null);
   const [proposal, setProposal] = useState<DraftLine[]>([]);
   const [notice, setNotice] = useState("");
+  const [scannerOpen, setScannerOpen] = useState(false);
   const recorder = useRef<MediaRecorder | null>(null);
   const stream = useRef<MediaStream | null>(null);
   const request = useRef<AbortController | null>(null);
@@ -138,6 +140,10 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
       return;
     }
     if (disabled || active.current) return;
+    if (!window.isSecureContext) {
+      setError("El micrófono requiere HTTPS. Abre la app desde el enlace seguro de Tailscale.");
+      return;
+    }
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
       setError("Este navegador no permite grabar audio. Escribe la venta en el campo y pulsa Interpretar.");
       return;
@@ -188,6 +194,16 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
     }
   }
 
+  function openScanner() {
+    if (disabled || busy) return;
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setError("La cámara requiere HTTPS. Abre la app desde el enlace seguro de Tailscale.");
+      return;
+    }
+    setError(null);
+    setScannerOpen(true);
+  }
+
   function openManual() {
     if (disabled || busy) return;
     const manual = document.getElementById("mc-caja-manual");
@@ -200,7 +216,7 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
       <h2 id="mc-sale-voice-title"><label htmlFor="mc-sale-voice-text">¿Qué vendiste?</label></h2>
       <div className="mc-sale-voice__field">
         <div className="mc-sale-voice__entry flex min-w-0 items-center">
-        <button type="button" className="mc-sale-voice__manual hidden" aria-label="Escribir un producto a mano" disabled={disabled || busy} onClick={openManual}>
+        <button type="button" className="mc-sale-voice__manual hidden" aria-label="Abrir cámara para escanear código de barras" disabled={disabled || busy} onClick={openScanner}>
           <ScanBarcode aria-hidden="true" />
         </button>
         <input id="mc-sale-voice-text" aria-label="¿Qué vendiste? Describe los productos" placeholder="Producto" value={text} maxLength={2000}
@@ -227,6 +243,7 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
       </div>
       {error ? <p id="mc-sale-voice-error" className="mc-sale-voice__error" role="alert">{error}</p> : null}
       <p className="mc-sale-voice__notice" role="status">{notice}</p>
+      {scannerOpen ? <BarcodeScanner onClose={() => setScannerOpen(false)} onDetect={(value) => { setText(value); setProposal([]); setScannerOpen(false); document.getElementById("mc-sale-voice-text")?.focus(); }} /> : null}
       {proposal.length ? <div className="mc-sale-voice__proposal">
         <h3>Revisa lo que entendí</h3>
         <ul>{proposal.map((line) => <li key={line.id}><span>{line.quantity} × {line.description}</span><CurrencyAmount cents={lineTotalCents(line)} /></li>)}</ul>
@@ -236,4 +253,66 @@ export function SaleVoice({ disabled, onAdd }: { disabled: boolean; onAdd: (line
       </div> : null}
     </section>
   );
+}
+
+
+/** Lector de cámara sin dependencias: usa BarcodeDetector nativo si existe. */
+function BarcodeScanner({ onClose, onDetect }: { onClose: () => void; onDetect: (value: string) => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const detectRef = useRef(onDetect);
+  detectRef.current = onDetect;
+  const [status, setStatus] = useState("Abriendo cámara…");
+  let controlsRef: { stop: () => void } | null = null;
+
+  useEffect(() => {
+    let active = true;
+    let interval: ReturnType<typeof setInterval> | null = null;
+    async function start() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+        if (!active) { stream.getTracks().forEach((track) => track.stop()); return; }
+        streamRef.current = stream;
+        if (videoRef.current) { videoRef.current.srcObject = stream; await videoRef.current.play(); }
+        const Native = (window as unknown as { BarcodeDetector?: new (options: { formats: string[] }) => { detect: (source: HTMLVideoElement) => Promise<Array<{ rawValue: string }>> } }).BarcodeDetector;
+        if (!Native) {
+          // Fallback open source para navegadores sin BarcodeDetector (iOS/Android).
+          setStatus("Apunta al código de barras…");
+          const reader = new BrowserMultiFormatReader();
+          const video = videoRef.current;
+          if (!video) return;
+          const controls = await reader.decodeFromVideoElement(video, (result) => {
+            if (!active) return;
+            const value = result?.getText()?.trim();
+            if (value) detectRef.current(value);
+          });
+          if (active) controlsRef = controls;
+          else controls.stop();
+          return;
+        }
+        const detector = new Native({ formats: ["ean_13", "ean_8", "upc_a", "code_128", "qr_code"] });
+        setStatus("Apunta al código de barras…");
+        interval = setInterval(() => {
+          if (!videoRef.current || videoRef.current.readyState < 2) return;
+          void detector.detect(videoRef.current).then((codes) => {
+            const value = codes[0]?.rawValue?.trim();
+            if (value) detectRef.current(value);
+          }).catch(() => undefined);
+        }, 450);
+      } catch (reason) {
+        setStatus(reason instanceof DOMException && reason.name === "NotAllowedError" ? "No se concedió permiso a la cámara. Revisa el permiso del navegador." : "No se pudo abrir la cámara. Revisa que estés en HTTPS y que el dispositivo tenga cámara.");
+      }
+    }
+    void start();
+    return () => { active = false; controlsRef?.stop(); if (interval) clearInterval(interval); streamRef.current?.getTracks().forEach((track) => track.stop()); };
+  }, []);
+
+  return <div className="mc-scan-overlay" role="dialog" aria-modal="true" aria-label="Escanear código de barras">
+    <div className="mc-scan-card">
+      <button type="button" className="mc-scan-close" onClick={onClose} aria-label="Cerrar escáner"><X aria-hidden="true" /></button>
+      <video ref={videoRef} className="mc-scan-video" playsInline muted />
+      <p className="mc-scan-status" role="status">{status}</p>
+      <p className="mc-scan-hint">También puedes escribir el producto o elegir una sugerencia.</p>
+    </div>
+  </div>;
 }

@@ -1685,3 +1685,13 @@ html[data-contrast="high"] .inicio-nav__item[aria-current="page"]:focus-visible 
     min-height: calc(38 * var(--mob-u, 1));
   }
 }
+
+/* Checkbox real: botón de 44px táctil, sin borde nativo. */
+.inicio-task__check { padding: 0; display: grid; place-items: center; appearance: none; cursor: pointer; }
+.inicio-task__check:disabled { cursor: progress; opacity: .85; }
+.inicio-task__check--done::after { display: none; }
+.inicio-task__check svg { width: 16px; height: 16px; color: #fffdf7; }
+.inicio-task__check-spin { animation: inicio-spin .8s linear infinite; }
+@keyframes inicio-spin { to { transform: rotate(360deg); } }
+.inicio-shell--compact .inicio-task__check { min-width: 34px; min-height: 34px; }
+@media (max-width: 760px) { .inicio-task__check { min-width: 44px; min-height: 44px; } }
