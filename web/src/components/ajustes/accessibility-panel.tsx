@@ -133,6 +133,13 @@ export function AccessibilityPanel() {
   const lastSpokenRef = useRef("");
 
   useEffect(() => {
+    const synchronize = () => {
+      const stored = readStoredPreferences();
+      applyToDocument(stored);
+      setPreferences(stored);
+    };
+    window.addEventListener(PREFERENCES_CHANGED_EVENT, synchronize);
+    window.addEventListener("storage", synchronize);
     const stored = readStoredPreferences();
     // Refleja lo guardado sin reescribirlo ni emitir eventos: de eso se
     // encarga el arranque del layout. Se hace tras montar para no romper la
@@ -140,6 +147,10 @@ export function AccessibilityPanel() {
     applyToDocument(stored);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPreferences(stored);
+    return () => {
+      window.removeEventListener(PREFERENCES_CHANGED_EVENT, synchronize);
+      window.removeEventListener("storage", synchronize);
+    };
   }, []);
 
   useEffect(() => {

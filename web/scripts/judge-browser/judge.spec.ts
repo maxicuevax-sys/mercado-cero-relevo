@@ -287,3 +287,44 @@ for (const width of [390, 320]) {
     }
   });
 }
+
+test("voice preferences stay synchronized across sibling controls, tabs and reloads", async ({ page, context }) => {
+  await signUp(page, "judge-preferences-sync@example.test");
+  await page.goto("/ajustes");
+  const voice = page.getByRole("switch", { name: "Asistente de voz", exact: true });
+  const advanced = page.getByText("Texto, contraste y preferencias avanzadas", { exact: true });
+  await advanced.click();
+  const silence = page.getByRole("group", { name: "Silencio", exact: true });
+  await voice.click();
+  await expect(voice).toHaveAttribute("aria-checked", "false");
+  await expect(silence.getByRole("button", { name: "Sin voz", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("group", { name: "Tamaño del texto", exact: true }).getByRole("button", { name: "Muy grande", exact: true }).click();
+  await page.getByRole("group", { name: "Contraste", exact: true }).getByRole("button", { name: "Alto", exact: true }).click();
+  await expect(voice).toHaveAttribute("aria-checked", "false");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-text-size", "xlarge");
+  await expect(page.locator("html")).toHaveAttribute("data-contrast", "high");
+  await expect(voice).toHaveAttribute("aria-checked", "false");
+  await advanced.click();
+  await expect(silence.getByRole("button", { name: "Sin voz", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await silence.getByRole("button", { name: "Con voz", exact: true }).click();
+  await expect(voice).toHaveAttribute("aria-checked", "true");
+  await page.reload();
+  await expect(voice).toHaveAttribute("aria-checked", "true");
+  await advanced.click();
+  await expect(silence.getByRole("button", { name: "Con voz", exact: true })).toHaveAttribute("aria-pressed", "true");
+
+  const peer = await context.newPage();
+  try {
+    await peer.goto("/ajustes");
+    await peer.getByRole("switch", { name: "Asistente de voz", exact: true }).click();
+    await expect(voice).toHaveAttribute("aria-checked", "false");
+    await expect(silence.getByRole("button", { name: "Sin voz", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("group", { name: "Contraste", exact: true }).getByRole("button", { name: "Normal", exact: true }).click();
+    await expect(peer.getByRole("switch", { name: "Asistente de voz", exact: true })).toHaveAttribute("aria-checked", "false");
+    await page.reload();
+    await expect(voice).toHaveAttribute("aria-checked", "false");
+  } finally {
+    await peer.close();
+  }
+});
