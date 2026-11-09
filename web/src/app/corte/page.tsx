@@ -8,6 +8,7 @@ import { connection } from "next/server";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { CashCount } from "@/components/corte/cash-count";
+import { corteReceipts } from "@/components/corte/receipts-summary";
 import { ReadReceipt } from "@/components/corte/read-receipt";
 import { differenceText } from "@/components/corte/money";
 import { getCashClose, getCashStatus, listCashCloses } from "@/lib/cash";
@@ -70,6 +71,7 @@ async function CortePage() {
   const pendingCount = countPendingOrders();
   const pendingCents = sumPendingOrderBalances();
   const summary = getDailySummary();
+  const receipts = corteReceipts(summary);
   const demo = isDemoMode();
   const cashTodayCents = status.cashSalesCents + status.cashCreditCents;
   const receiptSpeech = `Efectivo en caja: ${formatMxn(status.expectedCents)}. Cobros digitales verificados: ${formatMxn(summary.verifiedDigitalCents)}. Ventas del día: ${formatMxn(summary.salesCents)}. Gastos: ${formatMxn(status.expensesCents)}.`;
@@ -118,7 +120,9 @@ async function CortePage() {
         <h2 id="corte-resumen-title">Resumen del corte</h2>
         <dl className="mc-corte-v2-summary">
           <div><dt>Ventas del día</dt><dd>{formatMxn(summary.salesCents)}</dd></div>
-          <div><dt>Cobros</dt><dd>{formatMxn(summary.salesCents)}</dd></div>
+          <div><dt>Cobros confirmados</dt><dd>{formatMxn(receipts.confirmedCents)}</dd></div>
+          {demo || receipts.demoCents > 0 ? <div><dt>Cobros demo (simulados)</dt><dd>{formatMxn(receipts.demoCents)}</dd></div> : null}
+          {summary.declaredDigitalCents > 0 ? <div><dt>Digital declarado, sin verificar</dt><dd>{formatMxn(summary.declaredDigitalCents)}</dd></div> : null}
           <div><dt>Tickets</dt><dd>{tickets}</dd></div>
         </dl>
       </section>

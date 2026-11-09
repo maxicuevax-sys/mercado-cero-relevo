@@ -141,7 +141,7 @@ async function HistorialCortesPage() {
                     </span>
                     <span className="mc-hist-row__sales">
                       <span className="mc-hist-row__caption">
-                        Ventas en efectivo
+                        Efectivo del día (ventas y abonos)
                       </span>
                       <strong>{formatMxn(sales)}</strong>
                     </span>

@@ -46,6 +46,8 @@ jobs:
 
       - name: Account identity and business isolation contracts
         run: |
+          npm run test:guest-entry
+          npm run test:corte-receipts
           npm run test:business-profile
           npm run test:tenant-business
           npm run test:pilot-identity
@@ -78,6 +80,9 @@ jobs:
 
       - name: Contrato de seguridad
         run: npm run test:security
+
+      - name: Voice amount and preset contracts
+        run: npm run test:voice
 
       - name: Contrato de datos P0
         run: npm run test:fix-datos

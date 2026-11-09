@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test:guest-entry": "node --no-warnings --test scripts/guest-entry.test.mjs",
+    "test:corte-receipts": "node --no-warnings --test scripts/corte-receipts.test.mjs",
     "dev": "next dev",
     "build": "node scripts/build-gate.mjs",
     "start": "next start",
@@ -14,7 +16,7 @@
     "test:perf-budget": "node scripts/perf-budget.mjs",
     "lighthouse:mobile": "node scripts/lighthouse-mobile.mjs",
     "perf:mobile": "python scripts/perf-mobile.py",
-    "test:voice": "node --no-warnings --test scripts/voice-debts-test.mjs",
+    "test:voice": "node --no-warnings --test scripts/voice-debts-test.mjs scripts/voice-presets.test.mjs",
     "test:payment-labels": "node --no-warnings --test scripts/payment-labels-test.mjs",
     "test:fix-datos": "node scripts/p0-fix-datos-contract.mjs && node scripts/p0-db-guards-contract.mjs && node scripts/p0-orders-atomic-contract.mjs && node scripts/p0-demo-real-contract.mjs",
     "test:demo-real": "node scripts/p0-demo-real-contract.mjs",
