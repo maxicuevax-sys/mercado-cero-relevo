@@ -53,14 +53,14 @@ test("failed settings status has an error and retries the actual API", async ({ 
   await expect(error).toContainText("No pudimos consultar el estado");
   const security = page.locator(".mc-settings-group details").filter({ hasText: "Seguridad" });
   await security.locator("summary").click();
-  await expect(security).not.toContainText("Consultando bitÃ¡cora");
+  await expect(security).not.toContainText("Consultando bitácora");
   await expect(security).toContainText("No disponible");
   fail = false;
   const response = page.waitForResponse(r => new URL(r.url()).pathname === "/api/pey/status" && r.request().method() === "GET");
   await page.getByRole("button", { name: "Reintentar consulta", exact: true }).click();
   expect((await response).status()).toBe(200);
   await expect(error).toHaveCount(0);
-  await expect(security).toContainText("Integridad de bitÃ¡cora SHA-256: OK");
+  await expect(security).toContainText("Integridad de bitácora SHA-256: OK");
 });
 
 test("help clears stale search answers and opens guide and local assistant FAQ", async ({ page, context, baseURL }) => {
@@ -72,7 +72,7 @@ test("help clears stale search answers and opens guide and local assistant FAQ",
   await expect(page.getByText("0 temas encontrados.", { exact: true })).toBeVisible();
   await expect(page.locator(".mc-help-answer")).toHaveCount(0);
   const guide = page.locator("#mc-help-guide");
-  await page.getByRole("link", { name: "Ver guÃ­a", exact: true }).click();
+  await page.getByRole("link", { name: "Ver guía", exact: true }).click();
   await expect(guide).toHaveAttribute("open", "");
   await guide.locator("summary").click();
   await page.goto("/ajustes");
@@ -81,8 +81,8 @@ test("help clears stale search answers and opens guide and local assistant FAQ",
   await page.goto("/ayuda");
   const assistant = page.locator("#asistente");
   await expect(assistant.locator(".mc-assistant-body")).toBeVisible();
-  await expect(assistant).toContainText("Respuestas de la guÃ­a local");
-  await assistant.getByRole("button", { name: "Â¿CÃ³mo van mis ventas?", exact: true }).click();
+  await expect(assistant).toContainText("Respuestas de la guía local");
+  await assistant.getByRole("button", { name: "¿Cómo van mis ventas?", exact: true }).click();
   await expect(assistant.locator(".mc-assistant-answer")).toContainText("Una venta pendiente o demo no significa dinero recibido");
   await assistant.getByLabel("Escribe tu pregunta", { exact: true }).fill("QA tema que no existe");
   await assistant.getByRole("button", { name: "Consultar", exact: true }).click();
