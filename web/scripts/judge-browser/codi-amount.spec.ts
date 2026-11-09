@@ -25,6 +25,12 @@ test("CoDi preserves decimal input and rejects invalid signs without creating an
     await expect(amount).toHaveAttribute("aria-invalid", "true");
     await expect(submit).toBeDisabled();
   }
+  await amount.fill("-2");
+  await amount.press("Enter");
+  await expect(hub.getByRole("alert")).toContainText("monto válido");
+  await amount.fill("100000.01");
+  await submit.click();
+  await expect(hub.getByRole("alert")).toContainText("100,000");
   await amount.fill("0");
   await submit.click();
   await expect(hub.getByRole("alert")).toContainText("$0.01");

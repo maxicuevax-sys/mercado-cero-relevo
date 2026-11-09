@@ -37,18 +37,6 @@ const PREFERENCES: Array<{
     description:
       "Muestra la tarjeta “Antes de cerrar” con ideas pequeñas para revisar tu día.",
   },
-  {
-    id: "reminders",
-    title: "Recordatorios de pendientes",
-    description:
-      "Guarda tu preferencia para recordar pendientes dentro de la app. Por ahora no enviamos notificaciones push.",
-  },
-  {
-    id: "explanations",
-    title: "Explicaciones en contexto",
-    description:
-      "Muestra textos breves que explican lo que ves. No cambia las operaciones ni los avisos críticos.",
-  },
 ];
 
 function readPreferences(fallback: CompanionPreferencesValue = DEFAULTS): CompanionPreferencesValue {

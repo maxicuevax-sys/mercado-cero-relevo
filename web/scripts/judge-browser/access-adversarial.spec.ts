@@ -33,7 +33,7 @@ test("companion preferences synchronize tabs and preserve unrelated changes", as
     await peerSuggestions.click();
     await expect(peerSuggestions).toHaveAttribute("aria-pressed", "false");
     await expect(suggestions).toHaveAttribute("aria-pressed", "false");
-    await page.locator("#companion-preferences button").filter({ hasText: "Recordatorios de pendientes" }).click();
+    await page.getByRole("group", { name: "Tamaño del texto", exact: true }).getByRole("button", { name: "Muy grande", exact: true }).click();
     await expect(peerSuggestions).toHaveAttribute("aria-pressed", "false");
     await page.reload();
     await page.getByText("Texto, contraste y preferencias avanzadas", { exact: true }).click();

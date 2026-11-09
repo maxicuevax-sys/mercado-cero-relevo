@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
-import { lineTotalCents, newLineId, parseMoneyCents, parseQuantity, type DraftLine } from "./types";
+import { lineTotalCents, newLineId, parseMoneyCents, parseQuantity, QUANTITY_ERROR, type DraftLine } from "./types";
 import tacosArt from "@/assets/brand/ilustraciones/transparent/tacos.png";
 import "./sale-line-items-spec.css";
 
@@ -56,7 +56,7 @@ export function SaleLineItems({
       return;
     }
     if (!parseQuantity(quantity)) {
-      setAddError("La cantidad debe ser mayor que cero.");
+      setAddError(QUANTITY_ERROR);
       return;
     }
     if (parseMoneyCents(price) <= 0) {
@@ -176,7 +176,7 @@ export function SaleLineItems({
             );
             const quantityError =
               line.quantity !== "" && !parseQuantity(line.quantity)
-                ? "La cantidad debe ser mayor que cero."
+                ? QUANTITY_ERROR
                 : baseError && /cantidad/i.test(baseError)
                   ? baseError
                   : null;

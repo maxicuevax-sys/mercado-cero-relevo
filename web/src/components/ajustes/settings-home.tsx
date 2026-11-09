@@ -122,7 +122,7 @@ export function SettingsHome({ merchant, address, demo, accountMode = false }: {
                   : peyStatus.peyApiKeyConfigured
                   ? "Conectado a Pey (CoDi & Pagos)"
                   : "Sin API Key de Pey"
-                : "Consultando estado..."}
+                : peyStatusError ? "No disponible" : "Consultando estado..."}
             </div>
             <div>
               <strong>Webhook HMAC:</strong>{" "}

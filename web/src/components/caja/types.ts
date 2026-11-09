@@ -47,12 +47,17 @@ export function parseMoneyCents(value: string): number {
   return Math.round((negative ? -amount : amount) * 100);
 }
 
+export const QUANTITY_ERROR = "La cantidad debe ser mayor que cero, máximo 999 y con hasta 3 decimales.";
+
 export function parseQuantity(value: string): number {
   const normalized = value.trim().replace(",", ".");
   if (!/^\d+(\.\d+)?$/.test(normalized)) return 0;
   const quantity = Number(normalized);
-  if (!Number.isFinite(quantity) || quantity <= 0) return 0;
-  return Math.min(999, Math.round(quantity * 1000) / 1000);
+  if (!Number.isFinite(quantity) || quantity <= 0 || quantity > 999) return 0;
+  // Preserve supported fractions exactly; never silently round an entered quantity.
+  const decimals = (normalized.split(".")[1] ?? "").replace(/0+$/, "");
+  if (decimals.length > 3) return 0;
+  return quantity;
 }
 
 export function lineTotalCents(line: DraftLine): number {

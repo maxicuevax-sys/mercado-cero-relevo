@@ -34,6 +34,7 @@ import {
   newLineId,
   parseMoneyCents,
   parseQuantity,
+  QUANTITY_ERROR,
   type DraftLine,
   type PaymentChoice,
 } from "./types";
@@ -348,7 +349,7 @@ export function CajaScreen({
       if (!line.description.trim()) {
         issues[line.id] = "Escribe el concepto.";
       } else if (!parseQuantity(line.quantity)) {
-        issues[line.id] = "La cantidad debe ser mayor que cero.";
+        issues[line.id] = QUANTITY_ERROR;
       } else if (parseMoneyCents(line.price) <= 0) {
         issues[line.id] = "El precio debe ser mayor que cero.";
       }
@@ -803,8 +804,10 @@ export function CajaScreen({
 
   // Exact cash is an explicit shortcut, never a method conversion. Preserve any
   // entered amount that could require change and every ambiguous-result lock.
+  const hasValidQuantities = lines.every(line => parseQuantity(line.quantity) > 0);
+
   const canQuickCash = hydrated && !saving && !unknownResult && !legacyConflict &&
-    method === "cash" && lines.length > 0 && totalCents > 0 &&
+    method === "cash" && lines.length > 0 && totalCents > 0 && hasValidQuantities &&
     parseMoneyCents(creditInput) === 0 &&
     (!cashInput.trim() || cashCents === totalCents);
 
@@ -823,6 +826,7 @@ export function CajaScreen({
 
   const canConfirm =
     lines.length > 0 &&
+    hasValidQuantities &&
     totalCents > 0 &&
     !overpay &&
     !creditCoversAllWithCash &&
@@ -1112,7 +1116,15 @@ export function CajaScreen({
           </div>
           <CajaSpecCheckout totalCents={totalCents} method={method}
             disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated}
-            onMethod={chooseMethod} onReview={() => setView("method")}
+            onMethod={chooseMethod} onReview={() => {
+              if (!hasValidQuantities) {
+                setError(QUANTITY_ERROR);
+                const invalid = lines.find(line => !parseQuantity(line.quantity));
+                document.getElementById(`line-quantity-${invalid?.id}`)?.focus();
+                return;
+              }
+              setView("method");
+            }}
             canQuickCash={canQuickCash} onQuickCash={() => void confirmSale(true)}
             onQuickAdd={addQuickAmount} onClear={requestClearDraft} />
         </>
