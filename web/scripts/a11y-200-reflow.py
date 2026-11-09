@@ -28,7 +28,7 @@ if args.require_clean:
 (out / f'identity-{args.phase}.json').write_text(json.dumps({'sha':sha,'dirty':dirty,'health':health},indent=2))
 results = []
 baseline_file = out / 'results-stress-before.json'
-baseline = json.loads(baseline_file.read_text(encoding='utf-8')) if args.phase == 'after' and baseline_file.exists() else []
+baseline = json.loads(baseline_file.read_text(encoding='utf-8')) if args.phase == 'after' and baseline_file.exists() and not args.guest_canary else []
 axe = Path('node_modules/axe-core/axe.min.js').read_text(encoding='utf-8')
 with sync_playwright() as p:
     for engine in ['chromium', 'webkit']:
@@ -46,6 +46,12 @@ with sync_playwright() as p:
             if enlarged:
                 # Normal geometry uses seed amounts. Stress uses a real isolated
                 # fiado at the API maximum, never mocked product responses.
+                response = context.request.get(origin + '/api/dashboard')
+                assert response.status == 200, response.text()
+                before = response.json()
+                fixture_before = {'salesCents': before['summary']['salesCents'], 'creditsBalanceCents': before['creditsBalanceCents']}
+                expected_fiado = f"${(fixture_before['creditsBalanceCents'] + 100000000) // 100:,}.{(fixture_before['creditsBalanceCents'] + 100000000) % 100:02d}"
+                expected_sales = f"${(fixture_before['salesCents'] + 100000000) // 100:,}.{(fixture_before['salesCents'] + 100000000) % 100:02d}"
                 response = context.request.post(origin + '/api/orders', headers={'Origin': origin}, data={
                     'items': [{'description': 'QA accessibility fixture', 'quantity': 10, 'unitPriceCents': 10000000}],
                     'creditCents': 100000000, 'customerName': 'Cliente de prueba accesibilidad',
@@ -88,14 +94,14 @@ with sync_playwright() as p:
                         if any(x['right'] > measurements['fiadoAmount']['right'] + 1 for x in measurements['fiadoLines']): errors.append('currency clipped inside card')
                         if not measurements['fiadoAria'] or 'MXN' not in measurements['fiadoAria']: errors.append('currency accessible name missing')
                         if not re.fullmatch(r'\$[\d,]+\.\d{2}', measurements['fiadoText'].strip()): errors.append('currency lost decimal precision')
-                        if measurements['fiadoText'].strip() != '$1,000,050.00': errors.append('fixture cents changed')
+                        if measurements['fiadoText'].strip() != expected_fiado: errors.append('fixture cents changed')
                     if route == 'corte':
                         if any(x['right'] > width + 1 for x in measurements['corteLines']): errors.append('title clipped horizontally')
                         if measurements['corteTitle']['bottom'] > measurements['corteHeader']['bottom'] + 1: errors.append('title leaves header vertically')
                         if any(x['right'] > measurements['corteHero']['right'] + 1 for x in measurements['corteAmountLines']): errors.append('hero currency clipped')
                         if not re.fullmatch(r'\$[\d,]+\.\d{2}', measurements['corteAmountText'].strip()): errors.append('hero lost decimal precision')
                         if not measurements['corteAmountAria'] or 'MXN' not in measurements['corteAmountAria']: errors.append('hero accessible currency missing')
-                        if measurements['corteAmountText'].strip() != '$1,000,190.00': errors.append('hero fixture cents changed')
+                        if measurements['corteAmountText'].strip() != expected_sales: errors.append('hero fixture cents changed')
                         if any(line['right'] > item['card']['right'] + 1 for item in measurements['corteSummary'] for line in item['lines']): errors.append('summary currency clipped')
                 if enlarged:
                     if any(g['rect']['right'] > width + 1 or g['rect']['left'] < -1 for g in measurements['groups']): errors.append('atomic currency group leaves viewport')
@@ -118,6 +124,7 @@ with sync_playwright() as p:
                     page.locator('.mc-corte-v2-card').first.screenshot(path=str(out / f'corte-summary-{suffix}.png'))
                 row = {'route': route, 'engine': engine, 'width': width, 'enlarged': enlarged, 'fixture':'valid-million-fiado' if enlarged else 'seed','errors': errors, 'measurements': measurements, 'axeExecuted':engine=='chromium' and (enlarged or width==390),'axe':violations}
                 results.append(row)
+                if enlarged: row['fixtureBefore'] = fixture_before
                 print(f'{"FAIL" if errors else "PASS"} {route} {suffix}: {errors}', flush=True)
             context.close()
         browser.close()
