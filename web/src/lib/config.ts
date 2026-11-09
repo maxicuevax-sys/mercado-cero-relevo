@@ -27,6 +27,7 @@ export function formatMxn(cents: number): string {
 
 export function formatTime(iso: string): string {
   return new Intl.DateTimeFormat("es-MX", {
+    timeZone: "America/Mexico_City",
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(iso));

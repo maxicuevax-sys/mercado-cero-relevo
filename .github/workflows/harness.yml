@@ -48,6 +48,7 @@ jobs:
         run: |
           npm run test:guest-entry
           npm run test:corte-receipts
+          npm run test:format-timezone
           npm run test:business-profile
           npm run test:tenant-business
           npm run test:pilot-identity

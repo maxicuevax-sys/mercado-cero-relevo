@@ -16,22 +16,26 @@ export function formatCompactMxn(cents: number): string {
 
 export function formatTime(iso: string): string {
   return new Intl.DateTimeFormat("es-MX", {
+    timeZone: "America/Mexico_City",
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(iso));
 }
 
 const activityTime = new Intl.DateTimeFormat("es-MX", {
+  timeZone: "America/Mexico_City",
   hour: "numeric",
   minute: "2-digit",
 });
 
 const activityShortDate = new Intl.DateTimeFormat("es-MX", {
+  timeZone: "America/Mexico_City",
   day: "numeric",
   month: "short",
 });
 
 const activityShortDateWithYear = new Intl.DateTimeFormat("es-MX", {
+  timeZone: "America/Mexico_City",
   day: "numeric",
   month: "short",
   year: "numeric",
@@ -54,8 +58,16 @@ export function formatDayMonth(isoDate: string): string {
   return dayMonth.format(date);
 }
 
-function localDayNumber(date: Date): number {
-  return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000;
+const activityCalendar = new Intl.DateTimeFormat("en", {
+  timeZone: "America/Mexico_City", year: "numeric", month: "2-digit", day: "2-digit",
+});
+
+function operationalDay(date: Date) {
+  const parts = activityCalendar.formatToParts(date);
+  const year = Number(parts.find(part => part.type === "year")!.value);
+  const month = Number(parts.find(part => part.type === "month")!.value);
+  const day = Number(parts.find(part => part.type === "day")!.value);
+  return { year, number: Date.UTC(year, month - 1, day) / 86_400_000 };
 }
 
 /**
@@ -68,13 +80,15 @@ export function formatActivityDate(iso: string): string {
 
   const now = new Date();
   const time = activityTime.format(date);
-  const dayDiff = Math.round(localDayNumber(now) - localDayNumber(date));
+  const currentDay = operationalDay(now);
+  const eventDay = operationalDay(date);
+  const dayDiff = currentDay.number - eventDay.number;
 
   if (dayDiff === 0) return `Hoy ${time}`;
   if (dayDiff === 1) return `Ayer ${time}`;
 
   const dateLabel =
-    date.getFullYear() === now.getFullYear()
+    eventDay.year === currentDay.year
       ? activityShortDate.format(date)
       : activityShortDateWithYear.format(date);
   return `${dateLabel} ${time}`;
@@ -82,6 +96,7 @@ export function formatActivityDate(iso: string): string {
 
 export function formatLongDate(date = new Date()): string {
   return new Intl.DateTimeFormat("es-MX", {
+    timeZone: "America/Mexico_City",
     weekday: "long",
     day: "numeric",
     month: "long",
