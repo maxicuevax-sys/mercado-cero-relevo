@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
 import { RefreshCw, Volume2 } from "lucide-react";
 import { cn } from "@/lib/format";
+import { applyBrowserPreferences, readBrowserPreferences, subscribeBrowserPreferences, updateBrowserPreferences, type BrowserPreferences } from "@/lib/browser-preferences";
 import ajustesIcon from "@/assets/brand/iconos/transparent/ajustes.png";
 import listaIcon from "@/assets/brand/iconos/transparent/lista.png";
 import microfonoIcon from "@/assets/brand/iconos/transparent/microfono.png";
@@ -11,37 +12,17 @@ import microfonoIcon from "@/assets/brand/iconos/transparent/microfono.png";
 /**
  * Controles reales de accesibilidad de la app.
  *
- * Las llaves de `localStorage` son las mismas que ya usaba la Caja clásica y
+ * Las llaves de `localStorage` son las mismas que ya usaba la Caja clÃ¡sica y
  * los valores son exactamente los que esperan el arranque del layout y el
- * shell. Al cambiar, además de guardar, se aplican al `<html>` y se emite
+ * shell. Al cambiar, ademÃ¡s de guardar, se aplican al `<html>` y se emite
  * `mercado-cero:preferences-changed` para que el shell (Worker A) re-aplique
  * sin recargar.
  */
 
-const TEXT_SIZE_KEY = "mercado-cero:text-size";
-const CONTRAST_KEY = "mercado-cero:contrast";
-const VOICE_RATE_KEY = "mercado-cero:voice-rate";
-const MUTED_KEY = "mercado-cero:muted";
-
-export const PREFERENCES_CHANGED_EVENT = "mercado-cero:preferences-changed";
-
-type TextSize = "normal" | "large" | "xlarge";
-type ContrastMode = "normal" | "high";
-type VoiceRate = "slow" | "normal" | "fast";
-
-type Preferences = {
-  textSize: TextSize;
-  contrast: ContrastMode;
-  voiceRate: VoiceRate;
-  muted: boolean;
-};
-
-const DEFAULTS: Preferences = {
-  textSize: "normal",
-  contrast: "normal",
-  voiceRate: "normal",
-  muted: false,
-};
+type TextSize = BrowserPreferences["textSize"];
+type ContrastMode = BrowserPreferences["contrast"];
+type VoiceRate = BrowserPreferences["voiceRate"];
+const DEFAULTS: BrowserPreferences = { textSize: "normal", contrast: "normal", voiceRate: "normal", muted: false };
 
 const TEXT_SIZE_OPTIONS: ReadonlyArray<{ id: TextSize; label: string }> = [
   { id: "normal", label: "Normal" },
@@ -57,66 +38,13 @@ const CONTRAST_OPTIONS: ReadonlyArray<{ id: ContrastMode; label: string }> = [
 const VOICE_RATE_OPTIONS: ReadonlyArray<{ id: VoiceRate; label: string }> = [
   { id: "slow", label: "Lenta" },
   { id: "normal", label: "Normal" },
-  { id: "fast", label: "Rápida" },
+  { id: "fast", label: "RÃ¡pida" },
 ];
 
 const MUTED_OPTIONS: ReadonlyArray<{ id: "on" | "off"; label: string }> = [
   { id: "on", label: "Con voz" },
   { id: "off", label: "Silenciada" },
 ];
-
-function readStoredPreferences(): Preferences {
-  try {
-    const textSize = window.localStorage.getItem(TEXT_SIZE_KEY);
-    const contrast = window.localStorage.getItem(CONTRAST_KEY);
-    const voiceRate = window.localStorage.getItem(VOICE_RATE_KEY);
-    return {
-      textSize:
-        textSize === "large" || textSize === "xlarge" ? textSize : "normal",
-      contrast: contrast === "high" ? "high" : "normal",
-      voiceRate:
-        voiceRate === "slow" || voiceRate === "fast" ? voiceRate : "normal",
-      muted: window.localStorage.getItem(MUTED_KEY) === "1",
-    };
-  } catch {
-    // Sin almacenamiento local se usan los valores por defecto.
-    return DEFAULTS;
-  }
-}
-
-function applyToDocument(preferences: Preferences): void {
-  const root = document.documentElement;
-  root.dataset.textSize = preferences.textSize;
-  root.dataset.contrast = preferences.contrast;
-}
-
-function persistPreferences(preferences: Preferences): void {
-  try {
-    window.localStorage.setItem(TEXT_SIZE_KEY, preferences.textSize);
-    window.localStorage.setItem(CONTRAST_KEY, preferences.contrast);
-    window.localStorage.setItem(VOICE_RATE_KEY, preferences.voiceRate);
-    window.localStorage.setItem(MUTED_KEY, preferences.muted ? "1" : "0");
-  } catch {
-    // La app sigue funcionando en esta sesión aunque no haya almacenamiento.
-  }
-}
-
-function broadcastPreferences(preferences: Preferences): void {
-  try {
-    window.dispatchEvent(
-      new CustomEvent(PREFERENCES_CHANGED_EVENT, {
-        detail: {
-          textSize: preferences.textSize,
-          contrast: preferences.contrast,
-          voiceRate: preferences.voiceRate,
-          muted: preferences.muted,
-        },
-      }),
-    );
-  } catch {
-    // Sin CustomEvent queda aplicado el documento y guardado el valor.
-  }
-}
 
 function speechSupported(): boolean {
   return (
@@ -128,29 +56,20 @@ function speechSupported(): boolean {
 
 export function AccessibilityPanel() {
   const headingId = useId();
-  const [preferences, setPreferences] = useState<Preferences>(DEFAULTS);
+  const [preferences, setPreferences] = useState<BrowserPreferences>(DEFAULTS);
   const [announcement, setAnnouncement] = useState("");
   const lastSpokenRef = useRef("");
 
   useEffect(() => {
     const synchronize = () => {
-      const stored = readStoredPreferences();
-      applyToDocument(stored);
-      setPreferences(stored);
+      const current = readBrowserPreferences();
+      applyBrowserPreferences(current);
+      setPreferences(current);
     };
-    window.addEventListener(PREFERENCES_CHANGED_EVENT, synchronize);
-    window.addEventListener("storage", synchronize);
-    const stored = readStoredPreferences();
-    // Refleja lo guardado sin reescribirlo ni emitir eventos: de eso se
-    // encarga el arranque del layout. Se hace tras montar para no romper la
-    // hidratación, porque en el servidor no existe localStorage.
-    applyToDocument(stored);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPreferences(stored);
-    return () => {
-      window.removeEventListener(PREFERENCES_CHANGED_EVENT, synchronize);
-      window.removeEventListener("storage", synchronize);
-    };
+    const unsubscribe = subscribeBrowserPreferences(synchronize);
+    // Read browser-only state after hydration.
+    synchronize();
+    return unsubscribe;
   }, []);
 
   useEffect(() => {
@@ -165,7 +84,7 @@ export function AccessibilityPanel() {
       return;
     }
     if (preferences.muted) {
-      setAnnouncement("La voz está silenciada. Actívala para escuchar.");
+      setAnnouncement("La voz estÃ¡ silenciada. ActÃ­vala para escuchar.");
       return;
     }
     if (!speechSupported()) {
@@ -184,7 +103,7 @@ export function AccessibilityPanel() {
             : 1;
       lastSpokenRef.current = text;
       window.speechSynthesis.speak(utterance);
-      setAnnouncement("Leyendo en voz alta…");
+      setAnnouncement("Leyendo en voz altaâ€¦");
     } catch {
       setAnnouncement("No pude leer en voz alta en este dispositivo.");
     }
@@ -215,18 +134,15 @@ export function AccessibilityPanel() {
   function repeatLast() {
     const last = lastSpokenRef.current;
     if (!last) {
-      setAnnouncement("Todavía no he leído nada en esta pantalla.");
+      setAnnouncement("TodavÃ­a no he leÃ­do nada en esta pantalla.");
       return;
     }
     speak(last);
   }
 
-  function update(patch: Partial<Preferences>, message: string) {
-    const next = { ...preferences, ...patch };
+  function update(patch: Partial<BrowserPreferences>, message: string) {
+    const next = updateBrowserPreferences(patch);
     setPreferences(next);
-    persistPreferences(next);
-    applyToDocument(next);
-    broadcastPreferences(next);
     if (next.muted && speechSupported()) {
       window.speechSynthesis.cancel();
     }
@@ -235,7 +151,7 @@ export function AccessibilityPanel() {
 
   function chooseTextSize(id: TextSize) {
     const label = TEXT_SIZE_OPTIONS.find((option) => option.id === id)?.label;
-    update({ textSize: id }, `Tamaño del texto: ${label ?? id}.`);
+    update({ textSize: id }, `TamaÃ±o del texto: ${label ?? id}.`);
   }
 
   function chooseContrast(id: ContrastMode) {
@@ -261,7 +177,7 @@ export function AccessibilityPanel() {
           </h2>
           <p className="mc-ajustes-lead">
             Ajusta el texto, el contraste y la voz. Los cambios se aplican a toda
-            la app y quedan guardados en este dispositivo.
+            la app. Se guardan en este dispositivo si el navegador lo permite.
           </p>
         </div>
         <span className="mc-art-stamp mc-art-stamp--green">
@@ -296,7 +212,7 @@ export function AccessibilityPanel() {
 
           <div className="mc-ajustes-group">
             <p id={`${headingId}-size`} className="mc-ajustes-group__label">
-              Tamaño del texto
+              TamaÃ±o del texto
             </p>
             <div
               role="group"
@@ -480,7 +396,7 @@ export function AccessibilityPanel() {
               className="mc-ajustes-speech"
             >
               <RefreshCw className="mc-ajustes-icon" aria-hidden="true" />
-              Repetir último aviso
+              Repetir Ãºltimo aviso
             </button>
           </div>
 
@@ -490,7 +406,7 @@ export function AccessibilityPanel() {
 
           <p className="mc-ajustes-hint">
             La lectura en voz alta usa la voz de tu navegador; el texto no se
-            envía a ningún servidor desde esta pantalla.
+            envÃ­a a ningÃºn servidor desde esta pantalla.
           </p>
         </section>
       </div>

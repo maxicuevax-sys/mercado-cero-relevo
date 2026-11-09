@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { BadgeCheck, Share2, House } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
+import { readBrowserPreferences } from "@/lib/browser-preferences";
 import { formatMxn } from "@/lib/format";
 import { isDemoSale, saleMoney } from "@/lib/sale-truth";
 import type { Order } from "@/lib/types";
@@ -51,7 +52,8 @@ export function SaleResult({
 
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
     try {
-      if (window.localStorage.getItem("mercado-cero:muted") === "1") return;
+      const preferences = readBrowserPreferences();
+      if (preferences.muted) return;
       const text = isDemo
         ? `Simulación demo de pago digital por ${formatMxn(digitalPaidCents)}. Sin dinero real.`
         : `Pago confirmado por Pey: ${formatMxn(digitalPaidCents)}${
@@ -59,7 +61,7 @@ export function SaleResult({
           }.`;
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "es-MX";
-      utterance.rate = 1.0;
+      utterance.rate = preferences.voiceRate === "slow" ? 0.85 : preferences.voiceRate === "fast" ? 1.15 : 1;
       window.speechSynthesis.speak(utterance);
     } catch {
       // Graceful fallback

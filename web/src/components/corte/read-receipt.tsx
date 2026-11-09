@@ -2,6 +2,7 @@
 
 import { Square, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { readBrowserPreferences } from "@/lib/browser-preferences";
 import { toSpeechText } from "@/lib/speech";
 
 export function ReadReceipt({ text }: { text: string }) {
@@ -27,14 +28,7 @@ export function ReadReceipt({ text }: { text: string }) {
       return;
     }
 
-    let muted = false;
-    let rate: string | null = null;
-    try {
-      muted = window.localStorage.getItem("mercado-cero:muted") === "1";
-      rate = window.localStorage.getItem("mercado-cero:voice-rate");
-    } catch {
-      // Private contexts can deny access to preferences.
-    }
+    const { muted, voiceRate: rate } = readBrowserPreferences();
     if (muted) {
       setMessage("La voz está silenciada en Ajustes.");
       return;

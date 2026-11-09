@@ -7,6 +7,7 @@ import { Bell, ChevronRight, CircleHelp, CloudUpload, Coins, LogOut, MapPin, Mic
 import { AccessibilityPanel } from "./accessibility-panel";
 import { AssistantPreference } from "@/components/ayuda/optional-assistant";
 import { CompanionPreferences } from "@/components/companion-preferences";
+import { readBrowserPreferences, subscribeBrowserPreferences, updateBrowserPreferences } from "@/lib/browser-preferences";
 import { clearAppBrowserState } from "@/lib/auth/browser-state";
 
 interface PeyStatusData {
@@ -23,14 +24,11 @@ interface PeyStatusData {
   };
 }
 
-const eventName = "mercado-cero:preferences-changed";
-function subscribe(callback: () => void) { window.addEventListener(eventName, callback); window.addEventListener("storage", callback); return () => { window.removeEventListener(eventName, callback); window.removeEventListener("storage", callback); }; }
-function voiceSnapshot() { try { return localStorage.getItem("mercado-cero:muted") !== "1"; } catch { return true; } }
+function voiceSnapshot() { return !readBrowserPreferences().muted; }
 
 export function SettingsHome({ merchant, address, demo, accountMode = false }: { merchant: string; address: string; demo: boolean; accountMode?: boolean }) {
-  const voice = useSyncExternalStore(subscribe, voiceSnapshot, () => true);
+  const voice = useSyncExternalStore(subscribeBrowserPreferences, voiceSnapshot, () => true);
   const [notice, setNotice] = useState("");
-  const [sessionVoice, setSessionVoice] = useState<boolean | null>(null);
   const [peyStatus, setPeyStatus] = useState<PeyStatusData | null>(null);
   const [peyStatusError, setPeyStatusError] = useState(false);
   const [peyStatusAttempt, setPeyStatusAttempt] = useState(0);
@@ -94,9 +92,9 @@ export function SettingsHome({ merchant, address, demo, accountMode = false }: {
   }
 
   function toggleVoice() {
-    const next = !(sessionVoice ?? voice);
-    try { localStorage.setItem("mercado-cero:muted", next ? "0" : "1"); setSessionVoice(null); } catch { setSessionVoice(next); }
-    window.dispatchEvent(new Event(eventName));
+    const next = !voice;
+    updateBrowserPreferences({ muted: !next });
+    if (!next && "speechSynthesis" in window) window.speechSynthesis.cancel();
     setNotice(next ? "Lectura de voz activada. El micrófono pide permiso al dictar." : "Lectura de voz silenciada. El dictado sigue disponible con tu permiso.");
   }
   const rows = [
@@ -188,7 +186,7 @@ export function SettingsHome({ merchant, address, demo, accountMode = false }: {
     {peyStatusError ? <div id="mc-settings-pey-error" className="mc-settings-subpanel" role="alert"><p>No pudimos consultar el estado de cobros y la bitácora. Inténtalo de nuevo.</p><button type="button" className="mc-settings-logout" onClick={retryPeyStatus}>Reintentar consulta</button></div> : null}
     <section className="mc-settings-group" aria-label="Configuración del negocio">{rows.map(row => <details key={row.title}><summary><row.Icon aria-hidden="true" /><span><strong>{row.title}</strong><small>{row.detail}</small></span><ChevronRight aria-hidden="true" /></summary>{row.content}</details>)}</section>
     <section className="mc-settings-group" aria-label="Preferencias de uso">
-      <div className="mc-settings-row"><Mic aria-hidden="true" /><span><strong>Asistente de voz</strong><small>Lectura en voz alta. Micrófono con tu permiso.</small></span><button type="button" role="switch" aria-label="Asistente de voz" aria-checked={sessionVoice ?? voice} className="mc-settings-switch" onClick={toggleVoice}><span /></button></div>
+      <div className="mc-settings-row"><Mic aria-hidden="true" /><span><strong>Asistente de voz</strong><small>Lectura en voz alta. Micrófono con tu permiso.</small></span><button type="button" role="switch" aria-label="Asistente de voz" aria-checked={voice} className="mc-settings-switch" onClick={toggleVoice}><span /></button></div>
       <div className="mc-settings-row"><MonitorPlay aria-hidden="true" /><span><strong>Modo demo</strong><small>{demo ? "Datos de ejemplo · sin dinero real" : "Entorno real · se configura en el servidor"}</small></span><button type="button" role="switch" aria-label="Modo demo (configurado en servidor)" aria-checked={demo} aria-disabled="true" className="mc-settings-switch" onClick={() => setNotice("El modo demo se configura en el servidor. Este control no cambia el entorno ni tus datos.")}><span /></button></div>
       <details><summary><CloudUpload aria-hidden="true" /><span><strong>Respaldo de datos</strong><small>Guarda y recupera tu información</small></span><ChevronRight aria-hidden="true" /></summary><p>Los respaldos se administran en el servidor. No hay exportación ni restauración desde esta pantalla.</p></details>
     </section>
