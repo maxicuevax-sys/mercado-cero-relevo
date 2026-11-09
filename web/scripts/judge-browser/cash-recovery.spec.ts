@@ -1,6 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 
+test.use({ viewport: { width: 390, height: 844 } });
+
 test("lost cash response preserves attempt tender after reload, including mixed/exact and legacy metadata", async ({ page }) => {
   test.setTimeout(120_000);
   expect((await (await page.request.get("/api/health")).json()).buildSha).toBe(execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim());
@@ -14,7 +16,10 @@ test("lost cash response preserves attempt tender after reload, including mixed/
     await test.step(kind, async () => {
       await page.goto("/caja");
       await page.getByRole("button", { name: "Agregar monto $20", exact: true }).click();
-      if (kind !== "exact") await page.locator('input[id^="line-price-"]').fill("90");
+      if (kind !== "exact") {
+        await page.locator(".mc-caja-line__price-toggle").click();
+        await page.locator('input[id^="line-price-"]').fill("90");
+      }
       const before = (await (await page.request.get("/api/orders")).json()).orders.length;
       const attempts: { id: string; requestId: string }[] = [];
       await page.route("**/api/orders", async route => {

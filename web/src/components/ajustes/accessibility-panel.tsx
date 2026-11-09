@@ -12,9 +12,9 @@ import microfonoIcon from "@/assets/brand/iconos/transparent/microfono.png";
 /**
  * Controles reales de accesibilidad de la app.
  *
- * Las llaves de `localStorage` son las mismas que ya usaba la Caja clÃ¡sica y
+ * Las llaves de `localStorage` son las mismas que ya usaba la Caja clásica y
  * los valores son exactamente los que esperan el arranque del layout y el
- * shell. Al cambiar, ademÃ¡s de guardar, se aplican al `<html>` y se emite
+ * shell. Al cambiar, además de guardar, se aplican al `<html>` y se emite
  * `mercado-cero:preferences-changed` para que el shell (Worker A) re-aplique
  * sin recargar.
  */
@@ -38,7 +38,7 @@ const CONTRAST_OPTIONS: ReadonlyArray<{ id: ContrastMode; label: string }> = [
 const VOICE_RATE_OPTIONS: ReadonlyArray<{ id: VoiceRate; label: string }> = [
   { id: "slow", label: "Lenta" },
   { id: "normal", label: "Normal" },
-  { id: "fast", label: "RÃ¡pida" },
+  { id: "fast", label: "Rápida" },
 ];
 
 const MUTED_OPTIONS: ReadonlyArray<{ id: "on" | "off"; label: string }> = [
@@ -84,7 +84,7 @@ export function AccessibilityPanel() {
       return;
     }
     if (preferences.muted) {
-      setAnnouncement("La voz estÃ¡ silenciada. ActÃ­vala para escuchar.");
+      setAnnouncement("La voz está silenciada. Actívala para escuchar.");
       return;
     }
     if (!speechSupported()) {
@@ -103,7 +103,7 @@ export function AccessibilityPanel() {
             : 1;
       lastSpokenRef.current = text;
       window.speechSynthesis.speak(utterance);
-      setAnnouncement("Leyendo en voz altaâ€¦");
+      setAnnouncement("Leyendo en voz alta…");
     } catch {
       setAnnouncement("No pude leer en voz alta en este dispositivo.");
     }
@@ -134,7 +134,7 @@ export function AccessibilityPanel() {
   function repeatLast() {
     const last = lastSpokenRef.current;
     if (!last) {
-      setAnnouncement("TodavÃ­a no he leÃ­do nada en esta pantalla.");
+      setAnnouncement("Todavía no he leído nada en esta pantalla.");
       return;
     }
     speak(last);
@@ -151,7 +151,7 @@ export function AccessibilityPanel() {
 
   function chooseTextSize(id: TextSize) {
     const label = TEXT_SIZE_OPTIONS.find((option) => option.id === id)?.label;
-    update({ textSize: id }, `TamaÃ±o del texto: ${label ?? id}.`);
+    update({ textSize: id }, `Tamaño del texto: ${label ?? id}.`);
   }
 
   function chooseContrast(id: ContrastMode) {
@@ -212,7 +212,7 @@ export function AccessibilityPanel() {
 
           <div className="mc-ajustes-group">
             <p id={`${headingId}-size`} className="mc-ajustes-group__label">
-              TamaÃ±o del texto
+              Tamaño del texto
             </p>
             <div
               role="group"
@@ -396,7 +396,7 @@ export function AccessibilityPanel() {
               className="mc-ajustes-speech"
             >
               <RefreshCw className="mc-ajustes-icon" aria-hidden="true" />
-              Repetir Ãºltimo aviso
+              Repetir último aviso
             </button>
           </div>
 
@@ -406,7 +406,7 @@ export function AccessibilityPanel() {
 
           <p className="mc-ajustes-hint">
             La lectura en voz alta usa la voz de tu navegador; el texto no se
-            envÃ­a a ningÃºn servidor desde esta pantalla.
+            envía a ningún servidor desde esta pantalla.
           </p>
         </section>
       </div>
