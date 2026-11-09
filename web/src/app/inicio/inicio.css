@@ -1821,3 +1821,16 @@ html[data-contrast="high"] .inicio-nav__item[aria-current="page"]:focus-visible 
     border-radius: 12px;
   }
 }
+
+/* Keep narrow KPI labels inside their own card, above the unchanged amount. */
+@media (max-width: 360px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__top {
+    display: grid;
+    grid-template-columns: 25px minmax(0, 1fr);
+    min-height: 30px;
+    white-space: normal;
+  }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-kpi__top > span:last-child {
+    min-width: 0;
+  }
+}
