@@ -46,3 +46,7 @@
   html[data-text-size="xlarge"] .mc-assistant-answer { padding: .5rem; }
   html[data-text-size="xlarge"] .mc-assistant-answer a { gap: .25rem; overflow-wrap: normal; }
 }
+@media (max-width: 360px) {
+  html[data-text-size="xlarge"] .mc-assistant-topics button { grid-template-columns: minmax(0, 1fr); }
+  html[data-text-size="xlarge"] .mc-assistant-topics button > svg:last-child { display: none; }
+}

@@ -34,7 +34,7 @@
     "test:security": "node --no-warnings scripts/security-contract.mjs",
     "test:prod-pilot": "node --no-warnings --test scripts/prod-pilot-readiness.test.mjs",
     "test:p0-adversarial": "python scripts/p0-adversarial-e2e.py",
-    "test:harness": "node --test scripts/harness-gate.test.mjs scripts/check-deps.test.mjs scripts/evidence-integrity.test.mjs scripts/checkout-gate.test.mjs scripts/server-lifecycle.test.mjs",
+    "test:harness": "node --test scripts/harness-gate.test.mjs scripts/check-deps.test.mjs scripts/evidence-integrity.test.mjs scripts/checkout-gate.test.mjs scripts/server-lifecycle.test.mjs scripts/harness-report.test.mjs scripts/verify-env.test.mjs",
     "test:mobile-320": "python scripts/mobile-320-e2e.py",
     "test:inicio-contract": "node scripts/inicio-adoption-contract.mjs",
     "test:inicio-compact": "python scripts/inicio-compact-gate.py",
