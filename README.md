@@ -12,6 +12,8 @@
 
 # Trangui
 
+[![CI de main](https://github.com/maxicuevax-sys/mercado-cero-relevo/actions/workflows/harness.yml/badge.svg?branch=main&event=push)](https://github.com/maxicuevax-sys/mercado-cero-relevo/actions/workflows/harness.yml)
+
 **Un mostrador digital para llevar menos pendientes en la cabeza.**
 
 Trangui viene de *tranqui*. Buscamos que quien atiende un puesto de tianguis pueda registrar una venta, saber qué quedó fiado y revisar su caja sin reconstruir el día de memoria.
@@ -29,7 +31,7 @@ Comprar mercancía, preparar el puesto, atender, cobrar y volver a surtir exige 
 
 Queremos que comerciantes, desarrolladores y personas que prueban accesibilidad puedan revisar Trangui y proponer mejoras. Una aportación útil explica qué tarea intentó resolver, qué pasos sobraron y qué ocurrió. No hace falta proponer otra pantalla para señalar un problema.
 
-Para un reporte incluye ruta, pasos y dispositivo, sin datos de clientes ni secretos. Para un cambio de código lee [AGENTS.md](AGENTS.md) y [HARNESS.md](HARNESS.md), conserva la dirección visual y adjunta pruebas. Usa una rama por trabajo coherente, con los commits necesarios. La participación de la comunidad es una invitación, no una validación de campo que ya hayamos realizado.
+La [guía para colaborar y recuperar ramas](CONTRIBUTING.md) reúne los pasos de mantenimiento. Para un reporte incluye ruta, pasos y dispositivo, sin datos de clientes ni secretos. Para un cambio de código lee [AGENTS.md](AGENTS.md) y [HARNESS.md](HARNESS.md), conserva la dirección visual y adjunta pruebas. Usa una rama por trabajo coherente, con los commits necesarios. La participación de la comunidad es una invitación, no una validación de campo que ya hayamos realizado.
 
 Aplicamos [Humanizer](https://github.com/blader/humanizer) como apoyo editorial: lenguaje concreto, sin exageraciones ni hechos inventados. La revisión no oculta el uso de IA ni reemplaza comprobar las fuentes.
 
