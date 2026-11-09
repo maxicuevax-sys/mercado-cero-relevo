@@ -5,6 +5,7 @@ import type { CSSProperties, ReactNode } from "react";
 import brand from "@/assets/inicio/brand-shop-cream.svg";
 import papelPicado from "@/assets/inicio/papel-picado.png";
 import { CreditPayButton } from "@/components/fiados/credit-pay-button";
+import { GroupedCurrency } from "@/components/ui/grouped-currency";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { MERCHANT } from "@/lib/config";
 import { formatMxn } from "@/lib/format";
@@ -82,6 +83,7 @@ export function MobileLedger({
     credits[0].id.startsWith("demo_seed_") &&
     credits[0].balanceCents === credits[0].originalCents;
   const showSample = demo && (credits.length === 0 || onlyDefaultSeed) && !practice && !history;
+  const totalCents = showSample ? 112500 : balance;
   const examples = showSample ? sample.filter(({ name }) => matchesQuery(name)) : [];
   const empty = showSample ? examples.length === 0 : credits.length === 0;
   return (
@@ -146,10 +148,10 @@ export function MobileLedger({
         <section className="mc-fiados-mobile__total" aria-labelledby="fiados-mobile-total">
           <Image src="/assets/spec/fiados-monedas.png" width={320} height={200} alt="" unoptimized />
           <div>
-            <p id="fiados-mobile-total">Total por cobrar{showSample ? <span className="sr-only"> · Muestra ilustrativa</span> : null}</p>
-            {showSample
-              ? <p className="tabular-nums" data-sample>{formatMxn(112500)}</p>
-              : <CurrencyAmount as="p" cents={balance} />}
+            <p id="fiados-mobile-total">Total por cobrar<span className="mc-fiados-mobile__total-unit"> · MXN</span>{showSample ? <span className="sr-only"> · Muestra ilustrativa</span> : null}</p>
+            <p className="tabular-nums" data-sample={showSample || undefined}>
+              <GroupedCurrency cents={totalCents} label="Total por cobrar" />
+            </p>
           </div>
         </section>
 

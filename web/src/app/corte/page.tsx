@@ -1,3 +1,4 @@
+import { GroupedCurrency } from "@/components/ui/grouped-currency";
 import { withPilotPage } from "../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -6,7 +7,6 @@ import { ArrowLeft, Banknote, CalendarDays, CheckCircle2, CreditCard, QrCode } f
 import Link from "next/link";
 import { connection } from "next/server";
 import { OperationalPage } from "@/components/shell/operational-page";
-import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { CashCount } from "@/components/corte/cash-count";
 import { corteReceipts } from "@/components/corte/receipts-summary";
 import { ReadReceipt } from "@/components/corte/read-receipt";
@@ -111,8 +111,10 @@ async function CortePage() {
           <Image src={registerNative} alt="" aria-hidden="true" sizes="150px" />
         </div>
         <div>
-          <p>Total vendido</p>
-          <CurrencyAmount as="p" cents={summary.salesCents} />
+          <p>Total vendido<span className="mc-corte-total-unit"> · MXN</span></p>
+          <p className="tabular-nums">
+            <GroupedCurrency cents={summary.salesCents} label="Total vendido" />
+          </p>
         </div>
       </section>
 

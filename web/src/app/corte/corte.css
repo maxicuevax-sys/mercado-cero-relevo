@@ -7,10 +7,33 @@
   position: relative;
 }
 
+.mc-corte-total-unit { display: none; }
+
 /* Padding de página del contrato: 24 desktop / 16-20 móvil. */
 .mc-corte-page.mc-op-main {
   padding: 24px;
   padding-bottom: 72px;
+}
+
+@media (max-width: 760px) {
+  .mc-corte-v2-hero { container: corte-hero / inline-size; }
+  .mc-corte-v2-card { container: corte-card / inline-size; }
+  @container corte-hero (max-width: 16em) {
+    .mc-corte-v2-hero__art { grid-column: 1 / -1; grid-row: 1; width: 132px; max-width: 100%; justify-self: center; }
+    .mc-corte-v2-hero > div:last-child { grid-column: 1 / -1; grid-row: 2; min-width: 0; padding: 8px 12px; }
+    .mc-corte-v2-hero .tabular-nums { white-space: normal; overflow-wrap: normal; }
+    .mc-corte-total-unit { display: inline; }
+  }
+  @container corte-card (max-width: 16em) {
+    .mc-corte-page .mc-corte-v2-summary { grid-template-columns: minmax(0, 1fr); }
+    .mc-corte-page .mc-corte-v2-summary > div {
+      padding: 8px 0;
+      border-left: 0;
+      border-bottom: 1px solid var(--color-separator);
+      text-align: left;
+    }
+    .mc-corte-page .mc-corte-v2-summary > div:last-child { border-bottom: 0; }
+  }
 }
 
 @media (max-width: 1023.98px) {
@@ -1881,7 +1904,7 @@ html:not([data-contrast="high"]) .mc-corte-summary__balance { background: #eeedc
   .mc-corte-page > .mc-op-header.mc-page-header .mc-page-header__title {
     font-size: 1.75rem !important;
     line-height: 1.08;
-    white-space: nowrap;
+    white-space: normal;
     text-align: left;
   }
 }

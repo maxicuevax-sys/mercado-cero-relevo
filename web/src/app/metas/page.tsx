@@ -1,3 +1,4 @@
+import { GroupedCurrency } from "@/components/ui/grouped-currency";
 import { withPilotPage } from "../../lib/auth/pilot-page";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -113,7 +114,7 @@ async function MetasPage() {
       <div className="mc-metas-native">
         <section className="mc-metas-native-summary" aria-label="Resumen de metas">
           <Image src={savingsNative} alt="" aria-hidden="true" sizes="95px" />
-          <div><p>Ahorrado</p><strong>{formatMxn(savedTotal)}</strong></div>
+          <div><p>Ahorrado</p><strong><GroupedCurrency cents={savedTotal} label="Ahorrado" /></strong></div>
           <div><p>Metas activas</p><strong>{activeCount}</strong></div>
         </section>
         <div className="mc-metas-native-list">

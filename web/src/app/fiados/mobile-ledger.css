@@ -44,7 +44,9 @@
 
   .mc-fiados-mobile__brandbar {
     position: relative;
+    container: fiados-brandbar / inline-size;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     min-height: calc(66 * var(--fi-u));
     gap: calc(10 * var(--fi-u));
@@ -320,6 +322,7 @@
 
   .mc-fiados-mobile__total {
     display: grid;
+    container: fiados-total / inline-size;
     min-height: calc(69 * var(--fi-u));
     grid-template-columns: calc(137 * var(--fi-u)) minmax(0, 1fr);
     align-items: center;
@@ -359,6 +362,8 @@
     transform: scaleX(.85);
     transform-origin: left center;
   }
+
+  .mc-fiados-mobile__total-unit { display: none; }
 
   .mc-fiados-mobile__list {
     display: grid;
@@ -508,4 +513,35 @@
     display: none;
   }
 
+}
+
+/* Queries use the user's inherited font size: normal phone layouts stay put,
+   while enlarged text gets a second header row and a full-width amount. */
+@container fiados-brandbar (max-width: 16em) {
+  .mc-fiados-mobile__brand { flex: 1; }
+  .mc-fiados-mobile__merchant {
+    order: 4;
+    flex: 0 0 100%;
+    border-inline-start: 0;
+    padding-inline-start: 0;
+    margin-bottom: 10px;
+  }
+  .mc-fiados-mobile__merchant > div { min-width: 0; }
+  .mc-fiados-mobile__merchant strong { white-space: normal; flex-wrap: wrap; overflow-wrap: anywhere; }
+}
+
+@container fiados-total (max-width: 16em) {
+  .mc-fiados-mobile__total > div { display: contents; }
+  .mc-fiados-mobile__total > img { grid-column: 1; grid-row: 1; }
+  .mc-fiados-mobile__total p:first-child { grid-column: 2; grid-row: 1; padding: 8px; }
+  .mc-fiados-mobile__total p:last-child {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    padding: 0 4px 8px;
+    white-space: normal;
+    overflow-wrap: normal;
+  }
+  .mc-fiados-mobile__total p:last-child[data-sample] { transform: none; }
+  .mc-fiados-mobile__total-unit { display: inline; }
 }

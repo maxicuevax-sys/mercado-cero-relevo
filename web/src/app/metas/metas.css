@@ -1026,6 +1026,29 @@
   .mc-metas-create { display: flex; justify-content: flex-end; }
 }
 
+/* Preserve currency tokens as text grows: reflow rows instead of shrinking type. */
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a .mc-metas-native-summary { container: metas-total / inline-size; }
+  @container metas-total (max-width: 16em) {
+    .inicio-shell.mc-reference-a .mc-metas-native-summary > img {
+      grid-column: 1 / -1;
+      width: 80px;
+      justify-self: center;
+    }
+    .inicio-shell.mc-reference-a .mc-metas-native-summary > div {
+      grid-column: 1 / -1;
+      min-width: 0;
+      padding: 8px;
+      border-left: 0;
+      border-top: 1px solid var(--inicio-border);
+    }
+    .inicio-shell.mc-reference-a .mc-metas-main .mc-metas-native-summary strong {
+      white-space: normal;
+      overflow-wrap: normal;
+    }
+  }
+}
+
 @media (max-width: 760px) {
   .inicio-shell.mc-reference-a .mc-op-main.mc-metas-main {
     padding: 18px 14px calc(100px + env(safe-area-inset-bottom));
