@@ -190,7 +190,13 @@ async function FiadosPage({ searchParams }: {
   const practice = params.libreta === "practica";
   const needle = normalize(query);
   const matchesQuery = (name: string) => !needle || normalize(name).includes(needle);
-  const matches = listCredits().filter((credit) => {
+  const ledgerCredits = listCredits();
+  const sampleEligible = ledgerCredits.length === 0 || (
+    ledgerCredits.length === 1 &&
+    ledgerCredits[0].id.startsWith("demo_seed_") &&
+    ledgerCredits[0].balanceCents === ledgerCredits[0].originalCents
+  );
+  const matches = ledgerCredits.filter((credit) => {
     const settled = credit.status === "settled" || credit.balanceCents <= 0;
     return settled === history && matchesQuery(credit.customerName ?? "");
   });
@@ -206,7 +212,7 @@ async function FiadosPage({ searchParams }: {
       actions={<Link className="mc-parity-back" href="/inicio" aria-label="Volver a Inicio"><ArrowLeft aria-hidden="true" /></Link>}
       merchant={MERCHANT.name} address={MERCHANT.address} demo={demo}
       mainId="fiados-main" contentClassName="mc-fiados-page" focusTargetId="fiados-main">
-      <MobileLedger credits={credits} balance={openTotals.balanceCents} demo={demo}
+      <MobileLedger credits={credits} balance={openTotals.balanceCents} demo={demo} sampleEligible={sampleEligible}
         history={history} practice={practice} query={query} offset={offset} matchesQuery={matchesQuery}
         pager={pageCount > 1 ? <FiadosPager page={page} pageCount={pageCount} query={query} history={history} practice={practice} /> : null} />
       <div className="mc-fiados-desktop">

@@ -64,11 +64,12 @@ function RowContent({
 }
 
 export function MobileLedger({
-  credits, balance, demo, history, practice, query, offset, matchesQuery, pager,
+  credits, balance, demo, sampleEligible, history, practice, query, offset, matchesQuery, pager,
 }: {
   credits: Credit[];
   balance: number;
   demo: boolean;
+  sampleEligible: boolean;
   history: boolean;
   practice: boolean;
   query: string;
@@ -76,13 +77,8 @@ export function MobileLedger({
   matchesQuery: (name: string) => boolean;
   pager: ReactNode;
 }) {
-  // La lámina ilustrativa solo se usa cuando no hay deudas reales que mostrar
-  // (o cuando solo existe la semilla demo inicial intacta y no se abrió la libreta de práctica).
-  const onlyDefaultSeed =
-    credits.length === 1 &&
-    credits[0].id.startsWith("demo_seed_") &&
-    credits[0].balanceCents === credits[0].originalCents;
-  const showSample = demo && (credits.length === 0 || onlyDefaultSeed) && !practice && !history;
+  // Eligibility comes from the complete tenant ledger, before search or pagination.
+  const showSample = demo && sampleEligible && !practice && !history;
   const totalCents = showSample ? 112500 : balance;
   const examples = showSample ? sample.filter(({ name }) => matchesQuery(name)) : [];
   const empty = showSample ? examples.length === 0 : credits.length === 0;
