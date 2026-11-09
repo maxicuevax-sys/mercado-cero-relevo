@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Check, Loader2, QrCode, RefreshCw } from "lucide-react";
 import qrArt from "@/assets/brand/ilustraciones/transparent/qr.png";
 import { parseCodiAmountCents } from "./codi-amount";
@@ -32,7 +33,34 @@ type PendingRequest = { id: string; amountCents: number };
  * simulador demo (`/api/demo/pay`). No inventa endpoints ni duplica la lógica
  * del QR: un QR generado nunca se muestra como dinero recibido.
  */
-export function CodiHub({ demo, initialOrder = null, scopedDemoCheckout = false }: { demo: boolean; initialOrder?: Order | null; scopedDemoCheckout?: boolean }) {
+type CodiHubProps = { demo: boolean; initialOrder?: Order | null; scopedDemoCheckout?: boolean };
+
+function clearSelectedOrderInUrl() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("pedido");
+  window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+}
+
+export function CodiHub({ demo, initialOrder = null, scopedDemoCheckout = false }: CodiHubProps) {
+  const selectedId = useSearchParams().get("pedido");
+  const selectedOrder = selectedId && initialOrder?.id === selectedId ? initialOrder : null;
+  // Native history updates can precede a new server model. Never offer a fresh
+  // amount form while the URL still selects an order we have not received.
+  if (selectedId && !selectedOrder) {
+    return <section id="cobrar-codi" className="inicio-codi mc-codi" aria-labelledby="mc-codi-title" data-demo={demo ? "true" : "false"}>
+      <h2 id="mc-codi-title" className="mc-codi__title">Preparando el pedido seleccionado</h2>
+      <p role="status">Si no aparece, vuelve a Pendientes para elegirlo o inicia un cobro nuevo.</p>
+      <div className="mc-codi__actions">
+        <Link href="/pendientes" className="mc-codi__button-secondary">Volver a Pendientes</Link>
+        <button type="button" className="mc-codi__button-quiet" onClick={clearSelectedOrderInUrl}>Nuevo cobro</button>
+      </div>
+    </section>;
+  }
+  // The live URL changes B -> new on Nuevo, even when Next retains the page.
+  return <CodiHubState key={selectedOrder?.id ?? "new"} demo={demo} initialOrder={selectedOrder} scopedDemoCheckout={scopedDemoCheckout} />;
+}
+
+function CodiHubState({ demo, initialOrder = null, scopedDemoCheckout = false }: CodiHubProps) {
   const initialDueCents = initialOrder
     ? Math.max(initialOrder.totalCents - initialOrder.paidCents, 0)
     : 0;
@@ -231,9 +259,7 @@ export function CodiHub({ demo, initialOrder = null, scopedDemoCheckout = false 
     // Late automatic QR/poll/manual reads belong to the previous collection.
     generationRef.current++;
     setChecking(false);
-    const url = new URL(window.location.href);
-    url.searchParams.delete("pedido");
-    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    clearSelectedOrderInUrl();
     setOrder(null);
     setAmountRaw("");
     setError(null);

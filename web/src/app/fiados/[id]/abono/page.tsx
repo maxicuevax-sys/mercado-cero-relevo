@@ -30,7 +30,7 @@ async function AbonoPage({ params, searchParams }: {
       backLabel="Volver al fiado"
       activeHref="/fiados"
     >
-      <AbonoForm credit={credit} initialMethod={initialMethod} />
+      <AbonoForm key={`${credit.id}:${initialMethod}:${credit.balanceCents}`} credit={credit} initialMethod={initialMethod} />
     </FlowScreen>
   );
 }

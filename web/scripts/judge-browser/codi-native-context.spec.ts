@@ -83,6 +83,14 @@ test("native Pendientes links keep CoDi selection through cached pages, Nuevo an
   await expect(hub.locator("#mc-codi-amount")).toHaveValue("");
   await expect(hub.locator(".mc-codi__order-amount")).toHaveCount(0);
   expect(await page.evaluate(() => Reflect.get(window, "__qaNativeCodiNonce"))).toBe(nonce);
+  // A URL update without a matching server model must not become a new sale.
+  await page.evaluate(() => window.history.pushState(null, "", "/inicio?pedido=qa_unresolved"));
+  await expect(hub.getByRole("heading", { name: "Preparando el pedido seleccionado" })).toBeVisible();
+  await expect(hub.locator("#mc-codi-amount")).toHaveCount(0);
+  await expect(hub.getByRole("link", { name: "Volver a Pendientes", exact: true })).toBeVisible();
+  await hub.getByRole("button", { name: "Nuevo cobro", exact: true }).click();
+  await expect(page).toHaveURL(url => url.pathname === "/inicio" && !url.search);
+  await expect(hub.locator("#mc-codi-amount")).toHaveValue("");
   expect(documents).toHaveLength(1);
   expect(forbidden).toEqual([]);
   expect((await (await page.request.get("/api/orders")).json()).orders).toHaveLength(before);

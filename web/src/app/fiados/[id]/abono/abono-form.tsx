@@ -58,12 +58,20 @@ export function AbonoForm({ credit, initialMethod = "cash" }: { credit: Credit; 
   const [method, setMethod] = useState<Method>(initialMethod);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [requestId] = useState(newRequestId);
+  const [requestId, setRequestId] = useState(newRequestId);
 
   const cents = parseAmount(amount) ?? 0;
   const appliedCents = Math.min(cents, credit.balanceCents);
   const nextBalance = Math.max(0, credit.balanceCents - appliedCents);
   const name = credit.customerName?.trim() || "Cliente";
+
+  function resetAttempt() {
+    setAmount("");
+    setMethod(initialMethod);
+    setError(null);
+    setSaving(false);
+    setRequestId(newRequestId());
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -95,7 +103,9 @@ export function AbonoForm({ credit, initialMethod = "cash" }: { credit: Credit; 
       if (!response.ok) {
         throw new Error(body.error ?? "No pude registrar el abono. Intenta de nuevo.");
       }
-      router.push(`/fiados/${encodeURIComponent(credit.id)}?abonoRequestId=${encodeURIComponent(requestId)}`);
+      const confirmedRequestId = requestId;
+      resetAttempt();
+      router.push(`/fiados/${encodeURIComponent(credit.id)}?abonoRequestId=${encodeURIComponent(confirmedRequestId)}`);
     } catch (caught) {
       setError(
         caught instanceof Error && caught.message
@@ -214,7 +224,10 @@ export function AbonoForm({ credit, initialMethod = "cash" }: { credit: Credit; 
           {saving ? <Loader2 aria-hidden="true" /> : <Check aria-hidden="true" />}
           {saving ? "Registrando…" : "Registrar abono"}
         </button>
-        <Link className="mc-flow__secondary" href={`/fiados/${credit.id}`}>
+        <Link className="mc-flow__secondary" href={`/fiados/${credit.id}`} aria-disabled={saving} onClick={event => {
+          if (saving) { event.preventDefault(); return; }
+          resetAttempt();
+        }}>
           Cancelar
         </Link>
       </div>
