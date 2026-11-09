@@ -203,7 +203,7 @@ async function InicioPage({ searchParams }: { searchParams: Promise<{ pedido?: s
           titleId="inicio-pending-title"
           titleClassName="inicio-pending__title"
           icon={<MaskIcon src={iconPendientes} className="inicio-pending__icon" />}
-          action={<Link href="/pendientes">Ver todos</Link>}
+          action={<Link href="/pendientes" prefetch={false}>Ver todos</Link>}
         />
         {homeTasks.length ? (
           <ul className="inicio-pending__list">
