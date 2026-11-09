@@ -89,6 +89,32 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.SENTRY_AUTH_TOKEN || '' }}
         run: npm run verify:static
 
+      - name: Verify canonical static evidence before export
+        env:
+          SENTRY_AUTH_TOKEN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.SENTRY_AUTH_TOKEN || '' }}
+        run: |
+          npm run verify:evidence -- --static
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const token = process.env.SENTRY_AUTH_TOKEN;
+          for (const file of ['../harness/evidence/latest-static.json', '.next/BUILD_SHA']) {
+            if (token && fs.readFileSync(file, 'utf8').includes(token)) {
+              throw new Error('Unexpected secret in evidence; export blocked');
+            }
+          }
+          NODE
+
+      - name: Export only static evidence and build identity
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: static-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            harness/evidence/latest-static.json
+            web/.next/BUILD_SHA
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Install isolated QR decoder test dependencies
         run: python3 -m pip install -r scripts/qr-test-requirements.txt
 
