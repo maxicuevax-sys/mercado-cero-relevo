@@ -1211,6 +1211,26 @@
     justify-content: flex-end;
   }
 
+  html[data-text-size="xlarge"] .mc-flow__brandbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px 44px;
+    gap: 8px;
+  }
+
+  html[data-text-size="xlarge"] .mc-flow__brand { grid-column: 1; grid-row: 1; }
+  html[data-text-size="xlarge"] .mc-flow__bell { grid-column: 2; grid-row: 1; }
+  html[data-text-size="xlarge"] .mc-flow__avatar { grid-column: 3; grid-row: 1; justify-self: end; }
+
+  html[data-text-size="xlarge"] .mc-flow__merchant {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    padding-inline-start: 0;
+    border-inline-start: 0;
+    font-size: 0.75rem;
+  }
+
+  html[data-text-size="xlarge"] .mc-flow__merchant small { font-size: 0.7rem; }
+
   .mc-flow__brandbar {
     min-height: 82px;
     gap: 10px;

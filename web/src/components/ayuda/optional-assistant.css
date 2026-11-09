@@ -33,3 +33,16 @@
 .mc-assistant :is(button, input, a):focus-visible, .mc-assistant-preference button:focus-visible { outline: 0.1875rem solid var(--color-accent); outline-offset: 0.1875rem; }
 @media (max-width: 29.99875rem) { .mc-assistant { padding: 1rem; } }
 @media (forced-colors: active) { .mc-assistant-switch, .mc-assistant-switch > span { border: 0.0625rem solid ButtonText; } [aria-checked="true"] .mc-assistant-switch { background: Highlight; } }
+
+/* Keep large text readable on narrow phones instead of squeezing it beside art. */
+@media (max-width: 480px) {
+  html[data-text-size="xlarge"] .mc-assistant { padding: .75rem; }
+  html[data-text-size="xlarge"] .mc-assistant-head { flex-direction: column; align-items: flex-start; gap: .5rem; }
+  html[data-text-size="xlarge"] .mc-assistant-head > div { width: 100%; }
+  html[data-text-size="xlarge"] .mc-assistant-head img { width: 2rem; height: 2rem; }
+  html[data-text-size="xlarge"] .mc-assistant-topics button { display: grid; grid-template-columns: minmax(0, 1fr) 18px; gap: .25rem; padding: .5rem; }
+  html[data-text-size="xlarge"] .mc-assistant-topics button > svg:first-child { display: none; }
+  html[data-text-size="xlarge"] .mc-assistant-topics button > span { min-width: 0; overflow-wrap: break-word; }
+  html[data-text-size="xlarge"] .mc-assistant-answer { padding: .5rem; }
+  html[data-text-size="xlarge"] .mc-assistant-answer a { gap: .25rem; overflow-wrap: normal; }
+}
