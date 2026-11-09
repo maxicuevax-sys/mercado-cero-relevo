@@ -4,6 +4,8 @@ import { withPilotPage } from "../../../lib/auth/pilot-page";
 import { sentryDiagnosticsEnabled } from "../../../lib/observability/sentry-diagnostics";
 import { SentryDiagnostics } from "./diagnostics-client";
 
+export const instant = false;
+
 async function SentryDiagnosticsPage() {
   await connection();
   if (!sentryDiagnosticsEnabled()) notFound();
