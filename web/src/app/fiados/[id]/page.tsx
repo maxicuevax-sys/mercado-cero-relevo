@@ -60,16 +60,19 @@ async function FiadoDetallePage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ abono?: string; vista?: string }>;
+  searchParams: Promise<{ abono?: string; abonoRequestId?: string; vista?: string }>;
 }) {
   await connection();
   const { id } = await params;
-  const { abono, vista } = await searchParams;
+  const { abono, abonoRequestId, vista } = await searchParams;
   const resumen = vista === "resumen";
   const credit = getCredit(id);
   if (!credit) notFound();
 
   const payments = listCreditPayments(id);
+  const confirmedPayment = typeof abonoRequestId === "string" && abonoRequestId.length <= 128
+    ? payments.find((payment) => payment.requestId === abonoRequestId)
+    : null;
   const paidCents = Math.max(0, credit.originalCents - credit.balanceCents);
   const settled = credit.status === "settled" || credit.balanceCents <= 0;
   const name = credit.customerName?.trim() || "Cliente";
@@ -129,10 +132,12 @@ async function FiadoDetallePage({
         />
       }
     >
-      {abono === "ok" ? (
+      {abono || abonoRequestId ? (
         <p className="mc-flow__card mc-flow__card--soft" role="status">
-          <Check aria-hidden="true" style={{ width: 28, height: 28, verticalAlign: "middle", marginRight: 10 }} />
-          Abono registrado. El saldo de {name} se actualizó.
+          {confirmedPayment ? <>
+            <Check aria-hidden="true" style={{ width: 28, height: 28, verticalAlign: "middle", marginRight: 10 }} />
+            Abono registrado: {formatMxn(confirmedPayment.amountCents)}. Saldo actual de {name}: {formatMxn(credit.balanceCents)}.
+          </> : "No pude confirmar este abono. Revisa los movimientos antes de volver a registrarlo."}
         </p>
       ) : null}
 

@@ -95,7 +95,7 @@ export function AbonoForm({ credit }: { credit: Credit }) {
       if (!response.ok) {
         throw new Error(body.error ?? "No pude registrar el abono. Intenta de nuevo.");
       }
-      router.push(`/fiados/${encodeURIComponent(credit.id)}?abono=ok`);
+      router.push(`/fiados/${encodeURIComponent(credit.id)}?abonoRequestId=${encodeURIComponent(requestId)}`);
     } catch (caught) {
       setError(
         caught instanceof Error && caught.message

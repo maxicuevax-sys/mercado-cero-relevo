@@ -69,3 +69,26 @@ test("new fiado and abono receipts use saved records and ignore forged query amo
   const credits = (await (await context.request.get("/api/credits")).json()).credits;
   expect(credits.find((row: { id: string }) => row.id === creditId).balanceCents).toBe(3000);
 });
+
+test("legacy abono detail confirms a stored payment and never trusts abono=ok", async ({ page, context, baseURL }) => {
+  await guest(context, baseURL!);
+  const created = await context.request.post("/api/orders", {
+    headers: { Origin: baseURL! },
+    data: { items: [{ description: "QA legacy receipt", quantity: 1, unitPriceCents: 1000 }], creditCents: 1000, customerName: "QA legacy receipt", requestId: `qa-receipt-${randomUUID()}` },
+  });
+  expect(created.status()).toBe(201);
+  const creditId = (await created.json()).order.creditId;
+  for (const query of ["abono=ok", "abonoRequestId=missing&abono=ok"]) {
+    await page.goto(`/fiados/${creditId}?${query}`);
+    await expect(page.locator(".mc-flow__card[role=status]")).toContainText("No pude confirmar este abono");
+    await expect(page.locator(".mc-flow__card[role=status]")).not.toContainText("Abono registrado");
+  }
+  await page.goto(`/fiados/${creditId}/abono`);
+  await page.getByLabel("Monto del abono", { exact: true }).fill("2");
+  await page.getByRole("button", { name: "Registrar abono", exact: true }).click();
+  await page.waitForURL(/abonoRequestId=/);
+  await expect(page.locator(".mc-flow__card[role=status]")).toContainText("Abono registrado: $2.00");
+  await expect(page.locator(".mc-flow__card[role=status]")).toContainText("$8.00");
+  await page.reload();
+  await expect(page.locator(".mc-flow__card[role=status]")).toContainText("Abono registrado: $2.00");
+});
