@@ -1,4 +1,5 @@
 import { judgeAccountsEnabled } from "./pilot-mode";
+import { captureUnexpectedError } from "../observability/capture-unexpected";
 import { getJudgeRuntime } from "./pilot-runtime";
 import { validateRegistration } from "./register-validation";
 import { bodyErrorResponse, isSameOriginMutation, readJsonLimited } from "../http-security";
@@ -49,5 +50,8 @@ export async function handleJudgeAccess(request: Request, action: "sign-in" | "s
     const response = Response.json({ ok: true }, { headers: privateHeaders });
     for (const cookie of result.headers.getSetCookie()) response.headers.append("Set-Cookie", cookie);
     return response;
-  } catch { return failure("El acceso de prueba no está disponible. Inténtalo más tarde.", "account_service_unavailable", 503); }
+  } catch (error) {
+    captureUnexpectedError(error);
+    return failure("El acceso de prueba no está disponible. Inténtalo más tarde.", "account_service_unavailable", 503);
+  }
 }

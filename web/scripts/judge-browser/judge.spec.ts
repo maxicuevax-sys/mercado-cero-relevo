@@ -31,6 +31,11 @@ test("source inventory prevents new page or API exports from bypassing account s
     const route = `/${relative.replace(/\/?(?:page\.tsx|route\.ts)$/, "")}`;
     if (relative.endsWith("page.tsx")) {
       if (["/acceso", "/registro"].includes(route)) continue;
+      if (route === "/ops/sentry-diagnostics") {
+        expect(source).toMatch(/export default withPilotPage\(/);
+        expect(source).toContain("if (!sentryDiagnosticsEnabled()) notFound()");
+        continue;
+      }
       expect(source, route).toMatch(/export default withPilotPage\(/);
       if (route.startsWith("/pay/")) {
         expect(source, route).toMatch(/withPilotPage\([^;]+\{ buyer: true \}/);
@@ -38,6 +43,12 @@ test("source inventory prevents new page or API exports from bypassing account s
         discoveredPages.push(route.replace(/\[id\]/g, "ajeno").replace(/\[fecha\]/g, "2026-11-07"));
       }
     } else if (route !== "/api/health" && !route.startsWith("/api/access/")) {
+      // Telemetry-only public endpoint: fixed DSN, bounded body, no business DB.
+      if (route === "/sentry-tunnel") {
+        expect(source).toContain("handleSentryTunnel(request, process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN)");
+        expect(source).not.toMatch(/runJudgeRequest|withPilotRoute|DATABASE_PATH/);
+        continue;
+      }
       // These two exact isolated routes authenticate explicitly: payment uses
       // verifiedJudgeAccount; callback uses Standard Webhooks without a session.
       if (route === "/api/real-test/payment") {

@@ -6,9 +6,14 @@ RUN npm ci --ignore-scripts
 
 FROM dependencies AS builder
 ARG BUILD_SHA
+ARG NEXT_PUBLIC_SENTRY_DSN
+ARG NEXT_PUBLIC_SENTRY_ENVIRONMENT=production
+ARG SENTRY_ORG
+ARG SENTRY_PROJECT
 ENV NEXT_TELEMETRY_DISABLED=1 DEMO_MODE=true
 COPY web/ ./
-RUN BUILD_SHA="$BUILD_SHA" npm run build
+RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
+    BUILD_SHA="$BUILD_SHA" npm run build
 
 FROM node:24-bookworm-slim AS runner
 WORKDIR /app

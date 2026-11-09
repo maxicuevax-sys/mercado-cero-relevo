@@ -46,6 +46,7 @@ jobs:
 
       - name: Account identity and business isolation contracts
         run: |
+          npm run test:sentry
           npm run test:guest-entry
           npm run test:corte-receipts
           npm run test:format-timezone

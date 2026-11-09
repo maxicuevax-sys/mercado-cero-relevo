@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -22,6 +23,7 @@ function resolveBuildSha(): string {
 }
 
 const buildSha = resolveBuildSha();
+const uploadSentryMaps = Boolean(process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_ORG && process.env.SENTRY_PROJECT);
 
 /**
  * CSP conservadora: Next inyecta scripts inline para hidratar, así que
@@ -107,7 +109,7 @@ const nextConfig: NextConfig = {
   // `Accept-Encoding: gzip` y `Content-Encoding` en el contrato de perf.
   compress: true,
   poweredByHeader: false,
-  productionBrowserSourceMaps: false,
+  productionBrowserSourceMaps: uploadSentryMaps,
   cacheComponents: true,
   partialPrefetching: true,
   experimental: {
@@ -208,4 +210,13 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  release: { name: buildSha },
+  tunnelRoute: "/sentry-tunnel",
+  sourcemaps: { disable: !uploadSentryMaps, deleteSourcemapsAfterUpload: true },
+  telemetry: false,
+  silent: !process.env.CI,
+});

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test:sentry": "node --no-warnings --test scripts/sentry-privacy.test.mjs scripts/sentry-sdk.test.mjs scripts/sentry-tunnel.test.mjs scripts/sentry-diagnostics.test.mjs",
     "test:guest-entry": "node --no-warnings --test scripts/guest-entry.test.mjs",
     "test:corte-receipts": "node --no-warnings --test scripts/corte-receipts.test.mjs",
     "test:format-timezone": "node --no-warnings --test scripts/format-timezone.test.mjs",
@@ -57,6 +58,7 @@
     "test:pey-real-test": "node --test scripts/pey-real-test.test.mjs"
   },
   "dependencies": {
+    "@sentry/nextjs": "11.11.0",
     "@zxing/browser": "^0.2.1",
     "better-auth": "1.7.18",
     "lucide-react": "^1.65.0",

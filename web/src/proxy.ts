@@ -1,4 +1,5 @@
 import { judgeAccountsEnabled } from "@/lib/auth/pilot-mode";
+import { sentryDiagnosticsEnabled } from "./lib/observability/sentry-diagnostics";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { isDemoMode } from "@/lib/config";
@@ -67,6 +68,11 @@ export function proxy(request: NextRequest) {
   const method = request.method.toUpperCase();
   const mutating = MUTATING.has(method);
   const demoMode = isDemoMode();
+  if (pathname === "/ops/sentry-diagnostics" && !sentryDiagnosticsEnabled()) {
+    const hidden = jsonError("Not found", "not_found", 404);
+    hidden.headers.set("Cache-Control", "private, no-store");
+    return hidden;
+  }
 
   // Return before rendering: streamed notFound pages can otherwise emit HTTP200.
   if (judgeAccountsEnabled() && (
@@ -145,5 +151,5 @@ export function proxy(request: NextRequest) {
 export const config = {
   // Transcribe se excluye para que Next no clone/bufferice 12 MB en el Proxy.
   // Esa ruta aplica same-origin, rate limit y el tope de 12 MB por su cuenta.
-  matcher: ["/api/((?!voice/transcribe).*)", "/pay/:path*"],
+  matcher: ["/api/((?!voice/transcribe).*)", "/pay/:path*", "/ops/sentry-diagnostics"],
 };

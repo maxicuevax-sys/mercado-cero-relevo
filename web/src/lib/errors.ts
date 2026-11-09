@@ -6,6 +6,8 @@
  * conflicto) llegan al cliente. Lo inesperado se registra en el servidor y
  * responde con un mensaje estable.
  */
+import { captureUnexpectedError } from "./observability/capture-unexpected";
+
 export class AppError extends Error {
   readonly status: number;
   readonly code: string;
@@ -74,6 +76,7 @@ export function unexpectedResponse(
   fallback: string,
   status = 500,
 ): Response {
+  captureUnexpectedError(error);
   console.error(`[api] ${fallback}`, error);
   return Response.json(
     { error: fallback, code: "internal_error" },

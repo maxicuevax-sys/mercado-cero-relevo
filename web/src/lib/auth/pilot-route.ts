@@ -1,4 +1,5 @@
 import { judgeAccountsEnabled } from "./pilot-mode";
+import { captureUnexpectedError } from "../observability/capture-unexpected";
 
 export function withPilotRoute<Args extends unknown[]>(
   handler: (request: Request, ...args: Args) => Response | Promise<Response>,
@@ -24,6 +25,7 @@ export function withPilotRoute<Args extends unknown[]>(
       headers.delete("ETag");
       return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
     } catch (error) {
+      captureUnexpectedError(error);
       // Server-side diagnostics only: never include request bodies, cookies or credentials.
       console.error("[judge-account]", stage, error instanceof Error ? error.message : "unknown failure");
       return Response.json({ error: "El acceso de prueba no está disponible. Inténtalo más tarde.", code: "account_service_unavailable" }, { status: 503, headers: privateHeaders });

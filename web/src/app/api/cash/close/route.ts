@@ -1,4 +1,5 @@
 import { withPilotRoute } from "../../../../lib/auth/pilot-route";
+import { captureUnexpectedError } from "../../../../lib/observability/capture-unexpected";
 import { z } from "zod";
 import { CashCloseError, closeCash, getCashStatus } from "@/lib/cash";
 import {
@@ -89,6 +90,7 @@ async function POSTImpl(request: Request) {
       );
     }
     console.error("[cash close] error inesperado", error);
+    captureUnexpectedError(error);
     return Response.json(
       { error: "No se pudo guardar el corte.", code: "cash_close_failed" },
       { status: 500 },
