@@ -1,0 +1,172 @@
+name: security-scans
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '30 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-scans-${{ github.ref }}
+  cancel-in-progress: true
+
+# Official GHCR manifests verified 2026-11-09; see docs/security-scans.md.
+# No scanner action/install script, mutable executable tag or production secret.
+env:
+  GITLEAKS_IMAGE: ghcr.io/gitleaks/gitleaks@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+  TRIVY_IMAGE: ghcr.io/aquasecurity/trivy@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb
+
+jobs:
+  secrets:
+    name: Gitleaks full fetched history
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Scan without network, credentials or raw findings in logs
+        shell: bash
+        run: |
+          set -euo pipefail
+          private="$RUNNER_TEMP/gitleaks"
+          mkdir -p "$private"
+          printf '[extend]\nuseDefault = true\n' > "$private/config.toml"
+          touch "$private/empty.ignore"
+          docker pull "$GITLEAKS_IMAGE"
+          set +e
+          docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --user "$(id -u):$(id -g)" \
+            --tmpfs /tmp:rw,noexec,nosuid,size=64m -e HOME=/tmp \
+            --mount "type=bind,src=$GITHUB_WORKSPACE,dst=/src,readonly" \
+            --mount "type=bind,src=$private,dst=/out" \
+            "$GITLEAKS_IMAGE" git /src --log-opts=--all --redact=100 --no-banner \
+            --config /out/config.toml --gitleaks-ignore-path /out/empty.ignore \
+            --ignore-gitleaks-allow --report-format json --report-path /out/findings.json \
+            > "$private/scanner.log" 2>&1
+          status=$?
+          set -e
+          SCAN_STATUS="$status" REPORT="$private/findings.json" python3 - <<'PY'
+          import json, os, pathlib, sys
+          report = pathlib.Path(os.environ['REPORT'])
+          if not report.is_file():
+              sys.exit('Gitleaks failed without a report; private scanner log is not published.')
+          findings = json.loads(report.read_text())
+          if not isinstance(findings, list):
+              sys.exit('Invalid Gitleaks report.')
+          print(json.dumps({'scanner': 'gitleaks', 'findings': len(findings)}))
+          for row in findings:
+              # Deliberately omit Secret, Match, author, email, message and source.
+              print(json.dumps({key: row.get(key) for key in ['RuleID', 'File', 'StartLine', 'Commit']}))
+          status = int(os.environ['SCAN_STATUS'])
+          if status or findings:
+              sys.exit('Gitleaks gate failed; review metadata without exposing secret values.')
+          PY
+
+  dependencies:
+    name: Trivy repository dependencies HIGH CRITICAL
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Scan lockfiles including development dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          private="$RUNNER_TEMP/trivy-fs"
+          mkdir -p "$private/cache" "$private/report"
+          docker pull "$TRIVY_IMAGE"
+          set +e
+          docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges \
+            --user "$(id -u):$(id -g)" --tmpfs /tmp:rw,noexec,nosuid,size=512m -e HOME=/tmp \
+            --mount "type=bind,src=$GITHUB_WORKSPACE,dst=/src,readonly" \
+            --mount "type=bind,src=$private/cache,dst=/cache" \
+            --mount "type=bind,src=$private/report,dst=/out" \
+            "$TRIVY_IMAGE" fs --config='' --ignorefile='' --cache-dir /cache \
+            --db-repository ghcr.io/aquasecurity/trivy-db:2 --disable-telemetry \
+            --scanners vuln --include-dev-deps --severity HIGH,CRITICAL --exit-code 1 \
+            --skip-dirs /src/.git --format json --output /out/findings.json /src \
+            > "$private/scanner.log" 2>&1
+          status=$?
+          set -e
+          SCAN_STATUS="$status" REPORT="$private/report/findings.json" python3 - <<'PY'
+          import json, os, pathlib, sys
+          report = pathlib.Path(os.environ['REPORT'])
+          if not report.is_file():
+              sys.exit('Trivy filesystem failed without a report; not a clean scan.')
+          data = json.loads(report.read_text())
+          results = data.get('Results', [])
+          if not any(row.get('Target', '').endswith('web/package-lock.json') for row in results):
+              sys.exit('Trivy did not report the required web/package-lock.json target.')
+          findings = [v for row in results for v in row.get('Vulnerabilities', [])]
+          print(json.dumps({'scanner': 'trivy-fs', 'targets': len(results), 'findings': len(findings)}))
+          for row in findings:
+              print(json.dumps({key: row.get(key) for key in ['VulnerabilityID', 'PkgName', 'InstalledVersion', 'FixedVersion', 'Severity']}))
+          if int(os.environ['SCAN_STATUS']) or findings:
+              sys.exit('Trivy dependency gate failed; no findings are suppressed.')
+          PY
+
+  image:
+    name: Trivy built SHA image HIGH CRITICAL
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build isolated candidate and verify compiled SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          target_sha="$(git rev-parse HEAD)"
+          docker build --build-arg BUILD_SHA="$target_sha" -t "trangui-security:$target_sha" .
+          image_id="$(docker image inspect "trangui-security:$target_sha" --format '{{.Id}}')"
+          actual_sha="$(docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --entrypoint cat "$image_id" /app/.next/BUILD_SHA)"
+          test "$actual_sha" = "$target_sha"
+          docker save --output "$RUNNER_TEMP/trangui-image.tar" "$image_id"
+          printf '%s' "$image_id" > "$RUNNER_TEMP/trangui-image-id"
+          printf 'Candidate commit=%s image=%s\n' "$target_sha" "$image_id"
+      - name: Scan image archive without Docker socket or registry credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          private="$RUNNER_TEMP/trivy-image"
+          mkdir -p "$private/cache" "$private/report"
+          docker pull "$TRIVY_IMAGE"
+          set +e
+          docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges \
+            --user "$(id -u):$(id -g)" --tmpfs /tmp:rw,noexec,nosuid,size=512m -e HOME=/tmp \
+            --mount "type=bind,src=$RUNNER_TEMP/trangui-image.tar,dst=/input/image.tar,readonly" \
+            --mount "type=bind,src=$private/cache,dst=/cache" \
+            --mount "type=bind,src=$private/report,dst=/out" \
+            "$TRIVY_IMAGE" image --config='' --ignorefile='' --cache-dir /cache \
+            --db-repository ghcr.io/aquasecurity/trivy-db:2 --disable-telemetry \
+            --input /input/image.tar --scanners vuln --severity HIGH,CRITICAL --exit-code 1 \
+            --format json --output /out/findings.json > "$private/scanner.log" 2>&1
+          status=$?
+          set -e
+          SCAN_STATUS="$status" REPORT="$private/report/findings.json" IMAGE_ID_FILE="$RUNNER_TEMP/trangui-image-id" python3 - <<'PY'
+          import json, os, pathlib, sys
+          report = pathlib.Path(os.environ['REPORT'])
+          if not report.is_file():
+              sys.exit('Trivy image failed without a report; not a clean scan.')
+          data = json.loads(report.read_text())
+          expected = pathlib.Path(os.environ['IMAGE_ID_FILE']).read_text().strip()
+          if data.get('Metadata', {}).get('ImageID') != expected:
+              sys.exit('Trivy report does not match the built image ID.')
+          findings = [v for row in data.get('Results', []) for v in row.get('Vulnerabilities', [])]
+          print(json.dumps({'scanner': 'trivy-image', 'image': expected, 'findings': len(findings)}))
+          for row in findings:
+              print(json.dumps({key: row.get(key) for key in ['VulnerabilityID', 'PkgName', 'InstalledVersion', 'FixedVersion', 'Severity']}))
+          if int(os.environ['SCAN_STATUS']) or findings:
+              sys.exit('Trivy image gate failed; no findings are suppressed.')
+          PY
