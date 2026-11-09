@@ -10,7 +10,7 @@ import {
   Check,
   CreditCard,
   Loader2,
-  QrCode,
+  Smartphone,
   ShoppingBag,
 } from "lucide-react";
 import { formatMxn } from "@/lib/format";
@@ -28,7 +28,7 @@ function shortMxn(cents: number): string {
 const METHODS: Array<{ id: Method; label: string; Icon: typeof Banknote }> = [
   { id: "cash", label: "Efectivo", Icon: Banknote },
   { id: "card", label: "Tarjeta", Icon: CreditCard },
-  { id: "codi", label: "QR", Icon: QrCode },
+  { id: "codi", label: "Digital recibido", Icon: Smartphone },
 ];
 
 function parseAmount(value: string): number | null {
@@ -50,12 +50,12 @@ function newRequestId(): string {
   return `cpa_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export function AbonoForm({ credit }: { credit: Credit }) {
+export function AbonoForm({ credit, initialMethod = "cash" }: { credit: Credit; initialMethod?: Method }) {
   const router = useRouter();
   const amountId = useId();
   const errorId = useId();
   const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState<Method>("cash");
+  const [method, setMethod] = useState<Method>(initialMethod);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [requestId] = useState(newRequestId);
@@ -192,7 +192,7 @@ export function AbonoForm({ credit }: { credit: Credit }) {
       <p className="mc-flow__hint">
         {method === "cash"
           ? "Suma al efectivo de hoy y al corte de caja."
-          : "Queda como abono declarado; pey no lo verifica."}
+          : "Registra un pago que ya recibiste. Queda como abono declarado; pey no lo verifica y esta pantalla no genera un QR."}
       </p>
 
       <section className="mc-flow__balance" aria-label="Nuevo saldo">

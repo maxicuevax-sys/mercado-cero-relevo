@@ -12,7 +12,6 @@ import {
   Banknote,
   CreditCard,
   ReceiptText,
-  QrCode,
   Smartphone,
   Tag,
   Wallet,
@@ -288,10 +287,10 @@ async function FiadoDetallePage({
             Registrar abono
           </Link>
         )}
-        <Link className="mc-flow__secondary" href="/inicio#cobrar-codi">
-          <QrCode aria-hidden="true" />
-          Cobrar con CoDi
-        </Link>
+        {!settled ? <Link className="mc-flow__secondary" href={`/fiados/${credit.id}/abono?metodo=codi`}>
+          <Smartphone aria-hidden="true" />
+          Registrar abono digital
+        </Link> : null}
         <Link className="mc-flow__secondary" href="/fiados">
           <ArrowLeft aria-hidden="true" />
           Volver a Fiados

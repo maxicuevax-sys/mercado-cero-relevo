@@ -12,9 +12,13 @@ export const metadata: Metadata = {
 
 export const instant = false;
 
-async function AbonoPage({ params }: { params: Promise<{ id: string }> }) {
+async function AbonoPage({ params, searchParams }: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ metodo?: string | string[] }>;
+}) {
   await connection();
-  const { id } = await params;
+  const [{ id }, query] = await Promise.all([params, searchParams]);
+  const initialMethod = query.metodo === "codi" || query.metodo === "card" ? query.metodo : "cash";
   const credit = getCredit(id);
   if (!credit) notFound();
 
@@ -26,7 +30,7 @@ async function AbonoPage({ params }: { params: Promise<{ id: string }> }) {
       backLabel="Volver al fiado"
       activeHref="/fiados"
     >
-      <AbonoForm credit={credit} />
+      <AbonoForm credit={credit} initialMethod={initialMethod} />
     </FlowScreen>
   );
 }
