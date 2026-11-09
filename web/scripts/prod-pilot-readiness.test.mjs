@@ -20,7 +20,15 @@ function transpileTsFile(relativeUrl, replacements = []) {
   return `data:text/javascript;base64,${Buffer.from(js).toString("base64")}`;
 }
 
-const errorsUrl = transpileTsFile("../src/lib/errors.ts");
+// data: modules have no directory: resolve the new telemetry dependencies explicitly.
+const diagnosticsUrl = transpileTsFile("../src/lib/observability/sentry-diagnostics.ts");
+const captureUnexpectedUrl = transpileTsFile("../src/lib/observability/capture-unexpected.ts", [
+  ['from "./sentry-diagnostics"', `from "${diagnosticsUrl}"`],
+  ['import("@sentry/nextjs")', `import("${import.meta.resolve("@sentry/nextjs")}")`],
+]);
+const errorsUrl = transpileTsFile("../src/lib/errors.ts", [
+  ['from "./observability/capture-unexpected"', `from "${captureUnexpectedUrl}"`],
+]);
 const configUrl = transpileTsFile("../src/lib/config.ts");
 const pilotModeUrl = transpileTsFile("../src/lib/auth/pilot-mode.ts");
 const httpSecurityUrl = transpileTsFile("../src/lib/http-security.ts", [
@@ -31,6 +39,7 @@ const nextServerUrl = new URL(
   import.meta.url,
 ).href;
 const proxyUrl = transpileTsFile("../src/proxy.ts", [
+  ['from "./lib/observability/sentry-diagnostics"', `from "${diagnosticsUrl}"`],
   ['from "next/server"', `from "${nextServerUrl}"`],
   ['from "@/lib/config"', `from "${configUrl}"`],
   ['from "@/lib/auth/pilot-mode"', `from "${pilotModeUrl}"`],
