@@ -1231,6 +1231,13 @@
 
   html[data-text-size="xlarge"] .mc-flow__merchant small { font-size: 0.7rem; }
 
+  html[data-text-size="xlarge"] .mc-flow__split {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  html[data-text-size="xlarge"] .mc-flow__field--time { flex-basis: auto; }
+
   .mc-flow__brandbar {
     min-height: 82px;
     gap: 10px;

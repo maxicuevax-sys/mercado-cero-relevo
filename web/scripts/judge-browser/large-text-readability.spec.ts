@@ -45,12 +45,14 @@ test("large mobile text keeps assistant and merchant words readable", async ({ p
       await assistant.evaluate(element => element.scrollIntoView({ block: "start" }));
       await page.screenshot({ path: testInfo.outputPath(`assistant-${width}-${font}.png`) });
 
-      await page.goto("/fiados/nuevo");
-      await page.evaluate(font => { document.documentElement.style.fontSize = `${font}px`; }, font);
-      await page.evaluate(() => document.fonts.ready);
-      expect(await wordLines(page.locator(".mc-flow__merchant strong"), "Antojitos")).toBe(1);
-      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
-      await page.screenshot({ path: testInfo.outputPath(`merchant-${width}-${font}.png`) });
+      for (const route of ["/fiados/nuevo", "/metas/nueva", "/pendientes/nuevo"]) {
+        await page.goto(route);
+        await page.evaluate(font => { document.documentElement.style.fontSize = `${font}px`; }, font);
+        await page.evaluate(() => document.fonts.ready);
+        expect(await wordLines(page.locator(".mc-flow__merchant strong"), "Antojitos")).toBe(1);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth), route).toBeLessThanOrEqual(width);
+        await page.screenshot({ path: testInfo.outputPath(`${route.split("/")[1]}-${width}-${font}.png`) });
+      }
     }
   }
 });
