@@ -302,8 +302,7 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
             </button>
 
             <p className="mc-codi__hint" id="mc-codi-amount-help">
-              El QR no es un pago: el cobro se confirma cuando el pago llega.{" "}
-              {demo ? "En demo se simula y nunca entra dinero real." : ""}
+              El QR no es un pago: el cobro se confirma cuando el pago llega.
             </p>
             <Link className="mc-codi__link" href="/caja">
               Ticket con varios productos · Abrir Caja
