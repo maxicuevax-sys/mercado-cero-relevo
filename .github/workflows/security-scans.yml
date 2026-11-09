@@ -139,9 +139,9 @@ jobs:
           target_sha="$(git rev-parse HEAD)"
           docker build --build-arg BUILD_SHA="$target_sha" -t "trangui-security:$target_sha" .
           image_id="$(docker image inspect "trangui-security:$target_sha" --format '{{.Id}}')"
-          build_metadata="$(docker run --rm --network none --read-only --cap-drop ALL \
-            --security-opt no-new-privileges --entrypoint cat "$image_id" /app/.next/BUILD_SHA)"
-          actual_sha="$(printf '%s' "$build_metadata" | python3 -c 'import json,re,sys; sha=json.load(sys.stdin)["sha"]; assert isinstance(sha,str) and re.fullmatch("[0-9a-f]{40}",sha); print(sha,end="")')"
+          actual_sha="$(docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --entrypoint node "$image_id" -e \
+            'const {sha}=JSON.parse(require("node:fs").readFileSync("/app/.next/BUILD_SHA","utf8")); if(typeof sha!=="string" || !/^[0-9a-f]{40}$/.test(sha)) process.exit(1); process.stdout.write(sha);')"
           test "$actual_sha" = "$target_sha" || { printf 'Compiled image SHA does not match checkout.\n' >&2; exit 1; }
           docker save --output "$RUNNER_TEMP/trangui-image.tar" "$image_id"
           printf '%s' "$image_id" > "$RUNNER_TEMP/trangui-image-id"
