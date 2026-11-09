@@ -42,6 +42,20 @@ test("blocked cleanup fails visibly instead of pretending account state was remo
   assert.throws(() => clearAppBrowserState(blocked, storageFixture({})), /browser_state_cleanup_failed/);
 });
 
+test("cleanup snapshots keys when a storage engine reorders entries after removal", () => {
+  let values = new Map([
+    ["mercado-cero:one", "old"], ["trangui:two", "old"],
+    ["mercado-cero:three", "old"], ["unrelated", "keep"],
+  ]);
+  const reordering = {
+    get length() { return values.size; },
+    key(index) { return [...values.keys()][index] ?? null; },
+    removeItem(key) { values.delete(key); const entries = [...values]; if (entries.length) entries.push(entries.shift()); values = new Map(entries); },
+  };
+  clearAppBrowserState(reordering, storageFixture({}));
+  assert.deepEqual(Object.fromEntries(values), { unrelated: "keep" });
+});
+
 test("iPhone storage access denial does not misreport a successful session as a network error", () => {
   const session = storageFixture({ 'trangui:old': 'remove', unrelated: 'keep' });
   const previous = globalThis.window;

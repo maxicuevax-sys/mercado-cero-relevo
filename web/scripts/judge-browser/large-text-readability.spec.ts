@@ -34,11 +34,11 @@ test("large mobile text keeps assistant and merchant words readable", async ({ p
       await page.evaluate(() => document.fonts.ready);
       const assistant = page.locator("#asistente");
       await expect(assistant.locator(".mc-assistant-body")).toBeVisible();
-      expect(await wordLines(assistant.locator("h2"), "Asistente")).toBe(1);
+      await expect.poll(() => wordLines(assistant.locator("h2"), "Asistente")).toBe(1);
       const topics = assistant.locator(".mc-assistant-topics button span");
       for (const label of await topics.all()) {
         for (const word of (await label.innerText()).match(/\p{L}+/gu) ?? []) {
-          expect(await wordLines(label, word), word).toBe(1);
+          await expect.poll(() => wordLines(label, word), { message: word }).toBe(1);
         }
       }
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
@@ -49,7 +49,7 @@ test("large mobile text keeps assistant and merchant words readable", async ({ p
         await page.goto(route);
         await page.evaluate(font => { document.documentElement.style.fontSize = `${font}px`; }, font);
         await page.evaluate(() => document.fonts.ready);
-        expect(await wordLines(page.locator(".mc-flow__merchant strong"), "Antojitos")).toBe(1);
+        await expect.poll(() => wordLines(page.locator(".mc-flow__merchant strong"), "Antojitos")).toBe(1);
         expect(await page.evaluate(() => document.documentElement.scrollWidth), route).toBeLessThanOrEqual(width);
         await page.screenshot({ path: testInfo.outputPath(`${route.split("/")[1]}-${width}-${font}.png`) });
       }

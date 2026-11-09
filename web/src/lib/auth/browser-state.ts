@@ -18,10 +18,20 @@ export function clearAppBrowserState(
   for (const storage of [local ?? availableBrowserStorage("localStorage"), session ?? availableBrowserStorage("sessionStorage")]) {
     if (!storage) continue;
     try {
-      for (let index = storage.length - 1; index >= 0; index -= 1) {
+      // Storage key order is implementation-defined and can change on removal.
+      // Snapshot first so WebKit cannot skip a previous account's entry.
+      const appKeys: string[] = [];
+      for (let index = 0; index < storage.length; index += 1) {
         const key = storage.key(index);
         if (key && APP_STORAGE_PREFIXES.some(prefix => key.startsWith(prefix))) {
-          storage.removeItem(key);
+          appKeys.push(key);
+        }
+      }
+      for (const key of appKeys) storage.removeItem(key);
+      for (let index = 0; index < storage.length; index += 1) {
+        const key = storage.key(index);
+        if (key && APP_STORAGE_PREFIXES.some(prefix => key.startsWith(prefix))) {
+          throw new Error("App storage remains after cleanup");
         }
       }
     } catch (error) {

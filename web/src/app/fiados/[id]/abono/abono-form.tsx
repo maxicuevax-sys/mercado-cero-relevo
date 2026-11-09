@@ -14,6 +14,7 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import { formatMxn } from "@/lib/format";
+import { useClientReady } from "@/lib/use-client-ready";
 import type { Credit } from "@/lib/types";
 
 type Method = "cash" | "card" | "codi";
@@ -51,6 +52,7 @@ function newRequestId(): string {
 }
 
 export function AbonoForm({ credit, initialMethod = "cash" }: { credit: Credit; initialMethod?: Method }) {
+  const ready = useClientReady();
   const router = useRouter();
   const amountId = useId();
   const errorId = useId();
@@ -154,7 +156,7 @@ export function AbonoForm({ credit, initialMethod = "cash" }: { credit: Credit; 
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           data-autofocus
-          disabled={saving}
+          disabled={!ready || saving}
         />
       </div>
 
@@ -170,7 +172,7 @@ export function AbonoForm({ credit, initialMethod = "cash" }: { credit: Credit; 
               setAmount((value / 100).toFixed(2));
               if (error) setError(null);
             }}
-            disabled={saving || value > credit.balanceCents}
+            disabled={!ready || saving || value > credit.balanceCents}
           >
             {shortMxn(value)}
           </button>
@@ -191,7 +193,7 @@ export function AbonoForm({ credit, initialMethod = "cash" }: { credit: Credit; 
             className={method === id ? "mc-flow__method is-active" : "mc-flow__method"}
             aria-pressed={method === id}
             onClick={() => setMethod(id)}
-            disabled={saving}
+            disabled={!ready || saving}
           >
             <Icon aria-hidden="true" />
             <span>{label}</span>
@@ -220,7 +222,7 @@ export function AbonoForm({ credit, initialMethod = "cash" }: { credit: Credit; 
       ) : null}
 
       <div className="mc-flow__actions">
-        <button type="submit" className="mc-flow__primary" disabled={saving} aria-busy={saving}>
+        <button type="submit" className="mc-flow__primary" disabled={!ready || saving} aria-busy={saving}>
           {saving ? <Loader2 aria-hidden="true" /> : <Check aria-hidden="true" />}
           {saving ? "Registrando…" : "Registrar abono"}
         </button>

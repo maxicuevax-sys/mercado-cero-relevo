@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useClientReady } from "@/lib/use-client-ready";
 import { Check, Loader2, QrCode, RefreshCw } from "lucide-react";
 import qrArt from "@/assets/brand/ilustraciones/transparent/qr.png";
 import { parseCodiAmountCents } from "./codi-amount";
@@ -61,6 +62,7 @@ export function CodiHub({ demo, initialOrder = null, scopedDemoCheckout = false 
 }
 
 function CodiHubState({ demo, initialOrder = null, scopedDemoCheckout = false }: CodiHubProps) {
+  const ready = useClientReady();
   const initialDueCents = initialOrder
     ? Math.max(initialOrder.totalCents - initialOrder.paidCents, 0)
     : 0;
@@ -327,7 +329,7 @@ function CodiHubState({ demo, initialOrder = null, scopedDemoCheckout = false }:
                 value={amountRaw}
                 maxLength={64}
                 aria-invalid={parsedAmountCents === null}
-                disabled={creating}
+                disabled={!ready || creating}
                 aria-describedby="mc-codi-amount-help"
                 onChange={(event) => onAmountChange(event.target.value)}
                 onBlur={() => {
@@ -355,7 +357,7 @@ function CodiHubState({ demo, initialOrder = null, scopedDemoCheckout = false }:
                   className="mc-codi__chip"
                   aria-pressed={amountCents === cents}
                   onClick={() => chooseQuick(cents)}
-                  disabled={creating}
+                  disabled={!ready || creating}
                 >
                   ${cents / 100}
                 </button>
@@ -366,7 +368,7 @@ function CodiHubState({ demo, initialOrder = null, scopedDemoCheckout = false }:
               type="button"
               className="mc-codi__cta"
               onClick={() => void startCobro()}
-              disabled={creating || parsedAmountCents === null}
+              disabled={!ready || creating || parsedAmountCents === null}
             >
               {creating ? (
                 <Loader2 className="mc-codi__spin" aria-hidden="true" />
