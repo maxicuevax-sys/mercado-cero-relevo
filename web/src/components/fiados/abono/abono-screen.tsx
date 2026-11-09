@@ -67,9 +67,8 @@ function newRequestId(): string {
  * Pantalla 18 · Registrar abono.
  *
  * Reutiliza el flujo real `POST /api/credits/[id]/pay` (idempotente con
- * `requestId`) y, al confirmar, navega a `/fiados/registrado` con el monto
- * aplicado. El saldo "del cliente" que se pinta después es real: el servidor lo
- * vuelve a leer por `credito` en la pantalla de resultado.
+ * `requestId`) y, al confirmar, navega al recibo con las claves del registro.
+ * El recibo vuelve a leer el abono y saldo en la libreta del servidor.
  */
 export function AbonoScreen({
   credit,
@@ -164,10 +163,8 @@ export function AbonoScreen({
 
       const params = new URLSearchParams({
         tipo: "abono",
-        credito: credit.id,
-        aplicado: String(body.appliedCents),
-        metodo: method,
-        cliente: credit.name,
+        creditId: credit.id,
+        requestId,
       });
       router.push(`/fiados/registrado?${params.toString()}`);
     } catch (caught) {

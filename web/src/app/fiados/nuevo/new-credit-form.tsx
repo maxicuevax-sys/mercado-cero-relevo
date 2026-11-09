@@ -86,16 +86,15 @@ export function NewCreditForm({
         }),
       });
       const body = (await response.json().catch(() => ({}))) as {
-        order?: { creditId?: string | null };
+        order?: { id?: string; creditId?: string | null };
       } & ApiError;
-      if (!response.ok || !body.order?.creditId) {
+      if (!response.ok || !body.order?.id || !body.order.creditId) {
         throw new Error(body.error ?? "No pude registrar el fiado. Intenta de nuevo.");
       }
       const params = new URLSearchParams({
         creditId: body.order.creditId,
-        amount: String(cents),
+        orderId: body.order.id,
       });
-      if (note.trim()) params.set("note", note.trim());
       router.push(`/fiados/registrado?${params.toString()}`);
     } catch (caught) {
       setError(
