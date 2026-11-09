@@ -49,6 +49,7 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
   const headingRef = useRef<HTMLHeadingElement>(null);
   const requestRef = useRef<PendingRequest | null>(null);
   const focusKeyRef = useRef<string | null>(null);
+  const generationRef = useRef(0);
 
   const parsedAmountCents = parseCodiAmountCents(amountRaw);
   const amountCents = parsedAmountCents ?? 0;
@@ -80,12 +81,13 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
   useEffect(() => {
     if (!initialOrder || initialOrder.qrImage || TERMINAL.has(initialOrder.status)) return;
     let active = true;
+    const generation = generationRef.current;
     void requestQr(initialOrder.id)
       .then((next) => {
-        if (active) setOrder(next);
+        if (active && generation === generationRef.current) setOrder(next);
       })
       .catch((caught) => {
-        if (active) setError(friendlyError(caught, "No se pudo preparar el QR del pedido."));
+        if (active && generation === generationRef.current) setError(friendlyError(caught, "No se pudo preparar el QR del pedido."));
       });
     return () => {
       active = false;
@@ -95,12 +97,13 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
   useEffect(() => {
     if (!order || TERMINAL.has(order.status)) return;
     let active = true;
+    const generation = generationRef.current;
     const timer = window.setInterval(async () => {
       try {
         const response = await fetch(`/api/orders/${order.id}`, { cache: "no-store" });
         if (!response.ok) return;
         const data = (await response.json()) as { order?: Order };
-        if (active && data.order && data.order.updatedAt >= order.updatedAt) {
+        if (active && generation === generationRef.current && data.order && data.order.updatedAt >= order.updatedAt) {
           setOrder(data.order);
         }
       } catch {
@@ -185,14 +188,16 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
 
   async function consultarEstado() {
     if (!order || checking || creating) return;
+    const generation = generationRef.current;
     setChecking(true);
     setError(null);
     try {
-      setOrder(await readOrder(order.id));
+      const next = await readOrder(order.id);
+      if (generation === generationRef.current) setOrder(next);
     } catch (caught) {
-      setError(friendlyError(caught, "No se pudo consultar el cobro."));
+      if (generation === generationRef.current) setError(friendlyError(caught, "No se pudo consultar el cobro."));
     } finally {
-      setChecking(false);
+      if (generation === generationRef.current) setChecking(false);
     }
   }
 
@@ -222,6 +227,9 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
 
   function nuevoCobro() {
     if (creating || simulating) return;
+    // Late automatic QR/poll/manual reads belong to the previous collection.
+    generationRef.current++;
+    setChecking(false);
     const url = new URL(window.location.href);
     url.searchParams.delete("pedido");
     window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
