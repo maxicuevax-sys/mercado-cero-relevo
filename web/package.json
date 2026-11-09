@@ -6,6 +6,7 @@
     "test:guest-entry": "node --no-warnings --test scripts/guest-entry.test.mjs",
     "test:corte-receipts": "node --no-warnings --test scripts/corte-receipts.test.mjs",
     "test:format-timezone": "node --no-warnings --test scripts/format-timezone.test.mjs",
+    "test:currency-groups": "node --no-warnings --test scripts/currency-groups.test.mjs",
     "dev": "next dev",
     "build": "node scripts/build-gate.mjs",
     "start": "next start",
