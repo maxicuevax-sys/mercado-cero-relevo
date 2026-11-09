@@ -155,6 +155,11 @@
     cursor: pointer;
   }
 
+  .mc-fiados-mobile__profile summary {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
   .mc-fiados-mobile summary::-webkit-details-marker {
     display: none;
   }

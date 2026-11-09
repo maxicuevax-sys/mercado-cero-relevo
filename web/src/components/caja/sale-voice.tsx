@@ -27,6 +27,7 @@ export function SaleVoice({ disabled, onAdd, businessType }: { disabled: boolean
   const [proposal, setProposal] = useState<DraftLine[]>([]);
   const [notice, setNotice] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
+  const scannerButton = useRef<HTMLButtonElement>(null);
   const recorder = useRef<MediaRecorder | null>(null);
   const stream = useRef<MediaStream | null>(null);
   const request = useRef<AbortController | null>(null);
@@ -145,7 +146,7 @@ export function SaleVoice({ disabled, onAdd, businessType }: { disabled: boolean
     }
     if (disabled || active.current) return;
     if (!window.isSecureContext) {
-      setError("El micrófono requiere HTTPS. Abre la app desde el enlace seguro de Tailscale.");
+      setError("Abre Trangui desde su enlace HTTPS para usar el micrófono.");
       return;
     }
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
@@ -204,12 +205,21 @@ export function SaleVoice({ disabled, onAdd, businessType }: { disabled: boolean
 
   function openScanner() {
     if (disabled || busy) return;
+    if (!window.isSecureContext) {
+      setError("Abre Trangui desde su enlace HTTPS para usar la cámara.");
+      return;
+    }
     if (!navigator.mediaDevices?.getUserMedia) {
-      setError("La cámara requiere HTTPS. Abre la app desde el enlace seguro de Tailscale.");
+      setError("Este navegador no permite abrir la cámara. Escribe el producto o elige una sugerencia.");
       return;
     }
     setError(null);
     setScannerOpen(true);
+  }
+
+  function closeScanner() {
+    setScannerOpen(false);
+    requestAnimationFrame(() => scannerButton.current?.focus({ preventScroll: true }));
   }
 
   function openManual() {
@@ -224,7 +234,7 @@ export function SaleVoice({ disabled, onAdd, businessType }: { disabled: boolean
       <h2 id="mc-sale-voice-title"><label htmlFor="mc-sale-voice-text">¿Qué vendiste?</label></h2>
       <div className="mc-sale-voice__field">
         <div className="mc-sale-voice__entry flex min-w-0 items-center">
-        <button type="button" className="mc-sale-voice__manual hidden" aria-label="Abrir cámara para escanear código de barras" disabled={disabled || busy} onClick={openScanner}>
+        <button ref={scannerButton} type="button" className="mc-sale-voice__manual hidden" aria-label="Abrir cámara para escanear código de barras" disabled={disabled || busy} onClick={openScanner}>
           <ScanBarcode aria-hidden="true" />
         </button>
         <input id="mc-sale-voice-text" aria-label="¿Qué vendiste? Describe los productos" placeholder={preset?.example ?? "Producto"} value={text} maxLength={2000}
@@ -252,7 +262,7 @@ export function SaleVoice({ disabled, onAdd, businessType }: { disabled: boolean
       </div>
       {error ? <p id="mc-sale-voice-error" className="mc-sale-voice__error" role="alert">{error}</p> : null}
       <p className="mc-sale-voice__notice" role="status">{notice}</p>
-      {scannerOpen ? <BarcodeScanner onClose={() => setScannerOpen(false)} onDetect={(value) => { setText(value); setProposal([]); setScannerOpen(false); document.getElementById("mc-sale-voice-text")?.focus(); }} /> : null}
+      {scannerOpen ? <BarcodeScanner onClose={closeScanner} onDetect={(value) => { setText(value); setProposal([]); setScannerOpen(false); document.getElementById("mc-sale-voice-text")?.focus(); }} /> : null}
       {proposal.length ? <div className="mc-sale-voice__proposal">
         <h3>Revisa lo que entendí</h3>
         <ul>{proposal.map((line) => <li key={line.id}><span>{line.quantity} × {line.description}</span><CurrencyAmount cents={lineTotalCents(line)} /></li>)}</ul>
@@ -267,11 +277,16 @@ export function SaleVoice({ disabled, onAdd, businessType }: { disabled: boolean
 
 /** Lector de cámara sin dependencias: usa BarcodeDetector nativo si existe. */
 function BarcodeScanner({ onClose, onDetect }: { onClose: () => void; onDetect: (value: string) => void }) {
+  const closeButton = useRef<HTMLButtonElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const detectRef = useRef(onDetect);
   const controlsRef = useRef<{ stop: () => void } | null>(null);
   const [status, setStatus] = useState("Abriendo cámara…");
+
+  useEffect(() => {
+    closeButton.current?.focus({ preventScroll: true });
+  }, []);
 
   useEffect(() => {
     detectRef.current = onDetect;
@@ -319,9 +334,12 @@ function BarcodeScanner({ onClose, onDetect }: { onClose: () => void; onDetect: 
     return () => { active = false; controlsRef.current?.stop(); if (interval) clearInterval(interval); streamRef.current?.getTracks().forEach((track) => track.stop()); };
   }, []);
 
-  return <div className="mc-scan-overlay" role="dialog" aria-modal="true" aria-label="Escanear código de barras">
+  return <div className="mc-scan-overlay" role="dialog" aria-modal="true" aria-label="Escanear código de barras" onKeyDown={(event) => {
+    if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); onClose(); }
+    else if (event.key === "Tab") { event.preventDefault(); closeButton.current?.focus(); }
+  }}>
     <div className="mc-scan-card">
-      <button type="button" className="mc-scan-close" onClick={onClose} aria-label="Cerrar escáner"><X aria-hidden="true" /></button>
+      <button ref={closeButton} type="button" className="mc-scan-close" onClick={onClose} aria-label="Cerrar escáner"><X aria-hidden="true" /></button>
       <video ref={videoRef} className="mc-scan-video" playsInline muted />
       <p className="mc-scan-status" role="status">{status}</p>
       <p className="mc-scan-hint">También puedes escribir el producto o elegir una sugerencia.</p>
