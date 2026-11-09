@@ -71,6 +71,12 @@ jobs:
           node --test ../deploy/ops/configure-kuma.test.cjs
 
       - name: Harness static gate (build con BUILD_SHA)
+        env:
+          NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+          NEXT_PUBLIC_SENTRY_ENVIRONMENT: ci
+          SENTRY_ORG: leadly-ld
+          SENTRY_PROJECT: mercado-cero-relevo
+          SENTRY_AUTH_TOKEN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.SENTRY_AUTH_TOKEN || '' }}
         run: npm run verify:static
 
       - name: Install isolated QR decoder test dependencies
