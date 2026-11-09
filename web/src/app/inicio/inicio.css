@@ -1,6 +1,23 @@
 /* Inicio · una sola fuente de verdad para la ruta /inicio.
    No importar tokens globales aquí: el shell de Caja tiene su propio lenguaje. */
 
+/* Keep the greeting base and its canonical overrides in one stylesheet.
+   Shared operational CSS must not replace it after native navigation. */
+@media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting { position: relative; display: grid; grid-template-columns: 42px minmax(0,1fr); gap: 8px; align-items: center; min-height: 80px; padding: 0 0 16px; isolation: isolate; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-sun { position: static; width: 42px; height: 42px; transform: none; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting > div { grid-column: 2; grid-row: 1; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1 { max-width: 14ch; font: 700 clamp(1.45rem,6.6vw,1.75rem)/1.12 Georgia,serif; letter-spacing: -.04em; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting__owner { display: inline; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting p { display: block; margin-top: 5px; font: .9375rem/1.3 Arial,sans-serif; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-definitive-welcome-art { display: block; position: absolute; z-index: -1; right: -14px; bottom: -1px; width: 163px; height: 102px; object-fit: cover; object-position: left bottom; mix-blend-mode: multiply; }
+}
+
+@media (max-width: 360px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting h1 { max-width: 11ch; }
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting p { max-width: 15ch; }
+}
+
 .inicio-shell {
   --inicio-paper: #fbf3e7;
   --inicio-surface: #fdf3e4;
