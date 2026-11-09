@@ -2,6 +2,7 @@ import { test, expect, type APIRequestContext } from "@playwright/test";
 import { resolve } from "node:path";
 import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
+import { DecodeHintType } from "@zxing/library";
 import { sealDemoCheckout } from "../../src/lib/auth/demo-checkout-capability";
 
 // Capabilities are short-lived bearer secrets: never retain their URLs/headers in traces.
@@ -39,15 +40,19 @@ test("anonymous demo QR uses one scoped order, strict body and idempotent simula
   const decoder = await context.newPage();
   await decoder.goto("about:blank");
   await decoder.addScriptTag({ path: decoderScript });
-  async function decode(image: string) {
+  async function decode(image: string, pure = false) {
     try {
-      return await decoder.evaluate(async image => {
-        const sdk = (globalThis as unknown as { ZXingBrowser: { BrowserQRCodeReader: new () => { decodeFromImageUrl(value: string): Promise<{ getText(): string }> } } }).ZXingBrowser;
-        return (await new sdk.BrowserQRCodeReader().decodeFromImageUrl(image)).getText();
-      }, image);
+      return await decoder.evaluate(async ({ image, pure, pureBarcode }) => {
+        const sdk = (globalThis as unknown as { ZXingBrowser: { BrowserQRCodeReader: new (hints?: Map<number, boolean>) => { decodeFromImageUrl(value: string): Promise<{ getText(): string }> } } }).ZXingBrowser;
+        // Original PNGs are complete, axis-aligned QR images. The general scene
+        // detector can misidentify alignment patterns in random encrypted text.
+        // PURE_BARCODE still decodes actual pixels and validates the exact URL;
+        // this is an encoding check, not certification of a physical camera.
+        return (await new sdk.BrowserQRCodeReader(pure ? new Map([[pureBarcode, true]]) : undefined).decodeFromImageUrl(image)).getText();
+      }, { image, pure, pureBarcode: DecodeHintType.PURE_BARCODE });
     } catch { throw new Error("ZXing could not decode the actual QR image (capability redacted)"); }
   }
-  expect(await decode(qrOrder.qrImage) === target.href, "original QR exact payload").toBe(true);
+  expect(await decode(qrOrder.qrImage, true) === target.href, "original QR exact payload").toBe(true);
   await page.goto(`/inicio?pedido=${encodeURIComponent(order.id)}`);
   const qrImage = page.locator(".mc-codi__figure img");
   await expect(qrImage).toBeVisible();
@@ -58,9 +63,9 @@ test("anonymous demo QR uses one scoped order, strict body and idempotent simula
   if (await originalButton.isVisible()) {
     expect(await decode((await qrImage.getAttribute("src"))!) === target.href, "decorated Tianguis QR exact payload").toBe(true);
     await originalButton.click();
-    expect(await decode((await qrImage.getAttribute("src"))!) === target.href, "component original QR exact payload").toBe(true);
+    expect(await decode((await qrImage.getAttribute("src"))!, true) === target.href, "component original QR exact payload").toBe(true);
   } else {
-    expect(await decode((await qrImage.getAttribute("src"))!) === target.href, "dense original fallback payload").toBe(true);
+    expect(await decode((await qrImage.getAttribute("src"))!, true) === target.href, "dense original fallback payload").toBe(true);
     info.annotations.push({ type: "coverage-limit", description: "This actual capability QR is too dense for decoration; original fallback decoded. Decorated capability QR is not certified." });
   }
   await decoder.close();
