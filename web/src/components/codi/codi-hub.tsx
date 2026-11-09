@@ -332,10 +332,12 @@ function CodiHubState({ demo, initialOrder = null, scopedDemoCheckout = false }:
                 disabled={!ready || creating}
                 aria-describedby="mc-codi-amount-help"
                 onChange={(event) => onAmountChange(event.target.value)}
-                onBlur={() => {
-                  if (parsedAmountCents === null) {
+                onBlur={(event) => {
+                  // A native blur can arrive before the input state rerenders.
+                  const blurredCents = parseCodiAmountCents(event.currentTarget.value);
+                  if (blurredCents === null) {
                     setError("Escribe un monto válido, por ejemplo 1.50 o 1,50, sin signos ni letras.");
-                  } else if (amountCents > 0) setAmountRaw((amountCents / 100).toFixed(2));
+                  } else if (blurredCents > 0) setAmountRaw((blurredCents / 100).toFixed(2));
                 }}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {

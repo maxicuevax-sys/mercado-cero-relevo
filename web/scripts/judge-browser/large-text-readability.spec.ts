@@ -9,7 +9,17 @@ async function wordLines(locator: Locator, word: string) {
       const range = document.createRange();
       range.setStart(node, start);
       range.setEnd(node, start + word.length);
-      return new Set([...range.getClientRects()].filter(rect => rect.width > 0).map(rect => Math.round(rect.top))).size;
+      // WebKit may return separate font-run rectangles on one visual line.
+      // Count vertical overlap, rather than rounding their different ascenders.
+      const lines: { top: number; bottom: number }[] = [];
+      const rects = [...range.getClientRects()].filter(rect => rect.width > 0);
+      for (const rect of rects) {
+        if (!lines.some(line => Math.min(line.bottom, rect.bottom) - Math.max(line.top, rect.top) > Math.min(line.bottom - line.top, rect.height) / 2)) {
+          lines.push({ top: rect.top, bottom: rect.bottom });
+        }
+      }
+      if (lines.length !== 1) console.log("Word layout", JSON.stringify({ word, rects: rects.map(rect => rect.toJSON()), font: getComputedStyle(element).font, width: element.clientWidth, viewport: innerWidth }));
+      return lines.length;
     }
     return 0;
   }, word);
