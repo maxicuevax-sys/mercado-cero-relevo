@@ -81,3 +81,33 @@ test('spans retain trace identity and only public protocol attributes', () => {
   assert.deepEqual(output.data, { 'http.request.method': 'POST', 'http.response.status_code': 503 });
   assert.doesNotMatch(JSON.stringify(output), /private|dictated|\/api\/voice/);
 });
+
+test('SDK server rewritten code locations preserve source-map identity without private query data', () => {
+  const filename = 'app:///_next/server/chunks/app.js?private=query';
+  const expected = 'app:///_next/server/chunks/app.js';
+  const debugId = '12345678-1234-1234-1234-123456789012';
+  const output = sanitizeSentryEvent({
+    release,
+    exception: { values: [{ type: 'Error', value: 'dictado-private', stacktrace: { frames: [
+      { filename, abs_path: filename, function: 'customer-private', lineno: 23, colno: 7, in_app: true },
+    ] } }] },
+    debug_meta: { images: [{ type: 'sourcemap', debug_id: debugId, code_file: filename }] },
+  });
+  const frame = output.exception.values[0].stacktrace.frames[0];
+  assert.equal(frame.filename, expected);
+  assert.equal(frame.abs_path, expected);
+  assert.equal(frame.lineno, 23);
+  assert.equal(frame.colno, 7);
+  assert.equal(output.debug_meta.images[0].code_file, expected);
+  assert.equal(output.debug_meta.images[0].debug_id, debugId);
+  assert.equal(output.release, release);
+  assert.doesNotMatch(JSON.stringify(output), /private|query|dictado|customer/);
+  for (const rejected of [
+    'https://example.test/_next/server/chunks/app.js',
+    'app://example.test/_next/server/chunks/app.js',
+    'app:///_next/server-other/chunks/app.js',
+  ]) {
+    const blocked = sanitizeSentryEvent({ exception: { values: [{ stacktrace: { frames: [{ filename: rejected }] } }] } });
+    assert.equal(blocked.exception.values[0].stacktrace.frames[0].filename, undefined);
+  }
+});

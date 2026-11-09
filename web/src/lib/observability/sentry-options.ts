@@ -21,7 +21,7 @@ const sessionPrivacy: Integration = {
 function codeFile(value: string | undefined) {
   if (!value) return undefined;
   // Reject page/customer URLs and eval sourceURL text: retain only code locations.
-  if (!/(?:\/_next\/static\/|[/\\]\.next[/\\]server[/\\]|[/\\]node_modules[/\\]|[/\\]src[/\\])/.test(value)
+  if (!/(?:^app:\/\/\/_next\/server\/|\/_next\/static\/|[/\\]\.next[/\\]server[/\\]|[/\\]node_modules[/\\]|[/\\]src[/\\])/.test(value)
       || !/\.[cm]?[jt]sx?(?:[?#].*)?$/.test(value)) return undefined;
   value = value.replace(/([/\\](?:Users|home)[/\\])[^/\\]+/gi, "$1local");
   try {
