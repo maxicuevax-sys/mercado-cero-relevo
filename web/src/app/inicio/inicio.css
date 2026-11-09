@@ -1803,12 +1803,21 @@ html[data-contrast="high"] .inicio-nav__item[aria-current="page"]:focus-visible 
 }
 
 @media (max-width: 760px) {
+  .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-greeting {
+    /* Reserve the artwork column instead of bleeding over the header or copy. */
+    grid-template-columns: 34px minmax(0, 1fr) clamp(92px, 30vw, 124px);
+    gap: 8px;
+  }
   .inicio-shell.mc-reference-a.inicio-shell--compact .inicio-definitive-welcome-art {
-    right: 0;
-    width: 150px;
-    max-width: 40vw;
+    position: static;
+    grid-column: 3;
+    grid-row: 1;
+    align-self: center;
+    width: 100%;
+    max-width: none;
     height: 96px;
     object-fit: contain;
-    object-position: right bottom;
+    object-position: center;
+    border-radius: 12px;
   }
 }
