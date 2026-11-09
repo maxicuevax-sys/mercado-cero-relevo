@@ -51,7 +51,7 @@ const PREFERENCES: Array<{
   },
 ];
 
-function readPreferences(): CompanionPreferencesValue {
+function readPreferences(fallback: CompanionPreferencesValue = DEFAULTS): CompanionPreferencesValue {
   try {
     const raw = window.localStorage.getItem(COMPANION_PREFERENCES_KEY);
     if (!raw) return DEFAULTS;
@@ -65,8 +65,8 @@ function readPreferences(): CompanionPreferencesValue {
       explanations: value.explanations !== false,
     };
   } catch {
-    // El almacenamiento no es esencial: se usan los valores por defecto.
-    return DEFAULTS;
+    // Preserve the current session when storage is unavailable.
+    return fallback;
   }
 }
 
@@ -92,6 +92,12 @@ export function CompanionPreferences() {
   const descriptionBase = useId();
 
   useEffect(() => {
+    const synchronize = () => setPreferences(current => readPreferences(current));
+    const storageChanged = (event: StorageEvent) => {
+      if (event.key === COMPANION_PREFERENCES_KEY || event.key === null) synchronize();
+    };
+    window.addEventListener(COMPANION_CHANGED_EVENT, synchronize);
+    window.addEventListener("storage", storageChanged);
     const stored = readPreferences();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPreferences(stored);
@@ -105,10 +111,15 @@ export function CompanionPreferences() {
     } catch {
       // Sin almacenamiento local no hay nada que reconciliar.
     }
+    return () => {
+      window.removeEventListener(COMPANION_CHANGED_EVENT, synchronize);
+      window.removeEventListener("storage", storageChanged);
+    };
   }, []);
 
   const toggle = (id: PreferenceId) => {
-    const next = { ...preferences, [id]: !preferences[id] };
+    const current = readPreferences(preferences);
+    const next = { ...current, [id]: !current[id] };
     setPreferences(next);
     persistPreferences(next);
     // Un consumidor montado en la misma pestaña (por ejemplo, la tarjeta

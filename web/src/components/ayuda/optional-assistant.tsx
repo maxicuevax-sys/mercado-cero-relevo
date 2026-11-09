@@ -49,7 +49,7 @@ export function AssistantPreference() {
         <span className="mc-assistant-switch" aria-hidden="true"><span /></span>
         <span>{enabled ? "Activado" : "Desactivado"}</span>
       </button>
-      <p id={descriptionId}>Tú decides si usarlo. Caja y los avisos de dinero funcionan igual. Este navegador recordará tu elección si permite guardar datos.</p>
+      <p id={descriptionId}>Activa la guía local en Ayuda. Sus respuestas están escritas de antemano; no consulta tus cifras ni confirma pagos. Este navegador recordará tu elección si permite guardar datos.</p>
     </div>
   );
 }
@@ -65,7 +65,7 @@ const TOPICS = [
     answer: "En Corte comparas el efectivo esperado con lo que contaste. Una diferencia se muestra para revisarla; la app no la ajusta sola. Los pagos demo se distinguen del dinero real.", href: "/corte", action: "Consultar Corte" },
 ] as const;
 
-export function OptionalAssistant() {
+export function OptionalAssistant({ onOpenFaq }: { onOpenFaq?: () => void } = {}) {
   const enabled = useEnabled();
   const titleId = useId();
   const inputId = useId();
@@ -106,7 +106,7 @@ export function OptionalAssistant() {
           {result && <div className="mc-assistant-answer"><p className="mc-assistant-question">{result.question}</p>
             <p>{topic?.answer ?? "Esa pregunta no está en la guía. Prueba con las preguntas frecuentes. Las respuestas están escritas de antemano; no es un chat en vivo."}</p>
             <p className="mc-assistant-source">Fuente: guía de uso de Trangui.</p>
-            <Link href={topic?.href ?? "#mc-ayuda-faq-title"}>{topic?.action ?? "Ver preguntas frecuentes"}<ChevronRight size={18} aria-hidden="true" /></Link>
+            <Link href={topic?.href ?? "#mc-ayuda-faq-title"} onClick={topic ? undefined : onOpenFaq}>{topic?.action ?? "Ver preguntas frecuentes"}<ChevronRight size={18} aria-hidden="true" /></Link>
           </div>}
         </div>
       </div>}

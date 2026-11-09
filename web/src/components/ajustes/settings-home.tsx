@@ -32,6 +32,8 @@ export function SettingsHome({ merchant, address, demo, accountMode = false }: {
   const [notice, setNotice] = useState("");
   const [sessionVoice, setSessionVoice] = useState<boolean | null>(null);
   const [peyStatus, setPeyStatus] = useState<PeyStatusData | null>(null);
+  const [peyStatusError, setPeyStatusError] = useState(false);
+  const [peyStatusAttempt, setPeyStatusAttempt] = useState(0);
   const [signingOut, setSigningOut] = useState(false);
 
   async function signOut() {
@@ -62,20 +64,34 @@ export function SettingsHome({ merchant, address, demo, accountMode = false }: {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/pey/status")
-      .then((res) => (res.ok ? res.json() : null))
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 10000);
+    fetch("/api/pey/status", { cache: "no-store", signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error("status_unavailable");
+        return res.json();
+      })
       .then((data: PeyStatusData | null) => {
-        if (!cancelled && data) {
-          setPeyStatus(data);
+        if (!cancelled) {
+          if (data) setPeyStatus(data);
+          else setPeyStatusError(true);
         }
       })
       .catch(() => {
-        // Fallback silencioso si el endpoint no está disponible
-      });
+        if (!cancelled) setPeyStatusError(true);
+      }).finally(() => window.clearTimeout(timeout));
     return () => {
       cancelled = true;
+      window.clearTimeout(timeout);
+      controller.abort();
     };
-  }, []);
+  }, [peyStatusAttempt]);
+
+  function retryPeyStatus() {
+    setPeyStatus(null);
+    setPeyStatusError(false);
+    setPeyStatusAttempt(attempt => attempt + 1);
+  }
 
   function toggleVoice() {
     const next = !(sessionVoice ?? voice);
@@ -114,7 +130,7 @@ export function SettingsHome({ merchant, address, demo, accountMode = false }: {
                 ? peyStatus.peyWebhookSecretConfigured
                   ? "Configurado (whsec_ activo)"
                   : "No configurado"
-                : "..."}
+                : peyStatusError ? "No disponible" : "..."}
             </div>
             <div>
               <strong>Último webhook verificado:</strong>{" "}
@@ -122,7 +138,7 @@ export function SettingsHome({ merchant, address, demo, accountMode = false }: {
                 ? peyStatus.lastVerifiedWebhookAt
                   ? new Date(peyStatus.lastVerifiedWebhookAt).toLocaleString("es-MX")
                   : "Ninguno recibido"
-                : "..."}
+                : peyStatusError ? "No disponible" : "..."}
             </div>
           </div>
         </div>
@@ -148,19 +164,19 @@ export function SettingsHome({ merchant, address, demo, accountMode = false }: {
                 ? peyStatus.auditChain?.ok
                   ? `Integridad de bitácora SHA-256: OK (${peyStatus.auditChain.checked} entradas verificadas)`
                   : `Advertencia: Cadena rota en ${peyStatus.auditChain?.brokenAtId ?? "desconocido"}`
-                : "Consultando bitácora..."}
+                : peyStatusError ? "No disponible" : "Consultando bitácora..."}
             </div>
             <div>
               <strong>PEY_API_KEY:</strong>{" "}
-              {peyStatus ? (peyStatus.peyApiKeyConfigured ? "Configurada" : "No configurada") : "..."}
+              {peyStatus ? (peyStatus.peyApiKeyConfigured ? "Configurada" : "No configurada") : peyStatusError ? "No disponible" : "..."}
             </div>
             <div>
               <strong>PEY_WEBHOOK_SECRET:</strong>{" "}
-              {peyStatus ? (peyStatus.peyWebhookSecretConfigured ? "Configurada" : "No configurada") : "..."}
+              {peyStatus ? (peyStatus.peyWebhookSecretConfigured ? "Configurada" : "No configurada") : peyStatusError ? "No disponible" : "..."}
             </div>
             <div>
               <strong>PEY_BANK_ACCOUNT_ID:</strong>{" "}
-              {peyStatus ? (peyStatus.peyBankAccountConfigured ? "Configurada" : "Opcional / No configurada") : "..."}
+              {peyStatus ? (peyStatus.peyBankAccountConfigured ? "Configurada" : "Opcional / No configurada") : peyStatusError ? "No disponible" : "..."}
             </div>
           </div>
         </div>
@@ -169,6 +185,7 @@ export function SettingsHome({ merchant, address, demo, accountMode = false }: {
   ];
   return <div className="mc-settings-home">
     <section className="mc-settings-profile" aria-label="Perfil del negocio"><Image src="/assets/spec/b-profile.png" alt="" width={110} height={72} /><div><h2>{merchant}</h2><p><MapPin aria-hidden="true" />{address}</p></div></section>
+    {peyStatusError ? <div id="mc-settings-pey-error" className="mc-settings-subpanel" role="alert"><p>No pudimos consultar el estado de cobros y la bitácora. Inténtalo de nuevo.</p><button type="button" className="mc-settings-logout" onClick={retryPeyStatus}>Reintentar consulta</button></div> : null}
     <section className="mc-settings-group" aria-label="Configuración del negocio">{rows.map(row => <details key={row.title}><summary><row.Icon aria-hidden="true" /><span><strong>{row.title}</strong><small>{row.detail}</small></span><ChevronRight aria-hidden="true" /></summary>{row.content}</details>)}</section>
     <section className="mc-settings-group" aria-label="Preferencias de uso">
       <div className="mc-settings-row"><Mic aria-hidden="true" /><span><strong>Asistente de voz</strong><small>Lectura en voz alta. Micrófono con tu permiso.</small></span><button type="button" role="switch" aria-label="Asistente de voz" aria-checked={sessionVoice ?? voice} className="mc-settings-switch" onClick={toggleVoice}><span /></button></div>
