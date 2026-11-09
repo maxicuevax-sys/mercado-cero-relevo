@@ -56,6 +56,7 @@ jobs:
           npm run test:sentry
           npm run test:guest-entry
           npm run test:browser-preferences
+          npm run test:judge-config
           npm run test:demo-checkout
           npm run test:corte-receipts
           npm run test:format-timezone
