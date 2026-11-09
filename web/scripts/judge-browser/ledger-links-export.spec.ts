@@ -30,7 +30,7 @@ test("native abono back and cancel reopen the same real credit instead of a cust
   for (const selector of [".mc-abono__back", ".mc-abono__cancel"]) {
     // Cancel is deliberately desktop-only; mobile exposes the same destination
     // through its visible back control. Exercise each native visible control.
-    await page.setViewportSize({ width: selector.endsWith("cancel") ? 1448 : 390, height: 1086 });
+    await page.setViewportSize({ width: selector.endsWith("cancel") ? 1448 : 390, height: selector.endsWith("cancel") ? 1086 : 844 });
     await page.goto(`/fiados/juan/abono?credito=${id}`);
     const link = page.locator(selector);
     await expect(link).toHaveAttribute("href", `/fiados/${id}`);
@@ -38,7 +38,9 @@ test("native abono back and cancel reopen the same real credit instead of a cust
     await page.waitForURL(new URL(`/fiados/${id}`, baseURL!).href);
     await expect(page.getByRole("heading", { name: "Historial de fiados", exact: true })).toBeVisible();
     await expect(page.locator('section[aria-label="Resumen del fiado"]')).toContainText("$10.00");
-    await expect(page.locator("main")).not.toContainText("This page could not be found");
+    // Next may retain the previous, inactive route in the DOM. Verify the
+    // visible destination, rather than matching its hidden cached main too.
+    await expect(page.locator("#mc-flow-main:visible")).not.toContainText("This page could not be found");
   }
 });
 
