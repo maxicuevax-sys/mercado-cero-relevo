@@ -20,6 +20,12 @@ test("anonymous demo QR uses one scoped order, strict body and idempotent simula
   expect((await context.request.put("/api/business-profile", { headers: ownHeaders, data: { businessType: "general" } })).status()).toBe(200);
   const initial = await (await context.request.get("/api/orders?limit=100")).json();
   const beforeTotal = initial.total;
+  const seeded = initial.orders.find((item: { id: string; status: string }) => item.id.startsWith("demo_hist_pending_") && item.status === "payment_pending");
+  expect(Boolean(seeded), "real seeded pending fixture exists").toBe(true);
+  const seededQr = await context.request.post(`/api/orders/${seeded.id}/pay`, { headers: ownHeaders, data: { mode: "qr" } });
+  expect(seededQr.status(), "seeded pending QR generation must not reject its identifier").toBe(200);
+  const seededTarget = new URL((await seededQr.json()).order.qrString);
+  expect(seededTarget.pathname === "/cobro/demo" && seededTarget.hash.startsWith("#v1.")).toBe(true);
   const created = await context.request.post("/api/orders", { headers: ownHeaders, data: { items: [{ description: "QA public demo QR", quantity: 1, unitPriceCents: 1234 }], requestId: `qa-cap-${randomUUID()}` } });
   expect(created.status()).toBe(201);
   const order = (await created.json()).order;
@@ -71,6 +77,8 @@ test("anonymous demo QR uses one scoped order, strict body and idempotent simula
   }
   try {
     expect((await buyer.cookies()).length).toBe(0);
+    const seededRead = await publicRequest(buyer.request, "get", { "X-Trangui-Demo-Checkout": seededTarget.hash.slice(1) });
+    expect(seededRead.status()).toBe(200); expect((await seededRead.json()).dueCents).toBe(12000);
     let response;
     try { response = await buyerPage.goto(target.href); }
     catch { throw new Error("Anonymous demo page navigation failed (capability redacted)"); }

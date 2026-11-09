@@ -94,6 +94,15 @@ test("body cannot select another order, account, amount, cash or provider; cross
   }
   assert.equal((await POST(request("POST", tokens[0], { method: "codi" }, { Origin: "https://evil.example.test" }))).status, 403);
 });
+test("the real seeded pending order can issue a readable capability in its account", async () => {
+  const url = await runJudgeRequest(accounts[0], () => {
+    const seeded = getDb().prepare("SELECT id FROM orders WHERE id LIKE 'demo_hist_pending_%' LIMIT 1").get();
+    assert.ok(seeded, "Existing pending demo fixture must be exercised");
+    return createJudgeDemoCheckoutUrl(seeded.id);
+  });
+  const response = await GET(request("GET", new URL(url).hash.slice(1)));
+  assert.equal(response.status, 200); assert.equal((await response.json()).dueCents, 12000);
+});
 test("concurrent demo replay registers one exact payment on A, never B and never real paid", async () => {
   const results = await Promise.all([POST(request("POST", tokens[0], { method: "codi" })), POST(request("POST", tokens[0], { method: "codi" }))]);
   assert.deepEqual(results.map(response => response.status), [200, 200]);

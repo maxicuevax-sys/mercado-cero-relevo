@@ -10,6 +10,12 @@ test('roundtrip, random IV and concealed account/order', () => {
   assert.deepEqual(openDemoCheckout(first, cfg), { ...subject, iat: cfg.nowMs / 1000, exp: cfg.nowMs / 1000 + 600 });
   assert.ok(!Buffer.from(first.slice(3), 'base64url').toString().includes(subject.accountId));
 });
+test('existing seeded order identifiers are valid but path characters remain rejected', () => {
+  for (const orderId of ['demo_hist_pending_ord_test', 'demo_seed_ord_test']) {
+    assert.equal(openDemoCheckout(sealDemoCheckout({ ...subject, orderId }, cfg), cfg).orderId, orderId);
+  }
+  assert.throws(() => sealDemoCheckout({ ...subject, orderId: '../ord_test' }, cfg), InvalidDemoCheckout);
+});
 test('tampered ciphertext, tag, IV, truncated and oversized tokens fail uniformly', () => {
   const token = sealDemoCheckout(subject, cfg), bytes = Buffer.from(token.slice(3), 'base64url');
   for (const index of [0, 12, bytes.length - 1]) {

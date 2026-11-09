@@ -18,7 +18,7 @@ function validGrant(input: unknown, now: number): input is DemoCheckoutGrant {
   const grant = input as DemoCheckoutGrant;
   return Object.keys(input).sort().join(",") === "accountId,exp,iat,orderId"
     && typeof grant.accountId === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(grant.accountId)
-    && typeof grant.orderId === "string" && /^ord_[A-Za-z0-9_-]{1,128}$/.test(grant.orderId)
+    && typeof grant.orderId === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(grant.orderId)
     && Number.isSafeInteger(grant.iat) && Number.isSafeInteger(grant.exp)
     && grant.iat <= now && grant.exp > now && grant.exp > grant.iat
     && grant.exp - grant.iat <= MAX_TTL_SECONDS;
