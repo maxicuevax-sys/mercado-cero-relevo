@@ -22,6 +22,9 @@ export function parseMoneyCents(value: string): number {
   if (!raw || raw === "-" || raw === ".") return 0;
   const negative = raw.startsWith("-");
   raw = raw.replace(/-/g, "");
+  // Only one decimal separator or consistent groups of three are money.
+  // Do not turn repeated punctuation into a different, larger amount.
+  if (!/^(?:\d+(?:[.,]\d{0,2})?|[.,]\d{1,2}|[1-9]\d{0,2}(?:,\d{3})+(?:\.\d{1,2})?|[1-9]\d{0,2}(?:\.\d{3})+(?:,\d{1,2})?)$/.test(raw)) return 0;
   const comma = raw.lastIndexOf(",");
   const dot = raw.lastIndexOf(".");
 

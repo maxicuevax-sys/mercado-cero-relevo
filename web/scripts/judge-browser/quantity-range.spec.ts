@@ -49,7 +49,7 @@ test("manual and edited prices reject malformed input instead of dropping a line
   const manual = page.locator("#mc-caja-manual");
   await manual.getByLabel("Producto o servicio", { exact: true }).fill("Precio QA");
   await manual.getByLabel("Cantidad", { exact: true }).fill("1");
-  for (const invalid of ["1-2", "a1.5"]) {
+  for (const invalid of ["1-2", "a1.5", "1..5", "1,2,3"]) {
     await manual.getByLabel("Precio unitario", { exact: true }).fill(invalid);
     await manual.getByRole("button", { name: "Agregar", exact: true }).click();
     await expect(page.locator("#mc-caja-add-error")).toBeVisible();
@@ -62,7 +62,7 @@ test("manual and edited prices reject malformed input instead of dropping a line
   await manual.getByRole("button", { name: "Agregar", exact: true }).click();
   await page.locator(".mc-caja-line__price-toggle").first().click();
   const price = page.locator('input[id^="line-price-"]').first();
-  for (const invalid of ["1-2", "a1.5"]) {
+  for (const invalid of ["1-2", "a1.5", "1..5", "1,2,3"]) {
     await price.fill(invalid);
     await expect(price).toHaveAttribute("aria-invalid", "true");
     await expect(page.getByRole("button", { name: "Cobrar efectivo exacto", exact: true })).toHaveCount(0);
