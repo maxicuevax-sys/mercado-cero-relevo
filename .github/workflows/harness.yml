@@ -98,7 +98,9 @@ jobs:
         run: npm run test:security
 
       - name: Voice amount and preset contracts
-        run: npm run test:voice
+        run: |
+          npm run test:voice
+          npm run test:codi-amount
 
       - name: Contrato de datos P0
         run: npm run test:fix-datos

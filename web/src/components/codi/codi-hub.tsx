@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Check, Loader2, QrCode, RefreshCw } from "lucide-react";
 import qrArt from "@/assets/brand/ilustraciones/transparent/qr.png";
-import { parseMoneyCents } from "@/components/caja/types";
+import { parseCodiAmountCents } from "./codi-amount";
 import { formatMxn } from "@/lib/format";
 import { PAYMENT_STATES, orderStatusCopy } from "@/lib/payment-labels";
 import type { Order } from "@/lib/types";
@@ -49,7 +49,8 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
   const requestRef = useRef<PendingRequest | null>(null);
   const focusKeyRef = useRef<string | null>(null);
 
-  const amountCents = parseMoneyCents(amountRaw);
+  const parsedAmountCents = parseCodiAmountCents(amountRaw);
+  const amountCents = parsedAmountCents ?? 0;
   const settled =
     order !== null &&
     (order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled");
@@ -106,9 +107,14 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
 
   async function startCobro() {
     if (creating || simulating) return;
+    if (parsedAmountCents === null) {
+      setError("Escribe un monto válido, por ejemplo 1.50 o 1,50, sin signos ni letras.");
+      amountRef.current?.focus();
+      return;
+    }
     const cents = amountCents;
     if (cents < MIN_AMOUNT_CENTS) {
-      setError("Escribe un monto de al menos $1.00 para cobrar.");
+      setError("Escribe un monto de al menos $0.01 para cobrar.");
       amountRef.current?.focus();
       return;
     }
@@ -197,7 +203,7 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
   }
 
   function onAmountChange(value: string) {
-    setAmountRaw(normalizeAmountInput(value));
+    setAmountRaw(value);
     if (error) setError(null);
   }
 
@@ -248,11 +254,15 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
                 enterKeyHint="go"
                 placeholder="0.00"
                 value={amountRaw}
+                maxLength={64}
+                aria-invalid={parsedAmountCents === null}
                 disabled={creating}
                 aria-describedby="mc-codi-amount-help"
                 onChange={(event) => onAmountChange(event.target.value)}
                 onBlur={() => {
-                  if (amountCents > 0) setAmountRaw((amountCents / 100).toFixed(2));
+                  if (parsedAmountCents === null) {
+                    setError("Escribe un monto válido, por ejemplo 1.50 o 1,50, sin signos ni letras.");
+                  } else if (amountCents > 0) setAmountRaw((amountCents / 100).toFixed(2));
                 }}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {
@@ -285,7 +295,7 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
               type="button"
               className="mc-codi__cta"
               onClick={() => void startCobro()}
-              disabled={creating}
+              disabled={creating || parsedAmountCents === null}
             >
               {creating ? (
                 <Loader2 className="mc-codi__spin" aria-hidden="true" />
@@ -454,15 +464,6 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
       ) : null}
     </section>
   );
-}
-
-function normalizeAmountInput(value: string): string {
-  const clean = value.replace(/[^\d.]/g, "");
-  const firstDot = clean.indexOf(".");
-  if (firstDot === -1) return clean.slice(0, 9);
-  const integer = clean.slice(0, firstDot).slice(0, 9);
-  const decimals = clean.slice(firstDot + 1).replace(/\./g, "").slice(0, 2);
-  return `${integer}.${decimals}`;
 }
 
 function statusLabel(order: Order): string {
