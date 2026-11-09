@@ -1908,3 +1908,19 @@ html[data-contrast="high"] .inicio-nav__item[aria-current="page"]:focus-visible 
     line-height: 1;
   }
 }
+
+/* A font-relative container keeps normal phone composition unchanged. */
+@container inicio-main (max-width: 18em) {
+  #inicio-main .inicio-greeting { grid-template-columns: 34px minmax(0, 1fr); }
+  #inicio-main .inicio-greeting > div { grid-column: 2; grid-row: 1; min-width: 0; }
+  #inicio-main .inicio-greeting h1 { max-width: none; overflow-wrap: normal; word-break: normal; }
+  #inicio-main .inicio-definitive-welcome-art { grid-column: 1 / -1; grid-row: 2; justify-self: center; width: min(100%, 180px); height: auto; max-width: 100%; }
+  #inicio-main .inicio-kpis { grid-template-columns: minmax(0, 1fr); }
+  #inicio-main .inicio-kpi__top { display: grid; grid-template-columns: 25px minmax(0, 1fr); min-height: 44px; white-space: normal; }
+  #inicio-main .inicio-kpi__top > span:last-child { min-width: 0; overflow-wrap: normal; }
+  #inicio-main .inicio-hero { grid-template-columns: minmax(0, 1fr); }
+  #inicio-main .inicio-native-register { width: min(100%, 130px); height: auto; justify-self: center; }
+  #inicio-main .inicio-hero__content { padding: 12px; }
+  #inicio-main .inicio-hero__actions { display: grid; grid-template-columns: minmax(0, 1fr) 44px; }
+  #inicio-main .inicio-hero__desktop-label { white-space: normal; overflow: visible; overflow-wrap: normal; }
+}

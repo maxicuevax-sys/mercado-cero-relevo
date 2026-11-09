@@ -488,3 +488,13 @@
  .mc-settings-group :is(summary, .mc-settings-row) > svg:first-child { width: 22px; height: 22px; padding: 7px; }
 }
 html[data-contrast="high"] .mc-settings-group :is(summary, .mc-settings-row) > svg:first-child { background: var(--color-surface); color: var(--color-ink); }
+
+/* Controls may move to a new line instead of overrunning their button. */
+#companion-preferences { container: companion-readability / inline-size; padding-inline: 16px; }
+#companion-preferences button > span:last-child { flex-wrap: wrap; min-width: 0; max-width: 100%; flex-shrink: 1; }
+@container companion-readability (max-width: 12em) {
+  #companion-preferences button { padding-inline: 12px; }
+  #companion-preferences button > span:first-child { flex-basis: 100%; }
+  #companion-preferences button > span:last-child { flex-basis: 100%; }
+  #companion-preferences button > span:last-child > span:last-child { overflow-wrap: normal; }
+}
