@@ -42,6 +42,7 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
   const [order, setOrder] = useState<Order | null>(initialOrder);
   const [creating, setCreating] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [now, setNow] = useState<number | null>(null);
   const [simulating, setSimulating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const amountRef = useRef<HTMLInputElement>(null);
@@ -54,6 +55,23 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
   const settled =
     order !== null &&
     (order.status === "paid" || order.status === "demo_paid" || order.status === "fulfilled");
+
+  // Recheck wall time after background throttling, tab return or a clock change.
+  // Expiry only affects QR presentation; it never changes the payment status.
+  useEffect(() => {
+    const update = () => setNow(Date.now());
+    update();
+    const timer = window.setInterval(update, 1_000);
+    window.addEventListener("focus", update);
+    document.addEventListener("visibilitychange", update);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", update);
+      document.removeEventListener("visibilitychange", update);
+    };
+  }, []);
+  const expiresAt = order?.qrExpiresAt ? Date.parse(order.qrExpiresAt) : NaN;
+  const expired = Boolean(order && !TERMINAL.has(order.status) && now !== null && Number.isFinite(expiresAt) && now >= expiresAt);
 
   // Consulta periódica del estado real del pedido: el hub nunca se declara
   // pagado por su cuenta. En demo el cambio llega al simular el pago.
@@ -150,6 +168,21 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
     }
   }
 
+  async function renovarQr() {
+    if (!order || TERMINAL.has(order.status) || creating || simulating) return;
+    setCreating(true);
+    setError(null);
+    try {
+      // Refresh the same order, including when only the browser clock advanced.
+      setOrder(await requestQr(order.id, true));
+      setNow(Date.now());
+    } catch (caught) {
+      setError(friendlyError(caught, "No se pudo renovar el QR del cobro."));
+    } finally {
+      setCreating(false);
+    }
+  }
+
   async function consultarEstado() {
     if (!order || checking || creating) return;
     setChecking(true);
@@ -164,7 +197,7 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
   }
 
   async function simularPago() {
-    if (!order || simulating || creating) return;
+    if (!order || simulating || creating || expired || TERMINAL.has(order.status)) return;
     setSimulating(true);
     setError(null);
     try {
@@ -189,6 +222,9 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
 
   function nuevoCobro() {
     if (creating || simulating) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete("pedido");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
     setOrder(null);
     setAmountRaw("");
     setError(null);
@@ -208,7 +244,7 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
   }
 
   const shortId = order ? order.id.slice(-4).toUpperCase() : "";
-  const title = settled ? settledTitle(order, demo) : order ? statusLabel(order) : "Cobrar con CoDi";
+  const title = settled ? settledTitle(order, demo) : order ? expired ? "QR vencido" : statusLabel(order) : "Cobrar con CoDi";
 
   return (
     <section
@@ -356,7 +392,15 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
       ) : (
         <div className="mc-codi__order">
           <div className="mc-codi__qr-pane">
-            {order.qrImage ? (
+            {expired ? (
+              <div className="mc-codi__qr-missing">
+                <p>Este QR venció. Renuévalo para seguir con el mismo pedido.</p>
+                <button type="button" className="mc-codi__cta" onClick={() => void renovarQr()} disabled={creating}>
+                  <RefreshCw aria-hidden="true" />
+                  <span>{creating ? "Renovando el QR…" : "Renovar QR"}</span>
+                </button>
+              </div>
+            ) : order.qrImage ? (
               <figure className="mc-codi__figure">
                 <TianguisQr
                   original={order.qrImage}
@@ -411,13 +455,15 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
             <p className="mc-codi__note inline-status" role="status" aria-live="polite">
               {order.status === "cancelled"
                 ? "Este cobro se canceló o venció. No lo cuentes como pagado."
-                : demo
+                : expired
+                  ? "El QR venció. El pedido sigue pendiente y no está pagado."
+                  : demo
                   ? "El QR está listo y no es dinero recibido: en demo, simula el pago para ver el estado."
                   : "El QR está listo, pero el pago todavía no se confirma. Un QR no es dinero recibido: no lo cuentes como cobrado."}
             </p>
 
             <div className="mc-codi__actions">
-              {demo && order.status !== "cancelled" ? (
+              {demo && order.status !== "cancelled" && !expired ? (
                 <button
                   type="button"
                   className="mc-codi__cta"
@@ -506,11 +552,11 @@ async function requestOrder(amountCents: number, requestId: string): Promise<Ord
   return data.order;
 }
 
-async function requestQr(orderId: string): Promise<Order> {
+async function requestQr(orderId: string, forceRefresh = false): Promise<Order> {
   const response = await fetch(`/api/orders/${orderId}/pay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mode: "qr" }),
+    body: JSON.stringify({ mode: "qr", ...(forceRefresh ? { forceRefresh: true } : {}) }),
   });
   const data = (await response.json().catch(() => null)) as
     | { order?: Order; error?: string }
