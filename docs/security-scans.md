@@ -22,8 +22,10 @@ can be used as release evidence. A finding or scanner/database error fails the j
   read-only roots, dropped capabilities and no new privileges. Source/archive
   mounts are read-only. No Docker socket, host HOME, credentials, production
   environment, Sentry upload token or GitHub token is mounted/passed to scanners.
-  Gitleaks has no network. Trivy has network for the official vulnerability DB;
-  cache is fresh per job. Raw reports/logs stay in runner temporary storage.
+  Every scan has no network. Trivy first downloads the official vulnerability DB
+  in a separate container that has only a fresh cache mount, without checkout,
+  image archive or reports. Offline scans then use that cache with DB updates
+  disabled. Raw reports/logs stay in runner temporary storage.
 - Only `contents: read` is requested. Checkout does not persist credentials.
   No `pull_request_target`, self-hosted runner, write permission, or PR comment.
 

@@ -84,14 +84,21 @@ jobs:
           private="$RUNNER_TEMP/trivy-fs"
           mkdir -p "$private/cache" "$private/report"
           docker pull "$TRIVY_IMAGE"
-          set +e
+          # Database fetch has network but cannot see the checkout or reports.
           docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges \
+            --user "$(id -u):$(id -g)" --tmpfs /tmp:rw,noexec,nosuid,size=512m -e HOME=/tmp \
+            --mount "type=bind,src=$private/cache,dst=/cache" \
+            "$TRIVY_IMAGE" image --config='' --cache-dir /cache \
+            --db-repository ghcr.io/aquasecurity/trivy-db:2 --disable-telemetry \
+            --download-db-only > "$private/db.log" 2>&1
+          set +e
+          docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges \
             --user "$(id -u):$(id -g)" --tmpfs /tmp:rw,noexec,nosuid,size=512m -e HOME=/tmp \
             --mount "type=bind,src=$GITHUB_WORKSPACE,dst=/src,readonly" \
             --mount "type=bind,src=$private/cache,dst=/cache" \
             --mount "type=bind,src=$private/report,dst=/out" \
             "$TRIVY_IMAGE" fs --config='' --ignorefile='' --cache-dir /cache \
-            --db-repository ghcr.io/aquasecurity/trivy-db:2 --disable-telemetry \
+            --skip-db-update --disable-telemetry \
             --scanners vuln --include-dev-deps --severity HIGH,CRITICAL --exit-code 1 \
             --skip-dirs /src/.git --format json --output /out/findings.json /src \
             > "$private/scanner.log" 2>&1
@@ -142,14 +149,21 @@ jobs:
           private="$RUNNER_TEMP/trivy-image"
           mkdir -p "$private/cache" "$private/report"
           docker pull "$TRIVY_IMAGE"
-          set +e
+          # Database fetch has network but cannot see the image archive/reports.
           docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges \
+            --user "$(id -u):$(id -g)" --tmpfs /tmp:rw,noexec,nosuid,size=512m -e HOME=/tmp \
+            --mount "type=bind,src=$private/cache,dst=/cache" \
+            "$TRIVY_IMAGE" image --config='' --cache-dir /cache \
+            --db-repository ghcr.io/aquasecurity/trivy-db:2 --disable-telemetry \
+            --download-db-only > "$private/db.log" 2>&1
+          set +e
+          docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges \
             --user "$(id -u):$(id -g)" --tmpfs /tmp:rw,noexec,nosuid,size=512m -e HOME=/tmp \
             --mount "type=bind,src=$RUNNER_TEMP/trangui-image.tar,dst=/input/image.tar,readonly" \
             --mount "type=bind,src=$private/cache,dst=/cache" \
             --mount "type=bind,src=$private/report,dst=/out" \
             "$TRIVY_IMAGE" image --config='' --ignorefile='' --cache-dir /cache \
-            --db-repository ghcr.io/aquasecurity/trivy-db:2 --disable-telemetry \
+            --skip-db-update --disable-telemetry \
             --input /input/image.tar --scanners vuln --severity HIGH,CRITICAL --exit-code 1 \
             --format json --output /out/findings.json > "$private/scanner.log" 2>&1
           status=$?
