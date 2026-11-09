@@ -328,3 +328,31 @@ test("voice preferences stay synchronized across sibling controls, tabs and relo
     await peer.close();
   }
 });
+
+test("scanner permission fallback keeps keyboard focus in the dialog and restores its trigger", async ({ page }) => {
+  await signUp(page, "judge-scanner-focus@example.test");
+  await page.goto("/caja");
+  await page.evaluate(() => {
+    navigator.mediaDevices.getUserMedia = async () => {
+      throw new DOMException("Camera permission declined by test fixture", "NotAllowedError");
+    };
+  });
+  const trigger = page.getByRole("button", { name: "Abrir cámara para escanear código de barras", exact: true });
+  const dialog = page.getByRole("dialog", { name: "Escanear código de barras", exact: true });
+  const close = dialog.getByRole("button", { name: "Cerrar escáner", exact: true });
+  await trigger.click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("status")).toContainText("No se concedió permiso a la cámara");
+  await expect(close).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(close).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(close).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await close.click();
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+});
