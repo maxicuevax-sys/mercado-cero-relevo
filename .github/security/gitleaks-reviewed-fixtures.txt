@@ -1,0 +1,11 @@
+# Reviewed 2026-11-09. Exact immutable history fingerprints, never a path/rule glob.
+# Local isolated-auth registration fixture password, not a provider/live credential.
+7e93dc129327343510fdb1dff9b12dda22f494e7:web/scripts/business-profile.test.mjs:generic-api-key:58
+# Static validation error strings in require(...), not values read from environment.
+785e96da2c66cd737a5a18656a5a409284821955:deploy/ops/validate-judge-release.py:generic-api-key:66
+785e96da2c66cd737a5a18656a5a409284821955:deploy/ops/validate-judge-release.py:generic-api-key:117
+# Browser registration password used by synthetic localhost judge accounts.
+989cb1cfe86616742e2cf0efea4b5a930572b14b:web/scripts/judge-browser/judge.spec.ts:generic-api-key:7
+# Same synthetic operator token for a temporary, loopback-only test server, two commits.
+f35f76c7bb0dc90b13e2dafd2f3eaaabd780084d:web/scripts/payment-truth-e2e.py:generic-api-key:104
+dfb2b793d066cccc3af1fcb963753e3fc011a9b0:web/scripts/payment-truth-e2e.py:generic-api-key:104

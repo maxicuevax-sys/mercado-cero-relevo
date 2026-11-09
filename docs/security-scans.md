@@ -7,8 +7,9 @@ can be used as release evidence. A finding or scanner/database error fails the j
 ## Scope and trust
 
 - Gitleaks scans all fetched git history (`fetch-depth: 0`, `--all`), using built-in
-  rules. No baseline, repository allowlist, `.gitleaksignore`, or inline suppression
-  is trusted. Candidate metadata is logged; secret matches, source, author/email,
+  rules and only the six individually reviewed immutable fingerprints documented
+  below. No baseline, path/rule glob, arbitrary repository config, `.gitleaksignore`,
+  or inline suppression is trusted. Candidate metadata is logged; secret matches, source, author/email,
   commit messages and raw reports are not published.
 - Trivy scans repository dependencies (including npm development dependencies),
   then independently scans a newly built Docker image archive. HIGH and CRITICAL
@@ -68,3 +69,32 @@ Dockerfile and current upstream base image; the actual built image ID is evidenc
 Lower severities, runtime configuration, the deployed filesystem, and external
 provider state remain outside this gate. Branch-protection requirements are a
 separate maintainer decision after the checks have run successfully.
+
+## First-run repair and reviewed historical fixtures
+
+Run `42579939327` at source `8c863debcc5f6ee34500fadc73e1ae2d1a3edf83`
+completed the real repository dependency scan successfully. The image build also
+completed, but the workflow mistakenly compared the whole JSON `.next/BUILD_SHA`
+file to a plain SHA. The repaired verifier parses the existing `{sha,builtAt}`
+schema and still requires the exact checked-out SHA before archive scanning.
+Its regression executes the actual shell step with synthetic Docker responses:
+correct JSON passes; wrong/missing/malformed identity fails. No scanner/Docker
+daemon is used by that regression. Actual image scanning still needs a new CI run.
+
+Gitleaks reported six matches, reviewed individually in the immutable historical
+source without printing `Secret` or `Match`. None is a live/provider credential:
+
+| Commit | File and line | Reviewed purpose |
+|---|---|---|
+| `7e93dc129327343510fdb1dff9b12dda22f494e7` | `web/scripts/business-profile.test.mjs:58` | Password supplied to isolated synthetic identity registration |
+| `785e96da2c66cd737a5a18656a5a409284821955` | `deploy/ops/validate-judge-release.py:66` | Constant validation error text passed to `require`, not an environment value |
+| `785e96da2c66cd737a5a18656a5a409284821955` | `deploy/ops/validate-judge-release.py:117` | Constant validation error text passed to `require`, not an environment value |
+| `989cb1cfe86616742e2cf0efea4b5a930572b14b` | `web/scripts/judge-browser/judge.spec.ts:7` | Password for synthetic localhost browser registrations |
+| `f35f76c7bb0dc90b13e2dafd2f3eaaabd780084d` | `web/scripts/payment-truth-e2e.py:104` | Synthetic operator token for a temporary loopback test server |
+| `dfb2b793d066cccc3af1fcb963753e3fc011a9b0` | `web/scripts/payment-truth-e2e.py:104` | Same synthetic loopback fixture in an earlier commit |
+
+`.github/security/gitleaks-reviewed-fixtures.txt` records only each exact
+`commit:path:rule:line` fingerprint. New commits, another line, or any other match
+still fail. The workflow prints the reviewed count separately; it does not imply
+the original history contained zero candidates. Expanding exceptions requires a
+new individual source review, not an automated baseline or a suppressed rule.

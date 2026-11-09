@@ -31,6 +31,8 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: Scanner identity and reviewed-exception contracts
+        run: python3 .github/security/test-security-scans.py
       - name: Scan without network, credentials or raw findings in logs
         shell: bash
         run: |
@@ -38,7 +40,8 @@ jobs:
           private="$RUNNER_TEMP/gitleaks"
           mkdir -p "$private"
           printf '[extend]\nuseDefault = true\n' > "$private/config.toml"
-          touch "$private/empty.ignore"
+          printf 'Reviewed historical fixture fingerprints: '
+          awk 'NF && $0 !~ /^#/ { n++ } END { print n+0 }' .github/security/gitleaks-reviewed-fixtures.txt
           docker pull "$GITLEAKS_IMAGE"
           set +e
           docker run --rm --network none --read-only --cap-drop ALL \
@@ -47,7 +50,7 @@ jobs:
             --mount "type=bind,src=$GITHUB_WORKSPACE,dst=/src,readonly" \
             --mount "type=bind,src=$private,dst=/out" \
             "$GITLEAKS_IMAGE" git /src --log-opts=--all --redact=100 --no-banner \
-            --config /out/config.toml --gitleaks-ignore-path /out/empty.ignore \
+            --config /out/config.toml --gitleaks-ignore-path /src/.github/security/gitleaks-reviewed-fixtures.txt \
             --ignore-gitleaks-allow --report-format json --report-path /out/findings.json \
             > "$private/scanner.log" 2>&1
           status=$?
@@ -136,9 +139,10 @@ jobs:
           target_sha="$(git rev-parse HEAD)"
           docker build --build-arg BUILD_SHA="$target_sha" -t "trangui-security:$target_sha" .
           image_id="$(docker image inspect "trangui-security:$target_sha" --format '{{.Id}}')"
-          actual_sha="$(docker run --rm --network none --read-only --cap-drop ALL \
+          build_metadata="$(docker run --rm --network none --read-only --cap-drop ALL \
             --security-opt no-new-privileges --entrypoint cat "$image_id" /app/.next/BUILD_SHA)"
-          test "$actual_sha" = "$target_sha"
+          actual_sha="$(printf '%s' "$build_metadata" | python3 -c 'import json,re,sys; sha=json.load(sys.stdin)["sha"]; assert isinstance(sha,str) and re.fullmatch("[0-9a-f]{40}",sha); print(sha,end="")')"
+          test "$actual_sha" = "$target_sha" || { printf 'Compiled image SHA does not match checkout.\n' >&2; exit 1; }
           docker save --output "$RUNNER_TEMP/trangui-image.tar" "$image_id"
           printf '%s' "$image_id" > "$RUNNER_TEMP/trangui-image-id"
           printf 'Candidate commit=%s image=%s\n' "$target_sha" "$image_id"
