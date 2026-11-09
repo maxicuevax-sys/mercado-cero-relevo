@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useClientReady } from "@/lib/use-client-ready";
 import Link from "next/link";
 import { useId, useState, type FormEvent } from "react";
 import { CalendarDays, Check, Clock3, Loader2, NotebookPen } from "lucide-react";
@@ -35,6 +36,7 @@ function dueIso(day: DayChoice, time: string): string | null {
 }
 
 export function NewTaskForm() {
+  const ready = useClientReady();
   const titleId = useId();
   const timeId = useId();
   const amountId = useId();
@@ -94,7 +96,7 @@ export function NewTaskForm() {
   }
 
   return (
-    <form onSubmit={submit} noValidate>
+    <form onSubmit={submit} aria-busy={!ready || saving} noValidate>
       <section className="mc-flow__hero" aria-label="Nuevo pendiente">
         <Image src={tasksNative} alt="" aria-hidden="true" sizes="240px" />
         <div>
@@ -122,7 +124,7 @@ export function NewTaskForm() {
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           data-autofocus
-          disabled={saving}
+          disabled={!ready || saving}
         />
       </div>
 
@@ -141,7 +143,7 @@ export function NewTaskForm() {
             aria-pressed={day === value}
             className={day === value ? "is-active" : undefined}
             onClick={() => setDay(value)}
-            disabled={saving}
+            disabled={!ready || saving}
           >
             {label}
           </button>
@@ -162,7 +164,7 @@ export function NewTaskForm() {
               setTime(event.target.value);
               if (error) setError(null);
             }}
-            disabled={saving}
+            disabled={!ready || saving}
           />
         </div>
       </div>
@@ -183,7 +185,7 @@ export function NewTaskForm() {
           }}
           autoComplete="off"
           placeholder="0.00"
-          disabled={saving}
+          disabled={!ready || saving}
         />
       </div>
 
@@ -199,7 +201,7 @@ export function NewTaskForm() {
       ) : null}
 
       <div className="mc-flow__actions">
-        <button type="submit" className="mc-flow__primary" disabled={saving} aria-busy={saving}>
+        <button type="submit" className="mc-flow__primary" disabled={!ready || saving} aria-busy={saving}>
           {saving ? <Loader2 aria-hidden="true" /> : <Check aria-hidden="true" />}
           {saving ? "Guardando…" : "Guardar pendiente"}
         </button>

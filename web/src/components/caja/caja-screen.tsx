@@ -1065,7 +1065,7 @@ export function CajaScreen({
           <SaleLineItems
             lines={lines}
             errors={lineErrors}
-            disabled={saving || Boolean(unknownResult)}
+            disabled={saving || Boolean(unknownResult) || legacyConflict || !hydrated}
             onAdd={(line) => {
               setLines((current) => [...current, line]);
               setError(null);

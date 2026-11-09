@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useClientReady } from "@/lib/use-client-ready";
 import Link from "next/link";
 import { useId, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
@@ -34,6 +35,7 @@ function requestKey(prefix: string): string {
 }
 
 export function NewGoalForm() {
+  const ready = useClientReady();
   const router = useRouter();
   const titleId = useId();
   const targetId = useId();
@@ -125,7 +127,7 @@ export function NewGoalForm() {
   }
 
   return (
-    <form onSubmit={submit} noValidate>
+    <form onSubmit={submit} aria-busy={!ready || saving} noValidate>
       <section className="mc-flow__hero" aria-label="Ahorra para tus objetivos">
         <Image src={savingsNative} alt="" aria-hidden="true" sizes="240px" />
         <div>
@@ -153,7 +155,7 @@ export function NewGoalForm() {
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           data-autofocus
-          disabled={saving}
+          disabled={!ready || saving}
         />
       </div>
 
@@ -173,7 +175,7 @@ export function NewGoalForm() {
           }}
           autoComplete="off"
           placeholder="8,000.00"
-          disabled={saving}
+          disabled={!ready || saving}
         />
       </div>
 
@@ -193,7 +195,7 @@ export function NewGoalForm() {
           }}
           autoComplete="off"
           placeholder="0.00"
-          disabled={saving}
+          disabled={!ready || saving}
         />
       </div>
 
@@ -210,7 +212,7 @@ export function NewGoalForm() {
             setDeadline(event.target.value);
             if (error) setError(null);
           }}
-          disabled={saving}
+          disabled={!ready || saving}
         />
       </div>
 
@@ -247,7 +249,7 @@ export function NewGoalForm() {
       ) : null}
 
       <div className="mc-flow__actions">
-        <button type="submit" className="mc-flow__primary" disabled={saving} aria-busy={saving}>
+        <button type="submit" className="mc-flow__primary" disabled={!ready || saving} aria-busy={saving}>
           {saving ? <Loader2 aria-hidden="true" /> : <Check aria-hidden="true" />}
           {saving ? "Guardando…" : "Crear meta"}
         </button>

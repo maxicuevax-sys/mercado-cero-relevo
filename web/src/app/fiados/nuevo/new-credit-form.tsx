@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useClientReady } from "@/lib/use-client-ready";
 import Link from "next/link";
 import { useId, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
@@ -36,6 +37,7 @@ export function NewCreditForm({
   todayLabel: string;
   customers: Array<{ name: string; balanceCents: number }>;
 }) {
+  const ready = useClientReady();
   const router = useRouter();
   const customerId = useId();
   const amountId = useId();
@@ -107,7 +109,7 @@ export function NewCreditForm({
   }
 
   return (
-    <form onSubmit={submit} noValidate>
+    <form onSubmit={submit} aria-busy={!ready || saving} noValidate>
       <section className="mc-flow__hero" aria-label="Vende ahora y cobra después">
         <Image src={registerNative} alt="" aria-hidden="true" sizes="240px" />
         <div>
@@ -135,7 +137,7 @@ export function NewCreditForm({
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           data-autofocus
-          disabled={saving}
+          disabled={!ready || saving}
         />
         <datalist id={`${customerId}-known`}>
           {customers.map((item) => (
@@ -172,7 +174,7 @@ export function NewCreditForm({
           }}
           autoComplete="off"
           placeholder="150.00"
-          disabled={saving}
+          disabled={!ready || saving}
         />
       </div>
 
@@ -188,7 +190,7 @@ export function NewCreditForm({
           maxLength={120}
           autoComplete="off"
           placeholder="Ej. 2 kg de tortilla"
-          disabled={saving}
+          disabled={!ready || saving}
         />
       </div>
 
@@ -220,7 +222,7 @@ export function NewCreditForm({
       ) : null}
 
       <div className="mc-flow__actions">
-        <button type="submit" className="mc-flow__primary" disabled={saving} aria-busy={saving}>
+        <button type="submit" className="mc-flow__primary" disabled={!ready || saving} aria-busy={saving}>
           {saving ? <Loader2 className="mc-flow__spin" aria-hidden="true" /> : <Plus aria-hidden="true" />}
           {saving ? "Registrando…" : "Registrar fiado"}
         </button>

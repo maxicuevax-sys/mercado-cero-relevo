@@ -1,5 +1,7 @@
 "use client";
 
+import { useClientReady } from "@/lib/use-client-ready";
+
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import {
@@ -57,6 +59,7 @@ export function CashCount({
   titleId?: string;
 }) {
   const router = useRouter();
+  const ready = useClientReady();
   const baseId = useId();
   const headingId = titleId ?? `${baseId}-tally`;
   const countedRef = useRef<HTMLInputElement>(null);
@@ -339,7 +342,7 @@ export function CashCount({
           type="button"
           className="mc-corte-refresh"
           onClick={() => void loadStatus({ preserveFields: dirtyRef.current })}
-          disabled={refreshing}
+          disabled={!ready || refreshing}
           aria-busy={refreshing}
         >
           <RefreshCw className={cn("mc-corte-refresh__icon", refreshing && "mc-corte-spin")} aria-hidden="true" />
@@ -370,7 +373,7 @@ export function CashCount({
         </p>
       ) : null}
 
-      <form className="mc-corte-form" onSubmit={requestSave} noValidate>
+      <form className="mc-corte-form" onSubmit={requestSave} aria-busy={!ready || refreshing} noValidate>
         <div className="mc-corte-count-block">
           <label className="mc-corte-field" htmlFor={`${baseId}-counted`}>
             <span className="mc-corte-field__label">Total contado</span>
@@ -383,7 +386,7 @@ export function CashCount({
               <span className="mc-corte-money__sign" aria-hidden="true">
                 $
               </span>
-              <input
+              <input disabled={!ready}
                 ref={countedRef}
                 id={`${baseId}-counted`}
                 className="mc-corte-money__input"
@@ -464,7 +467,7 @@ export function CashCount({
                     </span>
                     <div className="mc-corte-denom-stepper">
                     <button type="button" aria-label={`Quitar ${denominationLabel(denomination)}`} disabled={!counts[denomination]} onClick={() => updateCount(denomination, (counts[denomination] ?? 0) - 1)}><Minus aria-hidden="true" /></button>
-                    <input
+                    <input disabled={!ready}
                       className="mc-corte-denom__input"
                       type="number"
                       min={0}
@@ -516,7 +519,7 @@ export function CashCount({
                 <span className="mc-corte-money__sign" aria-hidden="true">
                   $
                 </span>
-                <input
+                <input disabled={!ready}
                   ref={openingRef}
                   id={`${baseId}-opening`}
                   className="mc-corte-money__input"
@@ -547,7 +550,7 @@ export function CashCount({
                 <span className="mc-corte-money__sign" aria-hidden="true">
                   $
                 </span>
-                <input
+                <input disabled={!ready}
                   ref={expensesRef}
                   id={`${baseId}-expenses`}
                   className="mc-corte-money__input"
@@ -578,7 +581,7 @@ export function CashCount({
                 <span className="mc-corte-money__sign" aria-hidden="true">
                   $
                 </span>
-                <input
+                <input disabled={!ready}
                   ref={withdrawalsRef}
                   id={`${baseId}-withdrawals`}
                   className="mc-corte-money__input"
@@ -601,7 +604,7 @@ export function CashCount({
 
           {status.saved && previousWithdrawalCents > 0 ? (
             <label className="mc-corte-previous">
-              <input
+              <input disabled={!ready}
                 type="checkbox"
                 checked={applyPreviousWithdrawal}
                 onChange={(event) => {
@@ -641,7 +644,7 @@ export function CashCount({
             <span className="mc-corte-money__sign" aria-hidden="true">
               $
             </span>
-            <input
+            <input disabled={!ready}
               ref={baseNextRef}
               id={`${baseId}-base-next`}
               className="mc-corte-money__input"
@@ -682,7 +685,7 @@ export function CashCount({
         <button
           type="submit"
           className="mc-corte-save"
-          disabled={refreshing || baseExceedsCounted}
+          disabled={!ready || refreshing || baseExceedsCounted}
         >
           {refreshing ? (
             <Loader2 className="mc-corte-spin" aria-hidden="true" />
