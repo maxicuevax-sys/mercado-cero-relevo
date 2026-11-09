@@ -55,6 +55,8 @@ jobs:
         run: |
           npm run test:sentry
           npm run test:guest-entry
+          npm run test:browser-preferences
+          npm run test:demo-checkout
           npm run test:corte-receipts
           npm run test:format-timezone
           npm run test:currency-groups
@@ -111,11 +113,13 @@ jobs:
       - name: Contrato de rendimiento de datos
         run: npm run test:perf-data
 
-      - name: Chromium for isolated account browser contracts
-        run: npx playwright install --with-deps chromium
+      - name: Chromium and WebKit for isolated account browser contracts
+        run: npx playwright install --with-deps chromium webkit
 
       - name: Real two-session demo account flows
-        run: npm run test:judge-accounts
+        run: |
+          JUDGE_BROWSER=chromium npm run test:judge-accounts
+          JUDGE_BROWSER=webkit npm run test:judge-accounts
 
       - name: Tabla de la evidencia
         run: npm run harness:report

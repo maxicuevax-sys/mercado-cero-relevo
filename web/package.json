@@ -11,6 +11,8 @@
     "test:codi-amount": "node --no-warnings --test scripts/codi-amount.test.mjs scripts/quantity-range.test.mjs scripts/money-input.test.mjs",
     "test:sentry": "node --no-warnings --test scripts/sentry-privacy.test.mjs scripts/sentry-sdk.test.mjs scripts/sentry-tunnel.test.mjs scripts/sentry-diagnostics.test.mjs",
     "test:guest-entry": "node --no-warnings --test scripts/guest-entry.test.mjs",
+    "test:browser-preferences": "node --no-warnings --test scripts/browser-preferences.test.mjs",
+    "test:demo-checkout": "node --no-warnings --test scripts/demo-checkout-capability.test.mjs scripts/demo-checkout.test.mjs",
     "test:corte-receipts": "node --no-warnings --test scripts/corte-receipts.test.mjs",
     "test:format-timezone": "node --no-warnings --test scripts/format-timezone.test.mjs",
     "test:currency-groups": "node --no-warnings --test scripts/currency-groups.test.mjs",

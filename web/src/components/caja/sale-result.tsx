@@ -15,6 +15,7 @@ export function SaleResult({
   changeCents,
   cashReceivedCents,
   cashReceiptUnavailable = false,
+  cashReceiptRecovered = false,
   creditBalanceCents,
   demo,
   onNewSale,
@@ -23,6 +24,7 @@ export function SaleResult({
   changeCents: number;
   cashReceivedCents: number;
   cashReceiptUnavailable?: boolean;
+  cashReceiptRecovered?: boolean;
   creditBalanceCents: number;
   demo: boolean;
   onNewSale: () => void;
@@ -212,6 +214,7 @@ export function SaleResult({
         ) : null}
       </dl>
       {cashReceiptUnavailable ? <p role="status">Efectivo recibido y cambio no disponibles para esta recuperación.</p> : null}
+      {cashReceiptRecovered ? <p>Datos del efectivo recuperados de este navegador.</p> : null}
 
       {openCredit ? (
         <p className="mc-caja-result__banner">

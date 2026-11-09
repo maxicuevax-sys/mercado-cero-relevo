@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { CajaScreen } from "@/components/caja/caja-screen";
 import { MERCHANT, isDemoMode } from "@/lib/config";
+import { judgeAccountsEnabled } from "@/lib/auth/pilot-mode";
 
 export const metadata: Metadata = {
   title: "Caja · Trangui",
@@ -13,7 +14,7 @@ export const instant = false;
 
 async function CajaPage() {
   await connection();
-  return <CajaScreen merchant={MERCHANT} demo={isDemoMode()} businessType={getBusinessProfile()?.businessType} />;
+  return <CajaScreen merchant={MERCHANT} demo={isDemoMode()} businessType={getBusinessProfile()?.businessType} scopedDemoCheckout={judgeAccountsEnabled()} />;
 }
 
 export default withPilotPage(CajaPage);

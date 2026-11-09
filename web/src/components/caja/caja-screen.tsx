@@ -101,10 +101,12 @@ export function CajaScreen({
   merchant,
   demo,
   businessType,
+  scopedDemoCheckout = false,
 }: {
   merchant: DashboardData["merchant"];
   demo: boolean;
   businessType?: BusinessType;
+  scopedDemoCheckout?: boolean;
 }) {
   const [lines, setLines] = useState<DraftLine[]>([]);
   const [draftInstanceId, setDraftInstanceId] = useState(() => newInstanceId());
@@ -120,6 +122,7 @@ export function CajaScreen({
   const [changeCents, setChangeCents] = useState(0);
   const [cashReceivedCents, setCashReceivedCents] = useState(0);
   const [cashReceiptUnavailable, setCashReceiptUnavailable] = useState(false);
+  const [cashReceiptRecovered, setCashReceiptRecovered] = useState(false);
   const [view, setView] = useState<View>("compose");
   const [restoredNotice, setRestoredNotice] = useState(false);
   const [legacyNotice, setLegacyNotice] = useState<string | null>(null);
@@ -300,6 +303,7 @@ export function CajaScreen({
     setChangeCents(0);
     setCashReceivedCents(0);
     setCashReceiptUnavailable(false);
+    setCashReceiptRecovered(false);
     setView("compose");
     requestRef.current = null;
     try {
@@ -573,6 +577,7 @@ export function CajaScreen({
       setChangeCents(exactCash ? 0 : changeForSale);
       setCashReceivedCents(receivedCashCents);
       setCashReceiptUnavailable(false);
+      setCashReceiptRecovered(false);
       setView(due > 0 ? "payment" : "result");
       try {
         if (due > 0) {
@@ -664,6 +669,7 @@ export function CajaScreen({
     setChangeCents(0);
     setCashReceivedCents(0);
     setCashReceiptUnavailable(false);
+    setCashReceiptRecovered(false);
     setUnknownResult(null);
     setReconcileMessage(null);
     setView(due > 0 ? "payment" : "result");
@@ -775,6 +781,7 @@ export function CajaScreen({
       setChangeCents(cashReceipt?.changeCents ?? 0);
       setCashReceivedCents(cashReceipt?.cashReceivedCents ?? 0);
       setCashReceiptUnavailable(!cashReceipt && recovered.paidCents - recovered.digitalPaidCents > 0);
+      setCashReceiptRecovered(Boolean(cashReceipt));
       setView(due > 0 ? "payment" : "result");
       setLines([]);
       setDraftInstanceId(newInstanceId());
@@ -1163,6 +1170,7 @@ export function CajaScreen({
           demo={demo}
           creditBalanceCents={creditBalanceCents}
           onOrder={handleOrderUpdate}
+          scopedDemoCheckout={scopedDemoCheckout}
           onNewSale={resetSale}
         />
       ) : null}
@@ -1173,6 +1181,7 @@ export function CajaScreen({
           changeCents={changeCents}
           cashReceivedCents={cashReceivedCents}
           cashReceiptUnavailable={cashReceiptUnavailable}
+          cashReceiptRecovered={cashReceiptRecovered}
           creditBalanceCents={creditBalanceCents}
           demo={demo}
           onNewSale={resetSale}

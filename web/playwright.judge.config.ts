@@ -7,14 +7,17 @@ import { randomBytes } from "node:crypto";
 const port = 4666;
 const origin = `http://127.0.0.1:${port}`;
 const dataRoot = mkdtempSync(path.join(tmpdir(), "trangui-judge-browser-"));
+const browser = process.env.JUDGE_BROWSER ?? "chromium";
+if (browser !== "chromium" && browser !== "webkit") throw new Error("JUDGE_BROWSER must be chromium or webkit");
 
 export default defineConfig({
   testDir: "./scripts/judge-browser",
   workers: 1,
   retries: 0,
   timeout: 60000,
-  outputDir: "./test-results/judge-ui",
-  reporter: [["list"], ["json", { outputFile: "./test-results/judge-results.json" }]],
+  projects: [{ name: browser, use: { browserName: browser } }],
+  outputDir: `./test-results/judge-ui-${browser}`,
+  reporter: [["list"], ["json", { outputFile: `./test-results/judge-${browser}-results.json` }]],
   use: { browserName: "chromium", headless: true, baseURL: origin, trace: "retain-on-failure" },
   webServer: {
     command: `node node_modules/next/dist/bin/next start -H 127.0.0.1 -p ${port}`,

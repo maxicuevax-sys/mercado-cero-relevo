@@ -32,7 +32,7 @@ type PendingRequest = { id: string; amountCents: number };
  * simulador demo (`/api/demo/pay`). No inventa endpoints ni duplica la lógica
  * del QR: un QR generado nunca se muestra como dinero recibido.
  */
-export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialOrder?: Order | null }) {
+export function CodiHub({ demo, initialOrder = null, scopedDemoCheckout = false }: { demo: boolean; initialOrder?: Order | null; scopedDemoCheckout?: boolean }) {
   const initialDueCents = initialOrder
     ? Math.max(initialOrder.totalCents - initialOrder.paidCents, 0)
     : 0;
@@ -79,7 +79,8 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
   // Una orden existente que viene de Pendientes puede no tener QR todavía.
   // El hub lo genera al entrar para que el centro CoDi siempre muestre el QR.
   useEffect(() => {
-    if (!initialOrder || initialOrder.qrImage || TERMINAL.has(initialOrder.status)) return;
+    if (!initialOrder || TERMINAL.has(initialOrder.status)) return;
+    if (initialOrder.qrImage && (!scopedDemoCheckout || initialOrder.qrString?.includes("/cobro/demo#v1."))) return;
     let active = true;
     const generation = generationRef.current;
     void requestQr(initialOrder.id)
@@ -92,7 +93,7 @@ export function CodiHub({ demo, initialOrder = null }: { demo: boolean; initialO
     return () => {
       active = false;
     };
-  }, [initialOrder]);
+  }, [initialOrder, scopedDemoCheckout]);
 
   useEffect(() => {
     if (!order || TERMINAL.has(order.status)) return;

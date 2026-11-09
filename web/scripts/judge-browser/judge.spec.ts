@@ -31,6 +31,12 @@ test("source inventory prevents new page or API exports from bypassing account s
     const route = `/${relative.replace(/\/?(?:page\.tsx|route\.ts)$/, "")}`;
     if (relative.endsWith("page.tsx")) {
       if (["/acceso", "/registro"].includes(route)) continue;
+      if (route === "/cobro/demo") {
+        expect(source).toContain("if (!judgeAccountsEnabled()) notFound()");
+        expect(source).toContain("await getJudgeRuntime()");
+        expect(source).not.toMatch(/getOrder|runInTenantDatabase|verifiedJudgeAccount/);
+        continue;
+      }
       if (route === "/ops/sentry-diagnostics") {
         expect(source).toMatch(/export default withPilotPage\(/);
         expect(source).toContain("if (!sentryDiagnosticsEnabled()) notFound()");
@@ -43,6 +49,13 @@ test("source inventory prevents new page or API exports from bypassing account s
         discoveredPages.push(route.replace(/\[id\]/g, "ajeno").replace(/\[fecha\]/g, "2026-11-07"));
       }
     } else if (route !== "/api/health" && !route.startsWith("/api/access/")) {
+      if (route === "/api/demo-checkout") {
+        expect(source).toContain('request.headers.get("X-Trangui-Demo-Checkout")');
+        expect(source).toContain("await runDemoCheckout(");
+        expect(source).toContain("isSameOriginMutation(request)");
+        expect(source).not.toMatch(/verifiedJudgeAccount|withPilotRoute|runInTenantDatabase/);
+        continue;
+      }
       // Telemetry-only public endpoint: fixed DSN, bounded body, no business DB.
       if (route === "/sentry-tunnel") {
         expect(source).toContain("handleSentryTunnel(request, process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN)");

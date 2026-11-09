@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { appUrl, isDemoMode } from "./config";
+import { judgeAccountsEnabled } from "./auth/pilot-mode";
 
 const PEY_BASE = process.env.PEY_BASE_URL ?? "https://api.pey.mx";
 
@@ -91,9 +92,12 @@ export async function createPaymentLink(input: {
 }): Promise<PeyPaymentLink> {
   if (isDemoMode()) {
     const query = input.creditId ? `?demo=1&creditId=${input.creditId}` : "?demo=1";
+    const url = judgeAccountsEnabled() && !input.creditId
+      ? (await import("./auth/demo-checkout")).createJudgeDemoCheckoutUrl(input.orderId)
+      : `${appUrl()}/pay/${input.orderId}${query}`;
     return {
       id: input.creditId ? `demo_link_${input.creditId}` : `demo_link_${input.orderId}`,
-      url: `${appUrl()}/pay/${input.orderId}${query}`,
+      url,
     };
   }
 
@@ -143,7 +147,9 @@ export async function createCodiQr(input: {
   if (isDemoMode()) {
     return {
       id: input.creditId ? `demo_qr_${input.creditId}` : `demo_qr_${input.orderId}`,
-      qrString: JSON.stringify({
+      qrString: judgeAccountsEnabled() && !input.creditId
+        ? (await import("./auth/demo-checkout")).createJudgeDemoCheckoutUrl(input.orderId, expiresAt)
+        : JSON.stringify({
         demo: true,
         orderId: input.orderId,
         numRef: input.numRef,

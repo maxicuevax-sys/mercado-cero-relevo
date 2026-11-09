@@ -361,11 +361,12 @@ export function createOrder(input: CreateOrderInput): Order {
   return created;
 }
 
-const COVERED_ORDER_STATUSES = new Set(["paid", "demo_paid", "fulfilled"]);
+const COVERED_ORDER_STATUSES = new Set(["paid", "demo_paid", "fulfilled", "cancelled"]);
 
 export function attachPaymentLink(
   orderId: string,
   link: { id: string; url: string },
+  options?: { forceRefresh?: boolean },
 ): Order {
   const database = getDb();
   let committed = false;
@@ -398,7 +399,7 @@ export function attachPaymentLink(
     }
 
     // Si otro POST ganó la carrera, devolvemos el link ya adjunto.
-    if (row.payment_url) {
+    if (row.payment_url && !options?.forceRefresh) {
       database.exec("COMMIT");
       committed = true;
       const existing = getOrder(orderId);

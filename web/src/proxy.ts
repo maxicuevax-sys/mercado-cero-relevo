@@ -49,6 +49,7 @@ function bodyLimitFor(pathname: string): number | null {
   if (pathname === "/api/orders") return MAX_ORDERS_BYTES;
   if (/^\/api\/orders\/[^/]+(\/pay)?$/.test(pathname)) return MAX_SMALL_JSON_BYTES;
   if (pathname === "/api/demo/pay") return MAX_SMALL_JSON_BYTES;
+  if (pathname === "/api/demo-checkout") return MAX_SMALL_JSON_BYTES;
   if (/^\/api\/credits\/[^/]+\/pay$/.test(pathname)) return MAX_SMALL_JSON_BYTES;
   if (pathname === "/api/cash/close" || pathname === "/api/cash/preview") return 16 * 1024;
   if (pathname === "/api/goals" || /^\/api\/goals\/[^/]+\/contribute$/.test(pathname)) {

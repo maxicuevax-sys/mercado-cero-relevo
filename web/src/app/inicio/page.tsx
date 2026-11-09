@@ -166,7 +166,7 @@ async function InicioPage({ searchParams }: { searchParams: Promise<{ pedido?: s
         </article>
       </section>
 
-      <CodiHub demo={demo} initialOrder={initialOrder} />
+      <CodiHub demo={demo} initialOrder={initialOrder} scopedDemoCheckout={judgeAccountsEnabled()} />
 
       <section className="inicio-hero" aria-labelledby="inicio-hero-title">
         <Image

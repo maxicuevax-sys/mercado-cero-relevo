@@ -172,6 +172,8 @@ const nextConfig: NextConfig = {
       { source: "/api/cash", headers: privateHeaders },
       { source: "/api/cash/:path+", headers: privateHeaders },
       { source: "/api/checkout/:path+", headers: privateHeaders },
+      { source: "/api/demo-checkout", headers: [...privateHeaders, { key: "Referrer-Policy", value: "no-referrer" }, { key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+      { source: "/cobro/demo", headers: [...privateHeaders, { key: "Referrer-Policy", value: "no-referrer" }, { key: "X-Robots-Tag", value: "noindex, nofollow" }] },
       { source: "/api/credits/:path+", headers: privateHeaders },
       { source: "/api/demo/:path+", headers: privateHeaders },
       { source: "/api/goals", headers: privateHeaders },

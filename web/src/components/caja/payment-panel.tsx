@@ -64,12 +64,14 @@ export function PaymentPanel({
   creditBalanceCents,
   onOrder,
   onNewSale,
+  scopedDemoCheckout = false,
 }: {
   order: Order;
   demo: boolean;
   creditBalanceCents?: number | null;
   onOrder: (order: Order, creditBalanceCents?: number | null) => void;
   onNewSale: () => void;
+  scopedDemoCheckout?: boolean;
 }) {
   const [busy, setBusy] = useState<"link" | "qr" | "codi_push" | "refresh" | "demo" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +79,9 @@ export function PaymentPanel({
   const [copied, setCopied] = useState(false);
   const [codiPhone, setCodiPhone] = useState("");
   const [qrViewMode, setQrViewMode] = useState<"codi" | "link">("codi");
-  const [linkQrDataUrl, setLinkQrDataUrl] = useState<string | null>(null);
+  const [linkQr, setLinkQr] = useState<{ orderId: string; src: string } | null>(null);
+  const linkQrDataUrl = linkQr?.orderId === order.id
+    && (!scopedDemoCheckout || order.paymentUrl || order.qrString?.includes("/cobro/demo#v1.")) ? linkQr.src : null;
   const [syncNotice, setSyncNotice] = useState<{ orderId: string; text: string } | null>(null);
   const activeSyncNotice = syncNotice?.orderId === order.id ? syncNotice.text : null;
   const remainingSeconds = useQrRemainingSeconds(order.qrExpiresAt);
@@ -116,30 +120,35 @@ export function PaymentPanel({
     const fallbackUrl = origin
       ? `${origin}/pay/${order.id}${demo ? "?demo=1" : ""}`
       : `/pay/${order.id}${demo ? "?demo=1" : ""}`;
-    const targetUrl = order.paymentUrl || fallbackUrl;
+    // Account-mode demo QR URLs are issued by the server for one order.
+    // Never replace them with the closed legacy buyer route.
+    const scopedQrUrl = order.qrString?.startsWith(`${origin}/cobro/demo#v1.`) ? order.qrString : null;
+    const targetUrl = scopedQrUrl || order.paymentUrl || (scopedDemoCheckout ? null : fallbackUrl);
+    if (!targetUrl) return;
     void QRCode.toDataURL(targetUrl, {
       width: 640,
       margin: 1,
       color: { dark: "#143D2F", light: "#FFFFFF" },
     })
       .then((url) => {
-        if (active) setLinkQrDataUrl(url);
+        if (active) setLinkQr({ orderId: order.id, src: url });
       })
       .catch(() => {
-        if (active) setLinkQrDataUrl(null);
+        if (active) setLinkQr(null);
       });
     return () => {
       active = false;
     };
-  }, [demo, order.id, order.paymentUrl]);
+  }, [demo, order.id, order.paymentUrl, order.qrString, scopedDemoCheckout]);
 
   useEffect(() => {
-    if (!pending || dueCents <= 0 || order.qrImage || order.qrString) return;
+    if (!pending || dueCents <= 0) return;
+    if ((order.qrImage || order.qrString) && (!scopedDemoCheckout || order.qrString?.includes("/cobro/demo#v1."))) return;
     if (autoQrOrderIdRef.current === order.id) return;
     autoQrOrderIdRef.current = order.id;
     void generate("qr", false, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dueCents, order.id, order.qrImage, order.qrString, pending]);
+  }, [dueCents, order.id, order.qrImage, order.qrString, pending, scopedDemoCheckout]);
 
   useEffect(() => {
     if (!pending) return;

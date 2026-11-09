@@ -21,6 +21,7 @@ import {
 import { attachCodiPush, attachPaymentLink, attachQr } from "@/lib/orders";
 import { createCodiPush, createCodiQr, createPaymentLink } from "@/lib/pey";
 import type { Order } from "@/lib/types";
+import { judgeAccountsEnabled } from "@/lib/auth/pilot-mode";
 
 export const MAX_NUM_REF_ATTEMPTS = 10;
 
@@ -92,7 +93,8 @@ async function generatePayment(
   if (
     order.status === "paid" ||
     order.status === "demo_paid" ||
-    order.status === "fulfilled"
+    order.status === "fulfilled" ||
+    order.status === "cancelled"
   ) {
     return order;
   }
@@ -106,13 +108,15 @@ async function generatePayment(
 
   if (options.mode === "qr") {
     const isExpired = order.qrExpiresAt ? Date.parse(order.qrExpiresAt) <= Date.now() : false;
-    if (order.qrString && !options.forceRefresh && !isExpired) {
+    const obsoleteJudgeQr = judgeAccountsEnabled()
+      && !(await import("@/lib/auth/demo-checkout")).isActiveJudgeDemoCheckoutUrl(order.qrString, order.id);
+    if (order.qrString && !options.forceRefresh && !isExpired && !obsoleteJudgeQr) {
       return order;
     }
 
     const numRef = reserveNumRef(order.id);
     const qr = await createCodiQr({ orderId: order.id, amountCents, concept, numRef });
-    const qrValue = isDemoMode()
+    const qrValue = isDemoMode() && !judgeAccountsEnabled()
       ? `${appUrl()}/pay/${order.id}?demo=1`
       : qr.qrString;
     const qrImage =
@@ -127,7 +131,7 @@ async function generatePayment(
       order.id,
       { ...qr, qrImage },
       numRef,
-      { forceRefresh: options.forceRefresh || isExpired },
+      { forceRefresh: options.forceRefresh || isExpired || obsoleteJudgeQr },
     );
   }
 
@@ -149,10 +153,12 @@ async function generatePayment(
     return attachCodiPush(order.id, push, numRef);
   }
 
-  if (order.paymentUrl && !options.forceRefresh) return order;
+  const obsoleteJudgeLink = judgeAccountsEnabled()
+    && !(await import("@/lib/auth/demo-checkout")).isActiveJudgeDemoCheckoutUrl(order.paymentUrl, order.id);
+  if (order.paymentUrl && !options.forceRefresh && !obsoleteJudgeLink) return order;
 
   const link = await createPaymentLink({ orderId: order.id, amountCents, concept });
-  return attachPaymentLink(order.id, link);
+  return attachPaymentLink(order.id, link, { forceRefresh: options.forceRefresh || obsoleteJudgeLink });
 }
 
 async function POSTImpl(request: Request, ctx: RouteContext<"/api/orders/[id]/pay">) {
