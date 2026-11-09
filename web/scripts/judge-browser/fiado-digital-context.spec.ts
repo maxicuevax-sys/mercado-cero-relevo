@@ -36,6 +36,7 @@ test("Fiados digital action keeps its credit and records only an explicitly decl
   const detail = `/fiados/${creditId}`;
   await page.goto(detail);
   await page.getByRole("link", { name: "Registrar abono digital", exact: true }).click();
+  await expect(page).toHaveURL(new URL(`${detail}/abono?metodo=codi`, page.url()).href);
   expect(new URL(page.url()).pathname).toBe(`${detail}/abono`);
   expect(new URL(page.url()).searchParams.get("metodo")).toBe("codi");
   await expect(page.getByLabel("Monto del abono", { exact: true })).toHaveValue("");
@@ -44,6 +45,7 @@ test("Fiados digital action keeps its credit and records only an explicitly decl
   await expect(page.getByText(/esta pantalla no genera un QR/)).toBeVisible();
   expect(abonoPosts).toBe(0);
   await page.getByRole("link", { name: "Cancelar", exact: true }).click();
+  await expect(page).toHaveURL(new URL(detail, page.url()).href);
   expect(new URL(page.url()).pathname).toBe(detail);
   await page.goto(`${detail}/abono?metodo=wallet`);
   await expect(page.getByRole("button", { name: "Efectivo", exact: true })).toHaveAttribute("aria-pressed", "true");
