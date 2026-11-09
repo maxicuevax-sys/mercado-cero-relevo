@@ -49,7 +49,7 @@ test("new fiado and abono receipts use saved records and ignore forged query amo
   await page.screenshot({ path: testInfo.outputPath("new-fiado-server-receipt.png") });
 
   await page.goto(`/fiados/juan/abono?credito=${creditId}`);
-  await page.getByLabel("Monto del abono", { exact: true }).fill("20");
+  await page.locator(".mc-abono__amount input").fill("20");
   await page.getByRole("button", { name: "Registrar abono", exact: true }).click();
   await page.waitForURL(/\/fiados\/registrado\?/);
   await expect(page.getByRole("heading", { name: "Abono registrado", exact: true })).toBeVisible();
