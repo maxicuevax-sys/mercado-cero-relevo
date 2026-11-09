@@ -1,7 +1,7 @@
 import { test, expect, type Locator } from "@playwright/test";
 
 async function wordLines(locator: Locator, word: string) {
-  return locator.evaluate((element, word) => {
+  const layout = await locator.evaluate((element, word) => {
     const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
     for (let node = walker.nextNode(); node; node = walker.nextNode()) {
       const start = node.textContent?.indexOf(word) ?? -1;
@@ -18,11 +18,12 @@ async function wordLines(locator: Locator, word: string) {
           lines.push({ top: rect.top, bottom: rect.bottom });
         }
       }
-      if (lines.length !== 1) console.log("Word layout", JSON.stringify({ word, rects: rects.map(rect => rect.toJSON()), font: getComputedStyle(element).font, width: element.clientWidth, viewport: innerWidth }));
-      return lines.length;
+      return { count: lines.length, word, rects: rects.map(rect => rect.toJSON()), font: getComputedStyle(element).font, width: element.clientWidth, viewport: innerWidth };
     }
-    return 0;
+    return { count: 0, word };
   }, word);
+  if (layout.count !== 1) console.log("Word layout", JSON.stringify(layout));
+  return layout.count;
 }
 
 test("large mobile text keeps assistant and merchant words readable", async ({ page, context, baseURL }, testInfo) => {
