@@ -75,8 +75,7 @@ async function AbonoPage({
   }
 
   const name = credit.customerName ?? "Cliente";
-  const customerSlug = nameSlug(firstName(name)) || nameSlug(slug);
-  const backHref = `/fiados/${customerSlug}`;
+  const backHref = `/fiados/${credit.id}`;
   // En demo la lámina arranca con un abono sugerido (tope $200); en real el
   // campo empieza vacío para no inducir un cobro.
   const prefillCents = demo ? Math.min(20_000, credit.balanceCents) : 0;

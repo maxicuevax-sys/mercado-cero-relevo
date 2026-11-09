@@ -6,7 +6,7 @@ export interface HistoryExportRow {
   date: string;
   dateLabel: string;
   version: number;
-  salesCents: number;
+  cashReceivedCents: number;
   cashCents: number;
   creditCents: number;
   expensesCents: number;
@@ -23,8 +23,8 @@ const HEADERS = [
   "Fecha",
   "Fecha legible",
   "Versión",
-  "Ventas del día",
-  "Efectivo cobrado",
+  "Efectivo del día (ventas y abonos)",
+  "Efectivo de ventas",
   "Abonos de fiado en efectivo",
   "Gastos",
   "Retiros",
@@ -65,7 +65,7 @@ export function ExportHistoryButton({
           csvCell(row.date),
           csvCell(row.dateLabel),
           csvCell(row.version),
-          csvCell(amount(row.salesCents)),
+          csvCell(amount(row.cashReceivedCents)),
           csvCell(amount(row.cashCents)),
           csvCell(amount(row.creditCents)),
           csvCell(amount(row.expensesCents)),

@@ -45,7 +45,7 @@ async function HistorialCortesPage() {
     date: close.date,
     dateLabel: `${dateLabel(close.date).top} ${dateLabel(close.date).bottom}`,
     version: close.version,
-    salesCents: close.cashSalesCents + close.cashCreditCents,
+    cashReceivedCents: close.cashSalesCents + close.cashCreditCents,
     cashCents: close.cashSalesCents,
     creditCents: close.cashCreditCents,
     expensesCents: close.expensesCents,
