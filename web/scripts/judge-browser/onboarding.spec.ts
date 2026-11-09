@@ -9,6 +9,36 @@ const choices = {
   produce: "Frutas y verduras", food: "Comida y bebidas",
   goods: "Ropa y artículos", general: "Un poco de todo",
 } as const;
+
+test("cold onboarding cannot submit a native GET before its handlers are ready", async ({ page, context, baseURL }) => {
+  expect(new URL(baseURL!).hostname).toBe("127.0.0.1");
+  expect((await context.request.post("/api/access/guest", { headers: { Origin: baseURL! }, data: {} })).status()).toBe(200);
+  const before = await ordersSnapshot(context);
+  let release!: () => void;
+  let scriptsReleased = false;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await context.route("**/_next/static/**", async route => {
+    if (new URL(route.request().url()).pathname.endsWith(".js") && !scriptsReleased) await gate;
+    await route.continue();
+  });
+  try {
+    await page.goto("/onboarding", { waitUntil: "commit" });
+    const submit = page.getByRole("button", { name: "Empezar con mi puesto", exact: true });
+    const choice = page.getByRole("radio", { name: choices.general, exact: true });
+    await expect(submit).toBeVisible();
+    await expect(submit).toBeDisabled();
+    await expect(choice).toBeDisabled();
+    expect(new URL(page.url()).search).toBe("");
+    scriptsReleased = true;
+    release();
+    await expect(submit).toBeEnabled();
+    await save(page, "general");
+    expect(await ordersSnapshot(context)).toEqual(before);
+  } finally {
+    scriptsReleased = true;
+    release();
+  }
+});
 type BusinessType = keyof typeof choices;
 type Profile = { businessType: BusinessType; completedAt: string };
 type OrderSnapshot = { total: number; ids: string[] };

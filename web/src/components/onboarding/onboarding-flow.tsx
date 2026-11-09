@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { ArrowRight, Check, ShoppingBag, Soup, Sprout, Store } from "lucide-react";
 import type { BusinessProfile, BusinessType } from "@/lib/business-profile";
+import { useClientReady } from "@/lib/use-client-ready";
 import shopArt from "@/assets/brand/ilustraciones/transparent/puesto.png";
 import brandShop from "@/assets/inicio/brand-shop-cream.svg";
 import "./onboarding.css";
@@ -17,6 +18,7 @@ const choices = [
 ] as const;
 
 export function OnboardingFlow({ profile }: { profile: BusinessProfile | null }) {
+  const ready = useClientReady();
   const [selected, setSelected] = useState<BusinessType | "">(profile?.businessType ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -64,11 +66,11 @@ export function OnboardingFlow({ profile }: { profile: BusinessProfile | null })
         <p className="onb-copy">Verás productos y ejemplos para tu giro.</p>
         <Image src={shopArt} alt="" aria-hidden="true" className="onb-art" sizes="(max-width: 760px) 100px, 360px" />
       </div>
-      <form className="onb-form" onSubmit={submit} aria-busy={busy} noValidate>
+      <form className="onb-form" onSubmit={submit} aria-busy={!ready || busy} noValidate>
         <fieldset aria-describedby={`onb-hint${error ? " onb-error" : ""}`}>
           <legend className="onb-sr-only">¿Qué vendes en tu puesto?</legend>
           <div className="onb-choices">{choices.map(({ value, title, detail, Icon }) => <label key={value} className={`onb-choice${selected === value ? " onb-choice--selected" : ""}`}>
-            <input id={`business-${value}`} type="radio" name="businessType" aria-label={title} value={value} checked={selected === value} disabled={busy} onChange={() => { setSelected(value); setError(""); }} />
+            <input id={`business-${value}`} type="radio" name="businessType" aria-label={title} value={value} checked={selected === value} disabled={!ready || busy} onChange={() => { setSelected(value); setError(""); }} />
             <span className={`onb-choice-icon onb-choice-icon--${value}`}><Icon aria-hidden="true" /></span>
             <span className="onb-choice-copy"><strong>{title}</strong><span>{detail}</span></span>
             {selected === value ? <Check className="onb-choice-check" aria-hidden="true" /> : null}
@@ -77,7 +79,7 @@ export function OnboardingFlow({ profile }: { profile: BusinessProfile | null })
         <p className="onb-hint" id="onb-hint">Elige la que más se parezca. Puedes cambiarla después en Ajustes.</p>
         {error ? <p className="onb-error" id="onb-error" role="alert">{error}</p> : null}
         {error && error.startsWith("Tu sesión") ? <Link className="onb-login" href="/acceso">Iniciar sesión</Link> : null}
-        <button className="onb-cta" type="submit" disabled={busy}><span>{busy ? "Guardando tu giro…" : "Empezar con mi puesto"}</span><ArrowRight aria-hidden="true" /></button>
+        <button className="onb-cta" type="submit" disabled={!ready || busy}><span>{busy ? "Guardando tu giro…" : "Empezar con mi puesto"}</span><ArrowRight aria-hidden="true" /></button>
         <p className="onb-demo-note">Estás en modo demo. Aquí no se activa ningún cobro real.</p>
         {profile ? <Link className="onb-cancel" href="/inicio">Volver sin cambiar</Link> : null}
       </form>
