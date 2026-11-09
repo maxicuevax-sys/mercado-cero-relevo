@@ -330,6 +330,7 @@ test("voice preferences stay synchronized across sibling controls, tabs and relo
 });
 
 test("scanner permission fallback keeps keyboard focus in the dialog and restores its trigger", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await signUp(page, "judge-scanner-focus@example.test");
   await page.goto("/caja");
   await page.evaluate(() => {
