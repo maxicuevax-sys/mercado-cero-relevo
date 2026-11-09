@@ -47,19 +47,35 @@ if (process.argv.includes("--json")) {
 
 const short = (value) => String(value ?? "?").slice(0, 7);
 const yesNo = (value) => (value ? "sí" : "no");
+// Evidence is data, even inside inline code. Encode in one pass so a literal
+// entity, backslash or backtick cannot reopen Markdown/HTML syntax. Show control
+// characters explicitly instead of letting them create rows or spoof log text.
+const text = (value) => String(value ?? "?").replace(
+  /[\p{Cc}\p{Cf}\p{Zl}\p{Zp}&<>"'`\\|*_[\]{}()#!+~=\-]/gu,
+  (character) => {
+    if (character === "\r") return "&#92;r";
+    if (character === "\n") return "&#92;n";
+    if (character === "\t") return "&#92;t";
+    if (/^[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]$/u.test(character)) {
+      return `&#92;u${character.codePointAt(0).toString(16).padStart(4, "0")}`;
+    }
+    return `&#${character.codePointAt(0)};`;
+  },
+);
+const code = (value) => `<code>${text(value)}</code>`;
 
 console.log(
   `<!-- generado por npm run harness:report; no editar a mano -->\n` +
-    `**Corrida:** ${evidence.mode}${evidence.partial ? " (partial)" : ""} · ` +
+    `**Corrida:** ${text(evidence.mode)}${evidence.partial ? " (partial)" : ""} · ` +
     `ok:${yesNo(evidence.ok)} · complete:${yesNo(evidence.complete)} · ` +
     `build:${yesNo(evidence.buildBound)}\n\n` +
-    `- SHA: \`${evidence.gitAtStart?.sha ?? "?"}\` (${evidence.gitAtStart?.branch ?? "?"})\n` +
-    `- Build servido: \`${evidence.serverBuildSha ?? "?"}\` (${short(evidence.serverBuildSha)})\n` +
-    `- Árbol: inicio dirty:${evidence.gitAtStart?.dirty} · fin dirty:${evidence.gitAtEnd?.dirty}\n` +
-    `- Inicio: ${evidence.startedAt}\n` +
-    `- Fin: ${evidence.endedAt}\n` +
-    `- Base: ${evidence.baseUrl}\n` +
-    `- Nodo: ${evidence.node} · OS: ${evidence.os}\n`,
+    `- SHA: ${code(evidence.gitAtStart?.sha)} (${text(evidence.gitAtStart?.branch)})\n` +
+    `- Build servido: ${code(evidence.serverBuildSha)} (${text(short(evidence.serverBuildSha))})\n` +
+    `- Árbol: inicio dirty:${text(evidence.gitAtStart?.dirty)} · fin dirty:${text(evidence.gitAtEnd?.dirty)}\n` +
+    `- Inicio: ${text(evidence.startedAt)}\n` +
+    `- Fin: ${text(evidence.endedAt)}\n` +
+    `- Base: ${text(evidence.baseUrl)}\n` +
+    `- Nodo: ${text(evidence.node)} · OS: ${text(evidence.os)}\n`,
 );
 
 console.log("| Gate | Estado | Exit | Expected | ms | Artefactos |");
@@ -67,25 +83,25 @@ console.log("|---|---|---:|---|---:|---|");
 
 for (const gate of evidence.gates ?? []) {
   const artifacts = (gate.artifacts ?? [])
-    .map((artifact) => (artifact.exists ? `\`${artifact.path}\`` : `FALTA \`${artifact.path}\``))
+    .map((artifact) => (artifact.exists ? code(artifact.path) : `FALTA ${code(artifact.path)}`))
     .join("<br>");
   console.log(
-    `| \`${gate.id}\` | ${gate.ok ? "PASS" : "FAIL"} | ${gate.exitCode} | ${String(
+    `| ${code(gate.id)} | ${gate.ok ? "PASS" : "FAIL"} | ${text(gate.exitCode)} | ${text(
       Array.isArray(gate.expected) ? gate.expected.join(" + ") : gate.expected ?? "—",
-    ).replace(/\|/g, "\\|")} | ${gate.durationMs} | ${artifacts || "—"} |`,
+    )} | ${text(gate.durationMs)} | ${artifacts || "—"} |`,
   );
 }
 
 if ((evidence.notRun ?? []).length) {
   console.log("\n**No ejecutados:**");
   for (const id of evidence.notRun) {
-    console.log(`- \`${id}\`: ${evidence.notRunReasons?.[id] ?? "sin razón"}`);
+    console.log(`- ${code(id)}: ${text(evidence.notRunReasons?.[id] ?? "sin razón")}`);
   }
 }
 
 if ((evidence.reasons ?? []).length) {
   console.log("\n**Razones del veredicto:**");
-  for (const reason of evidence.reasons) console.log(`- ${reason}`);
+  for (const reason of evidence.reasons) console.log(`- ${text(reason)}`);
 }
 
-if (evidence.error) console.log(`\n**Error:** ${evidence.error}`);
+if (evidence.error) console.log(`\n**Error:** ${text(evidence.error)}`);

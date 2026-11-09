@@ -45,7 +45,16 @@ const operatorToken = env.OPERATOR_ACCESS_TOKEN ?? "";
 const appUrl = (env.APP_URL ?? "http://localhost:3000").replace(/\/+$/, "");
 const configuredDemo =
   env.DEMO_MODE === "true" ? true : env.DEMO_MODE === "false" ? false : !apiKey;
-const isQuickTunnel = /\.trycloudflare\.com$/i.test(new URL(appUrl).hostname);
+let parsedAppUrl = null;
+try { parsedAppUrl = new URL(appUrl); } catch {
+  // A malformed URL exception can echo its input, including credentials.
+}
+// Preserve protocol/host/path for diagnosis, never URL credentials or opaque
+// query/fragment values. Only the display changes; requests use appUrl below.
+const displayedAppUrl = parsedAppUrl
+  ? `${parsedAppUrl.protocol}//${parsedAppUrl.host}${parsedAppUrl.pathname}${parsedAppUrl.search ? "?[consulta omitida]" : ""}${parsedAppUrl.hash ? "#[fragmento omitido]" : ""}`
+  : "[APP_URL inválida]";
+const isQuickTunnel = /\.trycloudflare\.com$/i.test(parsedAppUrl?.hostname ?? "");
 
 const checks = [];
 function check(name, ok, detail, level = "FAIL") {
@@ -83,16 +92,16 @@ check(
 );
 check(
   "APP_URL HTTPS",
-  (configuredDemo && !requireProd) || appUrl.startsWith("https://"),
-  appUrl,
-  configuredDemo && !requireProd ? "WARN" : "FAIL",
+  Boolean(parsedAppUrl) && ((configuredDemo && !requireProd) || parsedAppUrl.protocol === "https:"),
+  displayedAppUrl,
+  configuredDemo && !requireProd && parsedAppUrl ? "WARN" : "FAIL",
 );
 check(
   "Dominio estable (sin quick tunnel efímero)",
   !isQuickTunnel,
   isQuickTunnel
-    ? `${appUrl} es un quick tunnel efímero (*.trycloudflare.com)`
-    : appUrl,
+    ? `${displayedAppUrl} es un quick tunnel efímero (*.trycloudflare.com)`
+    : displayedAppUrl,
   requireProd ? "FAIL" : "WARN",
 );
 check(
@@ -135,7 +144,7 @@ try {
 check(
   "Servidor alcanzable",
   Boolean(server),
-  server ? appUrl : `sin respuesta en ${appUrl}`,
+  server ? displayedAppUrl : `sin respuesta en ${displayedAppUrl}`,
   "WARN",
 );
 if (server) {
