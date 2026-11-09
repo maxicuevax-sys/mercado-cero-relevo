@@ -62,10 +62,10 @@ with sync_playwright() as p:
             for route in ['fiados', 'corte', 'metas']:
                 page.goto(origin + '/' + route)
                 page.evaluate('document.fonts.ready')
-                page.wait_for_function('''() => [...document.images].filter(i=>{const r=i.getBoundingClientRect();return r.width&&r.height&&r.top<innerHeight&&r.bottom>0;}).every(i=>i.complete)''')
                 if enlarged:
                     page.evaluate("document.documentElement.dataset.textSize='xlarge';document.documentElement.dataset.contrast='high'")
                     page.add_style_tag(content='html{font-size:32px!important}')
+                page.wait_for_function('''() => [...document.images].filter(i=>{const r=i.getBoundingClientRect();return i.checkVisibility()&&r.width&&r.height&&r.top<innerHeight&&r.bottom>0;}).every(i=>i.complete&&i.naturalWidth>0)''')
                 measurements = page.evaluate('''() => {
                   const box=e=>e?.getBoundingClientRect().toJSON();
                   const lines=e=>{if(!e)return [];const r=document.createRange();r.selectNodeContents(e);return [...r.getClientRects()].map(x=>({top:x.top,bottom:x.bottom,left:x.left,right:x.right}));};

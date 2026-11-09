@@ -1487,6 +1487,11 @@ html:not([data-contrast="high"]) .mc-corte-save:hover:not(:disabled) {
 }
 
 @media (max-width: 479.98px) {
+  /* El acento decorativo no debe pintar sobre el título en teléfonos. */
+  .inicio-shell.mc-reference-a .mc-corte-page > .mc-op-header::after {
+    content: none;
+  }
+
   .mc-corte-page__picado {
     right: 8px;
     width: 116px;
