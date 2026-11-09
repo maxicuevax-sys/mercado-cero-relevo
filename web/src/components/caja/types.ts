@@ -15,7 +15,10 @@ export function newLineId(): string {
 }
 
 export function parseMoneyCents(value: string): number {
-  let raw = value.trim().replace(/[^\d.,-]/g, "");
+  const entered = value.trim();
+  // Currency prefix and initial minus are valid; never erase letters or internal signs.
+  if (!/^(?:-\s*\$?\s*|\$\s*-\s*|\$\s*)?[\d.,]+$/.test(entered)) return 0;
+  let raw = entered.replace(/[^\d.,-]/g, "");
   if (!raw || raw === "-" || raw === ".") return 0;
   const negative = raw.startsWith("-");
   raw = raw.replace(/-/g, "");

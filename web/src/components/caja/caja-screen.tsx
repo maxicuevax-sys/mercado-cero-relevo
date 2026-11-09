@@ -805,9 +805,10 @@ export function CajaScreen({
   // Exact cash is an explicit shortcut, never a method conversion. Preserve any
   // entered amount that could require change and every ambiguous-result lock.
   const hasValidQuantities = lines.every(line => parseQuantity(line.quantity) > 0);
+  const hasValidPrices = lines.every(line => parseMoneyCents(line.price) > 0);
 
   const canQuickCash = hydrated && !saving && !unknownResult && !legacyConflict &&
-    method === "cash" && lines.length > 0 && totalCents > 0 && hasValidQuantities &&
+    method === "cash" && lines.length > 0 && totalCents > 0 && hasValidQuantities && hasValidPrices &&
     parseMoneyCents(creditInput) === 0 &&
     (!cashInput.trim() || cashCents === totalCents);
 
@@ -827,6 +828,7 @@ export function CajaScreen({
   const canConfirm =
     lines.length > 0 &&
     hasValidQuantities &&
+    hasValidPrices &&
     totalCents > 0 &&
     !overpay &&
     !creditCoversAllWithCash &&
@@ -1121,6 +1123,12 @@ export function CajaScreen({
                 setError(QUANTITY_ERROR);
                 const invalid = lines.find(line => !parseQuantity(line.quantity));
                 document.getElementById(`line-quantity-${invalid?.id}`)?.focus();
+                return;
+              }
+              if (!hasValidPrices) {
+                setError("El precio debe ser mayor que cero y tener un formato válido.");
+                const invalid = lines.find(line => parseMoneyCents(line.price) <= 0);
+                document.getElementById(`line-price-${invalid?.id}`)?.focus();
                 return;
               }
               setView("method");
