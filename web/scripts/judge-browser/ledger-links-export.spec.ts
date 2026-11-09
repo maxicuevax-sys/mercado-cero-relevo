@@ -28,6 +28,9 @@ async function fixture(context: BrowserContext, origin: string) {
 test("native abono back and cancel reopen the same real credit instead of a customer slug", async ({ page, context, baseURL }) => {
   const id = await fixture(context, baseURL!);
   for (const selector of [".mc-abono__back", ".mc-abono__cancel"]) {
+    // Cancel is deliberately desktop-only; mobile exposes the same destination
+    // through its visible back control. Exercise each native visible control.
+    await page.setViewportSize({ width: selector.endsWith("cancel") ? 1448 : 390, height: 1086 });
     await page.goto(`/fiados/juan/abono?credito=${id}`);
     const link = page.locator(selector);
     await expect(link).toHaveAttribute("href", `/fiados/${id}`);

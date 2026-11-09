@@ -8,7 +8,7 @@
 .mc-demo-checkout__amount strong { display:block; font-size:2rem; }
 .mc-demo-checkout fieldset { border:0; padding:0; margin:24px 0; min-width:0; }
 .mc-demo-checkout__methods { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
-.mc-demo-checkout__methods label { flex:1 1 90px; display:flex; align-items:center; justify-content:center; gap:8px; min-height:48px; padding:8px; border:1px solid #8c9d8c; border-radius:12px; cursor:pointer; }
+.mc-demo-checkout__methods label { flex:1 1 max-content; min-inline-size:max-content; white-space:nowrap; display:flex; align-items:center; justify-content:center; gap:8px; min-height:48px; padding:8px; border:1px solid #8c9d8c; border-radius:12px; cursor:pointer; }
 .mc-demo-checkout button { min-height:48px; padding:12px 16px; border:1px solid #064b3c; border-radius:12px; color:#064b3c; background:#fffdf6; font:inherit; font-weight:700; cursor:pointer; }
 .mc-demo-checkout .mc-demo-checkout__pay { display:block; width:100%; background:#064b3c; color:#fffdf6; }
 .mc-demo-checkout button:disabled { opacity:.65; cursor:wait; }
