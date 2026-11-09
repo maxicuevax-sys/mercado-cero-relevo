@@ -66,10 +66,13 @@ type StoredRequest = {
   signature: string;
 };
 
+type CashReceipt = { cashReceivedCents: number; changeCents: number };
+
 type UnknownResult = {
   requestId: string;
   signature: string;
   message: string;
+  cashReceipt?: CashReceipt;
 };
 
 type ConfirmedSale = {
@@ -116,6 +119,7 @@ export function CajaScreen({
   const [creditBalanceCents, setCreditBalanceCents] = useState(0);
   const [changeCents, setChangeCents] = useState(0);
   const [cashReceivedCents, setCashReceivedCents] = useState(0);
+  const [cashReceiptUnavailable, setCashReceiptUnavailable] = useState(false);
   const [view, setView] = useState<View>("compose");
   const [restoredNotice, setRestoredNotice] = useState(false);
   const [legacyNotice, setLegacyNotice] = useState<string | null>(null);
@@ -295,6 +299,7 @@ export function CajaScreen({
     setCreditBalanceCents(0);
     setChangeCents(0);
     setCashReceivedCents(0);
+    setCashReceiptUnavailable(false);
     setView("compose");
     requestRef.current = null;
     try {
@@ -496,6 +501,7 @@ export function CajaScreen({
         const unknown: UnknownResult = {
           requestId,
           signature,
+          cashReceipt: { cashReceivedCents: receivedCashCents, changeCents: exactCash ? 0 : changeForSale },
           message:
             "La conexión falló después de enviar la venta. El servidor pudo haberla registrado.",
         };
@@ -511,6 +517,7 @@ export function CajaScreen({
         const unknown: UnknownResult = {
           requestId,
           signature,
+          cashReceipt: { cashReceivedCents: receivedCashCents, changeCents: exactCash ? 0 : changeForSale },
           message: `El servidor respondió ${response.status} después de recibir la venta. El resultado es desconocido.`,
         };
         setUnknownResult(unknown);
@@ -565,6 +572,7 @@ export function CajaScreen({
       setCreditBalanceCents(creditBalance);
       setChangeCents(exactCash ? 0 : changeForSale);
       setCashReceivedCents(receivedCashCents);
+      setCashReceiptUnavailable(false);
       setView(due > 0 ? "payment" : "result");
       try {
         if (due > 0) {
@@ -655,6 +663,7 @@ export function CajaScreen({
     setCreditBalanceCents(entry.creditBalanceCents);
     setChangeCents(0);
     setCashReceivedCents(0);
+    setCashReceiptUnavailable(false);
     setUnknownResult(null);
     setReconcileMessage(null);
     setView(due > 0 ? "payment" : "result");
@@ -762,8 +771,10 @@ export function CajaScreen({
       setReconcileMessage(null);
       setOrder(recovered);
       setCreditBalanceCents(balance);
-      setChangeCents(0);
-      setCashReceivedCents(0);
+      const cashReceipt = recoveredCashReceipt(unknownResult, recovered);
+      setChangeCents(cashReceipt?.changeCents ?? 0);
+      setCashReceivedCents(cashReceipt?.cashReceivedCents ?? 0);
+      setCashReceiptUnavailable(!cashReceipt && recovered.paidCents - recovered.digitalPaidCents > 0);
       setView(due > 0 ? "payment" : "result");
       setLines([]);
       setDraftInstanceId(newInstanceId());
@@ -1161,6 +1172,7 @@ export function CajaScreen({
           order={order}
           changeCents={changeCents}
           cashReceivedCents={cashReceivedCents}
+          cashReceiptUnavailable={cashReceiptUnavailable}
           creditBalanceCents={creditBalanceCents}
           demo={demo}
           onNewSale={resetSale}
@@ -1444,7 +1456,34 @@ function readStoredUnknown(): UnknownResult | null {
       requestId: parsed.requestId,
       signature: parsed.signature,
       message: parsed.message,
+      cashReceipt: validCashReceipt(parsed.cashReceipt) ? parsed.cashReceipt : undefined,
     };
+  } catch {
+    return null;
+  }
+}
+
+function validCashReceipt(value: unknown): value is CashReceipt {
+  if (!value || typeof value !== "object") return false;
+  const receipt = value as CashReceipt;
+  return Number.isSafeInteger(receipt.cashReceivedCents) && Number.isSafeInteger(receipt.changeCents) &&
+    receipt.cashReceivedCents >= 0 && receipt.changeCents >= 0 && receipt.changeCents <= receipt.cashReceivedCents;
+}
+
+/** Local tender is advisory receipt data, never a source of ledger/payment truth. */
+function recoveredCashReceipt(unknown: UnknownResult, order: Order): CashReceipt | null {
+  const receipt = unknown.cashReceipt;
+  if (!validCashReceipt(receipt)) return null;
+  try {
+    const payload = JSON.parse(unknown.signature) as ReturnType<typeof buildSalePayload>["payload"];
+    const cashApplied = order.paidCents - order.digitalPaidCents;
+    if (!Number.isSafeInteger(cashApplied) || cashApplied < 0 ||
+        payload.cashCents !== cashApplied || payload.creditCents !== order.creditCents ||
+        receipt.cashReceivedCents - receipt.changeCents !== cashApplied ||
+        !Array.isArray(payload.items) || payload.items.length !== order.items.length ||
+        payload.items.some((item, index) => item.description !== order.items[index].description ||
+          item.quantity !== order.items[index].quantity || item.unitPriceCents !== order.items[index].unitPriceCents)) return null;
+    return { cashReceivedCents: receipt.cashReceivedCents, changeCents: receipt.changeCents };
   } catch {
     return null;
   }
