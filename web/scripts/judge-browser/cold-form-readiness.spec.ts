@@ -28,6 +28,8 @@ for (const { route, field, value } of forms) {
     });
     try {
       await page.goto(route, { waitUntil: "commit" });
+      // Details is native HTML and can open before React. Its inputs must wait.
+      if (route === "/caja") await page.locator("#mc-caja-manual summary").click();
       const inputs = page.locator(field);
       await expect(inputs.first()).toBeVisible();
       for (const input of await inputs.all()) await expect(input).toBeDisabled();

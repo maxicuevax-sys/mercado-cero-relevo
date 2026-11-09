@@ -95,6 +95,7 @@ export function SaleLineItems({
             <span>Producto o servicio</span>
             <input
               id="mc-caja-new-description"
+              disabled={disabled}
               value={description}
               onChange={(event) => {
                 setDescription(event.target.value);
@@ -110,6 +111,7 @@ export function SaleLineItems({
             <span>Cantidad</span>
             <input
               value={quantity}
+              disabled={disabled}
               onChange={(event) => {
                 setQuantity(event.target.value);
                 setAddError(null);
@@ -121,6 +123,7 @@ export function SaleLineItems({
             <span>Precio unitario</span>
             <input
               value={price}
+              disabled={disabled}
               onChange={(event) => {
                 setPrice(event.target.value);
                 setAddError(null);
