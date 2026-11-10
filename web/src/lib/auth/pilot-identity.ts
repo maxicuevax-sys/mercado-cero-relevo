@@ -4,6 +4,14 @@ import path from "node:path";
 import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { getMigrations } from "better-auth/db/migration";
 
+/** Guests are ephemeral: they never consume the pilot registration cap. */
+const GUEST_EMAIL_SUFFIX = "@demo.trangui.local";
+
+function pilotAccountLimit(): number {
+  const raw = Number(process.env.JUDGE_MAX_ACCOUNTS ?? 100);
+  return Number.isInteger(raw) && raw > 0 && raw <= 100_000 ? raw : 100;
+}
+
 export interface PilotIdentityOptions {
   directory: string;
   baseURL: string;
@@ -85,10 +93,15 @@ export async function createPilotIdentity(options: PilotIdentityOptions) {
     await migrations.runMigrations();
     // Enforced at the write boundary, not a count-before-signup check:
     // simultaneous registrations cannot both claim the final pilot slot.
+    // Guests are excluded: they are ephemeral and must keep working when the
+    // pilot's own registration cap is full.
     database.exec(`
-      CREATE TRIGGER IF NOT EXISTS pilot_max_100_accounts
+      DROP TRIGGER IF EXISTS pilot_max_100_accounts;
+      CREATE TRIGGER pilot_max_100_accounts
       BEFORE INSERT ON user
-      WHEN (SELECT COUNT(*) FROM user) >= 100
+      WHEN lower(NEW.email) NOT LIKE '%${GUEST_EMAIL_SUFFIX}'
+        AND (SELECT COUNT(*) FROM user
+             WHERE lower(email) NOT LIKE '%${GUEST_EMAIL_SUFFIX}') >= ${pilotAccountLimit()}
       BEGIN
         SELECT RAISE(ABORT, 'pilot_account_limit');
       END;
