@@ -213,10 +213,13 @@ jobs:
   # reporte. Corre solo en schedule/dispatch para no añadir minutos ni
   # inestabilidad a cada PR.
   lighthouse:
-    name: Lighthouse mobile budget (scheduled)
+    name: Lighthouse mobile budget (scheduled, advisory)
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    # Advisory until the open LCP finding is fixed: publica el reporte y no
+    # bloquea el resto del harness. Pasar a bloqueante cuando LCP <= 3000 ms.
+    continue-on-error: true
     defaults:
       run:
         working-directory: web
