@@ -4,6 +4,13 @@ import { getJudgeRuntime } from "./pilot-runtime";
 import { validateRegistration } from "./register-validation";
 import { bodyErrorResponse, isSameOriginMutation, readJsonLimited } from "../http-security";
 
+const GUEST_EMAIL_SUFFIX = "@demo.trangui.local";
+
+function pilotAccountLimit(): number {
+  const raw = Number(process.env.JUDGE_MAX_ACCOUNTS ?? 100);
+  return Number.isInteger(raw) && raw > 0 && raw <= 100_000 ? raw : 100;
+}
+
 const privateHeaders = { "Cache-Control": "private, no-store", Vary: "Cookie" };
 function failure(error: string, code: string, status: number) { return Response.json({ error, code }, { status, headers: privateHeaders }); }
 
@@ -28,7 +35,16 @@ export async function handleJudgeAccess(request: Request, action: "sign-in" | "s
   }
   try {
     const { identity } = await getJudgeRuntime();
-    const full = () => Number((identity.database.prepare("SELECT count(*) AS n FROM user").get() as { n: number }).n) >= 100;
+    const full = () =>
+      Number(
+        (
+          identity.database
+            .prepare(
+              "SELECT count(*) AS n FROM user WHERE lower(email) NOT LIKE ?",
+            )
+            .get(`%${GUEST_EMAIL_SUFFIX}`) as { n: number }
+        ).n,
+      ) >= pilotAccountLimit();
     if (action === "sign-up" && full()) return failure("El piloto ya alcanzó su cupo de cuentas de prueba.", "pilot_full", 503);
     const endpoint = action === "sign-out" ? "sign-out" : `${action}/email`;
     const origin = new URL(process.env.APP_URL!).origin;
