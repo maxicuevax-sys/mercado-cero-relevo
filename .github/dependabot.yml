@@ -1,0 +1,66 @@
+version: 2
+
+# Actualizaciones programadas y agrupadas. Las actualizaciones de seguridad ya
+# están activas y no dependen de este archivo.
+updates:
+  # Dependencias de la aplicación Next.js.
+  - package-ecosystem: npm
+    directory: /web
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Mexico_City
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    groups:
+      npm-minor-patch:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: "build(deps)"
+      include: scope
+
+  # Actions fijadas por SHA: el grupo propone el SHA nuevo con su versión.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:15"
+      timezone: America/Mexico_City
+    open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "ci(deps)"
+
+  # Imagen base del Dockerfile de producción.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:30"
+      timezone: America/Mexico_City
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "build(deps)"
+
+  # Dependencias Python de los scripts de QA (QR y evidencia).
+  - package-ecosystem: pip
+    directory: /web/scripts
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:45"
+      timezone: America/Mexico_City
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "build(deps)"

@@ -208,3 +208,62 @@ jobs:
 
       - name: Tabla de la evidencia
         run: npm run harness:report
+
+  # Advisory nocturno: mide el presupuesto móvil del build real y publica el
+  # reporte. Corre solo en schedule/dispatch para no añadir minutos ni
+  # inestabilidad a cada PR.
+  lighthouse:
+    name: Lighthouse mobile budget (scheduled)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Start production server on 3154
+        run: |
+          nohup npm start -- -p 3154 > /tmp/trangui-lighthouse-server.log 2>&1 &
+          for attempt in $(seq 1 60); do
+            if curl -fsS --max-time 3 http://127.0.0.1:3154/api/health > /dev/null; then
+              echo "server ready after ${attempt} attempts"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "server did not become ready; log follows"
+          cat /tmp/trangui-lighthouse-server.log
+          exit 1
+
+      - name: Lighthouse mobile with assertions
+        env:
+          BASE_URL: http://127.0.0.1:3154
+          LH_OUT: ${{ github.workspace }}/lighthouse-mobile.json
+        run: npm run lighthouse:mobile -- --assert
+
+      - name: Upload Lighthouse report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lighthouse-mobile-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ github.workspace }}/lighthouse-mobile.json
+          if-no-files-found: warn
+          retention-days: 14
