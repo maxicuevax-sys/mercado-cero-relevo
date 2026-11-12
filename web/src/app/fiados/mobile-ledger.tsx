@@ -25,7 +25,17 @@ const navigation = [
   { href: "/ventas", label: "Ventas", icon: "ventas" },
   { href: "/fiados", label: "Fiados", icon: "saldos" },
   { href: "/caja", label: "Caja", icon: "caja" },
-  { href: "/metas", label: "Metas", icon: "metas" },
+] as const;
+
+// Las mismas salidas que ofrece la barra compartida ("Más"): con la barra
+// propia de Fiados antes quedaban fuera de alcance en móvil.
+const moreNavigation = [
+  { href: "/movimientos", label: "Movimientos" },
+  { href: "/caja", label: "Cobrar" },
+  { href: "/metas", label: "Metas" },
+  { href: "/pendientes", label: "Pendientes" },
+  { href: "/ajustes", label: "Ajustes" },
+  { href: "/ayuda", label: "Ayuda" },
 ] as const;
 
 function LedgerIcon({ name }: { name: (typeof navigation)[number]["icon"] | "historial" }) {
@@ -79,7 +89,10 @@ export function MobileLedger({
 }) {
   // Eligibility comes from the complete tenant ledger, before search or pagination.
   const showSample = demo && sampleEligible && !practice && !history;
-  const totalCents = showSample ? 112500 : balance;
+  // La lámina de muestra debe cuadrar con sus propios saldos.
+  const totalCents = showSample
+    ? sample.reduce((sum, item) => sum + item.cents, 0)
+    : balance;
   const examples = showSample ? sample.filter(({ name }) => matchesQuery(name)) : [];
   const empty = showSample ? examples.length === 0 : credits.length === 0;
   return (
@@ -195,6 +208,17 @@ export function MobileLedger({
             <LedgerIcon name={icon} /><span>{label}</span>
           </Link>
         ))}
+        <details className="mc-fiados-mobile__more">
+          <summary>
+            <span aria-hidden="true" className="mc-fiados-mobile__more-glyph">···</span>
+            <span>Más</span>
+          </summary>
+          <div className="mc-fiados-mobile__more-panel">
+            {moreNavigation.map(({ href, label }) => (
+              <Link key={href} href={href} prefetch={false}>{label}</Link>
+            ))}
+          </div>
+        </details>
       </nav>
     </div>
   );
