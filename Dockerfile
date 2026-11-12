@@ -16,7 +16,7 @@ RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
     BUILD_SHA="$BUILD_SHA" npm run build
 RUN mkdir -p /runtime/data/backups /runtime/app-data /runtime/next-cache
 
-FROM gcr.io/distroless/nodejs24-debian13:nonroot@sha256:088a01637f22908632ba09018be2e0b516f2fa6f7869c191d29491139db43c78 AS runner
+FROM gcr.io/distroless/nodejs24-debian13:nonroot@sha256:9fc11f6ee65993285c0fe3c4c9bbc4fd275fd4470572f58834ce490df91056e3 AS runner
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0 \
     DEMO_MODE=true DATABASE_PATH=/data/mercado-cero.db DATABASE_BACKUP_DIR=/data/backups \
