@@ -19,6 +19,9 @@ Estado, migración y rollback actual: [CONTROL-PLANE.md](CONTROL-PLANE.md).
 - Uptime Kuma 2.5.9 en `127.0.0.1:4591`, volumen propio, sin socket de contenedores.
   Monitores de SHA de aplicación, túnel, redirección anónima Access y respaldo
   reciente. No hay notificaciones externas configuradas.
+- Watchdog de producción cada 2 minutos (`mercado-cero-watchdog.timer`): comprueba
+  contenedor, health local, health público, STT y espacio en disco. Reinicia el
+  contenedor o el STT solo tras dos fallos consecutivos; el resto solo alerta.
 
 Los servicios nuevos tienen límites de CPU y memoria. No se modifican puertos
 80/443, servicios de otros proyectos ni el inventario de navegación. Docker añade
@@ -53,6 +56,30 @@ powershell -NoProfile -File "$env:USERPROFILE\Documents\MercadoCero-Backups\back
 por stdin, crea solo monitores inexistentes y no imprime contraseña ni sesión.
 No es una API pública estable: revisar contra el código de Kuma al actualizar.
 Si cambia la imagen de aplicación, actualizar el SHA esperado de su monitor.
+
+## Watchdog de producción
+
+`mercado-cero-watchdog.py` se instala en `/usr/local/sbin/mercado-cero-watchdog`
+junto con `.service` y `.timer`. Cada corrida verifica:
+
+- estado y health del contenedor `trangui-public-emoji`;
+- `/api/health` local comparando `buildSha` contra `deployment.json`;
+- `/api/health` público por HTTPS;
+- `/health` del STT local en `172.30.0.1:4097`;
+- espacio libre en disco (alerta bajo 3 GB).
+
+Dos fallos consecutivos del contenedor disparan `docker restart` únicamente de
+ese contenedor. Dos fallos del STT disparan `systemctl restart
+trangui-local-stt.service`. Nunca toca otros contenedores, volúmenes ni puertos.
+Estado en `/var/lib/mercado-cero-watchdog/state.json`; bitácora acotada en
+`/var/log/mercado-cero-watchdog.log` (rota a 5 MB).
+
+```bash
+install -m 0755 mercado-cero-watchdog.py /usr/local/sbin/mercado-cero-watchdog
+install -m 0644 mercado-cero-watchdog.service mercado-cero-watchdog.timer /etc/systemd/system/
+systemctl daemon-reload && systemctl enable --now mercado-cero-watchdog.timer
+systemctl start mercado-cero-watchdog.service   # verificación inmediata
+```
 
 ## Rollback
 

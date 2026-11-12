@@ -1,0 +1,12 @@
+[Unit]
+Description=Mercado Cero watchdog (Trangui production)
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/mercado-cero-watchdog
+Nice=5
+CPUQuota=10%
+MemoryMax=128M
+TimeoutStartSec=300
