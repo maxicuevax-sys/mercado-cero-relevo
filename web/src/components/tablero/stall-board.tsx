@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
 import { formatMxn } from "@/lib/format";
 import { presentTimeline, type PulsoEvent } from "@/lib/pulso-timeline";
-import { boardWord, hasRealCodiQr, pickCodiTicket } from "@/lib/stall-board";
+import { boardWord, hasRealCodiQr, pickRoomTicket } from "@/lib/stall-board";
 import type { Order } from "@/lib/types";
 import "./stall-board.css";
 
-const POLL_MS = 3000;
+const POLL_MS = 1000;
+const ROOM_SIDE_TICKETS = 2;
 
 export interface BoardProduct {
   id: string;
@@ -58,8 +59,21 @@ export function StallBoard({
   const [phraseBusy, setPhraseBusy] = useState(false);
   const [phraseNote, setPhraseNote] = useState<string | null>(null);
   const refreshRef = useRef<() => Promise<void>>(async () => {});
-  const featured = pickCodiTicket(orders);
+  const [seenProducing, setSeenProducing] = useState(initialProducing);
+  const [arrivedIds, setArrivedIds] = useState<string[]>([]);
+  const freshProducing = producing.filter((id) => !seenProducing.includes(id));
+  if (freshProducing.length > 0) {
+    setSeenProducing(producing);
+    setArrivedIds((current) => [...current, ...freshProducing]);
+  }
+  const waiting = pickRoomTicket(orders);
+  const [focusId, setFocusId] = useState<string | null>(null);
+  const held = orders.find((order) => order.id === focusId) ?? null;
+  const featured = held && producing.includes(held.id) ? held : (waiting ?? held);
+  if (featured && focusId !== featured.id) setFocusId(featured.id);
   const rest = orders.filter((order) => order.id !== featured?.id);
+  const side = rest.slice(0, ROOM_SIDE_TICKETS);
+  const hiddenCount = rest.length - side.length;
 
   useEffect(() => {
     let active = true;
@@ -151,6 +165,7 @@ export function StallBoard({
             demo={demo}
             now={now}
             producing={producing.includes(featured.id)}
+            arrive={arrivedIds.includes(featured.id)}
             events={events.filter((event) => event.orderId === featured.id)}
           />
         ) : (
@@ -163,11 +178,20 @@ export function StallBoard({
           </article>
         )}
         <ul className="mc-board__rest">
-          {rest.map((order) => (
+          {side.map((order) => (
             <li key={order.id}>
-              <TicketCard order={order} demo={demo} now={now} producing={producing.includes(order.id)} />
+              <TicketCard
+                order={order}
+                demo={demo}
+                now={now}
+                producing={producing.includes(order.id)}
+                arrive={arrivedIds.includes(order.id)}
+              />
             </li>
           ))}
+          {hiddenCount > 0 ? (
+            <li className="mc-board__more">y {hiddenCount} {hiddenCount === 1 ? "ticket" : "tickets"} más</li>
+          ) : null}
         </ul>
       </div>
       <section className="mc-board__stock" aria-label="Existencias del puesto">
@@ -195,12 +219,14 @@ function FeaturedTicket({
   demo,
   now,
   producing,
+  arrive,
   events,
 }: {
   order: Order;
   demo: boolean;
   now: number | null;
   producing: boolean;
+  arrive: boolean;
   events: BoardEvent[];
 }) {
   const word = boardWord(order, now, { simulation: demo, producing });
@@ -211,7 +237,7 @@ function FeaturedTicket({
   });
   return (
     <article
-      className="mc-board__card mc-board__card--feature"
+      className={`mc-board__card mc-board__card--feature${arrive ? " mc-board__card--arrive" : ""}`}
       data-word={word.face}
       aria-labelledby={`mc-board-${order.id}-word`}
     >
@@ -260,15 +286,17 @@ function TicketCard({
   demo,
   now,
   producing,
+  arrive,
 }: {
   order: Order;
   demo: boolean;
   now: number | null;
   producing: boolean;
+  arrive: boolean;
 }) {
   const word = boardWord(order, now, { simulation: demo, producing });
   return (
-    <article className="mc-board__card" data-word={word.face} aria-label={`${folio(order.id)} ${word.word}`}>
+    <article className={`mc-board__card${arrive ? " mc-board__card--arrive" : ""}`} data-word={word.face} aria-label={`${folio(order.id)} ${word.word}`}>
       <p className="mc-board__kicker">{folio(order.id)}</p>
       <p className="mc-board__word mc-board__word--side">{word.word}</p>
       <p className="mc-board__amount mc-board__amount--side">{formatMxn(order.totalCents)}</p>

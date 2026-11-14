@@ -75,6 +75,18 @@ function codiInactive(ticket: BoardTicketRef): boolean {
   );
 }
 
+/** La tarjeta que mira el salón: primero la que espera cobro, no la rechazada. */
+export function pickRoomTicket<T extends BoardTicketRef>(tickets: T[]): T | null {
+  const open = tickets.filter((ticket) => OPEN.has(ticket.status));
+  const withQr = open.find((ticket) => hasRealCodiQr(ticket));
+  if (withQr) return withQr;
+  const waiting = open.find(
+    (ticket) => ticket.creditCents <= 0 && ticket.paymentMethod !== "codi" && ticket.paymentMethod !== "cash",
+  );
+  if (waiting) return waiting;
+  return open.find((ticket) => codiInactive(ticket)) ?? null;
+}
+
 export function pickCodiTicket<T extends BoardTicketRef>(tickets: T[]): T | null {
   const open = tickets.filter((ticket) => OPEN.has(ticket.status));
   return (

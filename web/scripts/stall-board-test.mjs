@@ -43,6 +43,15 @@ test("el día del mostrador es America/Mexico_City", () => {
   assert.equal(bounds.endIso, "2026-11-15T06:00:00.000Z");
 });
 
+test("el salón mira el pedido por cobrar, no el CoDi rechazado", () => {
+  const rejected = ticket({ id: "codi", status: "confirmed", paymentMethod: "codi" });
+  const waiting = ticket({ id: "frase", status: "confirmed", paymentMethod: null });
+  assert.equal(board.pickRoomTicket([rejected, waiting])?.id, "frase");
+  assert.equal(board.pickRoomTicket([rejected])?.id, "codi");
+  const withQr = ticket({ id: "qr", qrId: "AB12CD34EF", qrString: "{\"TYP\":1}" });
+  assert.equal(board.pickRoomTicket([waiting, withQr])?.id, "qr");
+});
+
 test("el ticket CoDi es el que tiene QR real, no el fiado", () => {
   const fiado = ticket({ id: "fiado", status: "confirmed", paymentMethod: null, creditCents: 2000 });
   const codi = ticket({ id: "codi", qrId: "AB12CD34EF", qrString: "{\"TYP\":1}" });
