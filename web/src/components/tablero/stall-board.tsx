@@ -69,6 +69,8 @@ export function StallBoard({
   const refreshRef = useRef<() => Promise<void>>(async () => {});
   const producingRef = useRef(initialProducing);
   const [arrivedIds, setArrivedIds] = useState<string[]>([]);
+  const [chargeBusy, setChargeBusy] = useState<string | null>(null);
+  const [chargeNote, setChargeNote] = useState<string | null>(null);
   const featured = pickRoomTicket(orders, producing);
   const rest = orders.filter((order) => order.id !== featured?.id);
   const side = rest.slice(0, ROOM_SIDE_TICKETS);
@@ -142,6 +144,30 @@ export function StallBoard({
     }
   }
 
+  async function requestCharge(orderId: string) {
+    if (chargeBusy) return;
+    setChargeBusy(orderId);
+    setChargeNote(null);
+    try {
+      const response = await fetch(`/api/orders/${orderId}/pay`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "qr" }),
+      });
+      const data = (await response.json()) as { order?: Order; error?: string };
+      if (!response.ok || !data.order) {
+        setChargeNote(data.error ?? "No pude pedir el QR a pey.");
+        return;
+      }
+      setChargeNote(`QR listo por ${formatMxn(data.order.totalCents)}. Escanea y paga.`);
+      await refreshRef.current();
+    } catch {
+      setChargeNote("No pude pedir el QR. Revisa la conexión.");
+    } finally {
+      setChargeBusy(null);
+    }
+  }
+
   return (
     <div className="mc-board">
       <form
@@ -179,6 +205,8 @@ export function StallBoard({
             producing={producing.includes(featured.id)}
             arrive={arrivedIds.includes(featured.id)}
             events={events.filter((event) => event.orderId === featured.id)}
+            onCharge={() => void requestCharge(featured.id)}
+            chargeBusy={chargeBusy === featured.id}
           />
         ) : (
           <article className="mc-board__card mc-board__card--feature" data-word="rejected" aria-labelledby="mc-board-empty-codi">
@@ -217,6 +245,7 @@ export function StallBoard({
           ))}
         </ul>
       </section>
+      {chargeNote ? <p className="mc-board__charge-note" role="status">{chargeNote}</p> : null}
       {orders.length === 0 ? (
         <p className="mc-board__empty" role="status">
           Hoy todavía no hay tickets. Las ventas de Caja aparecen aquí.
@@ -233,6 +262,8 @@ function FeaturedTicket({
   producing,
   arrive,
   events,
+  onCharge,
+  chargeBusy,
 }: {
   order: Order;
   demo: boolean;
@@ -240,6 +271,8 @@ function FeaturedTicket({
   producing: boolean;
   arrive: boolean;
   events: BoardEvent[];
+  onCharge: () => void;
+  chargeBusy: boolean;
 }) {
   const word = boardWord(order, now, { simulation: demo, producing });
   const realQr = hasRealCodiQr(order);
@@ -260,6 +293,11 @@ function FeaturedTicket({
       <p className="mc-board__amount">{formatMxn(order.totalCents)}</p>
       <p className="mc-board__items">{itemLine(order)}</p>
       <p className="mc-board__detail">{word.detail}</p>
+      {!realQr && !producing && word.face === "waiting" ? (
+        <button type="button" className="mc-board__charge" onClick={onCharge} disabled={chargeBusy}>
+          {chargeBusy ? "Pidiendo QR…" : "Cobrar con CoDi"}
+        </button>
+      ) : null}
       {realQr && order.qrImage && word.face !== "producing" ? (
         // El PNG lo genera el servidor a partir del qrString de pey.
         // eslint-disable-next-line @next/next/no-img-element
