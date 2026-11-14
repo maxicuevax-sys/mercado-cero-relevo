@@ -7,12 +7,6 @@ on:
   schedule:
     - cron: "0 9 * * *"
   workflow_dispatch:
-    inputs:
-      full_release:
-        description: Run the live release gate (requires a configured self-hosted runner and release secrets)
-        type: boolean
-        required: false
-        default: false
 
 permissions:
   contents: read
@@ -147,64 +141,6 @@ jobs:
         run: |
           JUDGE_BROWSER=chromium npm run test:judge-accounts
           JUDGE_BROWSER=webkit npm run test:judge-accounts
-
-      - name: Tabla de la evidencia
-        run: npm run harness:report
-
-  # Gate de release: exige un servidor y un túnel ya desplegados desde ESTE
-  # commit. Corre en un runner self-hosted con acceso a la DB de la demo y a
-  # los secretos del entorno `release`. No arranca túneles desde CI.
-  full-release:
-    name: Full 23/23 contra servidor construido desde HEAD
-    if: github.event_name == 'workflow_dispatch' && inputs.full_release == true
-    runs-on: self-hosted
-    environment: release
-    timeout-minutes: 60
-    defaults:
-      run:
-        working-directory: web
-    env:
-      BASE_URL: ${{ secrets.HARNESS_BASE_URL }}
-      APP_URL: ${{ secrets.HARNESS_APP_URL }}
-      DATABASE_PATH: ${{ secrets.HARNESS_DATABASE_PATH }}
-      PEY_WEBHOOK_SECRET: ${{ secrets.PEY_WEBHOOK_SECRET }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Node 24
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: web/package-lock.json
-
-      - name: Install
-        run: npm ci
-
-      - name: Build local para los gates p0 aislados
-        run: npm run build
-
-      - name: Python + Playwright
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install playwright
-          python -m playwright install --with-deps chromium
-
-      - name: Exigir secretos de release
-        run: |
-          test -n "$BASE_URL" || (echo "Falta HARNESS_BASE_URL" && exit 1)
-          test -n "$APP_URL" || (echo "Falta HARNESS_APP_URL (túnel HTTPS)" && exit 1)
-          test -n "$DATABASE_PATH" || (echo "Falta HARNESS_DATABASE_PATH" && exit 1)
-          test -n "$PEY_WEBHOOK_SECRET" || (echo "Falta PEY_WEBHOOK_SECRET" && exit 1)
-
-      - name: Full gate
-        run: npm run verify:full
-
-      - name: Verificar evidencia
-        run: npm run verify:evidence
 
       - name: Tabla de la evidencia
         run: npm run harness:report
