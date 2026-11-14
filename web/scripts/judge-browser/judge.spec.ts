@@ -233,7 +233,7 @@ test("unauthenticated pages, forged tenant headers and invalid session cookies f
   for (const route of ["/api/orders", "/api/orders/ajeno", "/api/credits", "/api/dashboard", "/api/tasks", "/api/cash", "/api/goals", "/api/analytics", "/api/pey/status", "/api/reconcile", "/api/tablero"]) {
     expect((await context.request.get(route, { headers: { "X-Account-Id": "judge-a", "X-Tenant-Id": "judge-a" } })).status(), route).toBe(401);
   }
-  for (const route of ["/api/orders", "/api/tasks", "/api/goals", "/api/cash/close", "/api/cash/preview", "/api/demo/pay", "/api/demo/reset", "/api/tts", "/api/voice/parse", "/api/voice/transcribe", "/api/orders/ajeno/pay", "/api/orders/ajeno/sync-pey", "/api/credits/ajeno/pay", "/api/credits/ajeno/pay-link", "/api/goals/ajeno/contribute"]) {
+  for (const route of ["/api/orders", "/api/tasks", "/api/goals", "/api/cash/close", "/api/cash/preview", "/api/demo/pay", "/api/demo/reset", "/api/tts", "/api/voice/parse", "/api/voice/transcribe", "/api/orders/ajeno/pay", "/api/orders/ajeno/sync-pey", "/api/credits/ajeno/pay", "/api/credits/ajeno/pay-link", "/api/goals/ajeno/contribute", "/api/tablero/frase"]) {
     expect((await context.request.post(route, { data: {}, headers: { "X-Account-Id": "judge-a", "X-Tenant-Id": "judge-a" } })).status(), route).toBe(401);
   }
   for (const [method, route] of [["PATCH", "/api/orders/ajeno"], ["PATCH", "/api/tasks/ajeno"], ["DELETE", "/api/tasks/ajeno"]]) {

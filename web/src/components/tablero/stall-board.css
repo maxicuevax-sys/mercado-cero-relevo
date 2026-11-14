@@ -15,6 +15,58 @@
   text-decoration: none;
 }
 
+.mc-board__phrase {
+  display: grid;
+  gap: 8px;
+}
+
+.mc-board__phrase label {
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.mc-board__phrase div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mc-board__phrase input {
+  flex: 1 1 16rem;
+  min-height: 48px;
+  min-width: 0;
+  padding: 0 14px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 1.15rem;
+}
+
+.mc-board__phrase button {
+  min-height: 48px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mc-board__phrase button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.mc-board__phrase p {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
 .mc-board__day {
   margin: 0;
   color: var(--color-ink-2);

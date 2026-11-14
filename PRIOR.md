@@ -23,6 +23,8 @@ No hay una app nueva ni otro webhook. Pulso vive en el mostrador de Trangui, rut
 
 Un puesto (`lupita`) y tres productos con existencia: Agua, Quesadilla y Taco. La tarjeta CoDi no pide un cobro desde el mostrador.
 
+Una frase corta, por ejemplo «una quesadilla y un agua», solo se interpreta como conceptos del puesto. El pedido queda **POR COBRAR**. Esa lectura no marca `paid`, no baja inventario y no abre la comanda.
+
 - Sin QR real, la tarjeta dice **RECHAZADO** / CoDi no activo. No es un depósito ni un pedido en producción.
 - Con QR real y sin webhook, se queda en **POR COBRAR**.
 - Cuando el webhook firmado verifica el pago, esa misma tarjeta pasa a **PRODUCIENDO**: aparece la comanda, el inventario de los productos de ese pedido baja una vez, y la línea de tiempo muestra `order.created` → `payment.requested` → `pey.webhook.verified` → `payment.received` → `fulfillment.started`.

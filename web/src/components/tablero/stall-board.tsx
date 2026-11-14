@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
 import { formatMxn } from "@/lib/format";
 import { presentTimeline, type PulsoEvent } from "@/lib/pulso-timeline";
 import { boardWord, hasRealCodiQr, pickCodiTicket } from "@/lib/stall-board";
@@ -54,6 +54,10 @@ export function StallBoard({
   const [products, setProducts] = useState(initialProducts);
   const [events, setEvents] = useState(initialEvents);
   const [producing, setProducing] = useState(initialProducing);
+  const [phrase, setPhrase] = useState("una quesadilla y un agua");
+  const [phraseBusy, setPhraseBusy] = useState(false);
+  const [phraseNote, setPhraseNote] = useState<string | null>(null);
+  const refreshRef = useRef<() => Promise<void>>(async () => {});
   const featured = pickCodiTicket(orders);
   const rest = orders.filter((order) => order.id !== featured?.id);
 
@@ -79,6 +83,7 @@ export function StallBoard({
         // El tablero conserva la última lectura.
       }
     }
+    refreshRef.current = pull;
     const id = window.setInterval(() => void pull(), POLL_MS);
     window.addEventListener("focus", pull);
     document.addEventListener("visibilitychange", pull);
@@ -90,8 +95,51 @@ export function StallBoard({
     };
   }, []);
 
+  async function submitPhrase(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const text = phrase.trim();
+    if (!text || phraseBusy) return;
+    setPhraseBusy(true);
+    setPhraseNote(null);
+    try {
+      const response = await fetch("/api/tablero/frase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phrase: text, requestId: crypto.randomUUID() }),
+      });
+      const data = (await response.json()) as { order?: Order; error?: string };
+      if (!response.ok || !data.order) {
+        setPhraseNote(data.error ?? "No pude anotar el pedido.");
+        return;
+      }
+      const line = data.order.items.map((item) => `${item.quantity} ${item.description}`).join(" y ");
+      setPhraseNote(`Anoté ${line}. Sigue por cobrar.`);
+      await refreshRef.current();
+    } catch {
+      setPhraseNote("No pude anotar el pedido. Revisa la conexión.");
+    } finally {
+      setPhraseBusy(false);
+    }
+  }
+
   return (
     <div className="mc-board">
+      <form className="mc-board__phrase" onSubmit={(event) => void submitPhrase(event)}>
+        <label htmlFor="mc-board-phrase">Pedido en una frase</label>
+        <div>
+          <input
+            id="mc-board-phrase"
+            value={phrase}
+            maxLength={200}
+            autoComplete="off"
+            onChange={(event) => setPhrase(event.target.value)}
+          />
+          <button type="submit" disabled={phraseBusy || phrase.trim().length === 0}>
+            {phraseBusy ? "Anotando…" : "Anotar"}
+          </button>
+        </div>
+        {phraseNote ? <p role="status">{phraseNote}</p> : null}
+      </form>
       <p className="mc-board__day">
         {formatDay(dayLabel)}
         {demo ? " · simulación" : ""}
