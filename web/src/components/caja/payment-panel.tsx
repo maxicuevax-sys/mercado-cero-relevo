@@ -6,6 +6,7 @@ import QRCode from "qrcode";
 import { Check, Copy, QrCode, ScanLine, Share2 } from "lucide-react";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { formatMxn } from "@/lib/format";
+import { chargeFace } from "@/lib/charge-face";
 import { saleMoney } from "@/lib/sale-truth";
 import type { Order } from "@/lib/types";
 import { TianguisQr } from "@/components/ui/tianguis-qr";
@@ -75,6 +76,8 @@ export function PaymentPanel({
 }) {
   const [busy, setBusy] = useState<"link" | "qr" | "codi_push" | "refresh" | "demo" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [rejectionOrderId, setRejectionOrderId] = useState<string | null>(null);
+  const chargeRejected = rejectionOrderId === order.id;
   const [scanNotice, setScanNotice] = useState(false);
   const [copied, setCopied] = useState(false);
   const [codiPhone, setCodiPhone] = useState("");
@@ -86,6 +89,15 @@ export function PaymentPanel({
   const activeSyncNotice = syncNotice?.orderId === order.id ? syncNotice.text : null;
   const remainingSeconds = useQrRemainingSeconds(order.qrExpiresAt);
   const qrExpired = remainingSeconds !== null && remainingSeconds <= 0;
+  const openFace = chargeFace({
+    status: order.status,
+    qrExpiresAt: order.qrExpiresAt,
+    simulation: demo,
+    rejected: chargeRejected,
+    now: remainingSeconds === null ? null : Date.now(),
+  });
+  const namedFace =
+    openFace.face === "late" || openFace.face === "expired" || openFace.face === "rejected";
   const actionLockRef = useRef(false);
   const qrPromiseRef = useRef<Promise<void> | null>(null);
   const autoQrOrderIdRef = useRef<string | null>(null);
@@ -216,11 +228,20 @@ export function PaymentPanel({
           body: JSON.stringify({ mode, forceRefresh }),
         });
         const data = (await response.json()) as { order?: Order; error?: string };
-        if (!response.ok || !data.order) throw new Error(data.error ?? "No se pudo generar el cobro.");
+        if (!response.ok || !data.order) {
+          throw Object.assign(new Error(data.error ?? "No se pudo generar el cobro."), {
+            chargeRefused: response.status >= 400 && response.status < 500,
+          });
+        }
+        if (mountedRef.current) setRejectionOrderId(null);
         applyOrderUpdate(data.order);
       } catch (caught) {
-        if (!isAuto && mountedRef.current) {
-          setError(friendlyPaymentError(caught, "No se pudo generar el cobro."));
+        if (mountedRef.current) {
+          const refused = caught instanceof Error && "chargeRefused" in caught && caught.chargeRefused === true;
+          if (refused) setRejectionOrderId(order.id);
+          if (!isAuto || refused) {
+            setError(friendlyPaymentError(caught, "No se pudo generar el cobro."));
+          }
         }
       } finally {
         if (!isAuto) {
@@ -260,9 +281,17 @@ export function PaymentPanel({
         body: JSON.stringify({ mode: "codi_push", phone: codiPhone }),
       });
       const data = (await response.json()) as { order?: Order; error?: string };
-      if (!response.ok || !data.order) throw new Error(data.error ?? "No se pudo enviar el cobro CoDi.");
+      if (!response.ok || !data.order) {
+        throw Object.assign(new Error(data.error ?? "No se pudo enviar el cobro CoDi."), {
+          chargeRefused: response.status >= 400 && response.status < 500,
+        });
+      }
+      setRejectionOrderId(null);
       applyOrderUpdate(data.order);
     } catch (caught) {
+      if (caught instanceof Error && "chargeRefused" in caught && caught.chargeRefused === true) {
+        setRejectionOrderId(order.id);
+      }
       setError(friendlyPaymentError(caught, "No se pudo enviar el cobro CoDi."));
     } finally {
       actionLockRef.current = false;
@@ -401,11 +430,11 @@ export function PaymentPanel({
           </h2>
         </div>
         <span
-          className={`mc-caja-status mc-caja-status--${order.status}`}
+          className={`mc-caja-status mc-caja-status--${namedFace ? openFace.face : order.status}`}
           role="status"
           aria-live="polite"
         >
-          {statusLabel(order.status)}
+          {namedFace ? openFace.label : statusLabel(order.status)}
         </span>
       </div>
 
@@ -565,7 +594,22 @@ export function PaymentPanel({
         </div>
       </details>
 
-      <div className="mc-qr-state" role="status">{pending ? "Por cobrar" : statusLabel(order.status)}</div>
+      <div
+        className={`mc-qr-state${namedFace ? ` mc-qr-state--${openFace.face}` : ""}`}
+        role="status"
+        data-charge-face={openFace.face}
+      >
+        {namedFace ? (
+          <>
+            <strong>{openFace.label}</strong>
+            <span className="mc-qr-state__detail">{openFace.detail}</span>
+          </>
+        ) : pending ? (
+          demo ? "Demo · por cobrar" : "Por cobrar"
+        ) : (
+          statusLabel(order.status)
+        )}
+      </div>
       <div className="mc-caja-payment__actions">
         {!order.paymentUrl ? (
           <button

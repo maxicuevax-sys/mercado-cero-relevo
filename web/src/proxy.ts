@@ -47,6 +47,7 @@ function bodyLimitFor(pathname: string): number | null {
   if (pathname === "/api/voice/transcribe") return MAX_TRANSCRIBE_BYTES + 64 * 1024;
   if (pathname === "/api/demo/reset") return MAX_RESET_BYTES;
   if (pathname === "/api/orders") return MAX_ORDERS_BYTES;
+  if (pathname === "/api/tablero/frase") return MAX_SMALL_JSON_BYTES;
   if (/^\/api\/orders\/[^/]+(\/pay)?$/.test(pathname)) return MAX_SMALL_JSON_BYTES;
   if (pathname === "/api/demo/pay") return MAX_SMALL_JSON_BYTES;
   if (pathname === "/api/demo-checkout") return MAX_SMALL_JSON_BYTES;
