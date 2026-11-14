@@ -10,7 +10,7 @@ const privatePages = [
   "/fiados", "/fiados/nuevo", "/fiados/registrado", "/fiados/ajeno", "/fiados/ajeno/abono",
   "/fiados/juan/abono", "/corte", "/corte/historial", "/corte/historial/2026-11-07",
   "/pendientes", "/pendientes/nuevo", "/metas", "/metas/nueva", "/notificaciones",
-  "/ajustes", "/ayuda", "/onboarding",
+  "/ajustes", "/ayuda", "/onboarding", "/tablero",
 ];
 
 function sourceFiles(directory: string): string[] {
@@ -230,7 +230,7 @@ test("unauthenticated pages, forged tenant headers and invalid session cookies f
     await page.goto(route);
     await expect(page, route).toHaveURL(/\/acceso(?:\?|$)/);
   }
-  for (const route of ["/api/orders", "/api/orders/ajeno", "/api/credits", "/api/dashboard", "/api/tasks", "/api/cash", "/api/goals", "/api/analytics", "/api/pey/status", "/api/reconcile"]) {
+  for (const route of ["/api/orders", "/api/orders/ajeno", "/api/credits", "/api/dashboard", "/api/tasks", "/api/cash", "/api/goals", "/api/analytics", "/api/pey/status", "/api/reconcile", "/api/tablero"]) {
     expect((await context.request.get(route, { headers: { "X-Account-Id": "judge-a", "X-Tenant-Id": "judge-a" } })).status(), route).toBe(401);
   }
   for (const route of ["/api/orders", "/api/tasks", "/api/goals", "/api/cash/close", "/api/cash/preview", "/api/demo/pay", "/api/demo/reset", "/api/tts", "/api/voice/parse", "/api/voice/transcribe", "/api/orders/ajeno/pay", "/api/orders/ajeno/sync-pey", "/api/credits/ajeno/pay", "/api/credits/ajeno/pay-link", "/api/goals/ajeno/contribute"]) {

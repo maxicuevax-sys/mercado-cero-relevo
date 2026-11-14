@@ -299,9 +299,11 @@ function CodiHubState({ demo, initialOrder = null, scopedDemoCheckout = false }:
     ? settledTitle(order, demo)
     : !order
       ? "Cobrar con CoDi"
-      : openFace.face === "waiting"
-        ? statusLabel(order)
-        : openFace.label;
+      : expired
+        ? "QR vencido"
+        : openFace.face === "waiting"
+          ? statusLabel(order)
+          : openFace.label;
 
   return (
     <section
