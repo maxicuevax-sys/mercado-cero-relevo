@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { OperationalPage } from "@/components/shell/operational-page";
 import { MERCHANT, isDemoMode } from "@/lib/config";
-import { listOrdersBetween } from "@/lib/db";
+import { getDb, listOrdersBetween } from "@/lib/db";
+import { listProducingOrders, listStallProducts, listTimelineEvents } from "@/lib/pulso-apply";
 import { mexicoCityDayBounds } from "@/lib/stall-board";
 import { StallBoard } from "@/components/tablero/stall-board";
 import "@/components/tablero/stall-board.css";
@@ -18,6 +19,8 @@ export const instant = false;
 async function TableroPage() {
   const day = mexicoCityDayBounds();
   const orders = listOrdersBetween(day.startIso, day.endIso) as Order[];
+  const database = getDb();
+  const ids = orders.map((order) => order.id);
   const merchant = MERCHANT;
   const initial = (merchant.owner || "M").trim().charAt(0).toUpperCase() || "M";
   return (
@@ -25,8 +28,8 @@ async function TableroPage() {
       activeHref="/tablero"
       title="Mostrador"
       titleId="mc-board-title"
-      eyebrow="Hoy en el puesto"
-      subtitle="Los tickets de hoy, en una sola vista. El cobro CoDi cambia a PAGADO aquí cuando llega la confirmación firmada."
+      eyebrow="Pulso"
+      subtitle="La tarjeta CoDi se queda quieta hasta el webhook firmado. Entonces pasa a PRODUCIENDO."
       merchant={merchant.name}
       address={merchant.address}
       demo={isDemoMode()}
@@ -38,7 +41,14 @@ async function TableroPage() {
         </Link>
       }
     >
-      <StallBoard dayLabel={day.label} demo={isDemoMode()} initialOrders={orders} />
+      <StallBoard
+        dayLabel={day.label}
+        demo={isDemoMode()}
+        initialOrders={orders}
+        initialProducts={listStallProducts(database)}
+        initialEvents={listTimelineEvents(database, ids)}
+        initialProducing={listProducingOrders(database, ids)}
+      />
     </OperationalPage>
   );
 }

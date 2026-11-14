@@ -61,6 +61,20 @@ test("PAGADO solo con pago pey, nunca con demo ni efectivo", () => {
   assert.notEqual(board.boardWord(ticket({ status: "demo_paid" }), now).word, "PAGADO");
 });
 
+test("sin QR real el CoDi se queda en RECHAZADO y no se llama pagado", () => {
+  const word = board.boardWord(ticket(), now);
+  assert.equal(word.word, "RECHAZADO");
+  assert.equal(word.detail, "CoDi no activo.");
+  assert.notEqual(word.word, "PRODUCIENDO");
+  assert.notEqual(word.word, "PAGADO");
+});
+
+test("PRODUCIENDO solo después del pago pey y del arranque de comanda", () => {
+  const paid = ticket({ status: "paid", lastPaymentProvider: "pey", paymentMethod: "codi" });
+  assert.equal(board.boardWord(paid, now).word, "PAGADO");
+  assert.equal(board.boardWord(paid, now, { producing: true }).word, "PRODUCIENDO");
+});
+
 test("tardío, vencido y rechazado se leen en el ticket abierto", () => {
   const late = board.boardWord(
     ticket({ qrExpiresAt: new Date(now + 60_000).toISOString(), qrId: "AB12", qrString: "{\"TYP\":1}" }),

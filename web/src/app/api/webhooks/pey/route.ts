@@ -9,6 +9,7 @@ import {
 } from "@/lib/http-security";
 import { PeyWebhookError, processPeyEvent } from "@/lib/pey-events";
 import { verifyWebhookSignature } from "@/lib/pey";
+import { applyPulsoAfterVerifiedPayment } from "@/lib/pulso-apply";
 
 /** Payload de auditoría de un rechazo no firmado: prefijo acotado + hash. */
 const MAX_REJECTED_PAYLOAD_BYTES = 4 * 1024;
@@ -230,6 +231,13 @@ async function POSTImpl(request: Request) {
     }
 
     const outcome = processPeyEvent(event);
+    if (outcome.result === "processed" && outcome.orderId) {
+      // Mismo webhook-id ya regresó arriba. Aquí el id es nuevo y el pago pey existe.
+      applyPulsoAfterVerifiedPayment(database, {
+        orderId: outcome.orderId,
+        webhookId,
+      });
+    }
 
     database
       .prepare("UPDATE payment_events SET result = ?, error = NULL WHERE id = ?")

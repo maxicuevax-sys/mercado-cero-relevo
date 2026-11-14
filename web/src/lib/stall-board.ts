@@ -16,11 +16,12 @@ export interface BoardTicketRef {
   qrId: string | null;
   qrString: string | null;
   qrExpiresAt: string | null;
+  paymentUrl?: string | null;
 }
 
 export interface BoardWord {
   word: string;
-  face: ChargeFaceName | "paid" | "cash" | "credit" | "demo";
+  face: ChargeFaceName | "paid" | "producing" | "cash" | "credit" | "demo";
   detail: string;
 }
 
@@ -65,6 +66,15 @@ export function hasRealCodiQr(ticket: Pick<BoardTicketRef, "qrId" | "qrString">)
 
 const OPEN = new Set(["draft", "confirmed", "payment_pending", "partially_paid"]);
 
+function codiInactive(ticket: BoardTicketRef): boolean {
+  return (
+    OPEN.has(ticket.status) &&
+    ticket.paymentMethod === "codi" &&
+    !hasRealCodiQr(ticket) &&
+    !ticket.paymentUrl
+  );
+}
+
 export function pickCodiTicket<T extends BoardTicketRef>(tickets: T[]): T | null {
   const open = tickets.filter((ticket) => OPEN.has(ticket.status));
   return (
@@ -78,7 +88,7 @@ export function pickCodiTicket<T extends BoardTicketRef>(tickets: T[]): T | null
 export function boardWord(
   ticket: BoardTicketRef,
   now: number | null,
-  options: { simulation?: boolean; rejected?: boolean } = {},
+  options: { simulation?: boolean; rejected?: boolean; producing?: boolean } = {},
 ): BoardWord {
   const simulation = options.simulation === true || ticket.status === "demo_paid" || ticket.lastPaymentDemo;
   const face = chargeFace({
@@ -108,6 +118,19 @@ export function boardWord(
   }
 
   if (
+    options.producing &&
+    (ticket.status === "paid" || ticket.status === "fulfilled") &&
+    ticket.lastPaymentProvider === "pey" &&
+    !ticket.lastPaymentDemo
+  ) {
+    return {
+      word: "PRODUCIENDO",
+      face: "producing",
+      detail: "El webhook firmado ya entró. La comanda está en el puesto.",
+    };
+  }
+
+  if (
     (ticket.status === "paid" || ticket.status === "fulfilled") &&
     ticket.lastPaymentProvider === "pey" &&
     !ticket.lastPaymentDemo
@@ -132,7 +155,15 @@ export function boardWord(
   }
 
   if (face.face === "rejected" || face.face === "late" || face.face === "expired") {
-    return { word: face.label.toUpperCase(), face: face.face, detail: face.detail };
+    return {
+      word: face.face === "rejected" ? "RECHAZADO" : face.label.toUpperCase(),
+      face: face.face,
+      detail: face.face === "rejected" ? "CoDi no activo." : face.detail,
+    };
+  }
+
+  if (codiInactive(ticket)) {
+    return { word: "RECHAZADO", face: "rejected", detail: "CoDi no activo." };
   }
 
   if (ticket.creditCents > 0 && ticket.paidCents <= 0) {

@@ -2,11 +2,26 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { formatMxn } from "@/lib/format";
+import { presentTimeline, type PulsoEvent } from "@/lib/pulso-timeline";
 import { boardWord, hasRealCodiQr, pickCodiTicket } from "@/lib/stall-board";
 import type { Order } from "@/lib/types";
 import "./stall-board.css";
 
 const POLL_MS = 3000;
+
+export interface BoardProduct {
+  id: string;
+  name: string;
+  stock: number;
+  priceCents: number;
+}
+
+export interface BoardEvent {
+  orderId: string;
+  step: string;
+  at: string;
+  detail: string | null;
+}
 
 function useNow(): number | null {
   return useSyncExternalStore(
@@ -23,16 +38,22 @@ export function StallBoard({
   dayLabel,
   demo,
   initialOrders,
+  initialProducts,
+  initialEvents,
+  initialProducing,
 }: {
   dayLabel: string;
   demo: boolean;
   initialOrders: Order[];
+  initialProducts: BoardProduct[];
+  initialEvents: BoardEvent[];
+  initialProducing: string[];
 }) {
   const now = useNow();
   const [orders, setOrders] = useState(initialOrders);
-  const [rejectedId, setRejectedId] = useState<string | null>(null);
-  const [askingId, setAskingId] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [products, setProducts] = useState(initialProducts);
+  const [events, setEvents] = useState(initialEvents);
+  const [producing, setProducing] = useState(initialProducing);
   const featured = pickCodiTicket(orders);
   const rest = orders.filter((order) => order.id !== featured?.id);
 
@@ -43,8 +64,17 @@ export function StallBoard({
       try {
         const response = await fetch("/api/tablero", { cache: "no-store" });
         if (!response.ok) return;
-        const data = (await response.json()) as { orders?: Order[] };
-        if (active && Array.isArray(data.orders)) setOrders(data.orders);
+        const data = (await response.json()) as {
+          orders?: Order[];
+          products?: BoardProduct[];
+          events?: BoardEvent[];
+          producing?: string[];
+        };
+        if (!active) return;
+        if (Array.isArray(data.orders)) setOrders(data.orders);
+        if (Array.isArray(data.products)) setProducts(data.products);
+        if (Array.isArray(data.events)) setEvents(data.events);
+        if (Array.isArray(data.producing)) setProducing(data.producing);
       } catch {
         // El tablero conserva la última lectura.
       }
@@ -60,31 +90,6 @@ export function StallBoard({
     };
   }, []);
 
-  async function askQr(orderId: string) {
-    if (askingId) return;
-    setAskingId(orderId);
-    setNotice(null);
-    try {
-      const response = await fetch(`/api/orders/${orderId}/pay`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "qr" }),
-      });
-      const data = (await response.json()) as { order?: Order; error?: string; code?: string };
-      if (!response.ok || !data.order) {
-        if (response.status >= 400 && response.status < 500) setRejectedId(orderId);
-        setNotice(data.error ?? "No se pudo pedir el QR.");
-        return;
-      }
-      setRejectedId(null);
-      setOrders((current) => current.map((order) => (order.id === data.order?.id ? data.order : order)));
-    } catch {
-      setNotice("No sabemos si pey creó el QR. Revisa la conexión antes de pedirlo otra vez.");
-    } finally {
-      setAskingId(null);
-    }
-  }
-
   return (
     <div className="mc-board">
       <p className="mc-board__day">
@@ -97,37 +102,40 @@ export function StallBoard({
             order={featured}
             demo={demo}
             now={now}
-            rejected={rejectedId === featured.id}
-            asking={askingId === featured.id}
-            onAsk={() => void askQr(featured.id)}
+            producing={producing.includes(featured.id)}
+            events={events.filter((event) => event.orderId === featured.id)}
           />
         ) : (
-          <article className="mc-board__card mc-board__card--feature" aria-labelledby="mc-board-empty-codi">
-            <p className="mc-board__kicker">Cobro CoDi</p>
+          <article className="mc-board__card mc-board__card--feature" data-word="rejected" aria-labelledby="mc-board-empty-codi">
+            <p className="mc-board__kicker">Pulso · CoDi</p>
             <h2 id="mc-board-empty-codi" className="mc-board__word">
-              Sin cobro abierto
+              RECHAZADO
             </h2>
-            <p className="mc-board__detail">
-              Registra el ticket en Caja. El QR sale por el mismo cobro de pey y este lugar pasa a PAGADO solo con el webhook firmado.
-            </p>
+            <p className="mc-board__detail">CoDi no activo. Esta tarjeta no pide un cobro.</p>
           </article>
         )}
         <ul className="mc-board__rest">
           {rest.map((order) => (
             <li key={order.id}>
-              <TicketCard order={order} demo={demo} now={now} rejected={rejectedId === order.id} />
+              <TicketCard order={order} demo={demo} now={now} producing={producing.includes(order.id)} />
             </li>
           ))}
         </ul>
       </div>
+      <section className="mc-board__stock" aria-label="Existencias del puesto">
+        <h2 className="mc-board__stock-title">Existencias</h2>
+        <ul>
+          {products.map((product) => (
+            <li key={product.id}>
+              <span>{product.name}</span>
+              <strong>{product.stock}</strong>
+            </li>
+          ))}
+        </ul>
+      </section>
       {orders.length === 0 ? (
         <p className="mc-board__empty" role="status">
           Hoy todavía no hay tickets. Las ventas de Caja aparecen aquí.
-        </p>
-      ) : null}
-      {notice ? (
-        <p className="mc-board__notice" role="status">
-          {notice}
         </p>
       ) : null}
     </div>
@@ -138,34 +146,35 @@ function FeaturedTicket({
   order,
   demo,
   now,
-  rejected,
-  asking,
-  onAsk,
+  producing,
+  events,
 }: {
   order: Order;
   demo: boolean;
   now: number | null;
-  rejected: boolean;
-  asking: boolean;
-  onAsk: () => void;
+  producing: boolean;
+  events: BoardEvent[];
 }) {
-  const word = boardWord(order, now, { simulation: demo, rejected });
+  const word = boardWord(order, now, { simulation: demo, producing });
   const realQr = hasRealCodiQr(order);
-  const open = word.face !== "paid" && word.face !== "cash" && word.face !== "demo" && word.face !== "credit";
+  const marks = presentTimeline(events as PulsoEvent[], {
+    createdAt: order.createdAt,
+    codiInactive: word.face === "rejected",
+  });
   return (
     <article
       className="mc-board__card mc-board__card--feature"
       data-word={word.face}
       aria-labelledby={`mc-board-${order.id}-word`}
     >
-      <p className="mc-board__kicker">Cobro CoDi · {folio(order.id)}</p>
+      <p className="mc-board__kicker">Pulso · CoDi · {folio(order.id)}</p>
       <h2 id={`mc-board-${order.id}-word`} className="mc-board__word" role="status" aria-live="polite">
         {word.word}
       </h2>
       <p className="mc-board__amount">{formatMxn(order.totalCents)}</p>
       <p className="mc-board__items">{itemLine(order)}</p>
       <p className="mc-board__detail">{word.detail}</p>
-      {realQr && order.qrImage && open ? (
+      {realQr && order.qrImage && word.face !== "producing" ? (
         // El PNG lo genera el servidor a partir del qrString de pey.
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -174,16 +183,26 @@ function FeaturedTicket({
           alt={`QR CoDi del pedido ${folio(order.id)}, ${formatMxn(order.totalCents)}. No es un comprobante de pago.`}
         />
       ) : null}
-      {realQr && open && order.numRef ? (
-        <p className="mc-board__ref">
-          Referencia <strong>{order.numRef}</strong>
-        </p>
+      {producing ? (
+        <div className="mc-board__ticket">
+          <p>Comanda</p>
+          <ul>
+            {order.items.map((item) => (
+              <li key={item.id}>
+                {item.quantity} {item.description}
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : null}
-      {!realQr && open ? (
-        <button type="button" className="mc-board__ask" onClick={onAsk} disabled={asking}>
-          {asking ? "Pidiendo el QR…" : "Pedir QR CoDi"}
-        </button>
-      ) : null}
+      <ol className="mc-board__timeline">
+        {marks.map((mark) => (
+          <li key={mark.step} data-done={mark.done ? "true" : "false"}>
+            <span className="mc-board__step-name">{mark.step}</span>
+            <span className="mc-board__step-detail">{mark.detail}</span>
+          </li>
+        ))}
+      </ol>
     </article>
   );
 }
@@ -192,14 +211,14 @@ function TicketCard({
   order,
   demo,
   now,
-  rejected,
+  producing,
 }: {
   order: Order;
   demo: boolean;
   now: number | null;
-  rejected: boolean;
+  producing: boolean;
 }) {
-  const word = boardWord(order, now, { simulation: demo, rejected });
+  const word = boardWord(order, now, { simulation: demo, producing });
   return (
     <article className="mc-board__card" data-word={word.face} aria-label={`${folio(order.id)} ${word.word}`}>
       <p className="mc-board__kicker">{folio(order.id)}</p>

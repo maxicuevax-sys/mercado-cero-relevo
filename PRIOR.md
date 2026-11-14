@@ -17,16 +17,17 @@ El texto histórico de Mercado Cero, debajo del separador del README, es de una 
 
 ## Qué agrega el cambio posterior a esa fecha
 
-No hay un segundo checkout ni otro webhook. El cobro sigue saliendo de `POST /api/orders/[id]/pay` y la confirmación sigue siendo `POST /api/webhooks/pey`.
+No hay una app nueva ni otro webhook. Pulso vive en el mostrador de Trangui, ruta `/tablero`. El cobro sigue siendo `POST /api/orders/[id]/pay` y la confirmación sigue siendo `POST /api/webhooks/pey`.
 
-Se agrega el mostrador `/tablero`: los tickets de hoy (hora de Ciudad de México) en una sola pantalla. Un ticket abierto de CoDi pide el QR por esa ruta. Cuando el webhook firmado marca el pedido `paid`, esa misma tarjeta dice **PAGADO**. Un evento repetido no cambia el monto: la idempotencia ya estaba en el webhook. Efectivo se lee EFECTIVO. La simulación se lee DEMO, no PAGADO.
+### Pulso — nuevo en esta entrega
 
-En el cobro abierto siguen visibles, sin cobrar:
+Un puesto (`lupita`) y tres productos con existencia: Agua, Quesadilla y Taco. La tarjeta CoDi no pide un cobro desde el mostrador.
 
-- **Tardío:** el QR sigue vigente y quedan dos minutos o menos.
-- **Vencido:** pasó `qrExpiresAt` y no hay pago. Un webhook posterior todavía puede registrarlo.
-- **Rechazado:** pey no creó el cobro. El pedido sigue sin pagar.
+- Sin QR real, la tarjeta dice **RECHAZADO** / CoDi no activo. No es un depósito ni un pedido en producción.
+- Con QR real y sin webhook, se queda en **POR COBRAR**.
+- Cuando el webhook firmado verifica el pago, esa misma tarjeta pasa a **PRODUCIENDO**: aparece la comanda, el inventario de los productos de ese pedido baja una vez, y la línea de tiempo muestra `order.created` → `payment.requested` → `pey.webhook.verified` → `payment.received` → `fulfillment.started`.
+- El paso del webhook dice que la firma se verificó. Un segundo envío del mismo `webhook-id` no descuenta otra vez ni crea otra comanda.
 
-Esas palabras también están en la caja, en el cobro CoDi de inicio y, si el pedido está pendiente, en Ventas.
+Tardío y vencido siguen visibles en un QR que sí existe, y tampoco cobran. Efectivo se lee EFECTIVO. La simulación se lee DEMO, no PRODUCIENDO.
 
 `PRIOR.md` es el documento de esta distinción. No incluye llaves, CLABE ni secretos.

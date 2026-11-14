@@ -31,7 +31,7 @@
     "test:voice": "node --no-warnings --test scripts/voice-debts-test.mjs scripts/voice-presets.test.mjs",
     "test:payment-labels": "node --no-warnings --test scripts/payment-labels-test.mjs",
     "test:charge-face": "node --no-warnings --test scripts/charge-face-test.mjs",
-    "test:stall-board": "node --no-warnings --test scripts/stall-board-test.mjs",
+    "test:stall-board": "node --no-warnings --test scripts/stall-board-test.mjs scripts/pulso-apply-test.mjs",
     "test:fix-datos": "node scripts/p0-fix-datos-contract.mjs && node scripts/p0-db-guards-contract.mjs && node scripts/p0-orders-atomic-contract.mjs && node scripts/p0-demo-real-contract.mjs",
     "test:demo-real": "node scripts/p0-demo-real-contract.mjs",
     "test:demo-pay": "node scripts/p0-demo-pay-contract.mjs",
