@@ -76,7 +76,12 @@ function codiInactive(ticket: BoardTicketRef): boolean {
 }
 
 /** La tarjeta que mira el salón: primero la que espera cobro, no la rechazada. */
-export function pickRoomTicket<T extends BoardTicketRef>(tickets: T[]): T | null {
+export function pickRoomTicket<T extends BoardTicketRef>(
+  tickets: T[],
+  producingIds: readonly string[] = [],
+): T | null {
+  const live = tickets.find((ticket) => producingIds.includes(ticket.id));
+  if (live) return live;
   const open = tickets.filter((ticket) => OPEN.has(ticket.status));
   const withQr = open.find((ticket) => hasRealCodiQr(ticket));
   if (withQr) return withQr;

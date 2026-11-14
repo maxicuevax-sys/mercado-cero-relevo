@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { withPilotRoute } from "../../../../lib/auth/pilot-route";
 import { getDb } from "@/lib/db";
 import {
@@ -18,20 +19,30 @@ async function POSTImpl(request: Request) {
   const limited = enforceRateLimit(request, "tablero-frase", 30, 60_000);
   if (limited) return limited;
 
-  let body: unknown;
-  try {
-    body = await readJsonLimited(request, MAX_SMALL_JSON_BYTES);
-  } catch (error) {
-    return bodyErrorResponse(error);
+  const contentType = request.headers.get("content-type") ?? "";
+  const asForm = contentType.includes("application/x-www-form-urlencoded") || contentType.includes("multipart/form-data");
+  let phrase = "";
+  let requestId = "";
+  if (asForm) {
+    const form = await request.formData();
+    phrase = String(form.get("phrase") ?? "").trim();
+    requestId = String(form.get("requestId") ?? "").trim();
+  } else {
+    let body: unknown;
+    try {
+      body = await readJsonLimited(request, MAX_SMALL_JSON_BYTES);
+    } catch (error) {
+      return bodyErrorResponse(error);
+    }
+    if (!isJsonObject(body)) {
+      return Response.json(
+        { error: "El cuerpo debe ser un objeto JSON.", code: "invalid_json" },
+        { status: 400 },
+      );
+    }
+    phrase = typeof body.phrase === "string" ? body.phrase.trim() : "";
+    requestId = typeof body.requestId === "string" ? body.requestId.trim() : "";
   }
-  if (!isJsonObject(body)) {
-    return Response.json(
-      { error: "El cuerpo debe ser un objeto JSON.", code: "invalid_json" },
-      { status: 400 },
-    );
-  }
-
-  const phrase = typeof body.phrase === "string" ? body.phrase.trim() : "";
   if (!phrase) {
     return Response.json({ error: "Escribe el pedido." }, { status: 400 });
   }
@@ -39,7 +50,6 @@ async function POSTImpl(request: Request) {
     return Response.json({ error: "La frase es demasiado larga." }, { status: 413 });
   }
 
-  const requestId = typeof body.requestId === "string" ? body.requestId.trim() : "";
   const products = listStallProducts(getDb());
   const interpreted = itemsFromPhrase(phrase, products);
   if (!interpreted.ok) {
@@ -53,6 +63,10 @@ async function POSTImpl(request: Request) {
       creditCents: 0,
       requestId: requestId || null,
     });
+    if (asForm) {
+      const back = new URL("/tablero", request.url);
+      return NextResponse.redirect(back, 303);
+    }
     return Response.json(
       { order },
       { status: 201, headers: { "Cache-Control": "no-store" } },

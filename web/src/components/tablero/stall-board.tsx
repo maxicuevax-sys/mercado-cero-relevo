@@ -24,15 +24,23 @@ export interface BoardEvent {
   detail: string | null;
 }
 
+let nowCache: number | null = null;
+
+function subscribeNow(callback: () => void) {
+  const id = window.setInterval(() => {
+    nowCache = Date.now();
+    callback();
+  }, 1000);
+  return () => window.clearInterval(id);
+}
+
+function getNow() {
+  if (nowCache === null) nowCache = Date.now();
+  return nowCache;
+}
+
 function useNow(): number | null {
-  return useSyncExternalStore(
-    (callback) => {
-      const id = window.setInterval(callback, 1000);
-      return () => window.clearInterval(id);
-    },
-    () => Date.now(),
-    () => null,
-  );
+  return useSyncExternalStore(subscribeNow, getNow, () => null);
 }
 
 export function StallBoard({
@@ -59,18 +67,9 @@ export function StallBoard({
   const [phraseBusy, setPhraseBusy] = useState(false);
   const [phraseNote, setPhraseNote] = useState<string | null>(null);
   const refreshRef = useRef<() => Promise<void>>(async () => {});
-  const [seenProducing, setSeenProducing] = useState(initialProducing);
+  const producingRef = useRef(initialProducing);
   const [arrivedIds, setArrivedIds] = useState<string[]>([]);
-  const freshProducing = producing.filter((id) => !seenProducing.includes(id));
-  if (freshProducing.length > 0) {
-    setSeenProducing(producing);
-    setArrivedIds((current) => [...current, ...freshProducing]);
-  }
-  const waiting = pickRoomTicket(orders);
-  const [focusId, setFocusId] = useState<string | null>(null);
-  const held = orders.find((order) => order.id === focusId) ?? null;
-  const featured = held && producing.includes(held.id) ? held : (waiting ?? held);
-  if (featured && focusId !== featured.id) setFocusId(featured.id);
+  const featured = pickRoomTicket(orders, producing);
   const rest = orders.filter((order) => order.id !== featured?.id);
   const side = rest.slice(0, ROOM_SIDE_TICKETS);
   const hiddenCount = rest.length - side.length;
@@ -92,7 +91,13 @@ export function StallBoard({
         if (Array.isArray(data.orders)) setOrders(data.orders);
         if (Array.isArray(data.products)) setProducts(data.products);
         if (Array.isArray(data.events)) setEvents(data.events);
-        if (Array.isArray(data.producing)) setProducing(data.producing);
+        if (Array.isArray(data.producing)) {
+          const next = data.producing;
+          const fresh = next.filter((id) => !producingRef.current.includes(id));
+          producingRef.current = next;
+          setProducing(next);
+          if (fresh.length > 0) setArrivedIds((ids) => [...ids, ...fresh]);
+        }
       } catch {
         // El tablero conserva la última lectura.
       }
@@ -128,6 +133,7 @@ export function StallBoard({
       }
       const line = data.order.items.map((item) => `${item.quantity} ${item.description}`).join(" y ");
       setPhraseNote(`Anoté ${line}. Sigue por cobrar.`);
+      setOrders((current) => current.some((order) => order.id === data.order?.id) ? current : [...current, data.order as Order]);
       await refreshRef.current();
     } catch {
       setPhraseNote("No pude anotar el pedido. Revisa la conexión.");
@@ -138,11 +144,17 @@ export function StallBoard({
 
   return (
     <div className="mc-board">
-      <form className="mc-board__phrase" onSubmit={(event) => void submitPhrase(event)}>
+      <form
+        className="mc-board__phrase"
+        method="post"
+        action="/api/tablero/frase"
+        onSubmit={(event) => void submitPhrase(event)}
+      >
         <label htmlFor="mc-board-phrase">Pedido en una frase</label>
         <div>
           <input
             id="mc-board-phrase"
+            name="phrase"
             value={phrase}
             maxLength={200}
             autoComplete="off"
