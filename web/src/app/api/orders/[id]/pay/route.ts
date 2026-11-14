@@ -20,6 +20,7 @@ import {
 } from "@/lib/http-security";
 import { attachCodiPush, attachPaymentLink, attachQr } from "@/lib/orders";
 import { createCodiPush, createCodiQr, createPaymentLink } from "@/lib/pey";
+import { peyRejectionResponse } from "@/lib/pey-rejection";
 import type { Order } from "@/lib/types";
 import { judgeAccountsEnabled } from "@/lib/auth/pilot-mode";
 
@@ -203,6 +204,8 @@ async function POSTImpl(request: Request, ctx: RouteContext<"/api/orders/[id]/pa
     }
     const known = appErrorResponse(error);
     if (known) return known;
+    const rejected = peyRejectionResponse(error);
+    if (rejected) return rejected;
     return unexpectedResponse(error, "No se pudo generar el cobro.");
   }
 }

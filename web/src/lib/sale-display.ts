@@ -1,3 +1,4 @@
+import { chargeFace } from "./charge-face";
 import type { Order } from "./types";
 
 /**
@@ -28,9 +29,13 @@ export function saleStatusLabel(
   isDemoOrder: boolean,
 ): string {
   if (isDemoOrder) {
+    const open = openChargeLabel(order, true);
+    if (open) return open;
     return order.status === "payment_pending" ? "Demo · pendiente" : "Demo";
   }
-  if (order.status === "payment_pending") return "Pendiente";
+  if (order.status === "payment_pending") {
+    return openChargeLabel(order, false) ?? "Pendiente";
+  }
   if (creditKnown && order.creditCents > 0 && creditBalanceCents === 0) {
     return "Saldado";
   }
@@ -44,6 +49,18 @@ export function saleStatusLabel(
   if (order.status === "fulfilled") return "Entregado";
   if (order.status === "cancelled") return "Cancelado";
   return "Registrado";
+}
+
+function openChargeLabel(order: Order, simulation: boolean): string | null {
+  if (order.status !== "payment_pending") return null;
+  const face = chargeFace({
+    status: order.status,
+    qrExpiresAt: order.qrExpiresAt,
+    simulation,
+    now: Date.now(),
+  });
+  if (face.face === "late" || face.face === "expired") return face.label;
+  return null;
 }
 
 export function saleMethodLabel(order: Order): string {

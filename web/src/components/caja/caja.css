@@ -763,9 +763,17 @@
 }
 
  .mc-caja-status--payment_pending,
-.mc-caja-status--partially_paid {
+.mc-caja-status--partially_paid,
+.mc-caja-status--late,
+.mc-caja-status--expired,
+.mc-caja-status--rejected {
   background: var(--color-saffron-soft);
   color: var(--color-attention);
+}
+
+.mc-caja-status--expired,
+.mc-caja-status--rejected {
+  box-shadow: inset 0 0 0 1px var(--color-attention);
 }
 
 .mc-caja-payment__amount {

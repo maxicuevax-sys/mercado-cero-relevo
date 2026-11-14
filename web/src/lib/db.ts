@@ -567,6 +567,45 @@ function migrate(database: DatabaseSync) {
     UPDATE goals SET demo = 1
     WHERE demo = 0 AND id LIKE 'demo\\_%' ESCAPE '\\';
   `);
+  migratePulso(database);
+}
+
+/** Un puesto, tres productos. El stock no se reinicia si la fila ya existe. */
+function migratePulso(database: DatabaseSync) {
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS stall_products (
+      id TEXT PRIMARY KEY,
+      stall_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      stock INTEGER NOT NULL,
+      price_cents INTEGER NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS inventory_moves (
+      id TEXT PRIMARY KEY,
+      order_id TEXT NOT NULL,
+      product_id TEXT NOT NULL,
+      quantity INTEGER NOT NULL,
+      webhook_id TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      UNIQUE(order_id, product_id)
+    );
+    CREATE TABLE IF NOT EXISTS order_timeline (
+      id TEXT PRIMARY KEY,
+      order_id TEXT NOT NULL,
+      step TEXT NOT NULL,
+      at TEXT NOT NULL,
+      detail TEXT,
+      webhook_id TEXT,
+      UNIQUE(order_id, step)
+    );
+  `);
+  const insert = database.prepare(
+    `INSERT OR IGNORE INTO stall_products (id, stall_id, name, stock, price_cents)
+     VALUES (?, 'lupita', ?, ?, ?)`,
+  );
+  insert.run("pulso_agua", "Agua", 20, 2000);
+  insert.run("pulso_quesadilla", "Quesadilla", 12, 4500);
+  insert.run("pulso_taco", "Taco", 15, 3500);
 }
 
 /**
@@ -1549,6 +1588,24 @@ function mapOrders(
 
 function mapOrder(row: Record<string, unknown>): Order {
   return mapOrders([row])[0];
+}
+
+export function listOrdersBetween(startIso: string, endIso: string, limit = 24): Order[] {
+  const database = getDb();
+  const demoFilter = isDemoMode()
+    ? ""
+    : "AND demo = 0 AND id NOT LIKE 'demo_%' AND status != 'demo_paid'";
+  const safeLimit = Math.max(1, Math.min(48, Math.floor(limit)));
+  const rows = database
+    .prepare(
+      `SELECT * FROM orders
+       WHERE created_at >= ? AND created_at < ?
+         ${demoFilter}
+       ORDER BY created_at ASC, id ASC
+       LIMIT ?`,
+    )
+    .all(startIso, endIso, safeLimit) as Record<string, unknown>[];
+  return mapOrders(rows, { includeQrImage: true });
 }
 
 export function listOrders(limit = 30, offset = 0): Order[] {

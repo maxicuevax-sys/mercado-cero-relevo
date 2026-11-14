@@ -14,6 +14,7 @@ import { MERCHANT, isDemoMode } from "./config";
 import { ConflictError, NotFoundError, ValidationError } from "./errors";
 import { formatMxn } from "./format";
 import { assertPaymentProvider, coveredStatus } from "./payment-rules";
+import { noteTimeline } from "./pulso-apply";
 import { requestPayloadHash } from "./request-hash";
 import type {
   CreateOrderInput,
@@ -334,6 +335,12 @@ export function createOrder(input: CreateOrderInput): Order {
         .run(creditCents > 0 ? "confirmed" : isDemoMode() ? "demo_paid" : "paid", nowIso(), id);
     }
 
+    noteTimeline(database, {
+      orderId: id,
+      step: "order.created",
+      detail: "Pedido anotado en la caja.",
+      at: createdAt,
+    });
     audit("order.created", "order", id, {
       totalCents,
       cashCents,
@@ -509,6 +516,13 @@ export function attachQr(
         "UPDATE orders SET qr_id = ?, qr_string = ?, qr_image = ?, num_ref = ?, qr_expires_at = ?, status = ?, updated_at = ? WHERE id = ?",
       )
       .run(qr.id, qr.qrString, qr.qrImage, numRef, expiresAt, nextStatus, nowIso(), orderId);
+    if (!qr.id.startsWith("demo_")) {
+      noteTimeline(database, {
+        orderId,
+        step: "payment.requested",
+        detail: "QR CoDi pedido. Todavía no es un depósito.",
+      });
+    }
     audit(row.qr_string ? "codi_qr.refreshed" : "codi_qr.attached", "order", orderId, {
       id: qr.id,
       numRef,
