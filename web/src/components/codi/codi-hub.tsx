@@ -9,6 +9,7 @@ import { Check, Loader2, QrCode, RefreshCw } from "lucide-react";
 import qrArt from "@/assets/brand/ilustraciones/transparent/qr.png";
 import { parseCodiAmountCents } from "./codi-amount";
 import { formatMxn } from "@/lib/format";
+import { chargeFace } from "@/lib/charge-face";
 import { PAYMENT_STATES, orderStatusCopy } from "@/lib/payment-labels";
 import type { Order } from "@/lib/types";
 import { TianguisQr } from "@/components/ui/tianguis-qr";
@@ -75,6 +76,7 @@ function CodiHubState({ demo, initialOrder = null, scopedDemoCheckout = false }:
   const [now, setNow] = useState<number | null>(null);
   const [simulating, setSimulating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [chargeRejected, setChargeRejected] = useState(false);
   const amountRef = useRef<HTMLInputElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const requestRef = useRef<PendingRequest | null>(null);
@@ -195,7 +197,9 @@ function CodiHubState({ demo, initialOrder = null, scopedDemoCheckout = false }:
         setOrder(current);
       }
       requestRef.current = null;
+      setChargeRejected(false);
     } catch (caught) {
+      setChargeRejected(caught instanceof Error && "chargeRefused" in caught && caught.chargeRefused === true);
       setError(friendlyError(caught, "No se pudo iniciar el cobro con CoDi."));
     } finally {
       setCreating(false);
@@ -210,7 +214,9 @@ function CodiHubState({ demo, initialOrder = null, scopedDemoCheckout = false }:
       // Refresh the same order, including when only the browser clock advanced.
       setOrder(await requestQr(order.id, true));
       setNow(Date.now());
+      setChargeRejected(false);
     } catch (caught) {
+      setChargeRejected(caught instanceof Error && "chargeRefused" in caught && caught.chargeRefused === true);
       setError(friendlyError(caught, "No se pudo renovar el QR del cobro."));
     } finally {
       setCreating(false);
@@ -265,6 +271,7 @@ function CodiHubState({ demo, initialOrder = null, scopedDemoCheckout = false }:
     setOrder(null);
     setAmountRaw("");
     setError(null);
+    setChargeRejected(false);
     focusKeyRef.current = null;
     requestRef.current = null;
     window.requestAnimationFrame(() => amountRef.current?.focus());
@@ -281,7 +288,20 @@ function CodiHubState({ demo, initialOrder = null, scopedDemoCheckout = false }:
   }
 
   const shortId = order ? order.id.slice(-4).toUpperCase() : "";
-  const title = settled ? settledTitle(order, demo) : order ? expired ? "QR vencido" : statusLabel(order) : "Cobrar con CoDi";
+  const openFace = chargeFace({
+    status: order?.status ?? "confirmed",
+    qrExpiresAt: order?.qrExpiresAt,
+    simulation: demo,
+    rejected: chargeRejected,
+    now,
+  });
+  const title = settled
+    ? settledTitle(order, demo)
+    : !order
+      ? "Cobrar con CoDi"
+      : openFace.face === "waiting"
+        ? statusLabel(order)
+        : openFace.label;
 
   return (
     <section
@@ -304,6 +324,11 @@ function CodiHubState({ demo, initialOrder = null, scopedDemoCheckout = false }:
             <p className="mc-codi__lede">
               Escribe el monto y muestra el QR. Tu cliente paga desde su banco.
             </p>
+            {chargeRejected ? (
+              <p className="mc-codi__note" role="status" data-charge-face="rejected">
+                {openFace.label}. {openFace.detail}
+              </p>
+            ) : null}
             <div className="mc-codi__art" aria-hidden="true">
               <Image src={qrArt} alt="" sizes="(max-width: 760px) 96px, 150px" />
             </div>
@@ -491,11 +516,11 @@ function CodiHubState({ demo, initialOrder = null, scopedDemoCheckout = false }:
               Pedido {shortId}
               {order.numRef ? ` · Referencia ${order.numRef}` : ""}
             </p>
-            <p className="mc-codi__note inline-status" role="status" aria-live="polite">
+            <p className="mc-codi__note inline-status" role="status" aria-live="polite" data-charge-face={openFace.face}>
               {order.status === "cancelled"
-                ? "Este cobro se canceló o venció. No lo cuentes como pagado."
-                : expired
-                  ? "El QR venció. El pedido sigue pendiente y no está pagado."
+                ? "Este cobro se canceló. No lo cuentes como pagado."
+                : openFace.face === "rejected" || openFace.face === "expired" || openFace.face === "late"
+                  ? openFace.detail
                   : demo
                   ? "El QR está listo y no es dinero recibido: en demo, simula el pago para ver el estado."
                   : "El QR está listo, pero el pago todavía no se confirma. Un QR no es dinero recibido: no lo cuentes como cobrado."}
@@ -601,7 +626,9 @@ async function requestQr(orderId: string, forceRefresh = false): Promise<Order> 
     | { order?: Order; error?: string }
     | null;
   if (!response.ok || !data?.order) {
-    throw new Error(data?.error ?? "No se pudo generar el QR del cobro.");
+    throw Object.assign(new Error(data?.error ?? "No se pudo generar el QR del cobro."), {
+      chargeRefused: response.status >= 400 && response.status < 500,
+    });
   }
   return data.order;
 }

@@ -1,0 +1,186 @@
+.mc-board-page {
+  gap: 12px;
+}
+
+.mc-board-caja {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mc-board__day {
+  margin: 0;
+  color: var(--color-ink-2);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.mc-board__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.mc-board__rest {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mc-board__card {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 18px 18px 20px;
+  border: 1px solid var(--color-separator);
+  border-radius: 22px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  box-shadow: 0 2px 8px rgb(31 38 34 / 5%);
+}
+
+.mc-board__card--feature {
+  min-height: 420px;
+}
+
+.mc-board__kicker {
+  margin: 0;
+  color: var(--color-ink-2);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mc-board__word {
+  margin: 0;
+  color: var(--color-accent);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2.6rem, 6vw, 5.4rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.92;
+}
+
+.mc-board__word--side {
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+}
+
+.mc-board__amount {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.mc-board__amount--side {
+  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+}
+
+.mc-board__items,
+.mc-board__detail,
+.mc-board__ref,
+.mc-board__empty,
+.mc-board__notice {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.35;
+}
+
+.mc-board__detail,
+.mc-board__items {
+  color: var(--color-ink-2);
+}
+
+.mc-board__qr {
+  width: min(100%, 280px);
+  height: auto;
+  margin-top: 8px;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.mc-board__ask {
+  justify-self: start;
+  min-height: 56px;
+  margin-top: 8px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: 1.2rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mc-board__ask:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.mc-board__card[data-word="paid"] {
+  background: var(--color-accent);
+  color: var(--color-surface);
+}
+
+.mc-board__card[data-word="paid"] :is(.mc-board__word, .mc-board__kicker, .mc-board__amount, .mc-board__items, .mc-board__detail) {
+  color: var(--color-surface);
+}
+
+.mc-board__card[data-word="late"],
+.mc-board__card[data-word="expired"],
+.mc-board__card[data-word="rejected"] {
+  background: var(--color-saffron-soft);
+}
+
+.mc-board__card[data-word="rejected"] .mc-board__word,
+.mc-board__card[data-word="expired"] .mc-board__word {
+  color: var(--color-attention);
+}
+
+.mc-board__card[data-word="cash"] .mc-board__word {
+  color: var(--color-success);
+}
+
+.mc-board__card[data-word="demo"],
+.mc-board__card[data-word="credit"] {
+  background: var(--color-saffron-soft);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mc-board__card {
+    transition: background-color 180ms ease, color 180ms ease;
+  }
+}
+
+@media (max-width: 800px) {
+  .mc-board__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+html[data-contrast="high"] .mc-board__card {
+  border-color: var(--color-ink);
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+html[data-contrast="high"] .mc-board__card[data-word="paid"] {
+  background: var(--color-ink);
+  color: var(--color-surface);
+}

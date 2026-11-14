@@ -1551,6 +1551,24 @@ function mapOrder(row: Record<string, unknown>): Order {
   return mapOrders([row])[0];
 }
 
+export function listOrdersBetween(startIso: string, endIso: string, limit = 24): Order[] {
+  const database = getDb();
+  const demoFilter = isDemoMode()
+    ? ""
+    : "AND demo = 0 AND id NOT LIKE 'demo_%' AND status != 'demo_paid'";
+  const safeLimit = Math.max(1, Math.min(48, Math.floor(limit)));
+  const rows = database
+    .prepare(
+      `SELECT * FROM orders
+       WHERE created_at >= ? AND created_at < ?
+         ${demoFilter}
+       ORDER BY created_at ASC, id ASC
+       LIMIT ?`,
+    )
+    .all(startIso, endIso, safeLimit) as Record<string, unknown>[];
+  return mapOrders(rows, { includeQrImage: true });
+}
+
 export function listOrders(limit = 30, offset = 0): Order[] {
   const database = getDb();
   const demoFilter = isDemoMode()
