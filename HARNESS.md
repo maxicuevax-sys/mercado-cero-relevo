@@ -151,7 +151,7 @@ El detalle de cada eval, incluyendo las que son **solo humanas**, está en `harn
 - El gate **no** inicia ni reinicia el servidor principal por su cuenta. El runtime es un recurso compartido; el agente lo arranca explícitamente y el gate solo verifica. Los gates p0 y `checkout` sí levantan servidores aislados y los limpian.
 - El gate **sí** reinicia los datos de demo antes de `truth` y `preflight` para que la evidencia sea reproducible.
 - Ningún gate toca el pago real. El pago de $0.01, la cuenta pey, el webhook secret, el merge a `master` y el deploy son **puertas humanas**.
-- **CI:** `.github/workflows/harness.yml` corre en push/PR `test:harness`, `verify:static`, `test:security`, `test:fix-datos`, `test:perf-budget` y `test:perf-data`. El job `full-release` (schedule/workflow_dispatch, runner self-hosted con secretos y túnel) corre `verify:full` + `verify:evidence` contra un servidor construido desde HEAD. No arranca túneles desde CI.
+- **CI:** `.github/workflows/harness.yml` corre en push/PR `test:harness`, `verify:static`, `test:security`, `test:fix-datos`, `test:perf-budget` y `test:perf-data`, más Playwright Chromium/WebKit de dos sesiones. El gate heredado `Full 23/23` (`verify:full`) **no se ejecuta en CI**: necesita un runner self-hosted y secretos del entorno `release` que hoy no están registrados (0 runners). Por eso el harness no lo presenta como cobertura; migrar esos escenarios a las rutas actuales sigue abierto en la issue #28.
 
 ---
 
