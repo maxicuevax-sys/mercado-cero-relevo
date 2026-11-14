@@ -69,15 +69,15 @@
     "test:pey-real-test": "node --test scripts/pey-real-test.test.mjs"
   },
   "dependencies": {
-    "@sentry/nextjs": "11.11.0",
+    "@sentry/nextjs": "11.12.0",
     "@zxing/browser": "^0.2.1",
-    "better-auth": "1.7.18",
-    "lucide-react": "^1.65.0",
-    "next": "16.4.3",
-    "openai": "^7.45.1",
+    "better-auth": "1.7.21",
+    "lucide-react": "^1.72.0",
+    "next": "16.4.6",
+    "openai": "^7.55.0",
     "qrcode": "^1.5.4",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -89,7 +89,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.4.3",
+    "eslint-config-next": "16.4.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
