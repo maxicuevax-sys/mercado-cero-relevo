@@ -343,7 +343,8 @@ function processCodiQr(event: CodiQrEvent): PeyWebhookOutcome {
   });
 
   if (credit) {
-    assertCurrency(event.currency, "Evento QR fiado", true);
+    // pey no envía `currency` en el webhook de QR: el monto es MXN por contrato.
+    assertCurrency(event.currency, "Evento QR fiado", false);
     const amountCents = toCents(event.amount);
     if (amountCents === null) {
       throw new PeyWebhookError("El evento QR no incluye un monto válido.", 422);
@@ -365,7 +366,8 @@ function processCodiQr(event: CodiQrEvent): PeyWebhookOutcome {
   }
 
   const order = resolveQrOrder(event);
-  assertCurrency(event.currency, "Evento QR", true);
+  // pey no envía `currency` en el webhook de QR: el monto es MXN por contrato.
+  assertCurrency(event.currency, "Evento QR", false);
 
   const amountCents = toCents(event.amount);
   if (amountCents === null) {
