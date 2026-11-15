@@ -22,10 +22,11 @@ Comprar mercancía, preparar el puesto, atender, cobrar y volver a surtir exige 
 
 ## Conoce la propuesta actual
 
-- [Pitch](PITCH.md) y [guion de demostración](GUION-3-MIN.md): propósito social, recorrido actual y límites de la demo.
-- **Qué puedes probar:** cuentas demo con datos separados, elección de giro, Caja inicialmente vacía, registro de efectivo, cobro CoDi desde la caja (QR o link), el mostrador de hoy en `/tablero`, ventas, movimientos, fiados y corte. Metas y Pendientes siguen en la navegación real. Sin `PEY_API_KEY` ese cobro queda en simulación y se etiqueta como demo.
-- **Cobro:** con llave de pey, la caja pide el QR o el link a la API que ya existía. El pedido pasa a pagado solo con el webhook firmado. Un QR no es un depósito. En el cobro abierto se ven tres avisos que no cobran: tardío (quedan dos minutos o menos), vencido (pasó la vigencia) y rechazado (pey no creó el cobro).
-- **Qué falta demostrar:** el efecto del producto sobre tiempo, errores y esfuerzo percibido con comerciantes. Una simulación no mueve dinero. Esta nota no afirma un abono bancario que no se haya hecho.
+- [Ficha de entrega](SUBMISSION.md), [declaración de lo previo vs lo nuevo](DECLARACION-PREVIO-Y-NUEVO.md) e [instrucciones de prueba](INSTRUCCIONES-DE-PRUEBA.md).
+- [Pitch](PITCH.md) y [guion de 3 minutos](GUION-3-MIN.md): propósito social y recorrido.
+- **Qué puedes probar hoy:** el mostrador en `/tablero` — anota un pedido con una frase, queda en **POR COBRAR**, el ticket pide su propio QR CoDi con **Cobrar con CoDi** y solo el webhook firmado de pey lo pasa a **PRODUCIENDO** con comanda e inventario descontado una vez. Además: Caja, efectivo, fiado y corte.
+- **Cobro real:** la llave de pey está en vivo y `DEMO_MODE=false`. El QR lo genera el API de pey en ese momento; el dinero se da por recibido únicamente con el webhook firmado. Ya hubo dos cobros CoDi reales ($0.01 y $1.00) el 14 de noviembre. Las pruebas sin llave o con `DEMO_MODE=true` siguen existiendo para desarrollo y se etiquetan como simulación.
+- **Qué falta demostrar:** el efecto del producto sobre tiempo, errores y esfuerzo percibido con comerciantes. Aún no hay app móvil, cobro con tarjeta ni multi-puesto.
 - **Código abierto:** el código original se publica bajo [Apache 2.0](LICENSE). Consulta [LICENSING.md](LICENSING.md) para materiales de terceros; las imágenes y fuentes conservan sus propios términos.
 
 ## Construir con la comunidad

@@ -1,3 +1,9 @@
+> **Actualización (14 de noviembre de 2026).** Este documento nació cuando los cobros se
+> simulaban con `demo_paid`. Hoy la llave de pey está en vivo y CoDi cobra en producción; el
+> estado verificable está en [SUBMISSION.md](./SUBMISSION.md) y la separación entre lo previo y
+> lo nuevo en [DECLARACION-PREVIO-Y-NUEVO.md](./DECLARACION-PREVIO-Y-NUEVO.md). Las secciones
+> que hablan de simulación se conservan por trazabilidad del desarrollo.
+
 # Trangui
 
 *De «tranqui»: vender y cerrar el día con menos cosas en la cabeza.*
@@ -20,11 +26,11 @@ El recorrido de esta presentación usa un monto directo de **$20**, revisa el co
 
 ## 3. Ver qué se cobró y qué queda pendiente
 
-En Inicio, **Cobrar con CoDi** permite mostrar el recorrido de un cobro digital de demostración: monto, QR, espera y **Simular pago CoDi**. El resultado dice **Pago simulado**.
+En Inicio y en el mostrador, **Cobrar con CoDi** pide el QR al API de pey con la llave en vivo. El pago entra cuando el pagador lo hace desde su banco y pey manda el webhook firmado. En desarrollo, sin llave, el mismo recorrido usa `demo_paid` y se etiqueta como simulación.
 
 Fiados conserva los saldos por cobrar. Corte reúne los registros para revisar el cierre y el conteo de efectivo. El objetivo es poder volver a una cuenta pendiente sin tener que recordarla toda de memoria.
 
-Esta demo muestra cómo se registra una operación. No demuestra que haya llegado dinero a un banco.
+El proyecto ya cobró CoDi real en producción ($0.01 y $1.00 el 14 de noviembre), además de registrar efectivo y fiado. Lo que no demuestra todavía es el efecto del producto sobre el tiempo y la carga mental de un comerciante.
 
 ## 4. La utilidad social todavía hay que comprobarla
 
@@ -46,7 +52,7 @@ Abrimos el código original bajo [Apache License 2.0](LICENSE) para que otras pe
 
 - Decir **modo demo** antes de operar. El negocio y los saldos de ejemplo de la pantalla no son un testimonio ni resultados de un comerciante real.
 - Efectivo es un registro de lo que la persona declara haber recibido. En esta demo, las ventas cobradas usan `demo_paid`; no son pagos bancarios reales.
-- El cobro digital mostrado es simulado. El proyecto contiene una integración con Pey y validación de webhooks firmados, pero este recorrido no valida un cobro real ni permite prometer disponibilidad de tarjeta o wallets. Un QR o una captura no confirma un pago.
+- El cobro digital con CoDi es real en producción: el QR lo genera el API de pey y el pago se confirma solo con el webhook firmado. Un QR o una captura no confirma un pago; tampoco hay cobro con tarjeta ni wallets.
 - El fiado es deuda por cobrar. Un apartado en Metas es un registro declarado; no es una cuenta bancaria ni custodia de ahorro.
 - No usar cifras de impacto, adopción o ahorro sin fuente y contexto. No presentar pruebas antiguas como evidencia de la versión que se muestra.
 - El repositorio conserva nombres históricos de Mercado Cero. La marca presentada es **Trangui**. Su código original tiene [licencia Apache 2.0](LICENSE); los materiales de terceros conservan sus propios términos. Consultar [LICENSING.md](LICENSING.md) antes de presentar todo el contenido del repositorio como si tuviera una sola licencia.
