@@ -358,6 +358,7 @@ html[data-contrast="high"] .mc-board__card[data-word="producing"] {
 
 .mc-board__charge {
   justify-self: start;
+  min-height: 46px;
   padding: 0.7rem 1.1rem;
   border: 0;
   border-radius: 999px;

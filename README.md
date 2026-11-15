@@ -27,6 +27,7 @@ Comprar mercancía, preparar el puesto, atender, cobrar y volver a surtir exige 
 - **Qué puedes probar hoy:** el mostrador en `/tablero` — anota un pedido con una frase, queda en **POR COBRAR**, el ticket pide su propio QR CoDi con **Cobrar con CoDi** y solo el webhook firmado de pey lo pasa a **PRODUCIENDO** con comanda e inventario descontado una vez. Además: Caja, efectivo, fiado y corte.
 - **Cobro real:** la llave de pey está en vivo y `DEMO_MODE=false`. El QR lo genera el API de pey en ese momento; el dinero se da por recibido únicamente con el webhook firmado. Ya hubo dos cobros CoDi reales ($0.01 y $1.00) el 14 de noviembre. Las pruebas sin llave o con `DEMO_MODE=true` siguen existiendo para desarrollo y se etiquetan como simulación.
 - **Qué falta demostrar:** el efecto del producto sobre tiempo, errores y esfuerzo percibido con comerciantes. Aún no hay app móvil, cobro con tarjeta ni multi-puesto.
+- **Seguridad:** si una llave de pey se expone, sigue [SECURITY-ROTACION-LLAVES.md](SECURITY-ROTACION-LLAVES.md).
 - **Código abierto:** el código original se publica bajo [Apache 2.0](LICENSE). Consulta [LICENSING.md](LICENSING.md) para materiales de terceros; las imágenes y fuentes conservan sus propios términos.
 
 ## Construir con la comunidad
