@@ -71,6 +71,7 @@ export function StallBoard({
   const [arrivedIds, setArrivedIds] = useState<string[]>([]);
   const [chargeBusy, setChargeBusy] = useState<string | null>(null);
   const [chargeNote, setChargeNote] = useState<string | null>(null);
+  const [chargeOrderId, setChargeOrderId] = useState<string | null>(null);
   const featured = pickRoomTicket(orders, producing);
   const rest = orders.filter((order) => order.id !== featured?.id);
   const side = rest.slice(0, ROOM_SIDE_TICKETS);
@@ -147,6 +148,7 @@ export function StallBoard({
   async function requestCharge(orderId: string) {
     if (chargeBusy) return;
     setChargeBusy(orderId);
+    setChargeOrderId(orderId);
     setChargeNote(null);
     try {
       const response = await fetch(`/api/orders/${orderId}/pay`, {
@@ -190,7 +192,7 @@ export function StallBoard({
             {phraseBusy ? "Anotando…" : "Anotar"}
           </button>
         </div>
-        {phraseNote ? <p role="status">{phraseNote}</p> : null}
+        {phraseNote && !producing.length ? <p role="status">{phraseNote}</p> : null}
       </form>
       <p className="mc-board__day">
         {formatDay(dayLabel)}
@@ -212,9 +214,9 @@ export function StallBoard({
           <article className="mc-board__card mc-board__card--feature" data-word="rejected" aria-labelledby="mc-board-empty-codi">
             <p className="mc-board__kicker">Pulso · CoDi</p>
             <h2 id="mc-board-empty-codi" className="mc-board__word">
-              RECHAZADO
+              LISTO
             </h2>
-            <p className="mc-board__detail">CoDi no activo. Esta tarjeta no pide un cobro.</p>
+            <p className="mc-board__detail">Anota un pedido y cobra con CoDi.</p>
           </article>
         )}
         <ul className="mc-board__rest">
@@ -245,7 +247,9 @@ export function StallBoard({
           ))}
         </ul>
       </section>
-      {chargeNote ? <p className="mc-board__charge-note" role="status">{chargeNote}</p> : null}
+      {chargeNote && chargeOrderId && !producing.includes(chargeOrderId) ? (
+        <p className="mc-board__charge-note" role="status">{chargeNote}</p>
+      ) : null}
       {orders.length === 0 ? (
         <p className="mc-board__empty" role="status">
           Hoy todavía no hay tickets. Las ventas de Caja aparecen aquí.
