@@ -1,62 +1,73 @@
-# Trangui · guion para una presentación de tres minutos
+# Guion de 3 minutos — Pulso en producción
 
-Los tiempos son una distribución propuesta, no un ensayo medido. Se lee únicamente el texto después de **VOZ:**; las líneas **ACCIÓN:** son indicaciones para quien presenta.
+Para el evento y para el video de demostración del Hackatón México (máximo 3 minutos, flujo
+completo de un cobro CoDi).
 
-## Preparación
+Pantalla: **https://xn--hw9h.st/tablero** en monitor grande.
+Pago: desde un celular con app bancaria que soporte CoDi. `DEMO_MODE=false`.
 
-Usar una cuenta de demo aislada y una versión cuya identidad se haya comprobado. Completar el giro del puesto si la cuenta es nueva; abrir Inicio. Confirmar antes del ensayo que Caja no tenga un borrador pendiente. Los negocios, ventas y saldos de ejemplo no se presentan como historias de personas reales.
+## Antes de grabar
 
-Mantener visible el sello de demo. Usar la navegación real: Inicio, Caja, Fiados y Corte. No abrir una cuenta de producción, simular un recorrido que no esté disponible ni sustituir un fallo por una captura de otra versión.
+- Laptop con corriente e internet estable; celular con la sesión del banco abierta.
+- Tablero vacío: **LISTO**, «Hoy todavía no hay tickets», existencias **20 / 12 / 15**.
+- Nadie más usando el tablero (es single-tenant: dos personas ven los mismos tickets).
+- Tener a la mano la frase **«una quesadilla y un agua»** ($65) o **«un agua»** ($20).
 
-## 0:00–0:30 · Para qué existe
+## 0:00–0:25 · Qué es
 
-ACCIÓN: Mostrar Inicio. Dejar que se vea la marca Trangui y el sello DEMO.
+ACCIÓN: Mostrar el tablero completo, sin tocar nada.
 
-VOZ: Comprar mercancía, atender, dar cambio, recordar quién quedó a deber y revisar la caja ocupan atención. A veces una venta termina, pero la cuenta sigue en la cabeza. Trangui viene de «tranqui». Queremos que llevar el puesto requiera menos trabajo mental. Todavía tenemos que comprobar si lo conseguimos con quienes lo van a usar.
+VOZ: «Este es el mostrador de una fonda de tianguis. Anotar el pedido y cobrar son dos mundos:
+una libreta y una terminal. Pulso los junta en una pantalla. Todo lo que van a ver corre en
+producción, con la llave de pey en vivo.»
 
-## 0:30–0:45 · La caja empieza vacía
+## 0:25–0:55 · El pedido nace
 
-ACCIÓN: Abrir Caja desde la navegación. Señalar el ticket vacío y las sugerencias, sin pulsarlas.
+ACCIÓN: En «Pedido en una frase», escribir **una quesadilla y un agua** y pulsar **Anotar**.
 
-VOZ: Esta es Caja. Empieza vacía. Las sugerencias son ejemplos que se pueden editar; la persona decide qué vende y cuánto cuesta. También puede escribir o agregar un concepto a mano.
+VOZ: «Escribo el pedido como lo diría el cliente. Aparece por cobrar, sesenta y cinco pesos, una
+quesadilla y un agua. Y aquí está lo importante: todavía no es dinero. No bajó inventario y no
+salió comanda.»
 
-## 0:45–1:20 · Registrar efectivo de demo
+## 0:55–1:25 · El QR es real
 
-ACCIÓN: En Montos rápidos directos, pulsar **Agregar monto $20**. Señalar el concepto y el total. Después pulsar **Cobrar efectivo exacto** y mostrar el resultado.
+ACCIÓN: Pulsar **Cobrar con CoDi**.
 
-VOZ: Voy a agregar veinte pesos como ejemplo. El monto entra al ticket para revisarlo; todavía no hay una venta registrada. Ahora indico que recibí el efectivo exacto. La pantalla dice que es una venta de demo. Es un registro de efectivo declarado, no una confirmación bancaria.
+VOZ: «El ticket pide su propio cobro. Este QR lo acaba de generar el API de pey, no es una
+imagen de demo. Un QR no es un depósito: hasta que el banco confirme, el ticket sigue por
+cobrar.»
 
-## 1:20–1:55 · Mostrar el límite de la simulación
+## 1:25–2:00 · El pago
 
-ACCIÓN: Volver a Inicio. En **Cobrar con CoDi**, escribir **20** en Monto a cobrar y pulsar **Cobrar $20.00**. Mostrar el QR y **Esperando pago**. Pulsar **Simular pago CoDi**; señalar **Pago simulado**.
+ACCIÓN: Escanear el QR desde el celular y pagar. Dejar la pantalla quieta.
 
-VOZ: En Inicio también puedo mostrar el recorrido digital. Escribo el monto y aparece un QR. Aquí sigue esperando pago: mostrar el código no significa haber cobrado. Voy a simularlo. El resultado dice «Pago simulado». No entró dinero real. Esta presentación no valida un cobro bancario con Pey.
+VOZ: «El cliente paga desde su app del banco. Nadie toca la pantalla. En segundos, el webhook
+firmado de pey voltea el ticket: PRODUCIENDO.»
 
-## 1:55–2:20 · Volver a una cuenta pendiente
+## 2:00–2:30 · Comanda e inventario
 
-ACCIÓN: Abrir Fiados. Mostrar la lista de ejemplo sin registrar un abono. Después abrir Corte y señalar el resumen; no cerrar ni guardar un corte durante este recorrido.
+ACCIÓN: Señalar **PRODUCIENDO**, la comanda y las existencias (**19 / 11 / 15**).
 
-VOZ: En Fiados puedo volver a los saldos pendientes sin contarlos como dinero recibido. Corte reúne los registros para revisar el día y contar el efectivo. Lo que ven aquí son datos de ejemplo. Queremos saber si esta forma de organizar las cuentas resulta clara al trabajar.
+VOZ: «Aquí está la comanda. El inventario bajó una sola vez. Si pey reintenta el aviso, el
+sistema lo reconoce y no descuenta de nuevo.»
 
-## 2:20–3:00 · Qué falta demostrar
+## 2:30–3:00 · Cierre
 
-ACCIÓN: Mantener Corte visible. Terminar mirando al público; no añadir pasos para llenar el tiempo.
+ACCIÓN: Mostrar la línea de tiempo del ticket.
 
-VOZ: Aún no hemos medido ahorro de tiempo, dinero ni cansancio. Queremos observar a comerciantes usando la app, ver dónde se detienen y cuánto necesitan corregir. Si Trangui les pide repetir datos o les añade pendientes, hay que cambiarla. Buscamos colaboración para hacer esas pruebas. La meta es que, al cerrar el puesto, queden menos cuentas dando vueltas en la cabeza.
+VOZ: «Toda la confianza está en la línea de tiempo: pedido anotado, QR pedido, firma verificada,
+pago recibido, comanda en el puesto. Cobrar con CoDi, sin comisión por transacción y sin pedirle
+al cliente que descargue otra app. Eso es Pulso.»
 
-## Recuento y duración
+## Qué no decir
 
-<!-- RECUENTO: actualizar después de editar las líneas VOZ. -->
+- No digas «demo» ni «simulado» mientras muestras el pago real.
+- No prometas «sin comisiones para siempre»: di «CoDi no cobra comisión por transacción».
+- No afirmes app móvil, cobro con tarjeta ni multi-puesto: no existen todavía.
+- No muestres capturas viejas como si fueran el sistema actual.
 
-La narración tiene **283 palabras** en seis intervenciones VOZ, contadas automáticamente por separación de espacios. Se excluyen títulos, indicaciones y notas.
+## Plan B si falla el internet o el pago
 
-A una velocidad supuesta de **140 palabras por minuto**, el texto ocupa aproximadamente **2:01**. Si las acciones y pausas suman entre **50 y 60 segundos**, la presentación quedaría entre **2:51 y 3:01**. Es una estimación, no una duración ensayada. El cronómetro decidirá qué ajustar.
-
-## Antes de presentarlo
-
-- Ensayar en voz alta con cronómetro y ejecutar las acciones sobre la versión que se mostrará. Registrar la duración real y ajustar las pausas.
-- Comprobar que ambos recorridos de cobro estén disponibles. Si fallan, explicar el fallo; no afirmar que se completaron.
-- Conservar las palabras **demo**, **simulado** y **no entró dinero real**, aunque se acorte el texto.
-- Si preguntan por impacto, responder que todavía debe medirse. Si preguntan por pagos reales, separar la integración técnica con Pey de un cobro bancario efectivamente validado.
-- Para preguntas sobre jornadas, consultar DataMéxico: [vendedores ambulantes](https://www.economia.gob.mx/datamexico/es/profile/occupation/vendedores-ambulantes) y [comerciantes en establecimientos](https://www.economia.gob.mx/datamexico/es/profile/occupation/comerciantes-en-establecimientos). Explicar que sus categorías no identifican por sí solas a tianguistas ni prueban carga mental. No asumir que todas las personas tienen otro empleo.
-- Si preguntan por el código, explicar que el código original es abierto bajo [Apache License 2.0](LICENSE). Los materiales de terceros conservan sus propios términos; el alcance está en [LICENSING.md](LICENSING.md). Queremos que la comunidad pueda revisar el código, adaptarlo a prácticas locales y aportar mejoras con comerciantes y personas que trabajan en accesibilidad. Es una invitación, no una afirmación de que ya exista una comunidad activa.
+1. Recargar `/tablero` una vez; el webhook puede tardar unos segundos.
+2. Si el QR no aparece, mostrar el aviso de error y pasar al video ya grabado.
+3. Si no hay red, usar el video de demostración (flujo completo, mismo build).
