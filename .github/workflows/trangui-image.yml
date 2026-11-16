@@ -34,11 +34,6 @@ jobs:
         run: |
           set -euo pipefail
           source_sha="$GITHUB_SHA"
-          if [[ "$GITHUB_REF" == refs/heads/codex/vps-offhost-build ]]; then
-            source_sha=$(git rev-parse HEAD^)
-            git diff --quiet "$source_sha" -- . ':!.github/workflows/trangui-image.yml'
-            git checkout --detach "$source_sha"
-          fi
           image="trangui-ci:$source_sha"
           docker build --build-arg "BUILD_SHA=$source_sha" \
             --build-arg NEXT_PUBLIC_SENTRY_DSN --build-arg SENTRY_ORG --build-arg SENTRY_PROJECT \
