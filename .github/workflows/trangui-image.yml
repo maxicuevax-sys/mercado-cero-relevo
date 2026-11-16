@@ -1,0 +1,65 @@
+name: Trangui image
+
+on:
+  push:
+    branches: [main, codex/vps-offhost-build]
+    paths:
+      - .github/workflows/trangui-image.yml
+      - .dockerignore
+      - Dockerfile
+      - deploy/snapshot.mjs
+      - deploy/judge-snapshot.mjs
+      - web/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Build and verify the production image
+        shell: bash
+        env:
+          NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ github.ref == 'refs/heads/main' && secrets.SENTRY_AUTH_TOKEN || '' }}
+          SENTRY_ORG: leadly-ld
+          SENTRY_PROJECT: mercado-cero-relevo
+        run: |
+          set -euo pipefail
+          source_sha="$GITHUB_SHA"
+          image="trangui-ci:$source_sha"
+          docker build --build-arg "BUILD_SHA=$source_sha" \
+            --build-arg NEXT_PUBLIC_SENTRY_DSN --build-arg SENTRY_ORG --build-arg SENTRY_PROJECT \
+            --secret id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
+            --label "org.opencontainers.image.revision=$source_sha" \
+            --label "org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            -t "$image" .
+          docker run --detach --network none --name trangui-check --memory 512m --cpus 0.5 "$image"
+          trap 'docker rm -f trangui-check >/dev/null' EXIT
+          for attempt in {1..40}; do
+            if docker exec trangui-check node -e 'Promise.all([fetch("http://127.0.0.1:3000/api/health"),fetch("http://127.0.0.1:3000/")]).then(async ([h, home]) => { const j=await h.json(); process.exit(h.ok && home.ok && j.ok === true && j.demoMode === true && j.buildSha === process.argv[1] ? 0 : 1) }).catch(() => process.exit(1))' "$source_sha"; then
+              break
+            fi
+            if [[ "$attempt" == 40 ]]; then docker logs --tail 30 trangui-check; exit 1; fi
+            sleep 2
+          done
+          docker exec trangui-check node -e 'Promise.all(["/api/dashboard", "/api/analytics"].map(async path => { const r = await fetch("http://127.0.0.1:3000" + path, {headers: {"Accept-Encoding": "gzip"}}); if (!r.ok) throw new Error(path + ": " + r.status); await r.json(); })).catch(error => { console.error(error.message); process.exit(1); })'
+          mkdir -p release
+          docker save "$image" | gzip -1 > release/trangui-image.tar.gz
+          docker image inspect --format '{{.Id}}' "$image" > release/image-id.txt
+          printf '%s\n' "$source_sha" > release/source-sha.txt
+          (cd release && sha256sum trangui-image.tar.gz image-id.txt source-sha.txt > SHA256SUMS)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: trangui-image
+          path: release/
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 7
