@@ -1,7 +1,5 @@
 import { currentTenantDatabase } from "./auth/tenant-scope";
 import crypto from "node:crypto";
-import { promisify } from "node:util";
-import { gzip } from "node:zlib";
 
 /**
  * Perfiles de caché para lecturas. Son `private` porque la caja es de una sola
@@ -37,9 +35,6 @@ function ifNoneMatchMatches(header: string | null, etag: string): boolean {
  * Devuelve JSON con ETag/304 y Cache-Control. Las mutaciones no pasan por
  * aquí: cada POST/PATCH sigue sin cabeceras cacheables.
  */
-const gzipAsync = promisify(gzip);
-const GZIP_MIN_BYTES = 512;
-
 export async function cachedJson(
   request: Request,
   payload: unknown,
@@ -60,17 +55,6 @@ export async function cachedJson(
     return new Response(null, { status: 304, headers });
   }
 
-  const uncompressed = Buffer.from(body, "utf8");
-  const acceptsGzip = /\bgzip\b/i.test(
-    request.headers.get("accept-encoding") ?? "",
-  );
-  if (acceptsGzip && uncompressed.byteLength >= GZIP_MIN_BYTES) {
-    const compressed = await gzipAsync(uncompressed);
-    headers.set("Content-Encoding", "gzip");
-    headers.set("Content-Length", String(compressed.byteLength));
-    return new Response(compressed, { status: 200, headers });
-  }
-
-  headers.set("Content-Length", String(uncompressed.byteLength));
+  // Next.js negotiates compression and controls the corresponding headers.
   return new Response(body, { status: 200, headers });
 }
